@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Elowen Greenmantle (support) - Ashfall Road art v2. Elf druid of the deep wood.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#84b56c"/><stop offset=".5" stop-color="#5e8a4a"/><stop offset="1" stop-color="#36552a"/></linearGradient>
+    <linearGradient id="robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#46693a"/><stop offset="1" stop-color="#26401e"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7eba8"/><stop offset=".5" stop-color="#e3d27a"/><stop offset="1" stop-color="#a6963c"/></linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6e07a"/><stop offset=".5" stop-color="#76b04e"/><stop offset="1" stop-color="#3f7a2c"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec9a66"/><stop offset=".5" stop-color="#c96a3c"/><stop offset="1" stop-color="#83391b"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7550"/><stop offset="1" stop-color="#4a3220"/></linearGradient>
+    <radialGradient id="orb" cx=".4" cy=".38" r=".6"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#dcffd0"/><stop offset=".75" stop-color="#9fe08a"/><stop offset="1" stop-color="#4fae4a"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <ellipse cx="51" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- orb light -->
+  <circle cx="70" cy="16" r="11" fill="#9fe08a" opacity=".6" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- flowing hair -->
+    <path d="M48 17 Q35 28 37 60 Q43 56 47.5 46 L51 26 Z" fill="url(#hair)"/>
+    <!-- feet -->
+    <path d="M45 88 h7.5 v5.5 h-9.5 z" fill="#4a3020"/>
+    <path d="M54.5 88 h7.5 l2.5 5.5 h-10.5 z" fill="#6a4529"/>
+    <!-- robe -->
+    <path d="M46 35 Q54 32 62 35 L67 89 Q54 92.5 41 89 Z" fill="url(#robe)"/>
+    <path d="M52 36 h5 l3 53.5 q-5.5 1 -11 0 z" fill="url(#robeD)"/>
+    <path d="M41.3 85.5 Q54 89 66.6 85.5 L67 89 Q54 92.5 41 89 Z" fill="url(#gold)"/>
+    <!-- vine sash -->
+    <path d="M45.5 55 Q55 58 63.8 54.5 L64 58.5 Q55 62 45.2 59 Z" fill="url(#gold)"/>
+    <!-- staff -->
+    <path d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke-width="5" fill="none"/>
+    <path d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke="url(#wood)" stroke-width="2.8" fill="none"/>
+    <path d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke-width="4" fill="none"/>
+    <path d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke="url(#wood)" stroke-width="2" fill="none"/>
+    <circle cx="70" cy="16" r="5.6" fill="url(#orb)"/>
+    <!-- head -->
+    <circle cx="55" cy="22" r="8.5" fill="#f0d2b4"/>
+    <path d="M46.5 26 Q45.5 12.5 55.5 12.5 Q64 12.5 64 20 Q58 16.8 52.5 18.5 Q50 20 50 29 Z" fill="url(#hair)"/>
+    <!-- long ear -->
+    <path d="M48.5 22.5 Q42 17 36 12 Q41 21.5 48.5 27 Z" fill="#f0d2b4"/>
+    <!-- leaf crown -->
+    <path d="M51 15.5 Q48 11 50 7.5 Q54 11 51 15.5 Z" fill="url(#leaf)" stroke-width="1.1"/>
+    <path d="M55 14 Q55.5 8.5 59.5 7 Q60 12 55 14 Z" fill="url(#leaf)" stroke-width="1.1"/>
+    <!-- leafy mantle -->
+    <path d="M44.5 35 Q54 30 63 34 L65 42 L61.5 45.5 L59 42 L55.5 46.5 L52.5 42.5 L48.5 46.5 L46.5 42 L43 44.5 Z" fill="url(#leaf)"/>
+    <!-- front arm -->
+    <path d="M58 37 Q65 40 69 50 L65 53 Q61 47 56.5 44 Z" fill="url(#robe)"/>
+    <circle cx="68.4" cy="52" r="2.7" fill="#f0d2b4"/>
+  </g>
+  <!-- vines on staff -->
+  <path d="M67.4 88 Q71 84 67.4 80 Q64.5 76 68 72 M68.4 64 Q72 60 69 56" stroke="#5aa03c" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M68 72 q3 -1 4 1.5 q-3 1 -4 -1.5 z M67.4 80 q-3.2 -.6 -4 2 q3 .6 4 -2 z M69 56 q3 -1.6 4.5 .8 q-3 1.4 -4.5 -.8 z" fill="url(#leaf)" stroke="#15121d" stroke-width=".7" stroke-linejoin="round"/>
+  <!-- mantle veins -->
+  <path d="M47 41 l1.3 3 M52.5 40.5 v3.5 M58.5 40 l.7 3.2 M62.5 39.5 l-.5 3" stroke="#3f7a2c" stroke-width=".9" stroke-linecap="round"/>
+  <path d="M47 36.5 Q50 34 54 33.4" stroke="#e8f8c8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
+  <!-- face -->
+  <path d="M58.4 22.6 q1.4 -1 2.8 0 q-1.4 1 -2.8 0 z" fill="#1d2130" stroke="#1d2130" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M57.8 20.2 q1.8 -.9 3.8 -.1" stroke="#9a4a26" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M59.5 27.2 q1.3 .6 2.6 -.1" stroke="#b97a64" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <circle cx="60.3" cy="25" r="1.2" fill="#f2a08a" opacity=".45"/>
+  <!-- robe trim -->
+  <path d="M52 37 L49 88.5 M57 37 L60 88.5" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M40.5 30 Q39.5 42 41 52" stroke="#f3a674" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".7"/>
+  <!-- orb shine + floating leaves -->
+  <circle cx="68.2" cy="14" r="1.4" fill="#fff"/>
+  <g fill="url(#leaf)" stroke="#15121d" stroke-width=".8" stroke-linejoin="round">
+    <path d="M82 30 q3 -3 6 -1 q-3 3 -6 1 z"/>
+    <path d="M80 46 q2 -3.5 5 -2.5 q-2 3.5 -5 2.5 z"/>
+  </g>
+  <g fill="#c8f5b0"><circle cx="81" cy="12" r="1"/><circle cx="58" cy="5" r=".8"/><circle cx="85" cy="22" r=".7"/><circle cx="77" cy="38" r=".8"/></g>
+</svg>

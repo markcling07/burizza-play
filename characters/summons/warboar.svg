@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- War Boar (summon) - Burizza placeholder art.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><path d="M22 64 q-6 -2 -6 -8" stroke="#5a4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <rect x="28" y="72" width="7" height="20" rx="3" fill="#5a4636"/><rect x="38" y="74" width="7" height="18" rx="3" fill="#2a2f3f"/>
+  <rect x="54" y="72" width="7" height="20" rx="3" fill="#5a4636"/><rect x="63" y="74" width="7" height="18" rx="3" fill="#2a2f3f"/>
+  <ellipse cx="46" cy="66" rx="26" ry="15" fill="#5a4636"/>
+  <path d="M28 55 l4 -8 l3 7 l4 -9 l3 8 l4 -8 l3 8 l4 -7 l3 9 Z" fill="#2b1e16"/>
+  <path d="M34 57 h22 v11 h-22 z" fill="#7a3b2e"/><path d="M34 60 h22" stroke="#e8dcc4" stroke-width="1.5"/>
+  <path d="M62 52 Q74 45 84 56 Q87 66 77 70 Q64 71 60 62 Z" fill="#5a4636"/>
+  <path d="M66 50 L68 40 L73 49 Z" fill="#5a4636"/>
+  <ellipse cx="85" cy="62" rx="5" ry="4.5" fill="#c99a8a"/><circle cx="84" cy="61" r=".9" fill="#1d2130"/><circle cx="86.5" cy="61.5" r=".9" fill="#1d2130"/>
+  <path d="M77 66 q8 0 9.5 -8.5 q-3 5.5 -9.5 4.5 Z" fill="#e8dcc4"/>
+  <circle cx="73" cy="56" r="1.9" fill="#e0645a"/>
+</svg>

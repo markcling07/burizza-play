@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sawtooth (melee) - Ashfall Road art v2. Scrapper with buzzsaw arms.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="rust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e09a6e"/><stop offset=".5" stop-color="#a86441"/><stop offset="1" stop-color="#6a3a22"/></linearGradient>
+    <linearGradient id="rustD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5234"/><stop offset="1" stop-color="#4e2a18"/></linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6c6f80"/><stop offset="1" stop-color="#2c2e3a"/></linearGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#cfd6e2"/><stop offset="1" stop-color="#8790a3"/></linearGradient>
+    <linearGradient id="yel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe6a3"/><stop offset="1" stop-color="#e0a52a"/></linearGradient>
+    <radialGradient id="heat" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#ffb347"/><stop offset="1" stop-color="#e2561f" stop-opacity="0"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="1.8"/></filter>
+  </defs>
+  <ellipse cx="52" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- exhaust heat -->
+  <circle cx="38" cy="25" r="5.5" fill="url(#heat)" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- exhaust pipe -->
+    <path d="M42 46 L37 30 L41.5 28.5 L46.5 44 Z" fill="url(#iron)"/>
+    <!-- back arm + small saw -->
+    <path d="M44 48 L33 56 L30 52 L41 44 Z" fill="url(#rustD)"/>
+    <g transform="translate(25 57) rotate(12)">
+      <path d="M6.6 0.0 L7.7 3.6 L5.3 3.9 L4.1 7.4 L2.0 6.3 L-1.1 8.4 L-2.0 6.3 L-5.8 6.2 L-5.3 3.9 L-8.3 1.6 L-6.6 0.0 L-7.7 -3.6 L-5.3 -3.9 L-4.1 -7.4 L-2.0 -6.3 L1.1 -8.4 L2.0 -6.3 L5.8 -6.2 L5.3 -3.9 L8.3 -1.6 Z" fill="#8790a3"/>
+      <circle r="2.6" fill="url(#iron)"/>
+    </g>
+    <!-- back leg (digitigrade) -->
+    <path d="M41 67 L50 69.5 L47 80.5 L41.5 79 Z" fill="url(#rustD)"/>
+    <path d="M41.5 78 L47 79.5 L48 88.5 L42.5 88.5 Z" fill="url(#iron)"/>
+    <path d="M37.5 88 h11 v5.5 h-12 z" fill="#3a2a22"/>
+    <!-- front leg -->
+    <path d="M51.5 67 L61 68 L61 80.5 L53.5 80.5 Z" fill="url(#rust)"/>
+    <path d="M54 79 L61 79.5 L63 88.5 L56.5 88.5 Z" fill="url(#iron)"/>
+    <path d="M53 88 h11 l2.5 5.5 h-14 z" fill="#4a352a"/>
+    <!-- hunched torso -->
+    <path d="M40 46 Q48 37 61 40 L63 64 Q54 72 43 69 Z" fill="url(#rust)"/>
+    <path d="M42 63 Q52 66 62.5 60 L63 64 Q54 72 43 69 Z" fill="url(#iron)"/>
+    <!-- bolted scrap patch -->
+    <path d="M44 48 L53 46.5 L54 55 L45 56.5 Z" fill="url(#rustD)"/>
+    <!-- head jutting forward -->
+    <path d="M55 30 Q57 23 66 23.5 Q73 24.5 73 31 L72 37 L58 38 Z" fill="url(#rust)"/>
+    <path d="M58 37.5 L72 36.5 L70 42 L60 42.5 Z" fill="url(#iron)"/>
+    <!-- front arm -->
+    <path d="M58 46 L68 55 L64.5 59 L55 50 Z" fill="url(#rust)"/>
+    <path d="M65 53 L80 59 L78 65 L63 60 Z" fill="url(#iron)"/>
+    <circle cx="59" cy="45" r="5.8" fill="url(#rust)"/>
+    <!-- main buzzsaw -->
+    <path d="M91.8 62.0 L94.3 66.6 L90.6 67.1 L90.8 72.4 L87.4 71.2 L85.3 76.0 L82.6 73.5 L78.7 76.9 L77.4 73.5 L72.3 74.9 L72.6 71.2 L67.5 70.3 L69.4 67.1 L65.1 64.0 L68.2 62.0 L65.7 57.4 L69.4 56.9 L69.2 51.6 L72.6 52.8 L74.7 48.0 L77.4 50.5 L81.3 47.1 L82.6 50.5 L87.7 49.1 L87.4 52.8 L92.5 53.7 L90.6 56.9 L94.9 60.0 Z" fill="url(#blade)"/>
+    <circle cx="80" cy="62" r="5.2" fill="url(#yel)"/>
+  </g>
+  <!-- saw details -->
+  <circle cx="80" cy="62" r="8.5" fill="none" stroke="#8790a3" stroke-width="1" opacity=".9"/>
+  <circle cx="80" cy="62" r="1.8" fill="#15121d"/>
+  <path d="M72 55 Q75 51.5 80 51" stroke="#fff" stroke-width="1.4" fill="none" opacity=".9" stroke-linecap="round"/>
+  <path d="M88 70 q3 -2.5 4 -6" stroke="#ffd166" stroke-width="1.1" fill="none" opacity=".9" stroke-linecap="round"/>
+  <g fill="#ffd166"><path d="M95 74 l2.5 1.2 l-2.5 .6 z"/><path d="M92 79 l2 2.2 l-2.4 -.4 z"/></g>
+  <!-- eye + jaw -->
+  <path d="M63 29.5 L71.5 28.5 L71 32 L63.5 32.5 Z" fill="#ffd166" filter="url(#glow)"/>
+  <path d="M63.5 30 L71 29.2 L70.7 31.6 L64 32 Z" fill="#fff3c4" stroke="#15121d" stroke-width=".8"/>
+  <path d="M61 40 l1.2 -2.6 l1.2 2.4 l1.2 -2.6 l1.2 2.5 l1.2 -2.6 l1.2 2.4 l1.2 -2.6" stroke="#ffd166" stroke-width="1" fill="none" stroke-linejoin="round"/>
+  <!-- rivets + rust -->
+  <g fill="#2c2e3a"><circle cx="45.5" cy="49.5" r=".8"/><circle cx="52" cy="48.3" r=".8"/><circle cx="46.3" cy="55" r=".8"/><circle cx="52.8" cy="54" r=".8"/></g>
+  <path d="M56 57 l2 3 M48 60 l1.5 2" stroke="#6a3a22" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M38 27 l3 -1" stroke="#ffb347" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M43 45.5 Q47.5 40.5 54 40" stroke="#fff" stroke-width="1.3" fill="none" opacity=".8" stroke-linecap="round"/>
+  <path d="M58 28 Q60 25 64.5 25" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8" stroke-linecap="round"/>
+  <path d="M55.5 43.5 q2 -2 4.5 -1.5" stroke="#fff" stroke-width="1.1" fill="none" opacity=".75" stroke-linecap="round"/>
+</svg>

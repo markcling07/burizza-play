@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Lyra Quill (npc) - Cinderhold villager art v2. Wandering bard, mid-song with her lute.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="lyra-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe0c6"/><stop offset=".55" stop-color="#f0c9a6"/><stop offset="1" stop-color="#c99470"/></linearGradient>
+    <linearGradient id="lyra-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8955a"/><stop offset="1" stop-color="#9a4a22"/></linearGradient>
+    <linearGradient id="lyra-cap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ad6c8"/><stop offset=".5" stop-color="#2f9a92"/><stop offset="1" stop-color="#1b5a5c"/></linearGradient>
+    <linearGradient id="lyra-capD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f8a84"/><stop offset="1" stop-color="#16494c"/></linearGradient>
+    <linearGradient id="lyra-feather" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff8a6a"/><stop offset=".5" stop-color="#e0383c"/><stop offset="1" stop-color="#8a1a2a"/></linearGradient>
+    <linearGradient id="lyra-doublet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f27a62"/><stop offset=".5" stop-color="#c2334a"/><stop offset="1" stop-color="#701c30"/></linearGradient>
+    <linearGradient id="lyra-sleeve" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8ee0d2"/><stop offset=".5" stop-color="#3aa69c"/><stop offset="1" stop-color="#1f6a68"/></linearGradient>
+    <linearGradient id="lyra-cape" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a77ad0"/><stop offset=".5" stop-color="#6a3f92"/><stop offset="1" stop-color="#3a2058"/></linearGradient>
+    <linearGradient id="lyra-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
+    <linearGradient id="lyra-hose" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a6c9a"/><stop offset="1" stop-color="#2c3656"/></linearGradient>
+    <linearGradient id="lyra-boot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b07c4c"/><stop offset="1" stop-color="#5a3a22"/></linearGradient>
+    <linearGradient id="lyra-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2bb78"/><stop offset=".5" stop-color="#c27a36"/><stop offset="1" stop-color="#7a421a"/></linearGradient>
+    <linearGradient id="lyra-woodD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a32"/><stop offset="1" stop-color="#3e2412"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- big feather (behind cap) -->
+    <path d="M47.5 22.5 Q46 9.5 34 5 Q27.5 2.5 20.5 4.5 Q27 7 30.5 10.5 Q36.5 16 43.5 24.5 Z" fill="url(#lyra-feather)"/>
+    <!-- travelling cape -->
+    <path d="M46 41 Q36 41.5 32 51 Q29.5 57.5 30 64 Q33.5 61.5 36 64 Q38.5 61 42 62.5 L46 46 Z" fill="url(#lyra-cape)"/>
+    <!-- hair back -->
+    <path d="M45.5 24 Q41 30.5 43 39.5 Q46.5 41.5 50 39 L50.5 28 Z" fill="url(#lyra-hair)"/>
+    <!-- legs + boots -->
+    <path d="M44.5 70 h6 l-.5 13 h-6 z" fill="#2f3a5c"/>
+    <path d="M51 70 h6 l1 13 h-6.5 z" fill="url(#lyra-hose)"/>
+    <path d="M43.8 81 h6.5 v6.5 q3.5 .5 3.5 3 v3 h-10 z" fill="#5a3a22"/>
+    <path d="M51.3 81 h6.8 v6.5 q4.8 .5 4.8 3 v3 h-11.6 z" fill="url(#lyra-boot)"/>
+    <path d="M43.2 79.6 h7.8 v3.2 h-7.8 z" fill="#8a5a32"/>
+    <path d="M50.8 79.6 h8 v3.2 h-8 z" fill="url(#lyra-gold)"/>
+    <!-- back arm (upper) -->
+    <path d="M42.5 44.5 Q36.5 50 38 57.5 L42.5 58 Q42 52.5 45.5 49 Z" fill="#1f6a68"/>
+    <!-- doublet -->
+    <path d="M41.5 43 Q50 39.5 58.5 43 L60 69 Q50 72.5 40 69 Z" fill="url(#lyra-doublet)"/>
+    <path d="M40 66 Q50 69.5 60 66 L62.5 75 Q50 78.5 37.5 75 Z" fill="url(#lyra-sleeve)"/>
+    <path d="M38.2 72.6 Q50 76 61.8 72.6 L62.5 75 Q50 78.5 37.5 75 Z" fill="url(#lyra-gold)"/>
+    <rect x="40" y="63.6" width="20" height="3.2" rx="1" fill="#5a3a22"/>
+    <!-- lute -->
+    <g transform="rotate(-28 48 62)">
+      <rect x="54" y="60.7" width="21" height="2.6" rx=".6" fill="url(#lyra-woodD)"/>
+      <path d="M74.5 60.3 L81.5 59.1 L82.4 62.6 L74.5 63.6 Z" fill="url(#lyra-woodD)"/>
+      <path d="M76.8 59.8 v-1.8 M79.4 59.3 v-1.8 M76.8 63.4 v1.8 M79.4 63.1 v1.8" stroke-width="1.2"/>
+      <path d="M57.5 62 Q55.5 54.5 46 54.2 Q35.5 54.2 35.5 62 Q35.5 69.8 46 69.8 Q55.5 69.5 57.5 62 Z" fill="url(#lyra-wood)"/>
+      <circle cx="49.5" cy="62" r="3.1" fill="none" stroke="url(#lyra-gold)" stroke-width="1"/>
+      <circle cx="49.5" cy="62" r="2.2" fill="#3a2010" stroke-width="1"/>
+      <rect x="39.8" y="59.9" width="1.8" height="4.2" rx=".4" fill="url(#lyra-woodD)" stroke-width="1"/>
+      <path d="M41 61.3 H75.5 M41 62 H75.5 M41 62.7 H75.5" stroke="#fff4d6" stroke-width=".35"/>
+      <path d="M58.5 60.8 v2.4 M62.5 60.8 v2.4 M66.5 60.8 v2.4 M70.5 60.8 v2.4" stroke="#d9b98a" stroke-width=".45"/>
+      <path d="M38.5 59 Q40.5 55.8 45 55.6" stroke="#fff" stroke-width="1.2" fill="none" opacity=".75"/>
+    </g>
+    <!-- strumming hand -->
+    <path d="M38.5 56.5 Q39.5 60.5 43 63 L46 60.5 Q43 58.5 42.8 55.5 Z" fill="url(#lyra-sleeve)"/>
+    <circle cx="44.8" cy="62.2" r="2.5" fill="url(#lyra-skin)"/>
+    <!-- front arm on the neck -->
+    <path d="M55 44.5 Q62 45.5 65.2 51.5 L61.7 55 Q58.5 50.5 54 50 Z" fill="url(#lyra-sleeve)"/>
+    <circle cx="57.2" cy="46.6" r="3.8" fill="url(#lyra-sleeve)"/>
+    <circle cx="64.2" cy="53.4" r="2.6" fill="url(#lyra-skin)"/>
+    <!-- neck + ruff collar -->
+    <path d="M49.5 35 h6 v8 h-6 z" fill="url(#lyra-skin)"/>
+    <path d="M45.5 42 Q48 45.5 52.5 44.5 Q56.5 45.5 58.5 41.8 Q55.5 43 52.5 41.5 Q49 43 45.5 42 Z" fill="#fffdf6"/>
+    <!-- head -->
+    <circle cx="53" cy="30" r="8.7" fill="url(#lyra-skin)"/>
+    <path d="M47.5 31.5 q-2.6 -.4 -2.6 1.9 q.1 2.2 2.7 1.9" fill="url(#lyra-skin)"/>
+    <!-- fringe -->
+    <path d="M45.5 29 Q46.5 22.5 54.5 22.5 Q60 23 62.2 27 Q58 25 54.5 26.6 Q52.5 25.6 50 27.5 Q48.5 28.5 48 32 Z" fill="url(#lyra-hair)"/>
+    <!-- feathered cap -->
+    <path d="M44.5 26.5 Q37.5 22 40 17 Q44 12.5 53 13.5 Q62 15 66.5 24 Q55.5 21.5 44.5 26.5 Z" fill="url(#lyra-cap)"/>
+    <path d="M42.5 26.5 Q54 21 67.5 23.6 L67 26.4 Q55 24.2 43.8 29.4 Z" fill="url(#lyra-capD)"/>
+  </g>
+  <!-- feather rib + barbs -->
+  <path d="M46 23 Q42 10 22.5 4.8" stroke="#6e1424" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M37.5 8.2 l-2.2 2.8 M32 6.4 l-2 2.4 M41.5 12.5 l-2.4 2.4" stroke="#6e1424" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <path d="M30 4.8 Q36 5.5 41 9.5" stroke="#ffc2a8" stroke-width="1" fill="none" stroke-linecap="round" opacity=".85"/>
+  <!-- hat band + brooch -->
+  <path d="M43.5 27.6 Q55 22.6 67.2 25" stroke="url(#lyra-gold)" stroke-width="1.1" fill="none"/>
+  <circle cx="47" cy="25.6" r="1.6" fill="url(#lyra-gold)" stroke="#15121d" stroke-width=".8"/>
+  <!-- face: happy singing -->
+  <path d="M56.2 30.3 q1.7 -2 3.4 0" stroke="#1d2130" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M59.6 30.3 l.9 -.6" stroke="#1d2130" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M55.8 26.9 q2 -1.3 4.2 -.3" stroke="#9a4a22" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M61.5 30.3 q1.9 1.3 .3 2.5" stroke="#b97a64" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M57.6 34.3 q1.9 -.6 3.4 .3 q-.5 2.8 -1.9 2.7 q-1.4 -.1 -1.5 -3 z" fill="#7a2232" stroke="#15121d" stroke-width=".8" stroke-linejoin="round"/>
+  <path d="M58.4 36 q.8 -.6 1.6 0" stroke="#e86a72" stroke-width=".7" fill="none" stroke-linecap="round"/>
+  <circle cx="58.6" cy="32.4" r="1.4" fill="#f2a08a" opacity=".55"/>
+  <!-- fingers on lute neck -->
+  <path d="M63 54.8 l1.2 1.4 M64.8 54.6 l1.1 1.2" stroke="#15121d" stroke-width=".7" stroke-linecap="round"/>
+  <!-- doublet harlequin diamonds + lacing -->
+  <g fill="url(#lyra-gold)" stroke="#15121d" stroke-width=".7" stroke-linejoin="round">
+    <path d="M45.5 47.5 l2 -2.8 l2 2.8 l-2 2.8 z"/>
+    <path d="M52.5 47.5 l2 -2.8 l2 2.8 l-2 2.8 z"/>
+    <path d="M49 52.5 l2 -2.8 l2 2.8 l-2 2.8 z"/>
+  </g>
+  <!-- cape trim -->
+  <path d="M30.5 63.6 Q33.6 61.4 36 63.8 Q38.6 60.8 41.8 62.3" stroke="url(#lyra-gold)" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M42.5 18.5 Q46 15.2 51.5 15.4" stroke="#fff" stroke-width="1.2" fill="none" opacity=".75" stroke-linecap="round"/>
+  <path d="M43.5 47 Q44.5 44.2 47.5 43.2" stroke="#fff" stroke-width="1.2" fill="none" opacity=".7" stroke-linecap="round"/>
+  <path d="M55.4 45 q1.2 -1.4 3 -1.3" stroke="#fff" stroke-width="1" fill="none" opacity=".8" stroke-linecap="round"/>
+  <!-- music notes -->
+  <g stroke="#15121d" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="73" cy="25" rx="1.9" ry="1.4" transform="rotate(-20 73 25)" fill="url(#lyra-gold)"/>
+    <path d="M74.7 24.4 V17 Q77.2 17.8 77.8 20.6" fill="none" stroke-width="1"/>
+    <ellipse cx="82" cy="34" rx="1.6" ry="1.2" transform="rotate(-20 82 34)" fill="#7ad6c8"/>
+    <ellipse cx="86.5" cy="32.4" rx="1.6" ry="1.2" transform="rotate(-20 86.5 32.4)" fill="#7ad6c8"/>
+    <path d="M83.4 33.5 V27.6 L88 26 V31.9" fill="none" stroke-width="1"/>
+    <ellipse cx="67" cy="12" rx="1.5" ry="1.1" transform="rotate(-20 67 12)" fill="#ff8a6a"/>
+    <path d="M68.4 11.5 V6.4 Q70.3 7 70.7 9" fill="none" stroke-width=".9"/>
+  </g>
+</svg>

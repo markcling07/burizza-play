@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sergeant Holt (NPC) - Cinderhold villager art. Weary captain of the village watch, spear and lantern.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="holt-steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef2f8"/><stop offset=".5" stop-color="#a9b3c6"/><stop offset="1" stop-color="#646e84"/></linearGradient>
+    <linearGradient id="holt-steelD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b95aa"/><stop offset="1" stop-color="#4a5367"/></linearGradient>
+    <linearGradient id="holt-blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a78ad"/><stop offset=".55" stop-color="#3e5a8c"/><stop offset="1" stop-color="#273c63"/></linearGradient>
+    <linearGradient id="holt-blueD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a5282"/><stop offset="1" stop-color="#1f3050"/></linearGradient>
+    <linearGradient id="holt-leather" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6a44"/><stop offset="1" stop-color="#5a3a24"/></linearGradient>
+    <linearGradient id="holt-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6b896"/><stop offset="1" stop-color="#bd8866"/></linearGradient>
+    <linearGradient id="holt-stache" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b08a68"/><stop offset="1" stop-color="#6b4c34"/></linearGradient>
+    <linearGradient id="holt-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6a44"/><stop offset="1" stop-color="#5a3a24"/></linearGradient>
+    <linearGradient id="holt-iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e6e78"/><stop offset="1" stop-color="#2e2e36"/></linearGradient>
+    <radialGradient id="holt-flame" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#fffbe8"/><stop offset=".45" stop-color="#ffd28a"/><stop offset="1" stop-color="#e08a34"/></radialGradient>
+    <filter id="holt-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <ellipse cx="51" cy="94" rx="26" ry="3.8" fill="#000" opacity=".38"/>
+  <!-- lantern light -->
+  <circle cx="33.5" cy="73" r="10" fill="#ffd28a" opacity=".6" filter="url(#holt-glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back arm -->
+    <path d="M41 46 Q32.5 49 31.5 61 L35.5 62 Q36.5 53 44 50 Z" fill="url(#holt-blueD)"/>
+    <!-- legs -->
+    <path d="M42 76 h8.5 l-1 12 h-8.5 z" fill="#3a3346"/>
+    <path d="M51.5 76 h8.5 l2 12 h-8.5 z" fill="#4a4258"/>
+    <path d="M38.5 87.5 h11.5 v6 h-12.5 z" fill="url(#holt-leather)"/>
+    <path d="M53 87.5 h11 l2 6 h-13 z" fill="url(#holt-leather)"/>
+    <!-- spear -->
+    <rect x="69.4" y="16" width="2.6" height="77" rx="1" fill="url(#holt-wood)"/>
+    <path d="M70.7 3.5 Q75 10 72.9 16 h-4.4 Q66.4 10 70.7 3.5 Z" fill="url(#holt-steel)"/>
+    <rect x="68.8" y="16" width="3.8" height="3" rx=".6" fill="url(#holt-steelD)" stroke-width="1.1"/>
+    <path d="M72.6 19.6 L81 22 L72.6 24.8 Z" fill="url(#holt-blue)" stroke-width="1.1"/>
+    <!-- padded gambeson -->
+    <path d="M37 45 Q50 40 63 45 L64 80 Q50 84 36 80 Z" fill="url(#holt-blue)"/>
+    <path d="M43 43.5 Q52 39.5 61 43.5 L60 47.2 Q52 43.6 44 47.2 Z" fill="url(#holt-blueD)"/>
+    <!-- belt -->
+    <path d="M36.6 63.5 Q50 66.5 63.6 63.5 L63.8 68 Q50 71 36.5 68 Z" fill="url(#holt-leather)"/>
+    <rect x="49" y="64.6" width="4.6" height="5" rx=".8" fill="url(#holt-steel)" stroke-width="1.1"/>
+    <path d="M40 68 h5 l-.4 5.5 q-2.1 1.2 -4.2 0 z" fill="url(#holt-leather)" stroke-width="1.2"/>
+    <!-- head -->
+    <path d="M45 30 Q43.6 37.5 47 41 L49.5 33 Z" fill="#7a6a5a"/>
+    <circle cx="53.5" cy="33.5" r="8.5" fill="url(#holt-skin)"/>
+    <circle cx="47" cy="35" r="2.1" fill="url(#holt-skin)"/>
+    <!-- walrus moustache -->
+    <path d="M54.2 39.8 Q58.5 37 64 38 Q67.6 39.4 67.4 44.2 Q65.8 42.2 63.6 42 Q60.2 43.6 56.8 43 Q53.4 42.4 54.2 39.8 Z" fill="url(#holt-stache)" stroke-width="1.1"/>
+    <!-- nose -->
+    <path d="M61.4 32.6 Q66.8 35.4 64 38.6 Q62.4 39.2 61.2 38 Z" fill="url(#holt-skin)" stroke-width="1"/>
+    <!-- dented kettle helm -->
+    <path d="M44.5 28.5 Q44 15.5 53.5 15.5 Q63 15.5 62.5 28.5 Z" fill="url(#holt-steel)"/>
+    <path d="M37 28.5 Q53.5 23.5 70 28.5 Q68 32 53.5 30.6 Q40 31.6 37 28.5 Z" fill="url(#holt-steelD)"/>
+    <!-- front arm -->
+    <path d="M56 46 Q64.5 45 68 54 L72.4 55.6 L68.4 61 Q61 56 55 53 Z" fill="url(#holt-blue)"/>
+    <path d="M66.4 53.2 L72.6 55.6 L68.6 61.4 L64 58.6 Z" fill="url(#holt-leather)" stroke-width="1.2"/>
+    <circle cx="70.7" cy="57.8" r="3" fill="url(#holt-skin)"/>
+    <!-- lantern + back hand -->
+    <path d="M30 68 Q33.5 59.5 37 68" fill="none" stroke-width="1.2"/>
+    <path d="M30 68 h7 v10 h-7 z" fill="url(#holt-flame)" stroke-width="1.2"/>
+    <path d="M29.5 68.2 h8 l-1.5 -2.4 h-5 z" fill="url(#holt-iron)" stroke-width="1.2"/>
+    <path d="M29 77.8 h9 v2.4 h-9 z" fill="url(#holt-iron)" stroke-width="1.2"/>
+    <circle cx="33.5" cy="63.2" r="2.7" fill="url(#holt-skin)"/>
+  </g>
+  <!-- lantern details -->
+  <path d="M33.5 68.4 v9.4" stroke="#2e2e36" stroke-width="1" stroke-linecap="round"/>
+  <path d="M33.5 76 Q31.6 73.4 33.5 70.6 Q35.4 73.4 33.5 76 Z" fill="#fffbe8"/>
+  <!-- shade under brim -->
+  <path d="M46 30.6 Q53.5 30.2 61.6 31 L61.6 32.8 Q54 31.8 46 32.6 Z" fill="#000" opacity=".18"/>
+  <!-- tired face -->
+  <path d="M56.4 32.6 q2 -.5 4 .5" stroke="#6b5240" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <circle cx="58.6" cy="35" r="1.2" fill="#1d2130"/>
+  <path d="M57 34.4 q1.7 -.7 3.3 0" stroke="#1d2130" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M57.1 36.9 q1.6 .8 3.2 0 M57.5 38 q1.2 .5 2.4 0" stroke="#a0705a" stroke-width=".7" fill="none" stroke-linecap="round"/>
+  <path d="M50 40 Q53 43.6 57 43.4" stroke="#8d8986" stroke-width="2" fill="none" stroke-linecap="round" opacity=".35"/>
+  <path d="M56 40.6 q3 -1.6 6 -1.2 M58 42 q2.4 -.6 4.6 -.4 M64.4 40 q1.6 .8 2 2.6" stroke="#d2b496" stroke-width=".7" fill="none" stroke-linecap="round"/>
+  <!-- helm details -->
+  <path d="M46.5 21 Q49.5 16.8 55 16.6" stroke="#fff" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/>
+  <path d="M55.5 20.6 q1.6 1.4 3.2 .3 M48.5 25 q1.2 1 2.6 .2" stroke="#4a5367" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M55.6 19.8 q1.4 -.6 2.8 .1" stroke="#fff" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".7"/>
+  <g fill="#e6eaf2" stroke="#15121d" stroke-width=".5"><circle cx="41" cy="28.6" r=".6"/><circle cx="47" cy="27.4" r=".6"/><circle cx="60" cy="27.4" r=".6"/><circle cx="66" cy="28.6" r=".6"/></g>
+  <path d="M70.2 6.5 Q69 10 69.6 14" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".85"/>
+  <!-- quilting -->
+  <path d="M44 47 L43.5 63.5 M50 45 V65.2 M56 45.5 L56.5 64.8 M43.2 69.5 L42.6 80.6 M50 70.4 V82.4 M57 69.8 L57.6 81.6 M37.6 55 Q50 58 62.8 55 M37.2 75 Q50 78 63.8 75" stroke="#243a60" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M40 49.5 Q42.5 46.4 46.5 45.6" stroke="#a8c0ea" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M60 48.5 q2.6 -.8 4.6 1" stroke="#a8c0ea" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".6"/>
+  <!-- warm light spill on the near side -->
+  <path d="M37.4 70 Q37.2 75 37 79" stroke="#ffd28a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".55"/>
+</svg>

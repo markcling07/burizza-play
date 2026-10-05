@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ashwing Drake (monster) - Burizza placeholder art.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><path d="M44 56 L14 22 L30 44 L12 42 L36 64 Z" fill="#7a3a2a"/>
+  <path d="M30 78 Q10 84 8 97" stroke="#5a2a22" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <ellipse cx="46" cy="72" rx="24" ry="15" fill="#5a2a22"/>
+  <path d="M34 80 q12 7 26 0" stroke="#e8a548" stroke-width="4" fill="none" opacity=".7"/>
+  <path d="M38 84 v10 M56 84 v10" stroke="#5a2a22" stroke-width="7" stroke-linecap="round"/>
+  <path d="M60 66 Q74 52 72 36" stroke="#5a2a22" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <path d="M64 28 Q80 22 94 32 Q86 42 70 42 Z" fill="#5a2a22"/>
+  <path d="M68 28 L60 16 L74 26 Z" fill="#e6e1d3"/>
+  <circle cx="80" cy="30" r="2.3" fill="#ffd166"/>
+  <path d="M52 60 L58 12 L68 38 L78 20 L76 58 Z" fill="#7a3a2a" opacity=".92"/>
+  <path d="M94 32 q4 1 6 -2" stroke="#ffd166" stroke-width="2" fill="none"/>
+</svg>

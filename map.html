@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burizza — Map of the Ashlands</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;0,800;1,500&family=Grenze+Gotisch:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #161925; --fg: #ece6d8; --muted: #a29fb2; --accent: #e8a548; --line: #3a4058;
+  --font-display: "Grenze Gotisch", "Palatino Linotype", Georgia, serif;
+  --font-body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg); font: 16px/1.45 var(--font-body);
+  background: radial-gradient(120% 70% at 50% 0%, #262036, var(--bg) 65%) fixed, var(--bg);
+}
+.wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 14px; }
+header h1 { margin: 0; font-family: var(--font-display); font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1; color: var(--accent); }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 86ch; }
+header b { color: var(--fg); }
+.mapCard { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #101320; box-shadow: 0 18px 50px rgba(0,0,0,.45); }
+svg.world { display: block; width: 100%; height: auto; }
+.world text { user-select: none; }
+.realm { font-family: var(--font-display); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; fill: #f5efdf; paint-order: stroke; stroke: rgba(10,10,16,.75); stroke-width: 4px; }
+.site  { font-family: var(--font-body); font-weight: 800; font-size: 15px; fill: #ffe9bd; paint-order: stroke; stroke: rgba(10,10,16,.85); stroke-width: 3.6px; }
+.site.minor { fill: #e8e2d2; font-weight: 700; font-size: 13.5px; }
+.sea   { font-family: var(--font-display); font-weight: 600; letter-spacing: .22em; text-transform: uppercase; fill: #bfe9e2; opacity: .75; }
+.roadlbl { font-family: var(--font-body); font-weight: 800; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; fill: #f2d9a4; opacity: .95; }
+.legendT { font-family: var(--font-display); font-size: 21px; fill: #2b211a; letter-spacing: .04em; }
+.legendL { font-family: var(--font-body); font-weight: 700; font-size: 12.5px; fill: #3a2d22; }
+.legendS { font-family: var(--font-body); font-weight: 500; font-size: 11.5px; fill: #6b5a44; font-style: italic; }
+@media (prefers-reduced-motion: no-preference) {
+  .pulse { animation: pulse 3.2s ease-in-out infinite; }
+  .pulse2 { animation: pulse 4.1s ease-in-out -1.6s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .bob { animation: bob 5s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(3px) rotate(.6deg); } }
+}
+footer { color: var(--muted); font-size: .88rem; }
+footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>The Ashlands</h1>
+    <p>The world of <b>Burizza</b>, as Elder Ysolde keeps it: six banners, one road. <b>Ashfall Road</b> leaves
+      <b>Cinderhold</b> and runs east past every ruin worth dying in, while the ash drifts down from the
+      <b>Ashen Spire</b> and the tide decides who sails home.</p>
+  </header>
+
+  <div class="mapCard">
+  <svg class="world" viewBox="0 0 1500 950" role="img" aria-label="Painted map of the Ashlands: the six faction homelands, Cinderhold, and the dungeons along Ashfall Road">
+  <defs>
+    <radialGradient id="seaG" cx=".5" cy=".42" r=".85">
+      <stop offset="0" stop-color="#2f8a97"/><stop offset=".55" stop-color="#27707f"/><stop offset="1" stop-color="#17434f"/>
+    </radialGradient>
+    <linearGradient id="iceG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6fbff"/><stop offset="1" stop-color="#c3d8e8"/></linearGradient>
+    <linearGradient id="landG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa65c"/><stop offset="1" stop-color="#7d9a4f"/></linearGradient>
+    <linearGradient id="ashG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c29562"/><stop offset="1" stop-color="#9a7446"/></linearGradient>
+    <linearGradient id="rustG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9b7a52"/><stop offset="1" stop-color="#7a5a40"/></linearGradient>
+    <linearGradient id="moorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e3340"/><stop offset="1" stop-color="#46222e"/></linearGradient>
+    <linearGradient id="frostG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef4f8"/><stop offset="1" stop-color="#b9cfdd"/></linearGradient>
+    <linearGradient id="bogG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#53644a"/><stop offset="1" stop-color="#36462f"/></linearGradient>
+    <radialGradient id="wasteG" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#8a8278"/><stop offset="1" stop-color="#8a8278" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowO" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb347" stop-opacity=".9"/><stop offset="1" stop-color="#ff7a2f" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#b6ffa0" stop-opacity=".9"/><stop offset="1" stop-color="#6cc28a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="sunG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe9b0" stop-opacity=".9"/><stop offset=".4" stop-color="#eac07a" stop-opacity=".35"/><stop offset="1" stop-color="#eac07a" stop-opacity="0"/></radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".012 .02" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="9"/></filter>
+
+    <g id="pine"><path d="M0 0 L-5.2 2 Q-1 -3 -3.8 -4.5 Q0 -7.5 -2.6 -9 Q1 -11.5 0 -14 Q-1 -11.5 2.6 -9 Q0 -7.5 3.8 -4.5 Q1 -3 5.2 2 Z" fill="#2f5f3f" stroke="#1d3a28" stroke-width=".8"/><path d="M-.6 2 h1.4 v2.6 h-1.4 z" fill="#4a3426"/></g>
+    <g id="pineSnow"><use href="#pine"/><path d="M0 -14 Q-1 -11.5 2.6 -9 Q0 -8 1.6 -6.6 L-2 -6.6 Q0 -7.5 -2.6 -9 Q1 -11.5 0 -14 Z" fill="#e8f1f6"/></g>
+    <g id="oak"><circle cx="-3" cy="-6" r="4.2" fill="#4d8a47"/><circle cx="3.2" cy="-7" r="4.8" fill="#3f7a4f"/><circle cx="0" cy="-10" r="4.4" fill="#58a055"/><path d="M-.7 -3 h1.5 V2 h-1.5 z" fill="#4a3426"/></g>
+    <g id="amber"><circle cx="-3" cy="-6" r="4.2" fill="#c96a3c"/><circle cx="3.2" cy="-7" r="4.8" fill="#b7542e"/><circle cx="0" cy="-10" r="4.4" fill="#e8a548"/><path d="M-.7 -3 h1.5 V2 h-1.5 z" fill="#4a3426"/></g>
+    <g id="blood"><circle cx="-2.8" cy="-6" r="4" fill="#8f2436"/><circle cx="3" cy="-7" r="4.4" fill="#c0303f"/><circle cx="0" cy="-10" r="4" fill="#6e1b2a"/><path d="M-.7 -3 h1.5 V2 h-1.5 z" fill="#2a1418"/></g>
+    <g id="palm"><path d="M0 2 Q-1.5 -6 0 -11" stroke="#6b4f32" stroke-width="1.6" fill="none"/><path d="M0 -11 q-7 -1 -10 3 q6 .5 10 -1 q-8 -5 -12 -4 q7 -3 12 1 q-2 -7 -7 -9 q7 1 8 7 q3 -6 9 -7 q-5 4 -6 9 q5 -3 11 0 q-6 1 -11 2 q5 2 8 6 q-6 -2 -12 -7 Z" fill="#3f8a5f"/></g>
+    <g id="mtn"><path d="M0 0 L-16 0 L-6 -20 L0 -26 L8 -14 L16 0 Z" fill="#8a8798"/><path d="M0 0 L-16 0 L-6 -20 L0 -26 L2 -22 L-4 -12 L-8 -10 L-10 -4 Z" fill="#6d6a7e"/><path d="M0 -26 L-3.4 -19 L-1 -16.6 L2 -19.6 L4.6 -16 L6.6 -12 L8 -14 Z" fill="#eef2f6"/><path d="M0 0 L-16 0 L-6 -20 L0 -26 L8 -14 L16 0 Z" fill="none" stroke="#3e3b4c" stroke-width="1.2"/></g>
+    <g id="mtnS"><use href="#mtn" transform="scale(.62)"/></g>
+    <g id="hill"><path d="M-12 0 Q0 -10 12 0 Z" fill="#88a257"/><path d="M-12 0 Q-4 -7 2 -4" fill="none" stroke="#6d8a44" stroke-width="1.4"/></g>
+    <g id="dune"><path d="M-14 0 Q0 -8 14 0 Z" fill="#c9a06a"/><path d="M-14 0 Q-5 -6 3 -3" fill="none" stroke="#a37d4e" stroke-width="1.4"/></g>
+    <g id="berg"><path d="M-14 6 L-18 -2 L-8 -6 L-5 -16 L4 -8 L14 -10 L12 0 L16 6 Z" fill="url(#iceG)" stroke="#8fb1c9" stroke-width="1.4"/><path d="M-8 -6 L-5 -16 L4 -8 L0 -2 Z" fill="#fff"/></g>
+    <g id="wave"><path d="M-8 0 q4 -4 8 0 q4 4 8 0" fill="none" stroke="#bfe9e2" stroke-width="1.6" stroke-linecap="round" opacity=".5"/></g>
+    <g id="ship"><path d="M-13 0 Q0 7 13 0 L9 6 Q0 10 -9 6 Z" fill="#6b4f32" stroke="#3a2a20" stroke-width="1.2"/><path d="M0 0 V-16" stroke="#3a2a20" stroke-width="1.6"/><path d="M0 -16 L10 -9 L0 -6 Z" fill="#e9e4d8" stroke="#b9ab8e" stroke-width=".8"/><path d="M0 -16 L-8 -11 L0 -9 Z" fill="#d9cdb2"/><path d="M0 -16 l5 -2 l-1 3 z" fill="#c0303f"/></g>
+    <g id="serp"><path d="M-30 0 q8 -14 20 0 q-8 6 -14 2 M2 -1 q8 -13 19 -1 q-8 7 -13 3 M34 -2 q7 -8 12 -1 l6 -8 l2 10 q-9 7 -17 1" fill="none" stroke="#2f8f7f" stroke-width="5" stroke-linecap="round"/><circle cx="49" cy="-9" r="1.4" fill="#ffd166"/></g>
+    <g id="keep"><rect x="-9" y="-14" width="18" height="14" fill="#cdbfa3" stroke="#4a3a2c" stroke-width="1.3"/><path d="M-9 -14 h4 v-4 h3 v4 h4 v-4 h3 v4 h4" fill="none" stroke="#4a3a2c" stroke-width="1.3"/><rect x="-3" y="-7" width="6" height="7" fill="#3a2a20"/><rect x="-13" y="-22" width="8" height="22" fill="#bfae8e" stroke="#4a3a2c" stroke-width="1.3"/><path d="M-13 -22 h2.6 v-2.6 h2.8 v2.6 h2.6" fill="none" stroke="#4a3a2c" stroke-width="1.2"/><path d="M-9 -27 l7 2.4 l-7 2.4 z" fill="#3e5a8c"/></g>
+    <g id="darkkeep"><rect x="-8" y="-13" width="16" height="13" fill="#3a2f3e" stroke="#15121d" stroke-width="1.3"/><rect x="-12" y="-24" width="7" height="24" fill="#2d2230" stroke="#15121d" stroke-width="1.3"/><rect x="5" y="-20" width="7" height="20" fill="#2d2230" stroke="#15121d" stroke-width="1.3"/><path d="M-12 -24 l3.5 -5 l3.5 5 Z M5 -20 l3.5 -5 l3.5 5 Z" fill="#1f1626" stroke="#15121d" stroke-width="1.1"/><rect x="-2.6" y="-7" width="5.2" height="7" fill="#120d12"/><circle cx="-8.5" cy="-18" r="1.5" fill="#ff6bb5"/><circle cx="8.5" cy="-15" r="1.5" fill="#ff6bb5"/><path d="M-12 -29 l6 2 l-6 2 z" fill="#c0303f"/></g>
+    <g id="village"><path d="M-10 0 h8 v-7 l-4 -4 l-4 4 Z" fill="#8a6a3a" stroke="#4a3426" stroke-width="1.2"/><path d="M0 0 h9 v-9 l-4.5 -4.5 L0 -9 Z" fill="#b39f84" stroke="#4a3426" stroke-width="1.2"/><rect x="3" y="-5" width="3" height="5" fill="#3a2a20"/><circle cx="-6" cy="-5" r="1.3" fill="#ffd28a"/></g>
+    <g id="mineI"><path d="M-9 0 V-7 Q0 -14 9 -7 V0 Z" fill="#5a4a3c" stroke="#2e221a" stroke-width="1.3"/><path d="M-5 0 V-5 Q0 -9 5 -5 V0 Z" fill="#17110e"/><path d="M-11 0 H11" stroke="#6b4f32" stroke-width="2.4"/><circle cx="0" cy="-4.6" r="1.2" fill="#ffd166"/></g>
+    <g id="caveI"><path d="M-10 0 Q-9 -10 0 -11 Q9 -10 10 0 Z" fill="#4a3f3a" stroke="#241c18" stroke-width="1.3"/><path d="M-5 0 Q-4 -6 0 -6.5 Q4 -6 5 0 Z" fill="#120d0c"/><circle cx="0" cy="-2.6" r="1.1" fill="#ff9a4a"/></g>
+    <g id="manorI"><rect x="-10" y="-10" width="20" height="10" fill="#4e4252" stroke="#1d1622" stroke-width="1.3"/><path d="M-12 -10 L0 -18 L12 -10 Z" fill="#352b3d" stroke="#1d1622" stroke-width="1.2"/><rect x="-6.5" y="-7.5" width="4" height="4" fill="#d9a8ff" opacity=".9"/><rect x="2.5" y="-7.5" width="4" height="4" fill="#1f1824"/><rect x="6" y="-16" width="3.6" height="6" fill="#352b3d" stroke="#1d1622" stroke-width="1"/></g>
+    <g id="abbey"><path d="M-9 0 V-9 H9 V0 Z" fill="#7f8a94" stroke="#2c333c" stroke-width="1.3"/><path d="M-11 -9 L0 -16 L11 -9 Z" fill="#5d6873" stroke="#2c333c" stroke-width="1.2"/><path d="M0 -16 V-21 M-2.6 -18.6 H2.6" stroke="#2c333c" stroke-width="1.6"/><path d="M-3 0 V-6 Q0 -9 3 -6 V0 Z" fill="#141a20"/></g>
+    <g id="spireI"><path d="M-7 0 L-4 -26 Q0 -30 4 -26 L7 0 Z" fill="#241f26" stroke="#0e0b10" stroke-width="1.4"/><path d="M-4 -26 Q0 -30 4 -26 L2.6 -34 L0 -31 L-2.6 -34 Z" fill="#17131b" stroke="#0e0b10" stroke-width="1.1"/><circle cx="0" cy="-22" r="1.8" fill="#ff7a2f"/><circle cx="0" cy="-12" r="1.5" fill="#ff7a2f" opacity=".8"/></g>
+    <g id="totem"><path d="M-1.4 0 V-12" stroke="#6b4f32" stroke-width="2.8"/><path d="M-5 -9 H2.4 M-4 -5 H1.6" stroke="#6b4f32" stroke-width="2"/><circle cx="-1.4" cy="-13.6" r="2.6" fill="#e9e4d8"/><circle cx="-2.2" cy="-13.9" r=".7" fill="#1d1d1d"/><circle cx="-.5" cy="-13.9" r=".7" fill="#1d1d1d"/></g>
+    <g id="gear"><circle cx="0" cy="-8" r="5.2" fill="none" stroke="#4e4338" stroke-width="2.6"/><circle cx="0" cy="-8" r="1.8" fill="#4e4338"/><g stroke="#4e4338" stroke-width="2.2"><path d="M0 -15.6 V-13 M0 -3 V-.4 M7.6 -8 H5 M-5 -8 H-7.6 M5.4 -13.4 L3.6 -11.6 M-3.6 -4.4 L-5.4 -2.6 M5.4 -2.6 L3.6 -4.4 M-3.6 -11.6 L-5.4 -13.4"/></g></g>
+    <g id="factory"><rect x="-11" y="-9" width="22" height="9" fill="#6e5b4a" stroke="#38291e" stroke-width="1.3"/><path d="M-11 -9 L-5 -13 V-9 L1 -13 V-9 L7 -13 V-9" fill="none" stroke="#38291e" stroke-width="1.2"/><rect x="4" y="-20" width="4" height="11" fill="#5a4a3c" stroke="#38291e" stroke-width="1.1"/><circle cx="6" cy="-23" r="2.6" fill="#8d8a97" opacity=".8"/><circle cx="9" cy="-27" r="3.4" fill="#8d8a97" opacity=".55"/><rect x="-7" y="-6" width="4" height="3" fill="#ffd28a"/></g>
+    <g id="star"><path d="M0 -7 L1.9 -2.4 L6.8 -2.2 L2.9 .9 L4.3 5.6 L0 2.9 L-4.3 5.6 L-2.9 .9 L-6.8 -2.2 L-1.9 -2.4 Z" fill="#ffd166" stroke="#7a4a12" stroke-width="1.4"/></g>
+    <g id="reef"><path d="M-10 0 a10 6 0 0 1 20 0" fill="none" stroke="#9fe8da" stroke-width="2.2" opacity=".8"/><path d="M-4 -1 q1 -5 4 -6 M2 -1 q2 -3 5 -3" stroke="#ff8a6b" stroke-width="1.8" fill="none"/></g>
+  </defs>
+
+  <!-- THE SEA -->
+  <rect width="1500" height="950" fill="url(#seaG)"/>
+  <g opacity=".5">
+    <use href="#wave" x="120" y="560"/><use href="#wave" x="80" y="300"/><use href="#wave" x="210" y="760"/><use href="#wave" x="420" y="860"/>
+    <use href="#wave" x="1330" y="300"/><use href="#wave" x="1430" y="520"/><use href="#wave" x="1360" y="680"/><use href="#wave" x="1180" y="880"/>
+    <use href="#wave" x="700" y="900"/><use href="#wave" x="60" y="660"/><use href="#wave" x="1460" y="820"/><use href="#wave" x="560" y="120"/>
+    <use href="#wave" x="330" y="120"/><use href="#wave" x="1240" y="130"/><use href="#wave" x="960" y="880"/>
+  </g>
+  <circle cx="150" cy="120" r="120" fill="url(#sunG)"/>
+
+  <!-- NORTH ICE SHELF -->
+  <g filter="url(#rough)">
+    <path d="M-20 -20 H1520 V46 L1455 58 L1370 40 L1290 66 L1200 44 L1120 70 L1030 48 L950 72 L860 50 L780 74 L690 52 L600 72 L510 50 L430 70 L340 48 L255 68 L170 46 L90 64 L-20 48 Z" fill="url(#iceG)" stroke="#8fb1c9" stroke-width="2"/>
+  </g>
+  <g>
+    <use href="#berg" x="240" y="118"/><use href="#berg" x="455" y="100"/><use href="#berg" x="700" y="124"/>
+    <use href="#berg" x="930" y="102"/><use href="#berg" x="1165" y="120"/><use href="#berg" x="1345" y="96"/><use href="#berg" x="1460" y="140"/>
+    <use href="#berg" x="80" y="96"/>
+  </g>
+
+  <!-- MAIN CONTINENT -->
+  <g filter="url(#rough)">
+    <path d="M150 330 Q130 250 210 215 Q260 170 350 185 Q420 160 480 195 Q560 150 650 170 Q720 140 810 165 Q900 142 980 175 Q1070 150 1130 195 Q1200 175 1235 235 Q1280 290 1245 350 Q1290 400 1250 470 Q1285 540 1225 600 Q1240 665 1165 695 Q1100 760 1010 735 Q940 790 850 760 Q790 800 710 775 Q640 810 570 770 Q470 800 420 740 Q330 760 290 690 Q200 680 190 600 Q130 560 155 480 Q110 420 150 330 Z"
+      fill="none" stroke="#7fd4c6" stroke-width="26" opacity=".35" stroke-linejoin="round"/>
+    <path d="M150 330 Q130 250 210 215 Q260 170 350 185 Q420 160 480 195 Q560 150 650 170 Q720 140 810 165 Q900 142 980 175 Q1070 150 1130 195 Q1200 175 1235 235 Q1280 290 1245 350 Q1290 400 1250 470 Q1285 540 1225 600 Q1240 665 1165 695 Q1100 760 1010 735 Q940 790 850 760 Q790 800 710 775 Q640 810 570 770 Q470 800 420 740 Q330 760 290 690 Q200 680 190 600 Q130 560 155 480 Q110 420 150 330 Z"
+      fill="url(#landG)" stroke="#51603a" stroke-width="3.5" stroke-linejoin="round"/>
+  </g>
+
+  <!-- region washes -->
+  <g filter="url(#rough)">
+    <path d="M160 330 Q140 255 215 220 Q265 178 350 192 Q415 168 470 200 L470 430 Q380 470 300 440 Q210 430 180 380 Z" fill="url(#ashG)" opacity=".95"/>
+    <path d="M185 470 Q280 500 360 470 L460 470 L470 640 Q400 700 320 670 Q230 660 205 590 Q150 560 170 490 Z" fill="url(#rustG)" opacity=".95"/>
+    <path d="M640 185 Q720 150 810 172 Q900 150 980 182 Q1060 160 1115 205 Q1150 240 1130 285 L660 300 Q630 240 640 185 Z" fill="#8f9aa8" opacity=".9"/>
+    <path d="M1130 210 Q1200 185 1232 240 Q1272 292 1240 348 L1150 330 Q1120 265 1130 210 Z" fill="url(#frostG)" opacity=".97"/>
+    <path d="M1240 355 Q1285 405 1248 468 L1150 430 L1160 350 Z" fill="url(#frostG)" opacity=".8"/>
+    <path d="M980 560 Q1090 540 1180 585 Q1230 640 1160 690 Q1090 750 1005 728 Q950 740 920 700 Q930 620 980 560 Z" fill="url(#bogG)" opacity=".95"/>
+    <circle cx="1052" cy="452" r="86" fill="url(#wasteG)"/>
+  </g>
+
+  <!-- CRIMSON COURT ISLE -->
+  <g filter="url(#rough)">
+    <path d="M1272 560 Q1250 510 1305 492 Q1352 462 1408 492 Q1465 505 1452 565 Q1482 620 1432 660 Q1440 725 1372 735 Q1300 760 1272 700 Q1232 660 1258 615 Z" fill="none" stroke="#7fd4c6" stroke-width="20" opacity=".32" stroke-linejoin="round"/>
+    <path d="M1272 560 Q1250 510 1305 492 Q1352 462 1408 492 Q1465 505 1452 565 Q1482 620 1432 660 Q1440 725 1372 735 Q1300 760 1272 700 Q1232 660 1258 615 Z" fill="url(#moorG)" stroke="#2a1420" stroke-width="3"/>
+  </g>
+
+  <!-- SOUTH REEFS -->
+  <g filter="url(#rough)">
+    <path d="M470 846 Q510 820 560 840 Q600 866 560 884 Q505 896 470 846 Z" fill="#b9d08a" stroke="#6d8a44" stroke-width="2.4"/>
+    <path d="M640 870 Q680 846 726 862 Q758 886 716 902 Q664 908 640 870 Z" fill="#c9d898" stroke="#6d8a44" stroke-width="2.4"/>
+    <path d="M806 848 Q842 826 886 842 Q918 864 882 882 Q832 890 806 848 Z" fill="#b9d08a" stroke="#6d8a44" stroke-width="2.4"/>
+    <path d="M86 700 Q118 676 162 692 Q196 716 158 736 Q106 744 86 700 Z" fill="#b9d08a" stroke="#6d8a44" stroke-width="2.4"/>
+  </g>
+  <use href="#reef" x="600" y="902"/><use href="#reef" x="762" y="890"/><use href="#reef" x="920" y="874"/><use href="#reef" x="520" y="906"/>
+  <g opacity=".85"><use href="#palm" x="520" y="852"/><use href="#palm" x="688" y="876"/><use href="#palm" x="852" y="856"/><use href="#palm" x="128" y="706"/></g>
+
+  <!-- Stoneleaf peaks + pinewood -->
+  <g>
+    <use href="#mtn" x="700" y="268"/><use href="#mtn" x="760" y="246"/><use href="#mtn" x="828" y="262"/><use href="#mtn" x="894" y="240"/>
+    <use href="#mtn" x="958" y="262"/><use href="#mtn" x="1024" y="244"/><use href="#mtn" x="1086" y="266"/>
+    <use href="#mtnS" x="672" y="296"/><use href="#mtnS" x="736" y="288"/><use href="#mtnS" x="800" y="296"/><use href="#mtnS" x="866" y="288"/>
+    <use href="#mtnS" x="930" y="298"/><use href="#mtnS" x="994" y="290"/><use href="#mtnS" x="1058" y="300"/><use href="#mtnS" x="1112" y="292"/>
+    <use href="#pineSnow" x="664" y="326"/><use href="#pineSnow" x="700" y="338"/><use href="#pine" x="738" y="330"/><use href="#pine" x="776" y="344"/>
+    <use href="#pine" x="818" y="332"/><use href="#pine" x="858" y="346"/><use href="#pine" x="898" y="334"/><use href="#pine" x="938" y="348"/>
+    <use href="#pine" x="980" y="334"/><use href="#pineSnow" x="1020" y="346"/><use href="#pine" x="1062" y="336"/><use href="#pineSnow" x="1098" y="348"/>
+    <use href="#pine" x="690" y="372"/><use href="#pine" x="742" y="382"/><use href="#pine" x="800" y="376"/><use href="#pine" x="860" y="386"/>
+    <use href="#pine" x="920" y="378"/><use href="#pine" x="972" y="388"/>
+  </g>
+  <!-- Amberwood: autumn belt -->
+  <g>
+    <use href="#amber" x="652" y="420"/><use href="#amber" x="700" y="432"/><use href="#amber" x="748" y="420"/><use href="#amber" x="796" y="434"/>
+    <use href="#amber" x="846" y="422"/><use href="#amber" x="894" y="436"/><use href="#amber" x="718" y="462"/><use href="#amber" x="768" y="472"/>
+    <use href="#amber" x="820" y="462"/><use href="#amber" x="868" y="474"/><use href="#amber" x="916" y="464"/><use href="#amber" x="674" y="486"/>
+    <use href="#amber" x="730" y="508"/><use href="#amber" x="788" y="516"/><use href="#amber" x="846" y="508"/><use href="#amber" x="900" y="518"/>
+  </g>
+  <!-- Aldmere fields -->
+  <g opacity=".9">
+    <path d="M470 430 h56 l-10 22 h-56 Z M540 436 h52 l-9 20 h-52 Z M475 470 h50 l-9 20 h-50 Z M540 472 h56 l-10 22 h-56 Z M482 508 h52 l-9 20 h-52 Z M548 510 h50 l-9 20 h-50 Z"
+      fill="#d8c268" stroke="#a3894a" stroke-width="1.6"/>
+    <use href="#oak" x="470" y="416"/><use href="#oak" x="620" y="440"/><use href="#oak" x="606" y="520"/><use href="#oak" x="470" y="560"/><use href="#oak" x="560" y="566"/>
+    <use href="#hill" x="630" y="560"/><use href="#hill" x="520" y="588"/>
+  </g>
+  <!-- Bloodtusk steppe -->
+  <g>
+    <use href="#dune" x="230" y="300"/><use href="#dune" x="300" y="330"/><use href="#dune" x="370" y="300"/><use href="#dune" x="420" y="350"/>
+    <use href="#dune" x="250" y="380"/><use href="#dune" x="330" y="400"/><use href="#dune" x="400" y="420"/>
+    <use href="#totem" x="300" y="290"/><use href="#totem" x="390" y="384"/><use href="#totem" x="246" y="420"/>
+    <use href="#amber" x="440" y="296"/><use href="#amber" x="200" y="336"/>
+  </g>
+  <!-- Mount Cinder -->
+  <g>
+    <circle cx="262" cy="222" r="42" fill="url(#glowO)" class="pulse"/>
+    <path d="M216 266 L252 190 Q262 182 272 190 L310 266 Z" fill="#4a3f3a" stroke="#241c18" stroke-width="2.4"/>
+    <path d="M246 198 Q262 208 280 198 Q272 192 262 192 Q252 192 246 198 Z" fill="#ff7a2f"/>
+    <path d="M258 204 Q250 234 240 252 M268 206 Q276 232 286 252" stroke="#ff7a2f" stroke-width="2.6" fill="none" opacity=".6"/>
+    <g fill="#5a5260" opacity=".75"><circle cx="268" cy="176" r="9"/><circle cx="286" cy="160" r="12"/><circle cx="312" cy="146" r="15"/><circle cx="344" cy="136" r="17"/></g>
+  </g>
+  <!-- Ironclad works -->
+  <g>
+    <use href="#factory" x="300" y="560"/><use href="#gear" x="356" y="572"/><use href="#gear" x="258" y="606"/>
+    <path d="M230 520 H410 M250 640 H396" stroke="#5d4c3c" stroke-width="3" stroke-dasharray="8 6" opacity=".6"/>
+    <use href="#dune" x="240" y="560"/><use href="#dune" x="402" y="612"/>
+  </g>
+  <!-- Witchlight bog -->
+  <g>
+    <use href="#pine" x="960" y="620"/><use href="#pine" x="1010" y="648"/><use href="#pine" x="1064" y="628"/><use href="#pine" x="1114" y="660"/>
+    <use href="#pine" x="986" y="690"/><use href="#pine" x="1046" y="700"/><use href="#pine" x="1098" y="618"/>
+    <circle cx="1002" cy="664" r="10" fill="url(#glowG)" class="pulse"/><circle cx="1076" cy="676" r="9" fill="url(#glowG)" class="pulse2"/><circle cx="1122" cy="642" r="8" fill="url(#glowG)" class="pulse"/>
+    <path d="M944 700 q30 14 70 10 M1000 724 q40 10 84 -2" stroke="#2c3a28" stroke-width="3" opacity=".7" fill="none"/>
+  </g>
+  <!-- Frost pass -->
+  <g>
+    <use href="#mtnS" x="1168" y="286"/><use href="#mtnS" x="1210" y="262"/><use href="#mtnS" x="1246" y="296"/><use href="#mtnS" x="1206" y="330"/>
+    <use href="#pineSnow" x="1160" y="320"/><use href="#pineSnow" x="1238" y="336"/><use href="#pineSnow" x="1196" y="368"/><use href="#pineSnow" x="1250" y="402"/>
+  </g>
+  <!-- Crimson isle dressing -->
+  <g>
+    <use href="#blood" x="1300" y="560"/><use href="#blood" x="1346" y="540"/><use href="#blood" x="1396" y="556"/><use href="#blood" x="1432" y="590"/>
+    <use href="#blood" x="1290" y="620"/><use href="#blood" x="1416" y="636"/><use href="#blood" x="1308" y="680"/><use href="#blood" x="1368" y="700"/>
+    <path d="M1286 646 q40 -16 92 -6" stroke="#2a1420" stroke-width="2.6" fill="none" opacity=".7"/>
+    <circle cx="1358" cy="608" r="30" fill="#c0303f" opacity=".12" filter="url(#soft)"/>
+  </g>
+
+  <!-- RIVER -->
+  <path d="M912 302 Q890 360 846 392 Q790 430 788 470 Q786 516 740 540 Q690 566 660 610 Q636 648 646 700 Q652 736 628 770"
+    fill="none" stroke="#2a7f8f" stroke-width="7" opacity=".85" stroke-linecap="round"/>
+  <path d="M912 302 Q890 360 846 392 Q790 430 788 470 Q786 516 740 540 Q690 566 660 610 Q636 648 646 700 Q652 736 628 770"
+    fill="none" stroke="#7fd4c6" stroke-width="2.4" opacity=".7" stroke-linecap="round"/>
+
+  <!-- ASHFALL ROAD -->
+  <path d="M628 486 Q700 520 744 552 Q800 590 862 560 Q920 534 912 470 Q906 420 938 384 Q968 352 1010 368 Q1052 386 1052 432 M1052 470 Q1056 520 1016 556 Q980 586 952 626 M1070 418 Q1110 380 1148 352 Q1184 326 1206 300"
+    fill="none" stroke="#3b2c1c" stroke-width="7" stroke-linecap="round" opacity=".55"/>
+  <path d="M628 486 Q700 520 744 552 Q800 590 862 560 Q920 534 912 470 Q906 420 938 384 Q968 352 1010 368 Q1052 386 1052 432 M1052 470 Q1056 520 1016 556 Q980 586 952 626 M1070 418 Q1110 380 1148 352 Q1184 326 1206 300"
+    fill="none" stroke="#e8c87e" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round"/>
+  <path id="roadLabelPath" d="M640 512 Q706 540 750 570 Q806 606 870 578" fill="none"/>
+  <text class="roadlbl"><textPath href="#roadLabelPath" startOffset="8">Ashfall Road</textPath></text>
+
+  <!-- SITES -->
+  <g>
+    <use href="#caveI" x="560" y="470"/>
+    <use href="#village" x="628" y="482"/><use href="#star" x="628" y="458"/>
+    <use href="#keep" x="520" y="452"/>
+    <use href="#abbey" x="744" y="548"/>
+    <use href="#manorI" x="862" y="552"/>
+    <use href="#mineI" x="938" y="378"/>
+    <use href="#spireI" x="1052" y="452"/>
+    <g fill="#5a5260" opacity=".6"><circle cx="1056" cy="402" r="7"/><circle cx="1066" cy="388" r="9"/><circle cx="1080" cy="372" r="11"/></g>
+    <use href="#darkkeep" x="1206" y="296"/>
+    <circle cx="952" cy="636" r="9" fill="url(#glowG)" class="pulse2"/>
+    <use href="#darkkeep" x="1356" y="604"/>
+  </g>
+
+  <!-- DECOR -->
+  <g class="bob"><use href="#ship" x="300" y="790"/></g>
+  <g class="bob" style="animation-delay:-2.2s"><use href="#ship" x="1320" y="190"/></g>
+  <use href="#serp" x="1130" y="846"/>
+  <g transform="translate(1408 852)">
+    <circle r="40" fill="#10222a" opacity=".45"/><circle r="40" fill="none" stroke="#bfe9e2" stroke-width="2"/>
+    <circle r="29" fill="none" stroke="#bfe9e2" stroke-width="1" opacity=".6"/>
+    <path d="M0 -34 L7 0 L0 34 L-7 0 Z" fill="#e8c87e" stroke="#3b2c1c" stroke-width="1.4"/>
+    <path d="M-34 0 L0 7 L34 0 L0 -7 Z" fill="#bfe9e2" stroke="#1d3a40" stroke-width="1.4"/>
+    <circle r="4" fill="#3b2c1c"/>
+    <text y="-44" text-anchor="middle" font-family="Grenze Gotisch" font-size="19" fill="#ffe9bd">N</text>
+  </g>
+
+  <!-- LABELS -->
+  <text class="realm" x="318" y="262" font-size="25" text-anchor="middle">Bloodtusk Steppes</text>
+  <text class="realm" x="350" y="514" font-size="24" text-anchor="middle">Ironclad Union</text>
+  <text class="realm" x="548" y="610" font-size="24" text-anchor="middle">Kingdom of Aldmere</text>
+  <text class="realm" x="888" y="226" font-size="25" text-anchor="middle">Stoneleaf Accord</text>
+  <text class="realm" x="1356" y="748" font-size="23" text-anchor="middle">The Crimson Court</text>
+  <text class="sea" x="300" y="868" font-size="24" text-anchor="middle">The Tideborn Reaches</text>
+  <text class="sea" x="212" y="156" font-size="17" text-anchor="middle">The Shiverdeep</text>
+
+  <text class="site" x="628" y="446" text-anchor="middle">Cinderhold</text>
+  <text class="site minor" x="520" y="418" text-anchor="middle">Aldmere Keep</text>
+  <text class="site minor" x="552" y="496" text-anchor="end">Emberhollow Cave</text>
+  <text class="site minor" x="744" y="586" text-anchor="middle">The Sunken Crypt · 5</text>
+  <text class="site minor" x="872" y="528" text-anchor="middle">Mournhollow Manor · 7</text>
+  <text class="site minor" x="930" y="358" text-anchor="end">Rustgut Mine · 9</text>
+  <text class="site" x="1052" y="500" text-anchor="middle">The Ashen Spire · 13</text>
+  <text class="site minor" x="1212" y="262" text-anchor="middle">Castle Direhold · 16</text>
+  <text class="site minor" x="950" y="664" text-anchor="middle">Witchlight Hollow · 20</text>
+  <text class="site minor" x="262" y="286" text-anchor="middle">Mount Cinder</text>
+
+  <!-- LEGEND -->
+  <g transform="translate(34 538)">
+    <rect x="0" y="0" width="236" height="246" rx="10" fill="#e9dcc0" stroke="#3b2c1c" stroke-width="2.4"/>
+    <rect x="5" y="5" width="226" height="236" rx="7" fill="none" stroke="#b9a478" stroke-width="1.2"/>
+    <text class="legendT" x="16" y="34">Ashfall Road</text>
+    <text class="legendS" x="16" y="52">Six banners. One road. Mind the ash.</text>
+    <g transform="translate(16 74)">
+      <use href="#star" transform="translate(7 2) scale(.8)"/><text class="legendL" x="22" y="6">Cinderhold — the last village</text>
+      <use href="#abbey" transform="translate(7 36) scale(.62)"/><text class="legendL" x="22" y="32">The Sunken Crypt · Lv 5</text>
+      <use href="#manorI" transform="translate(7 62) scale(.62)"/><text class="legendL" x="22" y="58">Mournhollow Manor · Lv 7</text>
+      <use href="#mineI" transform="translate(7 88) scale(.72)"/><text class="legendL" x="22" y="84">Rustgut Mine · Lv 9</text>
+      <use href="#spireI" transform="translate(7 118) scale(.55)"/><text class="legendL" x="22" y="110">The Ashen Spire · Lv 13</text>
+      <use href="#darkkeep" transform="translate(7 146) scale(.58)"/><text class="legendL" x="22" y="138">Castle Direhold · Lv 16</text>
+      <circle cx="7" cy="160" r="5" fill="url(#glowG)"/><text class="legendL" x="22" y="164">Witchlight Hollow · Lv 20</text>
+    </g>
+  </g>
+
+  <!-- frame -->
+  <rect x="6" y="6" width="1488" height="938" rx="10" fill="none" stroke="#0c0f18" stroke-width="12" opacity=".55"/>
+  <rect x="14" y="14" width="1472" height="922" rx="8" fill="none" stroke="#e8c87e" stroke-width="2" opacity=".35"/>
+  </svg>
+  </div>
+
+  <footer>Drawn for Season 1: Ashfall Road. The dungeons are marked with the level Elder Ysolde recommends before you knock.
+    Back to <a href="roster.html">the champion roster</a>.</footer>
+</main>
+</body>
+</html>

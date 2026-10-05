@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Durgan Anvilbeard (melee) - Ashfall Road art v2. Dwarf hammer warrior.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a7650"/><stop offset=".5" stop-color="#6b4f32"/><stop offset="1" stop-color="#3d2c1b"/></linearGradient>
+    <linearGradient id="leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5c442b"/><stop offset="1" stop-color="#2e2116"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f5fa"/><stop offset=".5" stop-color="#b4bccb"/><stop offset="1" stop-color="#6a7285"/></linearGradient>
+    <linearGradient id="steelD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa3b5"/><stop offset="1" stop-color="#4c5366"/></linearGradient>
+    <linearGradient id="beard" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e07a44"/><stop offset=".55" stop-color="#b5562b"/><stop offset="1" stop-color="#7c3517"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6b42"/><stop offset="1" stop-color="#5a3b22"/></linearGradient>
+    <linearGradient id="bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf5e4"/><stop offset="1" stop-color="#c2b08a"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="26" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back horn -->
+    <path d="M44 35 Q34 33 31 22 Q38 27 46 30 Z" fill="url(#bone)"/>
+    <!-- back pauldron -->
+    <circle cx="35" cy="57" r="6.5" fill="url(#steelD)"/>
+    <!-- legs + boots -->
+    <path d="M39 79 h10 l-.5 9 h-10 z" fill="url(#leatherD)"/>
+    <path d="M34 87 h15 v6.5 h-16.5 z" fill="#3a2a1e"/>
+    <path d="M51 79 h10 l1 9 h-10 z" fill="url(#leather)"/>
+    <path d="M51 87 h14 l2.5 6.5 h-16.5 z" fill="#5a4029"/>
+    <!-- torso -->
+    <path d="M31 55 Q50 47 69 55 L70 81 Q50 86 30 81 Z" fill="url(#leather)"/>
+    <rect x="30.5" y="70" width="39.5" height="6" rx="1" fill="url(#leatherD)"/>
+    <rect x="45.5" y="68.8" width="9" height="8.4" rx="1.5" fill="url(#steel)"/>
+    <!-- head -->
+    <circle cx="52" cy="42" r="9.5" fill="#e0ae86"/>
+    <!-- helm -->
+    <path d="M42 41 Q41.5 29.5 52.5 29.5 Q63.5 29.5 63 41 Z" fill="url(#steel)"/>
+    <rect x="41" y="38" width="23" height="4" rx="1.5" fill="url(#steelD)"/>
+    <!-- front horn -->
+    <path d="M59.5 32 Q66 29 66 19 Q71.5 29 62.5 36.5 Z" fill="url(#bone)"/>
+    <!-- beard + braids -->
+    <path d="M46 64 h5 v14 h-5 z" fill="url(#beard)"/>
+    <path d="M53.5 64 h5 v14 h-5 z" fill="url(#beard)"/>
+    <path d="M44 42 Q40.5 58 45 67 Q52 72.5 59.5 67 Q66.5 58 64.5 47.5 Q60 49.5 56 48.5 Q51 49 48.5 45 Q47.5 43 44 42 Z" fill="url(#beard)"/>
+    <rect x="45.4" y="73" width="6.2" height="3" rx="1" fill="url(#steel)"/>
+    <rect x="52.9" y="73" width="6.2" height="3" rx="1" fill="url(#steel)"/>
+    <!-- nose + moustache -->
+    <circle cx="62.8" cy="46.6" r="2.3" fill="#e0ae86"/>
+    <path d="M53 50.5 Q58 46.5 65 49.5 Q61.5 53 57.5 51.5 Q55 53 53 50.5 Z" fill="#8f3e1d" stroke-width="1.1"/>
+    <!-- great hammer -->
+    <g transform="rotate(22 66 62)">
+      <rect x="64.3" y="25" width="3.6" height="57" rx="1" fill="url(#wood)"/>
+      <rect x="63.8" y="74" width="4.6" height="5" rx="1" fill="#3a2a1e"/>
+      <path d="M56 15 h20 v14 h-20 z" fill="url(#steel)"/>
+      <rect x="56" y="20" width="20" height="4" fill="url(#steelD)"/>
+      <rect x="54" y="13.5" width="3.5" height="17" rx="1" fill="url(#steelD)"/>
+      <rect x="74.5" y="13.5" width="3.5" height="17" rx="1" fill="url(#steelD)"/>
+      <circle cx="66.1" cy="83.5" r="2.4" fill="url(#steel)"/>
+    </g>
+    <!-- lower fist -->
+    <circle cx="61.6" cy="73.2" r="3.1" fill="#e0ae86"/>
+    <!-- front arm + pauldron -->
+    <path d="M61 57 L70.5 57.5 L69 64.5 L61.5 64 Z" fill="url(#leather)"/>
+    <circle cx="65.6" cy="64.2" r="3.2" fill="#e0ae86"/>
+    <path d="M58.5 56 Q61 50.5 67.5 51.5 Q73.5 53.5 72 59.5 L60.5 60.5 Z" fill="url(#steel)"/>
+  </g>
+  <!-- face -->
+  <circle cx="58.7" cy="44.6" r="1.5" fill="#1d2130"/>
+  <path d="M56 42.6 l5.2 .4" stroke="#7c3517" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- beard strands -->
+  <path d="M48.5 53 Q47.5 59 50 65 M55 54 Q55.5 60 57.5 64.5" stroke="#f0965f" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M48.5 67 h2 M48.5 70.5 h2 M56 67 h2 M56 70.5 h2" stroke="#7c3517" stroke-width="1" stroke-linecap="round"/>
+  <!-- helm details -->
+  <g fill="#e8ecf3" stroke="#15121d" stroke-width=".6"><circle cx="45" cy="40" r=".9"/><circle cx="52.5" cy="40" r=".9"/><circle cx="60" cy="40" r=".9"/></g>
+  <path d="M45 35.5 Q47 31.8 52 31.2" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M61 54.5 q3 -1.6 6.5 -.4" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M34 56 Q47 50.5 57 51" stroke="#c49a6a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/>
+  <!-- belt buckle -->
+  <rect x="47.8" y="71" width="4.4" height="4" rx=".6" fill="none" stroke="#4c5366" stroke-width="1.1"/>
+</svg>

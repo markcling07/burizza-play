@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Morwenna Bloodweaver (support) - Burizza art v2. Blood witch of the Court.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="gown" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a3a50"/><stop offset=".5" stop-color="#5a1f2e"/><stop offset="1" stop-color="#34101b"/></linearGradient>
+    <linearGradient id="gownD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a1826"/><stop offset="1" stop-color="#260a12"/></linearGradient>
+    <linearGradient id="cape" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e2030"/><stop offset=".5" stop-color="#2a1018"/><stop offset="1" stop-color="#14070b"/></linearGradient>
+    <linearGradient id="lining" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d23a4c"/><stop offset="1" stop-color="#7a1424"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a42a3c"/><stop offset="1" stop-color="#560e1c"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe7a0"/><stop offset=".5" stop-color="#d9b44a"/><stop offset="1" stop-color="#93701f"/></linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fdf8fa"/><stop offset=".55" stop-color="#efe4ea"/><stop offset="1" stop-color="#c8b4c6"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2eff7"/><stop offset=".5" stop-color="#c9c2d6"/><stop offset="1" stop-color="#857a9e"/></linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4c4258"/><stop offset="1" stop-color="#1a1520"/></linearGradient>
+    <radialGradient id="orb" cx=".38" cy=".35" r=".68"><stop offset="0" stop-color="#ffd8dc"/><stop offset=".3" stop-color="#ef4a5c"/><stop offset=".72" stop-color="#c0303f"/><stop offset="1" stop-color="#5e0c18"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- orbiting blood drop (behind) -->
+  <g fill="#c0303f" stroke="#15121d" stroke-width=".7" stroke-linejoin="round">
+    <path d="M71.8 4.93 q1.2 1.6 1.2 2.27 a1.2 1.2 0 0 1 -2.4 0 q0 -0.67 1.2 -2.27 z"/>
+  </g>
+  <!-- blood orb light -->
+  <circle cx="67.5" cy="14.5" r="11.5" fill="#d0303f" opacity=".6" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- cape -->
+    <path d="M46 36 Q36 43 32.5 62 Q30 77 28.5 90.5 Q37 93 45 91 L52 42 Z" fill="url(#cape)"/>
+    <path d="M33.6 66 Q31.2 78 30.4 90.6 Q32.6 91.6 35 91.8 Q35 78 37.4 64 Z" fill="url(#lining)" stroke-width="1"/>
+    <!-- high collar -->
+    <path d="M51 41 L39 35.5 Q36.5 28 37.5 20.5 L41.5 25 L43 18.5 L46.5 24 L49.5 21 Q50 32 54 37 Z" fill="url(#cape)"/>
+    <path d="M50 38.5 L41 34 Q39.5 29 40 25.5 L42.5 28.5 L44 23.5 L46.8 28 L48.7 26.5 Q49.5 33 52 36.5 Z" fill="url(#lining)" stroke-width="1"/>
+    <!-- feet -->
+    <path d="M42 88 h8 v5.5 h-10 z" fill="#1d141c"/>
+    <path d="M52.5 88 h8 l4 5.5 h-12 z" fill="#2c1e28"/>
+    <!-- back sleeve -->
+    <path d="M42 41 Q35 52 35.5 63 L42.5 62.5 Q42 55 45 48 Z" fill="url(#gownD)"/>
+    <!-- gown -->
+    <path d="M41 39 Q51 35.5 61 39 L66.5 90 Q51 93.5 35.5 90 Z" fill="url(#gown)"/>
+    <path d="M48.5 40 h7 l4.2 51.6 q-7.7 1.1 -15.4 0 z" fill="url(#panel)"/>
+    <path d="M36 86 Q51 89.5 66.1 86 L66.5 90 Q51 93.5 35.5 90 Z" fill="url(#gold)"/>
+    <path d="M40.2 55.5 Q51 59 62.6 55.5 L63 59 Q51 63.5 39.8 59 Z" fill="url(#gold)"/>
+    <!-- grimoire on the hip -->
+    <path d="M36 62.5 h8.5 v10.5 h-8.5 z" fill="#3a1420"/>
+    <path d="M44.5 62.5 h1.4 v10.5 h-1.4 z" fill="#efe4ea" stroke-width="1"/>
+    <!-- staff -->
+    <rect x="66" y="22" width="3" height="70.5" rx="1" fill="url(#iron)"/>
+    <rect x="65.2" y="40" width="4.6" height="2.6" rx=".8" fill="url(#gold)" stroke-width="1"/>
+    <rect x="65.2" y="72" width="4.6" height="2.6" rx=".8" fill="url(#gold)" stroke-width="1"/>
+    <path d="M60.2 15.4 L56 13.6 L60.6 18.6 Z M74.8 15.4 L79 13.6 L74.4 18.6 Z" fill="url(#gold)" stroke-width="1"/>
+    <path d="M60 7.5 Q58.5 20.5 67.5 24.5 Q76.5 20.5 75 7.5 Q73.4 18 67.5 20.6 Q61.6 18 60 7.5 Z" fill="url(#gold)"/>
+    <path d="M64.3 21.5 h6.4 l-1.2 3.6 h-4 z" fill="url(#gold)" stroke-width="1"/>
+    <circle cx="67.5" cy="14.5" r="5.6" fill="url(#orb)"/>
+    <!-- neck -->
+    <path d="M51 32 h6 v8 h-6 z" fill="url(#skin)"/>
+    <!-- capelet -->
+    <path d="M42.5 38.5 Q51.5 34 61.5 38.5 L64 45.5 Q52 49.5 41 45.5 Z" fill="url(#cape)"/>
+    <!-- long hair down the back -->
+    <path d="M48.5 19 Q38 25 38.5 44 Q38 58 40 69 Q44 64.5 48 60 Q46 47 51 36 Z" fill="url(#hair)"/>
+    <!-- head -->
+    <circle cx="54.5" cy="26.5" r="8.3" fill="url(#skin)"/>
+    <!-- hair front -->
+    <path d="M46 30 Q44.5 16.5 55 16.5 Q63.5 16.5 63.5 24.5 Q59.5 20.5 55.5 21.5 Q51.5 23 51 32 Q50.5 39 51.5 45 Q47 41.5 46 30 Z" fill="url(#hair)"/>
+    <!-- pointed ear -->
+    <path d="M51.5 25.5 L46.5 21.5 L49 29 Z" fill="url(#skin)" stroke-width="1.1"/>
+    <!-- front arm -->
+    <path d="M56.5 41 Q64.5 43.5 67 55 L62 58 Q58 50.5 54.5 48 Z" fill="url(#gown)"/>
+    <path d="M61 55 Q65.5 51 70.5 53.5 L69.5 60.5 Q65 61.5 61.5 59.5 Z" fill="url(#gownD)"/>
+    <circle cx="67.6" cy="57.8" r="2.6" fill="url(#skin)"/>
+  </g>
+  <!-- circlet + ruby -->
+  <path d="M47.5 21.6 Q54 17.6 62.3 19.6" stroke="#15121d" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M47.5 21.6 Q54 17.6 62.3 19.6" stroke="url(#gold)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M58.3 17.4 l1.6 1.9 l-1.6 2.6 l-1.6 -2.6 z" fill="#c0303f" stroke="#15121d" stroke-width=".8" stroke-linejoin="round"/>
+  <circle cx="57.9" cy="18.7" r=".45" fill="#fff"/>
+  <!-- face -->
+  <path d="M56.6 23.6 q2.2 -1.1 4.4 -.1" stroke="#7d7196" stroke-width=".85" fill="none" stroke-linecap="round"/>
+  <path d="M56.5 25.6 q2.2 -1.2 4.4 .1" stroke="#15121d" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <circle cx="58.9" cy="26.6" r="1.25" fill="#e8304a"/>
+  <circle cx="59.2" cy="26.3" r=".4" fill="#ffd0d6"/>
+  <path d="M59.4 31.3 q1.3 .6 2.6 -.2" stroke="#5a0f1e" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M60.2 31.6 l.4 1.1 l.4 -1.1 z" fill="#fff"/>
+  <circle cx="61" cy="29" r="1.3" fill="#c98aa6" opacity=".35"/>
+  <!-- hair strands + highlights -->
+  <path d="M41.3 44 Q41 56 42.6 64 M44.6 42 Q44 50 45.6 56" stroke="#857a9e" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M48 21 Q51 18 55 17.8" stroke="#fff" stroke-width="1.1" fill="none" opacity=".75" stroke-linecap="round"/>
+  <!-- capelet + gown trim, filigree -->
+  <path d="M41.5 45.5 Q52 49.5 63.8 45.5" stroke="url(#gold)" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M49 47.5 L45.6 87.6 M55 47.5 L58.7 87.6" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M52.4 66 l2 2.8 l-2 2.8 l-2 -2.8 z M52.8 76 l2.2 3 l-2.2 3 l-2.2 -3 z M52.4 71.6 v4.4" stroke="url(#gold)" stroke-width="1" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M51.5 57.4 l1.4 1.6 l-1.4 1.8 l-1.4 -1.8 z" fill="#c0303f" stroke="#15121d" stroke-width=".7" stroke-linejoin="round"/>
+  <path d="M50.5 38.4 Q53.5 37 57 37.3" stroke="#6e3a4c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M61.5 55.2 Q65.5 51.4 70.4 53.6" stroke="url(#gold)" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <!-- grimoire clasp + sigil -->
+  <path d="M37.4 64 h2.4 M37.4 71.5 h2.4 M37.4 64 v2.4 M37.4 71.5 v-2.4" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="40.6" cy="67.8" r="1.5" fill="#c0303f" stroke="url(#gold)" stroke-width=".8"/>
+  <!-- staff band detail -->
+  <path d="M67 24 v16 M67 43 v28" stroke="#6a5e7a" stroke-width=".7" stroke-linecap="round" opacity=".8"/>
+  <!-- orb shine -->
+  <path d="M64.8 12.6 q1 -1.8 3 -1.9" stroke="#fff" stroke-width="1.2" fill="none" opacity=".9" stroke-linecap="round"/>
+  <circle cx="65.5" cy="16.6" r=".6" fill="#ffd8dc" opacity=".8"/>
+  <!-- orbiting blood drops (front) -->
+  <g fill="#c0303f" stroke="#15121d" stroke-width=".7" stroke-linejoin="round">
+    <path d="M81 11.18 q1.6 2.13 1.6 3.02 a1.6 1.6 0 0 1 -3.2 0 q0 -0.89 1.6 -3.02 z"/>
+    <path d="M53.6 11.25 q1.4 1.86 1.4 2.65 a1.4 1.4 0 0 1 -2.8 0 q0 -0.78 1.4 -2.65 z"/>
+  </g>
+  <g fill="#ff7a88"><circle cx="82" cy="14" r=".8"/><circle cx="73" cy="31" r=".7"/><circle cx="55" cy="11" r=".6"/></g>
+</svg>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Nessa (npc) - Cinderhold villager art v2. Tideborn fishmonger up from the coast:
+     headscarf, oilskin apron, rubber boots, fish held up by the tail, basket on her hip.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="nessa-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b0d9d0"/><stop offset=".5" stop-color="#7fb3a8"/><stop offset="1" stop-color="#56877d"/></linearGradient>
+    <linearGradient id="nessa-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b9a90"/><stop offset="1" stop-color="#436f67"/></linearGradient>
+    <linearGradient id="nessa-fin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b4e6f2"/><stop offset=".5" stop-color="#5fb0cc"/><stop offset="1" stop-color="#2f7896"/></linearGradient>
+    <linearGradient id="nessa-scarf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9a7c"/><stop offset=".5" stop-color="#e0503e"/><stop offset="1" stop-color="#8f2430"/></linearGradient>
+    <linearGradient id="nessa-shirt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e82b4"/><stop offset=".5" stop-color="#3a5688"/><stop offset="1" stop-color="#22345a"/></linearGradient>
+    <linearGradient id="nessa-apron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a0"/><stop offset=".5" stop-color="#ecbc3e"/><stop offset="1" stop-color="#a8741c"/></linearGradient>
+    <linearGradient id="nessa-apronD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9a032"/><stop offset="1" stop-color="#8a5c16"/></linearGradient>
+    <linearGradient id="nessa-boot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6e8a72"/><stop offset=".5" stop-color="#3f5a48"/><stop offset="1" stop-color="#22332a"/></linearGradient>
+    <linearGradient id="nessa-fish" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f93a8"/><stop offset=".55" stop-color="#d4e8f0"/><stop offset="1" stop-color="#8fb0c2"/></linearGradient>
+    <linearGradient id="nessa-fishD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a98ae"/><stop offset="1" stop-color="#2f4f63"/></linearGradient>
+    <linearGradient id="nessa-wicker" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8c486"/><stop offset=".5" stop-color="#b08040"/><stop offset="1" stop-color="#6e4a22"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="26" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- scarf knot tails -->
+    <path d="M44.5 27.5 Q37 25.5 32.5 30.5 Q36.5 30.8 38.5 32.6 Q35.5 36 35.5 40.5 Q40.5 36.5 45.5 32.5 Z" fill="url(#nessa-scarf)"/>
+    <!-- fish tails in basket -->
+    <path d="M30.5 59 L29 52.5 L31.6 54.6 L33.4 51.8 L33.6 59 Z" fill="url(#nessa-fishD)"/>
+    <path d="M35 59 L36.5 51.5 L38 54 L40.6 52.6 L38.6 59.2 Z" fill="url(#nessa-fish)"/>
+    <!-- basket on hip -->
+    <path d="M26.5 60.5 h17 l-2 12.5 q-6.5 2 -13 0 z" fill="url(#nessa-wicker)"/>
+    <rect x="25" y="57.6" width="20" height="3.6" rx="1.2" fill="url(#nessa-wicker)"/>
+    <!-- back arm -->
+    <path d="M42.5 44 Q36.5 49 36 55 L41.2 56 Q41.2 51.2 45.5 48 Z" fill="#2a4068"/>
+    <path d="M36 54.5 L36.4 58.6 L40.8 58.6 L41.2 55.5 Z" fill="url(#nessa-skinD)"/>
+    <circle cx="38.6" cy="59" r="2.6" fill="url(#nessa-skinD)"/>
+    <!-- rubber boots -->
+    <path d="M41.5 75 h7.5 v12.5 q3.5 .5 3.5 3 v3 h-11 z" fill="#2c4034"/>
+    <path d="M51.5 75 h8 v12.5 q4.8 .5 4.8 3 v3 h-12.8 z" fill="url(#nessa-boot)"/>
+    <!-- dress -->
+    <path d="M39.5 42 Q50 38 60.5 42 L64 78 Q50 81.5 36 78 Z" fill="url(#nessa-shirt)"/>
+    <!-- oilskin apron -->
+    <path d="M45 46 h11 l.6 8 Q60 55.5 61.4 60 L62.6 79.5 Q50 82.5 37.6 79.5 L39 60 Q40.5 55.5 44.4 54 Z" fill="url(#nessa-apron)"/>
+    <path d="M44.6 46.4 L43 41.6 L45 41 L46.6 46.4 Z" fill="url(#nessa-apron)"/>
+    <path d="M54.6 46.4 L56.4 41.2 L58.4 41.8 L56.6 46.4 Z" fill="url(#nessa-apron)"/>
+    <path d="M45.5 64 h10 v6.5 q-5 1.6 -10 0 z" fill="url(#nessa-apronD)"/>
+    <!-- neck + head -->
+    <path d="M48.5 35 h7 v8 h-7 z" fill="url(#nessa-skin)"/>
+    <circle cx="52.5" cy="30" r="9" fill="url(#nessa-skin)"/>
+    <!-- headscarf -->
+    <path d="M43 33.5 Q40.5 18 52.5 18 Q63 18 63 26.5 Q58 22.6 52.5 23.2 Q47.8 24 47.6 31.5 L46.8 38 Q43.6 37.2 43 33.5 Z" fill="url(#nessa-scarf)"/>
+    <circle cx="44" cy="29.5" r="2.6" fill="url(#nessa-scarf)"/>
+    <!-- fin ear -->
+    <path d="M50 31 L44.2 25.2 L44.6 28.6 L40.6 27.8 L43 31.4 L40 34.4 L44.2 34.6 L42.8 37.8 L50 34.6 Z" fill="url(#nessa-fin)"/>
+    <!-- front arm -->
+    <path d="M54 43 Q59.5 42 62.5 46.5 L60 51.5 Q56.5 50 53.5 49.5 Z" fill="url(#nessa-shirt)"/>
+    <path d="M61.6 47 L66.8 39.6 L70.6 42.2 L63.4 51.6 Z" fill="url(#nessa-skin)"/>
+    <path d="M59.8 45.4 L63.4 47.2 L61.2 52.4 L57.6 50.6 Z" fill="#e9e4d8"/>
+    <!-- big fish held by the tail -->
+    <path d="M62.4 53 L58.4 56 L58.8 63.4 L62.2 64.4 Z" fill="url(#nessa-fishD)"/>
+    <path d="M75.4 61.5 L78.6 64.6 L75 66.8 Z" fill="url(#nessa-fishD)"/>
+    <path d="M68.6 42 Q75.6 50 75.6 60 Q75.2 70.6 68.6 74.8 Q62 70.6 61.8 60 Q61.8 50 68.6 42 Z" fill="url(#nessa-fish)"/>
+    <path d="M68.6 41.5 L63.6 33.6 Q66.4 35.6 68.6 36.1 Q70.8 35.6 73.6 33.6 Z" fill="url(#nessa-fishD)"/>
+    <circle cx="68.6" cy="40.4" r="2.9" fill="url(#nessa-skin)"/>
+  </g>
+  <!-- fish details -->
+  <path d="M63.6 67.4 Q68.6 64.4 73.6 67.4" stroke="#15121d" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M65 48 Q63.2 55 63.6 63" stroke="#4f7488" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".7"/>
+  <g stroke="#7d9fb2" stroke-width=".7" fill="none" stroke-linecap="round"><path d="M66 52 q1.2 1 2.4 0 M69.4 52 q1.2 1 2.4 0 M67.6 55.6 q1.2 1 2.4 0 M71 55.6 q1.2 1 2.4 0 M66 59.2 q1.2 1 2.4 0 M69.4 59.2 q1.2 1 2.4 0"/></g>
+  <circle cx="66.6" cy="70.2" r="1.5" fill="#fff" stroke="#15121d" stroke-width=".8"/>
+  <circle cx="66.4" cy="70.5" r=".7" fill="#15121d"/>
+  <path d="M67.4 74.4 q1.2 1.4 2.4 0" stroke="#15121d" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M73.6 49 Q74.8 54 74.6 59" stroke="#fff" stroke-width="1.1" fill="none" opacity=".8" stroke-linecap="round"/>
+  <path d="M65 37 l3.6 .3 M72.2 37 l-3.6 .3" stroke="#2f4f63" stroke-width=".6" fill="none"/>
+  <!-- drips -->
+  <g fill="#9fd8ee" stroke="#15121d" stroke-width=".6"><path d="M68.6 77.6 q-1.1 1.6 0 2.4 q1.1 -.8 0 -2.4 z"/><path d="M72.2 81 q-.9 1.3 0 2 q.9 -.7 0 -2 z"/></g>
+  <!-- webbed fingers -->
+  <path d="M70.2 39.4 l1.2 1.2 M70.4 41.4 l1.2 .8" stroke="#15121d" stroke-width=".7" stroke-linecap="round"/>
+  <!-- fin ear ribs -->
+  <path d="M49.2 31.8 L45.2 27.4 M49 32.6 L42.6 31.2 M49.2 33.6 L44.4 36.4" stroke="#2f7896" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <!-- scarf dots + fringe -->
+  <g fill="#fff4dc" opacity=".9"><circle cx="49" cy="20.6" r=".9"/><circle cx="54" cy="19.8" r=".9"/><circle cx="58.8" cy="21.2" r=".9"/><circle cx="45" cy="24" r=".9"/><circle cx="51.6" cy="23.2" r=".7"/><circle cx="37" cy="29.6" r=".8"/><circle cx="39.4" cy="35.4" r=".8"/></g>
+  <path d="M52.6 23.4 Q56.4 23.2 59.4 25.8 Q56.4 25.2 54.4 26.8 Q53.6 25 52.6 23.4 Z" fill="#2f5f66" stroke="#15121d" stroke-width=".7" stroke-linejoin="round"/>
+  <!-- face -->
+  <circle cx="57.8" cy="29.8" r="1.6" fill="#1d2130"/>
+  <circle cx="58.3" cy="29.2" r=".5" fill="#fff"/>
+  <path d="M55.8 27 q2 -1 4 -.1" stroke="#2f5f66" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M61.4 30.4 q1.8 1.2 .2 2.4" stroke="#3f6b63" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M57.2 34.2 q2.2 2 4.4 -.3" stroke="#2c4a44" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <g fill="#4f8a80"><circle cx="55" cy="32.6" r=".55"/><circle cx="56.4" cy="33.4" r=".5"/><circle cx="54.6" cy="34.2" r=".45"/></g>
+  <!-- gills -->
+  <path d="M50.5 37.6 q-1 2 0 4 M52.5 37.6 q-1 2 0 4" stroke="#436f67" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <!-- apron + basket details -->
+  <path d="M46 56 Q50 54.8 55 56" stroke="#a8741c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <path d="M41.6 74 q2 -4 1.6 -9 M58.6 74 q-1.2 -4 -.6 -8" stroke="#c9922e" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <path d="M28 64.4 h15 M28.6 68.6 h13.8 M31 61.4 v11.6 M35 61.4 v12.4 M39 61.4 v11.8" stroke="#6e4a22" stroke-width=".7" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M41.2 66 Q41 60 43.8 56.4" stroke="#fff" stroke-width="1.3" fill="none" opacity=".75" stroke-linecap="round"/>
+  <path d="M46 47.6 Q47.6 46.8 49.6 46.8" stroke="#fff" stroke-width="1" fill="none" opacity=".8" stroke-linecap="round"/>
+  <path d="M45 23 Q48.5 19.4 54 19" stroke="#fff" stroke-width="1.1" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M53.6 88 q-.2 -3 .6 -5.6" stroke="#fff" stroke-width="1" fill="none" opacity=".55" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Zazzo the Magnificent (NPC) - Cinderhold villager art. Carnival barker; keeper of the Carnival.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="zazzo-coat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8484f"/><stop offset=".55" stop-color="#a42a32"/><stop offset="1" stop-color="#5e141c"/></linearGradient>
+    <linearGradient id="zazzo-hat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3a5a"/><stop offset="1" stop-color="#1d1626"/></linearGradient>
+    <linearGradient id="zazzo-pants" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a3044"/><stop offset="1" stop-color="#1f1828"/></linearGradient>
+    <linearGradient id="zazzo-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0c8a0"/><stop offset="1" stop-color="#c8926a"/></linearGradient>
+    <linearGradient id="zazzo-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc8a"/><stop offset="1" stop-color="#b08a2e"/></linearGradient>
+    <pattern id="zazzo-stripe" width="4" height="8" patternUnits="userSpaceOnUse"><rect width="2" height="8" fill="#f1ead6"/><rect x="2" width="2" height="8" fill="#e8a548"/></pattern>
+  </defs>
+  <ellipse cx="50" cy="94" rx="22" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- cane (behind the body) -->
+    <path d="M71 93 L67 58" stroke-width="3.6" fill="none"/>
+    <path d="M71 93 L67 58" stroke="#2a2232" stroke-width="2" fill="none"/>
+    <!-- legs + shoes -->
+    <path d="M44 70 h6 l-.5 19 h-6 z" fill="url(#zazzo-pants)"/>
+    <path d="M52 70 h6 l1 19 h-6 z" fill="url(#zazzo-pants)"/>
+    <path d="M42 88.5 h8.5 v5 h-10 z" fill="#1d1626"/>
+    <path d="M52.5 88.5 h8 l3 5 h-11 z" fill="#1d1626"/>
+    <!-- tailcoat -->
+    <path d="M45 40 Q38 46 37 58 L34 80 Q40 79 44 72 L45 62 Z" fill="url(#zazzo-coat)"/>
+    <path d="M44.5 40 Q42 52 43.5 66 L60.5 66 Q62 52 58.5 40 Z" fill="url(#zazzo-coat)"/>
+    <!-- striped vest -->
+    <path d="M48 41 L55.5 41 L58 64 L46 64 Z" fill="url(#zazzo-stripe)"/>
+    <path d="M51.8 41 L52 64" stroke-width="1"/>
+    <circle cx="52" cy="49" r="1" fill="url(#zazzo-gold)" stroke-width=".8"/><circle cx="52" cy="55" r="1" fill="url(#zazzo-gold)" stroke-width=".8"/>
+    <!-- lapels + bow tie -->
+    <path d="M47.5 40.5 L50.5 50 L48 51 L45.5 41.5 Z M56.5 40.5 L53.5 50 L56 51 L58.5 41.5 Z" fill="#7a1a22" stroke-width="1.1"/>
+    <path d="M48.5 39.5 L52 41 L55.5 39.5 L55.5 43 L52 41.8 L48.5 43 Z" fill="url(#zazzo-gold)" stroke-width="1"/>
+    <!-- neck + head -->
+    <path d="M50 35 h4.5 v4.5 h-4.5 z" fill="url(#zazzo-skin)" stroke-width="1.1"/>
+    <circle cx="54" cy="29" r="8" fill="url(#zazzo-skin)"/>
+    <path d="M46.5 29 Q46 23 49.5 22 L50 31 Z" fill="#2a1a18" stroke-width="1.1"/>
+    <!-- top hat -->
+    <path d="M44 22.5 Q54 19.5 65 22 L65 24 Q54 21.5 44 24.5 Z" fill="url(#zazzo-hat)"/>
+    <path d="M47 22.5 L48 6.5 Q55 4.5 62 6 L62.5 21.5 Q55 20.2 47 22.5 Z" fill="url(#zazzo-hat)"/>
+    <path d="M47.6 17.5 Q55 15.8 62.3 17 L62.4 20.5 Q55 19.4 47.3 21.2 Z" fill="#c0303f" stroke-width="1.1"/>
+    <!-- raised arm, presenting -->
+    <path d="M57.5 42 Q66 41 70 35 L74 31.5 L76.5 34.5 L72 39.5 Q66 47 59 49.5 Z" fill="url(#zazzo-coat)"/>
+    <path d="M70.6 34.6 L74 31.5 L76.5 34.5 L73.4 37.8 Z" fill="#f1ead6" stroke-width="1.1"/>
+    <circle cx="76" cy="30.5" r="3" fill="url(#zazzo-skin)"/>
+    <!-- lower arm holding the cane -->
+    <path d="M45 44 Q40 52 44 59 L48 57 Q45 51 48.5 46 Z" fill="url(#zazzo-coat)" stroke-width="1.2"/>
+    <circle cx="66.6" cy="58" r="2.6" fill="url(#zazzo-gold)"/>
+  </g>
+  <!-- face: grin, eye, grand mustache -->
+  <circle cx="58.5" cy="27.5" r="1.3" fill="#1d2130"/>
+  <path d="M56.8 25 q2 -1.2 3.8 0" stroke="#2a1a18" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M55 32.5 Q58.5 30.5 61.5 32.5 Q64.5 33 66 30.5 Q65.5 35 61.5 34.3 Q58.5 33.8 55 34.6 Q51.8 35.8 51 33 Q53 33.6 55 32.5 Z" fill="#2a1a18"/>
+  <path d="M57.5 36.2 q2.2 1.2 4.2 0" stroke="#8a4040" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M61.5 28.8 Q64.5 30.4 62.2 32" stroke="#b07a60" stroke-width=".7" fill="none" stroke-linecap="round"/>
+  <!-- highlights + sparkle -->
+  <path d="M50 8.5 Q53 7 57 6.8" stroke="#7a6a8a" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M39.5 50 Q38 62 36.5 74" stroke="#e8787f" stroke-width="1" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M81 25 l.8 2 2 .8 -2 .8 -.8 2 -.8 -2 -2 -.8 2 -.8 z" fill="#ffd166"/>
+  <path d="M84.5 33 l.5 1.3 1.3 .5 -1.3 .5 -.5 1.3 -.5 -1.3 -1.3 -.5 1.3 -.5 z" fill="#ffd166"/>
+</svg>

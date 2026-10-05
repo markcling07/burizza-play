@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Clockwork Spider (monster) - Burizza placeholder art.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><path d="M42 66 Q30 50 22 56 M58 66 Q70 50 80 56 M40 70 Q26 58 15 72 M60 70 Q74 58 86 72 M40 74 Q24 70 13 85 M60 74 Q78 70 89 85 M44 76 Q34 84 26 93 M56 76 Q66 84 74 93"
+  stroke="#7a7f8a" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="43" cy="70" rx="17" ry="13" fill="#7a7f8a"/>
+  <path d="M37 66 h12 M43 61 v10" stroke="#ffd166" stroke-width="2.4"/>
+  <circle cx="62" cy="73" r="9" fill="#7a7f8a"/>
+  <circle cx="65" cy="70" r="1.8" fill="#ffd166"/><circle cx="69" cy="72" r="1.5" fill="#ffd166"/><circle cx="64" cy="75" r="1.2" fill="#ffd166"/>
+  <path d="M68 79 l2 4 M64 80 l1 4" stroke="#e6e1d3" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Bulwark-7 (melee) - Ashfall Road art v2. Hulking frontline war machine.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="hull" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d3dbea"/><stop offset=".5" stop-color="#8d9ab3"/><stop offset="1" stop-color="#55607a"/></linearGradient>
+    <linearGradient id="hullD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#77839c"/><stop offset="1" stop-color="#3d465b"/></linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd58e"/><stop offset="1" stop-color="#c8731c"/></linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6c7286"/><stop offset="1" stop-color="#2c3040"/></linearGradient>
+    <linearGradient id="rod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9aa3b5"/></linearGradient>
+    <radialGradient id="heat" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#ffb347"/><stop offset="1" stop-color="#e2561f" stop-opacity="0"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+  <ellipse cx="52" cy="94" rx="28" ry="3.8" fill="#000" opacity=".38"/>
+  <!-- exhaust heat -->
+  <circle cx="33" cy="17" r="6" fill="url(#heat)" filter="url(#glow)"/>
+  <circle cx="40.5" cy="20" r="5" fill="url(#heat)" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- exhaust stacks -->
+    <rect x="30" y="18" width="6" height="22" rx="1" fill="url(#iron)"/>
+    <rect x="37.5" y="21" width="5.5" height="18" rx="1" fill="url(#iron)"/>
+    <!-- back arm -->
+    <path d="M24 50 L32 50 L32 70 L24 70 Z" fill="url(#hullD)"/>
+    <path d="M21 68 h14 v12 q-7 3 -14 0 z" fill="url(#hullD)"/>
+    <path d="M18 45 Q19 35 30 36 L36 46 L26 55 Q19 53 18 45 Z" fill="url(#hullD)"/>
+    <!-- legs -->
+    <path d="M36 72 h13 l-1 16 h-12 z" fill="url(#hullD)"/>
+    <path d="M31 87.5 h19 v6 h-20 z" fill="#3a4152"/>
+    <path d="M52 72 h13 l2 16 h-13 z" fill="url(#hull)"/>
+    <path d="M51 87.5 h19 l2.5 6 h-21.5 z" fill="#4b5366"/>
+    <path d="M53 77 h12.8 l.4 3.4 h-13.2 z" fill="url(#amber)"/>
+    <!-- torso -->
+    <path d="M28 44 Q50 31 72 44 L68 72 Q50 79 32 72 Z" fill="url(#hull)"/>
+    <path d="M34 64 Q50 70 66 64 L65.5 70 Q50 76 34.5 70 Z" fill="url(#amber)"/>
+    <!-- chest vent -->
+    <rect x="40" y="48" width="18" height="11" rx="2" fill="#241f2c"/>
+    <!-- head (sunk between shoulders) -->
+    <path d="M43 30 Q43 24 51 24 Q59 24 60 30 L60 40 L43 40 Z" fill="url(#hull)"/>
+    <!-- piston forearm -->
+    <rect x="68" y="60" width="13" height="9" rx="1.5" fill="url(#iron)"/>
+    <rect x="70" y="56.5" width="12" height="3" rx="1.2" fill="url(#rod)"/>
+    <rect x="70" y="69.5" width="12" height="3" rx="1.2" fill="url(#rod)"/>
+    <!-- front upper arm + pauldron -->
+    <path d="M60 52 L70 56 L71 70 L62 68 Z" fill="url(#hull)"/>
+    <path d="M55 44 Q56 34 66 34 Q77 35 77 47 L74 53 L58 53 Z" fill="url(#hull)"/>
+    <path d="M57 49 Q66 46 76 49.5 L74 53 L58 53 Z" fill="url(#amber)"/>
+    <!-- piston fist -->
+    <path d="M80 54 h12 q5 0 5 5 v12 q0 5 -5 5 h-12 z" fill="url(#hull)"/>
+    <rect x="91" y="55" width="6" height="20" rx="2" fill="url(#amber)"/>
+  </g>
+  <!-- vent glow -->
+  <rect x="41.5" y="49.5" width="15" height="8" rx="1" fill="#ff9a3a" opacity=".8" filter="url(#glow)"/>
+  <path d="M42 51.5 h14 M42 54 h14 M42 56.5 h14" stroke="#ffd58e" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M42 51.5 h14 M42 54 h14 M42 56.5 h14" stroke="#241f2c" stroke-width=".6" stroke-linecap="round" transform="translate(0 1.25)"/>
+  <!-- visor -->
+  <rect x="50" y="30" width="11" height="4" rx="1.5" fill="#ffb347" filter="url(#glow)"/>
+  <rect x="50.5" y="30.5" width="10" height="3" rx="1.2" fill="#ffe2a0" stroke="#15121d" stroke-width=".9"/>
+  <!-- stack rims -->
+  <path d="M30 18.5 h6 M37.5 21.5 h5.5" stroke="#ffb347" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- rivets -->
+  <g fill="#2c3040"><circle cx="31.5" cy="48" r="1"/><circle cx="66" cy="57.5" r=".9"/><circle cx="83.5" cy="58" r="1"/><circle cx="83.5" cy="72" r="1"/><circle cx="36" cy="66.5" r=".8"/><circle cx="64" cy="66.5" r=".8"/></g>
+  <!-- knuckle lines -->
+  <path d="M94 60 v3 M94 67 v3" stroke="#8a4c12" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M32 44 Q40 38.5 49 37.5" stroke="#fff" stroke-width="1.4" fill="none" opacity=".85" stroke-linecap="round"/>
+  <path d="M59 40 Q61 36.5 66 36" stroke="#fff" stroke-width="1.3" fill="none" opacity=".85" stroke-linecap="round"/>
+  <path d="M45.5 28.5 Q47 26 51 25.8" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8" stroke-linecap="round"/>
+  <path d="M82.5 56.5 h8" stroke="#fff" stroke-width="1.2" opacity=".8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vesna Glimmerglass (NPC) - Cinderhold villager art. Jeweler; keeper of the Jeweler's tower.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="vesna-gown" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5cb4"/><stop offset=".55" stop-color="#5a3486"/><stop offset="1" stop-color="#2e1a4a"/></linearGradient>
+    <linearGradient id="vesna-bodice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3fa0a8"/><stop offset="1" stop-color="#1f5a66"/></linearGradient>
+    <linearGradient id="vesna-apron" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a87650"/><stop offset="1" stop-color="#6a4428"/></linearGradient>
+    <linearGradient id="vesna-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9773c"/><stop offset=".6" stop-color="#a24a22"/><stop offset="1" stop-color="#6a2a12"/></linearGradient>
+    <linearGradient id="vesna-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4d2b4"/><stop offset="1" stop-color="#d0a07e"/></linearGradient>
+    <linearGradient id="vesna-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc8a"/><stop offset="1" stop-color="#b08a2e"/></linearGradient>
+    <radialGradient id="vesna-gem" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#dff8ff"/><stop offset=".7" stop-color="#7fe3ff"/><stop offset="1" stop-color="#2f8fb0"/></radialGradient>
+    <filter id="vesna-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="22" ry="3.8" fill="#000" opacity=".38"/>
+  <!-- gem glow -->
+  <circle cx="71" cy="22" r="7" fill="#7fe3ff" opacity=".6" filter="url(#vesna-glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- shoes -->
+    <path d="M42.5 88.5 h8 v5 h-9.5 z" fill="#2a1f2e"/>
+    <path d="M53.5 88.5 h8 l2.5 5 h-10.5 z" fill="#3a2a40"/>
+    <!-- gown -->
+    <path d="M44 42 Q37 50 36 66 Q34 80 32.5 90.5 Q50 94 67.5 90.5 Q65 78 63 64 Q61 48 56.5 42 Z" fill="url(#vesna-gown)"/>
+    <path d="M33.4 86.5 Q50 90 66.9 86.5 L67.5 90.5 Q50 94 32.5 90.5 Z" fill="url(#vesna-gold)" stroke-width="1.1"/>
+    <!-- leather apron with tool pocket -->
+    <path d="M49.5 56.5 h12 l3 31.5 q-8 1.8 -15.5 .8 z" fill="url(#vesna-apron)"/>
+    <path d="M52 68 h9.5 l.7 8 h-10.8 z" fill="#5a3820" stroke-width="1.1"/>
+    <path d="M54.5 68 l-.6 -4.5 M57.5 68 l.4 -5.5" stroke-width="1.1"/>
+    <!-- bodice + belt -->
+    <path d="M45.5 40.5 Q44 49 46 57 L61.5 57 Q62.5 48 57.5 40.5 Z" fill="url(#vesna-bodice)"/>
+    <path d="M45.6 55 L61.7 55 L61.5 58.6 L45.8 58.6 Z" fill="#3a2418" stroke-width="1.1"/>
+    <rect x="51.6" y="54.4" width="4.2" height="4.8" rx="1" fill="url(#vesna-gold)" stroke-width="1"/>
+    <!-- gold collar -->
+    <path d="M47 41.5 Q52 46.5 57.5 41.5 L56.5 40 Q52 43.2 48 40 Z" fill="url(#vesna-gold)" stroke-width="1.1"/>
+    <!-- hair bun behind -->
+    <circle cx="47" cy="25.5" r="5.6" fill="url(#vesna-hair)"/>
+    <!-- neck + head -->
+    <path d="M52.5 36 h5 v5 h-5 z" fill="url(#vesna-skin)" stroke-width="1.1"/>
+    <circle cx="56" cy="29.5" r="8" fill="url(#vesna-skin)"/>
+    <!-- hair -->
+    <path d="M48 31.5 Q46.5 20.5 55 19.5 Q63.5 19 64.5 26 Q60 22.8 55.5 24.5 Q52.5 26 52 33.5 Z" fill="url(#vesna-hair)"/>
+    <path d="M48.2 30 Q47.5 37 50.5 40.5 Q51.8 36 51.6 31.5 Z" fill="url(#vesna-hair)" stroke-width="1.1"/>
+    <!-- loupe strap + loupe over the eye -->
+    <path d="M52.5 27.5 Q57 26 60.2 28.4" stroke="#2a2232" stroke-width="1.1" fill="none"/>
+    <circle cx="61.6" cy="29.6" r="2.8" fill="url(#vesna-gold)" stroke-width="1.1"/>
+    <circle cx="61.6" cy="29.6" r="1.7" fill="#bfefff" stroke-width=".8"/>
+    <!-- raised arm holding the gem -->
+    <path d="M56 42.5 Q63.5 42 67.5 37.5 L71 33.5 L74 36 L70.5 41 Q64 48 57.5 50.5 Z" fill="url(#vesna-bodice)"/>
+    <path d="M67.8 36.8 L71 33.5 L74 36 L71.2 39.4 Z" fill="url(#vesna-gold)" stroke-width="1.1"/>
+    <circle cx="72.5" cy="32.2" r="2.8" fill="url(#vesna-skin)"/>
+    <!-- the gem -->
+    <path d="M71 17.5 l5 6 l-5 7 l-5 -7 z" fill="url(#vesna-gem)" stroke-width="1.1"/>
+  </g>
+  <!-- face -->
+  <path d="M57.5 33.9 q1.6 1.1 3.2 -.2" stroke="#8a4040" stroke-width=".95" fill="none" stroke-linecap="round"/>
+  <circle cx="59.6" cy="32" r="1.3" fill="#f2a08a" opacity=".5"/>
+  <path d="M62.6 30.6 Q65 32.5 63 34" stroke="#b07a60" stroke-width=".7" fill="none" stroke-linecap="round"/>
+  <!-- earring -->
+  <circle cx="54.6" cy="34" r="1" fill="#c48be0" stroke="#15121d" stroke-width=".6"/>
+  <!-- gem facets + sparkle -->
+  <path d="M66 23.5 h10 M71 17.5 l-2 6 l2 7 l2 -7 z" stroke="#2f8fb0" stroke-width=".6" fill="none"/>
+  <path d="M77.5 15.5 l.7 1.8 1.8 .7 -1.8 .7 -.7 1.8 -.7 -1.8 -1.8 -.7 1.8 -.7 z" fill="#ffffff"/>
+  <!-- highlights -->
+  <path d="M41 52 Q38.5 66 37 84" stroke="#b08ad8" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M50.5 21.8 Q53.5 20.2 57 20.4" stroke="#f0a070" stroke-width="1" fill="none" stroke-linecap="round" opacity=".8"/>
+  <g fill="#f6dc8a"><circle cx="40" cy="88.5" r=".6"/><circle cx="50" cy="89.6" r=".6"/><circle cx="60" cy="88.7" r=".6"/></g>
+  <!-- drifting motes -->
+  <g fill="#dff8ff"><circle cx="65" cy="13" r=".8"/><circle cx="80" cy="25" r=".7"/><circle cx="76" cy="10" r=".5"/></g>
+</svg>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burizza Champions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Grenze+Gotisch:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Champion roster: every champion with their skills and passive.
+   Reads ROSTER and GENERIC_PASSIVES straight out of index.html, so it is always current.
+   Needs a local server (fetch), e.g. the same one that serves the game. */
+:root {
+  --bg: #161925; --bg-2: #262036; --panel: #1e2232; --panel-2: #282d43; --line: #3a4058;
+  --fg: #ece6d8; --muted: #a29fb2; --accent: #e8a548;
+  --melee: #f08a5d; --ranged: #6fb5e6; --support: #6cc28a;
+  --font-display: "Grenze Gotisch", "Palatino Linotype", Georgia, serif;
+  --font-body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg); font: 16px/1.45 var(--font-body);
+  background: radial-gradient(120% 70% at 50% 0%, var(--bg-2), var(--bg) 65%) fixed, var(--bg);
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 28px; }
+h1 { margin: 0; font-family: var(--font-display); font-size: clamp(2.1rem, 5vw, 2.9rem); line-height: 1; color: var(--accent); }
+.tag { margin: 6px 0 0; color: var(--muted); max-width: 70ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 0; padding: 0; list-style: none; font-size: .85rem; color: var(--muted); }
+.legend b { color: var(--fg); }
+nav { display: flex; flex-wrap: wrap; gap: 6px; }
+nav a { font-weight: 800; font-size: .88rem; text-decoration: none; color: var(--fg); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); }
+nav a:hover { border-color: var(--acc, var(--accent)); color: var(--acc, var(--accent)); }
+#out { display: grid; gap: 28px; }
+section { display: grid; gap: 12px; scroll-margin-top: 12px; }
+section > header h2 { margin: 0; font-family: var(--font-display); font-size: 1.9rem; line-height: 1.1; color: var(--acc); }
+section > header p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; max-width: 90ch; }
+section > header p b { color: var(--fg); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.champ {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 14px 14px; display: grid; gap: 10px; align-content: start;
+}
+.champ .top { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: center; }
+.champ .pic { width: 72px; height: 72px; border-radius: 10px; background: radial-gradient(70% 60% at 50% 45%, var(--acc-dim) 0%, transparent 75%), #1a1d2b; display: grid; place-items: center; }
+.champ .pic img { width: 92%; height: 92%; object-fit: contain; }
+.champ h3 { margin: 0; font-size: 1.12rem; line-height: 1.15; }
+.champ .bio { margin: 2px 0 0; font-size: .82rem; color: var(--muted); }
+.role { display: inline-block; margin-top: 4px; font-size: .66rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; }
+.role.melee { color: var(--melee); } .role.ranged { color: var(--ranged); } .role.support { color: var(--support); }
+ul.sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.sk li { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: start; }
+.sk img { width: 40px; height: 40px; }
+.sk .nm { font-weight: 800; font-size: .92rem; line-height: 1.2; }
+.sk .meta { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-top: 1px; }
+.sk .ds { display: block; font-size: .84rem; line-height: 1.3; color: var(--muted); margin-top: 2px; }
+.sk li.sig .nm { color: #f2cf73; }
+.sk li.pas { padding-top: 8px; border-top: 1px dashed var(--line); }
+.sk li.pas .nm { color: var(--acc); }
+.sk li.pas.alt { border-top: 0; padding-top: 0; opacity: .8; }
+.generic { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.generic .sk li { background: var(--panel); border: 1px dashed var(--line); border-radius: 12px; padding: 10px; }
+.err { padding: 14px; border: 1px solid #e0455a; border-radius: 10px; color: #ffb3bd; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Champions</h1>
+    <p class="tag">Every champion in Burizza with their three active skills and their own passive. Every champion also has <b>Attack</b> and <b>Guard</b>.</p>
+    <ul class="legend">
+      <li><b>CD</b> = cooldown in turns</li>
+      <li><b>★</b> = signature, unlocks on the 3rd turn</li>
+      <li>Round icon = passive (some champions have two to choose from)</li>
+      <li>Loadout: equip 2 actives + 1 passive (more slots at Lv 5, 10, 15)</li>
+    </ul>
+  </header>
+  <nav id="nav"></nav>
+  <div id="out"></div>
+</main>
+<script>
+const FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson' };
+const ACC = { mech: '#f0a73a', orc: '#d48c3c', human: '#e0bb55', stone: '#a8d06b', tide: '#7fe3d8', crimson: '#e0455a' };
+const slug = (n) => n.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const icon = (n) => `<img src="skills/${slug(n)}.svg" alt="" onerror="this.style.visibility='hidden'">`;
+
+// Pull a top-level `const NAME = ...;` block out of the game source by its start and the next marker.
+const between = (src, from, to) => { const a = src.indexOf(from), b = src.indexOf(to, a); if (a < 0 || b < 0) throw new Error(`missing ${from}`); return src.slice(a, b); };
+
+fetch('index.html').then((r) => r.text()).then((src) => {
+  const data = new Function(
+    `${between(src, 'const D = (', 'const ATTACK =')}
+     ${between(src, 'const FACTIONS = {', 'const FACTION_KEYS')}
+     ${between(src, 'const NEUTRAL_SKILLS = {', 'const NEUTRAL_KEYS')}
+     ${between(src, 'const GENERIC_PASSIVES = {', 'const GENERIC_KEYS')}
+     return { ROSTER, FACTIONS, NEUTRAL_SKILLS, GENERIC_PASSIVES };`)();
+  const { ROSTER, FACTIONS, NEUTRAL_SKILLS, GENERIC_PASSIVES } = data;
+  const row = (s, cls, meta) => `<li class="${cls}">${icon(s.name)}<div><span class="nm">${cls === 'sig' ? '★ ' : ''}${esc(s.name)}</span>
+      <span class="meta">${meta}</span><span class="ds">${esc(s.desc)}</span></div></li>`;
+  document.getElementById('nav').innerHTML = Object.keys(FACTIONS).map((k) => `<a href="#f-${k}" style="--acc:${ACC[k]}">${esc(FACTIONS[k].name)}</a>`).join('')
+    + '<a href="#f-neutral">Neutral skills</a><a href="#f-generic">General passives</a>';
+  const sections = Object.keys(FACTIONS).map((k) => {
+    const f = FACTIONS[k];
+    const cards = ROSTER.filter((c) => c.faction === k).map((c) => {
+      const [a, b, c2] = c.skills;
+      return `<article class="champ">
+        <div class="top"><div class="pic"><img src="characters/${FOLDER[k]}/${c.id}.svg" alt=""></div>
+          <div><h3>${esc(c.name)}</h3><p class="bio">${esc(c.bio)}</p><span class="role ${c.role}">${c.role}</span></div></div>
+        <ul class="sk">
+          ${row(a, '', `Skill · CD ${a.cd}`)}
+          ${c2 ? row(c2, '', `Second skill · CD ${c2.cd}`) : ''}
+          ${row(b, 'sig', `Signature · CD ${b.cd}`)}
+          ${c.passive ? row(c.passive, 'pas', c.passiveAlt ? 'Passive · default' : 'Passive') : ''}
+          ${c.passiveAlt ? row(c.passiveAlt, 'pas alt', 'Other passive · equip instead') : ''}
+        </ul></article>`;
+    }).join('');
+    return `<section id="f-${k}" style="--acc:${ACC[k]};--acc-dim:${ACC[k]}33"><header><h2>${esc(f.name)}</h2>
+      <p><b>${esc(f.mechanic)}.</b> ${esc(f.rule)}</p></header><div class="grid">${cards}</div></section>`;
+  }).join('');
+  const neutral = Object.values(NEUTRAL_SKILLS).map((s) => `<ul class="sk">${row(s, '', `Neutral · CD ${s.cd}`)}</ul>`).join('');
+  const generic = Object.values(GENERIC_PASSIVES).map((p) => `<ul class="sk">${row(p, 'pas', 'Any champion')}</ul>`).join('');
+  document.getElementById('out').innerHTML = sections
+    + `<section id="f-neutral" style="--acc:#c9ccd8"><header><h2>Neutral skills</h2><p>Class-free actives any champion can learn. They share your active slots.</p></header>
+       <div class="generic">${neutral}</div></section>`
+    + `<section id="f-generic" style="--acc:#c9ccd8"><header><h2>General passives</h2><p>Any champion can equip these in a passive slot.</p></header>
+       <div class="generic">${generic}</div></section>`;
+}).catch((e) => {
+  document.getElementById('out').innerHTML = `<p class="err">Could not read the roster from index.html (${esc(e.message)}). Open this page through the game's local server.</p>`;
+});
+</script>
+</body>
+</html>

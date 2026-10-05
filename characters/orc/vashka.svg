@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vashka Spearthrower (ranged) - Ashfall Road art v2. Javelin hunter of the steppe.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fbb90"/><stop offset=".5" stop-color="#5f8a62"/><stop offset="1" stop-color="#3b5e3f"/></linearGradient>
+    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#557c58"/><stop offset="1" stop-color="#2f4a33"/></linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#977350"/><stop offset=".5" stop-color="#6b4f32"/><stop offset="1" stop-color="#40301e"/></linearGradient>
+    <linearGradient id="leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a4229"/><stop offset="1" stop-color="#2f2216"/></linearGradient>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1e6cc"/><stop offset=".55" stop-color="#c9b28a"/><stop offset="1" stop-color="#8f7a58"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset=".5" stop-color="#a8b0c0"/><stop offset="1" stop-color="#5f6779"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a87a50"/><stop offset="1" stop-color="#5e3d24"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e3424"/><stop offset="1" stop-color="#1c110b"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- quiver of javelins -->
+    <g transform="rotate(-24 33 62)">
+      <path d="M30.8 37 L32 31 L33.2 37 Z M35.3 39 L36.5 33 L37.7 39 Z M26.3 39 L27.5 33 L28.7 39 Z" fill="url(#steel)"/>
+      <path d="M32 37 v12 M36.5 39 v10 M27.5 39 v10" fill="none" stroke="#8a6040" stroke-width="2.2"/>
+      <path d="M32 37 v12 M36.5 39 v10 M27.5 39 v10" fill="none" stroke="#15121d" stroke-width="2.2" opacity="0"/>
+      <rect x="25.5" y="47" width="13.5" height="27" rx="2.5" fill="url(#leatherD)"/>
+      <rect x="25.5" y="50" width="13.5" height="3" fill="url(#fur)"/>
+    </g>
+    <!-- throwing arm (back) -->
+    <path d="M41.7 42.8 L32.7 31.8 L27.3 36.2 L36.3 47.2 Z" fill="url(#skinD)"/>
+    <path d="M32.8 35.1 L38.8 20.1 L33.2 17.9 L27.2 32.9 Z" fill="url(#skinD)"/>
+    <circle cx="30" cy="34" r="3.6" fill="url(#skinD)"/>
+    <!-- legs (lunge) -->
+    <path d="M38.5 71 h10 l-4.5 17 h-10.5 z" fill="url(#leatherD)"/>
+    <path d="M29 87.5 h15 v6 h-16 z" fill="#2a1f18"/>
+    <path d="M33.5 84 h10.8 l-.6 3.5 h-10.8 z" fill="url(#fur)"/>
+    <path d="M52 71 h10 l5.5 17 h-10.5 z" fill="url(#leather)"/>
+    <path d="M56.5 87.5 h13.5 l2 6 h-15.5 z" fill="#3a2a1e"/>
+    <path d="M56.6 84 h10.4 l1.1 3.5 h-10.6 z" fill="url(#fur)"/>
+    <!-- torso -->
+    <path d="M34 47 Q50 40 66 47 L63.5 72 Q50 76 36.5 72 Z" fill="url(#leather)"/>
+    <path d="M45 46 L50.5 60 L56 46 Z" fill="url(#skin)"/>
+    <rect x="35.5" y="65.5" width="28.5" height="5.5" rx="1.2" fill="url(#fur)"/>
+    <path d="M43 71 h12 l-2 9 h-8 z" fill="url(#leatherD)"/>
+    <!-- fur mantle -->
+    <path d="M32.5 48 Q37 40 50 39 Q63 40 67.5 48 L64.5 51 L61 48 L57.5 52 L54 48.5 L50.5 52.5 L47 48.5 L43.5 52 L40 48 L36 51 Z" fill="url(#fur)"/>
+    <!-- ponytail -->
+    <path d="M48 22 Q38 20.5 33.5 27 Q31 32 34 37.5 Q36 30.5 46.5 28 Z" fill="url(#hair)"/>
+    <rect x="39" y="21.5" width="3.4" height="6" rx="1" transform="rotate(-20 40.7 24.5)" fill="url(#fur)"/>
+    <!-- ear -->
+    <path d="M47 28.5 L37.5 24 L45 35 Z" fill="url(#skinD)"/>
+    <!-- head -->
+    <path d="M45 31 Q43.5 19.5 53 19 Q62 18.5 63.5 26 L65.5 31 L63.8 33 Q65 38 60.5 40.5 Q54 43 48.5 40.5 Q45 37 45 31 Z" fill="url(#skin)"/>
+    <path d="M45.2 29 Q44 20 53 19.6 Q59.5 19.4 62 23 Q54.5 22.4 49 27 Q47 28.5 46.5 32 Z" fill="url(#hair)"/>
+    <!-- javelin -->
+    <g transform="rotate(-10 36 19)">
+      <rect x="15" y="17.6" width="72" height="2.8" rx="1" fill="url(#wood)"/>
+      <path d="M86 15.2 L97.5 19 L86 22.8 L87.5 19 Z" fill="url(#steel)"/>
+      <rect x="82" y="16.8" width="4.5" height="4.4" rx="1" fill="url(#fur)"/>
+      <path d="M15 19 L11 15.5 L18 17.6 Z M15 19 L11 22.5 L18 20.4 Z" fill="#b3271e"/>
+    </g>
+    <circle cx="36" cy="19" r="3.5" fill="url(#skinD)"/>
+    <!-- front arm (aiming) -->
+    <path d="M57.5 44.5 L74 41 L75.5 47.5 L59.5 51.5 Z" fill="url(#skin)"/>
+    <path d="M66 42.5 L72.5 41.3 L73.8 47.8 L67.3 49.2 Z" fill="url(#fur)"/>
+    <path d="M75 40.5 Q80.5 40 81.5 42.5 Q80 44 76.5 44 L77 47 Q74 48.5 73 46 Z" fill="url(#skin)"/>
+    <path d="M55 46 Q56 40 63 40 Q68.5 41 68 47.5 L58.5 50 Z" fill="url(#fur)"/>
+  </g>
+  <!-- face -->
+  <path d="M55 27 L63 28.6" stroke="#15121d" stroke-width="2.3" stroke-linecap="round"/>
+  <circle cx="59.6" cy="30.6" r="1.4" fill="#ffcf5a"/>
+  <path d="M54.5 33.5 L58 34.3 M54.5 35.8 L57.5 36.4" stroke="#f1e6cc" stroke-width="1.3" stroke-linecap="round" opacity=".9"/>
+  <path d="M57.5 37.6 Q61 38.6 64.2 36.8" stroke="#15121d" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M58.8 39.2 L58.6 34.6 L61 38.6 Z M62.9 37.8 L63.5 33.6 L64.8 37 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".8" stroke-linejoin="round"/>
+  <!-- bone necklace -->
+  <path d="M46.5 52 l1 3 M50.5 53 v3.2 M54.5 52 l-1 3" stroke="#f1ead6" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M38 50 Q41 47.5 44 47" stroke="#fff" stroke-width="1.2" fill="none" opacity=".55" stroke-linecap="round"/>
+  <path d="M57.5 43.5 Q60 41.2 63.5 41" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8" stroke-linecap="round"/>
+  <path d="M88 17.5 L94 18.6" transform="rotate(-10 36 19)" stroke="#fff" stroke-width="1" opacity=".9" stroke-linecap="round"/>
+</svg>

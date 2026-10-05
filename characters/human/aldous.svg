@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Aldous Emberfall (ranged) - Ashfall Road art v2. Pyromancer of the royal college.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8424f"/><stop offset=".55" stop-color="#7a2e3a"/><stop offset="1" stop-color="#4a1a24"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#c27d1f"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6a44"/><stop offset="1" stop-color="#5a3a24"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f0e6"/><stop offset="1" stop-color="#b9b3a4"/></linearGradient>
+    <radialGradient id="fire" cx=".5" cy=".7" r=".6"><stop offset="0" stop-color="#fff6c2"/><stop offset=".45" stop-color="#ffb347"/><stop offset="1" stop-color="#e5482c"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- flame glow -->
+  <circle cx="67" cy="20" r="11" fill="#ff8a3d" opacity=".55" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- feet -->
+    <path d="M41 88 h9 v5.5 h-11 z" fill="#3a2a2a"/>
+    <path d="M52 88 h9 l3 5.5 h-12 z" fill="#4a3434"/>
+    <!-- robe -->
+    <path d="M40 42 Q50 38 61 42 L66 89 Q51 92.5 35 89 Z" fill="url(#robe)"/>
+    <path d="M35.6 85 Q51 88.5 65.6 85 L66 89 Q51 92.5 35 89 Z" fill="url(#gold)"/>
+    <path d="M51 43 L54 89" fill="none"/>
+    <rect x="39" y="60" width="24" height="4" rx="1" fill="url(#gold)"/>
+    <path d="M44 64 l-1.5 10 h3 z" fill="url(#gold)"/>
+    <!-- staff -->
+    <rect x="65" y="25" width="3.2" height="67" rx="1" fill="url(#wood)"/>
+    <path d="M62 27 Q66.6 33 71 27 L70 24 Q66.6 27 63 24 Z" fill="url(#gold)"/>
+    <!-- head + beard -->
+    <circle cx="52" cy="30" r="9" fill="#e2b48f"/>
+    <path d="M43 30 Q41 38 44 41 L47 32 Z" fill="url(#hair)"/>
+    <path d="M47 33 Q48 47 56 50 Q62 43 61 33 Q57 36 53 35 Q50 34.5 47 33 Z" fill="url(#hair)"/>
+    <!-- wizard hat -->
+    <path d="M43.5 23 Q47 11 38 3 Q52 6 59 22.5 Z" fill="url(#robe)"/>
+    <path d="M36 24.5 Q51 18 67 23.5 Q59 26.5 51 26 Q43 26 36 24.5 Z" fill="url(#robe)"/>
+    <!-- front arm -->
+    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#robe)"/>
+    <circle cx="66.5" cy="58" r="2.8" fill="#e2b48f"/>
+  </g>
+  <!-- hat band + face -->
+  <path d="M44.5 21.6 Q51 19.5 58.5 21.3" stroke="url(#gold)" stroke-width="2" fill="none"/>
+  <path d="M54 28.6 q2.4 -1.4 5 -.4" stroke="#f4f0e6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <circle cx="57" cy="30.6" r="1.4" fill="#1d2130"/>
+  <path d="M55 34.5 q3 -1.6 6 .2" stroke="#f4f0e6" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M51 38 q2 5 5 7" stroke="#b9b3a4" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <!-- robe trim -->
+  <path d="M55.5 44 L58.5 85" stroke="url(#gold)" stroke-width="1.6"/>
+  <path d="M43 46 Q45 44 48 43.5" stroke="#d06a76" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <!-- flame -->
+  <path d="M66.6 25 Q59 21 62.5 13 Q63.5 17 65.5 16.5 Q64 10 69 5 Q68.5 11 72 13.5 Q74.5 20 66.6 25 Z" fill="url(#fire)" stroke="#a8301c" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M66.6 23.5 Q63.5 21 65.5 17.5 Q67 19.5 68 18 Q70.5 21 66.6 23.5 Z" fill="#fff6c2"/>
+  <!-- embers -->
+  <g fill="#ffb347"><circle cx="75" cy="9" r="1.1"/><circle cx="60" cy="9.5" r=".8"/><circle cx="78" cy="19" r=".8"/><circle cx="72" cy="3.5" r=".6"/></g>
+</svg>

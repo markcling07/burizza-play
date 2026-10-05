@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Seraxa Thornwing (melee) - Burizza art v2. Winged demon blade dancer.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b874d0"/><stop offset=".5" stop-color="#8f4ba6"/><stop offset="1" stop-color="#5e2b72"/></linearGradient>
+    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#77408f"/><stop offset="1" stop-color="#47225c"/></linearGradient>
+    <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c4f88"/><stop offset=".5" stop-color="#3d2d54"/><stop offset="1" stop-color="#1f1626"/></linearGradient>
+    <linearGradient id="suitD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#443353"/><stop offset="1" stop-color="#1b1322"/></linearGradient>
+    <linearGradient id="wing" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a4ea3"/><stop offset=".5" stop-color="#55296a"/><stop offset="1" stop-color="#2e1538"/></linearGradient>
+    <linearGradient id="wingD" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4e2a5e"/><stop offset="1" stop-color="#221029"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3a6e"/><stop offset=".5" stop-color="#241b38"/><stop offset="1" stop-color="#110c1c"/></linearGradient>
+    <linearGradient id="horn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5a84"/><stop offset=".5" stop-color="#2a1830"/><stop offset="1" stop-color="#130a17"/></linearGradient>
+    <linearGradient id="boot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a3a66"/><stop offset="1" stop-color="#22142a"/></linearGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9ccb"/><stop offset=".5" stop-color="#e05a9a"/><stop offset="1" stop-color="#a32e66"/></linearGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#ddd6ee"/><stop offset="1" stop-color="#8a82aa"/></linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="1.6"/></filter>
+  </defs>
+  <ellipse cx="52" cy="94" rx="22" ry="3.6" fill="#000" opacity=".35"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back wing (far, darker, raised) -->
+    <path d="M49 42 L40 21 L27 5 Q27.5 13 19 15 Q24.5 20 17 26 Q31 28 44 47 Z" fill="url(#wingD)"/>
+    <path d="M40 21 L19 15 M40 21 L17 26" fill="none" stroke-width="1.1" opacity=".8"/>
+    <!-- front wing, partly spread -->
+    <path d="M46 45 L29 29 L7 22 Q14.5 30 4 37 Q14 41 9 51 Q24 48 41 58 Z" fill="url(#wing)"/>
+    <path d="M29 29 L4 37 M29 29 L9 51" stroke="#b07ac8" stroke-width="1.2" fill="none" opacity=".85"/>
+    <path d="M43.5 41.5 L30 29.5 L11 23.5" stroke="#d9aee8" stroke-width="1" fill="none" opacity=".75"/>
+    <path d="M29 29 l1 -5" stroke-width="1.7"/>
+    <!-- whip tail -->
+    <path d="M48 64 Q34 66 30 77 Q27 87 19 84 Q13 81 15.5 73" fill="none" stroke-width="4"/>
+    <path d="M48 64 Q34 66 30 77 Q27 87 19 84 Q13 81 15.5 73" fill="none" stroke="url(#skinD)" stroke-width="1.6"/>
+    <path d="M15.5 74 L11 72.5 L15 64 L20.5 71.5 Z" fill="url(#pink)"/>
+    <!-- back arm + dagger -->
+    <path d="M45 43 Q40 48 39.5 53 L44 55 Q44.5 50 48.5 47 Z" fill="url(#skinD)"/>
+    <path d="M40 52 L34 57 L36.5 61 L43.5 56 Z" fill="url(#skinD)"/>
+    <path d="M33 58.5 Q27 51.5 19 52 Q25 55.5 30.5 61.5 Z" fill="url(#blade)"/>
+    <rect x="31.5" y="56" width="3" height="7.5" rx="1" fill="url(#pink)" transform="rotate(-42 33 59.8)"/>
+    <circle cx="36" cy="59" r="2.6" fill="url(#skinD)"/>
+    <!-- back leg -->
+    <path d="M46.5 63 L54 65 L48.5 78.5 L42.5 76.5 Z" fill="url(#suitD)"/>
+    <path d="M42.5 76 L48.5 78 L42 88.5 L37.5 87.5 Z" fill="#2c1c34"/>
+    <path d="M37.5 87 L42.5 88 Q43.5 90.5 47.5 93.5 L40.5 93.5 Q38.5 92 36.5 90 Z" fill="#2c1c34"/>
+    <!-- front leg -->
+    <path d="M52.5 64 L60.5 64 L67 76 L60.5 79 Z" fill="url(#suit)"/>
+    <path d="M60.5 77 L67 76 L64.5 88.5 L59.5 88 Z" fill="url(#boot)"/>
+    <path d="M59.5 87.5 L64.5 88 Q66.5 90.5 71.5 93.5 L63 93.5 Q60.5 92 59 90 Z" fill="url(#boot)"/>
+    <!-- back hip flap -->
+    <path d="M47 62 L52 63 L44.5 73 Z" fill="url(#suitD)"/>
+    <!-- torso -->
+    <path d="M45 42 Q53 37.5 61.5 41.5 L60.5 50 Q57.5 55 58.5 60 L60 66 Q53 68.5 46 65.5 L47 58 Q44 52 45 42 Z" fill="url(#suit)"/>
+    <path d="M46.5 59.5 Q53 62 59.6 59.6 L60 63.4 Q53 66 46.2 63.2 Z" fill="url(#pink)"/>
+    <path d="M53 60.6 l1.8 1.8 l-1.8 1.8 l-1.8 -1.8 z" fill="#ffd6ea" stroke-width=".7"/>
+    <!-- collar + thorn vine -->
+    <path d="M47.5 41.2 Q53 46 59 40.8" stroke="url(#pink)" stroke-width="1.6" fill="none"/>
+    <path d="M59.5 44 Q55 46 54 50 Q53 54.5 47.5 57.5" stroke-width="2.8" fill="none"/>
+    <path d="M59.5 44 Q55 46 54 50 Q53 54.5 47.5 57.5" stroke="#e05a9a" stroke-width="1.3" fill="none"/>
+    <g fill="#ff8cc0" stroke-width=".6"><path d="M56.3 45.4 l.2 -2.9 l1.8 2 z"/><path d="M54.3 48.6 l-2.5 -1.2 l2.6 -.9 z"/><path d="M53.7 52 l2.6 .6 l-2.2 1.4 z"/><path d="M51.3 55.5 l-1.4 -2.4 l2.6 .4 z"/></g>
+    <!-- head -->
+    <path d="M51.5 32 h5.5 v8 h-5.5 z" fill="url(#skin)"/>
+    <path d="M57 19 Q51 8 42 7.5 Q48.5 12 50.5 21 Z" fill="url(#horn)"/>
+    <circle cx="55" cy="27" r="8.2" fill="url(#skin)"/>
+    <!-- high ponytail -->
+    <path d="M49.5 18.5 Q43 11 35 14 Q29 17 30 27 Q30.5 35 26.5 41 Q35.5 39 36.5 29 Q37.5 22 46.5 23.5 Z" fill="url(#hair)"/>
+    <path d="M46.5 31 Q45 18 55 18.5 Q63 19 63.5 25 Q58 22.5 54 24 Q51 26 51 33 Z" fill="url(#hair)"/>
+    <path d="M45 15.5 L49.5 17 L48.5 22.5 L44 21 Z" fill="url(#pink)"/>
+    <!-- pointed ear -->
+    <path d="M51 26 L42.5 21.5 L50 31 Z" fill="url(#skin)"/>
+    <!-- near horn, swept back -->
+    <path d="M58.5 20 Q52 6.5 37.5 8.5 Q46.5 12 51.5 22.5 Z" fill="url(#horn)"/>
+    <!-- front arm + reverse-grip dagger -->
+    <path d="M57.5 44 L63.5 53 L60 56 L55 48 Z" fill="url(#skin)"/>
+    <path d="M61 52 L68.5 47.5 L70.5 51.5 L62.5 56 Z" fill="url(#skin)"/>
+    <path d="M68 54.5 Q68 63.5 76.5 68.5 Q72.5 61.5 71.8 54.5 Z" fill="url(#blade)"/>
+    <path d="M68.6 47.5 L70 44 L71.4 47.5 Z" fill="url(#pink)"/>
+    <rect x="65.8" y="53.4" width="8" height="2.6" rx="1" fill="url(#pink)"/>
+    <circle cx="70" cy="50.5" r="3" fill="url(#skin)"/>
+    <path d="M55 44.5 Q56 38.5 62 39.5 Q66 41.5 64 47.5 Q58.5 48.5 55 44.5 Z" fill="url(#suit)"/>
+  </g>
+  <!-- suit trim -->
+  <path d="M62.5 79.5 Q65.5 83 62.5 87" stroke="#c23d7c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <g fill="#e05a9a"><path d="M64 81 l2.2 -.5 l-1.2 1.9 z"/><path d="M64.2 84.8 l2.2 .4 l-1.7 1.4 z"/></g>
+  <path d="M60.5 77.3 L67 76.3" stroke="url(#pink)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M42.5 76.5 L48.5 78.3" stroke="url(#pink)" stroke-width="1.7" stroke-linecap="round"/>
+  <path d="M63.5 50.6 L64.9 54.6" stroke="url(#pink)" stroke-width="1.9" stroke-linecap="round"/>
+  <!-- face -->
+  <ellipse cx="59.5" cy="27.3" rx="3.4" ry="2.3" fill="#ff6bb5" opacity=".9" filter="url(#glow)"/>
+  <path d="M57.2 27.7 Q59.5 25.6 62.2 26.5 Q60.6 29 57.2 27.7 Z" fill="#ff6bb5" stroke="#15121d" stroke-width=".7" stroke-linejoin="round"/>
+  <circle cx="60.4" cy="27.1" r=".6" fill="#fff"/>
+  <path d="M56.4 24.7 L62.6 23.8" stroke="#15121d" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M59.4 32.6 q1.6 .8 2.8 -.4" stroke="#4a1030" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M42.5 9.5 Q49.5 9 54 15.5" stroke="#fff" stroke-width="1" fill="none" opacity=".65" stroke-linecap="round"/>
+  <path d="M48.5 21.5 Q50.5 19 55 19.4" stroke="#b8a6e6" stroke-width="1.1" fill="none" opacity=".75" stroke-linecap="round"/>
+  <path d="M36 15.5 Q32 19 32 27" stroke="#b8a6e6" stroke-width="1.1" fill="none" opacity=".7" stroke-linecap="round"/>
+  <path d="M47 46.5 Q47.5 43.5 49.5 42.2" stroke="#fff" stroke-width="1.1" fill="none" opacity=".55" stroke-linecap="round"/>
+  <path d="M57 42.5 q2 -1.6 4 -.9" stroke="#fff" stroke-width="1" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M56 70.5 L63.4 68.6" stroke="url(#pink)" stroke-width="1.7" stroke-linecap="round"/>
+  <path d="M61.6 79.8 L60.9 85.5" stroke="#fff" stroke-width="1" opacity=".4" stroke-linecap="round"/>
+  <path d="M58.6 72.6 L61 75.6" stroke="#fff" stroke-width="1" opacity=".35" stroke-linecap="round"/>
+  <!-- blade glints -->
+  <path d="M69.6 57.5 Q70.6 63 74.6 66.5" stroke="#ff6bb5" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M29.5 56.5 Q25.5 53.2 21.5 52.8" stroke="#ff6bb5" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <g fill="#ffd6ea">
+    <path d="M78.5 60.5 l.6 1.7 l1.7 .6 l-1.7 .6 l-.6 1.7 l-.6 -1.7 l-1.7 -.6 l1.7 -.6 z"/>
+    <path d="M19.5 47 l.5 1.3 l1.3 .5 l-1.3 .5 l-.5 1.3 l-.5 -1.3 l-1.3 -.5 l1.3 -.5 z"/>
+  </g>
+</svg>

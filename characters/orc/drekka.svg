@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Drekka Firegut (ranged) - Ashfall Road art v2. Bomb and firepot thrower.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#abc47c"/><stop offset=".5" stop-color="#7d9a4f"/><stop offset="1" stop-color="#4f6630"/></linearGradient>
+    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a8543"/><stop offset="1" stop-color="#3d5126"/></linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8574a"/><stop offset=".5" stop-color="#7a3b2e"/><stop offset="1" stop-color="#4a2018"/></linearGradient>
+    <linearGradient id="leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e2c22"/><stop offset="1" stop-color="#341510"/></linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#c27d1f"/></linearGradient>
+    <linearGradient id="pot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a7088"/><stop offset=".5" stop-color="#3a3f52"/><stop offset="1" stop-color="#1e2130"/></linearGradient>
+    <linearGradient id="clay" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d78a5a"/><stop offset="1" stop-color="#8a4a2a"/></linearGradient>
+    <radialGradient id="spark" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6c2"/><stop offset=".4" stop-color="#ffb347"/><stop offset="1" stop-color="#e5482c" stop-opacity="0"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.5"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
+  <!-- fuse glow -->
+  <circle cx="82" cy="19" r="9" fill="#ff8a3d" opacity=".6" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back arm + firepot -->
+    <path d="M35 45 Q29 53 29 62 L35.5 63.5 Q36 56 42 50 Z" fill="url(#skinD)"/>
+    <path d="M27 66 Q26 61 32 61 Q38 61 37 66 Q38.5 72 32 73 Q25.5 72 27 66 Z" fill="url(#clay)"/>
+    <rect x="29.5" y="58.5" width="5" height="3" rx="1" fill="url(#leatherD)"/>
+    <circle cx="32" cy="62" r="3.4" fill="url(#skinD)"/>
+    <!-- legs -->
+    <path d="M38.5 72 h11 l-1.5 16 h-11 z" fill="url(#leatherD)"/>
+    <path d="M33 87.5 h15 v6 h-16 z" fill="#2a1a16"/>
+    <path d="M52 72 h11 l2.5 16 h-11 z" fill="url(#leather)"/>
+    <path d="M53.5 87.5 h14 l2 6 h-16 z" fill="#3a221c"/>
+    <!-- gut + torso -->
+    <path d="M32 47 Q50 39 68 47 Q73 62 65.5 73 Q50 79 34.5 73 Q28.5 60 32 47 Z" fill="url(#skin)"/>
+    <path d="M33 48 Q38 44 44 43 L45 74.5 Q39 74 34.5 73 Q29 61 33 48 Z" fill="url(#leather)"/>
+    <path d="M56 43 Q63 44 67.5 47 Q72.5 62 65.5 73 Q61 74.5 57 75 Z" fill="url(#leather)"/>
+    <rect x="34" y="68" width="32" height="5.5" rx="1.2" fill="url(#leatherD)"/>
+    <rect x="47" y="67.3" width="6.5" height="7" rx="1.2" fill="url(#amber)"/>
+    <!-- bandolier strap -->
+    <path d="M57 42.5 L64 45.5 L42 72 L35.5 69.5 Z" fill="url(#leatherD)"/>
+    <!-- head -->
+    <path d="M46.5 27 L36.5 22 L44.5 33.5 Z" fill="url(#skinD)"/>
+    <path d="M44 30 Q42.5 18 52.5 17 Q62.5 16.5 64 25 L66.5 30 L64.8 32 Q66.5 37.5 61 40.5 Q54 43 47.5 40 Q44 36 44 30 Z" fill="url(#skin)"/>
+    <!-- leather cap + goggles -->
+    <path d="M44.3 27 Q43 17.5 52.5 17 Q61.5 16.5 63.5 23.5 Q53 20.5 44.3 27 Z" fill="url(#leatherD)"/>
+    <path d="M45 24.5 Q53 19.5 63.8 23" fill="none" stroke="#2a1a16" stroke-width="3.2"/>
+    <circle cx="53" cy="20.8" r="3.3" fill="url(#amber)"/>
+    <circle cx="60.2" cy="21.2" r="3.1" fill="url(#amber)"/>
+    <!-- front arm raised with bomb -->
+    <path d="M58 45.5 L68 38.5 L73 43.5 L63.5 51.5 Z" fill="url(#skin)"/>
+    <circle cx="74" cy="31" r="7.5" fill="url(#pot)"/>
+    <rect x="72" y="22" width="5" height="3.5" rx="1" fill="url(#amber)" transform="rotate(18 74.5 23.75)"/>
+    <path d="M76 22.5 Q78 18 82 19" fill="none" stroke="#c9b28a" stroke-width="1.4"/>
+    <path d="M65.5 40 Q65 36 69.5 35.5 L74.5 38 Q75.5 42 71.5 43.5 Z" fill="url(#skin)"/>
+    <!-- shoulder pad -->
+    <path d="M55 45 Q56 38.5 63.5 38.5 Q70 40 69.5 47.5 L58.5 51 Z" fill="url(#leather)"/>
+  </g>
+  <!-- bandolier pots -->
+  <g stroke="#15121d" stroke-width="1.2" stroke-linejoin="round">
+    <circle cx="58.5" cy="50" r="3.3" fill="url(#clay)"/>
+    <circle cx="52" cy="57.8" r="3.3" fill="url(#clay)"/>
+    <circle cx="45.5" cy="65.5" r="3.3" fill="url(#clay)"/>
+  </g>
+  <path d="M57 47.2 h3 M50.5 55 h3 M44 62.7 h3" stroke="url(#amber)" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- bomb shine + fuse spark -->
+  <path d="M69.5 28.5 Q70.5 25.8 73.5 25.2" stroke="#fff" stroke-width="1.4" fill="none" opacity=".8" stroke-linecap="round"/>
+  <circle cx="82" cy="19" r="4.5" fill="url(#spark)"/>
+  <path d="M82 13 v3 M82 22 v3 M76 19 h3 M85 19 h3 M78 15 l1.6 1.6 M84.4 21.4 l1.6 1.6 M78 23 l1.6 -1.6 M84.4 16.6 l1.6 -1.6" stroke="#ffd27a" stroke-width="1.1" stroke-linecap="round"/>
+  <circle cx="82" cy="19" r="1.6" fill="#fff6c2"/>
+  <g fill="#ffb347"><circle cx="88" cy="12" r=".9"/><circle cx="90" cy="22" r=".7"/><circle cx="85" cy="9" r=".6"/></g>
+  <!-- face -->
+  <path d="M54.5 26 L63.5 27.8" stroke="#15121d" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="59.8" cy="29.8" r="1.4" fill="#ffcf5a"/>
+  <path d="M56.5 37 Q60.5 38.2 64.5 36" stroke="#15121d" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M58 38.6 L57.8 33.4 L60.6 37.8 Z M62.6 37.2 L63.3 32.4 L64.8 36.1 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".85" stroke-linejoin="round"/>
+  <path d="M47.5 36 q2.5 1 4 .2" stroke="#3d5126" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/>
+  <!-- goggle shine + highlights -->
+  <path d="M51.5 19.6 q1 -1 2.2 -.9 M58.8 20 q1 -1 2.2 -.8" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M40 55 Q43 50 50 49" stroke="#fff" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round"/>
+  <path d="M57.5 43.5 Q60 40.5 64 40.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Faelan Thornshot (ranged) - Ashfall Road art v2. Elf who tips his crossbow bolts with venom.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="cloak" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b7a58"/><stop offset=".5" stop-color="#2f4f3a"/><stop offset="1" stop-color="#18291e"/></linearGradient>
+    <linearGradient id="cloakD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#253d2d"/><stop offset="1" stop-color="#0f1912"/></linearGradient>
+    <linearGradient id="trim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdeaa2"/><stop offset=".5" stop-color="#9ac46b"/><stop offset="1" stop-color="#5f8a3a"/></linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5a3c"/><stop offset="1" stop-color="#3a281a"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5764c"/><stop offset=".45" stop-color="#7a5232"/><stop offset="1" stop-color="#3f2a18"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe5ea"/><stop offset=".5" stop-color="#8a94a0"/><stop offset="1" stop-color="#454c57"/></linearGradient>
+    <radialGradient id="venom" cx=".4" cy=".4" r=".6"><stop offset="0" stop-color="#f2ffc4"/><stop offset=".5" stop-color="#9ef05a"/><stop offset="1" stop-color="#3f8a1c"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>
+  <ellipse cx="51" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- cloak back -->
+    <path d="M47 20 Q35 38 33 86 Q42 89.5 49 84 L52 36 Z" fill="url(#cloakD)"/>
+    <!-- bolt case -->
+    <g transform="rotate(-20 43 44)">
+      <path d="M38.8 31 l-.6 -4.2 l2.2 1.7 l.6 -1.7 v4.2 z M41.9 31 l-.3 -5 l2 2 l.8 -2 l.2 5 z M45.2 31 v-4.2 l1.8 1.6 l.4 -1.6 l-.2 4.2 z" fill="url(#trim)" stroke-width="1"/>
+      <rect x="38" y="30.5" width="9.5" height="19" rx="2" fill="url(#leather)"/>
+      <rect x="37.6" y="33.2" width="10.3" height="2.6" fill="url(#trim)" stroke-width="1"/>
+    </g>
+    <!-- legs + boots -->
+    <path d="M48 63 h5.5 l-.5 25 h-5 z" fill="#1f2229"/>
+    <path d="M45.5 86 h7.5 v7.5 h-9 z" fill="#2e2016"/>
+    <path d="M55 63 h5.5 l1.5 25 h-5.5 z" fill="#2c3038"/>
+    <path d="M56 86 h6.5 l3.5 7.5 h-10.5 z" fill="#4a3424"/>
+    <!-- far arm, reaching under the fore-stock -->
+    <path d="M57 35.2 L70 35.6 L70.5 40.6 L57 41.6 Z" fill="url(#cloakD)" transform="rotate(-6 52.5 36)"/>
+    <!-- jerkin -->
+    <path d="M46 35 Q54 32 62 35 L63 57 L64.5 68 Q54 71 44.5 68 L46 57 Z" fill="url(#cloak)"/>
+    <rect x="45.5" y="54" width="18" height="3.6" rx="1" fill="url(#leather)"/>
+    <rect x="52.5" y="53.4" width="4.6" height="4.8" rx="1" fill="url(#trim)"/>
+    <!-- head -->
+    <circle cx="55" cy="23" r="8.5" fill="#d9b08c"/>
+    <!-- hood -->
+    <path d="M45.5 31 Q43 12 55 11.5 Q65.5 11.5 66 22.5 Q61.5 17 55.5 18.5 Q50.5 20 50.5 30 L50 37 Q45.5 36.5 45.5 31 Z" fill="url(#cloak)"/>
+    <!-- black hair fringe -->
+    <path d="M55.5 18.5 Q61.5 17 65.5 22 Q60 20.8 57 24 Q56.5 21 55.5 18.5 Z" fill="#2b2b2b"/>
+    <path d="M50.5 24 Q49.5 31 52.5 34 L53.5 26 Z" fill="#2b2b2b"/>
+    <!-- ear through hood -->
+    <path d="M48 23 Q41.5 18.5 36.5 15 Q41 23 48 28 Z" fill="#d9b08c"/>
+  </g>
+  <!-- hood trim on the shoulder -->
+  <path d="M47 33 Q50 36 50.5 37" stroke="url(#trim)" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <!-- crossbow and arms, stock to the shoulder, aimed slightly upward -->
+  <g transform="rotate(-6 52.5 36)" stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- limbs -->
+    <path d="M76.6 20.6 Q74 21.6 74.8 24.4 Q80.6 28.6 80.6 34.2 Q80.6 39.8 74.8 44 Q74 46.8 76.6 47.8" stroke-width="6.2" fill="none"/>
+    <path d="M76.6 20.6 Q74 21.6 74.8 24.4 Q80.6 28.6 80.6 34.2 Q80.6 39.8 74.8 44 Q74 46.8 76.6 47.8" stroke="url(#wood)" stroke-width="3.4" fill="none"/>
+    <!-- stock -->
+    <path d="M41.6 32.4 L79 33 L79 38.2 L62 38.2 Q58 38.4 55.4 40.6 L47 45 Q42.6 46.2 41.6 43.6 Z" fill="url(#wood)"/>
+    <path d="M41.6 32.4 L44.4 32.5 L44.4 45.6 Q42.4 45.8 41.6 43.6 Z" fill="#3a281a" stroke-width="1.2"/>
+    <!-- trigger -->
+    <path d="M61.4 38.4 Q63.4 41.2 61.8 43.8" stroke-width="2.6" fill="none"/>
+    <path d="M61.4 38.4 Q63.4 41.2 61.8 43.8" stroke="url(#steel)" stroke-width="1.1" fill="none"/>
+    <!-- stirrup -->
+    <path d="M80.5 38.2 H83.4 Q86.2 38.2 86.2 41 Q86.2 43.8 83.4 43.8 H80.5" stroke-width="3.4" fill="none"/>
+    <path d="M80.5 38.2 H83.4 Q86.2 38.2 86.2 41 Q86.2 43.8 83.4 43.8 H80.5" stroke="url(#steel)" stroke-width="1.5" fill="none"/>
+    <!-- steel prow -->
+    <rect x="73.4" y="31.4" width="8.4" height="8" rx="1.4" fill="url(#steel)"/>
+    <!-- string drawn back to the latch -->
+    <path d="M75.4 22.6 L62.4 32.4 L75.4 45.8" stroke="#cfc8b4" stroke-width=".9" fill="none"/>
+    <!-- latch -->
+    <rect x="60.4" y="31" width="3.6" height="2.8" rx=".8" fill="url(#steel)" stroke-width="1.1"/>
+    <!-- venom bolt -->
+    <circle cx="89" cy="32.2" r="5" fill="#9ef05a" opacity=".8" filter="url(#glow)" stroke="none"/>
+    <path d="M62.8 32.2 H86" stroke-width="2.8"/>
+    <path d="M62.8 32.2 H86" stroke="#bfae84" stroke-width="1.3"/>
+    <path d="M85 28.8 L93.2 32.2 L85 35.6 L86.6 32.2 Z" fill="url(#venom)" stroke-width="1.1"/>
+    <path d="M63.4 29.6 h3.6 l1.6 2.6 l-1.6 2.6 h-3.6 l1.6 -2.6 z" fill="url(#trim)" stroke-width="1"/>
+    <!-- front hand under the fore-stock -->
+    <rect x="67.8" y="35.6" width="5.2" height="6.8" rx="2.4" fill="#d9b08c"/>
+    <!-- near arm: elbow down, hand on the grip -->
+    <path d="M49.8 34.2 Q47 39 47.4 44.6 Q48.4 47.6 51.4 46.6 L57.6 43.6 L56.8 38.8 L52.8 41.4 Q53.4 38.6 55.6 35.6 Q53 33.2 49.8 34.2 Z" fill="url(#cloak)"/>
+    <circle cx="58.2" cy="41" r="2.7" fill="#d9b08c"/>
+  </g>
+  <!-- dripping venom -->
+  <g fill="url(#venom)" stroke="#15121d" stroke-width=".8" stroke-linejoin="round">
+    <path d="M88.4 30.2 q-1.8 3 0 4.4 q1.8 -1.4 0 -4.4 z"/>
+    <path d="M89.4 39.5 q-1.5 2.6 0 3.7 q1.5 -1.1 0 -3.7 z"/>
+    <path d="M88.6 47.5 q-1.2 2 0 2.9 q1.2 -.9 0 -2.9 z"/>
+  </g>
+  <circle cx="87.6" cy="55.5" r="1.6" fill="#9ef05a" opacity=".7"/>
+  <!-- face in hood shadow -->
+  <path d="M51 21 Q53 20.5 55 22.5" stroke="#15121d" stroke-width="1" fill="none" opacity=".35"/>
+  <path d="M58.3 23.8 q1.4 -1 2.8 0 q-1.4 1 -2.8 0 z" fill="#1d2130" stroke="#1d2130" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M57.8 21.4 l3.8 -.9" stroke="#2b2b2b" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M59.5 28.4 h2.4" stroke="#8a5a40" stroke-width=".9" stroke-linecap="round"/>
+  <!-- trim + highlights -->
+  <path d="M45 66.5 Q54 69.5 64 66.5" stroke="url(#trim)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M47 24 Q46.5 16.5 52 13.5" stroke="#9ac46b" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".75"/>
+  <g transform="rotate(-6 52.5 36)" fill="none" stroke-linecap="round">
+    <path d="M48.6 43 Q48.6 38 51 35.4" stroke="#fff" stroke-width="1.2" opacity=".6"/>
+    <path d="M57.6 34.2 H72.6 M42.6 33.6 H46.6" stroke="#f3d6a8" stroke-width=".9" opacity=".55"/>
+    <path d="M75.2 34.6 H80" stroke="#fff" stroke-width=".9" opacity=".7"/>
+  </g>
+</svg>

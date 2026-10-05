@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Seraphine Wavecaller (ranged) - Ashfall Road art v2. Siren whose song drowns sailors.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cdeee8"/><stop offset=".5" stop-color="#9fd0c8"/><stop offset="1" stop-color="#6da59c"/></linearGradient>
+    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86b9b1"/><stop offset="1" stop-color="#55877f"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5f95d8"/><stop offset=".5" stop-color="#3d6fb0"/><stop offset="1" stop-color="#22426f"/></linearGradient>
+    <linearGradient id="dress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43a6b4"/><stop offset=".55" stop-color="#2a7f8f"/><stop offset="1" stop-color="#16505d"/></linearGradient>
+    <linearGradient id="pale" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#e9e4d8"/><stop offset="1" stop-color="#b6ae9a"/></linearGradient>
+    <radialGradient id="orb" cx=".4" cy=".4" r=".6"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#f2c6d8"/><stop offset="1" stop-color="#d887ad"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- song glow -->
+  <circle cx="77" cy="45" r="12" fill="#f2c6d8" opacity=".65" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- long flowing hair -->
+    <path d="M45 21 Q33 26 35 42 Q34 54 26 64 Q37 66 43 57 Q47 49 47 40 L52 26 Z" fill="url(#hair)"/>
+    <!-- back arm -->
+    <path d="M43 45 Q36 50 33 58 L37 60 Q41 53 46 50 Z" fill="url(#skinD)"/>
+    <circle cx="34.5" cy="60" r="2.6" fill="url(#skinD)"/>
+    <!-- mermaid gown with fin hem -->
+    <path d="M40 43 Q50 39 60 43 L60.5 64 Q60 76 64 84 Q70 89 73 93.5 Q63 92 56 93.5 Q48 92 42 93.5 Q35 92 28 93 Q33 88 37 84 Q41 76 40 64 Z" fill="url(#dress)"/>
+    <path d="M40 43 Q50 39 60 43 L59.6 49.5 Q50 47 40.4 49.5 Z" fill="url(#pale)"/>
+    <rect x="39.6" y="59.5" width="21.2" height="3.4" rx="1" fill="url(#pale)"/>
+    <!-- head -->
+    <path d="M48 36 h7 v8 h-7 z" fill="url(#skin)"/>
+    <circle cx="52" cy="30" r="9" fill="url(#skin)"/>
+    <path d="M42 33 Q40 18.5 52 18.5 Q62 18.5 62.3 27 Q57 22.5 51 24.5 Q47.5 26 47.5 33 Q46.5 39 43.5 40.5 Z" fill="url(#hair)"/>
+    <!-- ear fin -->
+    <path d="M48 28.5 L37 22.5 L39.5 28 L34.5 31 L39 33.5 L35.5 37.5 L48 34 Z" fill="url(#pale)"/>
+    <!-- front arm reaching to the orb -->
+    <path d="M55 45 Q62 43 69 44.5 L68.5 50 Q61 50 56 52 Z" fill="url(#skin)"/>
+    <circle cx="69.5" cy="47.3" r="2.8" fill="url(#skin)"/>
+    <!-- siren orb -->
+    <circle cx="77.5" cy="45" r="6.2" fill="url(#orb)"/>
+  </g>
+  <!-- fin ribs, gown details -->
+  <path d="M46 30 L39 25 M46 31.5 L37 31 M46 33 L38.5 36" stroke="#b6ae9a" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M38 86 L32.5 92 M44 86.5 L42.5 92.5 M51 86.5 L51.5 92.5 M57.5 86 L60 92 M62 84.5 L68 91.5" stroke="#16505d" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M50.5 63 L51 84" stroke="#e9e4d8" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>
+  <path d="M43 45.5 Q46 47 50 44 Q54 47 57 45.5" stroke="#b6ae9a" stroke-width=".9" fill="none"/>
+  <circle cx="50.2" cy="61.2" r="1.7" fill="#f2c6d8" stroke="#15121d" stroke-width=".8"/>
+  <!-- starfish clip -->
+  <path d="M47 18.5 l1 2.4 l2.6 .2 l-2 1.7 l.7 2.5 l-2.3 -1.4 l-2.3 1.4 l.7 -2.5 l-2 -1.7 l2.6 -.2 z" fill="#f2a6c0" stroke="#15121d" stroke-width=".8" stroke-linejoin="round"/>
+  <!-- face: singing -->
+  <circle cx="57.3" cy="29.3" r="1.4" fill="#1d2130"/>
+  <path d="M55.3 26.6 q2 -1 4 .1" stroke="#22426f" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <ellipse cx="59.6" cy="35" rx="1.2" ry="1.6" fill="#5a2340"/>
+  <circle cx="57" cy="32.6" r="1.3" fill="#f2a6c0" opacity=".55"/>
+  <!-- highlights -->
+  <path d="M44.5 23.5 Q47 20 52 19.6" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M42 51 Q42.5 47.5 45 46.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+  <circle cx="75.6" cy="43" r="1.5" fill="#fff" opacity=".9"/>
+  <!-- song ripples + notes -->
+  <path d="M86.5 37 Q90.5 45 86.5 53 M91 33 Q97 45 91 57" stroke="#f2c6d8" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M63.5 32 q2 3 0 6 M66.3 30.5 q3 4.5 0 9" stroke="#f2c6d8" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/>
+  <g fill="#f2c6d8" stroke="#15121d" stroke-width=".8" stroke-linejoin="round">
+    <ellipse cx="70" cy="24" rx="2.2" ry="1.6" transform="rotate(-20 70 24)"/>
+    <path d="M71.6 23.4 V15.5 q3.5 1 3.8 4.6 q-1.6 -1.8 -2.6 -1.6 V23.4 Z"/>
+    <ellipse cx="83" cy="27" rx="1.7" ry="1.25" transform="rotate(-20 83 27)"/>
+    <path d="M84.2 26.6 V21 h1 V26.6 Z"/>
+  </g>
+</svg>

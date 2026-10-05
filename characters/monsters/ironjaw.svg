@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Foreman Ironjaw (monster) - Burizza placeholder art.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><rect x="32" y="74" width="16" height="20" rx="3" fill="#5a5f6a" stroke="#2a2f3f" stroke-width="1.5"/>
+  <rect x="54" y="74" width="16" height="20" rx="3" fill="#5a5f6a" stroke="#2a2f3f" stroke-width="1.5"/>
+  <rect x="26" y="40" width="50" height="38" rx="6" fill="#5a5f6a" stroke="#2a2f3f" stroke-width="1.5"/>
+  <path d="M26 59 h50 M51 40 v38" stroke="#2a2f3f" stroke-width="1.5" opacity=".55"/>
+  <circle cx="51" cy="59" r="11" fill="#ffb347" opacity=".2"/><circle cx="51" cy="59" r="6" fill="#ffb347"/>
+  <circle cx="34" cy="68" r="2.6" fill="#a0522d" opacity=".75"/><circle cx="68" cy="46" r="2.2" fill="#a0522d" opacity=".75"/>
+  <rect x="40" y="23" width="22" height="18" rx="3" fill="#5a5f6a" stroke="#2a2f3f" stroke-width="1.5"/>
+  <rect x="44" y="29" width="16" height="4.5" rx="1.5" fill="#ffb347"/>
+  <circle cx="26" cy="45" r="8" fill="#5a5f6a" stroke="#2a2f3f" stroke-width="1.5"/><circle cx="76" cy="45" r="8" fill="#5a5f6a" stroke="#2a2f3f" stroke-width="1.5"/>
+  <rect x="74" y="49" width="12" height="27" rx="4" fill="#5a5f6a" stroke="#2a2f3f" stroke-width="1.5"/>
+  <rect x="72" y="74" width="16" height="12" rx="3" fill="#2a2f3f"/>
+</svg>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Malgrath the Unbound (melee) - Burizza art v2. Demon brute freed from the pit.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9585e"/><stop offset=".5" stop-color="#a8323a"/><stop offset="1" stop-color="#6a1c24"/></linearGradient>
+    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8c2a31"/><stop offset="1" stop-color="#4f1419"/></linearGradient>
+    <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a4862"/><stop offset=".5" stop-color="#2d2230"/><stop offset="1" stop-color="#16101a"/></linearGradient>
+    <linearGradient id="armorD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#33283a"/><stop offset="1" stop-color="#120d15"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#e8a548"/><stop offset="1" stop-color="#9a6a1c"/></linearGradient>
+    <linearGradient id="horn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a4e58"/><stop offset=".5" stop-color="#1f1a1f"/><stop offset="1" stop-color="#0b090b"/></linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8e8a9c"/><stop offset=".5" stop-color="#4a4656"/><stop offset="1" stop-color="#1f1c25"/></linearGradient>
+    <linearGradient id="ironD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e5a68"/><stop offset="1" stop-color="#1f1c25"/></linearGradient>
+    <linearGradient id="haft" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a3a34"/><stop offset="1" stop-color="#2a1a1c"/></linearGradient>
+    <radialGradient id="eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffd166"/><stop offset="1" stop-color="#ff8a1f" stop-opacity="0"/></radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.4"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="29" ry="3.9" fill="#000" opacity=".4"/>
+  <!-- tail -->
+  <path d="M38 74 Q22 72 19 82 Q17 89 10.5 86.5" fill="none" stroke="#15121d" stroke-width="5.4" stroke-linecap="round"/>
+  <path d="M38 74 Q22 72 19 82 Q17 89 10.5 86.5" fill="none" stroke="#8c2a31" stroke-width="2.6" stroke-linecap="round"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M12.5 88 L8.5 89.5 Q4 86 4.5 78.5 Q10 80 13 84 Z" fill="url(#horn)"/>
+    <!-- back horn -->
+    <path d="M48 23 Q37 21 35.5 12.5 Q35 8.5 37.5 5.5 Q39.5 12 45 14.5 Q49 16 53 17.5 Z" fill="url(#horn)"/>
+    <!-- back arm + shackle -->
+    <path d="M31 45 Q23.5 54 23 64 L31.5 66 Q31.5 57 38.5 50 Z" fill="url(#skinD)"/>
+    <path d="M21.6 60 L32.6 61.8 L32 66.4 L21 64.6 Z" fill="url(#ironD)"/>
+    <circle cx="27" cy="68.5" r="4.4" fill="url(#skinD)"/>
+    <!-- back pauldron -->
+    <path d="M32 40.5 L29 33 L36.5 38.5 Z" fill="url(#armorD)"/>
+    <path d="M27.5 51 Q25.5 41 35 38.5 L43 44 L34 55 Z" fill="url(#armorD)"/>
+    <!-- legs + cloven hooves -->
+    <path d="M36.5 71 h13 l-.5 9 l-3 8.5 h-9 l.5 -8.5 z" fill="url(#skinD)"/>
+    <path d="M36 84.5 l1.6 2.2 l1.8 -1.8 l1.8 2 l1.8 -2 l1.8 1.8 l1.6 -2.2 l.4 4 h-11 z" fill="url(#armorD)"/>
+    <path d="M34 88 h11 q3 0 3.5 5.5 h-15.5 z" fill="url(#horn)"/>
+    <path d="M52.5 71 h13 l1.5 9 l1 8.5 h-10.5 l-2 -8.5 z" fill="url(#skin)"/>
+    <path d="M57 84.5 l1.6 2.2 l1.8 -1.8 l1.8 2 l1.8 -2 l1.8 1.8 l1.8 -2.2 l.2 4 h-10.8 z" fill="url(#armorD)"/>
+    <path d="M56 88 h12 q3.5 0 4 5.5 h-17 z" fill="url(#horn)"/>
+    <!-- torso -->
+    <path d="M29 47 Q33 37 50 35.5 Q65 35.5 70 45 L67 71 Q50 76 34 71 Z" fill="url(#skin)"/>
+    <path d="M60 37 L66 40.5 L42 70 L36 67 Z" fill="url(#armor)"/>
+    <path d="M34 71 h32 l1 5.5 q-17 3 -34 0 z" fill="url(#armorD)"/>
+    <path d="M44 72 l1.5 12.5 l4.5 2.5 l4.5 -2.5 l1.5 -12.5 z" fill="url(#armor)"/>
+    <path d="M45.6 82 l4.4 2.5 l4.4 -2.5" fill="none" stroke="url(#gold)" stroke-width="1.6"/>
+    <rect x="32.5" y="65.5" width="36" height="6.5" rx="1.2" fill="url(#armor)"/>
+    <!-- ear -->
+    <path d="M50 27 L39.5 22 L47.5 33.5 Z" fill="url(#skinD)"/>
+    <!-- head -->
+    <path d="M48 28 Q47 18 57 17.5 Q65.5 17.5 67 24 L68.5 29 L66.5 31 Q70.5 32.5 70 36.5 Q64 41.5 55 40 Q48.5 37 48 28 Z" fill="url(#skin)"/>
+    <!-- front horn -->
+    <path d="M54 20.5 Q55 11.5 61 8.5 Q65.5 6.5 66 2.5 Q70 10 65 15 Q62.5 18 62.5 21 Z" fill="url(#horn)"/>
+    <!-- axe -->
+    <g transform="rotate(14 68 61)">
+      <rect x="66.3" y="13" width="3.4" height="64" rx="1" fill="url(#haft)"/>
+      <path d="M69.7 13.5 Q75 12 78.5 6.5 L81.5 11 L85.5 11.5 L84.5 16.5 L87.5 20.5 L84.5 24.5 L86 29.5 L82.5 30.5 L80.5 36.5 Q76 32 69.7 33 Z" fill="url(#iron)"/>
+      <path d="M69.7 14 Q71.5 13.6 72.3 13 V33.6 Q71 33.1 69.7 33 Z" fill="url(#gold)"/>
+      <path d="M66.3 13 L68 6.5 L69.7 13 Z" fill="url(#ironD)"/>
+      <rect x="65.6" y="38" width="4.8" height="3.2" rx=".8" fill="url(#gold)"/>
+      <rect x="65.6" y="50" width="4.8" height="3.2" rx=".8" fill="url(#gold)"/>
+      <rect x="65.6" y="70" width="4.8" height="3.2" rx=".8" fill="url(#gold)"/>
+      <circle cx="68" cy="78.5" r="2.4" fill="url(#gold)"/>
+    </g>
+    <!-- front arm + shackle -->
+    <path d="M56 45 Q67 46 71.5 55 L66 65 L53.5 57 Z" fill="url(#skin)"/>
+    <path d="M67.3 54.4 L69.2 57.4 L60.7 62.6 L58.8 59.6 Z" fill="url(#iron)"/>
+    <circle cx="68.5" cy="61.5" r="4.8" fill="url(#skin)"/>
+    <!-- spiked pauldron -->
+    <path d="M56.5 43 L52.5 35.5 L60.5 40.5 Z" fill="url(#armor)"/>
+    <path d="M63.5 40.5 L64 33 L68.5 41.5 Z" fill="url(#armor)"/>
+    <path d="M53.5 48.5 Q54.5 40 63 39.5 Q71.5 40 72 49.5 L59 54 Z" fill="url(#armor)"/>
+    <path d="M55 52 Q63 48 72 49.5" fill="none" stroke="url(#gold)" stroke-width="2.2"/>
+    <!-- belt buckle -->
+    <path d="M45.5 65 h9 l-1 7.5 l-3.5 2 l-3.5 -2 z" fill="url(#gold)"/>
+  </g>
+  <!-- chains -->
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#15121d" stroke-width="2.8"><ellipse cx="22.3" cy="67.5" rx="1.3" ry="2"/><path d="M21.9 70.6 L21.5 73.4"/><ellipse cx="21.2" cy="76.4" rx="1.3" ry="2"/><path d="M20.8 79.5 L20.4 82"/></g>
+    <g stroke="#9a96a8" stroke-width="1.2"><ellipse cx="22.3" cy="67.5" rx="1.3" ry="2"/><path d="M21.9 70.6 L21.5 73.4"/><ellipse cx="21.2" cy="76.4" rx="1.3" ry="2"/><path d="M20.8 79.5 L20.4 82"/></g>
+    <g stroke="#15121d" stroke-width="2.8"><ellipse cx="60.2" cy="65.6" rx="1.3" ry="2"/><path d="M60 68.7 L59.8 71.5"/><ellipse cx="59.6" cy="74.5" rx="1.3" ry="2"/><path d="M59.4 77.6 L59.1 80.3"/></g>
+    <g stroke="#b3afc0" stroke-width="1.2"><ellipse cx="60.2" cy="65.6" rx="1.3" ry="2"/><path d="M60 68.7 L59.8 71.5"/><ellipse cx="59.6" cy="74.5" rx="1.3" ry="2"/><path d="M59.4 77.6 L59.1 80.3"/></g>
+  </g>
+  <!-- ember cracks -->
+  <path d="M37 49 l4 4 l-1.5 4 l4 3 M53 45.5 l-2.5 4.5 l3 3 M60.5 75 l2 3 l-1 3.5 M42.5 75.5 l-1.5 4.5 M26 54 l2 4 M52.5 24 l2 3" fill="none" stroke="#ff6a1f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".85" filter="url(#glow)"/>
+  <path d="M37 49 l4 4 l-1.5 4 l4 3 M53 45.5 l-2.5 4.5 l3 3 M60.5 75 l2 3 l-1 3.5 M42.5 75.5 l-1.5 4.5 M26 54 l2 4 M52.5 24 l2 3" fill="none" stroke="#ffd166" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- hoof clefts, studs, buckle sigil -->
+  <path d="M42.5 89.5 v4 M65.5 89.5 l.5 4" stroke="#15121d" stroke-width="1.2" stroke-linecap="round"/>
+  <g fill="#ffe08a" stroke="#15121d" stroke-width=".6"><circle cx="58" cy="41.5" r="1"/><circle cx="51" cy="50.5" r="1"/><circle cx="44" cy="59.5" r="1"/><circle cx="36" cy="68.8" r=".9"/><circle cx="64" cy="68.8" r=".9"/></g>
+  <circle cx="50" cy="69" r="1.7" fill="#ff6a1f" stroke="#15121d" stroke-width=".8"/><circle cx="49.5" cy="68.5" r=".5" fill="#fff3b0"/>
+  <!-- face -->
+  <path d="M57 23 L66.5 25.5" stroke="#15121d" stroke-width="2.8" stroke-linecap="round"/>
+  <circle cx="62" cy="27.8" r="4.4" fill="url(#eye)"/>
+  <circle cx="62" cy="27.8" r="1.6" fill="#fff3b0"/>
+  <path d="M58 36 Q63 37.2 69.6 34.2" stroke="#15121d" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M60.3 36.6 L60.4 31.6 L62.7 36.2 Z M65.8 35.6 L67.2 30.6 L68.3 35 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".9" stroke-linejoin="round"/>
+  <path d="M38 9 Q37.3 12 39 15 M58 11.5 Q59.5 9.5 62 8.6" stroke="#8a7d8a" stroke-width="1" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M56 16.5 l5.5 -.6 M58.5 12 l4.5 .8 M40.5 18 l2 -4 M37 12.5 l3.2 -2" stroke="#4a404a" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M50.5 23 Q52.5 19.5 57 19" stroke="#fff" stroke-width="1.3" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M33 45 Q38 40 45 38.5" stroke="#fff" stroke-width="1.3" fill="none" opacity=".55" stroke-linecap="round"/>
+  <path d="M57 46 Q60 42.5 65 42.2" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M84 13 Q86 19 84 25" transform="rotate(14 68 61)" stroke="#fff" stroke-width="1.2" fill="none" opacity=".85" stroke-linecap="round"/>
+  <!-- embers -->
+  <g fill="#ffb347"><circle cx="30" cy="30" r=".9" opacity=".8"/><circle cx="44" cy="10" r=".7" opacity=".6"/><circle cx="78" cy="46" r=".8" opacity=".7"/></g>
+</svg>

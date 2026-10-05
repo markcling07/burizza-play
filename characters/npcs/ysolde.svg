@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Elder Ysolde (NPC) - Cinderhold villager art. Village elder and lore-keeper of the Elder's Hut.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="ysolde-shawl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9c5cb4"/><stop offset=".5" stop-color="#6e3a86"/><stop offset="1" stop-color="#3e1f52"/></linearGradient>
+    <linearGradient id="ysolde-shawlD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e3074"/><stop offset="1" stop-color="#2f1640"/></linearGradient>
+    <linearGradient id="ysolde-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8916a"/><stop offset=".55" stop-color="#75603f"/><stop offset="1" stop-color="#4a3b24"/></linearGradient>
+    <linearGradient id="ysolde-robe2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bd8050"/><stop offset="1" stop-color="#7a4628"/></linearGradient>
+    <linearGradient id="ysolde-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#dcd6ca"/><stop offset="1" stop-color="#a8a194"/></linearGradient>
+    <linearGradient id="ysolde-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efcaa8"/><stop offset="1" stop-color="#c99272"/></linearGradient>
+    <linearGradient id="ysolde-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7650"/><stop offset="1" stop-color="#4a3220"/></linearGradient>
+    <linearGradient id="ysolde-rope" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2cc94"/><stop offset="1" stop-color="#a88c56"/></linearGradient>
+    <radialGradient id="ysolde-purple" cx=".38" cy=".35" r=".65"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#ead2f6"/><stop offset=".7" stop-color="#c48be0"/><stop offset="1" stop-color="#7a3fa0"/></radialGradient>
+    <radialGradient id="ysolde-green" cx=".38" cy=".35" r=".65"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#dcffd0"/><stop offset=".7" stop-color="#9fe08a"/><stop offset="1" stop-color="#4fae4a"/></radialGradient>
+    <filter id="ysolde-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+  <ellipse cx="51" cy="94" rx="26" ry="3.8" fill="#000" opacity=".38"/>
+  <!-- charm glow -->
+  <circle cx="64.5" cy="22.5" r="5" fill="#c48be0" opacity=".65" filter="url(#ysolde-glow)"/>
+  <circle cx="67.4" cy="26" r="4" fill="#9fe08a" opacity=".55" filter="url(#ysolde-glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- feet -->
+    <path d="M44 88.5 h8 v5 h-9.5 z" fill="#4a3020"/>
+    <path d="M54.5 88.5 h8 l2.5 5 h-10.5 z" fill="#6a4529"/>
+    <!-- hunched outer robe -->
+    <path d="M47 40 Q37 42 36.5 56 Q35.5 74 33.5 90 Q50 93.5 66 90 Q63.5 72 62.5 54 Q61.5 44 56 41 Z" fill="url(#ysolde-robe)"/>
+    <!-- inner rust layer -->
+    <path d="M53 50 h8.5 l3.6 40 q-6.5 1.6 -12.6 .9 z" fill="url(#ysolde-robe2)"/>
+    <path d="M34 86.5 Q50 90 65.6 86.5 L66 90 Q50 93.5 33.5 90 Z" fill="#5a4630"/>
+    <!-- rope belt + pouch -->
+    <path d="M36.3 60 Q49 64 62.8 59.5 L63 63 Q49 67.5 36 63.5 Z" fill="url(#ysolde-rope)"/>
+    <path d="M45.5 65 l-1.4 7.5 M47.6 65.3 l.6 7" fill="none"/>
+    <path d="M37.5 64.5 h6 l-.5 6 q-2.5 1.6 -5 0 z" fill="#7a5232"/>
+    <!-- gnarled staff -->
+    <path d="M71.5 92 Q69.5 78 71.5 66 Q73 54 71 42 Q69.5 30 71.5 18" stroke-width="5.2" fill="none"/>
+    <path d="M71.5 92 Q69.5 78 71.5 66 Q73 54 71 42 Q69.5 30 71.5 18" stroke="url(#ysolde-wood)" stroke-width="3" fill="none"/>
+    <path d="M71.5 18.5 Q73.5 10.5 68.5 8.5 Q63.5 7.5 63.5 12 Q64 15 67 14.5 M72.2 22.5 L76 18.8" stroke-width="4.2" fill="none"/>
+    <path d="M71.5 18.5 Q73.5 10.5 68.5 8.5 Q63.5 7.5 63.5 12 Q64 15 67 14.5 M72.2 22.5 L76 18.8" stroke="url(#ysolde-wood)" stroke-width="2.2" fill="none"/>
+    <circle cx="70.4" cy="42.5" r="1.7" fill="url(#ysolde-wood)" stroke-width="1"/>
+    <circle cx="70.9" cy="74" r="1.5" fill="url(#ysolde-wood)" stroke-width="1"/>
+    <!-- shawl capelet -->
+    <path d="M49 37.5 Q38 38 37 50 Q38 56 41 58 L44.5 54 L48 60 L51.5 54.5 L55 60.5 L58.5 54.5 L62 58 Q66 52 64 44 Q62 39 57 38 Z" fill="url(#ysolde-shawl)"/>
+    <!-- white hair spilling down the back -->
+    <path d="M46.5 36 Q37 46 37.5 70 Q41.5 66 43.5 58 Q43 48 49.5 41 Z" fill="url(#ysolde-hair)"/>
+    <!-- head -->
+    <circle cx="57.5" cy="31" r="8" fill="url(#ysolde-skin)"/>
+    <!-- deep hood -->
+    <path d="M48 43 Q39 32 44 21 Q50 12.5 60 13.5 Q68.5 15 69 25 Q66.5 23 62.5 22.5 Q55 22 52.5 27.5 Q51 33 53 41 Z" fill="url(#ysolde-shawl)"/>
+    <path d="M69 25 Q66.5 23 62.5 22.5 Q55 22 52.5 27.5 Q51 33 53 41 L50.6 41.8 Q48.6 33 50.4 26.5 Q53.5 19.8 62.5 20.4 Q67.6 21 69 25 Z" fill="url(#ysolde-shawlD)" stroke-width="1.1"/>
+    <!-- fringe of white hair -->
+    <path d="M53.5 26 Q59 22.6 66 24.6 Q62.5 25.2 60.5 27 Q58 25.8 55 28.4 Z" fill="url(#ysolde-hair)" stroke-width="1.1"/>
+    <path d="M52.6 29.5 Q50.4 42 55 52.5 Q57.2 47 56.2 41 Q56.2 35 55.2 29.5 Z" fill="url(#ysolde-hair)" stroke-width="1.2"/>
+    <!-- hooked nose -->
+    <path d="M64.3 29.8 Q69.6 33.4 65.2 35.8 Q64.2 35.4 64.1 34.6 Z" fill="url(#ysolde-skin)" stroke-width="1"/>
+    <!-- front arm, wide sleeve -->
+    <path d="M57 42 Q65 43 68.5 51.5 L72.5 53.5 L68.8 59.8 Q62 55.5 56 51 Z" fill="url(#ysolde-robe)"/>
+    <path d="M68.5 51.5 L72.5 53.5 L68.8 59.8 L66.2 57.8 Z" fill="url(#ysolde-shawlD)" stroke-width="1.2"/>
+    <circle cx="71.6" cy="55.6" r="2.9" fill="url(#ysolde-skin)"/>
+  </g>
+  <!-- face -->
+  <path d="M60 30.4 q1.6 1.4 3.2 0" stroke="#1d2130" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M59.6 27.7 q1.9 -1 3.8 0" stroke="#f4f0e6" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M59.2 31.1 l-1.3 .6 M59.3 29.7 l-1.3 -.3" stroke="#a0705a" stroke-width=".7" stroke-linecap="round"/>
+  <path d="M59.4 33.4 q1.1 1.7 .4 3.3 M63.4 38.4 q-1 .6 -2 .2" stroke="#b07a60" stroke-width=".7" fill="none" stroke-linecap="round"/>
+  <path d="M60.8 36.9 q1.9 1.1 3.6 -.4" stroke="#8a5040" stroke-width=".95" fill="none" stroke-linecap="round"/>
+  <circle cx="61.2" cy="34.4" r="1.3" fill="#f2a08a" opacity=".45"/>
+  <!-- highlights -->
+  <path d="M46 22.5 Q50 16.5 57 15.2" stroke="#d6a6ea" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M40.5 47 Q42.5 41.5 47.5 40" stroke="#c79ad8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".75"/>
+  <path d="M38.8 64 Q38.3 76 37.2 85" stroke="#d2bc90" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".6"/>
+  <path d="M70.6 88 Q69.3 79 70.8 70 M70.4 38 Q69.6 30 70.8 24" stroke="#c9a47a" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <!-- shawl tassels + trim -->
+  <path d="M41 58 v2.6 M48 60 v2.6 M55 60.5 v2.6 M62 58 v2.6" stroke="#3e1f52" stroke-width="1.3" stroke-linecap="round"/>
+  <g fill="#e3c26a"><circle cx="44.5" cy="51.8" r=".6"/><circle cx="51.5" cy="52.3" r=".6"/><circle cx="58.5" cy="52.3" r=".6"/></g>
+  <!-- hanging charms -->
+  <path d="M64.6 14.5 v5.9 M67.1 14.9 l.3 9 M75.6 19.6 l.4 3.6" stroke="#2a2232" stroke-width=".7" fill="none" stroke-linecap="round"/>
+  <circle cx="64.6" cy="22.5" r="2.1" fill="url(#ysolde-purple)" stroke="#15121d" stroke-width=".9"/>
+  <circle cx="67.4" cy="25.8" r="1.8" fill="url(#ysolde-green)" stroke="#15121d" stroke-width=".9"/>
+  <path d="M76 23 Q79.2 27 76.6 33 Q73.4 28.2 76 23 Z" fill="#efe6d2" stroke="#15121d" stroke-width=".9" stroke-linejoin="round"/>
+  <path d="M76.1 24.5 Q76.6 28.5 76.5 32.2 M76.4 27.5 l1.4 -1 M76.5 29.8 l-1.4 -.9" stroke="#9a8a70" stroke-width=".6" fill="none" stroke-linecap="round"/>
+  <circle cx="63.9" cy="21.8" r=".6" fill="#fff"/>
+  <!-- drifting motes -->
+  <g fill="#e4c8f4"><circle cx="59" cy="9" r=".8"/><circle cx="80" cy="14" r=".7"/><circle cx="60" cy="18.5" r=".5"/></g>
+</svg>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sister Liesl (support) - Ashfall Road art v2. Cleric of the dawn chapel.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset=".55" stop-color="#e9e4d8"/><stop offset="1" stop-color="#b3aa96"/></linearGradient>
+    <linearGradient id="veil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#c9c1ad"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe490"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
+    <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b25a"/><stop offset="1" stop-color="#c8673a"/></linearGradient>
+    <radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#fff1b8"/><stop offset="1" stop-color="#f2c45a"/></radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- holy light -->
+  <circle cx="67" cy="19" r="12" fill="#fff1b8" opacity=".6" filter="url(#glow)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- veil back -->
+    <path d="M42 24 Q34 38 35 58 Q41 54 46 47 L48 30 Z" fill="url(#veil)"/>
+    <!-- feet -->
+    <path d="M42 88 h8 v5.5 h-10 z" fill="#6e4a30"/>
+    <path d="M52 88 h8 l2.5 5.5 h-11 z" fill="#7d5636"/>
+    <!-- robe -->
+    <path d="M40 42 Q50 38 61 42 L65 89 Q51 92.5 36 89 Z" fill="url(#robe)"/>
+    <path d="M47 43 h8 l2 47 q-6 1 -12 0 z" fill="url(#dawn)"/>
+    <rect x="39" y="60" width="24" height="3.6" rx="1" fill="url(#gold)"/>
+    <!-- hanging book -->
+    <path d="M38 64 h7 v9 h-7 z" fill="#7a2e3a"/>
+    <!-- staff -->
+    <rect x="65.2" y="27" width="3" height="65" rx="1" fill="url(#gold)"/>
+    <!-- head + veil -->
+    <circle cx="52.5" cy="30" r="9" fill="#f0c9a6"/>
+    <path d="M42.5 34 Q40 17 52.5 17 Q63 17 63 27 Q60 22 54 22.5 Q48.5 23 47.5 31 L48 40 Q44 40 42.5 34 Z" fill="url(#veil)"/>
+    <!-- front arm -->
+    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#robe)"/>
+    <circle cx="66.7" cy="58" r="2.8" fill="#f0c9a6"/>
+    <!-- sun disc -->
+    <circle cx="66.7" cy="19" r="6.5" fill="url(#sun)"/>
+  </g>
+  <!-- veil trim, fringe, face -->
+  <path d="M47.6 31 Q48.5 23 54 22.5 Q60 22 63 27" stroke="url(#gold)" stroke-width="1.6" fill="none"/>
+  <path d="M51 23.5 Q55 22 58.5 24.5 Q55 24.6 53 27 Q52 25 51 23.5 Z" fill="#c9a25e"/>
+  <circle cx="57.6" cy="30.2" r="1.4" fill="#1d2130"/>
+  <path d="M56 27.6 q2 -.8 3.8 0" stroke="#a07b3e" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M58 35 q1.5 1 3 0" stroke="#b97a64" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="33" r="1.4" fill="#f2a08a" opacity=".5"/>
+  <!-- sun rays -->
+  <path d="M66.7 8.5 v3.2 M66.7 26.3 v3.2 M56.2 19 h3.2 M74 19 h3.2 M59.3 11.6 l2.2 2.2 M71.9 24.2 l2.2 2.2 M59.3 26.4 l2.2 -2.2 M71.9 13.8 l2.2 -2.2" stroke="#f2c45a" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- robe + book details -->
+  <path d="M51 48 v8 M48 51 h6" stroke="#fff4d6" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M39.5 65.5 h4 M41.5 64 v9" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  <path d="M43 46 Q45 44 48 43.5" stroke="#fff" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <!-- light motes -->
+  <g fill="#fff1b8"><circle cx="78" cy="31" r="1"/><circle cx="57" cy="9" r=".8"/><circle cx="80" cy="10" r=".7"/><circle cx="74" cy="38" r=".7"/></g>
+</svg>

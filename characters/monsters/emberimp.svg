@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ember Imp (monster) - Burizza placeholder art.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <ellipse cx="50" cy="94" rx="18" ry="3.6" fill="#000" opacity=".35"/><g transform="translate(50 94) scale(0.75) translate(-50 -94)"><path d="M42 48 L12 26 L18 42 L6 44 L20 54 L10 64 L40 62 Z" fill="#5a2020"/>
+  <path d="M42 48 L12 26 M42 52 L6 44 M41 58 L10 64" stroke="#c4472a" stroke-width="1.2" opacity=".6"/>
+  <path d="M40 76 Q22 80 24 92" stroke="#c4472a" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+  <path d="M21 90 L25 96 L28 89 Z" fill="#c4472a"/>
+  <rect x="40" y="73" width="9" height="20" rx="3" fill="#2a2f3f"/><rect x="52" y="73" width="9" height="20" rx="3" fill="#2a2f3f"/>
+  <rect x="35" y="42" width="31" height="35" rx="9" fill="#3a1a1a"/><rect x="35" y="63" width="31" height="4" fill="#ff7a2f"/>
+  <circle cx="51" cy="30" r="12" fill="#c4472a"/>
+  <path d="M42 23 Q34 13 38 4 Q41 14 47.5 19 Z M57 19 Q62 11 61 3 Q67 13 61 24 Z" fill="#2a1414"/>
+  <path d="M51 26 l9 1.5" stroke="#1d2130" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="57" cy="30" r="2.2" fill="#ffd166"/><circle cx="57" cy="30" r="4.5" fill="#ffd166" opacity=".25"/>
+  <path d="M53 37 q4 2.5 8 0" stroke="#1d2130" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <rect x="62" y="46" width="8" height="18" rx="4" fill="#c4472a"/></g>
+</svg>

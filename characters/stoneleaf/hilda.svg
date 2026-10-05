@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hilda Stonewall (melee) - Ashfall Road art v2. Dwarf shieldmaiden.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="tunic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6283ad"/><stop offset=".5" stop-color="#40597a"/><stop offset="1" stop-color="#253650"/></linearGradient>
+    <linearGradient id="tunicD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34496a"/><stop offset="1" stop-color="#1b283c"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d892"/><stop offset=".5" stop-color="#c9a25e"/><stop offset="1" stop-color="#8f6d33"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f5fa"/><stop offset=".5" stop-color="#b4bccb"/><stop offset="1" stop-color="#6a7285"/></linearGradient>
+    <linearGradient id="steelD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa3b5"/><stop offset="1" stop-color="#4c5366"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe9ae"/><stop offset=".5" stop-color="#e8c872"/><stop offset="1" stop-color="#b08c3a"/></linearGradient>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b07a4a"/><stop offset=".5" stop-color="#8a5a32"/><stop offset="1" stop-color="#583820"/></linearGradient>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bdb6a4"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6b42"/><stop offset="1" stop-color="#5a3b22"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="26" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back wing -->
+    <path d="M44.5 33 Q35 27 31 16 Q37 19.5 41 18.5 Q39.5 24 47 30 Z" fill="url(#wing)"/>
+    <!-- back braid -->
+    <path d="M43.5 40 Q36 46 36.5 60 L42 60 Q42 50 47.5 44.5 Z" fill="url(#hair)"/>
+    <path d="M36.5 62 l2.7 5 l2.7 -5 z" fill="url(#hair)"/>
+    <rect x="35.6" y="58.5" width="7.2" height="3.6" rx="1" fill="url(#gold)"/>
+    <!-- legs + boots -->
+    <path d="M39 79 h10 l-.5 9 h-10 z" fill="#27324a"/>
+    <path d="M34 87 h15 v6.5 h-16.5 z" fill="#4a3020"/>
+    <path d="M51 79 h10 l1 9 h-10 z" fill="#344262"/>
+    <path d="M51 87 h14 l2.5 6.5 h-16.5 z" fill="#6a4529"/>
+    <path d="M50.5 85.5 h15 v3 h-15 z" fill="#e9dcc0"/>
+    <!-- torso -->
+    <path d="M31 55 Q50 47 69 55 L70 81 Q50 86 30 81 Z" fill="url(#tunic)"/>
+    <path d="M30.6 77.5 Q50 82.5 69.8 77.5 L70 81 Q50 86 30.5 81 Z" fill="url(#gold)"/>
+    <rect x="30.8" y="68" width="39" height="5" rx="1" fill="#5e3f26"/>
+    <rect x="46.5" y="67.3" width="7" height="6.4" rx="1.2" fill="url(#gold)"/>
+    <!-- head -->
+    <circle cx="52" cy="42" r="9.5" fill="#ecbfa0"/>
+    <path d="M42.5 45 Q41.5 37 47 36 L50.5 47 Z" fill="url(#hair)"/>
+    <!-- helm -->
+    <path d="M42 40 Q42 29.5 52.5 29.5 Q63 29.5 63 40 Z" fill="url(#steel)"/>
+    <rect x="41" y="37" width="23" height="3.8" rx="1.5" fill="url(#gold)"/>
+    <!-- front wing -->
+    <path d="M58.5 31.5 Q64 26 64 16.5 Q69.5 22.5 68.5 27.5 Q67 31.5 62 35 Z" fill="url(#wing)"/>
+    <!-- front braid -->
+    <path d="M48.5 45 Q46.5 52 47.5 61 L53 61 Q52 52 53.5 46.5 Z" fill="url(#hair)"/>
+    <path d="M47.6 63 l2.7 5 l2.7 -5 z" fill="url(#hair)"/>
+    <rect x="46.8" y="59.5" width="7.2" height="3.6" rx="1" fill="url(#gold)"/>
+    <!-- axe -->
+    <g transform="rotate(18 66 62)">
+      <rect x="64.6" y="21" width="3" height="57" rx="1" fill="url(#wood)"/>
+      <path d="M67.5 24 Q77 21 81.5 14 Q86 26 81.5 39 Q77 32 67.5 32 Z" fill="url(#steel)"/>
+      <path d="M64.6 25 l-5 3 l5 3 z" fill="url(#steelD)"/>
+      <rect x="63.8" y="19.5" width="4.6" height="3" rx="1" fill="url(#gold)"/>
+      <circle cx="66.1" cy="79" r="2" fill="url(#gold)"/>
+    </g>
+    <!-- front arm + pauldron -->
+    <path d="M61 57 L70.5 57.5 L69 64.5 L61.5 64 Z" fill="url(#tunic)"/>
+    <circle cx="65.6" cy="64.2" r="3.2" fill="#ecbfa0"/>
+    <path d="M58.5 56 Q61 50.5 67.5 51.5 Q73.5 53.5 72 59.5 L60.5 60.5 Z" fill="url(#steel)"/>
+    <!-- round shield -->
+    <circle cx="35" cy="65" r="13" fill="url(#shield)"/>
+    <circle cx="35" cy="65" r="13" fill="none" stroke="url(#gold)" stroke-width="2.4"/>
+    <circle cx="35" cy="65" r="14.2" fill="none" stroke-width="1.2"/>
+    <circle cx="35" cy="65" r="11.6" fill="none" stroke-width="1"/>
+  </g>
+  <!-- shield planks + boss -->
+  <path d="M29 54.5 V75.5 M41 54.5 V75.5" stroke="#4a2e18" stroke-width="1.1" stroke-linecap="round"/>
+  <circle cx="35" cy="65" r="4" fill="url(#steel)" stroke="#15121d" stroke-width="1.2"/>
+  <path d="M26 59.5 Q28.5 55 33 54" stroke="#e0b07c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".8"/>
+  <!-- face -->
+  <circle cx="58.6" cy="44.4" r="1.5" fill="#1d2130"/>
+  <path d="M56.2 41.9 q2.2 -.8 4.3 .2" stroke="#a0782e" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <circle cx="60.3" cy="47.6" r="1.5" fill="#f2907a" opacity=".5"/>
+  <path d="M58.5 50 q1.6 .8 3.2 -.2" stroke="#a5604a" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <!-- braid ridges -->
+  <path d="M48.5 49.5 h4 M48.2 53.5 h4 M48.2 57.5 h4 M39 50 h4 M37.8 54.5 h4" stroke="#a7843a" stroke-width=".9" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M45 35 Q47 31.8 52 31.2" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M61 54.5 q3 -1.6 6.5 -.4" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M53 52 Q58 50 64 51" stroke="#8aa6cc" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".7"/>
+</svg>

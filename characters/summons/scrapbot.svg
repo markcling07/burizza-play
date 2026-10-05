@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Scrapbot (summon) - Burizza placeholder art.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><rect x="28" y="80" width="44" height="13" rx="6.5" fill="#3a3f4f"/>
+  <circle cx="36" cy="86.5" r="4" fill="#2a2f3f"/><circle cx="50" cy="86.5" r="4" fill="#2a2f3f"/><circle cx="64" cy="86.5" r="4" fill="#2a2f3f"/>
+  <rect x="34" y="52" width="32" height="29" rx="5" fill="#a39a86"/>
+  <rect x="39" y="58" width="15" height="11" rx="2" fill="#2a2f3f"/><circle cx="46.5" cy="63.5" r="2.6" fill="#8be28b"/>
+  <path d="M37 53 Q37 33 50 33 Q63 33 63 53 Z" fill="#a39a86"/>
+  <rect x="47" y="41" width="13" height="5" rx="2" fill="#8be28b"/>
+  <line x1="50" y1="33" x2="50" y2="25" stroke="#a39a86" stroke-width="2"/><circle cx="50" cy="24" r="2.2" fill="#8be28b"/>
+  <rect x="62" y="60" width="23" height="5" rx="2" fill="#2a2f3f"/><rect x="81" y="58.5" width="5" height="8" rx="1" fill="#8be28b"/>
+</svg>

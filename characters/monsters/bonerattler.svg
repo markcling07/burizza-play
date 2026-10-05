@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Bone Rattler (monster) - Burizza placeholder art.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><line x1="46" y1="78" x2="42" y2="93" stroke="#e6e1d3" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="56" y1="78" x2="60" y2="93" stroke="#e6e1d3" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M42 77 h18" stroke="#e6e1d3" stroke-width="5" stroke-linecap="round"/>
+  <rect x="48" y="44" width="6" height="34" rx="3" fill="#e6e1d3"/>
+  <path d="M40 50 h22 M39 57 h24 M40 64 h22" stroke="#e6e1d3" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="51" cy="31" r="12" fill="#e6e1d3"/>
+  <rect x="45" y="38" width="12" height="7" rx="2" fill="#e6e1d3"/>
+  <path d="M38.5 30 Q38.5 17 51 17 Q63.5 17 63.5 30 Z" fill="#8a5a32"/><circle cx="58" cy="23" r="3" fill="#ffd166"/>
+  <circle cx="47" cy="32" r="3.4" fill="#1d2130"/><circle cx="56" cy="32" r="3.4" fill="#1d2130"/>
+  <path d="M47 41 v3 M51 41 v3 M55 41 v3" stroke="#1d2130" stroke-width="1.4"/>
+  <line x1="56" y1="50" x2="70" y2="61" stroke="#e6e1d3" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="68" y1="66" x2="80" y2="32" stroke="#7a5434" stroke-width="3" stroke-linecap="round"/>
+  <path d="M68 33 Q80 25 92 37" stroke="#c9d1de" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+</svg>

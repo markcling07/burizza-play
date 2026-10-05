@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Roska (NPC) - Cinderhold village art. The Arena's pit master: orc announcer with a brass war horn.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="roska-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a6bc98"/><stop offset=".5" stop-color="#748e66"/><stop offset="1" stop-color="#465a3e"/></linearGradient>
+    <linearGradient id="roska-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#66805a"/><stop offset="1" stop-color="#384a32"/></linearGradient>
+    <linearGradient id="roska-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5d44"/><stop offset=".5" stop-color="#5a3a2a"/><stop offset="1" stop-color="#36221a"/></linearGradient>
+    <linearGradient id="roska-leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4c3123"/><stop offset="1" stop-color="#2a1a13"/></linearGradient>
+    <linearGradient id="roska-sash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0525f"/><stop offset=".5" stop-color="#c0303f"/><stop offset="1" stop-color="#7a1a26"/></linearGradient>
+    <linearGradient id="roska-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".45" stop-color="#e0b04a"/><stop offset="1" stop-color="#8a5e14"/></linearGradient>
+    <linearGradient id="roska-steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset=".5" stop-color="#9aa3b5"/><stop offset="1" stop-color="#5c6476"/></linearGradient>
+    <linearGradient id="roska-hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3c3c3c"/><stop offset="1" stop-color="#111"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="28" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- topknot tail (behind head) -->
+    <path d="M49.5 13.5 Q40 8.5 33 15 Q38 14 41 16 Q37 18.5 35.5 24 Q43 16.5 50.5 17 Z" fill="url(#roska-hair)"/>
+    <!-- back arm, fist on hip -->
+    <path d="M36 45 L41.5 50 L34 58.5 L28 54.5 Z" fill="url(#roska-skinD)"/>
+    <path d="M28.5 56.5 L32.5 54 L40 63 L36 67 Z" fill="url(#roska-skinD)"/>
+    <circle cx="30.6" cy="56.4" r="3.2" fill="url(#roska-skinD)"/>
+    <circle cx="37.6" cy="65.2" r="3.3" fill="url(#roska-skinD)"/>
+    <!-- legs (wide stance) + boots -->
+    <path d="M37.5 71 h11 l-3.5 17 h-11 z" fill="url(#roska-leatherD)"/>
+    <path d="M28.5 87.5 h16 v6 h-17 z" fill="#2a1a16"/>
+    <path d="M52.5 71 h11 l4.5 17 h-11 z" fill="url(#roska-leather)"/>
+    <path d="M56.5 87.5 h14 l2.5 6 h-16.5 z" fill="#3a221c"/>
+    <path d="M55 79 h10.4 l.8 3 h-10.6 z" fill="url(#roska-leatherD)"/>
+    <!-- coiled whip at the back hip -->
+    <ellipse cx="35.5" cy="74" rx="5" ry="4.2" fill="none" stroke="#2a1a13" stroke-width="3.4"/>
+    <ellipse cx="35.5" cy="74" rx="5" ry="4.2" fill="none" stroke="#7a5236" stroke-width="1.6"/>
+    <ellipse cx="35.8" cy="74.4" rx="3" ry="2.4" fill="none" stroke="#2a1a13" stroke-width="2.6"/>
+    <ellipse cx="35.8" cy="74.4" rx="3" ry="2.4" fill="none" stroke="#8a5e3c" stroke-width="1.1"/>
+    <path d="M31 77 L28.6 85.5 Q28 87 29.6 86.6" fill="none" stroke="#2a1a13" stroke-width="1.3"/>
+    <!-- torso -->
+    <path d="M33 46 Q50 38 67 46 L64 72 Q50 76 36 72 Z" fill="url(#roska-skin)"/>
+    <!-- leather chest wrap -->
+    <path d="M34 50.5 Q50 44.5 66 50.5 L65 59 Q50 63 35 59 Z" fill="url(#roska-leather)"/>
+    <!-- studded harness (crossed straps) -->
+    <path d="M39 44 L44.5 42 L62 66 L56.5 68 Z" fill="url(#roska-leatherD)"/>
+    <path d="M55.5 42 L61 44 L44 68 L38.5 66 Z" fill="url(#roska-leatherD)"/>
+    <circle cx="50" cy="55" r="3" fill="url(#roska-steel)"/>
+    <!-- crimson sash + knot with tails -->
+    <path d="M34.5 63 Q50 67 65.5 63 L64.5 71.5 Q50 75.5 35.5 71.5 Z" fill="url(#roska-sash)"/>
+    <path d="M59 69 L64.5 84 L60.5 85 L56.5 71 Z" fill="url(#roska-sash)"/>
+    <path d="M61.5 68.5 L69 81 L65.5 82.5 L59.5 70.5 Z" fill="url(#roska-sash)"/>
+    <ellipse cx="60" cy="68.5" rx="3.2" ry="2.6" fill="url(#roska-sash)"/>
+    <!-- ear + head -->
+    <path d="M46.5 27 L36 21.5 L44.5 34 Z" fill="url(#roska-skinD)"/>
+    <path d="M44 30 Q42.5 18 52.5 17 Q62.5 16.5 64 25 L66.5 30 L64.8 32 Q66.5 37.5 61 40.5 Q54 43 47.5 40 Q44 36 44 30 Z" fill="url(#roska-skin)"/>
+    <!-- top strip of hair + topknot -->
+    <path d="M45.4 24.5 Q46.5 17.6 53 17.2 Q60 17 62.5 22 Q55 19.6 45.4 24.5 Z" fill="url(#roska-hair)"/>
+    <circle cx="51" cy="14.5" r="3.4" fill="url(#roska-hair)"/>
+    <rect x="48.4" y="16.2" width="5.4" height="2.4" rx=".8" fill="url(#roska-brass)" stroke-width="1.1"/>
+    <!-- brass war horn (raised) -->
+    <path d="M68.5 42 Q67.5 24 78.5 14.5 L88.5 21 Q76.5 25 71.2 42 Z" fill="url(#roska-brass)"/>
+    <ellipse cx="83.5" cy="17.75" rx="6" ry="2.3" fill="#5a3a10" transform="rotate(33 83.5 17.75)"/>
+    <path d="M67.5 42.5 h4.6 l-.4 3.2 h-3.8 z" fill="url(#roska-brass)" stroke-width="1.2"/>
+    <!-- front arm (raised) -->
+    <path d="M58 45 L67 37.5 L73 42 L63.5 51.5 Z" fill="url(#roska-skin)"/>
+    <path d="M61.6 42.4 L66.6 38.4 L70.6 41.4 L65.6 46 Z" fill="url(#roska-leatherD)" stroke-width="1.2"/>
+    <circle cx="70.4" cy="38" r="3.8" fill="url(#roska-skin)"/>
+    <!-- studded shoulder pad -->
+    <path d="M55 45 Q56 38.5 63.5 38.5 Q70 40 69.5 47.5 L58.5 51 Z" fill="url(#roska-leather)"/>
+  </g>
+  <!-- horn bands + shine -->
+  <path d="M68.8 34.5 L73.4 35.6 M71.6 26.6 L76.6 28.6" stroke="#8a5e14" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M69.6 38 Q69.6 26 77.6 17.6" stroke="#fff6cc" stroke-width="1" fill="none" stroke-linecap="round" opacity=".85"/>
+  <!-- studs -->
+  <g fill="url(#roska-steel)" stroke="#15121d" stroke-width=".55">
+    <circle cx="42.6" cy="45.6" r=".9"/><circle cx="45.6" cy="49.8" r=".9"/><circle cx="54.4" cy="61.8" r=".9"/><circle cx="57.6" cy="66" r=".9"/>
+    <circle cx="57.6" cy="45.6" r=".9"/><circle cx="54.6" cy="49.8" r=".9"/><circle cx="45.6" cy="61.8" r=".9"/><circle cx="42.4" cy="66" r=".9"/>
+    <circle cx="59.6" cy="42.2" r=".9"/><circle cx="63.6" cy="41.4" r=".9"/><circle cx="66.8" cy="43.4" r=".9"/>
+  </g>
+  <!-- shaved sides + earring -->
+  <ellipse cx="51" cy="26.5" rx="4.6" ry="3" fill="#2e3a28" opacity=".28"/>
+  <circle cx="42.6" cy="31.6" r="1.6" fill="none" stroke="url(#roska-brass)" stroke-width="1.1"/>
+  <!-- face -->
+  <path d="M55 25.6 L63.4 27" stroke="#15121d" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="59.8" cy="29.4" r="1.6" fill="#ffcf5a"/>
+  <circle cx="60.2" cy="29.4" r=".7" fill="#15121d"/>
+  <path d="M61.3 28.4 l1.5 -.9" stroke="#15121d" stroke-width=".8" stroke-linecap="round"/>
+  <path d="M56.5 37 Q60.5 37.6 64.5 35.2" stroke="#15121d" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M58 38.4 L57.8 33.6 L60.4 37.8 Z M62.6 37.2 L63.2 32.8 L64.7 36.1 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".85" stroke-linejoin="round"/>
+  <!-- scar across the eye -->
+  <path d="M57.4 23.4 L61.8 33.4" stroke="#d4e0c4" stroke-width="1" stroke-linecap="round"/>
+  <path d="M57.9 25.6 l1.4 -.6 M59.1 28.2 l1.4 -.6 M60.3 30.8 l1.4 -.6" stroke="#d4e0c4" stroke-width=".7" stroke-linecap="round"/>
+  <!-- war paint stripes -->
+  <path d="M37 52.5 l4 2 M38 63.5 l3 -1" stroke="#c0303f" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
+  <!-- highlights -->
+  <path d="M46.5 27 Q47 22.5 49 20.6" stroke="#fff" stroke-width="1.2" fill="none" opacity=".55" stroke-linecap="round"/>
+  <path d="M36 50 Q39 46.5 43 45.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round"/>
+  <path d="M58.5 43 Q61 40.5 65 40.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M38 66 Q50 69.4 62 66" stroke="#f08a94" stroke-width="1" fill="none" opacity=".75" stroke-linecap="round"/>
+</svg>

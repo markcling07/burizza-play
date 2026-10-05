@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Krug Skullsplitter (melee) - Ashfall Road art v2. Two-axe berserker.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9cc184"/><stop offset=".5" stop-color="#6b8f56"/><stop offset="1" stop-color="#425e35"/></linearGradient>
+    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d7d4b"/><stop offset="1" stop-color="#34492a"/></linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5d44"/><stop offset=".5" stop-color="#5a3a2a"/><stop offset="1" stop-color="#36221a"/></linearGradient>
+    <linearGradient id="leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4c3123"/><stop offset="1" stop-color="#2a1a13"/></linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset=".5" stop-color="#9aa3b5"/><stop offset="1" stop-color="#5c6476"/></linearGradient>
+    <linearGradient id="ironD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8790a2"/><stop offset="1" stop-color="#474e5e"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a5e3c"/><stop offset="1" stop-color="#4e321f"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3c3c3c"/><stop offset="1" stop-color="#111"/></linearGradient>
+    <radialGradient id="eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd0c4"/><stop offset=".5" stop-color="#e0645a"/><stop offset="1" stop-color="#e0645a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back axe -->
+    <g transform="rotate(-38 31 63)">
+      <rect x="29.5" y="38" width="3.2" height="32" rx="1" fill="url(#wood)"/>
+      <path d="M29.5 40 Q19 36 16.5 44 Q15.5 50 18.5 55 Q21 50 29.5 50 Z" fill="url(#ironD)"/>
+      <path d="M32.7 42 L37.5 45 L32.7 48 Z" fill="url(#ironD)"/>
+    </g>
+    <!-- back arm -->
+    <path d="M35 44 Q29 52 28 61 L35 64 Q36.5 56 42 50 Z" fill="url(#skinD)"/>
+    <circle cx="31" cy="63" r="3.6" fill="url(#skinD)"/>
+    <!-- legs -->
+    <path d="M38 71 h11 l-1.5 17 h-11 z" fill="url(#leatherD)"/>
+    <path d="M33 87.5 h14.5 v6 h-15.5 z" fill="#2a1f1a"/>
+    <path d="M52 71 h11 l2.5 17 h-11 z" fill="url(#leather)"/>
+    <path d="M53.5 87.5 h13.5 l2 6 h-15.5 z" fill="#3a2a22"/>
+    <path d="M53 79 h11.2 l.4 3 h-11.4 z" fill="url(#iron)"/>
+    <!-- torso -->
+    <path d="M31 46 Q50 37 69 46 L65 72 Q50 77 35 72 Z" fill="url(#skin)"/>
+    <path d="M58 41.5 L65 44.5 L42 73 L35.5 70.5 Z" fill="url(#leather)"/>
+    <rect x="34" y="66" width="31" height="6.5" rx="1.2" fill="url(#leather)"/>
+    <path d="M44 72 h11 l-1.5 9 l-4 2 l-4 -2 z" fill="url(#leatherD)"/>
+    <!-- mohawk + ear -->
+    <path d="M44 25 L36 17 L44.5 17.5 L42 9 L49.5 13 L51 4.5 L55.5 12 L61 8.5 L60 17.5 Q51 15 44 25 Z" fill="url(#hair)"/>
+    <path d="M46.5 27 L36 21.5 L44.5 34 Z" fill="url(#skinD)"/>
+    <!-- head -->
+    <path d="M44 30 Q42.5 18 52.5 17 Q62.5 16.5 64 25 L66.5 30 L64.8 32 Q66.5 37.5 61 40.5 Q54 43 47.5 40 Q44 36 44 30 Z" fill="url(#skin)"/>
+    <!-- front arm (raised) -->
+    <path d="M58 45 L70 36.5 L75.5 41.5 L63.5 51.5 Z" fill="url(#skin)"/>
+    <!-- front axe -->
+    <g transform="rotate(18 73.5 39.5)">
+      <rect x="71.9" y="12" width="3.2" height="38" rx="1" fill="url(#wood)"/>
+      <path d="M75.1 12.5 Q88 6.5 91 17 Q92.5 25 88.5 33 Q84.5 26 75.1 27 Z" fill="url(#iron)"/>
+      <path d="M71.9 16 L66 19.5 L71.9 23 Z" fill="url(#ironD)"/>
+      <rect x="71.1" y="47" width="4.8" height="3.5" rx="1" fill="url(#ironD)"/>
+    </g>
+    <circle cx="73.5" cy="39.5" r="3.9" fill="url(#skin)"/>
+    <!-- spiked pauldron -->
+    <path d="M59.5 40 L58.5 33 L63.5 38.5 Z" fill="url(#iron)"/>
+    <path d="M65.5 39 L68.5 33 L69.5 41.5 Z" fill="url(#iron)"/>
+    <path d="M55 45 Q56 38 64 38.5 Q71 40 70.5 48 L59 51.5 Z" fill="url(#iron)"/>
+    <!-- belt buckle skull -->
+    <path d="M45.5 66 Q45.5 62.5 49.5 62.5 Q53.5 62.5 53.5 66 L53 69.5 h-7 z" fill="#ece3cc"/>
+  </g>
+  <!-- skull face -->
+  <circle cx="47.9" cy="66.3" r="1.1" fill="#15121d"/><circle cx="51.1" cy="66.3" r="1.1" fill="#15121d"/>
+  <path d="M48 69.5 v-1.2 M49.5 69.5 v-1.2 M51 69.5 v-1.2" stroke="#15121d" stroke-width=".7"/>
+  <!-- war paint -->
+  <path d="M38 52 l5 3 M38.5 57 l5 3" stroke="#b3271e" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+  <path d="M56 31 L62 33.5 M57 34 L61.5 35.8" stroke="#b3271e" stroke-width="1.5" stroke-linecap="round" opacity=".85"/>
+  <!-- face -->
+  <path d="M55 25 L63.5 27" stroke="#15121d" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="60" cy="29" r="3" fill="url(#eye)"/>
+  <circle cx="60" cy="29" r="1.3" fill="#ff7a6a"/>
+  <path d="M56.5 37 Q60.5 38.2 64.5 36" stroke="#15121d" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M58 38.6 L57.6 32.8 L60.6 37.8 Z M62.6 37.2 L63.4 32 L64.9 36.1 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".9" stroke-linejoin="round"/>
+  <!-- highlights -->
+  <path d="M46.5 23 Q48.5 19 53 18.5" stroke="#fff" stroke-width="1.3" fill="none" opacity=".7" stroke-linecap="round"/>
+  <path d="M35 48 Q39 44.5 44 43.5" stroke="#fff" stroke-width="1.3" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M58.5 43 Q61 40.5 65 40.5" stroke="#fff" stroke-width="1.3" fill="none" opacity=".85" stroke-linecap="round"/>
+  <path d="M90 16 Q91.5 21 90.5 26" transform="rotate(18 73.5 39.5)" stroke="#fff" stroke-width="1.2" fill="none" opacity=".9" stroke-linecap="round"/>
+</svg>

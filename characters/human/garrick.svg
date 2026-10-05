@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sir Garrick Vane (melee) - Ashfall Road art v2. Heavily armored paladin.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#d7dbe4"/><stop offset="1" stop-color="#8c94a6"/></linearGradient>
+    <linearGradient id="plateD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8afbf"/><stop offset="1" stop-color="#5d6578"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5c80c4"/><stop offset="1" stop-color="#28407a"/></linearGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fbf8f0"/><stop offset="1" stop-color="#cfc7b4"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- plume -->
+    <path d="M47 15 Q38 3 25 9 Q31 10 34 14 Q28 15 26 20 Q36 15 44 21 Z" fill="url(#blue)"/>
+    <!-- back pauldron -->
+    <path d="M33 50 Q33 41 41 40 L46 46 L38 54 Z" fill="url(#plateD)"/>
+    <!-- legs -->
+    <path d="M40 71 h10 l-1 17 h-10 z" fill="url(#plateD)"/>
+    <path d="M36 87.5 h13.5 v6 h-14.5 z" fill="#5d6578"/>
+    <path d="M51 71 h10 l2 17 h-10 z" fill="url(#plate)"/>
+    <path d="M52 87.5 h13 l2 6 h-15 z" fill="#8c94a6"/>
+    <path d="M51 77 h10.5 l.4 3 h-10.9 z" fill="url(#gold)"/>
+    <!-- torso -->
+    <path d="M35 45 Q50 38 65 45 L63 72 Q50 77 37 72 Z" fill="url(#plate)"/>
+    <path d="M44 46 h12 l1 31 l-7 4.5 l-7 -4.5 z" fill="url(#cloth)"/>
+    <rect x="36" y="66" width="28" height="5" rx="1" fill="url(#gold)"/>
+    <!-- great helm -->
+    <path d="M40 22 Q40 15 51 15 Q62.5 15 62.5 22 L62.5 37 Q51 41.5 40 37.5 Z" fill="url(#plate)"/>
+    <path d="M40 34.5 Q51 39 62.5 34.5 L62.5 37 Q51 41.5 40 37.5 Z" fill="url(#gold)"/>
+    <!-- warhammer -->
+    <g transform="rotate(14 66 60)">
+      <rect x="64.6" y="25" width="3.2" height="47" rx="1" fill="#6b4630"/>
+      <path d="M58 19 h16 v12 h-16 z" fill="url(#plate)"/>
+      <rect x="58" y="23.5" width="16" height="3" fill="url(#gold)"/>
+      <path d="M74 21.5 l5 3.5 l-5 3.5 z" fill="url(#plateD)"/>
+      <path d="M64.5 19 l1.7 -5 l1.7 5 z" fill="url(#plateD)"/>
+      <circle cx="66.2" cy="73.5" r="2.2" fill="url(#gold)"/>
+    </g>
+    <!-- front arm + pauldron -->
+    <path d="M60 50 L68 57 L64 62.5 L57 56 Z" fill="url(#plate)"/>
+    <circle cx="66" cy="60" r="3.8" fill="url(#plateD)"/>
+    <path d="M55 44 Q57 38 64 39 Q70 41 69 50 L58 52 Z" fill="url(#plate)"/>
+    <path d="M57 47.5 Q63 45.5 69 49" fill="none"/>
+    <!-- kite shield -->
+    <path d="M27 49 h22 v14 q0 12.5 -11 18 q-11 -5.5 -11 -18 z" fill="url(#blue)"/>
+    <path d="M29.6 51.6 h16.8 v11.4 q0 10.4 -8.4 15 q-8.4 -4.6 -8.4 -15 z" fill="none" stroke="url(#gold)" stroke-width="1.6"/>
+  </g>
+  <!-- helm details -->
+  <path d="M50.5 26.5 h12 v2.8 h-12 z" fill="#15121d"/>
+  <path d="M57.5 29.3 v6.5" stroke="#15121d" stroke-width="1.6" stroke-linecap="round"/>
+  <g fill="#15121d"><circle cx="60" cy="32" r=".7"/><circle cx="60" cy="34.2" r=".7"/><circle cx="55" cy="32" r=".7"/><circle cx="55" cy="34.2" r=".7"/></g>
+  <path d="M43 19.5 Q46 17 50 16.8" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M51 15.5 v10.5" stroke="url(#gold)" stroke-width="2.2"/>
+  <!-- tabard sun -->
+  <circle cx="50" cy="56" r="3.2" fill="url(#gold)" stroke="#15121d" stroke-width=".9"/>
+  <path d="M50 50 v2 M50 60 v2 M44 56 h2 M54 56 h2 M45.8 51.8 l1.4 1.4 M52.8 58.8 l1.4 1.4 M45.8 60.2 l1.4 -1.4 M52.8 53.2 l1.4 -1.4" stroke="#c99a2e" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M38.5 48.5 Q41 45 45 44" stroke="#fff" stroke-width="1.3" fill="none" opacity=".8" stroke-linecap="round"/>
+  <!-- shield sun -->
+  <circle cx="38" cy="61" r="4" fill="url(#gold)" stroke="#15121d" stroke-width="1"/>
+  <path d="M38 53.5 v2.5 M38 66 v2.5 M30.5 61 h2.5 M43 61 h2.5 M32.8 55.8 l1.7 1.7 M41.5 64.5 l1.7 1.7 M32.8 66.2 l1.7 -1.7 M41.5 57.5 l1.7 -1.7" stroke="url(#gold)" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M30 52.5 h6" stroke="#9cb6ea" stroke-width="1.2" stroke-linecap="round" opacity=".8"/>
+</svg>
