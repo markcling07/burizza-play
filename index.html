@@ -3,7 +3,7 @@
 <title>Burizza</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Grenze+Gotisch:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Google+Sans:wght@400;500;700;800&family=Grenze+Gotisch:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* Layout: two screens. Warband select = sticky warband tray over faction sections of champion cards.
    Battle = ladder, turn-order strip, two facing columns of three units, then command deck beside the log.
@@ -424,7 +424,9 @@ h1 {
 /* Earthquake (underground only): the whole arena judders and grit rains from the ceiling.
    The shake uses `transform` because the crit hit-shake animates `translate` — both can run at once. */
 .arena.quake { animation: quakeShake .42s linear infinite; }
-.arena.quake::after {
+/* Ground Pound (skill option `quake`, quakeFx): the same judder and grit, two beats long. */
+.arena.tremor { animation: quakeShake .42s linear 2; }
+.arena.quake::after, .arena.tremor::after {
   content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: .55;
   background:
     radial-gradient(1.5px 1.5px at 18% 10%, rgba(214, 196, 170, .9), transparent),
@@ -499,9 +501,12 @@ h1 {
 .unit.elite { --size: clamp(68px, 17cqw, 190px); }
 .unit.elite .plate { border-color: var(--bad); }
 .unit .chips { justify-content: center; min-height: 0; gap: 2px; }
-.unit .chip { font-size: .56rem; line-height: 13px; padding: 0 4px; background: var(--plate); }
+.unit .chip { font-size: .5rem; line-height: 11px; padding: 0 4px; background: var(--plate); }
+/* Battle text wears Google Sans a size down: with eight champions (plus summons) on the field,
+   plates and chips must hug their content or they hide whoever stands behind them. */
+body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .plate {
-  width: 100%; max-width: 150px; display: grid; gap: 2px; padding: 3px 5px 4px;
+  width: 100%; max-width: 118px; display: grid; gap: 1px; padding: 2px 4px 3px;
   border-radius: 7px; background: var(--plate); border: 1px solid var(--line); transition: border-color .15s;
 }
 .unit.summon .plate { border-style: dashed; }
@@ -510,15 +515,15 @@ h1 {
 .unit.targetable .plate { border-color: var(--target); }
 .unit.targetable.ally .plate { border-color: var(--good); }
 .who { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; min-width: 0; }
-.who strong { font-size: .76rem; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.lvl { font-size: .56rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-.unit .bar { height: 11px; border-radius: 4px; }
-.unit .bar span { font-size: .58rem; line-height: 11px; padding-inline: 4px; }
-.unit .bar.heat { height: 7px; }
+.who strong { font-size: .66rem; font-weight: 700; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.lvl { font-size: .5rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.unit .bar { height: 9px; border-radius: 4px; }
+.unit .bar span { font-size: .52rem; line-height: 9px; padding-inline: 4px; }
+.unit .bar.heat { height: 5px; }
 .unit .bar.heat span { display: none; }
 .bar.mp { background: var(--mp-dim); }
 .bar.mp .fill { background: var(--mp); }
-.unit .bar.mp { height: 7px; }
+.unit .bar.mp { height: 5px; }
 .unit .bar.mp span { display: none; }
 .body {
   position: relative; width: var(--size); height: var(--size); transform-origin: 50% 100%;
@@ -658,6 +663,30 @@ h1 {
 .burst-curse { background: radial-gradient(circle, rgba(196, 139, 224, .65), transparent 65%); }
 .burst-roar { border: 3px solid rgba(240, 100, 90, .85); animation-name: ring; }
 .burst-smoke { width: 140%; background: radial-gradient(circle, rgba(225, 225, 235, .8) 0 28%, rgba(180, 180, 195, .45) 50%, transparent 70%); animation-duration: .9s; }
+/* Hellfire Slam and kin (skill option `wave`): a ring of pit-fire rolling out from the slam
+   point across the ground in every direction (fireWave). Sized and centered by JS through
+   width/height/margins, so the `scale` animation grows it from the point of impact. */
+.firewave {
+  position: absolute; z-index: 240; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(closest-side, transparent 50%, rgba(255, 154, 61, .14) 62%, rgba(224, 69, 42, .6) 74%, #ff9a3d 82%, #fff3b0 87%, rgba(224, 69, 42, .4) 93%, transparent 100%);
+  filter: drop-shadow(0 0 16px rgba(255, 122, 47, .85));
+  animation: firewave .8s ease-out forwards;
+}
+.firewave::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 243, 176, .75), rgba(255, 122, 47, .4) 45%, transparent 72%);
+  animation: firewaveCore .35s ease-out forwards;
+}
+@keyframes firewave { from { scale: .12; opacity: 1; } 70% { opacity: .95; } to { scale: 1; opacity: 0; } }
+@keyframes firewaveCore { to { opacity: 0; } }
+/* Power Slash (skill option `slash`, slashFx): a great crescent carved across the struck
+   target. The sweep animates `transform: rotate`; the mirror for enemy-side attackers is the
+   `scale` property, so the two compose instead of fighting. */
+.slashArc { position: absolute; left: 50%; top: 50%; width: 150%; aspect-ratio: 1; margin: -75% 0 0 -75%; z-index: 4; pointer-events: none; animation: slashSweep .34s ease-out forwards; }
+.slashArc.flip { scale: -1 1; }
+.slashArc svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.slashArc path { fill: #eef6ff; filter: drop-shadow(0 0 7px #9fdcff) drop-shadow(0 0 2px #fff); }
+@keyframes slashSweep { from { transform: rotate(-75deg); opacity: 0; } 25% { opacity: 1; } to { transform: rotate(50deg); opacity: 0; } }
 @keyframes burst { from { transform: translate(-50%, -50%) scale(.3); opacity: 1; } to { transform: translate(-50%, -50%) scale(1.15); opacity: 0; } }
 @keyframes rise { from { transform: translate(-50%, -30%) scale(.6); opacity: .95; } to { transform: translate(-50%, -85%) scale(1.1); opacity: 0; } }
 @keyframes bubble { 0% { transform: translate(-50%, -50%) scale(.5); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.05); opacity: 0; } }
@@ -1179,7 +1208,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   .unit.floats :where(.upic) { animation: none !important; }   /* the lift stays, the bob stops */
   .burst { display: none; }
   .unit { transition: none; }
-  .arena::before, .arena.quake { animation: none !important; }
+  .arena::before, .arena.quake, .arena.tremor { animation: none !important; }
   .tok { transition: none; }
   .tok.halt .face { animation: none; }
   .arena::after { display: none; }
@@ -2080,6 +2109,8 @@ function rollWeather(except) {
      critBonus, alwaysCrit, bonusVs:'<status>', selfCost, lifesteal,
      stun:<chance>, fx:[[status, turns, valuePerAttack]], heat
      heal: all, cleanse, tideBonus, fx     buff: heal, reduceCd, cleanse, selfStacks, aiTarget
+     wave / quake (melee AoE: one slam, then a fire ring / short tremor rolls out and the
+     hits land nearest-first), slash (a great crescent arc carved across the struck target),
      selfFx:[[status, turns]] (on the caster), chanceFx:[[status, turns, chance]], selfStacks:<n>,
      allyHeal:<mult> (heals all allies after hitting), allySteal:<share> (heals the most hurt ally),
      bounce:<mult> (ricochets into a second enemy), knockback:<bar distance>
@@ -2167,7 +2198,7 @@ const ROSTER = [
     look: { body: 'orc', main: '#4a4e5c', trim: '#b07d3e', skin: '#7a9a5e', weapon: 'hammer', shield: '#6b4f32' },
     skills: [D('Skull Rattler', '120% hit. Staggers the target: it keeps stopping on the speed bar for about 1.5 rounds.', 2, 1.2, { fx: [['stagger', 1]] }),
              B('Iron Hide', 'Taunt all enemies, shield herself and reflect 40% of damage taken for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2], ['thorns', 2]]),
-             D('Ground Pound', '55% to all enemies with a 40% chance each to Stagger.', 4, 0.55, { aoe: true, chanceFx: [['stagger', 1, 0.4]] }),
+             D('Ground Pound', '55% to all enemies with a 40% chance each to Stagger.', 4, 0.55, { aoe: true, quake: true, chanceFx: [['stagger', 1, 0.4]] }),
              D('Bonebreaker', '140% hit. Sunders the target\'s armor.', 3, 1.4, { fx: [['sunder', 3]] }),
              B('Hold the Line', 'Shield herself and reflect 40% of damage taken for 2 turns, plus a small heal.', 4, 'self', [['shield', 2], ['thorns', 2]], { heal: 1.2 })],
     passive: P('Thick Skull', 'Immune to Stun and Stagger.', { immune: ['stun', 'stagger'] }) },
@@ -2203,7 +2234,7 @@ const ROSTER = [
   { id: 'wren', name: 'Wren', faction: 'human', role: 'melee', bio: 'Spellblade of the Aldmere guard.',
     mods: {},
     look: { body: 'human', helm: true, main: '#a9b3c6', trim: '#e8a548', skin: '#e2b48f', weapon: 'sword' },
-    skills: [D('Power Slash', '160% cut.', 2, 1.6),
+    skills: [D('Power Slash', '160% cut.', 2, 1.6, { slash: true }),
              D('Thunderclap', '130% lightning with a 45% chance to stun.', 4, 1.3, { element: 'lightning', noDodge: true, stun: 0.45 }),
              D('Arcane Edge', '100% cut plus 20% of her current mana as extra damage.', 3, 1.0, { manaDamage: 0.2 }),
              D('Mageslayer', '110% cut. Burns 30 of the target\'s mana as extra damage and Silences them for 2 turns.', 4, 1.1, { manaBurn: 30, fx: [['silence', 3]] }),
@@ -2356,7 +2387,7 @@ const ROSTER = [
   { id: 'malgrath', name: 'Malgrath the Unbound', short: 'Malgrath', faction: 'crimson', role: 'melee', bio: 'Demon brute freed from the pit.',
     mods: { hp: 1.15, atk: 1.05, def: 0.9, agi: 0.85 },
     look: { body: 'demon', main: '#2d2230', trim: '#e8a548', skin: '#a8323a', horn: '#1f1a1f', eye: '#ffd166', weapon: 'axe' },
-    skills: [D('Hellfire Slam', '60% to all enemies. Burns them all and marks them with Infernal Toll: for 2 turns, their next skill also costs 5% of their current HP, on top of mana.', 3, 0.6, { aoe: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
+    skills: [D('Hellfire Slam', '60% to all enemies. Burns them all and marks them with Infernal Toll: for 2 turns, their next skill also costs 5% of their current HP, on top of mana.', 3, 0.6, { aoe: true, wave: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
              D('Infernal Wrath', '230% hit. Costs 15% of his own HP.', 4, 2.3, { selfCost: 0.15 }),
              B('Demonic Roar', 'Taunt all enemies and deal 30% more damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
              D('Pit Chains', '130% hit. Drags the target back along the speed bar and Exposes it.', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
@@ -3692,11 +3723,26 @@ async function damageSkill(u, t, sk) {
     render();
     await wait(hits > 1 ? 130 : 160);
   };
-  for (const tg of targets) {
+  // Slam skills (wave / quake): the blow lands ONCE, and the rolling fire ring or tremor does
+  // the traveling — hits land nearest-first, trailing the front as it rolls out from the slam.
+  if (melee && (o.wave || o.quake)) {
+    await strikePose(u);
+    if (o.wave) fireWave(u);
+    if (o.quake) quakeFx(targets);
+    const from = stageBox(u);
+    const span = (t) => { const b = stageBox(t); return b && from ? Math.abs(b.x - from.x) : 0; };
+    for (const tg of [...targets].sort((a, b) => span(a) - span(b))) {
+      for (let i = 0; i < hits; i++) {
+        if (tg.hp <= 0 || u.hp <= 0) break;
+        await hitOnce(tg, sk.mult);
+      }
+    }
+  } else for (const tg of targets) {
     for (let i = 0; i < hits; i++) {
       if (tg.hp <= 0 || u.hp <= 0) break;
       if (melee) await strikePose(u);
       else if (targets.length === 1) await shoot(u, tg, proj);
+      if (o.slash && melee) slashFx(tg, facing(u));
       await hitOnce(tg, sk.mult);
     }
   }
@@ -7451,6 +7497,46 @@ function projectileFor(u, sk) {
     case 'spear': case 'trident': return { kind: 'spear' };
     default: return { kind: 'orb', color: a.orb || '#9fe08a' };
   }
+}
+
+/* Skill-stamped stage effects (skill options wave / quake / slash): Hellfire Slam's rolling
+   fire ring, Ground Pound's tremor, Power Slash's crescent. All purely visual. */
+
+// A ring of pit-fire rolling out from the slam point across the ground in every direction.
+function fireWave(u) {
+  const b = stageBox(u), arena = $('#arena');
+  if (reduced || !b || !arena) return;
+  const d = arena.getBoundingClientRect().width * 1.15;   // wide enough to roll past the farthest fighter
+  const el = document.createElement('div');
+  el.className = 'firewave';
+  el.style.cssText = `left:${b.x.toFixed(1)}px; top:${(b.feet - 4).toFixed(1)}px; width:${d.toFixed(0)}px; height:${(d * 0.34).toFixed(0)}px; margin:${(-d * 0.17).toFixed(0)}px 0 0 ${(-d / 2).toFixed(0)}px;`;
+  arena.appendChild(el);
+  el.addEventListener('animationend', (e) => { if (!e.pseudoElement) el.remove(); });
+  setTimeout(() => el.remove(), 1400);   // in case animations never run
+}
+
+// One short tremor: the cave-quake judder and grit for two beats, and dust at every enemy's feet.
+function quakeFx(targets) {
+  const arena = $('#arena');
+  if (!reduced && arena) {
+    arena.classList.remove('tremor');
+    void arena.offsetWidth;   // restart the shake if two pounds land back to back
+    arena.classList.add('tremor');
+    setTimeout(() => arena.classList.remove('tremor'), 900);
+  }
+  for (const t of targets) if (t.hp > 0) burst(t, 'smoke');
+}
+
+// A great crescent carved across the struck target, mirrored to come from the attacker's side.
+function slashFx(t, dir) {
+  const b = bodyEl(t);
+  if (reduced || !b || t.hp <= 0) return;
+  const el = document.createElement('div');
+  el.className = `slashArc${dir < 0 ? ' flip' : ''}`;
+  el.innerHTML = '<svg viewBox="0 0 100 100"><path d="M74 4 A76 76 0 0 0 74 96 A46 46 0 0 1 74 4 Z"/></svg>';
+  b.appendChild(el);
+  el.addEventListener('animationend', () => el.remove(), { once: true });
+  setTimeout(() => el.remove(), 800);
 }
 
 async function shoot(u, t, p) {
