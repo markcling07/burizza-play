@@ -2145,6 +2145,7 @@ const FX = {
   enraged:  { icon: '😡', label: 'Enraged',   kind: 'good', verb: 'is enraged: it deals 35% more damage' },
   windup:   { icon: '⏳', label: 'Winding up', kind: 'bad', verb: 'is winding up a big attack' },
   taunt:    { icon: '📢', label: 'Taunting',  kind: 'good', verb: 'draws every enemy\'s attention' },
+  provoke:  { icon: '📢', label: 'Provoking', kind: 'good', verb: 'provokes every enemy: they must come at it' },
   thorns:   { icon: '🌵', label: 'Thorns',    kind: 'good', verb: 'bristles with thorns' },
   regen:    { icon: '💚', label: 'Regen',     kind: 'good', verb: 'begins to regenerate' },
   evade:    { icon: '💨', label: 'Evasive',   kind: 'good', verb: 'turns slippery: attacks that can miss will miss' },
@@ -3381,6 +3382,8 @@ const NEUTRAL_SKILLS = {
   wardingcharm: B('Warding Charm', 'An ally resists new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { mp: 20, aiTarget: 'debuffed' }),
   demoralize:  D('Demoralize', '60% hit. Weakens the target for 2 turns.', 3, 0.6, { mp: 25, fx: [['weaken', 3]] }),
   armorcrack:  D('Armor Crack', '70% hit. Sunders armor: −40% defense for 2 turns.', 4, 0.7, { mp: 25, fx: [['sunder', 3]] }),
+  // Provoke: a taunt that lasts for a number of attacks rather than turns (o.charges, see markAttacked).
+  provoke:     B('Provoke', 'You or an ally taunts every enemy for the next 2 attacks against them.', 4, 'ally', [['provoke', 99]], { mp: 20, charges: 2, aiTarget: 'tank' }),
 };
 const NEUTRAL_KEYS = Object.keys(NEUTRAL_SKILLS);
 // Generic passives anyone can equip. `stat` bonuses are applied in makeUnit.
@@ -3476,13 +3479,15 @@ function fillNewSlots(lv) {
    mastery so none are ever lost: earned = level − 1 + techniques mastered, and
    each champion you play has their own allocation. A rank makes that skill 8% stronger
    (damage, healing, or summoned-unit stats); pure buff skills instead last 1 extra turn
-   per 2 ranks. Capped at RANK_CAP per skill. Enemies never benefit from ranks. */
+   per 2 ranks (or 1 extra attack, for attack-counted buffs like Provoke). Capped at RANK_CAP per skill. Enemies never benefit from ranks. */
 const RANK_CAP = 10, RANK_POWER = 0.08;
 const ranksOf = (cid) => profile.skillRanks?.[cid] || {};
 const skillRank = (cid, sid) => ranksOf(cid)[sid] || 0;
 const ranksSpent = (cid) => Object.values(ranksOf(cid)).reduce((a, b) => a + b, 0);
 const skillPoints = (cid) => Math.max(0, heroLevel() - 1 + masteredCount(cid) - ranksSpent(cid));
-const rankBonusText = (s, r) => (s.kind === 'buff' && !s.o?.heal
+const rankBonusText = (s, r) => (s.kind === 'buff' && s.o?.charges
+  ? `lasts ${Math.floor(r / 2)} more attack${Math.floor(r / 2) === 1 ? '' : 's'}`
+  : s.kind === 'buff' && !s.o?.heal
   ? `effects last ${Math.floor(r / 2)} turn${Math.floor(r / 2) === 1 ? '' : 's'} longer`
   : `+${Math.round(RANK_POWER * r * 100)}% power`);
 function rankUp(sid) {
@@ -3569,7 +3574,8 @@ function skillsOf(u) {
     if (!r) return s;
     const out = { ...s, rank: r };
     if (s.mult) out.mult = s.mult * (1 + RANK_POWER * r);
-    if (s.kind === 'buff' && s.fx) out.fx = s.fx.map(([id, t, ...rest]) => [id, t + Math.floor(r / 2), ...rest]);
+    if (s.kind === 'buff' && s.o?.charges) out.o = { ...s.o, charges: s.o.charges + Math.floor(r / 2) };
+    else if (s.kind === 'buff' && s.fx) out.fx = s.fx.map(([id, t, ...rest]) => [id, t + Math.floor(r / 2), ...rest]);
     if (s.o?.heal) out.o = { ...s.o, heal: s.o.heal * (1 + RANK_POWER * r) };
     return out;
   };
@@ -3585,6 +3591,16 @@ function skillsOf(u) {
 const FRONTLINE_HITS = 2;
 const frontlineUp = (side) => (state.frontline?.[side] ?? FRONTLINE_HITS) < FRONTLINE_HITS
   && state.teams[side].some((x) => x.hp > 0 && x.role === 'melee');
+// Every attack that goes for a unit, hit or miss, single-target or area, counts here once:
+// the front line's two blows, and the charges of a Provoke.
+function markAttacked(t) {
+  frontlineHit(t);
+  const pr = t && has(t, 'provoke');
+  if (pr && --pr.charges <= 0) {
+    t.effects = t.effects.filter((e) => e !== pr);
+    log(`${t.name} is no longer provoking.`, 'sys');
+  }
+}
 function frontlineHit(t) {
   if (!t || t.role !== 'melee' || !state.frontline || state.frontline[t.side] >= FRONTLINE_HITS) return;
   if (++state.frontline[t.side] === FRONTLINE_HITS)
@@ -3595,7 +3611,7 @@ function frontlineHit(t) {
 function validTargets(u, sk) {
   if (sk.target === 'enemy') {
     const foes = foesOf(u);
-    const taunters = foes.filter((f) => has(f, 'taunt'));
+    const taunters = foes.filter((f) => has(f, 'taunt') || has(f, 'provoke'));
     if (taunters.length) return taunters;
     if (frontlineUp(foes[0]?.side)) {
       const front = foes.filter((f) => f.role === 'melee');
@@ -3867,7 +3883,7 @@ async function resolveCounters() {
     float(c.by, riposte ? 'Riposte!' : 'Counter!', 'fx');
     log(`${c.by.name} ${riposte ? 'ripostes' : 'counterattacks'}!`, c.by.side);
     await strikePose(c.by);
-    frontlineHit(c.at);
+    markAttacked(c.at);
     strikeOnce(c.by, c.at, c.mult, c.label, c.o);
     render();
     await wait(260);
@@ -3897,7 +3913,7 @@ async function damageSkill(u, t, sk) {
   }
   const targets = sk.target === 'allEnemies' ? foesOf(u) : [t];
   // Front line: every melee this attack goes for counts toward their side's two, hit or miss.
-  for (const tg of targets) frontlineHit(tg);
+  for (const tg of targets) markAttacked(tg);
   if (o.selfCost) {
     const c = Math.round(u.maxHp * o.selfCost);
     u.hp = Math.max(1, u.hp - c);
@@ -3951,7 +3967,7 @@ async function damageSkill(u, t, sk) {
     const next = foesOf(u).filter((f) => !targets.includes(f));
     if (next.length) {
       const tg = pick(next);
-      frontlineHit(tg);
+      markAttacked(tg);
       if (melee) await strikePose(u); else await shoot(u, tg, proj);
       await hitOnce(tg, sk.mult * o.bounce);
     }
@@ -4053,7 +4069,10 @@ async function buffSkill(u, t, sk) {
   for (const a of targets) {
     burst(a, look);
     if (o.cleanse) cleanse(a);
-    for (const [id, turns, val] of sk.fx) addFx(a, id, turns, val ? Math.round(u.atk * val) : 0);
+    for (const [id, turns, val] of sk.fx) {
+      addFx(a, id, turns, val ? Math.round(u.atk * val) : 0);
+      if (o.charges && has(a, id)) has(a, id).charges = o.charges;
+    }
     if (o.reduceCd) for (const k in a.cooldowns) a.cooldowns[k] = Math.max(0, a.cooldowns[k] - 1);
     if (o.heal) healUnit(u, a, healPower(u, o.heal), sk.name);
   }
@@ -4289,6 +4308,7 @@ function aiChoose(u) {
     if (s.kind === 'heal') w = hurt.length ? 6 : 0;
     if (s.kind === 'buff') w = s.target === 'self' ? (u.hp / u.maxHp < 0.7 ? 3 : 0.5) : 2;
     if (s.kind === 'buff' && s.o?.cleanse) w = allies.some(debuffs) ? 4 : 0.3;
+    if (s.o?.charges) w = allies.some((a) => has(a, 'taunt') || has(a, 'provoke')) ? 0.2 : 2;
     // A channel pays out of the caster's own HP, so the self-buff rule above has it backwards:
     // open it when the warband is hurt and she can afford the bleed, not when she is the hurt one.
     if (s.o?.channel) w = hurt.length && u.hp / u.maxHp > 0.5 ? 5 : 0.2;
@@ -4309,6 +4329,7 @@ function aiChoose(u) {
   } else if (sk.target === 'ally') {
     const opts = validTargets(u, sk);
     t = sk.o?.aiTarget === 'debuffed' ? [...opts].sort((a, b) => debuffs(b) - debuffs(a))[0]
+      : sk.o?.aiTarget === 'tank' ? [...opts].sort((a, b) => b.hp * (50 + b.def) - a.hp * (50 + a.def))[0]
       : sk.kind === 'heal' || sk.o?.aiTarget === 'lowest'
         ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]
         : [...opts].sort((a, b) => b.atk - a.atk)[0];
@@ -8089,7 +8110,7 @@ function renderBattle() {
       mpBar.querySelector('span').textContent = `${u.mp} / ${u.maxMp} MP`;
     }
     el.querySelector('.chips').innerHTML = passiveChips(u) + u.effects.map((e) =>
-      `<li class="chip ${FX[e.id].kind}"><span class="ico">${FX[e.id].icon}</span>${FX[e.id].label}${e.until != null || e.turns >= 99 ? '' : ` ${e.turns}`}</li>`).join('');
+      `<li class="chip ${FX[e.id].kind}"><span class="ico">${FX[e.id].icon}</span>${FX[e.id].label}${e.charges != null ? ` ×${e.charges}` : e.until != null || e.turns >= 99 ? '' : ` ${e.turns}`}</li>`).join('');
     syncStatusFx(el, u);
     el.classList.toggle('winding', !!u.windup);
     el.classList.toggle('down', u.hp <= 0);

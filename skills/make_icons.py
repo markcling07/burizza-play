@@ -1517,6 +1517,17 @@ def _():
             + '<path d="M18 52 Q32 46 50 52" fill="none" stroke="#6b4422" stroke-width="2.4"/>')
 
 
+# ================================================================ neutral skills (the rest of NEUTRAL_SKILLS' icons are hand-drawn files in this folder)
+@icon('Provoke')
+def _():
+    return (glow('<circle cx="32" cy="34" r="15" fill="#e0242f"/>', .5)
+            + g(heater('#2a2f3d'), 32, 34, 0, .8)
+            + '<circle cx="32" cy="33" r="8.5" fill="#e0455a"/><circle cx="32" cy="33" r="5" fill="#f4ecd8"/><circle cx="32" cy="33" r="2" fill="#e0455a"/>'
+            + ''.join(g(g('<path d="M-13 0 H-4 M-8 -4 L-3 0 L-8 4" fill="none" stroke="#15121d" stroke-width="4.6"/>'
+                          '<path d="M-13 0 H-4 M-8 -4 L-3 0 L-8 4" fill="none" stroke="#ffd166" stroke-width="2.4"/>', -14, 0), 32, 33, a)
+                      for a in (0, 180, -45, -135)))
+
+
 # ================================================================ generic passives (any champion can equip; GENERIC_PASSIVES in index.html)
 @icon('Toughness')
 def _():
@@ -1567,10 +1578,11 @@ def _():
 
 
 # ---------------------------------------------------------------- catalog (for the frame + gallery)
-# kind: "skill", "sig" (★ signature, gold frame) or "passive" (round frame).
+# kind: "skill", "sig" (★ signature, gold frame), "passive" or "neutral" (round frame).
 # Per champion: skill, second skill, ★ signature, passive. Mirrors ROSTER / SUMMONS in index.html.
 CATALOG = {
     'common': ('Everyone', [('Attack', 'All champions', 'skill'), ('Guard', 'All champions', 'skill'),
+        ('Provoke', 'Neutral skill', 'neutral'),
         ('Toughness', 'Any champion', 'passive'), ('Might', 'Any champion', 'passive'), ('Swiftness', 'Any champion', 'passive'),
         ('Keen Edge', 'Any champion', 'passive'), ('Deep Well', 'Any champion', 'passive'), ('Second Wind', 'Any champion', 'passive')]),
     'mech': ('Ironclad Union', [
@@ -2113,7 +2125,7 @@ def slug(name):
 
 def frame(faction, kind, glyph, name):
     top, bot, acc = PAL[faction]
-    if kind == 'passive':
+    if kind in ('passive', 'neutral'):   # neutral skills share the round frame of the hand-drawn neutral set
         return passive_frame(faction, glyph, name)
     sig = kind == 'sig'
     rim = 'url(#gold)' if sig else acc
