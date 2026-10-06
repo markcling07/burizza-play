@@ -168,6 +168,8 @@ h1 {
 .depth small { font-size: .74rem; color: var(--accent); font-weight: 700; }
 .depth .btn { justify-self: start; }
 .depth small.reward { color: var(--good); }
+/* A dungeon's standing condition (DG_CONDS), so the choice is made before setting out. */
+.depth small.cond { color: var(--heat); font-weight: 700; }
 .dmini .mini.boss { width: 52px; height: 52px; margin-left: auto; }
 .dmini { display: flex; gap: 4px; }
 .dmini .mini, .beast .mini { width: 40px; height: 40px; flex: none; }
@@ -419,6 +421,27 @@ h1 {
     conic-gradient(from 165deg at 58% 0, transparent 0 28deg, var(--cave-rock-hi) 28deg 33deg, transparent 33deg),
     conic-gradient(from 172deg at 84% 0, transparent 0 14deg, var(--cave-rock-hi) 14deg 20deg, transparent 20deg);
 }
+/* Earthquake (underground only): the whole arena judders and grit rains from the ceiling.
+   The shake uses `transform` because the crit hit-shake animates `translate` — both can run at once. */
+.arena.quake { animation: quakeShake .42s linear infinite; }
+.arena.quake::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: .55;
+  background:
+    radial-gradient(1.5px 1.5px at 18% 10%, rgba(214, 196, 170, .9), transparent),
+    radial-gradient(1.5px 1.5px at 44% 26%, rgba(214, 196, 170, .75), transparent),
+    radial-gradient(2px 2px at 67% 8%, rgba(214, 196, 170, .85), transparent),
+    radial-gradient(1.5px 1.5px at 88% 30%, rgba(214, 196, 170, .7), transparent);
+  background-size: 160px 220px, 130px 180px, 190px 260px, 110px 150px;
+  animation: gritfall 1.5s linear infinite;
+}
+@keyframes quakeShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3px, 2px); }
+  40% { transform: translate(3px, -2px); }
+  60% { transform: translate(-2px, -2px); }
+  80% { transform: translate(2px, 2px); }
+}
+@keyframes gritfall { to { background-position: 10px 220px, -8px 180px, 6px 260px, -5px 150px; } }
 .arena[data-wx="moon"] { --sky-now: var(--sky-moon); }
 .arena[data-wx="moon"]::before {
   opacity: 1;
@@ -835,7 +858,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .townMap { display: block; width: 100%; height: auto; }
 /* The map and everything standing on it (townies, NPCs) live in one view, so pan and zoom move them together.
    zoomTown/setView set its transform; --zinv undoes the scale for name tags and quest marks so they stay readable. */
-.townView { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 3 / 1; transform-origin: 0 0; }
+/* --map-ar is set from MAP_W / MAP_H at startup, so the map's shape is defined in one place. */
+.townView { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: var(--map-ar, 23 / 6); transform-origin: 0 0; }
 /* Gear: opens the game mechanics window. */
 .gearBtn {
   pointer-events: auto; display: grid; place-items: center; width: 38px; height: 38px; padding: 0; cursor: pointer;
@@ -1138,7 +1162,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   .upic.lunge, .upic.hurt, .upic.cast, .wxPill.changed, .unit .body, .unit .body::before, .unit .body::after, .burst { animation: none !important; }
   .burst { display: none; }
   .unit { transition: none; }
-  .arena::before { animation: none !important; }
+  .arena::before, .arena.quake { animation: none !important; }
   .tok { transition: none; }
   .tok.halt .face { animation: none; }
   .arena::after { display: none; }
@@ -1170,7 +1194,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
     <div class="vwrap" id="vwrap">
     <div class="town" id="town">
       <div class="townView" id="townView">
-      <svg class="townMap" viewBox="-300 0 1800 600" role="group" aria-label="Map of Cinderhold">
+      <svg class="townMap" viewBox="-800 0 2400 600" role="group" aria-label="Map of Cinderhold">
         <defs>
           <linearGradient id="tSky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stop-color="#15152a"/><stop offset=".55" stop-color="#3a2533"/><stop offset="1" stop-color="#7a3f2c"/>
@@ -1230,11 +1254,11 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
         </defs>
 
         <!-- Sky, the ash-veiled sun and the volcano that gives the road its name -->
-        <rect x="-300" width="1800" height="600" fill="url(#tSky)"/>
-        <g fill="#ece6d8" opacity=".45"><circle cx="90" cy="40" r="1.2"/><circle cx="210" cy="78" r="1"/><circle cx="520" cy="34" r="1.3"/><circle cx="690" cy="70" r="1"/><circle cx="1060" cy="46" r="1.2"/><circle cx="1150" cy="98" r="1"/><circle cx="610" cy="120" r=".9"/></g>
+        <rect x="-800" width="2400" height="600" fill="url(#tSky)"/>
+        <g fill="#ece6d8" opacity=".45"><circle cx="90" cy="40" r="1.2"/><circle cx="210" cy="78" r="1"/><circle cx="520" cy="34" r="1.3"/><circle cx="690" cy="70" r="1"/><circle cx="1060" cy="46" r="1.2"/><circle cx="1150" cy="98" r="1"/><circle cx="610" cy="120" r=".9"/><circle cx="-560" cy="58" r="1.2"/><circle cx="-430" cy="104" r="1"/><circle cx="-180" cy="46" r=".9"/><circle cx="1560" cy="66" r="1.1"/></g>
         <circle cx="880" cy="200" r="170" fill="url(#tSun)"/>
         <circle cx="880" cy="200" r="30" fill="#ffd28a" opacity=".5"/>
-        <path d="M-300 300 L-300 248 L-228 230 L-150 254 L-78 230 L0 262 L70 236 L140 258 L215 226 L290 250 L360 234 L440 258 L520 232 L610 256 L700 222 L790 248 L865 232 L950 258 L1040 226 L1120 250 L1200 234 L1272 256 L1352 226 L1430 250 L1500 236 L1500 300 Z" fill="#2c2338"/>
+        <path d="M-800 300 L-800 250 L-726 226 L-652 252 L-634 228 L-560 252 L-488 226 L-414 254 L-344 232 L-300 248 L-228 230 L-150 254 L-78 230 L0 262 L70 236 L140 258 L215 226 L290 250 L360 234 L440 258 L520 232 L610 256 L700 222 L790 248 L865 232 L950 258 L1040 226 L1120 250 L1200 234 L1272 256 L1352 226 L1430 250 L1500 236 L1600 252 L1600 300 Z" fill="#2c2338"/>
         <path d="M120 330 L265 168 Q285 160 305 168 L470 330 Z" fill="#241b26"/>
         <circle cx="285" cy="170" r="42" fill="url(#tGlow)" class="glow"/>
         <path d="M268 170 Q285 182 302 170 Q285 164 268 170 Z" fill="#ff7a2f"/>
@@ -1242,8 +1266,65 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
         <g class="plume" fill="#4a4048" opacity=".7">
           <ellipse cx="290" cy="140" rx="30" ry="20"/><ellipse cx="322" cy="112" rx="42" ry="24"/><ellipse cx="372" cy="88" rx="56" ry="26"/><ellipse cx="442" cy="72" rx="64" ry="24"/>
         </g>
-        <rect x="-300" y="345" width="1800" height="255" fill="url(#tGround)"/>
-        <path d="M-300 346 L-300 334 Q-150 300 0 352 Q140 306 300 330 T620 318 T940 326 T1200 312 Q1360 296 1500 326 L1500 346 Z" fill="#2a2126"/>
+        <rect x="-800" y="345" width="2400" height="255" fill="url(#tGround)"/>
+        <path d="M-800 346 L-800 330 Q-700 300 -600 334 Q-520 310 -450 336 Q-370 316 -300 334 Q-150 300 0 352 Q140 306 300 330 T620 318 T940 326 T1200 312 Q1360 296 1500 326 Q1550 314 1600 330 L1600 346 Z" fill="#2a2126"/>
+
+        <!-- The Emberhollow road, running out of the west postern to the mine. Drawn before the wall
+             so the wall covers it where it passes through, leaving only the stretch outside. -->
+        <g aria-hidden="true" stroke="#45382f" fill="none" stroke-linecap="round">
+          <path d="M-330 448 Q-390 448 -443 452 Q-545 458 -626 474" stroke-width="19"/>
+        </g>
+        <g aria-hidden="true" fill="#3a3038">
+          <path d="M-712 486 q10 -16 22 0 q-11 7 -22 0 Z"/>
+          <path d="M-566 556 q12 -18 25 0 q-13 8 -25 0 Z"/>
+        </g>
+
+        <!-- ===== THE RING WALL =====
+             Cinderhold is a walled town. The curtain wall runs along the back of the map and sweeps
+             forward at both ends, so it reads as a ring closing around you — the near half of the
+             ring is behind the camera. Everything inside is the town; the Emberhollow road and the
+             Ashfall road run out through the west postern and the east gatehouse.
+             Drawn here, after the terrain and before the back row, so the town stands in front of it. -->
+        <g aria-hidden="true">
+          <!-- the wall's shadow falling inward across the ground -->
+          <path d="M-530 640 C-494 540 -448 440 -400 386 C-320 348 -40 334 600 331 C1240 334 1370 350 1430 388 C1478 440 1524 540 1560 640"
+                fill="none" stroke="#000" stroke-width="18" opacity=".28"/>
+          <!-- the stone face: base line out, crenellated top line back -->
+          <path d="M-530 640 C-494 540 -448 440 -400 386 C-320 348 -40 334 600 331 C1240 334 1370 350 1430 388 C1478 440 1524 540 1560 640
+                   L1560 532 C1524 452 1478 372 1430 331 C1370 300 1240 287 600 285 C-40 287 -320 299 -400 329 C-448 372 -494 452 -530 532 Z"
+                fill="#4a4249" stroke="#2f2a30" stroke-width="2.5"/>
+          <!-- merlons along the walkway -->
+          <path d="M-530 532 C-494 452 -448 372 -400 329 C-320 299 -40 287 600 285 C1240 287 1370 300 1430 331 C1478 372 1524 452 1560 532"
+                fill="none" stroke="#554c54" stroke-width="15" stroke-dasharray="17 13"/>
+          <!-- a course of lighter stone under the walkway, and a weathered band lower down -->
+          <path d="M-522 570 C-486 490 -440 404 -392 352 C-312 318 -38 305 600 302 C1238 305 1364 320 1422 354 C1470 406 1516 490 1552 570"
+                fill="none" stroke="#554c54" stroke-width="5" opacity=".65"/>
+          <path d="M-514 606 C-478 516 -432 424 -388 370 C-308 334 -36 320 600 317 C1236 320 1360 336 1416 372 C1464 426 1508 514 1544 606"
+                fill="none" stroke="#3d363d" stroke-width="2.5" opacity=".75"/>
+        </g>
+        <!-- The west postern: a low arch in the wall where the Emberhollow road leaves town -->
+        <g aria-hidden="true">
+          <path d="M-465 450 V418 Q-465 398 -443 398 Q-421 398 -421 418 V450 Z" fill="#17120f"/>
+          <path d="M-469 450 V418 Q-469 394 -443 394 Q-417 394 -417 418 V450" fill="none" stroke="#6b4f32" stroke-width="6"/>
+          <path d="M-461 450 V422 Q-461 406 -443 406" fill="none" stroke="#2c2328" stroke-width="3" opacity=".8"/>
+          <circle cx="-475" cy="406" r="7" fill="url(#tGlow)" class="glow"/>
+          <circle cx="-411" cy="408" r="7" fill="url(#tGlow)" class="glow"/>
+          <rect x="-478" y="402" width="5" height="7" rx="1.2" fill="#ffd28a"/>
+          <rect x="-414" y="404" width="5" height="7" rx="1.2" fill="#ffd28a"/>
+        </g>
+
+        <!-- Shoulder towers, where the wall turns and starts coming toward you -->
+        <g aria-hidden="true">
+          <ellipse cx="-400" cy="390" rx="32" ry="7" fill="#000" opacity=".3"/>
+          <rect x="-427" y="300" width="54" height="90" fill="#554c54" stroke="#2f2a30" stroke-width="2"/>
+          <path d="M-427 326h54M-427 354h54" stroke="#3d363d" stroke-width="2"/>
+          <rect x="-410" y="334" width="13" height="17" rx="2" fill="url(#tWin)" class="lit"/>
+          <rect x="-435" y="288" width="70" height="13" rx="2" fill="#5f5560" stroke="#2f2a30" stroke-width="2"/>
+          <path d="M-437 288L-400 256L-363 288Z" fill="#4a2f2a"/>
+          <line x1="-400" y1="256" x2="-400" y2="240" stroke="#2a2228" stroke-width="2"/>
+          <path class="flag" d="M-399 241L-382 246L-399 251Z" fill="#c0303f"/>
+        </g>
+        <!-- The east shoulder has no tower of its own: the Expedition Gate's gatehouse stands there. -->
 
         <!-- Back row: trees and villagers' huts -->
         <use href="#treeG" transform="translate(470 342) scale(.8)"/>
@@ -1321,33 +1402,40 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           <g class="sign" transform="translate(-90 414)"><rect x="-74" y="-15" width="148" height="30" rx="7"/><text y="7">Guild House</text></g>
         </g>
 
-        <!-- East quarter (x 1200..1500), back row: homes, the watchtower and the palisade gate -->
+        <!-- East quarter (x 1200..1500), back row: homes. The old timber watchtower that used to
+             stand here was the palisade gate; the curtain wall and its gatehouse replaced both. -->
         <use href="#hutC" transform="translate(1252 372) scale(.85)"/>
         <use href="#treeG" transform="translate(1394 346) scale(.8)"/>
         <use href="#hutB" transform="translate(1332 370) scale(.8)"/>
-        <g aria-hidden="true">
-          <ellipse cx="1440" cy="384" rx="32" ry="6" fill="#000" opacity=".3"/>
-          <path d="M1420 384L1427 292M1460 384L1453 292M1423 352H1457M1425 322H1455M1423 352L1455 322M1457 352L1425 322" stroke="#5a3e28" stroke-width="4"/>
-          <rect x="1412" y="280" width="56" height="12" fill="#6b4f32"/>
-          <path d="M1408 282L1440 252L1472 282Z" fill="#4a2f2a"/>
-          <circle cx="1440" cy="272" r="9" fill="url(#tGlow)" class="glow"/>
-          <rect x="1437" y="268" width="6" height="7" rx="1.5" fill="#ffd28a"/>
-          <line x1="1440" y1="252" x2="1440" y2="236" stroke="#2a2228" stroke-width="2"/>
-          <path class="flag" d="M1441 237L1458 242L1441 247Z" fill="#c0303f"/>
-        </g>
 
         <!-- EXPEDITION GATE: the east gate, where Ashfall Road leaves Cinderhold for the dungeons -->
         <g class="bld" data-place="gate" tabindex="0" role="button" aria-label="Expedition Gate: dungeons along Ashfall Road">
-          <ellipse cx="1483" cy="406" rx="28" ry="5" fill="#000" opacity=".3"/>
-          <rect x="1463" y="322" width="11" height="84" fill="#6b4f32" stroke="#3a2a20" stroke-width="1.5"/>
-          <rect x="1492" y="322" width="11" height="84" fill="#6b4f32" stroke="#3a2a20" stroke-width="1.5"/>
-          <rect x="1456" y="314" width="54" height="12" rx="2" fill="#6b4f32" stroke="#3a2a20" stroke-width="1.5"/>
-          <path d="M1452 316L1483 298L1514 316Z" fill="#4a2f2a"/>
-          <path d="M1474 330h18v62h-18z" fill="#1c1316" opacity=".55"/>
-          <circle cx="1468" cy="340" r="7" fill="url(#tGlow)" class="glow"/><circle cx="1498" cy="340" r="7" fill="url(#tGlow)" class="glow"/>
-          <path d="M1477 330v22l6 -5 6 5v-22z" fill="#c0303f"/>
-          <path d="M1466 466V444M1500 466V444" stroke="#5a3e28" stroke-width="7"/>
-          <g class="sign" transform="translate(1440 488)"><rect x="-82" y="-15" width="164" height="30" rx="7"/><text y="7">Expedition Gate</text></g>
+          <ellipse cx="1500" cy="472" rx="92" ry="11" fill="#000" opacity=".35"/>
+          <!-- gatehouse body, set astride the wall line -->
+          <rect x="1440" y="366" width="120" height="104" fill="#4a4249" stroke="#2f2a30" stroke-width="2.5"/>
+          <path d="M1440 396h120M1440 428h120" stroke="#3d363d" stroke-width="2"/>
+          <!-- the two drum towers that flank the road -->
+          <rect x="1418" y="334" width="46" height="136" fill="#554c54" stroke="#2f2a30" stroke-width="2.5"/>
+          <rect x="1536" y="334" width="46" height="136" fill="#554c54" stroke="#2f2a30" stroke-width="2.5"/>
+          <path d="M1418 364h46M1418 398h46M1536 364h46M1536 398h46" stroke="#3d363d" stroke-width="2"/>
+          <rect x="1432" y="372" width="14" height="18" rx="2" fill="url(#tWin)" class="lit"/>
+          <rect x="1552" y="372" width="14" height="18" rx="2" fill="url(#tWin)" class="lit"/>
+          <path d="M1412 334L1441 300L1470 334Z" fill="#4a2f2a"/>
+          <path d="M1530 334L1559 300L1588 334Z" fill="#4a2f2a"/>
+          <!-- merlons along the gatehouse walkway -->
+          <path d="M1468 360h64" fill="none" stroke="#554c54" stroke-width="14" stroke-dasharray="15 11"/>
+          <!-- the road out: an arch through the gatehouse, portcullis up -->
+          <path d="M1474 470V436Q1474 408 1500 408Q1526 408 1526 436V470Z" fill="#17120f"/>
+          <path d="M1470 470V436Q1470 404 1500 404Q1530 404 1530 436V470" fill="none" stroke="#6b4f32" stroke-width="6"/>
+          <g stroke="#2c2328" stroke-width="2.5" opacity=".85"><path d="M1484 470v-56M1500 470v-62M1516 470v-56"/></g>
+          <circle cx="1459" cy="414" r="8" fill="url(#tGlow)" class="glow"/>
+          <circle cx="1541" cy="414" r="8" fill="url(#tGlow)" class="glow"/>
+          <rect x="1456" y="410" width="6" height="8" rx="1.4" fill="#ffd28a"/>
+          <rect x="1538" y="410" width="6" height="8" rx="1.4" fill="#ffd28a"/>
+          <path d="M1490 366v26l10-7 10 7v-26z" fill="#c0303f"/>
+          <line x1="1441" y1="300" x2="1441" y2="282" stroke="#2a2228" stroke-width="2"/>
+          <path class="flag" d="M1442 283L1461 289L1442 295Z" fill="#c0303f"/>
+          <g class="sign" transform="translate(1500 496)"><rect x="-82" y="-15" width="164" height="30" rx="7"/><text y="7">Expedition Gate</text></g>
         </g>
 
         <!-- Roads and the square -->
@@ -1357,7 +1445,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           <path d="M455 425 Q360 392 292 372" stroke-width="22"/>
           <path d="M745 425 Q840 394 915 374" stroke-width="22"/>
           <path d="M292 372 Q200 420 120 432 T-300 448" stroke-width="22"/>
-          <path d="M785 446 Q1000 418 1200 426 T1500 422" stroke-width="26"/>
+          <path d="M785 446 Q1000 418 1200 426 Q1320 433 1408 448" stroke-width="26"/>
         </g>
         <path d="M575 400 L582 338 L618 338 L625 400 Z" fill="#45382f"/>
         <path d="M500 600 Q560 530 572 470 L628 470 Q640 530 700 600 Z" fill="#45382f"/>
@@ -1583,8 +1671,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
         <use href="#lampG" transform="translate(-20 448)"/>
         <use href="#hutB" transform="translate(-78 590)"/>
 
-        <!-- EMBERHOLLOW CAVE: an old mine mouth in the western rocks (replaces a west-quarter hut) -->
-        <g class="bld" data-place="cave" tabindex="0" role="button" aria-label="Emberhollow Cave: hunt monsters for XP and gold">
+        <!-- EMBERHOLLOW CAVE: an old mine mouth in the western rocks, out beyond the wall.
+             Drawn around (-232, 548); shifted west through the postern and a little up the rising
+             ground to (-670, 508), which also lifts its name tag clear of the dock. -->
+        <g class="bld" data-place="cave" tabindex="0" role="button" transform="translate(-438 -40)" aria-label="Emberhollow Cave: hunt monsters for XP and gold, outside the west wall">
           <ellipse cx="-232" cy="548" rx="78" ry="9" fill="#000" opacity=".35"/>
           <path d="M-302 548 Q-296 474 -262 454 Q-236 434 -206 450 Q-172 468 -162 548 Z" fill="#4a3f3a" stroke="#2a2422" stroke-width="2"/>
           <path d="M-286 548 Q-280 504 -262 490 M-178 548 Q-184 507 -202 486 M-250 456 Q-236 448 -220 456" stroke="#5c514a" stroke-width="6" fill="none" opacity=".75"/>
@@ -1642,13 +1732,13 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 
         <!-- East quarter, front homes -->
         <use href="#hutB" transform="translate(1240 598) scale(.95)"/>
-        <use href="#hutG" transform="translate(1450 582)"/>
+        <use href="#hutG" transform="translate(1455 600)"/>
 
         <!-- Foreground: framing trees and drifting embers -->
         <use href="#treeG" transform="translate(-338 598) scale(1.4)"/>
         <use href="#treeG" transform="translate(42 598) scale(1.4)"/>
         <use href="#treeG" transform="translate(1172 598) scale(1.3)"/>
-        <use href="#treeG" transform="translate(1494 598) scale(1.3)"/>
+        <use href="#treeG" transform="translate(1574 598) scale(1.3)"/>
         <g fill="#ff9a4a">
           <circle class="ember" cx="-220" cy="600" r="2" style="animation-delay:-3s"/><circle class="ember" cx="-90" cy="596" r="1.6" style="animation-delay:-6s;animation-duration:10s"/>
           <circle class="ember" cx="1290" cy="600" r="1.8" style="animation-delay:-1.5s"/><circle class="ember" cx="1420" cy="598" r="2" style="animation-delay:-4.5s;animation-duration:11s"/>
@@ -1942,6 +2032,8 @@ const WEATHER = {
   sun:   { name: 'Golden Dawn',  favors: 'human', desc: 'Kingdom of Aldmere deal 15% more damage and Discipline doubles to +30%. All healing is 20% stronger.' },
   mist:  { name: 'Elder Mist',   favors: 'stone', desc: 'Stoneleaf Accord gain an extra Precision or Fortify stack each turn. Everyone dodges 10% more often.' },
   moon:  { name: 'Blood Moon',   favors: 'crimson', desc: 'The Crimson Court deal 20% more damage. All lifesteal is doubled.' },
+  // Emberhollow Cave only: no sky, but the rock moves. Rolled by tickQuake, never by rollWeather.
+  quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. The floor bucks and everyone on the field is Staggered, stopping and starting along the speed bar until the tremor passes.' },
 };
 const WEATHER_EVERY = 3;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
@@ -1980,7 +2072,7 @@ const P = (name, desc, o = {}) => ({ name, desc, ...o });
 
 /* ==================================================================
    ROSTER — 6 factions × 5 champions
-   skills = [skill, ★ signature, second skill]; passive = always-on trait (P), the default;
+   skills = [skill, ★ signature, then three more]; passive = always-on trait (P), the default;
    passiveAlt = an optional second own passive the player can equip instead (loadout id 'alt')
    look = placeholder sprite recipe (see SPRITES below)
    ================================================================== */
@@ -1991,35 +2083,45 @@ const ROSTER = [
     look: { body: 'mech', main: '#7d8aa3', trim: '#f0a73a', weapon: 'fist' },
     skills: [D('Piston Punch', '130% hit.', 2, 1.3),
              D('Hydraulic Slam', '160% hit with a 50% chance to stun.', 4, 1.6, { stun: 0.5 }),
-             D('Steam Vent', '70% scalding steam to all enemies. Vents 40 Heat instead of building it.', 3, 0.7, { aoe: true, heat: -40 })],
+             D('Steam Vent', '70% scalding steam to all enemies. Vents 40 Heat instead of building it.', 3, 0.7, { aoe: true, heat: -40 }),
+             D('Piledriver', '180% hit that ignores armor. Builds 40 Heat.', 4, 1.8, { pierce: true, heat: 40 }),
+             B('Bunker Down', 'Taunt all enemies and brace: shielded for 2 turns. Vents 30 Heat.', 4, 'self', [['taunt', 3], ['shield', 2]], { heat: -30 })],
     passive: P('Reactive Plating', 'The first hit he takes each turn deals 30% less damage.', { firstHitDR: 0.3 }) },
   { id: 'sawtooth', name: 'Sawtooth', faction: 'mech', role: 'melee', bio: 'Scrapper with buzzsaw arms.',
     mods: { atk: 1.1, hp: 0.95, agi: 1.1 },
     look: { body: 'mech', main: '#9b5d3c', trim: '#ffd166', weapon: 'saw' },
     skills: [D('Rip Saw', 'Two cuts of 70%.', 2, 0.7, { hits: 2 }),
              D('Grinder', 'Three cuts of 55%. Causes Bleed.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
-             D('Shrapnel Spin', 'Two cuts of 45% to all enemies.', 4, 0.45, { aoe: true, hits: 2 })],
+             D('Shrapnel Spin', 'Two cuts of 45% to all enemies.', 4, 0.45, { aoe: true, hits: 2 }),
+             D('Limb Shear', '150% cut that ignores armor, 60% stronger against Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed' }),
+             B('Rev Up', 'Spin the blades up: 30% more damage for 2 turns and his cooldowns drop by 1.', 4, 'self', [['empower', 3]], { reduceCd: true })],
     passive: P('Serrated', 'His critical hits cause Bleed.', { critFx: [['bleed', 3, 0.3]] }) },
   { id: 'arclight', name: 'Arclight', faction: 'mech', role: 'ranged', bio: 'Tesla-coil sniper unit.',
     mods: {},
     look: { body: 'mech', main: '#4d6a8f', trim: '#7fe3ff', weapon: 'gun', orb: '#7fe3ff' },
     skills: [D('Arc Bolt', '130% lightning. Never misses. Causes Mana Leak: every action the target takes burns 12 MP.', 2, 1.3, { element: 'lightning', noDodge: true, fx: [['leak', 3]] }),
              D('Chain Surge', '75% lightning to all enemies. Ignores shields.', 4, 0.75, { aoe: true, element: 'lightning', noDodge: true, ignoreShield: true }),
-             D('Discharge', '100% lightning. Never misses. Burns 25 of the target\'s mana as extra damage.', 3, 1.0, { element: 'lightning', noDodge: true, manaBurn: 25 })],
+             D('Discharge', '100% lightning. Never misses. Burns 25 of the target\'s mana as extra damage.', 3, 1.0, { element: 'lightning', noDodge: true, manaBurn: 25 }),
+             D('Overload Coil', '170% lightning. Never misses. Causes Mana Leak. Builds 45 Heat.', 4, 1.7, { element: 'lightning', noDodge: true, fx: [['leak', 3]], heat: 45 }),
+             D('Static Field', '55% lightning to all enemies. Never misses. Slows them all.', 4, 0.55, { aoe: true, element: 'lightning', noDodge: true, fx: [['slow', 2]] })],
     passive: P('Feedback Loop', 'Her lightning deals 25% more damage to targets with Mana Leak.', { vs: { fx: 'leak', bonus: 0.25, element: 'lightning' } }) },
   { id: 'howitzer', name: 'Howitzer', faction: 'mech', role: 'ranged', bio: 'Walking artillery platform.',
     mods: { hp: 1.1, agi: 0.75, atk: 1.05 },
     look: { body: 'mech', main: '#5f6b52', trim: '#ff7a45', weapon: 'cannon' },
     skills: [D('Flak Burst', '60% to all enemies.', 3, 0.6, { aoe: true }),
              D('Siege Shell', 'Massive 230% shell. Builds 50 Heat.', 5, 2.3, { heat: 50 }),
-             D('AP Round', '150% shell that ignores armor.', 3, 1.5, { pierce: true })],
+             D('AP Round', '150% shell that ignores armor.', 3, 1.5, { pierce: true }),
+             D('Mortar Walk', '45% to all enemies, twice.', 4, 0.45, { aoe: true, hits: 2 }),
+             D('Shell Shock', '110% shell. Staggers the target and sunders its armor.', 3, 1.1, { fx: [['stagger', 1], ['sunder', 3]] })],
     passive: P('Big Guns', 'His attacks on all enemies deal 20% more damage.', { aoeBonus: 0.2 }) },
   { id: 'patchwork', name: 'Patchwork', faction: 'mech', role: 'support', bio: 'Repair drone with welding arms.',
     mods: { def: 1.2 },
     look: { body: 'mech', main: '#a39a86', trim: '#8be28b', weapon: 'wrench' },
     skills: [H('Field Weld', 'Heal an ally and shield them until their next turn.', 2, 3.0, { fx: [['shield', 1]] }),
              S('Assemble Scrapbot', 'Build a Scrapbot turret that fights on its own for 3 rounds.', 5, 'scrapbot'),
-             B('Overclock', 'An ally deals 30% more damage for 2 turns and their cooldowns drop by 1.', 4, 'ally', [['empower', 3]], { reduceCd: true })],
+             B('Overclock', 'An ally deals 30% more damage for 2 turns and their cooldowns drop by 1.', 4, 'ally', [['empower', 3]], { reduceCd: true }),
+             H('Jury Rig', 'Patch an ally with scrap: a heal, then they regenerate for 3 turns.', 3, 2.2, { fx: [['regen', 3, 0.7]] }),
+             B('Coolant Flush', 'Clear an ally\'s debuffs; they resist new ones for 2 turns. Vents 50 Heat.', 4, 'ally', [['immune', 3]], { cleanse: true, heat: -50, aiTarget: 'debuffed' })],
     passive: P('Maintenance Drone', 'At the start of his turn, his most hurt ally recovers 5% of their max HP.', { mendPct: 0.05 }) },
 
   // ---- Bloodtusk Horde (Orc) ----
@@ -2028,35 +2130,45 @@ const ROSTER = [
     look: { body: 'orc', main: '#5a3a2a', trim: '#9aa3b5', skin: '#6b8f56', hair: '#1d1d1d', weapon: 'axe' },
     skills: [D('Cleave', '65% to all enemies.', 3, 0.65, { aoe: true }),
              D('Blood Frenzy', '200% hit. Costs 10% of his own HP.', 4, 2.0, { selfCost: 0.1 }),
-             D('Reckless Swing', '170% hit. Krug is Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { selfFx: [['exposed', 1]] })],
+             D('Reckless Swing', '170% hit. Krug is Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { selfFx: [['exposed', 1]] }),
+             D('Twin Axes', 'Two chops of 85%. Causes Bleed.', 3, 0.85, { hits: 2, fx: [['bleed', 3, 0.3]] }),
+             B('Warchief\'s Fury', 'Krug works himself into a rage: Enraged for 2 turns, dealing 35% more damage.', 4, 'self', [['enraged', 3]])],
     passive: P('Bloodlust', 'Defeating an enemy heals him for 20% of his max HP.', { killHeal: 0.2 }) },
   { id: 'mogra', name: 'Mogra Ironhide', short: 'Mogra', faction: 'orc', role: 'melee', bio: 'Shield-and-mace bruiser.',
     mods: { hp: 1.15, def: 1.25, atk: 0.9 },
     look: { body: 'orc', main: '#4a4e5c', trim: '#b07d3e', skin: '#7a9a5e', weapon: 'hammer', shield: '#6b4f32' },
     skills: [D('Skull Rattler', '120% hit. Staggers the target: it keeps stopping on the speed bar for about 1.5 rounds.', 2, 1.2, { fx: [['stagger', 1]] }),
              B('Iron Hide', 'Taunt all enemies, shield herself and reflect 40% of damage taken for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2], ['thorns', 2]]),
-             D('Ground Pound', '55% to all enemies with a 40% chance each to Stagger.', 4, 0.55, { aoe: true, chanceFx: [['stagger', 1, 0.4]] })],
+             D('Ground Pound', '55% to all enemies with a 40% chance each to Stagger.', 4, 0.55, { aoe: true, chanceFx: [['stagger', 1, 0.4]] }),
+             D('Bonebreaker', '140% hit. Sunders the target\'s armor.', 3, 1.4, { fx: [['sunder', 3]] }),
+             B('Hold the Line', 'Shield herself and reflect 40% of damage taken for 2 turns, plus a small heal.', 4, 'self', [['shield', 2], ['thorns', 2]], { heal: 1.2 })],
     passive: P('Thick Skull', 'Immune to Stun and Stagger.', { immune: ['stun', 'stagger'] }) },
   { id: 'vashka', name: 'Vashka Spearthrower', short: 'Vashka', faction: 'orc', role: 'ranged', bio: 'Javelin hunter of the steppe.',
     mods: { agi: 1.1 },
     look: { body: 'orc', main: '#6b4f32', trim: '#c9b28a', skin: '#5f8a62', hair: '#2b1b12', weapon: 'spear' },
     skills: [S('Call the War Boar', 'Summon a war boar that fights on its own for 4 rounds.', 4, 'warboar'),
              D('Gutpiercer', '160% hit that ignores armor. Causes Bleed.', 4, 1.6, { pierce: true, fx: [['bleed', 3, 0.3]] }),
-             D('Hunter\'s Mark', '60% hit. Marks the target: it takes 25% more damage for 2 turns.', 3, 0.6, { fx: [['exposed', 3]] })],
+             D('Hunter\'s Mark', '60% hit. Marks the target: it takes 25% more damage for 2 turns.', 3, 0.6, { fx: [['exposed', 3]] }),
+             D('Pinning Throw', '130% spear that ignores armor. Slows the target for 2 turns.', 3, 1.3, { pierce: true, fx: [['slow', 3]] }),
+             D('Volley of Spears', '55% to all enemies. Causes Bleed.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.25]] })],
     passive: P('Steppe Hunter', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }) },
   { id: 'drekka', name: 'Drekka Firegut', short: 'Drekka', faction: 'orc', role: 'ranged', bio: 'Bomb and firepot thrower.',
     mods: {},
     look: { body: 'orc', main: '#7a3b2e', trim: '#e8a548', skin: '#7d9a4f', weapon: 'pot' },
     skills: [D('Firepot', '100% hit. Burns for 3 turns.', 2, 1.0, { fx: [['burn', 3, 0.35]] }),
              D('Powder Keg', '75% to all enemies. Burns them all.', 5, 0.75, { aoe: true, fx: [['burn', 3, 0.3]] }),
-             D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { fx: [['burn', 3, 0.3], ['slow', 2]] })],
+             D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { fx: [['burn', 3, 0.3], ['slow', 2]] }),
+             D('Cinder Spray', '50% fire to all enemies. Never misses. Blinds them all.', 4, 0.5, { aoe: true, noDodge: true, fx: [['blind', 2]] }),
+             D('Sticky Tar', '80% hit. Burns, Slows and sunders the target\'s armor.', 4, 0.8, { fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] })],
     passive: P('Pyromaniac', 'Deals 25% more damage to Burning enemies.', { vs: { fx: 'burn', bonus: 0.25 } }) },
   { id: 'hesk', name: 'Old Mother Hesk', short: 'Hesk', faction: 'orc', role: 'support', bio: 'Shaman who keeps the war drums.',
     mods: { hp: 1.05 },
     look: { body: 'orc', main: '#4b3d5e', trim: '#d8c8a8', skin: '#8a9d6a', hair: '#d8d8d8', weapon: 'staff', orb: '#e0645a' },
     skills: [B('Spirit Ward', 'An ally takes 60% less damage for 2 turns.', 2, 'ally', [['ward', 2]], { aiTarget: 'lowest' }),
              B('Drums of the Horde', 'All allies deal 30% more damage for 2 turns, plus a small heal.', 5, 'allAllies', [['empower', 3]], { heal: 1.0 }),
-             B('Bone Charm', 'Clear an ally\'s debuffs. They resist new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { cleanse: true, aiTarget: 'debuffed' })],
+             B('Bone Charm', 'Clear an ally\'s debuffs. They resist new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { cleanse: true, aiTarget: 'debuffed' }),
+             H('Ancestor\'s Balm', 'Heal an ally; they regenerate for 3 turns and resist new debuffs.', 3, 2.0, { fx: [['regen', 3, 0.6], ['immune', 3]] }),
+             B('Totem of Stone', 'Plant a totem: shield all allies until their next turn and give them Thorns.', 4, 'allAllies', [['shield', 1], ['thorns', 2]])],
     passive: P('Ancestral Watch', 'The first time an ally drops below 30% HP, the spirits Ward them for 2 turns.', { guardian: 0.3 }) },
 
   // ---- Kingdom of Aldmere (Human) ----
@@ -2065,14 +2177,18 @@ const ROSTER = [
     look: { body: 'human', helm: true, main: '#a9b3c6', trim: '#e8a548', skin: '#e2b48f', weapon: 'sword' },
     skills: [D('Power Slash', '160% cut.', 2, 1.6),
              D('Thunderclap', '130% lightning with a 45% chance to stun.', 4, 1.3, { element: 'lightning', noDodge: true, stun: 0.45 }),
-             D('Arcane Edge', '100% cut plus 20% of her current mana as extra damage.', 3, 1.0, { manaDamage: 0.2 })],
+             D('Arcane Edge', '100% cut plus 20% of her current mana as extra damage.', 3, 1.0, { manaDamage: 0.2 }),
+             D('Mageslayer', '110% cut. Burns 30 of the target\'s mana as extra damage and Silences them for 2 turns.', 4, 1.1, { manaBurn: 30, fx: [['silence', 3]] }),
+             D('Runed Thrust', '140% cut plus 15% of her current mana as extra damage. Sunders the target\'s armor.', 3, 1.4, { manaDamage: 0.15, fx: [['sunder', 3]] })],
     passive: P('Arcane Ward', 'Starts every battle Shielded for her first 2 turns.', { startFx: [['shield', 3]] }) },
   { id: 'garrick', name: 'Sir Garrick Vane', short: 'Garrick', faction: 'human', role: 'melee', bio: 'Heavily armored paladin.',
     mods: { hp: 1.1, def: 1.25, atk: 0.9, agi: 0.85 },
     look: { body: 'human', helm: true, main: '#d7dbe4', trim: '#d9b44a', skin: '#c68f6a', weapon: 'hammer', shield: '#3e5a8c' },
     skills: [D('Smite', '130% hit. Heals him for 35% of the damage.', 2, 1.3, { lifesteal: 0.35 }),
              B('Oathguard', 'Shield an ally for 2 turns and reflect 40% of the damage they take.', 4, 'ally', [['shield', 2], ['thorns', 2]], { aiTarget: 'lowest' }),
-             D('Consecrate', '45% holy damage to all enemies. Never misses. Heals all allies a little.', 4, 0.45, { aoe: true, noDodge: true, allyHeal: 0.8 })],
+             D('Consecrate', '45% holy damage to all enemies. Never misses. Heals all allies a little.', 4, 0.45, { aoe: true, noDodge: true, allyHeal: 0.8 }),
+             D('Hammer of Judgement', '150% holy smash. Never misses, with a 40% chance to stun.', 4, 1.5, { noDodge: true, stun: 0.4 }),
+             B('Lionheart', 'Taunt all enemies and take 60% less damage for 2 turns.', 5, 'self', [['taunt', 3], ['ward', 2]])],
     passive: P('Retribution', 'When he takes a hit, every enemy takes 20% of that damage.', { retribution: 0.2 }),
     passiveAlt: P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }) },
   { id: 'mara', name: 'Mara Holt', short: 'Mara', faction: 'human', role: 'ranged', bio: 'Musketeer with a steady hand.',
@@ -2080,21 +2196,27 @@ const ROSTER = [
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#c68f6a', hair: '#5a3520', weapon: 'gun' },
     skills: [D('Aimed Shot', '140% shot, +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
              D('Powder Shot', '220% shot, +50% crit chance.', 4, 2.2, { critBonus: 0.5 }),
-             D('Ricochet', '90% shot that ricochets into another enemy for 60%.', 3, 0.9, { bounce: 0.6 })],
+             D('Ricochet', '90% shot that ricochets into another enemy for 60%.', 3, 0.9, { bounce: 0.6 }),
+             D('Pistol Whip', '100% hit with a 40% chance to Stagger.', 2, 1.0, { chanceFx: [['stagger', 1, 0.4]] }),
+             D('Volley Fire', '55% to all enemies, +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 })],
     passive: P('Deadeye', 'Her critical hits deal double damage instead of +50%.', { critMult: 2 }) },
   { id: 'aldous', name: 'Aldous Emberfall', short: 'Aldous', faction: 'human', role: 'ranged', bio: 'Pyromancer of the royal college.',
     mods: { hp: 0.95 },
     look: { body: 'human', main: '#7a2e3a', trim: '#e8a548', skin: '#e2b48f', hair: '#d9d4c7', weapon: 'staff', orb: '#ff8a3d' },
     skills: [D('Fireball', '120% fire. Never misses. Burns for 3 turns.', 2, 1.2, { noDodge: true, fx: [['burn', 3, 0.35]] }),
              D('Inferno', '60% fire to all enemies, plus 15% of his current mana as extra damage. Burns them all.', 5, 0.6, { aoe: true, noDodge: true, manaDamage: 0.15, fx: [['burn', 3, 0.3]] }),
-             D('Ignite', '100% fire. Never misses. 60% stronger against Burning targets.', 3, 1.0, { noDodge: true, bonusVs: 'burn' })],
+             D('Ignite', '100% fire. Never misses. 60% stronger against Burning targets.', 3, 1.0, { noDodge: true, bonusVs: 'burn' }),
+             D('Flame Lance', '150% fire that ignores armor. Never misses. Burns for 3 turns.', 4, 1.5, { pierce: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
+             B('Mantle of Flame', 'Aldous wreathes himself in fire: 30% more damage for 2 turns, and he is shielded.', 4, 'self', [['empower', 3], ['shield', 2]])],
     passive: P('Kindling', 'His Burns deal 50% more damage.', { dotBoost: { burn: 1.5 } }) },
   { id: 'liesl', name: 'Sister Liesl', short: 'Liesl', faction: 'human', role: 'support', bio: 'Cleric of the dawn chapel.',
     mods: {},
     look: { body: 'human', main: '#e9e4d8', trim: '#d9b44a', skin: '#f0c9a6', hair: '#c9a25e', weapon: 'staff', orb: '#fff1b8' },
     skills: [H('Sacred Light', 'Heal an ally and clear all their debuffs.', 2, 3.2, { cleanse: true }),
              H('Prayer of Dawn', 'Heal all allies and restore 25 mana to each.', 5, 2.0, { all: true, manaRestore: 25 }),
-             B('Guardian Angel', 'Shield an ally for 2 turns and give them Regen.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' })],
+             B('Guardian Angel', 'Shield an ally for 2 turns and give them Regen.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
+             B('Benediction', 'An ally takes 60% less damage for 2 turns and resists new debuffs.', 4, 'ally', [['ward', 2], ['immune', 3]], { aiTarget: 'lowest' }),
+             D('Censure', '70% holy hit. Never misses. Weakens and Blinds the target for 2 turns.', 3, 0.7, { noDodge: true, fx: [['weaken', 3], ['blind', 3]] })],
     passive: P('Mercy', 'Her healing is 30% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.3 } }) },
 
   // ---- Stoneleaf Accord (Elves & Dwarves) ----
@@ -2103,35 +2225,45 @@ const ROSTER = [
     look: { body: 'dwarf', main: '#6b4f32', trim: '#9aa3b5', skin: '#e0ae86', hair: '#b5562b', weapon: 'hammer' },
     skills: [D('Hammerfall', '135% smash.', 2, 1.35),
              D('Mountain Breaker', '150% hit. Sunders armor (−40% defense).', 4, 1.5, { fx: [['sunder', 3]] }),
-             D('Anvil Strike', '120% smash. Durgan gains a Fortify stack.', 3, 1.2, { selfStacks: 1 })],
+             D('Anvil Strike', '120% smash. Durgan gains a Fortify stack.', 3, 1.2, { selfStacks: 1 }),
+             D('Forge Strike', 'Two hammer blows of 80%. Durgan gains a Fortify stack.', 3, 0.8, { hits: 2, selfStacks: 1 }),
+             D('Quake Hammer', '60% to all enemies. Sunders their armor.', 4, 0.6, { aoe: true, fx: [['sunder', 3]] })],
     passive: P('Grudge', 'Deals 20% more damage to the last enemy that hit him.', { grudge: 0.2 }) },
   { id: 'hilda', name: 'Hilda Stonewall', short: 'Hilda', faction: 'stone', race: 'dwarf', role: 'melee', bio: 'Dwarf shieldmaiden.',
     mods: { hp: 1.15, def: 1.3, atk: 0.85, agi: 0.8 },
     look: { body: 'dwarf', main: '#40597a', trim: '#c9a25e', skin: '#ecbfa0', hair: '#e8c872', weapon: 'axe', shield: '#8a5a32' },
     skills: [D('Shield Bash', '100% hit with a 35% chance to stun.', 3, 1.0, { stun: 0.35 }),
              B('Stand Firm', 'Taunt all enemies and shield herself for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]]),
-             B('Shieldwall', 'Shield an ally for 2 turns. Hilda gains 2 Fortify stacks.', 4, 'ally', [['shield', 2]], { selfStacks: 2, aiTarget: 'lowest' })],
+             B('Shieldwall', 'Shield an ally for 2 turns. Hilda gains 2 Fortify stacks.', 4, 'ally', [['shield', 2]], { selfStacks: 2, aiTarget: 'lowest' }),
+             D('Boulder Toss', '130% hit. Slows the target for 2 turns.', 3, 1.3, { fx: [['slow', 3]] }),
+             B('Bulwark of the Accord', 'Shield all allies until their next turn. Hilda gains 2 Fortify stacks.', 5, 'allAllies', [['shield', 1]], { selfStacks: 2 })],
     passive: P('Unbreakable', 'Once per battle, a blow that would knock her out leaves her at 1 HP.', { lastStand: true }) },
   { id: 'aelira', name: 'Aelira Swiftwind', short: 'Aelira', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf longbow archer.',
     mods: { agi: 1.2, crit: 0.15 },
     look: { body: 'elf', main: '#3f7a4f', trim: '#d9c58a', skin: '#f0d2b4', hair: '#e8d9a0', weapon: 'bow' },
     skills: [D('Swift Arrows', 'Two arrows of 70%.', 2, 0.7, { hits: 2 }),
              D('Hawkeye', '160% shot that always crits.', 4, 1.6, { alwaysCrit: true }),
-             D('Arrow Rain', '50% to all enemies.', 3, 0.5, { aoe: true })],
+             D('Arrow Rain', '50% to all enemies.', 3, 0.5, { aoe: true }),
+             D('Piercing Shot', '150% arrow that ignores armor and shields.', 3, 1.5, { pierce: true, ignoreShield: true }),
+             B('Steady Aim', 'Aelira takes aim: 30% more damage for 2 turns and she gains 3 Precision stacks.', 4, 'self', [['empower', 3]], { selfStacks: 3 })],
     passive: P('Keen Eye', 'Starts every battle with 3 Precision stacks.', { startStacks: 3 }) },
   { id: 'faelan', name: 'Faelan Thornshot', short: 'Faelan', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf who tips his crossbow bolts with venom.',
     mods: {},
     look: { body: 'elf', main: '#2f4f3a', trim: '#9ac46b', skin: '#d9b08c', hair: '#2b2b2b', weapon: 'crossbow' },
     skills: [D('Venom Bolt', '100% shot. Poisons for 3 turns.', 2, 1.0, { fx: [['poison', 3, 0.3]] }),
              D('Thornvolley', '60% to all enemies. Poisons and slows them.', 5, 0.6, { aoe: true, fx: [['poison', 3, 0.25], ['slow', 2]] }),
-             D('Envenom', '100% shot, 60% stronger against Poisoned targets.', 3, 1.0, { bonusVs: 'poison' })],
+             D('Envenom', '100% shot, 60% stronger against Poisoned targets.', 3, 1.0, { bonusVs: 'poison' }),
+             D('Crippling Bolt', '110% shot. Poisons and Slows the target.', 3, 1.1, { fx: [['poison', 3, 0.3], ['slow', 2]] }),
+             D('Toxic Barrage', 'Three venom bolts of 50%. Poisons the target.', 4, 0.5, { hits: 3, fx: [['poison', 3, 0.3]] })],
     passive: P('Debilitating Venom', 'While he stands, Poisoned enemies deal 15% less damage.', { weakenPoisoned: 0.15 }) },
   { id: 'elowen', name: 'Elowen Greenmantle', short: 'Elowen', faction: 'stone', race: 'elf', role: 'support', bio: 'Elf druid of the deep wood.',
     mods: { agi: 1.1 },
     look: { body: 'elf', main: '#5e8a4a', trim: '#e3d27a', skin: '#f0d2b4', hair: '#c96a3c', weapon: 'staff', orb: '#9fe08a' },
     skills: [H('Regrowth', 'Heal an ally, then they regenerate for 3 turns.', 2, 2.2, { fx: [['regen', 3, 0.8]] }),
              H('Bloom of Spring', 'Heal all allies a little, clear their debuffs and give them Regen.', 5, 1.0, { all: true, cleanse: true, fx: [['regen', 3, 0.6]] }),
-             D('Entangle', '70% hit. Roots Slow and Stagger the target.', 3, 0.7, { fx: [['slow', 2], ['stagger', 1]], roots: true })],
+             D('Entangle', '70% hit. Roots Slow and Stagger the target.', 3, 0.7, { fx: [['slow', 2], ['stagger', 1]], roots: true }),
+             B('Barkskin', 'An ally is shielded for 2 turns and takes 60% less damage.', 4, 'ally', [['shield', 2], ['ward', 2]], { aiTarget: 'lowest' }),
+             D('Thornlash', '80% hit. Roots the target: Slowed, and it takes 25% more damage for 2 turns.', 3, 0.8, { fx: [['slow', 2], ['exposed', 3]], roots: true })],
     passive: P('Forest Stride', 'While she stands, all allies move 20% faster on the speed bar.', { haste: 0.2 }),
     passiveAlt: P('Verdant Aura', 'While she stands, all allies regenerate an extra 2% of max HP each turn.', { allyRegen: 0.02 }) },
 
@@ -2141,35 +2273,45 @@ const ROSTER = [
     look: { body: 'tide', crest: 'shark', skin: '#6f8597', main: '#3b4f63', trim: '#d9c58a', weapon: 'trident' },
     skills: [D('Trident Lunge', '120% hit. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
              D('Blood in the Water', '150% hit, 60% stronger against bleeding targets.', 3, 1.5, { bonusVs: 'bleed' }),
-             D('Riptide', '120% hit. Drags the target back along the speed bar.', 3, 1.2, { knockback: 300 })],
+             D('Riptide', '120% hit. Drags the target back along the speed bar.', 3, 1.2, { knockback: 300 }),
+             D('Feeding Frenzy', 'Three bites of 55%, 60% stronger against Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
+             D('Undertow', '60% to all enemies. Drags them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200 })],
     passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }) },
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Small, frenzied Gurgling brawler.',
     mods: { hp: 0.85, agi: 1.35, atk: 1.05 },
     look: { body: 'tide', crest: 'fish', skin: '#5fa38a', main: '#2f6f8f', trim: '#e8a548', weapon: 'spear', scale: 0.8 },
     skills: [D('Nibble Flurry', 'Three bites of 45%.', 2, 0.45, { hits: 3 }),
              D('Gurgle Frenzy', 'Six bites of 35%.', 4, 0.35, { hits: 6 }),
-             B('Slippery Scales', 'Dodge every attack that can miss until his next turn.', 4, 'self', [['evade', 1]])],
+             B('Slippery Scales', 'Dodge every attack that can miss until his next turn.', 4, 'self', [['evade', 1]]),
+             D('Barnacle Bite', '100% bite. Causes Bleed and Slows the target.', 2, 1.0, { fx: [['bleed', 3, 0.25], ['slow', 2]] }),
+             D('Tail Whip', '60% to all enemies with a 35% chance each to Stagger.', 4, 0.6, { aoe: true, chanceFx: [['stagger', 1, 0.35]] })],
     passive: P('Tiny Target', 'Dodges 10% more often.', { dodge: 0.1 }) },
   { id: 'seraphine', name: 'Seraphine Wavecaller', short: 'Seraphine', faction: 'tide', role: 'ranged', bio: 'Siren whose song drowns sailors.',
     mods: { agi: 1.05 },
     look: { body: 'elf', fin: true, skin: '#9fd0c8', hair: '#3d6fb0', main: '#2a7f8f', trim: '#e9e4d8', weapon: 'orb', orb: '#f2c6d8' },
     skills: [D('Siren\'s Hush', '100% hit that never misses. Silences the target for 2 turns: Attack and Guard only.', 3, 1.0, { noDodge: true, fx: [['silence', 3]] }),
              D('Lure Song', '70% hit with a 70% chance to charm (stun) the target.', 4, 0.7, { noDodge: true, stun: 0.7 }),
-             D('Dirge of the Deep', '50% to all enemies. Never misses. Weakens them.', 4, 0.5, { aoe: true, noDodge: true, fx: [['weaken', 2]] })],
+             D('Dirge of the Deep', '50% to all enemies. Never misses. Weakens them.', 4, 0.5, { aoe: true, noDodge: true, fx: [['weaken', 2]] }),
+             D('Drowning Chorus', '60% to all enemies. Never misses. Slows and Blinds them all.', 4, 0.6, { aoe: true, noDodge: true, fx: [['slow', 2], ['blind', 2]] }),
+             B('Song of the Depths', 'All allies are shielded until their next turn and deal 30% more damage for 2 turns.', 5, 'allAllies', [['shield', 1], ['empower', 3]])],
     passive: P('Echo', 'Her Silence, Weaken and other lasting debuffs last 1 turn longer.', { fxLonger: 1 }) },
   { id: 'octavia', name: 'Octavia Inkveil', short: 'Octavia', faction: 'tide', role: 'ranged', bio: 'Octopus-folk ink caster.',
     mods: {},
     look: { body: 'tide', crest: 'octo', skin: '#9b6aa8', main: '#4b3d6e', trim: '#e3d27a', weapon: 'orb', orb: '#5a4a8a' },
     skills: [S('Ink Double', 'Conjure an ink illusion of herself. It taunts enemies, hits for half and fades after 2 rounds.', 4, 'illusion'),
              D('Ink Cloud', '50% to all enemies. Blinds them all.', 5, 0.5, { aoe: true, noDodge: true, fx: [['blind', 2]] }),
-             D('Tentacle Snare', '90% hit. Slows the target for 2 turns.', 3, 0.9, { fx: [['slow', 3]] })],
+             D('Tentacle Snare', '90% hit. Slows the target for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
+             D('Ink Whip', '120% hit. Never misses. Blinds the target for 2 turns.', 3, 1.2, { noDodge: true, fx: [['blind', 3]] }),
+             D('Crushing Grip', '160% hit. Silences the target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] })],
     passive: P('Ink Sac', 'When hit, 25% chance to Blind the attacker.', { onHitTaken: { chance: 0.25, fx: [['blind', 2]] } }) },
   { id: 'maren', name: 'Maren Pearlheart', short: 'Maren', faction: 'tide', role: 'support', bio: 'Pearl priestess of the reef.',
     mods: {},
     look: { body: 'tide', crest: 'fish', skin: '#7fb3a8', main: '#e9e4d8', trim: '#f2c6d8', weapon: 'staff', orb: '#fff7e6' },
     skills: [H('Healing Tide', 'Heal an ally. 30% stronger at High Tide.', 2, 3.0, { tideBonus: 1.3 }),
              B('Pearl Barrier', 'Shield all allies until their next turn and heal them a little.', 5, 'allAllies', [['shield', 1]], { heal: 1.0 }),
-             B('Tide Pool', 'All allies regenerate for 3 turns.', 4, 'allAllies', [['regen', 3, 0.5]])],
+             B('Tide Pool', 'All allies regenerate for 3 turns.', 4, 'allAllies', [['regen', 3, 0.5]]),
+             H('Reef Bloom', 'Heal an ally and clear their debuffs. 30% stronger at High Tide.', 3, 2.6, { cleanse: true, tideBonus: 1.3 }),
+             D('Riptide Crash', '70% to all enemies. Never misses. Weakens them all.', 4, 0.7, { aoe: true, noDodge: true, fx: [['weaken', 2]] })],
     passive: P('Backwash', 'Each time an enemy uses a skill, it takes damage equal to 10% of its current HP.', { spellBacklash: 0.1 }),
     passiveAlt: P('Tidecaller', 'Her heals also restore 8 MP.', { healMp: 8 }) },
 
@@ -2179,35 +2321,45 @@ const ROSTER = [
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
-             D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 })],
+             D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
+             D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
+             B('Mist Form', 'Vesper dissolves into mist: attacks that can miss will miss until his next turn, and he heals a little.', 4, 'self', [['evade', 1]], { heal: 1.5 })],
     passive: P('Riposte', 'When hit in melee, 20% chance to strike back for 60%.', { riposte: { chance: 0.2, mult: 0.6 } }) },
   { id: 'malgrath', name: 'Malgrath the Unbound', short: 'Malgrath', faction: 'crimson', role: 'melee', bio: 'Demon brute freed from the pit.',
     mods: { hp: 1.15, atk: 1.05, def: 0.9, agi: 0.85 },
     look: { body: 'demon', main: '#2d2230', trim: '#e8a548', skin: '#a8323a', horn: '#1f1a1f', eye: '#ffd166', weapon: 'axe' },
     skills: [D('Hellfire Slam', '60% to all enemies. Burns them all and marks them with Infernal Toll: for 2 turns, their next skill also costs 5% of their current HP, on top of mana.', 3, 0.6, { aoe: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
              D('Infernal Wrath', '230% hit. Costs 15% of his own HP.', 4, 2.3, { selfCost: 0.15 }),
-             B('Demonic Roar', 'Taunt all enemies and deal 30% more damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]])],
+             B('Demonic Roar', 'Taunt all enemies and deal 30% more damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
+             D('Pit Chains', '130% hit. Drags the target back along the speed bar and Exposes it.', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
+             D('Sulphur Breath', '55% fire to all enemies. Never misses. Burns and Blinds them all.', 4, 0.55, { aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] })],
     passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }) },
   { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer.',
     mods: { hp: 0.9, agi: 1.3 },
     look: { body: 'demon', wings: '#3d1f4a', main: '#1f1626', trim: '#e05a9a', skin: '#7a3d8f', horn: '#2a1830', eye: '#ff6bb5', weapon: 'dagger' },
     skills: [D('Kiss of Ruin', '110% hit. Weakens the target.', 2, 1.1, { fx: [['weaken', 2]] }),
              D('Dance of Knives', 'Five cuts of 40%.', 4, 0.4, { hits: 5 }),
-             D('Shadowstep', '110% hit. Never misses, +30% crit chance.', 3, 1.1, { noDodge: true, critBonus: 0.3 })],
+             D('Shadowstep', '110% hit. Never misses, +30% crit chance.', 3, 1.1, { noDodge: true, critBonus: 0.3 }),
+             D('Wing Carve', 'Four cuts of 45%. Causes Bleed.', 4, 0.45, { hits: 4, fx: [['bleed', 3, 0.25]] }),
+             B('Predator\'s Grace', 'Seraxa takes wing: she dodges every attack that can miss until her next turn and strikes 30% harder for 2 turns.', 4, 'self', [['evade', 1], ['empower', 3]])],
     passive: P('Flurry', 'Her multi-hit skills strike one extra time.', { extraHit: 1 }) },
   { id: 'gorehound', name: 'Gorehound', faction: 'crimson', role: 'melee', bio: 'Hellhound of the Court\'s kennels.',
     mods: { hp: 1.05, agi: 1.1 },
     look: { body: 'beast', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
     skills: [D('Rend', '120% bite. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
              D('Hellhound Howl', '50% to all enemies and slows them.', 4, 0.5, { aoe: true, fx: [['slow', 2]] }),
-             D('Savage Maul', '110% bite. Exposes the target: it takes 25% more damage for 2 turns.', 3, 1.1, { fx: [['exposed', 3]] })],
+             D('Savage Maul', '110% bite. Exposes the target: it takes 25% more damage for 2 turns.', 3, 1.1, { fx: [['exposed', 3]] }),
+             D('Hamstring', '100% bite. Slows the target and causes Bleed.', 2, 1.0, { fx: [['slow', 2], ['bleed', 3, 0.3]] }),
+             D('Feral Lunge', '190% bite. Gorehound is Exposed until its next turn.', 4, 1.9, { selfFx: [['exposed', 1]] })],
     passive: P('Bloodhound', 'Deals 25% more damage to Bleeding enemies.', { vs: { fx: 'bleed', bonus: 0.25 } }) },
   { id: 'morwenna', name: 'Morwenna Bloodweaver', short: 'Morwenna', faction: 'crimson', role: 'support', bio: 'Blood witch of the Court.',
     mods: {},
     look: { body: 'vampire', main: '#5a1f2e', cape: '#2a1018', trim: '#d9b44a', skin: '#efe4ea', hair: '#c9c2d6', weapon: 'staff', orb: '#c0303f' },
     skills: [D('Blight Hex', '60% hit that never misses. Burns 20 of the target\'s mana as extra damage, then Hexes them for 3 turns: healing received is halved.', 2, 0.6, { noDodge: true, manaBurn: 20, fx: [['hex', 4]] }),
              H('Blood Communion', 'Heal all allies and Hex all enemies for 2 turns.', 5, 1.8, { all: true, enemyFx: [['hex', 3]] }),
-             D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { noDodge: true, allySteal: 1 })],
+             D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { noDodge: true, allySteal: 1 }),
+             H('Crimson Mend', 'Heal an ally; they regenerate for 3 turns.', 3, 2.4, { fx: [['regen', 3, 0.6]] }),
+             D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { noDodge: true, fx: [['weaken', 3], ['sunder', 3]] })],
     passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }) },
 ];
 
@@ -2899,16 +3051,29 @@ function rollPack(d) {
    You can retreat between rooms and keep what you earned.
    Monsters fight at your level, never below the dungeon's minimum.
    ================================================================== */
+/* DUNGEON CONDITIONS — a standing rule for every room of a run. Unlike weather it never
+   rotates and never lifts: it is the place itself. Shown on the dungeon's card at the
+   Expedition Gate, announced in each room's log, and named in the battle's pill.
+   Not every dungeon has one (the Spire, Direhold and the Hollow run plain for now). */
+const DG_CONDS = {
+  damp: { icon: '💧', name: 'Grave Damp', brief: 'Everyone fights Soaked.',
+          desc: 'The water never drained out of the abbey. Everyone counts as Soaked: Ironclad Heat is doused and cannot build, and lightning deals 30% more to the soaked.' },
+  gas:  { icon: '🔥', name: 'Firedamp',   brief: 'Burn deals 50% more.',
+          desc: 'Gas pools in the old shafts and catches on anything alight. Burn deals 50% more to everyone, yours and theirs alike.' },
+  haunt:{ icon: '👻', name: 'Haunting',   brief: 'One fighter per side is Hexed each room.',
+          desc: 'The house takes an interest in its guests. At the start of every room one fighter on each side is Hexed: all healing they receive is halved until something cleanses it.' },
+};
+
 const DUNGEONS = [
-  { id: 'crypt', name: 'The Sunken Crypt', minLv: 5, look: 'crypt', boss: 'abbot', bossAdds: ['wraith'], scale: 0.85,
+  { id: 'crypt', name: 'The Sunken Crypt', minLv: 5, look: 'crypt', boss: 'abbot', bossAdds: ['wraith'], scale: 0.85, cond: 'damp',
     blurb: 'A flooded abbey two days down the road. The monks who drowned there still keep their hours.',
     rooms: [['cryptghoul', 'bonerattler', 'wraith'], ['cryptghoul', 'wraith', 'bonerattler'], ['bonerattler', 'cryptghoul', 'cryptghoul', 'wraith']],
     chest: { gold: 120, items: 2 }, firstClear: 'sapphire' },
-  { id: 'manor', name: 'Mournhollow Manor', minLv: 7, look: 'manor', boss: 'mournlady', bossAdds: ['phantom', 'gravehound'], scale: 0.88,
+  { id: 'manor', name: 'Mournhollow Manor', minLv: 7, look: 'manor', boss: 'mournlady', bossAdds: ['phantom', 'gravehound'], scale: 0.88, cond: 'haunt',
     blurb: 'A great house gone dark on the hill road. The family never left — they simply stopped being alive.',
     rooms: [['gravehound', 'phantom', 'cryptghoul'], ['phantom', 'crone', 'gravehound'], ['cryptghoul', 'gravehound', 'phantom', 'crone']],
     chest: { gold: 170, items: 2 }, firstClear: 'phantomlocket' },
-  { id: 'mine', name: 'Rustgut Mine', minLv: 9, look: 'mine', boss: 'ironjaw', bossAdds: ['clockspider', 'clockspider'], scale: 0.9,
+  { id: 'mine', name: 'Rustgut Mine', minLv: 9, look: 'mine', boss: 'ironjaw', bossAdds: ['clockspider', 'clockspider'], scale: 0.9, cond: 'gas',
     blurb: 'A dwarf-dug mine where the machines kept working after the miners left.',
     rooms: [['clockspider', 'rustgolem', 'clockspider'], ['rustgolem', 'clockspider', 'ashcrawler'], ['rustgolem', 'rustgolem', 'clockspider', 'clockspider']],
     chest: { gold: 200, items: 2 }, firstClear: 'quicksilver' },
@@ -3039,7 +3204,7 @@ const foeHas = (u, key) => foesOf(u).some((f) => pv(f)[key]);
    Slots grow with level: 2 active + 1 passive at first, then
    Lv 5 → 3rd active, Lv 10 → 2nd passive, Lv 15 → 4th active.
    Attack and Guard are always available and never use a slot.
-   Pool: the champion's 3 actives (skill a, ★ signature b, second skill c),
+   Pool: the champion's 5 actives (skill a, ★ signature b, then c, d and e),
    the neutral skills below (class-free actives anyone can learn),
    their own passive ('own'), their alternative own passive if they have one ('alt'), and the generic passives below.
    You pick your champion's loadout; recruits and enemies auto-pick.
@@ -3047,7 +3212,9 @@ const foeHas = (u, key) => foesOf(u).some((f) => pv(f)[key]);
 const SLOT_UNLOCKS = [{ lv: 5, kind: 'act' }, { lv: 10, kind: 'pas' }, { lv: 15, kind: 'act' }];
 const activeSlots = (lv) => 2 + SLOT_UNLOCKS.filter((s) => s.kind === 'act' && lv >= s.lv).length;
 const passiveSlots = (lv) => 1 + SLOT_UNLOCKS.filter((s) => s.kind === 'pas' && lv >= s.lv).length;
-const ACTIVE_IDS = ['a', 'b', 'c'];
+// a = first skill, b = ★ signature, c/d/e = the rest. Five to pick from, four slots at most,
+// so from Lv 15 the last one is a real choice rather than a formality.
+const ACTIVE_IDS = ['a', 'b', 'c', 'd', 'e'];
 // Neutral skills: class-free actives any champion can equip in an active slot.
 // Kept modest on purpose — utility that rounds out a kit, never outshines one.
 const NEUTRAL_SKILLS = {
@@ -3080,7 +3247,7 @@ const GENERIC_PASSIVES = {
 const GENERIC_KEYS = Object.keys(GENERIC_PASSIVES);
 const passiveById = (c, id) => (id === 'own' ? c.passive : id === 'alt' ? c.passiveAlt : GENERIC_PASSIVES[id]);
 const passivePool = (c) => ['own', ...(c.passiveAlt ? ['alt'] : []), ...GENERIC_KEYS];
-const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2 }[id]];
+const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4 }[id]];
 
 // Recruits and enemies: skill, ★ signature, then second skill as slots allow; their own passive,
 // plus a role-fitting generic once a second passive slot opens.
@@ -3187,9 +3354,12 @@ function skillsOf(u) {
   const attack = u.maxMp ? { ...ATTACK, desc: `${ATTACK.desc} Restores ${MANA.attackGain} MP.` } : ATTACK;
   // Mana cost: the skill's own o.mp, else the default; champions with no mana (mechs) cast for free.
   const cost = (s, d) => (u.maxMp ? (s.o?.mp ?? d) : 0);
+  // Order on the bar: the cheap opener, then the three second-tier skills, with the ★ signature last.
   const actives = [
     { ...c.skills[0], id: 'a', mp: cost(c.skills[0], MANA.skillCost), o: { heat: 25, ...c.skills[0].o } },
     { ...c.skills[2], id: 'c', mp: cost(c.skills[2], MANA.skill2Cost), o: { heat: 30, ...c.skills[2].o } },
+    { ...c.skills[3], id: 'd', mp: cost(c.skills[3], MANA.skill2Cost), o: { heat: 30, ...c.skills[3].o } },
+    { ...c.skills[4], id: 'e', mp: cost(c.skills[4], MANA.skill2Cost), o: { heat: 30, ...c.skills[4].o } },
     { ...c.skills[1], id: 'b', sig: true, mp: cost(c.skills[1], MANA.ultCost), o: { heat: 40, ...c.skills[1].o } },
   ];
   // Only the skills in this champion's loadout come into battle; Attack and Guard always do.
@@ -3628,7 +3798,8 @@ async function beginTurn(u) {
     const e = has(u, id);
     if (!e) continue;
     // Weather and Burn: Ash Storm fans the flames (+50%), Downpour douses them (−50%).
-    const burnMult = id !== 'burn' ? 1 : wx() === 'ash' ? 1.5 : wx() === 'rain' ? 0.5 : 1;
+    // Underground there is no weather, but Rustgut Mine's Firedamp catches just as well (+50%).
+    const burnMult = id !== 'burn' ? 1 : dgCondIs('gas') || wx() === 'ash' ? 1.5 : wx() === 'rain' ? 0.5 : 1;
     const dmg = Math.max(1, Math.round(e.value * burnMult));
     u.hp = Math.max(0, u.hp - dmg);
     bump(u, 'hurt');
@@ -3839,10 +4010,11 @@ function staggerSwitchIn(u) {
   return ph < STAGGER_STOP - EPS ? STAGGER_STOP - ph : STAGGER_CYCLE - ph;
 }
 
-// Water and Heat: a Soaked Ironclad champion (the Soaked status, or anyone out in a Downpour
-// or a Thunderstorm) has its Heat doused to 0, and it can't build again until the Soaked wears off.
+// Water and Heat: a Soaked Ironclad champion (the Soaked status, anyone out in a Downpour or a
+// Thunderstorm, or anyone wading the Sunken Crypt's Grave Damp) has its Heat doused to 0, and it
+// can't build again until it dries off.
 const wetWeather = () => wx() === 'rain' || wx() === 'storm';
-const soaked = (u) => !!has(u, 'soaked') || wetWeather();
+const soaked = (u) => !!has(u, 'soaked') || wetWeather() || dgCondIs('damp');
 function douse(u, by) {
   if (u.faction !== 'mech' || u.summon || u.hp <= 0 || u.heat <= 0) return;
   u.heat = 0;
@@ -3854,11 +4026,54 @@ function douseMechs() {
   for (const u of allUnits()) douse(u, `The ${WEATHER[wx()].name}`);
 }
 
+/* EARTHQUAKE — no weather reaches this deep, but in Emberhollow Cave the rock itself
+   moves. On a cave hunt a tremor can strike on a weather round and shakes the place for
+   QUAKE_ROUNDS rounds. While the floor bucks, every unit on the field is Staggered, so
+   the whole speed bar stumbles along together. The dungeons off Ashfall Road are cut
+   stone, not live rock: they have no weather and no quakes. */
+const QUAKE_CHANCE = 0.4, QUAKE_ROUNDS = 2;
+const underground = () => state.mode === 'hunt' || state.mode === 'dungeon';
+const caveHunt = () => state.mode === 'hunt';
+const quaking = () => (state.quake || 0) > 0;
+
+// The shake staggers everyone standing. Thick Skull and the like shrug it off (addFx resists it quietly).
+function staggerAll(by) {
+  const hit = [];
+  for (const u of allUnits()) {
+    if (!alive(u)) continue;
+    addFx(u, 'stagger', 1, 0, true);
+    if (has(u, 'stagger')) { float(u, `${FX.stagger.icon} ${FX.stagger.label}`, 'fx'); hit.push(u.name); }
+  }
+  log(`${by}: ${hit.length ? `${hit.join(', ')} ${hit.length === 1 ? 'is' : 'are'} staggered and stumble along the speed bar.` : 'nobody loses their footing.'}`, 'sys');
+}
+
+// Start of a cave-hunt round: run the tremor down, or roll a new one.
+function tickQuake() {
+  if (!caveHunt()) return false;
+  if (quaking()) {
+    state.quake--;
+    if (quaking()) { staggerAll('The aftershock'); return false; }
+    log('The ground settles. The shaking stops.', 'wx');
+    return false;
+  }
+  if (state.round === 1 || (state.round - 1) % WEATHER_EVERY !== 0) return false;
+  if (Math.random() >= QUAKE_CHANCE) return false;
+  state.quake = QUAKE_ROUNDS;
+  const W = WEATHER.quake;
+  log(`The rock groans and the floor heaves: ${W.name}. ${W.desc}`, 'wx');
+  announce('The ground shakes', W.name);
+  const bar = $('#weather');
+  bar.classList.remove('changed'); void bar.offsetWidth; bar.classList.add('changed');
+  staggerAll('The quake');
+  return true;
+}
+
 function newRound() {
   state.round++;
   log(`Round ${state.round}${highTide() ? ' · High Tide' : ''}`, 'round');
-  // Underground there is no weather.
-  if (state.mode !== 'hunt' && state.mode !== 'dungeon' && (state.round - 1) % WEATHER_EVERY === 0) {
+  // Underground there is no weather. Emberhollow Cave has the shifting rock instead; dungeons have nothing.
+  if (underground()) return tickQuake();
+  if ((state.round - 1) % WEATHER_EVERY === 0) {
     state.weather = state.nextWeather;
     state.nextWeather = rollWeather(state.weather);
     const W = WEATHER[state.weather];
@@ -3885,7 +4100,7 @@ function announceWeather() {
 }
 
 // Weather icons for the battle's weather pill.
-const WX_ICON = { clear: '🌤️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕' };
+const WX_ICON = { clear: '🌤️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕', quake: '🪨' };
 
 function roundsUntilWeather() {
   return WEATHER_EVERY - ((state.round - 1) % WEATHER_EVERY);
@@ -4063,6 +4278,15 @@ async function nextTurn() {
     // Only your champion waits for your orders; recruits and summons act on their own.
     if (u.you) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
     await wait(450);
+    // A recruit may spend one satchel item before acting, just as you can on your turn.
+    if (usesSatchel(u)) {
+      const plan = aiItemPlan(u);
+      if (plan) {
+        await useItem(u, plan.key, plan.t);
+        if (token !== state.token || checkEnd()) return;
+        await wait(200);
+      }
+    }
     const { sk, t } = bossPlan(u) || aiChoose(u);   // bosses enrage and telegraph their big attacks
     await doAction(u, sk, t);
     endTurn(u);
@@ -4134,7 +4358,11 @@ function onItem(key) {
 // Satchel items are a free action: one per turn, then the champion still chooses a normal action.
 async function useItem(u, key, t) {
   const token = state.token, it = ITEMS[key];
-  state.phase = 'busy'; state.pending = null; state.itemUsed = true;
+  // Recruits reach into the same satchel mid-turn, so hand the phase back to whatever
+  // it was. Forcing 'choose' here would give you the controls during someone else's turn.
+  const resume = u.you ? 'choose' : state.phase;
+  state.phase = 'busy'; state.pending = null;
+  if (u.you) state.itemUsed = true;   // the one-per-turn gate is only on your own satchel row
   profile.items[key]--;
   saveProfile();
   log(`${u.name} uses a ${it.name}.`, u.side);
@@ -4167,9 +4395,48 @@ async function useItem(u, key, t) {
   if (token !== state.token) return;
   cleanupSummons();
   if (checkEnd()) return;
-  state.phase = 'choose';
+  state.phase = resume;
   render();
 }
+
+/* Recruits raid the same satchel you do, so they are deliberately stingy: a charge is
+   only spent when it clearly beats casting, and never on a fight already won. Returns
+   { key, t } or null. Enemies never qualify — see the guard in the turn loop. */
+function aiItemPlan(u) {
+  const have = (k) => (profile.items[k] || 0) > 0;
+  const allies = alliesOf(u);   // both already drop the fallen for us
+  const foes = foesOf(u);
+  // 1. Someone is a hit away from going down.
+  if (have('draught')) {
+    const hurt = allies.filter((a) => a.hp / a.maxHp <= 0.4)
+      .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+    if (hurt) return { key: 'draught', t: hurt };
+  }
+  // 2. A stun or a stack of debuffs costs more than any single cast.
+  if (have('salts')) {
+    const sick = allies.find((a) => has(a, 'stun') || has(a, 'silence') || debuffs(a) >= 2);
+    if (sick) return { key: 'salts', t: sick };
+  }
+  // 3. A caster who cannot pay for their own skills, or an Ironclad about to overheat.
+  if (have('tonic')) {
+    const dry = allies.find((a) => (a.maxMp && a.mp < 25) || (a.faction === 'mech' && a.heat >= 75));
+    if (dry) return { key: 'tonic', t: dry };
+  }
+  // 4. The Firebomb earns its 50 gold when it finishes someone off, or when a crowd is
+  //    already grinding the warband down. A foe count alone is true on turn one of nearly
+  //    every fight, which would throw all three bombs in the opening rounds.
+  if (have('firebomb')) {
+    const finishes = foes.some((f) => f.hp <= Math.round(f.maxHp * 0.1));
+    const pressed = foes.length >= 3 && allies.some((a) => a.hp / a.maxHp < 0.6);
+    if (finishes || pressed) return { key: 'firebomb', t: null };
+  }
+  // The War Horn is left to you on purpose: its value depends on turn order you can
+  // read off the speed bar and the AI cannot, so it would only ever be wasted here.
+  return null;
+}
+
+// Your recruits may use the satchel; summons, monsters and every enemy never touch it.
+const usesSatchel = (u) => u.side === 'p' && !u.you && !u.summon && !u.monster;
 
 /* ==================================================================
    GAUNTLET FLOW
@@ -4244,7 +4511,7 @@ function startBattle(retry) {
   for (const u of allUnits()) u.pos = 0;
   state.opening = true;
   state.phase = 'busy'; state.pending = null; state.reward = null; state.log = [];
-  state.weather = 'clear'; state.nextWeather = rollWeather('clear');
+  state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0;
   state.screen = 'battle';
   state.token++;
   $('#overlay').hidden = true;
@@ -4254,9 +4521,24 @@ function startBattle(retry) {
   else log(`Battle ${state.battle + 1} of ${state.order.length} against ${theFaction(FACTIONS[fac])}.`, 'sys');
   log('Round 1', 'round');
   buildArena();
+  applyDgCond();   // after buildArena: the Haunting's status popups need the units on the field
   render();
   window.scrollTo(0, 0);
   nextTurn();
+}
+
+/* The dungeon's standing condition, applied at the top of every room. Grave Damp and Firedamp
+   are read where they apply (soaked(), the Burn tick); the Haunting has to pick its marks. */
+function applyDgCond() {
+  const c = dgCond();
+  if (!c) return;
+  log(`${c.name}: ${c.desc}`, 'wx');
+  if (dgCondIs('haunt')) {
+    for (const side of ['p', 'e']) {
+      const u = pick(state.teams[side].filter((x) => alive(x) && !x.summon));
+      if (u) addFx(u, 'hex', 999);
+    }
+  }
 }
 
 // Hunt results: XP from every monster in the pack, gold per monster, and 'slay'/'hunt' events for
@@ -4345,6 +4627,9 @@ function endDuel(won) {
 
 /* ---------- Dungeon runs ---------- */
 const dungeonRun = () => (state.mode === 'dungeon' ? dungeonById(state.dg?.id) : null);
+// The run's standing condition (see DG_CONDS). Null in every other mode and in the plain dungeons.
+const dgCond = () => { const d = dungeonRun(); return d?.cond ? DG_CONDS[d.cond] : null; };
+const dgCondIs = (id) => dungeonRun()?.cond === id;
 const dgRooms = (d) => d.rooms.length + 1;                 // normal rooms + the boss room
 const dgIsBossRoom = () => { const d = dungeonRun(); return !!d && state.dg.room === d.rooms.length; };
 
@@ -4955,7 +5240,8 @@ function loadoutCardHTML(c, kind, id, on) {
   const canUp = kind === 'act' && skillPoints(c.id) > 0 && r < RANK_CAP;
   const tag = kind === 'act'
     ? (NEUTRAL_SKILLS[id] ? 'Neutral' : id === 'b' ? `★ Signature · from turn ${ULT_FIRST_TURN}` : 'Active')
-      + (MANA.pool[c.faction] ? ` · ${s.o?.mp ?? (id === 'a' ? MANA.skillCost : id === 'c' ? MANA.skill2Cost : MANA.ultCost)} MP` : '')
+      // Same tiers skillsOf charges: a is the cheap opener, b the signature, c/d/e the rest.
+      + (MANA.pool[c.faction] ? ` · ${s.o?.mp ?? (id === 'a' ? MANA.skillCost : id === 'b' ? MANA.ultCost : MANA.skill2Cost)} MP` : '')
       + (s.cd ? ` · cooldown ${s.cd}` : '')
       + (r ? ` · Rank ${r}/${RANK_CAP}` : '')
     : id === 'own' ? `${shortName(c)}'s passive` : id === 'alt' ? `${shortName(c)}'s other passive` : 'Learned passive';
@@ -5098,8 +5384,7 @@ function buildSelect() {
         <span class="role ${c.role}">${ROLES[c.role].label}</span>
         <p class="bio">${c.bio}</p>
         <ul class="sk">
-          <li>${skillIcon(c.skills[0])}<span><b>${c.skills[0].name}.</b> ${c.skills[0].desc}</span></li>
-          <li>${skillIcon(c.skills[2])}<span><b>${c.skills[2].name}.</b> ${c.skills[2].desc}</span></li>
+          ${[0, 2, 3, 4].map((i) => `<li>${skillIcon(c.skills[i])}<span><b>${c.skills[i].name}.</b> ${c.skills[i].desc}</span></li>`).join('')}
           <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
           <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
           ${c.passiveAlt ? `<li class="pas">${skillIcon(c.passiveAlt)}<span><b>Or · ${c.passiveAlt.name}.</b> ${c.passiveAlt.desc}</span></li>` : ''}
@@ -5422,8 +5707,12 @@ const FOLK_LANES = [
   { x0: -250, x1: -130, y: 438 }, { x0: 1220, x1: 1400, y: 432 },   // the west and east quarters
 ];
 const FOLK_OUT = 3;
-// The town map's viewBox is -300 0 1800 600: map x → % of its width, map y → % of its height.
-const MAP_X0 = -300, MAP_W = 1800, MAP_H = 600;
+// The town map's viewBox is -800 0 2400 600: map x → % of its width, map y → % of its height.
+// Cinderhold proper runs x -300..1500 inside the ring wall; the land beyond (the Emberhollow
+// road to the west, the Ashfall road east of the gate) fills the rest.
+const MAP_X0 = -800, MAP_W = 2400, MAP_H = 600;
+const MAP_AR = MAP_W / MAP_H;   // the view is this many times wider than tall; the pan/zoom math uses it
+document.documentElement.style.setProperty('--map-ar', `${MAP_W} / ${MAP_H}`);
 const mapX = (x) => `${((x - MAP_X0) / MAP_W * 100).toFixed(2)}%`, mapY = (y) => `${(y / MAP_H * 100).toFixed(2)}%`;
 const linesOf = (list) => list.map((l) => (typeof l === 'function' ? l() : l)).filter(Boolean);
 
@@ -5987,11 +6276,13 @@ const PLACE_BODY = {
     const cards = DUNGEONS.map((d) => {
       const open = lv >= d.minLv, rec = profile.dungeons[d.id], boss = MONSTERS[d.boss];
       const kinds = [...new Set(d.rooms.flat())];
+      const c = d.cond ? DG_CONDS[d.cond] : null;   // know what you're walking into before you set out
       return `<div class="depth dungeon${open ? '' : ' locked'}">
         <div class="dmini">${kinds.map((id) => `<span class="mini" title="${MONSTERS[id].name}">${spriteSVG(id)}</span>`).join('')}
           <span class="mini boss" title="${boss.name}">${spriteSVG(d.boss)}</span></div>
         <h3>${d.name}</h3><p>${d.blurb}</p>
         <small>Level ${d.minLv}+ · ${d.rooms.length} rooms, then <b>${boss.name}</b></small>
+        ${c ? `<small class="cond" title="${c.desc}">${c.icon} <b>${c.name}</b> — ${c.brief}</small>` : ''}
         <small class="reward">Chest: ${d.chest.gold} gold and ${d.chest.items} items${rec?.clears ? ` · cleared ${rec.clears}×` : ` · first clear: a ${TRINKETS[d.firstClear].name}`}</small>
         <button class="btn${open ? ' primary' : ''}" type="button" data-k="dungeon:${d.id}"${open ? '' : ' disabled'}>${open ? 'Set out' : `Unlocks at level ${d.minLv}`}</button>
       </div>`;
@@ -6042,7 +6333,7 @@ const PLACE_BODY = {
           <button class="btn small${ok ? ' primary' : ''}" type="button" data-k="buy:${k}"${ok ? '' : ' disabled'}>${label}</button></div>
       </div>`;
     }).join('')}</div>
-    <p class="note">In battle, each of your champions can use <b>one item per turn</b> and still act (keys 6–0). You carry ${SATCHEL_MAX} of each in your satchel; extras go home to your stash.</p>`;
+    <p class="note">In battle, each of your champions can use <b>one item per turn</b> and still act — you pick yours with keys 6–0, and your recruits help themselves when they are hurt, stunned or out of mana. They share your satchel, so what they drink is gone from your stock. You carry ${SATCHEL_MAX} of each; extras go home to your stash.</p>`;
   },
 
   home() {
@@ -6244,13 +6535,16 @@ function codexHTML() {
   const tabs = [['factions', 'Factions'], ['weather', 'Weather'], ['speed', 'The speed bar']]
     .map(([k, n]) => `<button class="fbtn" type="button" data-k="codex:${k}" aria-pressed="${k === tab}">${n}</button>`).join('');
   let body;
-  if (tab === 'weather') body = Object.values(WEATHER).map((w) => entryHTML(w.name, w.desc)).join('');
+  // The weather tab also covers what stands in for weather underground: the cave's quakes and the dungeon conditions.
+  if (tab === 'weather') body = [...Object.values(WEATHER).map((w) => entryHTML(w.name, w.desc)),
+    ...DUNGEONS.filter((d) => d.cond).map((d) => entryHTML(`${DG_CONDS[d.cond].name} · ${d.name}`, DG_CONDS[d.cond].desc))].join('');
   else if (tab === 'speed') body = SPEED_LORE.map(([h, p]) => entryHTML(h, p)).join('');
   else body = FACTION_KEYS.map((k) => {
     const f = FACTIONS[k], w = Object.values(WEATHER).find((x) => x.favors === k);
     return entryHTML(f.name, `<b>${f.mechanic}.</b> ${f.rule} Favored by ${w.name}. Mana pool: ${poolLabel(k)}.`);
   }).join('');
-  const foot = tab === 'weather' ? `<p class="note">The weather changes every ${WEATHER_EVERY} rounds. Battles start under Clear Skies, and the next weather is always announced ahead of time.</p>` : '';
+  const foot = tab === 'weather' ? `<p class="note">The weather changes every ${WEATHER_EVERY} rounds. Battles start under Clear Skies, and the next weather is always announced ahead of time.
+      No weather reaches underground: Emberhollow Cave gets the odd Earthquake instead, and a dungeon's condition holds for the whole run.</p>` : '';
   return `<div class="filters" role="group" aria-label="Lore topics">${tabs}</div><div class="codex">${body}</div>${foot}`;
 }
 
@@ -6360,12 +6654,12 @@ let view = null;       // the current { s, tx, ty } of #townView
 let zoomedTo = null;   // the place the view is framed on (null = the square)
 
 const stageSize = () => { const t = $('#town'); return { W: t.clientWidth, H: t.clientHeight }; };
-// The smallest scale at which the 3:1 map still covers the whole stage.
-const coverScale = () => { const { W, H } = stageSize(); return Math.max(1, H / (W / 3)); };
+// The smallest scale at which the map still covers the whole stage.
+const coverScale = () => { const { W, H } = stageSize(); return Math.max(1, H / (W / MAP_AR)); };
 
 // Keep the map covering the visible part of the stage (what an open sheet leaves free): never show past its edges.
 function clampView(v, a = freeArea()) {
-  const { W } = stageSize(), mw = v.s * W, mh = v.s * W / 3, aw = a.x1 - a.x0, ah = a.y1 - a.y0;
+  const { W } = stageSize(), mw = v.s * W, mh = v.s * W / MAP_AR, aw = a.x1 - a.x0, ah = a.y1 - a.y0;
   return { s: v.s,
     tx: mw <= aw ? a.x0 + (aw - mw) / 2 : clamp(v.tx, a.x1 - mw, a.x0),
     ty: mh <= ah ? a.y0 + (ah - mh) / 2 : clamp(v.ty, a.y1 - mh, a.y0) };
@@ -6399,15 +6693,15 @@ function freeArea() {
 function frameOn(k, zoom = true) {
   const { W } = stageSize(), f = k && placeFrame(k), a = freeArea(), base = coverScale();
   if (!f) return null;
-  const aw = a.x1 - a.x0, ah = a.y1 - a.y0, floor = Math.max(1, ah / (W / 3), aw / W);
-  const s = zoom ? clamp(Math.min(aw * 0.78 / (f.w * W), ah * 0.8 / (f.h * W / 3)), floor, Math.max(base * 1.3, 3.4)) : base;
-  return clampView({ s, tx: (a.x0 + a.x1) / 2 - s * f.cx * W, ty: (a.y0 + a.y1) / 2 - s * f.cy * W / 3 });
+  const aw = a.x1 - a.x0, ah = a.y1 - a.y0, floor = Math.max(1, ah / (W / MAP_AR), aw / W);
+  const s = zoom ? clamp(Math.min(aw * 0.78 / (f.w * W), ah * 0.8 / (f.h * W / MAP_AR)), floor, Math.max(base * 1.3, 3.4)) : base;
+  return clampView({ s, tx: (a.x0 + a.x1) / 2 - s * f.cx * W, ty: (a.y0 + a.y1) / 2 - s * f.cy * W / MAP_AR });
 }
 
 // The square at first sight: cover scale, looking at the bonfire in the middle of town (map x 600).
 function homeView() {
   const { W, H } = stageSize(), s = coverScale(), cx = (600 - MAP_X0) / MAP_W;
-  return clampView({ s, tx: W / 2 - s * cx * W, ty: H - s * W / 3 });
+  return clampView({ s, tx: W / 2 - s * cx * W, ty: H - s * W / MAP_AR });
 }
 
 function setView(v, glide) {
@@ -7200,16 +7494,22 @@ function renderBattle() {
   $('#roundTxt').innerHTML = `Round ${state.round}${highTide() ? ' · <b>High Tide</b>' : ''}`;
 
   const W = WEATHER[wx()], left = roundsUntilWeather();
-  const under = hunt || dg;   // caves and dungeons have no weather
+  const under = hunt || dg;   // caves and dungeons have no weather; the cave has the odd earthquake
+  const quake = !!hunt && quaking();
+  const cond = dg ? dgCond() : null;   // the dungeon's standing condition, where it has one
   $('#arena').dataset.wx = under ? 'cave' : wx();
   $('#arena').dataset.dg = dg ? dg.look : '';
-  const wxName = under ? (dg ? dg.name : 'Underground') : W.name;
-  $('#wxIcon').textContent = under ? '🕯️' : WX_ICON[wx()] || '';
+  $('#arena').classList.toggle('quake', !!quake);
+  const wxName = quake ? WEATHER.quake.name : cond ? cond.name : under ? (dg ? dg.name : 'Underground') : W.name;
+  const wxLeft = quake ? (state.quake === 1 ? 'Last round' : `${state.quake} rounds`) : under ? '' : left === 1 ? 'Last round' : `${left} rounds`;
+  $('#wxIcon').textContent = quake ? WX_ICON.quake : cond ? cond.icon : under ? '🕯️' : WX_ICON[wx()] || '';
   $('#wxName').textContent = $('#wxPopName').textContent = wxName;
-  $('#wxLeft').textContent = under ? '' : left === 1 ? 'Last round' : `${left} rounds`;
-  $('#weather').setAttribute('aria-label', `Weather: ${wxName}${under ? '' : `, ${left === 1 ? 'last round' : `${left} rounds left`}`}. Tap for its effect.`);
-  $('#wxFavors').textContent = !under && W.favors ? `Favors the ${FACTIONS[W.favors].name}` : '';
-  $('#wxDesc').textContent = under ? 'No weather reaches this deep. Only the dark and whatever lives in it.' : W.desc;
+  $('#wxLeft').textContent = wxLeft;
+  $('#weather').setAttribute('aria-label', `${quake || cond ? 'Condition' : 'Weather'}: ${wxName}${wxLeft ? `, ${wxLeft.toLowerCase().includes('last') ? 'last round' : `${wxLeft} left`}` : ''}. Tap for its effect.`);
+  $('#wxFavors').textContent = cond ? dg.name : !under && W.favors ? `Favors the ${FACTIONS[W.favors].name}` : '';
+  $('#wxDesc').textContent = quake ? WEATHER.quake.desc : cond ? cond.desc
+    : hunt ? 'No weather reaches this deep. Only the dark, the shifting rock and whatever lives in it.'
+    : dg ? 'No weather reaches this deep. Only the dark and whatever lives in it.' : W.desc;
   $('#wxNext').innerHTML = under ? '' : `Next: <b>${WEATHER[state.nextWeather].name}</b> ${left === 1 ? 'next round' : `in ${left} rounds`}`;
 
   renderTrack(state.moving ? 400 : 300);
