@@ -139,6 +139,7 @@ h1 {
 .xpline { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 12px; }
 .xpline .xpnum { grid-column: 2; }
 .xpgain { color: var(--accent); font-size: 1.05rem; }
+.xpkill { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
 .lvlup { font-weight: 800; color: var(--good); }
 .herotag {
   display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 4px; border-radius: 999px;
@@ -162,6 +163,16 @@ h1 {
 .chest li.first { color: var(--good); font-weight: 800; }
 /* Emberhollow Cave panel: depth cards and the bestiary. */
 .depths { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+/* Training Yard cards: the technique's icon beside its name, and a row of pips counting drills done. */
+.trow { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tic { width: 30px; height: 30px; flex: none; display: grid; place-items: center; }
+.tic > * { width: 100%; height: 100%; display: block; }   /* skill icons come through as <img class="sic"> */
+.pips { display: flex; gap: 5px; }
+.pip { width: 100%; max-width: 34px; height: 6px; border-radius: 99px; background: var(--line); }
+.pip.on { background: var(--accent); }
+.depth.learned { border-color: var(--good); opacity: .78; }
+.learnt { color: var(--good); font-weight: 700; }
+.bsub { font-family: var(--font-body); font-size: .8rem; font-weight: 500; color: var(--muted); }
 .depth { display: grid; gap: 6px; align-content: start; padding: 12px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
 .depth.locked { opacity: .6; }
 .depth h3 { margin: 0; font-family: var(--font-display); font-size: 1.3rem; }
@@ -204,6 +215,10 @@ h1 {
 .lcard:hover { border-color: var(--accent); }
 .lcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .lcard.on { border-color: var(--accent); background: var(--panel-hi); }
+/* Untrained technique: visible so you know what to aim for, dimmed so you know you can't carry it yet. */
+.lcard.locked { opacity: .5; border-style: dashed; }
+.lcard.locked:hover { border-color: var(--line); }
+.lcard.locked .lstate { color: var(--muted); }
 /* Fixed icon box, so a skill without an icon file (generic passives, for now) keeps the layout. */
 .lcard .lic { width: 40px; height: 40px; border-radius: 9px; background: var(--panel-2); display: block; }
 .lcard .lic .sic { width: 100%; height: 100%; display: block; }
@@ -555,7 +570,9 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit.frozen .body { animation-play-state: paused; filter: grayscale(.45); }
 .unit.down .body { animation: none; transform: rotate(var(--fall, -82deg)) translateY(12%); opacity: .45; filter: grayscale(1); transition: transform .5s ease, opacity .5s; }
 .unit.e { --fall: 82deg; }
-.unit.down .plate, .unit.down .chips { opacity: .35; }
+/* The fallen keep nothing: name, bars and status chips fade out with the fall. visibility
+   (not display) so the card's layout holds and the body doesn't jump as they vanish. */
+.unit.down .plate, .unit.down .chips { opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility 0s .5s; }
 @keyframes idle { 50% { transform: translateY(-2px) scaleY(1.015); } }
 @keyframes ringPulse { 50% { opacity: .45; } }
 .upic { position: relative; width: 100%; height: 100%; }
@@ -746,6 +763,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .float.dot, .float.fx { color: var(--status); }
 .float.fx { font-size: .85rem; }
 .float.mpf { color: var(--mp); font-size: .9rem; }
+.float.xpf { color: var(--accent); font-size: .95rem; font-weight: 800; }
 @keyframes rise {
   from { opacity: 0; transform: translate(-50%, 10px); }
   15% { opacity: 1; }
@@ -1718,6 +1736,54 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
         <use href="#lampG" transform="translate(-20 448)"/>
         <use href="#hutB" transform="translate(-78 590)"/>
 
+        <!-- TRAINING YARD: a fenced drill field on the west road, between the postern and the mine path.
+             Straw dummies, a weapon rack and a lot of churned dirt. -->
+        <g class="bld" data-place="train" tabindex="0" role="button" aria-label="Training Yard: drill new techniques and earn skill points">
+          <ellipse cx="-380" cy="532" rx="152" ry="13" fill="#000" opacity=".35"/>
+          <!-- churned ground, trodden paler where the drilling happens -->
+          <ellipse cx="-380" cy="510" rx="144" ry="34" fill="#54453a"/>
+          <ellipse cx="-380" cy="507" rx="124" ry="27" fill="#45382f"/>
+          <ellipse cx="-380" cy="505" rx="92" ry="19" fill="#3b312a"/>
+          <!-- back fence: posts with two sagging rails -->
+          <g stroke="#6b4f32" stroke-width="5" stroke-linecap="round">
+            <path d="M-500 500 v-30 M-440 492 v-30 M-380 488 v-30 M-320 492 v-30 M-260 500 v-30"/>
+          </g>
+          <path d="M-500 478 q60 -8 120 -11 q60 3 120 11" fill="none" stroke="#7d5c3a" stroke-width="4"/>
+          <path d="M-500 490 q60 -8 120 -11 q60 3 120 11" fill="none" stroke="#6b4f32" stroke-width="3.5"/>
+          <!-- two straw dummies, the near one battered off true -->
+          <g transform="translate(-444 0)">
+            <rect x="-3" y="462" width="6" height="56" fill="#5a4430"/>
+            <rect x="-24" y="478" width="48" height="5" rx="2.5" fill="#6b4f32"/>
+            <path d="M-15 474 h30 l-4 34 h-22 Z" fill="#c8a764"/>
+            <circle cx="0" cy="466" r="10" fill="#d8bb7d"/>
+            <path d="M-14 486 h28 M-13 496 h26" stroke="#8a7048" stroke-width="2.5"/>
+            <path d="M-6 464 l5 5 M6 464 l-5 5" stroke="#6b4f32" stroke-width="2"/>
+          </g>
+          <g transform="translate(-330 2) rotate(-7 0 516)">
+            <rect x="-3" y="466" width="6" height="52" fill="#5a4430"/>
+            <rect x="-22" y="480" width="44" height="5" rx="2.5" fill="#6b4f32"/>
+            <path d="M-14 476 h28 l-4 32 h-20 Z" fill="#bb9a5c"/>
+            <circle cx="0" cy="469" r="9.5" fill="#cbae72"/>
+            <path d="M-13 488 h26 M-12 497 h24" stroke="#8a7048" stroke-width="2.5"/>
+            <!-- loose straw knocked out of its side -->
+            <path d="M12 492 l9 -4 M12 497 l10 1" stroke="#d8bb7d" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <!-- weapon rack -->
+          <g transform="translate(-252 0)">
+            <path d="M-26 516 L-18 482 M26 516 L18 482" stroke="#6b4f32" stroke-width="5" stroke-linecap="round"/>
+            <rect x="-24" y="480" width="48" height="5" rx="2.5" fill="#7d5c3a"/>
+            <path d="M-12 482 v-28" stroke="#8a93a6" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M-18 462 h12" stroke="#5a4430" stroke-width="3"/>
+            <path d="M2 482 v-24" stroke="#8a93a6" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M-4 466 h12" stroke="#5a4430" stroke-width="3"/>
+            <circle cx="15" cy="470" r="9" fill="none" stroke="#7d5c3a" stroke-width="3.5"/>
+          </g>
+          <!-- torch at the gate of the yard -->
+          <rect x="-516" y="470" width="4" height="30" fill="#3a2a20"/>
+          <circle cx="-514" cy="465" r="12" fill="url(#tGlow)" class="glow"/>
+          <g class="sign" transform="translate(-380 556)"><rect x="-78" y="-15" width="156" height="30" rx="7"/><text y="7">Training Yard</text></g>
+        </g>
+
         <!-- EMBERHOLLOW CAVE: an old mine mouth in the western rocks, out beyond the wall.
              Drawn around (-232, 548); shifted west through the postern and a little up the rising
              ground to (-670, 508), which also lifts its name tag clear of the dock. -->
@@ -1970,6 +2036,7 @@ const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: 
   hero: null, level: 1, xp: 0, recruits: [],
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
   skillRanks: {},  // skill points spent, per champion id: { a: 2, flashpowder: 1 } (see SKILL RANKS)
+  training: {},    // drills done, per champion id: { smokebomb: 2, might: 3 } (see THE TRAINING YARD)
   dungeons: {},    // per dungeon id: { clears } (first clear pays a trinket; see DUNGEONS)
   carnival: { plays: 0, won: 0 },   // Carnival records: rounds played, gold won
   bounty: null,                     // today's Bounty Board: { day, list: [bounty…] } (see BOUNTY_TYPES)
@@ -1990,7 +2057,8 @@ function saveProfile() {
 }
 /* PROGRESSION — you are one champion (profile.hero) who levels up for good.
    Recruits are AI-controlled allies who fight beside you at your level.
-   Battles pay XP; enough XP raises your level, which raises your whole warband's stats. */
+   Battles pay XP, and so does every killing blow you land yourself (see KILL XP);
+   enough XP raises your level, which raises your whole warband's stats. */
 const LEVEL_CAP = 30;
 const xpToNext = (lv) => 60 + 40 * lv;               // Lv 1→2: 100 XP, 2→3: 140, 3→4: 180 …
 const XP_WIN_BASE = 35, XP_WIN_STEP = 10, XP_CLEAR_BONUS = 120, XP_LOSS = 15;
@@ -2002,7 +2070,7 @@ const heroName = () => (profile.hero ? cleanName(profile.hero.name) || shortName
 
 // Adds XP and applies any level-ups. Returns { xp, from, to } — xp is what was really
 // added (the Ember Scholars' perk boosts every battle's XP here, lost ones included),
-// and it wins the spread in `{ xp, ...gainXp(xp) }` so reward screens show the true amount.
+// so reward screens show the true amount. End-of-battle payouts go through payXp below.
 function gainXp(n) {
   n = Math.round(n * (1 + guildPct('xp') / 100));
   const from = heroLevel();
@@ -2012,6 +2080,16 @@ function gainXp(n) {
     profile.level++;
   }
   return { xp: n, from, to: profile.level };
+}
+
+/* Settles a battle's XP: what the fight itself pays, plus everything your champion banked with
+   killing blows (see KILL XP). Returns the shape every reward screen reads — `xp` is the real
+   total after the guild perk, and `kill` is the kills' share of it. */
+function payXp(n) {
+  const kill = state.killXp || 0, kills = state.kills || 0;
+  state.killXp = 0; state.kills = 0;
+  const got = gainXp(n + kill);
+  return { ...got, kills, kill: n + kill ? Math.round((got.xp * kill) / (n + kill)) : 0 };
 }
 
 /* Warband size: you plus TEAM_SIZE − 1 recruits, and enemy champion bands field the same number.
@@ -2082,10 +2160,12 @@ const ELEM_ICON = { lightning: '⚡', fire: '🔥', holy: '✨' };
    ================================================================== */
 const WEATHER = {
   clear: { name: 'Clear Skies',  favors: null,    desc: 'No effects.' },
+  // The herald of every Ash Storm. Its meteors fall once, on the turn it arrives, and never again.
+  brim:  { name: 'Brimstone Fall', favors: null,  desc: 'The sky burns before the ash comes. Meteors fall once as it arrives and everyone on the field — both warbands — takes damage equal to 10% of the HP they have already lost; the unhurt feel nothing, and no one is slain by it. An Ash Storm always follows.' },
   ash:   { name: 'Ash Storm',    favors: 'orc',   desc: 'Bloodtusk Horde deal 20% more damage. Burn deals 50% more to everyone.' },
   storm: { name: 'Thunderstorm', favors: 'mech',  desc: 'Ironclad Union deal 20% more damage. Everyone counts as Soaked, so Ironclad Heat is doused and cannot build. Lightning deals 30% more to everyone, and 30% more again to the Soaked.' },
   rain:  { name: 'Downpour',     favors: 'tide',  desc: 'Tideborn deal 20% more damage and healing. Everyone counts as Soaked. Burn deals 50% less to everyone. Ironclad Heat is washed out and cannot build.' },
-  sun:   { name: 'Golden Dawn',  favors: 'human', desc: 'Kingdom of Aldmere deal 15% more damage and Discipline doubles to +30%. All healing is 20% stronger.' },
+  sun:   { name: 'Golden Dawn',  favors: 'human', desc: 'The light mends every fighter on the field once as it breaks, friend and foe alike, for 10% of their max HP. Kingdom of Aldmere deal 15% more damage and Discipline doubles to +30%. All healing is 20% stronger.' },
   mist:  { name: 'Elder Mist',   favors: 'stone', desc: 'Stoneleaf Accord gain an extra Precision or Fortify stack each turn. Everyone dodges 10% more often.' },
   moon:  { name: 'Blood Moon',   favors: 'crimson', desc: 'The Crimson Court deal 20% more damage. All lifesteal is doubled.' },
   // Emberhollow Cave only: no sky, but the rock moves. Rolled by tickQuake, never by rollWeather.
@@ -2093,13 +2173,21 @@ const WEATHER = {
 };
 const WEATHER_EVERY = 3;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
+// 'brim' is never rolled — it is drawn whenever ash is, and hands the sky to the Ash Storm after it.
 const SEASON_WEATHER = { clear: 1, ash: 2, storm: 1, rain: 1, sun: 1, mist: 1, moon: 1 };
+// Golden Dawn mends this share of max HP as it breaks; Brimstone Fall takes this share of the HP
+// a fighter has already lost. Both land once, on arrival — never again while the weather holds.
+const DAWN_HEAL_PCT = 0.10;
+const BRIMSTONE_PCT = 0.10;
 
+// Draw the next sky. Drawing an Ash Storm gives you its herald instead: Brimstone Fall comes
+// first and newRound hands the sky to the ash after it, so no ash ever arrives unannounced.
 function rollWeather(except) {
   const opts = Object.entries(SEASON_WEATHER).filter(([k]) => k !== except);
+  const herald = (k) => (k === 'ash' ? 'brim' : k);
   let roll = Math.random() * opts.reduce((s, [, w]) => s + w, 0);
-  for (const [k, w] of opts) { roll -= w; if (roll <= 0) return k; }
-  return opts[0][0];
+  for (const [k, w] of opts) { roll -= w; if (roll <= 0) return herald(k); }
+  return herald(opts[0][0]);
 }
 
 /* ==================================================================
@@ -3234,6 +3322,7 @@ let state = {
   // Village: the open building, Elder's Hut tab, tavern rumor, Ironsmith's chosen champion,
   // and runPending = a gauntlet paused between battles while you visit the village.
   place: null, codex: 'factions', tip: 0, forgeHero: null, runPending: false, itemUsed: false,
+  trainNews: '',   // Training Yard: how this morning's drill went
   // Proving Grounds: today's rival warbands, and the challenge being fought right now.
   duels: [], duel: null,
   // NPCs: what the open building's keeper is saying, and which townsfolk are out today.
@@ -3311,6 +3400,47 @@ const passiveById = (c, id) => (id === 'own' ? c.passive : id === 'alt' ? c.pass
 const passivePool = (c) => ['own', ...(c.passiveAlt ? ['alt'] : []), ...GENERIC_KEYS];
 const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4 }[id]];
 
+/* THE TRAINING YARD — a neutral skill or a learned passive is a technique, and a champion has to
+   drill at the yard before they can carry one into battle. Each technique takes a few drills; the
+   gold pays for Serel's time and a morning of bruises. Mastering one both unlocks it and earns a
+   skill point, so the yard feeds the ranks you spend on the Skills screen.
+   A champion's own kit — their five skills and their own passive — never needs drilling: that is
+   what they already are. Recruits and enemies auto-pick and are never gated by your training. */
+const TRAIN_HEAVY = new Set(['soullink', 'scattershot', 'caltrops', 'armorcrack', 'deepwell', 'finisher', 'spikedcloak', 'hallucinate']);
+const trainNeed = (id) => (TRAIN_HEAVY.has(id) ? 4 : 3);    // drills to master
+const trainFee = (id) => (TRAIN_HEAVY.has(id) ? 80 : 50);   // gold per drill
+const TRAINABLE = [...NEUTRAL_KEYS, ...GENERIC_KEYS];
+const isTrainable = (id) => TRAINABLE.includes(id);
+const drillsDone = (cid, id) => profile.training?.[cid]?.[id] || 0;
+// Anything that isn't a technique (own skills, own passive, Attack and Guard) is always ready.
+const isTrained = (cid, id) => !isTrainable(id) || drillsDone(cid, id) >= trainNeed(id);
+const masteredCount = (cid) => TRAINABLE.filter((id) => drillsDone(cid, id) >= trainNeed(id)).length;
+
+// One morning's drill. Returns null if it can't happen, else how the session went.
+function drill(id) {
+  const cid = profile.hero?.id;
+  if (!cid || !isTrainable(id) || isTrained(cid, id) || profile.gold < trainFee(id)) return null;
+  profile.gold -= trainFee(id);
+  if (!profile.training) profile.training = {};
+  const t = (profile.training[cid] = profile.training[cid] || {});
+  t[id] = (t[id] || 0) + 1;
+  saveProfile();
+  return { mastered: isTrained(cid, id), left: trainNeed(id) - t[id] };
+}
+
+/* Saves made before the yard opened keep everything they already carry: every technique in the
+   loadout that champion was using counts as mastered, so nobody loses a skill they fought with. */
+function grandfatherTraining() {
+  const cid = profile.hero?.id, c = cid && charById(cid);
+  if (!c || profile.trainedLegacy) return;
+  const was = profile.loadout || autoLoadout(c, heroLevel());
+  if (!profile.training) profile.training = {};
+  const t = (profile.training[cid] = profile.training[cid] || {});
+  for (const id of [...was.act, ...was.pas]) if (isTrainable(id)) t[id] = Math.max(t[id] || 0, trainNeed(id));
+  profile.trainedLegacy = true;
+  saveProfile();
+}
+
 // Recruits and enemies: skill, ★ signature, then second skill as slots allow; their own passive,
 // plus a role-fitting generic once a second passive slot opens.
 function autoLoadout(c, lv) {
@@ -3319,13 +3449,15 @@ function autoLoadout(c, lv) {
   return { act: ACTIVE_IDS.slice(0, activeSlots(lv)), pas };
 }
 
-// Your champion's saved loadout, trimmed to the slots your level allows. Before you choose, it's the auto pick.
+/* Your champion's saved loadout, trimmed to the slots your level allows and to the techniques they
+   have actually drilled. Before you choose, it's the auto pick. An untrained technique simply drops
+   out, leaving the slot empty until you train it at the yard. */
 function heroLoadout(c, lv) {
-  const saved = profile.loadout;
-  if (!saved) return autoLoadout(c, lv);
+  const base = profile.loadout || autoLoadout(c, lv);
+  const keep = (ids, known) => ids.filter((id) => known(id) && isTrained(c.id, id));
   return {
-    act: saved.act.filter((id) => ACTIVE_IDS.includes(id) || NEUTRAL_SKILLS[id]).slice(0, activeSlots(lv)),
-    pas: saved.pas.filter((id) => passiveById(c, id)).slice(0, passiveSlots(lv)),
+    act: keep(base.act, (id) => ACTIVE_IDS.includes(id) || NEUTRAL_SKILLS[id]).slice(0, activeSlots(lv)),
+    pas: keep(base.pas, (id) => !!passiveById(c, id)).slice(0, passiveSlots(lv)),
   };
 }
 
@@ -3333,13 +3465,15 @@ function heroLoadout(c, lv) {
 function fillNewSlots(lv) {
   if (!profile.hero || !profile.loadout) return;
   const c = charById(profile.hero.id), lo = profile.loadout, auto = autoLoadout(c, lv);
-  for (const id of [...auto.act, ...ACTIVE_IDS, ...NEUTRAL_KEYS]) if (lo.act.length < activeSlots(lv) && !lo.act.includes(id)) lo.act.push(id);
-  for (const id of [...auto.pas, ...GENERIC_KEYS]) if (lo.pas.length < passiveSlots(lv) && !lo.pas.includes(id)) lo.pas.push(id);
+  const ready = (id) => isTrained(c.id, id);   // never fill a slot with a technique they haven't drilled
+  for (const id of [...auto.act, ...ACTIVE_IDS, ...NEUTRAL_KEYS]) if (lo.act.length < activeSlots(lv) && !lo.act.includes(id) && ready(id)) lo.act.push(id);
+  for (const id of [...auto.pas, ...GENERIC_KEYS]) if (lo.pas.length < passiveSlots(lv) && !lo.pas.includes(id) && ready(id)) lo.pas.push(id);
 }
 
 /* SKILL RANKS — every level-up grants a skill point to spend on one of your champion's
-   active skills (their own or a neutral one), on the Skills screen. Points are derived
-   from level so none are ever lost: earned = level − 1, unspent = earned − spent, and
+   active skills (their own or a neutral one), on the Skills screen, and every technique
+   mastered at the Training Yard grants one more. Points are derived from level and
+   mastery so none are ever lost: earned = level − 1 + techniques mastered, and
    each champion you play has their own allocation. A rank makes that skill 8% stronger
    (damage, healing, or summoned-unit stats); pure buff skills instead last 1 extra turn
    per 2 ranks. Capped at RANK_CAP per skill. Enemies never benefit from ranks. */
@@ -3347,7 +3481,7 @@ const RANK_CAP = 10, RANK_POWER = 0.08;
 const ranksOf = (cid) => profile.skillRanks?.[cid] || {};
 const skillRank = (cid, sid) => ranksOf(cid)[sid] || 0;
 const ranksSpent = (cid) => Object.values(ranksOf(cid)).reduce((a, b) => a + b, 0);
-const skillPoints = (cid) => Math.max(0, heroLevel() - 1 - ranksSpent(cid));
+const skillPoints = (cid) => Math.max(0, heroLevel() - 1 + masteredCount(cid) - ranksSpent(cid));
 const rankBonusText = (s, r) => (s.kind === 'buff' && !s.o?.heal
   ? `effects last ${Math.floor(r / 2)} turn${Math.floor(r / 2) === 1 ? '' : 's'} longer`
   : `+${Math.round(RANK_POWER * r * 100)}% power`);
@@ -3484,6 +3618,46 @@ function usable(u, sk) {
 }
 
 /* ==================================================================
+   KILL XP — your champion learns most from the blow that ends a life.
+   Whenever anything falls and yours was the last hand on it, you earn
+   XP on the spot. It is banked in state.killXp and paid out with the
+   battle's own XP on the reward screen (payXp), so a level-up still
+   lands in one place: between fights, never mid-swing.
+   Only your own killing blows count — a recruit's kill teaches the
+   recruit, not you — and a felled summon pays nothing, or a Court
+   Necromancer's endless skeletons would be an XP mine.
+   ================================================================== */
+const KILL_XP_SHARE = 0.25;                      // a monster's worth, as a share of its hunt XP
+const KILL_XP_BASE = 6, KILL_XP_PER_LV = 2;      // a champion's worth: 8 XP at Lv 1, 26 at Lv 10
+
+const killXpOf = (v) => (v.summon ? 0 : Math.max(1, Math.round(v.monster
+  ? MONSTERS[v.id].xp * KILL_XP_SHARE * (1 + 0.1 * (v.level - 1))
+  : KILL_XP_BASE + KILL_XP_PER_LV * v.level)));
+
+// Burn, Poison and Bleed can land the killing blow turns after the hit that lit them, so each
+// remembers whose it was. Anything applied with no striker behind it — a dungeon's Grave Damp,
+// a monster's own aura — simply has no owner, and pays nobody.
+const DOT_IDS = ['burn', 'poison', 'bleed'];
+function ownFx(by, t, id) { const e = DOT_IDS.includes(id) && has(t, id); if (e) e.by = by.uid; }
+
+/* Called the moment a unit's HP reaches 0, from wherever the damage came from: it announces the
+   death and settles the credit. `by` is whoever struck the last blow, or null for a nameless
+   source. A summon's kill belongs to whoever conjured it — it fights as its owner's hand. */
+function fell(v, by) {
+  if (v.felled) return;   // one death, one payout, however many sources pile onto the corpse
+  v.felled = true;
+  log(`${v.name} is down.`, 'sys');
+  const killer = by && by.summon ? unitBy(by.owner) : by;
+  if (!killer || !killer.you || killer.side === v.side) return;
+  const xp = killXpOf(v);
+  if (!xp) return;
+  state.killXp = (state.killXp || 0) + xp;
+  state.kills = (state.kills || 0) + 1;
+  float(killer, `+${xp} XP`, 'xpf');
+  log(`${killer.name} lands the killing blow on ${v.name}: +${xp} XP.`, killer.side);
+}
+
+/* ==================================================================
    COMBAT MATH
    ================================================================== */
 function powerMult(u) {
@@ -3517,7 +3691,7 @@ function searContact(mech, foe) {
   bump(foe, 'hurt');
   float(foe, `${burn}`, 'dot');
   log(`${foe.name} is seared by ${mech.name}'s heat for ${burn}.`, mech.side);
-  if (foe.hp <= 0) log(`${foe.name} is down.`, 'sys');
+  if (foe.hp <= 0) fell(foe, mech);
 }
 
 // One hit: dodge → damage = ATK × mult × (±10%) × 50/(50+DEF) → crit, status and faction modifiers.
@@ -3568,7 +3742,7 @@ function strikeOnce(u, t, mult, label, o) {
       for (const m of mates) {
         m.hp = Math.max(0, m.hp - each);
         float(m, `${each}`, 'dot');
-        if (m.hp <= 0) log(`${m.name} is down.`, 'sys');
+        if (m.hp <= 0) fell(m, u);
       }
       log(`${t.name}'s Soul Link spreads ${each * mates.length} damage across the team.`, t.side);
     }
@@ -3587,7 +3761,7 @@ function strikeOnce(u, t, mult, label, o) {
     for (const f of foesOf(t)) {
       f.hp = Math.max(0, f.hp - back);
       float(f, `${back}`, 'dot');
-      if (f.hp <= 0) log(`${f.name} is down.`, 'sys');
+      if (f.hp <= 0) fell(f, t);
     }
   }
 
@@ -3601,7 +3775,7 @@ function strikeOnce(u, t, mult, label, o) {
   log(`${u.name}'s ${label} hits ${t.name} for ${dmg}${crit ? ' (critical)' : ''}.`, u.side);
 
   if (u.faction === 'tide' && t.hp > 0) addFx(t, 'soaked', 2, 0, true);
-  if (crit && P.critFx && t.hp > 0) for (const [id, turns, val] of P.critFx) addFx(t, id, turns, val ? Math.round(u.atk * val) : 0);
+  if (crit && P.critFx && t.hp > 0) for (const [id, turns, val] of P.critFx) { addFx(t, id, turns, val ? Math.round(u.atk * val) : 0); ownFx(u, t, id); }
   // Hesk: Ancestral Watch wards an ally the first time they drop below the threshold.
   if (t.hp > 0 && !t.watched && !t.summon && t.hp / t.maxHp < 0.3 && allyHas(t, 'guardian')) {
     t.watched = true;
@@ -3631,9 +3805,9 @@ function strikeOnce(u, t, mult, label, o) {
     u.hp = Math.max(0, u.hp - back);
     float(u, `${back}`, 'dot');
     log(`${t.name}'s thorns reflect ${back} damage.`, t.side);
-    if (u.hp <= 0) log(`${u.name} is down.`, 'sys');
+    if (u.hp <= 0) fell(u, t);
   }
-  if (t.hp <= 0) log(`${t.name} is down.`, 'sys');
+  if (t.hp <= 0) fell(t, u);
   // Ironclad heat sears on contact — a living Mech burns whoever it trades blows with.
   if (u.faction === 'mech') searContact(u, t);   // its blow sears the enemy it struck
   if (t.faction === 'mech') searContact(t, u);   // and striking a hot Mech burns the attacker
@@ -3658,17 +3832,18 @@ function applyHitEffects(u, t, o) {
     t.hp = Math.max(0, t.hp - burned);
     float(t, `-${burned} MP`, 'mpf');
     log(`${u.name} burns ${burned} of ${t.name}'s mana, dealing ${burned} extra damage.`, u.side);
-    if (t.hp <= 0) { log(`${t.name} is down.`, 'sys'); return; }
+    if (t.hp <= 0) { fell(t, u); return; }
   }
   // Seraphine: Echo makes her debuffs last longer; Aldous: Kindling makes his Burns hotter.
   const P = pv(u);
   for (const [id, turns, val] of o.fx || []) {
     const boost = P.dotBoost?.[id] || 1;
     addFx(t, id, turns + (P.fxLonger && FX[id].kind === 'bad' ? P.fxLonger : 0), val ? Math.round(u.atk * val * boost) : 0);
+    ownFx(u, t, id);
   }
   // Entangle: mark the Slow it landed as rooted, so thorny roots grow at the target's feet (syncStatusFx).
   if (o.roots && has(t, 'slow')) has(t, 'slow').roots = true;
-  for (const [id, turns, p] of o.chanceFx || []) if (chance(p)) addFx(t, id, turns);
+  for (const [id, turns, p] of o.chanceFx || []) if (chance(p)) { addFx(t, id, turns); ownFx(u, t, id); }
   if (o.knockback && t.hp > 0) {
     t.pos = Math.max(0, (t.pos || 0) - o.knockback);
     float(t, 'Dragged back', 'fx');
@@ -3930,7 +4105,7 @@ function addFx(u, id, turns, value = 0, quiet = false) {
 // (Stun is handled on the speed bar: a stunned unit never reaches the end while frozen.)
 async function beginTurn(u) {
   let ticked = false;
-  for (const id of ['burn', 'poison', 'bleed']) {
+  for (const id of DOT_IDS) {
     const e = has(u, id);
     if (!e) continue;
     // Weather and Burn: Ash Storm fans the flames (+50%), Downpour douses them (−50%).
@@ -3942,7 +4117,7 @@ async function beginTurn(u) {
     float(u, `${dmg}`, 'dot');
     log(`${u.name} takes ${dmg} from ${FX[id].label}.`, 'sys');
     ticked = true;
-    if (u.hp <= 0) { log(`${u.name} is down.`, 'sys'); render(); await wait(450); return 'dead'; }
+    if (u.hp <= 0) { fell(u, unitBy(e.by)); render(); await wait(450); return 'dead'; }
   }
   const rg = has(u, 'regen');
   if (rg && u.hp < u.maxHp) {
@@ -4234,15 +4409,51 @@ function newRound() {
   if (underground()) return tickQuake();
   if ((state.round - 1) % WEATHER_EVERY === 0) {
     state.weather = state.nextWeather;
-    state.nextWeather = rollWeather(state.weather);
+    // Brimstone Fall is only ever the herald: the Ash Storm it announces always follows it.
+    state.nextWeather = state.weather === 'brim' ? 'ash' : rollWeather(state.weather);
     const W = WEATHER[state.weather];
     log(`The weather turns: ${W.name}. ${W.desc}`, 'wx');
     // Downpour or Thunderstorm hits the field: douse every mech's Heat at once. It stays doused until the weather passes.
     if (wetWeather()) douseMechs();
     announceWeather();
+    // The two skies that strike as they arrive, once each and never again while they hold.
+    if (state.weather === 'sun') dawnMend();
+    if (state.weather === 'brim') brimstoneFall();
     return true;
   }
   return false;
+}
+
+/* Golden Dawn breaking: the light mends everyone still standing, both warbands alike, for a
+   share of their max HP. Once, as it arrives — it does not mend again while the dawn holds. */
+function dawnMend() {
+  const healed = [];
+  for (const u of allUnits()) {
+    if (u.hp <= 0 || u.hp >= u.maxHp) continue;
+    burst(u, 'heal');
+    healUnit(u, u, Math.round(u.maxHp * DAWN_HEAL_PCT), 'the Golden Dawn');
+    healed.push(u.name);
+  }
+  log(healed.length ? `The dawn mends the field: ${healed.join(', ')}.` : 'The dawn breaks over a field with no wounds to mend.', 'wx');
+}
+
+/* Brimstone Fall: meteors strike every fighter for a share of the HP they have ALREADY LOST, so
+   the unhurt walk away untouched and the wounded pay for their wounds. It never lands a killing
+   blow — the ash storm it heralds can finish what it starts. */
+function brimstoneFall() {
+  const struck = [];
+  for (const u of allUnits()) {
+    if (u.hp <= 0) continue;
+    const dmg = Math.round((u.maxHp - u.hp) * BRIMSTONE_PCT);
+    if (dmg < 1) continue;
+    u.hp = Math.max(1, u.hp - dmg);   // the sky wounds; it does not slay
+    burst(u, 'fire');
+    bump(u, 'hurt');
+    float(u, `${dmg}`, 'dot');
+    struck.push(`${u.name} ${dmg}`);
+  }
+  log(struck.length ? `Meteors fall across the field: ${struck.join(', ')}.` : 'Meteors fall across a field of unhurt fighters, and nothing burns.', 'wx');
+  render();
 }
 
 // Big centered text over the arena (weather changes, battle start).
@@ -4259,7 +4470,7 @@ function announceWeather() {
 }
 
 // Weather icons for the battle's weather pill.
-const WX_ICON = { clear: '🌤️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕', quake: '🪨' };
+const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕', quake: '🪨' };
 
 function roundsUntilWeather() {
   return WEATHER_EVERY - ((state.round - 1) % WEATHER_EVERY);
@@ -4561,8 +4772,8 @@ async function useItem(u, key, t) {
       knock(f, false);
       float(f, `${dmg}`, 'dmg');
       log(`The Firebomb scorches ${f.name} for ${dmg}.`, u.side);
-      if (f.hp <= 0) log(`${f.name} is down.`, 'sys');
-      else addFx(f, 'burn', 3, Math.round(u.atk * 0.25));
+      if (f.hp <= 0) fell(f, u);
+      else { addFx(f, 'burn', 3, Math.round(u.atk * 0.25)); ownFx(u, f, 'burn'); }
     }
   } else if (key === 'horn') {
     for (const a of alliesOf(u)) if (a !== u) { a.pos = Math.min(TRACK, (a.pos || 0) + 300); burst(a, 'roar'); float(a, 'Surge', 'fx'); }
@@ -4692,6 +4903,7 @@ function startBattle(retry) {
   for (const u of allUnits()) u.pos = 0;
   state.opening = true;
   state.phase = 'busy'; state.pending = null; state.reward = null; state.log = [];
+  state.killXp = 0; state.kills = 0;   // what your champion's killing blows earn here, paid out at the end
   state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0;
   state.screen = 'battle';
   state.token++;
@@ -4734,12 +4946,12 @@ function endHunt(won) {
     profile.gold += state.goldWon;
     profile.stats.earned += state.goldWon; profile.stats.wins++;
     const xp = Math.round(state.teams.e.reduce((s, u) => s + MONSTERS[u.id].xp, 0) * (1 + 0.1 * (lv - 1)));
-    state.reward = { xp, ...gainXp(xp) };
+    state.reward = payXp(xp);
     news.push(...questEvent('win', { vs: null, flawless: state.teams.p.filter((u) => !u.summon).every(alive), rounds: state.round, kills: 0 }),
       ...questEvent('hunt', { cave: 'emberhollow', depth: d.id }), ...guildWin());
   } else {
     state.phase = 'lost';
-    state.reward = { xp: XP_LOSS, ...gainXp(XP_LOSS) };
+    state.reward = payXp(XP_LOSS);
     news.push(...questEvent('loss', { kills: 0 }));
   }
   state.level = heroLevel();
@@ -4792,12 +5004,12 @@ function endDuel(won) {
     profile.stats.earned += state.goldWon; profile.stats.wins++;
     profile.stats.duelWins = (profile.stats.duelWins || 0) + 1;
     const xp = Math.round(d.xp * (1 + 0.08 * (d.lv - 1)));
-    state.reward = { xp, ...gainXp(xp) };
+    state.reward = payXp(xp);
     const flawless = state.teams.p.filter((u) => !u.summon).every(alive);
     news.push(...questEvent('win', { vs: null, flawless, rounds: state.round, kills: enemyKills() }), ...guildWin());
   } else {
     state.phase = 'lost';
-    state.reward = { xp: XP_LOSS, ...gainXp(XP_LOSS) };
+    state.reward = payXp(XP_LOSS);
     news.push(...questEvent('loss', { kills: enemyKills() }));
   }
   state.level = heroLevel();
@@ -4877,7 +5089,7 @@ function endDungeonRoom(won) {
     state.phase = 'won';
     state.goldWon = guildGold(HUNT_GOLD_BASE + HUNT_GOLD_PER * state.teams.e.filter((u) => u.monster).length);
     const xp = Math.round(state.teams.e.filter((u) => u.monster).reduce((s, u) => s + MONSTERS[u.id].xp, 0) * (1 + 0.1 * (lv - 1)) * DG_XP_MULT);
-    state.reward = { xp, ...gainXp(xp) };
+    state.reward = payXp(xp);
     const flawless = state.teams.p.filter((u) => !u.summon).every(alive);
     news.push(...questEvent('win', { vs: null, flawless, rounds: state.round, kills: 0 }), ...guildWin(boss));
     // Carry HP and MP to the next room: the fallen get up at 20%, then everyone rests a little.
@@ -4904,7 +5116,7 @@ function endDungeonRoom(won) {
   } else {
     state.phase = 'lost';
     state.goldWon = 0;
-    state.reward = { xp: XP_LOSS, ...gainXp(XP_LOSS) };
+    state.reward = payXp(XP_LOSS);
     news.push(...questEvent('loss', { kills: 0 }), ...questEvent('dungeon', { id: d.id, cleared: false, rooms: state.dg.room }));
   }
   state.dg.gold += state.goldWon;
@@ -4939,7 +5151,7 @@ async function endBattle(won) {
     if (cleared) s.clears++;
     // XP: more for every battle deeper into the run, plus a bonus for clearing it. Levels stick.
     const xp = battleXp(state.battle) + (cleared ? XP_CLEAR_BONUS : 0);
-    state.reward = { xp, ...gainXp(xp) };
+    state.reward = payXp(xp);
     const gnews = guildWin(cleared);
     state.level = heroLevel();
     fillNewSlots(state.level);
@@ -4949,7 +5161,7 @@ async function endBattle(won) {
   } else {
     state.phase = 'lost';
     state.questNews = questEvent('loss', { kills: enemyKills() });   // bounties still count the enemies you felled
-    state.reward = { xp: XP_LOSS, ...gainXp(XP_LOSS) };   // even a loss teaches something
+    state.reward = payXp(XP_LOSS);   // even a loss teaches something
     state.level = heroLevel();
     fillNewSlots(state.level);
     saveProfile();
@@ -5418,7 +5630,9 @@ const currentLoadout = () => { const c = charById(profile.hero.id); return heroL
 function loadoutCardHTML(c, kind, id, on) {
   const s = kind === 'act' ? activeById(c, id) : passiveById(c, id);
   const r = kind === 'act' ? skillRank(c.id, id) : 0;
-  const canUp = kind === 'act' && skillPoints(c.id) > 0 && r < RANK_CAP;
+  // A technique nobody has drilled yet can't be equipped or ranked — the Training Yard comes first.
+  const locked = !isTrained(c.id, id), drills = drillsDone(c.id, id);
+  const canUp = kind === 'act' && !locked && skillPoints(c.id) > 0 && r < RANK_CAP;
   const tag = kind === 'act'
     ? (NEUTRAL_SKILLS[id] ? 'Neutral' : id === 'b' ? `★ Signature · from turn ${ULT_FIRST_TURN}` : 'Active')
       // Same tiers skillsOf charges: a is the cheap opener, b the signature, c/d/e the rest.
@@ -5430,10 +5644,10 @@ function loadoutCardHTML(c, kind, id, on) {
       ${r ? `<span class="rkd">Rank ${r}: ${rankBonusText(s, r)}</span>` : ''}
       ${canUp ? `<span class="rkup" role="button" tabindex="0" data-rank="${id}" aria-label="Spend a skill point: raise ${s.name} to rank ${r + 1}">+1 Rank</span>` : ''}
     </span>` : '';
-  return `<button class="lcard${on ? ' on' : ''}" type="button" data-sk="${kind}:${id}" aria-pressed="${on}">
+  return `<button class="lcard${on ? ' on' : ''}${locked ? ' locked' : ''}" type="button" data-sk="${kind}:${id}" aria-pressed="${on}">
     <span class="lic">${skillIcon(s)}</span>
-    <span class="lt"><b>${s.name}</b><small>${tag}</small><span class="ld">${s.desc}</span>${rkrow}</span>
-    <span class="lstate">${on ? 'Equipped' : 'Equip'}</span>
+    <span class="lt"><b>${s.name}</b><small>${locked ? `${tag} · untrained` : tag}</small><span class="ld">${s.desc}</span>${rkrow}</span>
+    <span class="lstate">${locked ? `Train ${drills}/${trainNeed(id)}` : on ? 'Equipped' : 'Equip'}</span>
   </button>`;
 }
 
@@ -5465,11 +5679,11 @@ function renderSkills() {
       <div class="lpool">${ACTIVE_IDS.map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
     </section>
     <section class="lsec">
-      <header><h2>Neutral skills</h2><p class="rule">Tricks any champion can learn, whatever their class. They share your active slots.</p></header>
+      <header><h2>Neutral skills</h2><p class="rule">Tricks any champion can learn, whatever their class. They share your active slots. Drill them at the Training Yard before you can carry them.</p></header>
       <div class="lpool">${NEUTRAL_KEYS.map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
     </section>
     <section class="lsec">
-      <header><h2>Passives</h2><p class="rule">Your champion's own passive, or a learned one. A second passive slot opens at level ${SLOT_UNLOCKS.find((s) => s.kind === 'pas').lv}.</p></header>
+      <header><h2>Passives</h2><p class="rule">Your champion's own passive, or a learned one from the Training Yard. A second passive slot opens at level ${SLOT_UNLOCKS.find((s) => s.kind === 'pas').lv}.</p></header>
       ${slotRowHTML(c, 'pas', lo.pas)}
       <div class="lpool">${passivePool(c).map((id) => loadoutCardHTML(c, 'pas', id, lo.pas.includes(id))).join('')}</div>
     </section>`;
@@ -5479,6 +5693,11 @@ function toggleLoadout(kind, id) {
   const lv = heroLevel(), lo = currentLoadout(), list = lo[kind];
   const max = kind === 'act' ? activeSlots(lv) : passiveSlots(lv);
   $('#skillsNote').textContent = '';
+  if (!isTrained(profile.hero.id, id)) {
+    const left = trainNeed(id) - drillsDone(profile.hero.id, id);
+    $('#skillsNote').textContent = `${heroName()} has not learned that yet — ${left} more drill${left === 1 ? '' : 's'} at the Training Yard.`;
+    return;
+  }
   const i = list.indexOf(id);
   if (i >= 0) list.splice(i, 1);
   else if (list.length < max) list.push(id);
@@ -5609,6 +5828,7 @@ function buildSelect() {
       profile.xp = 0;
     }
     profile.recruits = t.slice(1);
+    grandfatherTraining();
     saveProfile();
     toVillage();
     openPlace('arena');
@@ -5715,6 +5935,8 @@ const PLACES = {
             flavor: 'Sergeant Holt pins up fresh jobs every morning by the east road. The ink is barely dry, but the pay is real.' },
   gate:   { name: 'Expedition Gate', kick: 'Explore', blurb: 'Dungeons along Ashfall Road: rooms, bosses and loot chests.',
             flavor: 'The east gate, where Ashfall Road leaves Cinderhold. Past it lie the crypt and the mine, a haunted manor, a frost-locked castle, a witches\' hollow, and the Spire at the very end.' },
+  train:  { name: 'Training Yard', kick: 'Train', blurb: 'Drill new techniques and earn skill points.',
+            flavor: 'A fenced stretch of packed dirt outside the west wall, full of straw dummies and old scars. Serel Vance drills anyone who pays and most who do not.' },
   cave:   { name: 'Emberhollow Cave', kick: 'Hunt', blurb: 'Hunt monster packs for XP and gold.',
             flavor: 'The old ash-iron mine west of the village. The miners left years ago. Something else moved in.' },
   carnival: { name: 'Carnival', kick: 'Play', blurb: 'Games of luck and skill that pay out gold.',
@@ -5728,7 +5950,7 @@ const PLACES = {
   tavern: { name: 'The Smoldering Mug', kick: 'Rest', blurb: 'Rumors, tips and the tales told of you.',
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'cave', 'gate', 'bounty', 'forge', 'jeweler', 'market', 'carnival', 'elder', 'tavern'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'cave', 'gate', 'bounty', 'forge', 'jeweler', 'market', 'carnival', 'elder', 'tavern'];
 const TOWNIE_SPOTS = [[50, 80.5], [46, 78.5], [54, 78.5], [42, 80]];   // [x%, feet y%] around the bonfire (map x 600, 528, 672, 504)
 
 /* ------------------------------------------------------------------
@@ -5742,6 +5964,16 @@ const nextFoe = () => (state.runPending ? FACTIONS[state.order[state.battle + 1]
 
 // Keepers stand by their building. Clicking one opens it, and inside they greet you and react to purchases.
 const KEEPERS = {
+  train: { id: 'serel', name: 'Serel Vance', title: 'Drillmaster', at: [-300, 556],
+    greet: [
+      'You can swing. Anyone can swing. I teach you what to do when swinging is not working.',
+      'Three mornings on a technique. Four if it is worth having. No, you cannot skip to the end.',
+      'Everything on this field hits back eventually. Better it is a straw dummy the first time.',
+      'Your own tricks you were born with. Everything else, you earn out here in the dirt.',
+      () => (ctxGold() < 50 ? 'Come back with coin. The dummies do not restuff themselves.' : null),
+    ],
+    react: ['Again. Slower. Good — that one was almost right.', 'Feel that? Remember it. That is the whole lesson.',
+      'Sloppy, but it landed. We will take it.', 'Better. Now do it when somebody is shooting at you.'] },
   forge: { id: 'brann', name: 'Brann Ashhand', title: 'Ironsmith', at: [392, 540], flip: true,
     greet: [
       'Ash-iron, quenched in snowmelt off the mountain. Nothing on the road holds an edge like it.',
@@ -6309,6 +6541,7 @@ const TIPS = [
   'Hexed champions heal for half, lifesteal included. Bad news for the Crimson Court.',
   'Melee on melee is risky: the defender has a 10% chance to counterattack. Stay nimble — you can still dodge it.',
   'Every level grants a skill point. Spend them at the Arena under Choose skills: each rank adds 8% to one skill, up to rank 10.',
+  'Land the killing blow yourself and you pocket extra XP for it. Let a recruit finish a wounded enemy and the lesson is theirs, not yours.',
   'Guard restores mana. A champion out of MP should brace and breathe.',
   'Neutral skills fit any champion. Soul Link spreads a bruiser\'s pain; Smoke Bomb keeps a glass cannon alive.',
   'The Proving Grounds pay better the bigger your stake. Lose, and the purse drinks without you.',
@@ -6386,6 +6619,43 @@ const PLACE_BODY = {
       ${full ? `<div class="teamRow">${teamMinis()}</div>` : ''}
       <div class="depths">${cards}</div>
       ${full ? '' : `<div class="btns"><button class="btn primary" type="button" data-k="team">Choose your recruits</button></div>`}`;
+  },
+
+  /* Training Yard: drill techniques into your champion. Each one mastered unlocks it for the Skills
+     screen and pays a skill point, so a morning in the dirt is worth a rank somewhere else. */
+  train() {
+    if (!profile.hero) {
+      return `<p class="note">Serel drills champions, not onlookers. Create your champion first.</p>
+        <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
+    }
+    const c = charById(profile.hero.id), pts = skillPoints(c.id);
+    // Whatever is still to learn comes first; mastered techniques settle to the bottom of each list.
+    const order = (ids) => [...ids].sort((a, b) => (isTrained(c.id, a) ? 1 : 0) - (isTrained(c.id, b) ? 1 : 0));
+    const card = (id) => {
+      const s = NEUTRAL_SKILLS[id] || GENERIC_PASSIVES[id];
+      const done = drillsDone(c.id, id), need = trainNeed(id), fee = trainFee(id);
+      const mastered = done >= need, afford = profile.gold >= fee;
+      const pips = Array.from({ length: need }, (_, i) => `<span class="pip${i < done ? ' on' : ''}"></span>`).join('');
+      return `<div class="depth${mastered ? ' learned' : ''}">
+        <div class="trow"><span class="tic">${skillIcon(s)}</span><h3>${s.name}</h3></div>
+        <p>${s.desc}</p>
+        <div class="pips" role="img" aria-label="${done} of ${need} drills done">${pips}</div>
+        ${mastered ? '<small class="learnt">Mastered — equip it under Choose skills.</small>'
+          : `<small>Drill ${done + 1} of ${need} · <b>${fee} gold</b></small>
+        <button class="btn${afford ? ' primary' : ''}" type="button" data-k="drill:${id}"${afford ? '' : ' disabled'}>
+          ${afford ? `Train for ${fee} gold` : `Needs ${fee} gold`}</button>`}
+      </div>`;
+    };
+    const left = TRAINABLE.filter((id) => !isTrained(c.id, id)).length;
+    return `${state.trainNews ? `<p class="loot">${state.trainNews}</p>` : ''}
+      <p class="note">Techniques take a few mornings of drill apiece. Master one and ${heroName()} can carry it into battle —
+        and earns a <b>skill point</b> for the bruises. ${left ? `<b>${left}</b> still to learn.` : 'Nothing left to learn here.'}
+        Unspent skill points: <b>${pts}</b>.</p>
+      <h3 class="bhead">Techniques <small class="bsub">neutral skills · share your active slots</small></h3>
+      <div class="depths">${order(NEUTRAL_KEYS).map(card).join('')}</div>
+      <h3 class="bhead">Disciplines <small class="bsub">learned passives</small></h3>
+      <div class="depths">${order(GENERIC_KEYS).map(card).join('')}</div>
+      <div class="btns"><button class="btn" type="button" data-k="skills">Choose skills</button></div>`;
   },
 
   // Guild House: one membership at a time. Favor is kept per guild, so switching back costs only the fee.
@@ -6957,6 +7227,7 @@ function buildStage() {
 function openPlace(k) {
   state.place = k;
   state.booth = null; state.boothNews = '';   // walking away from the carnival abandons any game in progress
+  state.trainNews = '';                       // and the yard forgets this morning's drill
   hideSay();
   state.keeperLoot = '';
   keeperGreet(k);
@@ -6987,6 +7258,16 @@ function villageAction(k) {
   else if (verb === 'leave') { state.booth = null; state.boothNews = 'You walked away. The entry fee stays with Zazzo.'; }
   else if (verb === 'abandon') { state.runPending = false; state.phase = 'idle'; }
   else if (verb === 'hero') state.forgeHero = arg;
+  else if (verb === 'drill') {
+    const r = drill(arg);
+    if (r) {
+      keeperReact('train');
+      const s = NEUTRAL_SKILLS[arg] || GENERIC_PASSIVES[arg];
+      state.trainNews = r.mastered
+        ? `${heroName()} has mastered ${s.name}. Equip it under Choose skills — and that is a skill point earned.`
+        : `${heroName()} drills ${s.name}. ${r.left} more morning${r.left === 1 ? '' : 's'} of it.`;
+    }
+  }
   else if (verb === 'up') { if (forgeUp(arg)) { keeperReact('forge'); questEvent('forge'); } }
   else if (verb === 'buy') { if (buyItem(arg)) { keeperReact('market'); questEvent('buy'); } }
   else if (verb === 'trinket') { if (buyTrinket(arg)) { keeperReact('jeweler'); questEvent('trinket'); } }
@@ -7897,6 +8178,7 @@ function rewardHTML() {
   const r = state.reward;
   if (!r) return '';
   let html = `<div class="xpline"><b class="xpgain">+${r.xp} XP</b>${xpBarHTML()}</div>`;
+  if (r.kill) html += `<p class="xpkill">${r.kill} XP of that for the ${r.kills === 1 ? 'killing blow' : `${numWord(r.kills)} killing blows`} ${heroName()} landed.</p>`;
   if (r.to > r.from) {
     const rows = state.team.map((id, i) => {
       const c = charById(id), a = makeUnit(c, r.from, 'p', 0), b = makeUnit(c, r.to, 'p', 0);
@@ -8114,6 +8396,7 @@ function start(data) {
   }
   // Your warband comes from your saved champion and recruits. A new player starts by creating a champion.
   syncTeam();
+  grandfatherTraining();   // saves from before the yard opened keep the techniques they already carry
   if (!profile.hero) { state.team = []; state.screen = 'select'; }
   render();
 }
