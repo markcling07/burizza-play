@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aldmere Animations</title>
+<style>
+/* Kingdom of Aldmere: rigged idle + attack per hero, one row each. */
+:root { --bg: #1e2232; --line: #2c3146; color-scheme: dark; }
+html, body { margin: 0; background: var(--bg); }
+.list { display: grid; gap: 8px; padding: 16px; justify-content: center; }
+.row { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+img { display: block; height: 220px; width: auto; max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="list" id="list"></div>
+<script>
+const HEROES = ['wren', 'garrick', 'mara', 'aldous', 'liesl'];
+document.getElementById('list').innerHTML = HEROES.map((id) => `
+  <div class="row">
+    <img src="${id}-idle.gif" alt="${id} idle">
+    <img src="${id}-attack.gif" alt="${id} attack">
+  </div>`).join('');
+</script>
+</body>
+</html>

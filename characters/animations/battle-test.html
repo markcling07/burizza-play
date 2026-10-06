@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Battle Test</title>
+<style>
+/* Plays manifest.json animations the way the game will: feet pinned to a ground line on a scenic
+   background, idle -> attack -> idle, with a flash at hitMs. Checks transparency + alignment. */
+:root { --sky1: #2a2943; --sky2: #4a3a52; --ground: #2f2a2c; --line: #5a4a48; --text: #cfc8b8; color-scheme: dark; }
+html, body { margin: 0; background: #161925; color: var(--text); font: 600 12px/1.4 "Segoe UI", system-ui, sans-serif; }
+.wrap { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px; }
+.stage { position: relative; width: 240px; height: 200px; overflow: hidden; border-radius: 10px;
+  background: linear-gradient(180deg, var(--sky1), var(--sky2) 70%, var(--ground) 70%); }
+.stage::after { content: ""; position: absolute; left: 0; right: 0; top: 140px; border-top: 2px solid var(--line); }
+.stage img { position: absolute; image-rendering: auto; }
+.stage .name { position: absolute; left: 8px; top: 6px; z-index: 2; }
+.stage .hit { position: absolute; right: 8px; top: 6px; z-index: 2; color: #ff8a6b; opacity: 0; transition: opacity .3s; }
+.stage .hit.on { opacity: 1; transition: none; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap"></div>
+<script>
+const SCALE = 0.55, FOOT_X = 90, GROUND_Y = 140;  // display scale, where the feet go in each stage
+fetch('manifest.json?v=' + Date.now()).then((r) => r.json()).then((m) => {
+  const wrap = document.getElementById('wrap');
+  Object.entries(m).forEach(([id, a], k) => {
+    const st = document.createElement('div');
+    st.className = 'stage';
+    st.innerHTML = `<span class="name">${id}</span><span class="hit">HIT</span><img alt="">`;
+    wrap.appendChild(st);
+    const img = st.querySelector('img'), hit = st.querySelector('.hit');
+    const show = (anim) => {
+      const e = a[anim];
+      img.src = `${e.src}?v=${Date.now()}`;  // restart the animation from frame 0
+      Object.assign(img.style, { width: e.w * SCALE + 'px', height: e.h * SCALE + 'px',
+        left: FOOT_X - e.footX * SCALE + 'px', top: GROUND_Y - e.footY * SCALE + 'px' });
+    };
+    const cycle = () => {
+      show('idle');
+      setTimeout(() => {
+        show('attack');
+        (a.attack.hitsMs || [a.attack.hitMs]).filter((t) => t != null).forEach((t) =>
+          setTimeout(() => { hit.classList.add('on'); setTimeout(() => hit.classList.remove('on'), 120); }, t));
+        setTimeout(cycle, a.attack.ms);
+      }, a.idle.ms * 2);
+    };
+    setTimeout(cycle, k * 150);
+  });
+});
+</script>
+</body>
+</html>

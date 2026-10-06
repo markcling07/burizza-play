@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burizza Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Grenze+Gotisch:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Character gallery for the art in this folder. Open via a local server or straight from disk.
+   Same dusk palette as the game (index.html). */
+:root {
+  --bg: #161925; --bg-2: #262036; --panel: #1e2232; --panel-2: #282d43; --line: #3a4058;
+  --fg: #ece6d8; --muted: #a29fb2; --accent: #e8a548;
+  --melee: #f08a5d; --ranged: #6fb5e6; --support: #6cc28a;
+  --font-display: "Grenze Gotisch", "Palatino Linotype", Georgia, serif;
+  --font-body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg); font: 16px/1.45 var(--font-body);
+  background: radial-gradient(120% 70% at 50% 0%, var(--bg-2), var(--bg) 65%) fixed, var(--bg);
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 28px; }
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+h1 { margin: 0; font-family: var(--font-display); font-size: clamp(2.1rem, 5vw, 2.9rem); line-height: 1; color: var(--accent); }
+.tag { margin: 6px 0 0; color: var(--muted); }
+.toggle {
+  font: inherit; font-weight: 800; cursor: pointer; padding: 9px 16px; border-radius: 9px;
+  background: var(--panel-2); color: var(--fg); border: 1px solid var(--line);
+}
+.toggle:hover { border-color: var(--accent); }
+.toggle[aria-pressed="true"] { background: var(--accent); color: #2a1a05; border-color: var(--accent); }
+.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+section { display: grid; gap: 12px; }
+h2 { margin: 0; font-family: var(--font-display); font-size: 1.8rem; line-height: 1.1; }
+h2 small { font-family: var(--font-body); font-size: .8rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-left: 10px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+
+.card {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  display: grid; grid-template-rows: auto 1fr;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.stage {
+  position: relative; aspect-ratio: 1; display: grid; place-items: center;
+  background: radial-gradient(70% 60% at 50% 45%, var(--glow, #3a4058) 0%, transparent 70%), #1a1d2b;
+  border-bottom: 1px solid var(--line);
+}
+.stage img { width: 86%; height: 86%; object-fit: contain; }
+.mini { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 4px; align-items: end; }
+.mini img { width: 34px; height: 34px; background: rgba(0,0,0,.25); border-radius: 6px; }
+.mini img.e { transform: scaleX(-1); }
+.info { padding: 10px 12px 12px; display: grid; gap: 4px; align-content: start; }
+.name { margin: 0; font-weight: 800; font-size: 1.05rem; line-height: 1.2; }
+.role {
+  justify-self: start; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  padding: 1px 8px; border-radius: 99px; border: 1.5px solid currentColor;
+}
+.role.melee { color: var(--melee); } .role.ranged { color: var(--ranged); } .role.support { color: var(--support); }
+.bio { margin: 0; color: var(--muted); font-size: .9rem; }
+.badge {
+  position: absolute; left: 8px; top: 8px; font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(0,0,0,.45); color: var(--muted); padding: 2px 7px; border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Burizza Roster</h1>
+      <p class="tag">Season 1: Ashfall Road. 30 heroes across six factions.</p>
+    </div>
+    <button class="toggle" id="toggle" aria-pressed="false">Show originals</button>
+  </header>
+  <div id="list"></div>
+</div>
+<script>
+const FACTIONS = [
+  { dir: 'human', name: 'Kingdom of Aldmere', mech: 'Discipline', glow: '#4a4a6a', heroes: [
+    ['wren', 'Wren', 'melee', 'Spellblade of the Aldmere guard.'],
+    ['garrick', 'Sir Garrick Vane', 'melee', 'Heavily armored paladin.'],
+    ['mara', 'Mara Holt', 'ranged', 'Musketeer with a steady hand.'],
+    ['aldous', 'Aldous Emberfall', 'ranged', 'Pyromancer of the royal college.'],
+    ['liesl', 'Sister Liesl', 'support', 'Cleric of the dawn chapel.'] ] },
+  { dir: 'mech', name: 'Ironclad Union', mech: 'Heat', glow: '#4a3a32', heroes: [
+    ['bulwark', 'Bulwark-7', 'melee', 'Hulking frontline war machine.'],
+    ['sawtooth', 'Sawtooth', 'melee', 'Scrapper with buzzsaw arms.'],
+    ['arclight', 'Arclight', 'ranged', 'Tesla-coil sniper unit.'],
+    ['howitzer', 'Howitzer', 'ranged', 'Walking artillery platform.'],
+    ['patchwork', 'Patchwork', 'support', 'Repair drone with welding arms.'] ] },
+  { dir: 'orc', name: 'Bloodtusk Horde', mech: 'Rage', glow: '#4a2e2e', heroes: [
+    ['krug', 'Krug Skullsplitter', 'melee', 'Two-axe berserker.'],
+    ['mogra', 'Mogra Ironhide', 'melee', 'Shield-and-mace bruiser.'],
+    ['vashka', 'Vashka Spearthrower', 'ranged', 'Javelin hunter of the steppe.'],
+    ['drekka', 'Drekka Firegut', 'ranged', 'Bomb and firepot thrower.'],
+    ['hesk', 'Old Mother Hesk', 'support', 'Shaman who keeps the war drums.'] ] },
+  { dir: 'stoneleaf', name: 'Stoneleaf Accord', mech: 'Precision & Fortify', glow: '#2e4a36', heroes: [
+    ['durgan', 'Durgan Anvilbeard', 'melee', 'Dwarf hammer warrior.'],
+    ['hilda', 'Hilda Stonewall', 'melee', 'Dwarf shieldmaiden.'],
+    ['aelira', 'Aelira Swiftwind', 'ranged', 'Elf longbow archer.'],
+    ['faelan', 'Faelan Thornshot', 'ranged', 'Elf who tips his crossbow bolts with venom.'],
+    ['elowen', 'Elowen Greenmantle', 'support', 'Elf druid of the deep wood.'] ] },
+  { dir: 'tideborn', name: 'The Tideborn', mech: 'Tide', glow: '#24425a', heroes: [
+    ['tharos', 'Tharos Razorfin', 'melee', 'Shark-folk trident warrior.'],
+    ['grubble', 'Grubblefin', 'melee', 'Small, frenzied Gurgling brawler.'],
+    ['seraphine', 'Seraphine Wavecaller', 'ranged', 'Siren whose song drowns sailors.'],
+    ['octavia', 'Octavia Inkveil', 'ranged', 'Octopus-folk ink caster.'],
+    ['maren', 'Maren Pearlheart', 'support', 'Pearl priestess of the reef.'] ] },
+  { dir: 'crimson', name: 'The Crimson Court', mech: 'Bloodthirst', glow: '#4a2030', heroes: [
+    ['vesper', 'Vesper Nightshade', 'melee', 'Vampire lord and duelist.'],
+    ['malgrath', 'Malgrath the Unbound', 'melee', 'Demon brute freed from the pit.'],
+    ['seraxa', 'Seraxa Thornwing', 'melee', 'Winged demon blade dancer — her feet never touch the ash.'],
+    ['gorehound', 'Gorehound', 'melee', "Hellhound of the Court's kennels."],
+    ['morwenna', 'Morwenna Bloodweaver', 'support', 'Blood witch of the Court.'] ] },
+];
+
+let originals = false;
+const bust = Date.now();
+function src(dir, id) { return (originals ? `../characters-original/${dir}/` : `${dir}/`) + `${id}.svg?v=${bust}`; }
+
+function render() {
+  document.getElementById('list').innerHTML = FACTIONS.map((f) => `
+    <section>
+      <h2>${f.name}<small>${f.mech}</small></h2>
+      <div class="grid">${f.heroes.map(([id, name, role, bio]) => `
+        <article class="card">
+          <div class="stage" style="--glow:${f.glow}">
+            ${originals ? '<span class="badge">Original</span>' : ''}
+            <img src="${src(f.dir, id)}" alt="${name}">
+            <div class="mini" aria-hidden="true">
+              <img src="${src(f.dir, id)}" alt="" title="In-game size">
+              <img class="e" src="${src(f.dir, id)}" alt="" title="As an enemy">
+            </div>
+          </div>
+          <div class="info">
+            <p class="name">${name}</p>
+            <span class="role ${role}">${role}</span>
+            <p class="bio">${bio}</p>
+          </div>
+        </article>`).join('')}
+      </div>
+    </section>`).join('');
+}
+
+document.getElementById('toggle').addEventListener('click', (ev) => {
+  originals = !originals;
+  ev.currentTarget.setAttribute('aria-pressed', originals);
+  ev.currentTarget.textContent = originals ? 'Show new art' : 'Show originals';
+  render();
+});
+render();
+</script>
+</body>
+</html>

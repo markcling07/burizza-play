@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burizza Sheet</title>
+<style>
+/* Text-free character sheet for screenshots: one row per faction, 5 heroes each. */
+:root { --bg: #1b1e2b; --tile: #242838; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); }
+.sheet {
+  display: grid; grid-template-columns: repeat(5, 120px); gap: 10px;
+  justify-content: center; padding: 20px 16px;
+}
+.sheet img { width: 120px; height: 120px; display: block; background: var(--tile); border-radius: 10px; padding: 6px; }
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet"></div>
+<script>
+const ROWS = [
+  ['human', ['wren', 'garrick', 'mara', 'aldous', 'liesl']],
+  ['mech', ['bulwark', 'sawtooth', 'arclight', 'howitzer', 'patchwork']],
+  ['orc', ['krug', 'mogra', 'vashka', 'drekka', 'hesk']],
+  ['stoneleaf', ['durgan', 'hilda', 'aelira', 'faelan', 'elowen']],
+  ['tideborn', ['tharos', 'grubble', 'seraphine', 'octavia', 'maren']],
+  ['crimson', ['vesper', 'malgrath', 'seraxa', 'gorehound', 'morwenna']],
+];
+document.getElementById('sheet').innerHTML = ROWS
+  .flatMap(([dir, ids]) => ids.map((id) => `<img src="${dir}/${id}.svg" alt="">`)).join('');
+</script>
+</body>
+</html>

@@ -107,7 +107,7 @@ h1 {
 .trayRow { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
 .trayRow p { margin: 0; color: var(--muted); font-size: .88rem; }
 .trayBtns { display: flex; flex-wrap: wrap; gap: 8px; }
-.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
 .slot {
   font: inherit; color: inherit; text-align: left; cursor: pointer;
   display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 58px;
@@ -639,6 +639,11 @@ h1 {
 .bolt.backwash.hellfire .bw-body { stroke: #ff9a3d; }
 .bolt.backwash.hellfire .bw-core { stroke: #fff3b0; }
 .bolt.backwash.hellfire circle { fill: #ffc24d; stroke: #8a1f10; }
+/* Morwenna's Crimson Mend: a vein of blood run from her to each ally, shedding drops as it goes. */
+.bolt.backwash.bloodlink .bw-glow { stroke: #7a0f22; opacity: .5; }
+.bolt.backwash.bloodlink .bw-body { stroke: #c0303f; }
+.bolt.backwash.bloodlink .bw-core { stroke: #ff9aa8; }
+.bolt.backwash.bloodlink circle { fill: #c0303f; stroke: #4a0a14; }
 .burst-splash { width: 115%; background: radial-gradient(circle at 35% 35%, #fff 0 4%, transparent 5%), radial-gradient(circle at 66% 42%, #dff7ff 0 3%, transparent 4%), radial-gradient(circle, rgba(170, 235, 250, .85) 0 22%, rgba(63, 182, 216, .55) 44%, transparent 66%); animation-duration: .6s; }
 .burst {
   position: absolute; left: 50%; top: 50%; width: 110%; aspect-ratio: 1; border-radius: 50%;
@@ -677,6 +682,17 @@ h1 {
 .chip.good { color: var(--good); }
 .chip.bad { color: var(--bad); }
 .chip.pass { color: var(--accent); }
+
+/* Floating champions (ROSTER `floats: true`, e.g. Seraxa): wings hold them a hand above the
+   ground. The lift is a plain translate, so it holds even while lunge/hurt/cast play; those
+   animate `transform`, and the :where() keeps this rule from outranking them, so they interrupt
+   only the bob — which then rests at the lift until they finish. A soft shadow sits where the
+   feet would land; the acting/targetable rings replace it when they show. The fallen float no
+   more: .unit.down stops .upic animations (see above) and resets the lift so they lie flat. */
+.unit.floats :where(.upic) { translate: 0 -7%; animation: hoverBob 3s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.unit.down .upic { translate: none; }
+.unit.floats:not(.acting):not(.targetable):not(.down) .body::before { background: radial-gradient(closest-side, rgba(10, 8, 14, .4), transparent 72%); }
+@keyframes hoverBob { 50% { translate: 0 -13%; } }
 
 /* Hit / attack animation */
 .unit.p .upic.lunge { animation: lungeR .3s ease; }
@@ -1160,6 +1176,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .upic.lunge, .upic.hurt, .upic.cast, .wxPill.changed, .unit .body, .unit .body::before, .unit .body::after, .burst { animation: none !important; }
+  .unit.floats :where(.upic) { animation: none !important; }   /* the lift stays, the bob stops */
   .burst { display: none; }
   .unit { transition: none; }
   .arena::before, .arena.quake { animation: none !important; }
@@ -1905,6 +1922,9 @@ const MANA = {
 };
 // HP regen: every champion recovers this share of max HP at the start of each of their turns.
 const HP_REGEN_PCT = 0.03;
+// Morwenna's Crimson Mend channel: the share of max HP each ally is mended for every tick, and the
+// share of her own max HP it costs her to do it. Both ends use the same number (see beginTurn).
+const CRIMSON_MEND_PCT = 0.07;
 
 const poolLabel = (f) => ({ 1.5: 'Huge', 1: 'Normal', 0.7: 'Small', 0: 'None, runs on Heat' })[MANA.pool[f]];
 
@@ -1915,7 +1935,7 @@ const poolLabel = (f) => ({ 1.5: 'Huge', 1: 'Normal', 0.7: 'Small', 0: 'None, ru
 const SAVE_KEY = 'burizza.profile.v1';
 // stash = what's kept at Your House ({ items: {key: n}, trinkets: {key: n} }); home = furniture keys you own (see DECOR).
 // hero = your one champion { id, name } (null until you create one); level/xp = your champion's progression;
-// recruits = the 2 champion ids the AI plays beside you.
+// recruits = the TEAM_SIZE − 1 champion ids the AI plays beside you.
 const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {} }, home: [],
   hero: null, level: 1, xp: 0, recruits: [],
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
@@ -1964,9 +1984,14 @@ function gainXp(n) {
   return { xp: n, from, to: profile.level };
 }
 
-// Your warband is always [your champion, recruit, recruit] once you have a champion.
+/* Warband size: you plus TEAM_SIZE − 1 recruits, and enemy champion bands field the same number.
+   Monster packs and boss rooms keep their own sizes — the road was never a fair place. */
+const TEAM_SIZE = 4;
+const numWord = (n) => ['no', 'one', 'two', 'three', 'four', 'five'][n] || String(n);
+
+// Your warband is always [your champion, then your recruits] once you have a champion.
 function syncTeam() {
-  if (profile.hero) state.team = [profile.hero.id, ...(profile.recruits || [])].slice(0, 3);
+  if (profile.hero) state.team = [profile.hero.id, ...(profile.recruits || [])].slice(0, TEAM_SIZE);
 }
 
 // gearRaw = what's saved ({ w, a, t }). gearOf adds up the worn trinket's bonus (TRINKETS) and
@@ -2001,6 +2026,7 @@ const FX = {
   stagger:  { icon: '🥴', label: 'Staggered', kind: 'bad',  verb: 'is staggered and stumbles along the speed bar' },
   hex:      { icon: '🧿', label: 'Hexed',     kind: 'bad',  verb: 'is hexed: all healing received is halved' },
   link:     { icon: '🔗', label: 'Linked',    kind: 'good', verb: 'is linked: a third of any hit they take is divided among their teammates' },
+  bloodchannel: { icon: '🫀', label: 'Crimson Mend', kind: 'good', verb: 'opens a blood channel: her veins mend the warband at the start of each of her turns' },
   leak:     { icon: '🪫', label: 'Mana Leak', kind: 'bad',  verb: 'is leaking mana: every action burns 12 MP' },
   toll:     { icon: '😈', label: 'Infernal Toll', kind: 'bad', verb: 'is marked by Infernal Toll: its next skill also costs 5% of its HP' },
   exposed:  { icon: '🎯', label: 'Exposed',   kind: 'bad',  verb: 'is exposed: takes 25% more damage' },
@@ -2075,6 +2101,8 @@ const P = (name, desc, o = {}) => ({ name, desc, ...o });
    skills = [skill, ★ signature, then three more]; passive = always-on trait (P), the default;
    passiveAlt = an optional second own passive the player can equip instead (loadout id 'alt')
    look = placeholder sprite recipe (see SPRITES below)
+   floats = hovers above the battlefield: melee runs become flights (dashTo) and Stagger,
+   a footing effect, can never take hold (addFx) — innate, so no loadout swaps it away
    ================================================================== */
 const ROSTER = [
   // ---- Ironclad Union (Mech) ----
@@ -2334,8 +2362,8 @@ const ROSTER = [
              D('Pit Chains', '130% hit. Drags the target back along the speed bar and Exposes it.', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
              D('Sulphur Breath', '55% fire to all enemies. Never misses. Burns and Blinds them all.', 4, 0.55, { aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] })],
     passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }) },
-  { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer.',
-    mods: { hp: 0.9, agi: 1.3 },
+  { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer — her feet never touch the ash.',
+    mods: { hp: 0.9, agi: 1.3 }, floats: true,
     look: { body: 'demon', wings: '#3d1f4a', main: '#1f1626', trim: '#e05a9a', skin: '#7a3d8f', horn: '#2a1830', eye: '#ff6bb5', weapon: 'dagger' },
     skills: [D('Kiss of Ruin', '110% hit. Weakens the target.', 2, 1.1, { fx: [['weaken', 2]] }),
              D('Dance of Knives', 'Five cuts of 40%.', 4, 0.4, { hits: 5 }),
@@ -2358,7 +2386,7 @@ const ROSTER = [
     skills: [D('Blight Hex', '60% hit that never misses. Burns 20 of the target\'s mana as extra damage, then Hexes them for 3 turns: healing received is halved.', 2, 0.6, { noDodge: true, manaBurn: 20, fx: [['hex', 4]] }),
              H('Blood Communion', 'Heal all allies and Hex all enemies for 2 turns.', 5, 1.8, { all: true, enemyFx: [['hex', 3]] }),
              D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { noDodge: true, allySteal: 1 }),
-             H('Crimson Mend', 'Heal an ally; they regenerate for 3 turns.', 3, 2.4, { fx: [['regen', 3, 0.6]] }),
+             B('Crimson Mend', `Open a blood channel for 3 turns. At the start of each of her turns it mends every ally — summoned units included — for ${Math.round(CRIMSON_MEND_PCT * 100)}% of their max HP, and costs Morwenna ${Math.round(CRIMSON_MEND_PCT * 100)}% of hers.`, 4, 'self', [['bloodchannel', 3]], { channel: true }),
              D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { noDodge: true, fx: [['weaken', 3], ['sunder', 3]] })],
     passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }) },
 ];
@@ -2422,7 +2450,7 @@ const SUMMONS = {
   },
   // Pulled up by Lady Mournhollow.
   shade: {
-    name: 'Grasping Shade', role: 'melee', life: 300,
+    name: 'Grasping Shade', role: 'melee', life: 300, floats: true,
     desc: 'A sliver of the manor\'s grief, given just enough shape to claw. It melts away after 3 rounds.',
     look: { body: 'wraith', main: '#5a4a6a', trim: '#c8b8e0', eye: '#d9a8ff', orb: '#d9a8ff' },
     leave: (u) => `${u.name} melts back into shadow.`,
@@ -2756,6 +2784,8 @@ const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf
    skill list (like summons). Stats: the role's base × mods, scaling
    with level like champions. xp = reward per monster at level 1.
    look = placeholder art recipe (BODIES); art file characters/monsters/<id>.svg.
+   floats works here and on summons just like on champions (see ROSTER):
+   the ghosts drift above the floor and no Stagger — not even a cave quake — lands.
    ================================================================== */
 const MONSTERS = {
   cinderbat: {
@@ -2825,7 +2855,7 @@ const MONSTERS = {
   wraith: {
     name: 'Wailing Wraith', plural: 'Wailing Wraiths', role: 'ranged', xp: 24,
     lore: 'A drowned monk that still sings the evening prayer. Hearing it steals your voice.',
-    mods: { hp: 0.7, atk: 1.0, def: 0.7, agi: 1.15 },
+    mods: { hp: 0.7, atk: 1.0, def: 0.7, agi: 1.15 }, floats: true,
     passive: P('Incorporeal', 'Dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#9fb4c4', trim: '#dfe9f2', eye: '#7fe3ff', orb: '#7fe3ff' },
     skills: [{ ...ATTACK, name: 'Chill Touch', desc: '100% hit.' },
@@ -2910,7 +2940,7 @@ const MONSTERS = {
   phantom: {
     name: 'Pale Phantom', plural: 'Pale Phantoms', role: 'ranged', xp: 28,
     lore: 'A house servant who never left their post. It still drifts the halls, dusting the dead.',
-    mods: { hp: 0.72, atk: 1.05, def: 0.7, agi: 1.25 },
+    mods: { hp: 0.72, atk: 1.05, def: 0.7, agi: 1.25 }, floats: true,
     passive: P('Fading', 'Half-there and hard to pin down: dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#b8a6c8', trim: '#e6dcf2', eye: '#d9a8ff', orb: '#d9a8ff' },
     skills: [{ ...ATTACK, name: 'Cold Grasp', desc: '100% hit.' },
@@ -2970,7 +3000,7 @@ const MONSTERS = {
   banshee: {
     name: 'Banshee', plural: 'Banshees', role: 'ranged', xp: 42,
     lore: 'Her scream was the last thing the village ever heard. It is the first thing you will hear here.',
-    mods: { hp: 0.78, atk: 1.1, def: 0.7, agi: 1.2 },
+    mods: { hp: 0.78, atk: 1.1, def: 0.7, agi: 1.2 }, floats: true,
     passive: P('Incorporeal', 'Dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#4a6a6a', trim: '#bfe8e2', eye: '#9ffff0', orb: '#9ffff0' },
     skills: [{ ...ATTACK, name: 'Wailing Touch', desc: '100% hit.' },
@@ -3314,7 +3344,7 @@ function makeUnit(c, lv, side, slot, scale = 1) {
   const maxMp = pool ? Math.round(r.mp * pool * (1 + 0.08 * (lv - 1))) + (gear.mp || 0) + (st.mp || 0) : 0;
   return {
     uid: `${side}${slot}`, id: c.id, side, name: shortName(c), level: lv,
-    faction: c.faction, race: c.race || null, role: c.role,
+    faction: c.faction, race: c.race || null, role: c.role, floats: !!c.floats,
     maxHp, hp: maxHp,
     maxMp, mp: maxMp, mpRegen: (gear.mpRegen || 0) + (pool ? st.mpRegen || 0 : 0), manaSteal: gear.manaSteal || 0,
     hpRegen: (gear.hpRegen || 0) + Math.round(maxHp * (st.hpRegenPct || 0)),
@@ -3335,7 +3365,7 @@ function makeMonster(id, lv, slot, scale = 1) {
   const maxHp = Math.round(r.hp * (m.mods.hp || 1) * g * scale);
   return {
     uid: `e${slot}`, id, art: id, side: 'e', monster: true, elite: !!m.elite, boss: !!m.boss, name: m.name, level: lv,
-    faction: 'wild', race: null, role: m.role,
+    faction: 'wild', race: null, role: m.role, floats: !!m.floats,
     maxHp, hp: maxHp, maxMp: 0, mp: 0, mpRegen: 0, manaSteal: 0, hpRegen: Math.round(maxHp * (st.hpRegenPct || 0)),
     atk: Math.round(r.atk * (m.mods.atk || 1) * g * scale), def: Math.round(r.def * (m.mods.def || 1) * g),
     agi: Math.round(r.agi * (m.mods.agi || 1)) + (lv - 1), crit: 0.05, dodge: r.dodge,
@@ -3615,6 +3645,13 @@ async function resolveCounters() {
   }
 }
 
+/* DOUBLE ATTACK — a melee fighter's basic swing sometimes isn't the end of it: they turn on their
+   heel, run back in and strike the same enemy a second time at full force. Only the free Attack
+   rolls for it, never a skill, so it never doubles a 200% Blood Frenzy or an area Cleave. It is a
+   property of fighting in reach, so melee summons and monsters get it too. */
+const DOUBLE_ATTACK_CHANCE = 0.15;
+const rollsDouble = (u, sk) => u.role === 'melee' && sk.id === 'attack' && chance(DOUBLE_ATTACK_CHANCE);
+
 async function damageSkill(u, t, sk) {
   const o = sk.o || {};
   state.counters = [];
@@ -3680,14 +3717,34 @@ async function damageSkill(u, t, sk) {
     if (a) { burst(a, 'heal'); healUnit(u, a, Math.round(total * o.allySteal), sk.name); }
   }
   // Lifesteal: skill bonus + Crimson Court's Bloodthirst (20%), doubled under a Blood Moon.
-  let steal = (o.lifesteal || 0) + (u.faction === 'crimson' ? 0.2 : 0);
-  if (wx() === 'moon') steal *= 2;
-  if (steal && total && u.hp > 0) healUnit(u, u, Math.round(total * steal), u.faction === 'crimson' && !o.lifesteal ? 'Bloodthirst' : sk.name);
-  if (u.manaSteal && total) gainMp(u, Math.round(total * u.manaSteal));   // mana lifesteal (from items)
+  // Kept as a helper because a Double Attack's second swing has to drain exactly the same way.
+  const drain = (dealt) => {
+    if (!dealt || u.hp <= 0) return;
+    let steal = (o.lifesteal || 0) + (u.faction === 'crimson' ? 0.2 : 0);
+    if (wx() === 'moon') steal *= 2;
+    if (steal) healUnit(u, u, Math.round(dealt * steal), u.faction === 'crimson' && !o.lifesteal ? 'Bloodthirst' : sk.name);
+    if (u.manaSteal) gainMp(u, Math.round(dealt * u.manaSteal));   // mana lifesteal (from items)
+  };
+  drain(total);
   render();
   await wait(160);
   await resolveCounters();   // defenders strike back before the attacker runs home
   if (trip) await dashBack(u, trip);
+  // Double Attack: having run home, the fighter turns round, charges the same enemy again and
+  // lands a second full-strength swing. Rolled last so a swing that killed its target, or that
+  // cost the attacker their life on the way out (thorns, Retribution, a counter), never comes back.
+  if (rollsDouble(u, sk) && u.hp > 0 && t && t.hp > 0) {
+    float(u, 'Double Attack!', 'fx');
+    log(`${u.name} wheels around and comes back for a second swing!`, u.side);
+    const again = await dashTo(u, [t]);
+    const before = total;
+    await strikePose(u);
+    await hitOnce(t, sk.mult);
+    drain(total - before);
+    render();
+    await resolveCounters();
+    if (again) await dashBack(u, again);
+  }
   await wait(120);
 }
 
@@ -3776,6 +3833,13 @@ function addFx(u, id, turns, value = 0, quiet = false) {
     if (!quiet) { float(u, 'Resisted', 'fx'); log(`${u.name} resists ${FX[id].label}.`, u.side); }
     return;
   }
+  // Stagger needs footing to take hold, and floating units — champion, monster or summon —
+  // have none. Innate — unlike a passive immunity, no loadout swap turns it off — and it
+  // shrugs off earthquakes too (staggerAll).
+  if (id === 'stagger' && u.floats) {
+    if (!quiet) { float(u, 'Airborne', 'fx'); log(`${u.name} floats — the Stagger finds no footing.`, u.side); }
+    return;
+  }
   const ex = has(u, id);
   const until = TIMED_FX[id] ? state.time + TIMED_FX[id] : null;
   if (ex) {
@@ -3829,6 +3893,24 @@ async function beginTurn(u) {
     const a = [...alliesOf(u)].filter((x) => x.hp < x.maxHp).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
     if (a) { healUnit(u, a, Math.round(a.maxHp * pv(u).mendPct), 'Maintenance Drone'); ticked = true; }
   }
+  // Morwenna: Crimson Mend is a channel, so it works from here rather than from the cast. Each of her
+  // turns it opens her veins — she pays a share of her own max HP and every living ally is mended by
+  // the same share of theirs, with a blood link fired from her to each. alliesOf is already the whole
+  // living side, so summoned units are fed by it too. She is not on the receiving end: healing her
+  // for the same share she just paid would cancel the cost and leave the channel free.
+  if (has(u, 'bloodchannel') && u.hp > 0) {
+    const cost = Math.max(1, Math.round(u.maxHp * CRIMSON_MEND_PCT));
+    u.hp = Math.max(1, u.hp - cost);   // the channel bleeds her, but it will never be what kills her
+    bump(u, 'hurt');
+    float(u, `${cost}`, 'dot');
+    log(`${u.name} opens her veins for Crimson Mend, paying ${cost} HP.`, u.side);
+    for (const a of alliesOf(u)) {
+      if (a.uid === u.uid) continue;
+      bloodLink(u, a);
+      healUnit(u, a, Math.round(a.maxHp * CRIMSON_MEND_PCT), 'Crimson Mend');
+    }
+    ticked = true;
+  }
   u.plated = false;   // Bulwark: Reactive Plating is ready again
   if (ticked) { render(); await wait(450); }
 
@@ -3867,7 +3949,7 @@ function infernalToll(u) {
   }
   const src = foesOf(u).find((f) => f.id === 'malgrath');
   log(`Infernal Toll costs ${u.name} ${loss} HP.`, u.side === 'p' ? 'e' : 'p');
-  if (src) backwash(src, u, true);
+  if (src) backwash(src, u, 'fire');
   else burst(u, 'fire');
 }
 
@@ -3960,6 +4042,9 @@ function aiChoose(u) {
     if (s.kind === 'heal') w = hurt.length ? 6 : 0;
     if (s.kind === 'buff') w = s.target === 'self' ? (u.hp / u.maxHp < 0.7 ? 3 : 0.5) : 2;
     if (s.kind === 'buff' && s.o?.cleanse) w = allies.some(debuffs) ? 4 : 0.3;
+    // A channel pays out of the caster's own HP, so the self-buff rule above has it backwards:
+    // open it when the warband is hurt and she can afford the bleed, not when she is the hurt one.
+    if (s.o?.channel) w = hurt.length && u.hp / u.maxHp > 0.5 ? 5 : 0.2;
     if (s.id !== 'guard' && s.o?.heat < 0) w = u.heat >= 40 ? 3 : 1;   // venting skills: better when hot
     if (s.kind === 'summon') w = summonOf(u) ? 0 : 4;
     return { s, w };
@@ -3970,7 +4055,12 @@ function aiChoose(u) {
 
   let t = u;
   if (sk.target === 'enemy') {
-    const opts = validTargets(u, sk);
+    let opts = validTargets(u, sk);
+    // The opening exchange goes to the front line: through round 1 everyone swings at the melee
+    // fighters, and only from round 2 does the AI start picking off whoever is weakest. Taunt still
+    // wins outright — validTargets has already narrowed to the taunters if there are any.
+    const front = state.round === 1 ? opts.filter((f) => f.role === 'melee') : [];
+    if (front.length) opts = front;
     t = chance(0.6) ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0] : pick(opts);
   } else if (sk.target === 'ally') {
     const opts = validTargets(u, sk);
@@ -4119,9 +4209,20 @@ function checkEnd() {
 /* ---------- Summons ---------- */
 const summonOf = (owner) => state.teams[owner.side].find((x) => x.summon && x.owner === owner.uid && alive(x));
 
+/* A fallen summon is not swept up at once: the body lies where it dropped for three rounds of bar
+   time before it is cleared away. It takes no part in the fight while it lies there — a dead unit
+   never moves on the speed bar and its token is hidden (.tok.down), and it can't be targeted or
+   healed, because alliesOf / foesOf only ever return the living. It is scenery.
+   An Ink Double is the exception: an illusion has no body to leave, so it vanishes the moment it
+   drops. Every summon that is a real thing (copy is unset) leaves a corpse. */
+const CORPSE_TIME = 3 * ROUND_TIME;
+const leavesCorpse = (u) => !SUMMONS[u.id].copy;
+
 function summonUnit(owner, kind) {
   const def = SUMMONS[kind];
-  const old = state.teams[owner.side].find((x) => x.summon && x.owner === owner.uid);
+  // Recasting replaces the servant you still have standing. A corpse from an earlier one is left
+  // alone to finish lying there — the new summon simply takes the next spot beside the caster.
+  const old = summonOf(owner);
   if (old) removeUnit(old);
   const st = def.stats(owner);
   state.summonSeq = (state.summonSeq || 0) + 1;
@@ -4129,7 +4230,7 @@ function summonUnit(owner, kind) {
     uid: `${owner.uid}s${state.summonSeq}`, id: kind, art: def.copy ? owner.id : kind,
     side: owner.side, summon: true, owner: owner.uid,
     name: def.copy ? `Ink ${owner.name}` : def.name,
-    level: owner.level, faction: owner.faction, race: null, role: def.role,
+    level: owner.level, faction: owner.faction, race: null, role: def.role, floats: !!def.floats,
     ...st, hp: st.maxHp, effects: [], cooldowns: {}, heat: 0, stacks: 0, hitSince: false, lastAction: null, combo: false,
     pos: 300 + Math.random() * 200, expires: def.life ? state.time + def.life : null,
   };
@@ -4157,7 +4258,7 @@ function spawnDeathBot(mech) {
   const u = {
     uid: `${mech.uid}d${state.summonSeq}`, id: 'deathbot', art: 'scrapbot',
     side: mech.side, summon: true, independent: true, owner: mech.uid,
-    name: def.name, level: mech.level, faction: 'mech', race: null, role: def.role,
+    name: def.name, level: mech.level, faction: 'mech', race: null, role: def.role, floats: !!def.floats,
     ...st, hp: st.maxHp, effects: [], cooldowns: {}, heat: 0, stacks: 0,
     hitSince: false, lastAction: null, combo: false,
     pos: 300 + Math.random() * 200, expires: null,
@@ -4180,12 +4281,20 @@ function sweepDeathBots() {
   }
 }
 
-// Summons leave when their time runs out or their summoner falls; dead summons are cleared away.
+// Summons leave when their time runs out or their summoner falls; the fallen lie there a while first.
 function cleanupSummons() {
   sweepDeathBots();
   for (const u of allUnits().filter((x) => x.summon)) {
     const owner = unitBy(u.owner);
-    if (u.hp <= 0) removeUnit(u);
+    if (u.hp <= 0) {
+      // Illusions pop; everything else drops a body. The first pass past a fresh corpse starts its
+      // clock (overwriting whatever was left of its life timer), later passes clear it away.
+      if (!leavesCorpse(u)) removeUnit(u);
+      else if (u.downAt == null) { u.downAt = state.time; u.expires = state.time + CORPSE_TIME; }   // == null: it can drop at time 0
+      else if (u.expires <= state.time + EPS) removeUnit(u);
+      // A corpse stays put even if its summoner falls too: it is already dead, so nothing more can
+      // happen to it. Taking the hp <= 0 branch first is what keeps the two rules below off it.
+    }
     else if (!u.independent && (!owner || owner.hp <= 0)) { log(`${u.name} vanishes with its summoner.`, 'sys'); removeUnit(u); }
     else if (u.expires != null && u.expires <= state.time + EPS) {
       log(SUMMONS[u.id].leave(u), 'sys');
@@ -4447,12 +4556,14 @@ function pickEnemyTeam(fac) {
   // Factions without ranged fighters (Crimson Court) field a second melee instead.
   const rangedPool = pool.filter((c) => c.role === 'ranged');
   const ranged = pick(rangedPool.length ? rangedPool : pool.filter((c) => c.role === 'melee' && c !== melee));
-  const third = pick(pool.filter((c) => c !== melee && c !== ranged));
-  return [melee.id, third.id, ranged.id].sort((a, b) => ['melee', 'support', 'ranged'].indexOf(charById(a).role) - ['melee', 'support', 'ranged'].indexOf(charById(b).role));
+  // Then more of the faction until the band matches your warband's size.
+  const band = [melee, ranged];
+  while (band.length < TEAM_SIZE) band.push(pick(pool.filter((c) => !band.includes(c))));
+  return band.map((c) => c.id).sort((a, b) => ['melee', 'support', 'ranged'].indexOf(charById(a).role) - ['melee', 'support', 'ranged'].indexOf(charById(b).role));
 }
 
 function startGauntlet() {
-  if (!profile.hero || state.team.length !== 3) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
+  if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   state.mode = 'gauntlet';
   state.level = heroLevel();
   state.battle = 0;
@@ -4466,7 +4577,7 @@ function startGauntlet() {
 // A cave hunt: one battle against a monster pack from the chosen depth. Retry keeps the same pack.
 function startHunt(depthId) {
   const d = depthById(depthId);
-  if (!profile.hero || state.team.length !== 3) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
+  if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (!d || heroLevel() < d.minLv || state.runPending) return;
   state.mode = 'hunt';
   state.hunt = { depth: d.id };
@@ -4581,7 +4692,7 @@ const BAND_NAMES = ['Raiders', 'Blades', 'Vanguard', 'Wolves', 'Free Company', '
 // A fresh set of challengers: one band per tier, any mix of factions.
 function rollDuels() {
   state.duels = DUEL_TIERS.map((t, i) => {
-    const ids = shuffle(ROSTER.map((c) => c.id)).slice(0, 3)
+    const ids = shuffle(ROSTER.map((c) => c.id)).slice(0, TEAM_SIZE)
       .sort((a, b) => ['melee', 'support', 'ranged'].indexOf(charById(a).role) - ['melee', 'support', 'ranged'].indexOf(charById(b).role));
     return { ...t, tier: i, ids, band: `${shortName(charById(ids[0]))}'s ${pick(BAND_NAMES)}` };
   });
@@ -4589,7 +4700,7 @@ function rollDuels() {
 
 function startDuel(i) {
   const d = state.duels[i];
-  if (!profile.hero || state.team.length !== 3) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
+  if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (!d || state.runPending || profile.gold < d.stake) return;
   profile.gold -= d.stake;
   saveProfile();
@@ -4635,7 +4746,7 @@ const dgIsBossRoom = () => { const d = dungeonRun(); return !!d && state.dg.room
 
 function startDungeon(id) {
   const d = dungeonById(id);
-  if (!profile.hero || state.team.length !== 3) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
+  if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (!d || heroLevel() < d.minLv || state.runPending) return;
   state.mode = 'dungeon';
   state.dg = { id, room: 0, gold: 0, xp: 0, carry: {}, done: false };
@@ -5406,19 +5517,21 @@ function buildSelect() {
     const b = ev.target.closest('.slot.filled');
     if (b) togglePick(b.dataset.id);
   });
-  // Random recruits: two allies whose roles complement your champion.
+  // Random recruits: allies covering the roles your champion lacks, then whoever else wants the work.
   $('#randomBtn').addEventListener('click', () => {
     const me = state.team[0];
     if (!me) { $('#trayNote').textContent = 'Pick your own champion first.'; return; }
     const roles = ['melee', 'ranged', 'support'].filter((r) => r !== charById(me).role);
-    state.team = [me, ...roles.map((r) => pick(ROSTER.filter((c) => c.role === r && c.id !== me)).id)];
+    const team = [me, ...roles.map((r) => pick(ROSTER.filter((c) => c.role === r && c.id !== me)).id)];
+    while (team.length < TEAM_SIZE) team.push(pick(ROSTER.filter((c) => !team.includes(c.id))).id);
+    state.team = team;
     $('#trayNote').textContent = '';
     renderSelect();
   });
   // Create your champion (first time) or save new recruits, then head to the Arena.
   $('#beginBtn').addEventListener('click', () => {
     const t = state.team;
-    if (t.length !== 3) return;
+    if (t.length !== TEAM_SIZE) return;
     if (!profile.hero) {
       const name = cleanName($('#heroName').value) || shortName(charById(t[0]));
       profile.hero = { id: t[0], name };
@@ -5445,7 +5558,7 @@ function buildSelect() {
   });
 }
 
-// Slot 0 is your champion; slots 1–2 are recruits. Your champion can only be swapped while creating.
+// Slot 0 is your champion; the rest are recruits. Your champion can only be swapped while creating.
 function togglePick(id) {
   const creating = !profile.hero, t = state.team;
   $('#trayNote').textContent = '';
@@ -5456,8 +5569,8 @@ function togglePick(id) {
   } else {
     const rec = t.slice(1), i = rec.indexOf(id);
     if (i >= 0) rec.splice(i, 1);
-    else if (rec.length < 2) rec.push(id);
-    else { $('#trayNote').textContent = 'You already have two recruits. Click one in the tray to send them home first.'; return; }
+    else if (rec.length < TEAM_SIZE - 1) rec.push(id);
+    else { $('#trayNote').textContent = `You already have ${numWord(TEAM_SIZE - 1)} recruits. Click one in the tray to send them home first.`; return; }
     state.team = [t[0], ...rec];
   }
   renderSelect();
@@ -5466,8 +5579,8 @@ function togglePick(id) {
 function renderSelect() {
   const creating = !profile.hero, t = state.team;
   $('#tagline').textContent = creating
-    ? 'Season 1: Ashfall Road. Choose the champion you will be, give them a name, then recruit two allies to fight beside you.'
-    : `Season 1: Ashfall Road. You play ${heroName()}. Pick two recruits; the AI fights for them.`;
+    ? `Season 1: Ashfall Road. Choose the champion you will be, give them a name, then recruit ${numWord(TEAM_SIZE - 1)} allies to fight beside you.`
+    : `Season 1: Ashfall Road. You play ${heroName()}. Pick ${numWord(TEAM_SIZE - 1)} recruits; the AI fights for them.`;
   document.querySelectorAll('.fbtn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === state.filter)));
   document.querySelectorAll('.faction').forEach((s) => { s.hidden = state.filter !== 'all' && s.dataset.faction !== state.filter; });
   document.querySelectorAll('.pick').forEach((b) => {
@@ -5481,7 +5594,7 @@ function renderSelect() {
     badge.title = i === 0 ? 'You' : `Recruit ${i}`;
   });
 
-  $('#slots').innerHTML = [0, 1, 2].map((i) => {
+  $('#slots').innerHTML = Array.from({ length: TEAM_SIZE }, (_, i) => {
     const id = t[i];
     if (!id) return `<div class="slot empty${i === 0 ? ' you' : ''}"><small>${i === 0 ? 'You: pick your champion below' : `Recruit ${i}: pick below`}</small></div>`;
     const c = charById(id);
@@ -5500,9 +5613,9 @@ function renderSelect() {
   $('#retireBtn').textContent = state.retireArmed ? `Click again to retire ${heroName()}` : 'New champion';
   $('#randomBtn').disabled = !t[0];
   $('#beginBtn').textContent = creating ? 'Create champion' : 'Save warband';
-  $('#beginBtn').disabled = t.length !== 3;
+  $('#beginBtn').disabled = t.length !== TEAM_SIZE;
 
-  const need = 3 - t.length;
+  const need = TEAM_SIZE - t.length;
   $('#trayInfo').textContent =
     creating && !t[0] ? 'Step 1: click the champion you want to be. This is who you play and level up.'
     : need > 0 ? `${creating ? 'Step 2: r' : 'R'}ecruit ${need} more all${need === 1 ? 'y' : 'ies'}. The AI plays your recruits in battle, at your level.`
@@ -5546,7 +5659,7 @@ const PLACES = {
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
 };
 const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'cave', 'gate', 'bounty', 'forge', 'jeweler', 'market', 'carnival', 'elder', 'tavern'];
-const TOWNIE_SPOTS = [[50, 80.5], [46, 78.5], [54, 78.5]];   // [x%, feet y%] around the bonfire (map x 600, 528, 672)
+const TOWNIE_SPOTS = [[50, 80.5], [46, 78.5], [54, 78.5], [42, 80]];   // [x%, feet y%] around the bonfire (map x 600, 528, 672, 504)
 
 /* ------------------------------------------------------------------
    NPCs. Art is characters/npcs/<id>.svg. Positions are in map units
@@ -6169,7 +6282,7 @@ const PLACE_BODY = {
           and recruit two allies to fight beside you.</p>
         <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
     }
-    const full = state.team.length === 3;
+    const full = state.team.length === TEAM_SIZE;
     return `<p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
         <b>${battleXp(0)} XP</b>, more for every battle deeper, and clearing all six adds <b>${CLEAR_BONUS} gold</b> and <b>${XP_CLEAR_BONUS} XP</b>.
         Levels stick: ${heroName()} keeps every level they earn, and your recruits fight at your level.</p>
@@ -6186,7 +6299,7 @@ const PLACE_BODY = {
         <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
     }
     if (state.runPending) return '<p class="note">Your Arena run is paused. Finish or abandon it at the Arena before taking side bets.</p>';
-    const full = state.team.length === 3, lv = heroLevel();
+    const full = state.team.length === TEAM_SIZE, lv = heroLevel();
     const cards = state.duels.map((d) => {
       const rivalLv = Math.max(1, lv + d.lvOff), ok = full && profile.gold >= d.stake;
       return `<div class="depth">
@@ -6863,7 +6976,7 @@ function buildVillage() {
    RENDERING — battle
    ================================================================== */
 const artOf = (u) => u.art || u.id;
-const unitClasses = (u) => `${u.side}${u.summon ? ' summon' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}`;
+const unitClasses = (u) => `${u.side}${u.summon ? ' summon' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
 
 // A champion standing on the battlefield (--d staggers the idle breathing so nobody bobs in sync).
 function unitCardHTML(u) {
@@ -6942,33 +7055,60 @@ function addUnitDom(u) {
 
 function unitLevelText(u) {
   if (!u.summon) return `Lv ${u.level}`;
+  if (u.hp <= 0) return 'Fallen';   // a corpse's `expires` is its clear-away clock, not time left to fight
   if (u.expires == null) return 'Summon';
   const left = Math.max(1, Math.ceil((u.expires - state.time) / ROUND_TIME));
   return `${left} round${left === 1 ? '' : 's'}`;
 }
 
 /* Field formation: [x%, feet y%] for your warband; enemies mirror x.
-   Melee champions take the front spot, then ranged, then support. Summons stand closer to the middle. */
+   Two battle lines, melee in front every time: the melee line stands nearest the enemy (a boss
+   leads it whatever its role), and the ranged and support fight from the line behind it.
+   The first slot of each line is the classic 3-band spot, so small warbands look as they always did.
+   Summons stand beside whoever called them, so you can always see whose they are. */
 const SLOTS = {
-  hero:   [[28, 74], [15, 56], [17, 96], [39, 88], [38, 54]],   // 4th and 5th spots are for monster packs
-  summon: [[40, 63], [41, 89], [37, 46]],
+  front:  [[28, 74], [39, 88], [38, 54], [33, 96]],   // the melee line, nearest the enemy
+  back:   [[15, 56], [17, 96], [13, 76], [19, 38]],   // the ranged and support line behind it
+  summon: [[40, 63], [41, 89], [37, 46]],   // only for a summon whose caster has left the field
 };
+// Where a summon stands relative to its caster: a step toward the middle and a little nearer the
+// front, so it never hides them. A second or third from the same caster fans out instead of stacking
+// (a corpse still lying there and a freshly cast one, say).
+const SUMMON_OFFSET = [[9, 7], [6, -9], [13, 16]];
 const ROLE_ORDER = { melee: 0, ranged: 1, support: 2 };
 
 function layoutSides() {
   for (const side of ['p', 'e']) {
+    const at = {};   // uid → [x, y] of everyone placed so far, so summons can find their caster
     const place = (u, [x, y]) => {
+      at[u.uid] = [x, y];
       const el = actorEl(u);
       if (!el) return;
       el.style.setProperty('--x', side === 'p' ? x : 100 - x);
       el.style.setProperty('--y', y);
       el.style.zIndex = y;   // lower on the field = closer to you = drawn in front
     };
-    state.teams[side].filter((u) => !u.summon)
-      .sort((a, b) => (b.boss ? 1 : 0) - (a.boss ? 1 : 0) || ROLE_ORDER[a.role] - ROLE_ORDER[b.role])   // a boss takes the front spot
-      .forEach((u, i) => place(u, SLOTS.hero[i % SLOTS.hero.length]));
-    state.teams[side].filter((u) => u.summon)
-      .forEach((u, i) => place(u, SLOTS.summon[i % SLOTS.summon.length]));
+    // The melee line holds the front every battle; a boss strides out to lead it whatever its role.
+    // Everyone else forms the back line, ranged ahead of support. Team order breaks ties, so your
+    // own champion stands at the head of their line.
+    const fighters = state.teams[side].filter((u) => !u.summon);
+    const front = fighters.filter((u) => u.boss || u.role === 'melee')
+      .sort((a, b) => (b.boss ? 1 : 0) - (a.boss ? 1 : 0));
+    const back = fighters.filter((u) => !front.includes(u))
+      .sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role]);
+    front.forEach((u, i) => place(u, SLOTS.front[i % SLOTS.front.length]));
+    back.forEach((u, i) => place(u, SLOTS.back[i % SLOTS.back.length]));
+    // Casters are already placed above (the fallen keep their spot), so every summon has a home to
+    // stand next to — including a Salvage Bot, which crawls out beside its own wreck.
+    const nth = {};
+    let orphan = 0;
+    for (const u of state.teams[side].filter((x) => x.summon)) {
+      const home = at[u.owner];
+      if (!home) { place(u, SLOTS.summon[orphan++ % SLOTS.summon.length]); continue; }
+      const i = nth[u.owner] = (nth[u.owner] ?? -1) + 1;
+      const [dx, dy] = SUMMON_OFFSET[i % SUMMON_OFFSET.length];
+      place(u, [clamp(home[0] + dx, 8, 46), clamp(home[1] + dy, 40, 98)]);
+    }
   }
 }
 
@@ -7073,6 +7213,8 @@ function stageBox(u) {
 }
 
 // Melee: run up to the target (or the front of a group) and stop just in front of it.
+// Floating champions don't run: they take wing, climb high and dive onto the target,
+// leaning into the dive, then glide home along the same arc (dashBack reads it from trip).
 async function dashTo(u, targets) {
   const el = actorEl(u), me = stageBox(u);
   const boxes = targets.map(stageBox).filter(Boolean);
@@ -7084,21 +7226,30 @@ async function dashTo(u, targets) {
   const dx = tx - dir * (boxes[0].w * 0.45 + me.w * 0.3) - me.x;
   const dy = ty + 2 - me.feet;
   const end = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`;
+  const fly = u.floats, ms = beat(fly ? 400 : 320);
+  // Runners hop a little over the ground; flyers climb over half their own height and swoop.
+  const mid = fly ? `${(dx * 0.5).toFixed(1)}px ${(dy * 0.5 - me.h * 0.6).toFixed(1)}px`
+                  : `${(dx * 0.55).toFixed(1)}px ${(dy * 0.55 - 26).toFixed(1)}px`;
   el.style.zIndex = 200;
+  // The dive lean rotates the body around its feet, so the plate stays level.
+  if (fly) pose(u, [{ transform: 'none' }, { transform: `rotate(${dir * 14}deg)`, offset: 0.5 }, { transform: 'none' }], 400);
   const anim = el.animate(
-    [{ translate: '0 0' }, { translate: `${(dx * 0.55).toFixed(1)}px ${(dy * 0.55 - 26).toFixed(1)}px`, offset: 0.5 }, { translate: end }],
-    { duration: beat(320), easing: 'ease-in-out', fill: 'forwards' });
-  await done(anim, beat(320));
-  return { anim, end };
+    [{ translate: '0 0' }, { translate: mid, offset: 0.5 }, { translate: end }],
+    { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+  await done(anim, ms);
+  return { anim, end, mid, fly };
 }
 
 async function dashBack(u, trip) {
   if (!trip) return;
   const el = actorEl(u);
   if (el) {
-    const back = el.animate([{ translate: trip.end }, { translate: '0 0' }], { duration: beat(280), easing: 'ease-out' });
+    const ms = beat(trip.fly ? 340 : 280);
+    const back = el.animate(trip.fly
+      ? [{ translate: trip.end }, { translate: trip.mid, offset: 0.5 }, { translate: '0 0' }]
+      : [{ translate: trip.end }, { translate: '0 0' }], { duration: ms, easing: 'ease-out' });
     trip.anim.cancel();
-    await done(back, beat(280));
+    await done(back, ms);
   }
   layoutSides();   // restores normal depth order
 }
@@ -7364,10 +7515,21 @@ async function zap(from, to) {
   svg.remove();
 }
 
-// Maren's Backwash / Malgrath's Infernal Toll mark: when an enemy uses a skill, a beam shoots from Maren or
-// Malgrath to the caster and bursts on impact. Backwash is a wavy surge of water that sheds droplets; Infernal
-// Toll (fire = true) is a jagged hellfire beam that sheds embers. Purely visual (spellToll / infernalToll deal the damage).
-async function backwash(src, u, fire = false) {
+/* A beam fired from one fighter to another, bursting where it lands. Purely visual — whatever called
+   it has already moved the HP. Three styles share the shape and differ only in wave, colour and what
+   they shed and burst into:
+     water — Maren's Backwash, a wavy surge that sheds droplets (spellToll)
+     fire  — Malgrath's Infernal Toll, a jagged hellfire beam that sheds rising embers (infernalToll)
+     blood — Morwenna's Crimson Mend channel, a red link to each ally that bursts as a heal (beginTurn) */
+const BEAM = {
+  water: { cls: '',           jagged: false, rise: false, impact: 'splash' },
+  fire:  { cls: ' hellfire',  jagged: true,  rise: true,  impact: 'fire' },
+  blood: { cls: ' bloodlink', jagged: false, rise: false, impact: 'heal' },
+};
+const bloodLink = (src, t) => backwash(src, t, 'blood');
+
+async function backwash(src, u, style = 'water') {
+  const b = BEAM[style] || BEAM.water;
   const s = stageBox(src), e = stageBox(u);
   if (reduced || !s || !e) return;
   const from = { x: s.x + facing(src) * s.w * 0.22, y: s.top + s.h * 0.3 };
@@ -7376,7 +7538,7 @@ async function backwash(src, u, fire = false) {
   const nx = -dy / len, ny = dx / len;  // unit normal: the wave wobbles across the beam
   const pts = [];
   for (let i = 0; i <= 28; i++) {
-    const k = i / 28, w = (fire ? (i % 2 ? 1 : -1) * (2 + Math.random() * 4) : Math.sin(k * Math.PI * 5) * 6) * Math.sin(k * Math.PI);
+    const k = i / 28, w = (b.jagged ? (i % 2 ? 1 : -1) * (2 + Math.random() * 4) : Math.sin(k * Math.PI * 5) * 6) * Math.sin(k * Math.PI);
     pts.push(`${(from.x + dx * k + nx * w).toFixed(1)},${(from.y + dy * k + ny * w).toFixed(1)}`);
   }
   const line = pts.join(' ');
@@ -7385,7 +7547,7 @@ async function backwash(src, u, fire = false) {
     return `<circle cx="${(from.x + dx * k + nx * 9 * side).toFixed(1)}" cy="${(from.y + dy * k + ny * 9 * side).toFixed(1)}" r="2.6"/>`;
   }).join('');
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', `bolt backwash${fire ? ' hellfire' : ''}`);
+  svg.setAttribute('class', `bolt backwash${b.cls}`);
   svg.innerHTML = ['bw-glow', 'bw-body', 'bw-core'].map((c) =>
     `<polyline class="${c}" points="${line}" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>`).join('') + drops;
   $('#arena').appendChild(svg);
@@ -7395,9 +7557,9 @@ async function backwash(src, u, fire = false) {
     pl.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0, offset: 0.45 }, { strokeDashoffset: 0 }], { duration: ms, fill: 'forwards' });
   }
   svg.querySelectorAll('circle').forEach((c, i) => c.animate(
-    [{ opacity: 0, transform: 'translateY(0)' }, { opacity: 1, offset: 0.25 + i * 0.08 }, { opacity: 0, transform: `translateY(${fire ? -14 : 14}px)` }],
-    { duration: ms, fill: 'forwards' }));  // droplets fall, embers rise
-  setTimeout(() => burst(u, fire ? 'fire' : 'splash'), ms * 0.45);
+    [{ opacity: 0, transform: 'translateY(0)' }, { opacity: 1, offset: 0.25 + i * 0.08 }, { opacity: 0, transform: `translateY(${b.rise ? -14 : 14}px)` }],
+    { duration: ms, fill: 'forwards' }));  // droplets and blood fall, embers rise
+  setTimeout(() => burst(u, b.impact), ms * 0.45);
   const anim = svg.animate([{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0 }], { duration: ms });
   await done(anim, ms);
   svg.remove();

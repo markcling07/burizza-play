@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burizza Idle</title>
+<style>
+/* All idle-stance GIFs, one row per faction, no text. */
+:root { --bg: #1b1e2b; color-scheme: dark; }
+html, body { margin: 0; background: var(--bg); }
+.sheet { display: grid; grid-template-columns: repeat(5, 132px); gap: 10px; justify-content: center; padding: 20px 16px; }
+.sheet img { width: 132px; height: 132px; display: block; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet"></div>
+<script>
+const IDS = ['wren', 'garrick', 'mara', 'aldous', 'liesl',
+  'bulwark', 'sawtooth', 'arclight', 'howitzer', 'patchwork',
+  'krug', 'mogra', 'vashka', 'drekka', 'hesk',
+  'durgan', 'hilda', 'aelira', 'faelan', 'elowen',
+  'tharos', 'grubble', 'seraphine', 'octavia', 'maren'];
+document.getElementById('sheet').innerHTML = IDS.map((id) => `<img src="idle/${id}.gif" alt="">`).join('');
+</script>
+</body>
+</html>
