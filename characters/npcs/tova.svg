@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Tova Ironvale (NPC) - Cinderhold villager art. Quartermaster; keeper of the Armory.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="tova-mail" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9d1de"/><stop offset=".55" stop-color="#8a93a6"/><stop offset="1" stop-color="#4a5164"/></linearGradient>
+    <pattern id="tova-rings" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="none" stroke="#3a4050" stroke-width=".5"/></pattern>
+    <linearGradient id="tova-apron" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6a42"/><stop offset="1" stop-color="#5e3c22"/></linearGradient>
+    <linearGradient id="tova-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8b892"/><stop offset="1" stop-color="#b8805e"/></linearGradient>
+    <linearGradient id="tova-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3428"/><stop offset="1" stop-color="#1f1612"/></linearGradient>
+    <linearGradient id="tova-shield" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a6ea8"/><stop offset="1" stop-color="#26406a"/></linearGradient>
+    <linearGradient id="tova-steel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eef2f8"/><stop offset="1" stop-color="#8a93a6"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- sword over the shoulder (behind the body) -->
+    <path d="M40 46 L66 10" stroke-width="4.6" fill="none"/>
+    <path d="M40 46 L66 10" stroke="url(#tova-steel)" stroke-width="2.8" fill="none"/>
+    <path d="M37 42 l6 4.5" stroke="#b08a2e" stroke-width="3.2"/>
+    <!-- boots and legs -->
+    <path d="M42 70 h7 v19 h-7 z" fill="#3a3044"/>
+    <path d="M52 70 h7 l1 19 h-7 z" fill="#3a3044"/>
+    <path d="M40.5 87.5 h9.5 v6 h-11 z" fill="#4a3020"/>
+    <path d="M52.5 87.5 h9 l3 6 h-12 z" fill="#5a3a26"/>
+    <!-- chainmail shirt -->
+    <path d="M42 40 Q36 46 37 60 L37 73 Q50 76 63 73 L62.5 58 Q63 45 57.5 40 Z" fill="url(#tova-mail)"/>
+    <path d="M42 40 Q36 46 37 60 L37 73 Q50 76 63 73 L62.5 58 Q63 45 57.5 40 Z" fill="url(#tova-rings)" stroke="none" opacity=".7"/>
+    <!-- leather apron + belt with a hammer -->
+    <path d="M45 50 h12.5 l2 25 q-8 2.4 -16.5 .6 z" fill="url(#tova-apron)"/>
+    <path d="M38 58.5 L62.6 58.5 L62.7 62 L38 62 Z" fill="#3a2418" stroke-width="1.1"/>
+    <rect x="48.4" y="57.8" width="4.4" height="5" rx="1" fill="#b08a2e" stroke-width="1"/>
+    <path d="M60 62 v10" stroke="#6b4f32" stroke-width="2.4"/><rect x="57.4" y="60.5" width="5.4" height="3.4" rx="1" fill="#7a8296" stroke-width="1"/>
+    <!-- red scarf -->
+    <path d="M44.5 38.5 Q51 44 57.5 38.5 L56.5 36 Q51 39.5 45.5 36 Z" fill="#c0303f" stroke-width="1.1"/>
+    <path d="M46 40 l-2.6 8 l4.4 -1 z" fill="#a42a32" stroke-width="1"/>
+    <!-- neck + head + braided hair -->
+    <path d="M49 33 h5 v5 h-5 z" fill="url(#tova-skin)" stroke-width="1.1"/>
+    <path d="M44.5 30 Q42 40 40.5 48 Q43.6 47 44.8 44 Q46 37 47.5 31 Z" fill="url(#tova-hair)" stroke-width="1.1"/>
+    <circle cx="53" cy="27" r="8" fill="url(#tova-skin)"/>
+    <path d="M45 28 Q44 18.5 52.5 18 Q61 17.8 61.5 24.5 Q57 22 52.5 23.2 Q49 24.2 48.6 31 Z" fill="url(#tova-hair)"/>
+    <!-- shield on the forward arm -->
+    <path d="M57 42 Q64 44 67 52 L70.6 57 L67 60.5 Q61 54 57.5 50 Z" fill="url(#tova-mail)"/>
+    <path d="M63 44.5 h14 v12 q0 9.5 -7 13.5 q-7 -4 -7 -13.5 z" fill="url(#tova-shield)"/>
+    <path d="M70 46.5 v21 M64.6 54 h10.8" stroke="#e8a548" stroke-width="2"/>
+    <circle cx="70" cy="54" r="2.2" fill="#e8a548" stroke-width="1"/>
+  </g>
+  <!-- face -->
+  <circle cx="57.6" cy="26.4" r="1.25" fill="#1d2130"/>
+  <path d="M55.6 23.6 q2 -1.1 3.9 0" stroke="#2a1a14" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M56 31.4 q2.2 1.2 4 -.2" stroke="#7a3a30" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M60.4 27.8 Q63 29.6 61 31" stroke="#a0705a" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <path d="M51 30 l2.4 -.6" stroke="#a0705a" stroke-width=".8" stroke-linecap="round"/>
+  <!-- highlights -->
+  <path d="M39 50 Q38 60 38.5 70" stroke="#eef2f8" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6"/>
+  <path d="M64.5 46.5 v8" stroke="#8fb0e0" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+</svg>

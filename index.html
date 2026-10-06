@@ -1213,6 +1213,13 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .trinkets { display: grid; gap: 8px; }
 .trinkets .ware { background: var(--panel); }
 .ware.worn { border-color: var(--accent); }
+/* The Ironsmith's weapon rack: faction headings, and the affix list on each weapon. */
+.rackHead { margin: 14px 0 2px; font-size: .86rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.rackHead.own { color: var(--accent); }
+.ware .affix { grid-column: 2; margin: 4px 0 0; padding-left: 16px; font-size: .84rem; }
+.ware .affix li { margin: 1px 0; }
+.ware .affix li.attune { color: var(--accent); }
+.ico.wico svg { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .5)); }
 .satchel { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
 .items { display: flex; flex-wrap: wrap; gap: 6px; }
 .item {
@@ -1444,13 +1451,15 @@ const poolLabel = (f) => ({ 1.5: 'Huge', 1: 'Normal', 0.7: 'Small', 0: 'None, ru
 
 /* PROFILE — what the village remembers between visits, saved in this browser:
    gold, forged gear per champion, the satchel of battle items, and your records.
-   Gear per champion id: { w: weapon tier, a: armor tier } from the Ironsmith (see FORGE).
+   Gear per champion id: { w: weapon tier, a: armor tier } from the Ironsmith (see FORGE),
+   plus wp: the named weapon in their hands, eq: the kit they wear (see THE ARMOR STAND)
+   and t: the trinket they wear (see THE ARMORY, EQUIPMENT, TRINKETS).
    Trinket bonuses can plug in here too: { mp, mpRegen, manaSteal, hpRegen }. */
 const SAVE_KEY = 'burizza.profile.v1';
 // stash = what's kept at Your House ({ items: {key: n}, trinkets: {key: n} }); home = furniture keys you own (see DECOR).
 // hero = your one champion { id, name } (null until you create one); level/xp = your champion's progression;
 // recruits = the TEAM_SIZE − 1 champion ids the AI plays beside you.
-const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {} }, home: [],
+const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {} }, home: [],
   hero: null, level: 1, xp: 0, recruits: [],
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
   skillRanks: {},  // skill points spent, per champion id: { a: 2, flashpowder: 1 } (see SKILL RANKS)
@@ -1464,7 +1473,9 @@ function loadProfile() {
   const p = blankProfile();
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (saved && typeof saved.gold === 'number') return { ...p, ...saved, stats: { ...p.stats, ...saved.stats } };
+    // stash gains shelves over time (weapons came after trinkets), so merge it rather than replace it.
+    if (saved && typeof saved.gold === 'number')
+      return { ...p, ...saved, stats: { ...p.stats, ...saved.stats }, stash: { ...p.stash, ...saved.stash } };
   } catch (err) { /* private window or blocked storage: start fresh */ }
   return p;
 }
@@ -1520,12 +1531,16 @@ function syncTeam() {
   if (profile.hero) state.team = [profile.hero.id, ...(profile.recruits || [])].slice(0, TEAM_SIZE);
 }
 
-// gearRaw = what's saved ({ w, a, t }). gearOf adds up the worn trinket's bonus (TRINKETS) and
-// the perks of furniture at home (DECOR) for makeUnit: mp, mpRegen, manaSteal, hpRegen, agi, hpPct, atkPct.
+// gearRaw = what's saved ({ w, a, t, wp }). gearOf adds up the weapon in hand (ARMORY, plus its
+// faction edge if the champion is attuned), the worn trinket's bonus (TRINKETS) and the perks of
+// furniture at home (DECOR) for makeUnit: mp, mpRegen, manaSteal, hpRegen, agi, hpPct, atkPct,
+// crit, critMult, double, stealMax, stealLost, stealFoe, and the kit's own wards and amplifiers
+// (blockPhys, blockMagic, healTaken, magicAmp, physAmp).
 const gearRaw = (id) => profile.gear[id] || {};
 const addUp = (into, bonus) => { for (const k in bonus) into[k] = (into[k] || 0) + bonus[k]; return into; };
 const homePerks = () => profile.home.reduce((sum, k) => addUp(sum, DECOR[k]?.perk || {}), {});
-const gearOf = (id) => { const g = gearRaw(id); return addUp(addUp({ ...g }, TRINKETS[g.t]?.bonus || {}), homePerks()); };
+const gearOf = (id) => { const g = gearRaw(id);
+  return addUp(addUp(addUp(addUp({ ...g }, TRINKETS[g.t]?.bonus || {}), weaponBonus(id)), equipBonus(id)), homePerks()); };
 
 const ROLES = {
   melee:   { label: 'Melee',   hp: 150, atk: 18, def: 10, agi: 10, dodge: 0,    mp: 60 },
@@ -1722,11 +1737,11 @@ const ROSTER = [
   { id: 'drekka', name: 'Drekka Firegut', short: 'Drekka', faction: 'orc', role: 'ranged', bio: 'Bomb and firepot thrower.',
     mods: {},
     look: { body: 'orc', main: '#7a3b2e', trim: '#e8a548', skin: '#7d9a4f', weapon: 'pot' },
-    skills: [D('Firepot', '100% hit. Burns for 3 turns.', 2, 1.0, { fx: [['burn', 3, 0.35]] }),
-             D('Powder Keg', '75% to all enemies. Burns them all.', 5, 0.75, { aoe: true, fx: [['burn', 3, 0.3]] }),
-             D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { fx: [['burn', 3, 0.3], ['slow', 2]] }),
-             D('Cinder Spray', '50% fire to all enemies. Never misses. Blinds them all.', 4, 0.5, { aoe: true, noDodge: true, fx: [['blind', 2]] }),
-             D('Sticky Tar', '80% hit. Burns, Slows and sunders the target\'s armor.', 4, 0.8, { fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] })],
+    skills: [D('Firepot', '100% hit. Burns for 3 turns.', 2, 1.0, { magic: true, fx: [['burn', 3, 0.35]] }),
+             D('Powder Keg', '75% to all enemies. Burns them all.', 5, 0.75, { magic: true, aoe: true, fx: [['burn', 3, 0.3]] }),
+             D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2]] }),
+             D('Cinder Spray', '50% fire to all enemies. Never misses. Blinds them all.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
+             D('Sticky Tar', '80% hit. Burns, Slows and sunders the target\'s armor.', 4, 0.8, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] })],
     passive: P('Pyromaniac', 'Deals 25% more damage to Burning enemies.', { vs: { fx: 'burn', bonus: 0.25 } }) },
   { id: 'hesk', name: 'Old Mother Hesk', short: 'Hesk', faction: 'orc', role: 'support', bio: 'Shaman who keeps the war drums.',
     mods: { hp: 1.05 },
@@ -1753,8 +1768,8 @@ const ROSTER = [
     look: { body: 'human', helm: true, main: '#d7dbe4', trim: '#d9b44a', skin: '#c68f6a', weapon: 'hammer', shield: '#3e5a8c' },
     skills: [D('Smite', '130% hit. Heals him for 35% of the damage.', 2, 1.3, { lifesteal: 0.35 }),
              B('Oathguard', 'Shield an ally for 2 turns and reflect 40% of the damage they take.', 4, 'ally', [['shield', 2], ['thorns', 2]], { aiTarget: 'lowest' }),
-             D('Consecrate', '45% holy damage to all enemies. Never misses. Heals all allies a little.', 4, 0.45, { aoe: true, noDodge: true, allyHeal: 0.8 }),
-             D('Hammer of Judgement', '150% holy smash. Never misses, with a 40% chance to stun.', 4, 1.5, { noDodge: true, stun: 0.4 }),
+             D('Consecrate', '45% holy damage to all enemies. Never misses. Heals all allies a little.', 4, 0.45, { magic: true, aoe: true, noDodge: true, allyHeal: 0.8 }),
+             D('Hammer of Judgement', '150% holy smash. Never misses, with a 40% chance to stun.', 4, 1.5, { magic: true, noDodge: true, stun: 0.4 }),
              B('Lionheart', 'Taunt all enemies and take 60% less damage for 2 turns.', 5, 'self', [['taunt', 3], ['ward', 2]])],
     passive: P('Retribution', 'When he takes a hit, every enemy takes 20% of that damage.', { retribution: 0.2 }),
     passiveAlt: P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }) },
@@ -1770,10 +1785,10 @@ const ROSTER = [
   { id: 'aldous', name: 'Aldous Emberfall', short: 'Aldous', faction: 'human', role: 'ranged', bio: 'Pyromancer of the royal college.',
     mods: { hp: 0.95 },
     look: { body: 'human', main: '#7a2e3a', trim: '#e8a548', skin: '#e2b48f', hair: '#d9d4c7', weapon: 'staff', orb: '#ff8a3d' },
-    skills: [D('Fireball', '120% fire. Never misses. Burns for 3 turns.', 2, 1.2, { noDodge: true, fx: [['burn', 3, 0.35]] }),
-             D('Inferno', '60% fire to all enemies, plus 15% of his current mana as extra damage. Burns them all.', 5, 0.6, { aoe: true, noDodge: true, manaDamage: 0.15, fx: [['burn', 3, 0.3]] }),
-             D('Ignite', '100% fire. Never misses. 60% stronger against Burning targets.', 3, 1.0, { noDodge: true, bonusVs: 'burn' }),
-             D('Flame Lance', '150% fire that ignores armor. Never misses. Burns for 3 turns.', 4, 1.5, { pierce: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
+    skills: [D('Fireball', '120% fire. Never misses. Burns for 3 turns.', 2, 1.2, { magic: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
+             D('Inferno', '60% fire to all enemies, plus 15% of his current mana as extra damage. Burns them all.', 5, 0.6, { magic: true, aoe: true, noDodge: true, manaDamage: 0.15, fx: [['burn', 3, 0.3]] }),
+             D('Ignite', '100% fire. Never misses. 60% stronger against Burning targets.', 3, 1.0, { magic: true, noDodge: true, bonusVs: 'burn' }),
+             D('Flame Lance', '150% fire that ignores armor. Never misses. Burns for 3 turns.', 4, 1.5, { magic: true, pierce: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
              B('Mantle of Flame', 'Aldous wreathes himself in fire: 30% more damage for 2 turns, and he is shielded.', 4, 'self', [['empower', 3], ['shield', 2]])],
     passive: P('Kindling', 'His Burns deal 50% more damage.', { dotBoost: { burn: 1.5 } }) },
   { id: 'liesl', name: 'Sister Liesl', short: 'Liesl', faction: 'human', role: 'support', bio: 'Cleric of the dawn chapel.',
@@ -1783,7 +1798,7 @@ const ROSTER = [
              H('Prayer of Dawn', 'Heal all allies and restore 25 mana to each.', 5, 2.0, { all: true, manaRestore: 25 }),
              B('Guardian Angel', 'Shield an ally for 2 turns and give them Regen.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
              B('Benediction', 'An ally takes 60% less damage for 2 turns and resists new debuffs.', 4, 'ally', [['ward', 2], ['immune', 3]], { aiTarget: 'lowest' }),
-             D('Censure', '70% holy hit. Never misses. Weakens and Blinds the target for 2 turns.', 3, 0.7, { noDodge: true, fx: [['weaken', 3], ['blind', 3]] })],
+             D('Censure', '70% holy hit. Never misses. Weakens and Blinds the target for 2 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['blind', 3]] })],
     passive: P('Mercy', 'Her healing is 30% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.3 } }) },
 
   // ---- Stoneleaf Accord (Elves & Dwarves) ----
@@ -1828,9 +1843,9 @@ const ROSTER = [
     look: { body: 'elf', main: '#5e8a4a', trim: '#e3d27a', skin: '#f0d2b4', hair: '#c96a3c', weapon: 'staff', orb: '#9fe08a' },
     skills: [H('Regrowth', 'Heal an ally, then they regenerate for 3 turns.', 2, 2.2, { fx: [['regen', 3, 0.8]] }),
              H('Bloom of Spring', 'Heal all allies a little, clear their debuffs and give them Regen.', 5, 1.0, { all: true, cleanse: true, fx: [['regen', 3, 0.6]] }),
-             D('Entangle', '70% hit. Roots Slow and Stagger the target.', 3, 0.7, { fx: [['slow', 2], ['stagger', 1]], roots: true }),
+             D('Entangle', '70% hit. Roots Slow and Stagger the target.', 3, 0.7, { magic: true, fx: [['slow', 2], ['stagger', 1]], roots: true }),
              B('Barkskin', 'An ally is shielded for 2 turns and takes 60% less damage.', 4, 'ally', [['shield', 2], ['ward', 2]], { aiTarget: 'lowest' }),
-             D('Thornlash', '80% hit. Roots the target: Slowed, and it takes 25% more damage for 2 turns.', 3, 0.8, { fx: [['slow', 2], ['exposed', 3]], roots: true })],
+             D('Thornlash', '80% hit. Roots the target: Slowed, and it takes 25% more damage for 2 turns.', 3, 0.8, { magic: true, fx: [['slow', 2], ['exposed', 3]], roots: true })],
     passive: P('Forest Stride', 'While she stands, all allies move 20% faster on the speed bar.', { haste: 0.2 }),
     passiveAlt: P('Verdant Aura', 'While she stands, all allies regenerate an extra 2% of max HP each turn.', { allyRegen: 0.02 }) },
 
@@ -1856,19 +1871,19 @@ const ROSTER = [
   { id: 'seraphine', name: 'Seraphine Wavecaller', short: 'Seraphine', faction: 'tide', role: 'ranged', bio: 'Siren whose song drowns sailors.',
     mods: { agi: 1.05 },
     look: { body: 'elf', fin: true, skin: '#9fd0c8', hair: '#3d6fb0', main: '#2a7f8f', trim: '#e9e4d8', weapon: 'orb', orb: '#f2c6d8' },
-    skills: [D('Siren\'s Hush', '100% hit that never misses. Silences the target for 2 turns: Attack and Guard only.', 3, 1.0, { noDodge: true, fx: [['silence', 3]] }),
-             D('Lure Song', '70% hit with a 70% chance to charm (stun) the target.', 4, 0.7, { noDodge: true, stun: 0.7 }),
-             D('Dirge of the Deep', '50% to all enemies. Never misses. Weakens them.', 4, 0.5, { aoe: true, noDodge: true, fx: [['weaken', 2]] }),
-             D('Drowning Chorus', '60% to all enemies. Never misses. Slows and Blinds them all.', 4, 0.6, { aoe: true, noDodge: true, fx: [['slow', 2], ['blind', 2]] }),
+    skills: [D('Siren\'s Hush', '100% hit that never misses. Silences the target for 2 turns: Attack and Guard only.', 3, 1.0, { magic: true, noDodge: true, fx: [['silence', 3]] }),
+             D('Lure Song', '70% hit with a 70% chance to charm (stun) the target.', 4, 0.7, { magic: true, noDodge: true, stun: 0.7 }),
+             D('Dirge of the Deep', '50% to all enemies. Never misses. Weakens them.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
+             D('Drowning Chorus', '60% to all enemies. Never misses. Slows and Blinds them all.', 4, 0.6, { magic: true, aoe: true, noDodge: true, fx: [['slow', 2], ['blind', 2]] }),
              B('Song of the Depths', 'All allies are shielded until their next turn and deal 30% more damage for 2 turns.', 5, 'allAllies', [['shield', 1], ['empower', 3]])],
     passive: P('Echo', 'Her Silence, Weaken and other lasting debuffs last 1 turn longer.', { fxLonger: 1 }) },
   { id: 'octavia', name: 'Octavia Inkveil', short: 'Octavia', faction: 'tide', role: 'ranged', bio: 'Octopus-folk ink caster.',
     mods: {},
     look: { body: 'tide', crest: 'octo', skin: '#9b6aa8', main: '#4b3d6e', trim: '#e3d27a', weapon: 'orb', orb: '#5a4a8a' },
     skills: [S('Ink Double', 'Conjure an ink illusion of herself. It taunts enemies, hits for half and fades after 2 rounds.', 4, 'illusion'),
-             D('Ink Cloud', '50% to all enemies. Blinds them all.', 5, 0.5, { aoe: true, noDodge: true, fx: [['blind', 2]] }),
+             D('Ink Cloud', '50% to all enemies. Blinds them all.', 5, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
              D('Tentacle Snare', '90% hit. Slows the target for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
-             D('Ink Whip', '120% hit. Never misses. Blinds the target for 2 turns.', 3, 1.2, { noDodge: true, fx: [['blind', 3]] }),
+             D('Ink Whip', '120% hit. Never misses. Blinds the target for 2 turns.', 3, 1.2, { magic: true, noDodge: true, fx: [['blind', 3]] }),
              D('Crushing Grip', '160% hit. Silences the target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] })],
     passive: P('Ink Sac', 'When hit, 25% chance to Blind the attacker.', { onHitTaken: { chance: 0.25, fx: [['blind', 2]] } }) },
   { id: 'maren', name: 'Maren Pearlheart', short: 'Maren', faction: 'tide', role: 'support', bio: 'Pearl priestess of the reef.',
@@ -1878,7 +1893,7 @@ const ROSTER = [
              B('Pearl Barrier', 'Shield all allies until their next turn and heal them a little.', 5, 'allAllies', [['shield', 1]], { heal: 1.0 }),
              B('Tide Pool', 'All allies regenerate for 3 turns.', 4, 'allAllies', [['regen', 3, 0.5]]),
              H('Reef Bloom', 'Heal an ally and clear their debuffs. 30% stronger at High Tide.', 3, 2.6, { cleanse: true, tideBonus: 1.3 }),
-             D('Riptide Crash', '70% to all enemies. Never misses. Weakens them all.', 4, 0.7, { aoe: true, noDodge: true, fx: [['weaken', 2]] })],
+             D('Riptide Crash', '70% to all enemies. Never misses. Weakens them all.', 4, 0.7, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] })],
     passive: P('Backwash', 'Each time an enemy uses a skill, it takes damage equal to 10% of its current HP.', { spellBacklash: 0.1 }),
     passiveAlt: P('Tidecaller', 'Her heals also restore 8 MP.', { healMp: 8 }) },
 
@@ -1895,11 +1910,11 @@ const ROSTER = [
   { id: 'malgrath', name: 'Malgrath the Unbound', short: 'Malgrath', faction: 'crimson', role: 'melee', bio: 'Demon brute freed from the pit.',
     mods: { hp: 1.15, atk: 1.05, def: 0.9, agi: 0.85 },
     look: { body: 'demon', main: '#2d2230', trim: '#e8a548', skin: '#a8323a', horn: '#1f1a1f', eye: '#ffd166', weapon: 'axe' },
-    skills: [D('Hellfire Slam', '60% to all enemies. Burns them all and marks them with Infernal Toll: for 2 turns, their next skill also costs 5% of their current HP, on top of mana.', 3, 0.6, { aoe: true, wave: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
+    skills: [D('Hellfire Slam', '60% to all enemies. Burns them all and marks them with Infernal Toll: for 2 turns, their next skill also costs 5% of their current HP, on top of mana.', 3, 0.6, { magic: true, aoe: true, wave: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
              D('Infernal Wrath', '230% hit. Costs 15% of his own HP.', 4, 2.3, { selfCost: 0.15 }),
              B('Demonic Roar', 'Taunt all enemies and deal 30% more damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
              D('Pit Chains', '130% hit. Drags the target back along the speed bar and Exposes it.', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
-             D('Sulphur Breath', '55% fire to all enemies. Never misses. Burns and Blinds them all.', 4, 0.55, { aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] })],
+             D('Sulphur Breath', '55% fire to all enemies. Never misses. Burns and Blinds them all.', 4, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] })],
     passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }) },
   { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer — her feet never touch the ash.',
     mods: { hp: 0.9, agi: 1.3 }, floats: true,
@@ -1922,11 +1937,11 @@ const ROSTER = [
   { id: 'morwenna', name: 'Morwenna Bloodweaver', short: 'Morwenna', faction: 'crimson', role: 'support', bio: 'Blood witch of the Court.',
     mods: {},
     look: { body: 'vampire', main: '#5a1f2e', cape: '#2a1018', trim: '#d9b44a', skin: '#efe4ea', hair: '#c9c2d6', weapon: 'staff', orb: '#c0303f' },
-    skills: [D('Blight Hex', '60% hit that never misses. Burns 20 of the target\'s mana as extra damage, then Hexes them for 3 turns: healing received is halved.', 2, 0.6, { noDodge: true, manaBurn: 20, fx: [['hex', 4]] }),
+    skills: [D('Blight Hex', '60% hit that never misses. Burns 20 of the target\'s mana as extra damage, then Hexes them for 3 turns: healing received is halved.', 2, 0.6, { magic: true, noDodge: true, manaBurn: 20, fx: [['hex', 4]] }),
              H('Blood Communion', 'Heal all allies and Hex all enemies for 2 turns.', 5, 1.8, { all: true, enemyFx: [['hex', 3]] }),
-             D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { noDodge: true, allySteal: 1 }),
+             D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { magic: true, noDodge: true, allySteal: 1 }),
              B('Crimson Mend', `Open a blood channel for 3 turns. At the start of each of her turns it mends every ally — summoned units included — for ${Math.round(CRIMSON_MEND_PCT * 100)}% of their max HP, and costs Morwenna ${Math.round(CRIMSON_MEND_PCT * 100)}% of hers.`, 4, 'self', [['bloodchannel', 3]], { channel: true }),
-             D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { noDodge: true, fx: [['weaken', 3], ['sunder', 3]] })],
+             D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] })],
     passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }) },
 ];
 
@@ -2351,7 +2366,7 @@ const MONSTERS = {
     passive: P('Hardened Crust', 'Starts every battle Shielded for its first 2 turns.', { startFx: [['shield', 3]] }),
     look: { body: 'slime', main: '#a8402a', trim: '#ffb347' },
     skills: [{ ...ATTACK, name: 'Slam', desc: '100% hit.' },
-             D('Lava Spit', '80% hit. Burns for 3 turns.', 2, 0.8, { fx: [['burn', 3, 0.35]] })],
+             D('Lava Spit', '80% hit. Burns for 3 turns.', 2, 0.8, { magic: true, fx: [['burn', 3, 0.35]] })],
   },
   bonerattler: {
     name: 'Bone Rattler', plural: 'Bone Rattlers', role: 'melee', xp: 20,
@@ -2398,8 +2413,8 @@ const MONSTERS = {
     passive: P('Incorporeal', 'Dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#9fb4c4', trim: '#dfe9f2', eye: '#7fe3ff', orb: '#7fe3ff' },
     skills: [{ ...ATTACK, name: 'Chill Touch', desc: '100% hit.' },
-             D('Soul Drain', '100% hit. Drains half the damage as HP.', 2, 1.0, { noDodge: true, lifesteal: 0.5 }),
-             D('Wail', '35% to all enemies, with a 35% chance each to Silence.', 4, 0.35, { aoe: true, noDodge: true, chanceFx: [['silence', 3, 0.35]] })],
+             D('Soul Drain', '100% hit. Drains half the damage as HP.', 2, 1.0, { magic: true, noDodge: true, lifesteal: 0.5 }),
+             D('Wail', '35% to all enemies, with a 35% chance each to Silence.', 4, 0.35, { magic: true, aoe: true, noDodge: true, chanceFx: [['silence', 3, 0.35]] })],
   },
 
   // ---- Rustgut Mine ----
@@ -2428,8 +2443,8 @@ const MONSTERS = {
     mods: { hp: 0.7, atk: 1.15, def: 0.7, agi: 1.3 },
     look: { body: 'demon', main: '#3a1a1a', trim: '#ff7a2f', skin: '#c4472a', horn: '#2a1414', eye: '#ffd166', wings: '#5a2020', orb: '#ff7a2f', scale: 0.75 },
     skills: [{ ...ATTACK, name: 'Spark', desc: '100% hit.' },
-             D('Firebolt', '100% fire. Burns for 3 turns.', 2, 1.0, { fx: [['burn', 3, 0.35]] }),
-             D('Cinder Rain', '35% to all enemies. Burns them all.', 4, 0.35, { aoe: true, noDodge: true, fx: [['burn', 2, 0.3]] })],
+             D('Firebolt', '100% fire. Burns for 3 turns.', 2, 1.0, { magic: true, fx: [['burn', 3, 0.35]] }),
+             D('Cinder Rain', '35% to all enemies. Burns them all.', 4, 0.35, { magic: true, aoe: true, noDodge: true, fx: [['burn', 2, 0.3]] })],
   },
   ashdrake: {
     name: 'Ashwing Drake', plural: 'Ashwing Drakes', role: 'melee', xp: 55, elite: true,
@@ -2437,7 +2452,7 @@ const MONSTERS = {
     mods: { hp: 1.9, atk: 1.25, def: 1.15, agi: 0.95 },
     look: { body: 'drake', main: '#5a2a22', wing: '#7a3a2a', trim: '#e8a548', eye: '#ffd166' },
     skills: [{ ...ATTACK, name: 'Tail Lash', desc: '100% hit.' },
-             D('Scorching Breath', '55% to all enemies. Burns them all.', 3, 0.55, { aoe: true, noDodge: true, fx: [['burn', 3, 0.35]] })],
+             D('Scorching Breath', '55% to all enemies. Burns them all.', 3, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.35]] })],
   },
 
   // ---- Bosses: huge, with an enrage below 50% HP and a telegraphed big attack (see bossPlan) ----
@@ -2447,7 +2462,7 @@ const MONSTERS = {
     mods: { hp: 5.2, atk: 1.15, def: 1.3, agi: 0.9 },
     look: { body: 'vampire', main: '#2c3e46', cape: '#16242a', trim: '#6fc1b8', skin: '#a9c4c0', hair: '#d8e2e2', weapon: 'staff', orb: '#6fc1b8' },
     skills: [{ ...ATTACK, name: 'Censer Swing', desc: '100% hit.' },
-             D('Drowning Curse', '80% hit that never misses. Weakens and Hexes the target.', 2, 0.8, { noDodge: true, fx: [['weaken', 3], ['hex', 3]] }),
+             D('Drowning Curse', '80% hit that never misses. Weakens and Hexes the target.', 2, 0.8, { magic: true, noDodge: true, fx: [['weaken', 3], ['hex', 3]] }),
              S('Raise the Drowned', 'Raises a drowned corpse to fight for him.', 4, 'risen')],
     telegraph: { every: 3, name: 'Black Tide', warn: 'raises his censer, and black water starts to rise…',
                  skill: D('Black Tide', '90% to all enemies. Poisons them.', 0, 0.9, { aoe: true, noDodge: true, fx: [['poison', 3, 0.35]] }) },
@@ -2483,8 +2498,8 @@ const MONSTERS = {
     passive: P('Fading', 'Half-there and hard to pin down: dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#b8a6c8', trim: '#e6dcf2', eye: '#d9a8ff', orb: '#d9a8ff' },
     skills: [{ ...ATTACK, name: 'Cold Grasp', desc: '100% hit.' },
-             D('Haunt', '95% hit that never misses. Weakens the target.', 2, 0.95, { noDodge: true, fx: [['weaken', 3]] }),
-             D('Shriek', '35% to all enemies. Blinds them.', 4, 0.35, { aoe: true, noDodge: true, fx: [['blind', 2]] })],
+             D('Haunt', '95% hit that never misses. Weakens the target.', 2, 0.95, { magic: true, noDodge: true, fx: [['weaken', 3]] }),
+             D('Shriek', '35% to all enemies. Blinds them.', 4, 0.35, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] })],
   },
   gravehound: {
     name: 'Grave Hound', plural: 'Grave Hounds', role: 'melee', xp: 26,
@@ -2502,7 +2517,7 @@ const MONSTERS = {
     look: { body: 'vampire', main: '#3a2a44', cape: '#241830', trim: '#8fe0a0', skin: '#b7a9a0', hair: '#d8d2cc', weapon: 'staff', orb: '#8fe0a0' },
     skills: [{ ...ATTACK, name: 'Hex Bolt', desc: '100% hit.' },
              H('Grave Mending', 'Heal a wounded ally.', 2, 2.6),
-             D('Evil Eye', '60% hit that never misses. Weakens and Hexes the target.', 3, 0.6, { noDodge: true, fx: [['weaken', 3], ['hex', 3]] })],
+             D('Evil Eye', '60% hit that never misses. Weakens and Hexes the target.', 3, 0.6, { magic: true, noDodge: true, fx: [['weaken', 3], ['hex', 3]] })],
   },
 
   // ---- Castle Direhold ----
@@ -2531,7 +2546,7 @@ const MONSTERS = {
     mods: { hp: 0.85, atk: 1.0, def: 0.8, agi: 1.0 },
     look: { body: 'vampire', main: '#2a2140', cape: '#181228', trim: '#9a7ad0', skin: '#b8b0c0', hair: '#2a2436', weapon: 'staff', orb: '#9a7ad0' },
     skills: [{ ...ATTACK, name: 'Bone Shard', desc: '100% hit.' },
-             D('Wither', '90% hit that never misses. Weakens the target.', 2, 0.9, { noDodge: true, fx: [['weaken', 3]] }),
+             D('Wither', '90% hit that never misses. Weakens the target.', 2, 0.9, { magic: true, noDodge: true, fx: [['weaken', 3]] }),
              S('Raise Skeleton', 'Raises a skeleton to fight for it.', 4, 'risen')],
   },
 
@@ -2543,8 +2558,8 @@ const MONSTERS = {
     passive: P('Incorporeal', 'Dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#4a6a6a', trim: '#bfe8e2', eye: '#9ffff0', orb: '#9ffff0' },
     skills: [{ ...ATTACK, name: 'Wailing Touch', desc: '100% hit.' },
-             D('Keening', '100% hit. Causes Bleed and Slows.', 2, 1.0, { fx: [['bleed', 3, 0.3], ['slow', 2]] }),
-             D('Death Wail', '45% to all enemies, each with a 40% chance to Silence.', 4, 0.45, { aoe: true, noDodge: true, chanceFx: [['silence', 3, 0.4]] })],
+             D('Keening', '100% hit. Causes Bleed and Slows.', 2, 1.0, { magic: true, fx: [['bleed', 3, 0.3], ['slow', 2]] }),
+             D('Death Wail', '45% to all enemies, each with a 40% chance to Silence.', 4, 0.45, { magic: true, aoe: true, noDodge: true, chanceFx: [['silence', 3, 0.4]] })],
   },
 
   // ---- Bosses for the new dungeons ----
@@ -2554,7 +2569,7 @@ const MONSTERS = {
     mods: { hp: 4.8, atk: 1.2, def: 1.25, agi: 1.0 },
     look: { body: 'vampire', main: '#3a2a4a', cape: '#221834', trim: '#d9a8ff', skin: '#c8b8cc', hair: '#e8dff0', weapon: 'staff', orb: '#d9a8ff' },
     skills: [{ ...ATTACK, name: 'Spectral Rake', desc: '100% hit.' },
-             D('Mourning Veil', '85% hit that never misses. Weakens and Hexes the target.', 2, 0.85, { noDodge: true, fx: [['weaken', 3], ['hex', 3]] }),
+             D('Mourning Veil', '85% hit that never misses. Weakens and Hexes the target.', 2, 0.85, { magic: true, noDodge: true, fx: [['weaken', 3], ['hex', 3]] }),
              S('Call a Shade', 'Pulls up a Grasping Shade to fight for her.', 4, 'shade')],
     telegraph: { every: 3, name: 'Wail of the Manor', warn: 'throws back her veil and opens her mouth to scream…',
                  skill: D('Wail of the Manor', '95% to all enemies. Blinds and Slows them.', 0, 0.95, { aoe: true, noDodge: true, fx: [['blind', 2], ['slow', 2]] }) },
@@ -2565,8 +2580,8 @@ const MONSTERS = {
     mods: { hp: 5.6, atk: 1.3, def: 1.45, agi: 0.95 },
     look: { body: 'vampire', main: '#1e2636', cape: '#10161f', trim: '#7fb0ff', skin: '#aab6c4', hair: '#cdd8e4', weapon: 'staff', orb: '#7fb0ff' },
     skills: [{ ...ATTACK, name: 'Soulblade', desc: '100% hit.' },
-             D('Death Coil', '150% hit that never misses. Drains half the damage as HP.', 2, 1.5, { noDodge: true, lifesteal: 0.5 }),
-             D('Curse of Decay', '55% to all enemies. Weakens and Poisons them.', 3, 0.55, { aoe: true, noDodge: true, fx: [['weaken', 2], ['poison', 3, 0.3]] }),
+             D('Death Coil', '150% hit that never misses. Drains half the damage as HP.', 2, 1.5, { magic: true, noDodge: true, lifesteal: 0.5 }),
+             D('Curse of Decay', '55% to all enemies. Weakens and Poisons them.', 3, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2], ['poison', 3, 0.3]] }),
              S('Raise the Fallen', 'Raises a drowned corpse to serve the crown.', 5, 'risen')],
     telegraph: { every: 3, name: 'Necrotic Nova', warn: 'lifts his blade, and the torches gutter out…',
                  skill: D('Necrotic Nova', '120% to all enemies. Sunders their armor.', 0, 1.2, { aoe: true, noDodge: true, fx: [['sunder', 3]] }) },
@@ -2577,7 +2592,7 @@ const MONSTERS = {
     mods: { hp: 5.0, atk: 1.25, def: 1.3, agi: 1.0 },
     look: { body: 'vampire', main: '#2a331f', cape: '#1a2014', trim: '#9fe0a0', skin: '#b6b49c', hair: '#d8d8c8', weapon: 'staff', orb: '#9fe0a0' },
     skills: [{ ...ATTACK, name: 'Thorn Lash', desc: '100% hit.' },
-             D('Witch\'s Brand', '90% hit that never misses. Hexes and Poisons the target.', 2, 0.9, { noDodge: true, fx: [['hex', 3], ['poison', 3, 0.35]] }),
+             D('Witch\'s Brand', '90% hit that never misses. Hexes and Poisons the target.', 2, 0.9, { magic: true, noDodge: true, fx: [['hex', 3], ['poison', 3, 0.35]] }),
              H('Coven Mending', 'Heals her most wounded ally for a lot.', 3, 3.2),
              B('Brew of Spite', 'Empowers herself for 2 turns.', 4, 'self', [['empower', 3]])],
     telegraph: { every: 3, name: 'Cauldron Burst', warn: 'tips her cauldron toward you, and the green brew hisses…',
@@ -2750,7 +2765,7 @@ let state = {
   round: 0, queue: [], qi: 0, active: null, phase: 'idle', pending: null, log: [], reward: null, token: 0,
   // Village: the open building, Elder's Hut tab, tavern rumor, Ironsmith's chosen champion,
   // and runPending = a gauntlet paused between battles while you visit the village.
-  place: null, codex: 'factions', tip: 0, forgeHero: null, runPending: false, itemUsed: false,
+  place: null, codex: 'factions', tip: 0, forgeHero: null, forgeTab: 'anvil', runPending: false, itemUsed: false,
   trainNews: '',   // Training Yard: how this morning's drill went
   // Proving Grounds: today's rival warbands, and the challenge being fought right now.
   duels: [], duel: null,
@@ -2949,7 +2964,13 @@ function makeUnit(c, lv, side, slot, scale = 1) {
     hpRegen: (gear.hpRegen || 0) + Math.round(maxHp * (st.hpRegenPct || 0)),
     atk: Math.round(r.atk * (m.atk || 1) * g * scale * wg * (1 + (st.atkPct || 0))), def: Math.round(r.def * (m.def || 1) * g * ag),
     agi: Math.round(r.agi * (m.agi || 1)) + (lv - 1) + (gear.agi || 0) + (st.agi || 0),
-    crit: (m.crit ?? 0.08) + (st.crit || 0), dodge: r.dodge + (ps.dodge || 0),
+    crit: (m.crit ?? 0.08) + (st.crit || 0) + (gear.crit || 0), dodge: r.dodge + (ps.dodge || 0),
+    // Weapon affixes (see THE ARMORY): harder crits, a second swing, and the three drains.
+    critMult: gear.critMult || 0, double: gear.double || 0,
+    steal: { max: gear.stealMax || 0, lost: gear.stealLost || 0, foe: gear.stealFoe || 0 },
+    // Worn kit (see THE ARMOR STAND): wards against a kind of damage, and amplifiers for dealing it.
+    blockPhys: gear.blockPhys || 0, blockMagic: gear.blockMagic || 0, healTaken: gear.healTaken || 0,
+    physAmp: gear.physAmp || 0, magicAmp: gear.magicAmp || 0,
     pv: ps, loadout: lo.act, passives: lo.pas,
     // The ★ signature (ultimate) starts on cooldown so it first unlocks on the hero's 3rd turn
     // (cooldowns tick down at the start of each of the hero's turns: 3 → 2 → 1 → 0 on turn 3).
@@ -3104,6 +3125,14 @@ function fell(v, by) {
 /* ==================================================================
    COMBAT MATH
    ================================================================== */
+/* PHYSICAL or MAGIC — every blow that lands is one or the other, and worn kit can ward
+   against each kind on its own (see THE ARMOR STAND). A hit is MAGIC when the skill says so
+   (o.magic), when it carries an element, or when it draws on mana (manaDamage / manaBurn):
+   spellfire, lightning, holy light, venom-song and ink. Everything else is PHYSICAL — steel,
+   shot, tusk, fist and the free Attack. Heals, status effects and the ticks of Burn, Poison
+   and Bleed are neither, so no ward turns them aside. */
+const isMagic = (o = {}) => !!(o.magic || o.element || o.manaDamage || o.manaBurn);
+
 function powerMult(u) {
   let m = 1;
   if (u.faction === 'orc') m *= 1 + 0.5 * (1 - u.hp / u.maxHp);
@@ -3153,17 +3182,19 @@ function strikeOnce(u, t, mult, label, o) {
   // Mana-scaling skills add a share of the caster's mana (before paying for the cast) to the hit.
   const manaPart = o.manaDamage ? (u.castMp ?? u.mp ?? 0) * o.manaDamage : 0;
   let dmg = (u.atk * mult + manaPart) * powerMult(u) * (0.9 + Math.random() * 0.2) * 50 / (50 + def);
-  const P = pv(u), TP = pv(t);
+  const P = pv(u), TP = pv(t), magic = isMagic(o);
   const critChance = u.crit + (o.critBonus || 0) + (u.race === 'elf' ? u.stacks * 0.1 : 0)
     + (P.critVs && has(t, P.critVs.fx) ? P.critVs.bonus : 0);
   const crit = o.alwaysCrit || chance(critChance);
-  if (crit) dmg *= P.critMult || 1.5;
+  if (crit) dmg *= (P.critMult || 1.5) + (u.critMult || 0);   // a weapon's critMult sharpens the blow further
   if (o.bonusVs && has(t, o.bonusVs)) dmg *= 1.6;
   // Attacker passives
   if (P.vs && has(t, P.vs.fx) && (!P.vs.element || P.vs.element === o.element)) dmg *= 1 + P.vs.bonus;
   if (P.aoeBonus && o.aoe) dmg *= 1 + P.aoeBonus;
   if (P.execute && t.hp / t.maxHp < P.execute.below) dmg *= 1 + P.execute.bonus;
   if (P.grudge && u.lastHitBy === t.uid) dmg *= 1 + P.grudge;
+  // Worn kit: an amplifier only lifts the kind of damage this blow is.
+  if (magic ? u.magicAmp : u.physAmp) dmg *= 1 + (magic ? u.magicAmp : u.physAmp);
   // Defender side: Exposed, passives and auras
   if (has(t, 'exposed')) dmg *= 1.25;
   if (TP.firstHitDR && !t.plated) { dmg *= 1 - TP.firstHitDR; t.plated = true; }
@@ -3175,6 +3206,9 @@ function strikeOnce(u, t, mult, label, o) {
   if (!o.ignoreShield) dmg *= has(t, 'ward') ? 0.4 : has(t, 'shield') ? 0.5 : 1;
   if (has(t, 'guard')) dmg *= 0.5;
   if (t.race === 'dwarf') dmg *= 1 - 0.08 * t.stacks;
+  // Worn kit: a ward turns aside its share of the blow, physical or magic, whichever this was.
+  const ward = Math.min(magic ? t.blockMagic || 0 : t.blockPhys || 0, 0.9);
+  if (ward) dmg *= 1 - ward;
   dmg = Math.max(1, Math.round(dmg));
   // Soul Link: a third of the blow is divided among the holder's living teammates.
   let taken = dmg;
@@ -3318,12 +3352,16 @@ async function resolveCounters() {
   }
 }
 
-/* DOUBLE ATTACK — a melee fighter's basic swing sometimes isn't the end of it: they turn on their
-   heel, run back in and strike the same enemy a second time at full force. Only the free Attack
+/* DOUBLE ATTACK — a melee fighter's basic swing sometimes isn't the end of it: they strike the same
+   enemy a second time at full force. Half the time they stay in reach and swing again on the spot;
+   the other half they run back to their place, wheel round and charge in again. Only the free Attack
    rolls for it, never a skill, so it never doubles a 200% Blood Frenzy or an area Cleave. It is a
-   property of fighting in reach, so melee summons and monsters get it too. */
+   property of fighting in reach, so melee summons and monsters get it too.
+   A weapon's own `double` affix is not about reach — a repeater fires twice where a sledge swings
+   twice — so it stacks on top for the melee and gives ranged champions a second shot. */
 const DOUBLE_ATTACK_CHANCE = 0.15;
-const rollsDouble = (u, sk) => u.role === 'melee' && sk.id === 'attack' && chance(DOUBLE_ATTACK_CHANCE);
+const doubleChance = (u) => (u.role === 'melee' ? DOUBLE_ATTACK_CHANCE : 0) + (u.double || 0);
+const rollsDouble = (u, sk) => sk.id === 'attack' && chance(doubleChance(u));
 
 async function damageSkill(u, t, sk) {
   const o = sk.o || {};
@@ -3350,17 +3388,18 @@ async function damageSkill(u, t, sk) {
   // Melee champions (and melee summons) run in; everyone else shoots from where they stand.
   const melee = u.role === 'melee';
   const proj = melee ? null : projectileFor(u, sk);
-  const trip = melee ? await dashTo(u, targets) : null;
+  let trip = melee ? await dashTo(u, targets) : null;   // reassigned if a Double Attack charges in again
   if (!melee) await aimPose(u);
   // Area attacks from range: every projectile flies at once, then the hits resolve.
   if (!melee && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
-  let total = 0;
+  let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills.
   const hits = (o.hits || 1) + (o.hits > 1 ? pv(u).extraHit || 0 : 0);
   const hitOnce = async (tg, mult) => {
     const r = strikeOnce(u, tg, mult, sk.name, o);
     if (!r.miss) {
       total += r.dmg;
+      lastHit = tg;
       applyHitEffects(u, tg, o);
       if (tg.hp <= 0 && pv(u).killHeal && u.hp > 0) healUnit(u, u, Math.round(u.maxHp * pv(u).killHeal), 'Bloodlust');
     }
@@ -3415,27 +3454,53 @@ async function damageSkill(u, t, sk) {
     if (wx() === 'moon') steal *= 2;
     if (steal) healUnit(u, u, Math.round(dealt * steal), u.faction === 'crimson' && !o.lifesteal ? 'Bloodthirst' : sk.name);
     if (u.manaSteal) gainMp(u, Math.round(dealt * u.manaSteal));   // mana lifesteal (from items)
+    // Weapon drains (see THE ARMORY). These don't scale with the damage dealt but with a pool of HP:
+    // the wielder's own total, the wound they are already carrying, or whatever the target has left.
+    // One helping per swing that landed — so a Double Attack drinks twice — and a Blood Moon doubles
+    // them like every other lifesteal.
+    const w = u.steal;
+    if (w && (w.max || w.lost || w.foe)) {
+      const foeHp = lastHit && lastHit.hp > 0 ? lastHit.hp : 0;
+      let got = u.maxHp * w.max + (u.maxHp - u.hp) * w.lost + foeHp * w.foe;
+      if (wx() === 'moon') got *= 2;
+      got = Math.round(got);
+      // A champion already at full health has nothing to drain into, and healUnit still logs and
+      // floats a +0, so say nothing rather than spamming the log on every swing.
+      if (got > 0 && u.hp < u.maxHp) healUnit(u, u, got, wepOf(u.id)?.name || 'their weapon');
+    }
   };
   drain(total);
   render();
   await wait(160);
   await resolveCounters();   // defenders strike back before the attacker runs home
-  if (trip) await dashBack(u, trip);
-  // Double Attack: having run home, the fighter turns round, charges the same enemy again and
-  // lands a second full-strength swing. Rolled last so a swing that killed its target, or that
-  // cost the attacker their life on the way out (thorns, Retribution, a counter), never comes back.
+  // Double Attack: a second full-strength swing at the same enemy. Rolled after the first swing
+  // and any counter, so a swing that killed its target, or that cost the attacker their life
+  // (thorns, Retribution, a counter), never comes back. Each second swing restarts the attack clip.
   if (rollsDouble(u, sk) && u.hp > 0 && t && t.hp > 0) {
+    const stay = !trip || chance(0.5);
     float(u, 'Double Attack!', 'fx');
-    log(`${u.name} wheels around and comes back for a second swing!`, u.side);
-    const again = await dashTo(u, [t]);
     const before = total;
-    await strikePose(u);
-    await hitOnce(t, sk.mult);
+    if (stay) {
+      // Stay in reach and swing again straight away — or, at range, loose a second shot.
+      log(melee ? `${u.name} keeps swinging: a second strike!` : `${u.name} looses a second shot!`, u.side);
+      await wait(200);
+      if (melee) await strikePose(u, true);
+      else { await aimPose(u); await shoot(u, t, proj); }
+      await hitOnce(t, sk.mult);
+    } else {
+      // Run back to their place, wheel round, and charge in again.
+      log(`${u.name} wheels around and comes back for a second swing!`, u.side);
+      await dashBack(u, trip);
+      await wait(260);   // a beat at home so the call-out reads before the second charge
+      trip = await dashTo(u, [t]);
+      await strikePose(u, true);
+      await hitOnce(t, sk.mult);
+    }
     drain(total - before);
     render();
     await resolveCounters();
-    if (again) await dashBack(u, again);
   }
+  if (trip) await dashBack(u, trip);
   await wait(120);
 }
 
@@ -3453,6 +3518,7 @@ function healUnit(src, t, amount, label) {
   const P = src === t ? {} : pv(src);
   if (P.lowHeal && t.hp / t.maxHp < P.lowHeal.below) amount = Math.round(amount * (1 + P.lowHeal.bonus));   // Liesl: Mercy
   if (P.healMp) gainMp(t, P.healMp);   // Maren: Tidecaller
+  if (t.healTaken) amount = Math.round(amount * (1 + t.healTaken));   // worn kit: healing received
   if (has(t, 'hex')) amount = Math.round(amount * 0.5);
   const got = Math.min(amount, t.maxHp - t.hp);
   t.hp += got;
@@ -3573,7 +3639,8 @@ async function beginTurn(u) {
   }
   const rg = has(u, 'regen');
   if (rg && u.hp < u.maxHp) {
-    const got = Math.min(has(u, 'hex') ? Math.round(rg.value * 0.5) : rg.value, u.maxHp - u.hp);
+    const mend = Math.round(rg.value * (1 + (u.healTaken || 0)));   // worn kit: healing received
+    const got = Math.min(has(u, 'hex') ? Math.round(mend * 0.5) : mend, u.maxHp - u.hp);
     u.hp += got;
     float(u, `+${got}`, 'heal');
     log(`${u.name} regenerates ${got} HP.`, u.side);
@@ -5090,6 +5157,481 @@ function sellTrinket() {
 }
 
 /* ==================================================================
+   THE ARMORY — named weapons, one per champion, bought from Brann at
+   the Ironsmith and saved as profile.gear[id].wp. Separate from the
+   forge tracks: FORGE.w sharpens whatever a champion already holds
+   (flat Attack), while a weapon off the rack carries minor buffs on
+   top of its own damage.
+
+   Every weapon belongs to a faction. Anyone can wield any of them, but
+   a champion holding their own faction's work is ATTUNED and gets that
+   faction's extra edge as well — picked to suit how the faction already
+   fights, so the Ironclad swing again and the Horde drink from a wound.
+
+   bonus keys. The first six are read into the unit by makeUnit; the rest
+   were already understood by trinkets and furniture (see gearOf).
+     crit       +N critical chance
+     critMult   critical hits deal +N more damage
+     double     +N chance the champion's basic Attack strikes twice
+     stealMax   every attack drains N of the wielder's max HP
+     stealLost  every attack drains N of the wielder's missing HP
+     stealFoe   every attack drains N of the target's current HP
+     atkPct, hpPct, agi, hpRegen, mp, mpRegen, manaSteal
+   ================================================================== */
+const ARMORY = {
+  // Ironclad Union — pistons and repeating mechanisms: the machines swing again.
+  pistonmaul:   { name: 'Piston Maul', faction: 'mech', look: 'hammer', price: 110,
+                  flavor: 'A sledge with a steam ram in the shaft. It rebounds before you do.',
+                  bonus: { atkPct: 0.05, double: 0.04 } },
+  ripsaw:       { name: 'Ripsaw Limb', faction: 'mech', look: 'saw', price: 220,
+                  flavor: 'Bolted straight to the arm socket. Brann will not say whose arm it was.',
+                  bonus: { atkPct: 0.09, double: 0.06, crit: 0.05 } },
+  voltbore:     { name: 'Voltbore Repeater', faction: 'mech', look: 'gun', price: 380,
+                  flavor: 'Six chambers, one trigger, and a coil that hums for an hour after.',
+                  bonus: { atkPct: 0.14, double: 0.08, critMult: 0.20 } },
+
+  // Bloodtusk Horde — Rage drinks deepest from a wound, so their steel does too.
+  tuskcleaver:  { name: 'Tuskcleaver', faction: 'orc', look: 'axe', price: 110,
+                  flavor: 'Ground from a boar tusk and never once cleaned.',
+                  bonus: { atkPct: 0.05, stealLost: 0.06 } },
+  gorefist:     { name: 'Gorefist Wraps', faction: 'orc', look: 'fist', price: 220,
+                  flavor: 'Leather, ash-iron studs, and somebody else’s teeth set in the knuckles.',
+                  bonus: { atkPct: 0.09, stealLost: 0.10, double: 0.04 } },
+  skullsplitter:{ name: 'Skullsplitter', faction: 'orc', look: 'hammer', price: 380,
+                  flavor: 'Named for what it does, by the Horde, who name nothing else.',
+                  bonus: { atkPct: 0.14, stealLost: 0.14, crit: 0.06 } },
+
+  // Kingdom of Aldmere — Discipline: drilled strikes land where they are aimed.
+  oathblade:    { name: 'Oathblade', faction: 'human', look: 'sword', price: 110,
+                  flavor: 'Every Aldmere recruit swears on one. Most keep it sharper than the oath.',
+                  bonus: { atkPct: 0.05, crit: 0.05 } },
+  aldbow:       { name: 'Aldmere Longbow', faction: 'human', look: 'bow', price: 220,
+                  flavor: 'Yew from the last green valley north of the road.',
+                  bonus: { atkPct: 0.09, crit: 0.08, critMult: 0.15 } },
+  kingslance:   { name: 'Kingsguard Lance', faction: 'human', look: 'spear', price: 380,
+                  flavor: 'Issued to the hundred who held the gate at Ashfall. Twelve came home.',
+                  bonus: { atkPct: 0.14, crit: 0.12, double: 0.04 } },
+
+  // Stoneleaf Accord — Precision: the elves pick the gap, the dwarves widen it.
+  runehammer:   { name: 'Runed Stonehammer', faction: 'stone', look: 'hammer', price: 110,
+                  flavor: 'Dwarf-cut runes down the head, each one a word for patience.',
+                  bonus: { atkPct: 0.05, critMult: 0.15 } },
+  leafrecurve:  { name: 'Stoneleaf Recurve', faction: 'stone', look: 'bow', price: 220,
+                  flavor: 'Grown, not carved. The Accord will not say how long it took.',
+                  bonus: { atkPct: 0.09, critMult: 0.25, crit: 0.05 } },
+  deeproot:     { name: 'Deeproot Bardiche', faction: 'stone', look: 'axe', price: 380,
+                  flavor: 'Heartwood haft, ash-iron edge, and it has never needed honing.',
+                  bonus: { atkPct: 0.14, critMult: 0.35, agi: 1 } },
+
+  // The Tideborn — the tide takes what it finds, and the biggest thing first.
+  tidefork:     { name: 'Tidefork', faction: 'tide', look: 'trident', price: 110,
+                  flavor: 'Three barbs that whistle on the backswing like water down a drain.',
+                  bonus: { atkPct: 0.05, stealFoe: 0.015 } },
+  brinelance:   { name: 'Brinecoral Lance', faction: 'tide', look: 'spear', price: 220,
+                  flavor: 'Live coral still growing along the shaft. It drinks when it strikes.',
+                  bonus: { atkPct: 0.09, stealFoe: 0.025, mpRegen: 2 } },
+  abbotstave:   { name: 'Drowned Abbot’s Stave', faction: 'tide', look: 'staff', price: 380,
+                  flavor: 'Fished out of the Sunken Crypt. It is still wet. It is always still wet.',
+                  bonus: { atkPct: 0.14, stealFoe: 0.035, crit: 0.06 } },
+
+  // The Crimson Court — Bloodthirst, in the steel as much as the wielder.
+  nightthorn:   { name: 'Nightthorn Rapier', faction: 'crimson', look: 'rapier', price: 110,
+                  flavor: 'A duelling blade with a thorn for a guard. It beads at the point.',
+                  bonus: { atkPct: 0.05, stealMax: 0.015 } },
+  bloodorb:     { name: 'Bloodweaver’s Orb', faction: 'crimson', look: 'orb', price: 220,
+                  flavor: 'Morwenna sold one once, for a price she has never named.',
+                  bonus: { atkPct: 0.09, stealMax: 0.025, hpRegen: 3 } },
+  heartreaper:  { name: 'Heartreaper Fangs', faction: 'crimson', look: 'dagger', price: 380,
+                  flavor: 'A matched pair. Vesper gives them as gifts, and expects them back.',
+                  bonus: { atkPct: 0.14, stealMax: 0.03, crit: 0.08 } },
+};
+const ARMORY_KEYS = Object.keys(ARMORY);
+
+// Attunement: the extra edge a champion gets from their own faction's weapon, chosen to
+// echo that faction's mechanic — Heat hammers twice, Rage drinks from the wound, and so on.
+const ATTUNE = {
+  mech:    { double: 0.05 },
+  orc:     { stealLost: 0.08 },
+  human:   { crit: 0.06 },
+  stone:   { critMult: 0.20 },
+  tide:    { stealFoe: 0.02 },
+  crimson: { stealMax: 0.02 },
+};
+
+const wepOf = (id) => ARMORY[gearRaw(id).wp] || null;
+const attuned = (id, key = gearRaw(id).wp) => !!ARMORY[key] && charById(id)?.faction === ARMORY[key].faction;
+// What gearOf folds into the unit: the weapon's own bonus, plus its faction's edge if attuned.
+function weaponBonus(id) {
+  const w = wepOf(id);
+  if (!w) return {};
+  const out = addUp({}, w.bonus);
+  return attuned(id) ? addUp(out, ATTUNE[w.faction] || {}) : out;
+}
+const wepRefund = (k) => Math.floor(ARMORY[k].price / 2);
+
+// Plain English for one bonus object, in the order the rack and the stand read best.
+// Shared by weapons (THE ARMORY) and worn kit (THE ARMOR STAND) - one list, one order.
+const PCT = (n) => `${Math.round(n * 1000) / 10}%`;
+const WEP_TEXT = {
+  atkPct:    (n) => `+${PCT(n)} Attack`,
+  blockPhys: (n) => `Turns aside ${PCT(n)} of every physical blow`,
+  blockMagic:(n) => `Turns aside ${PCT(n)} of every magic blow`,
+  physAmp:   (n) => `+${PCT(n)} physical damage dealt`,
+  magicAmp:  (n) => `+${PCT(n)} magic damage dealt`,
+  healTaken: (n) => `+${PCT(n)} to all healing received`,
+  crit:      (n) => `+${PCT(n)} Critical Chance`,
+  critMult:  (n) => `Critical hits deal +${PCT(n)} damage`,
+  double:    (n) => `+${PCT(n)} chance to attack twice`,
+  stealMax:  (n) => `Every attack drains ${PCT(n)} of your max HP`,
+  stealLost: (n) => `Every attack drains ${PCT(n)} of your missing HP`,
+  stealFoe:  (n) => `Every attack drains ${PCT(n)} of the target's current HP`,
+  hpPct:     (n) => `+${PCT(n)} max HP`,
+  agi:       (n) => `+${n} Agility`,
+  hpRegen:   (n) => `+${n} HP each turn`,
+  mp:        (n) => `+${n} max MP`,
+  mpRegen:   (n) => `+${n} MP each turn`,
+  manaSteal: (n) => `Regain MP equal to ${PCT(n)} of the damage dealt`,
+};
+const WEP_ORDER = Object.keys(WEP_TEXT);
+const wepLines = (bonus) => WEP_ORDER.filter((k) => bonus[k]).map((k) => WEP_TEXT[k](bonus[k]));
+
+// A new weapon goes in the champion's hands; the one they held is sent home to the stash.
+function buyWeapon(k) {
+  const id = forgeHero(), g = { ...gearRaw(id) }, cost = ARMORY[k]?.price;
+  if (!ARMORY[k] || g.wp === k || profile.gold < cost) return false;
+  profile.gold -= cost;
+  if (g.wp) profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
+  g.wp = k;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+function sellWeapon() {
+  const id = forgeHero(), g = { ...gearRaw(id) };
+  if (!g.wp) return false;
+  profile.gold += wepRefund(g.wp);
+  delete g.wp;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+// Out of the stash and into a champion's hands; whatever they held goes back to the stash.
+function giveWeapon(k, id) {
+  const st = profile.stash.weapons, g = { ...gearRaw(id) };
+  if (!ARMORY[k] || !charById(id) || !(st[k] > 0) || g.wp === k) return false;
+  st[k]--;
+  if (!st[k]) delete st[k];
+  if (g.wp) st[g.wp] = (st[g.wp] || 0) + 1;
+  g.wp = k;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+function unequipWeapon(id) {
+  const g = { ...gearRaw(id) };
+  if (!g.wp) return false;
+  profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
+  delete g.wp;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+/* Weapon icons reuse the battlefield art recipes (WEAPONS), drawn in each faction's color, so the
+   rack shows the same steel the champions actually swing.
+
+   Each recipe draws at a different size and offset around the hand it is given, so an icon that
+   simply used the sprite's 100x100 box would sit small and off-center. WEAPON_BOX is the bounding
+   box each recipe actually paints when handed (42, 70) — [x, y, width, height] — and wepIcon fits
+   a square viewBox around it so every weapon fills its tile. To regenerate after changing the art,
+   render a recipe into a <g> and read getBBox(); a look with no entry falls back to the full box. */
+const FACTION_INK = { mech: '#7d8aa3', orc: '#6b8f56', human: '#3e5a8c', stone: '#3f7a4f', tide: '#2a7f8f', crimson: '#c0303f' };
+const WEAPON_BOX = {
+  sword:  [32.1, 34.4, 31.5, 46.2], axe:    [33.1, 35.5, 26.4, 46.5], hammer:   [30.7, 31.0, 29.8, 51.0],
+  saw:    [39.0, 57.0, 28.0, 22.0], spear:  [31.5, 24.7, 38.9, 59.4], trident:  [28.9, 21.7, 40.6, 65.7],
+  bow:    [36.0, 44.0, 22.0, 50.0], crossbow: [32.0, 56.0, 34.0, 24.0], gun:    [28.0, 60.5, 48.5, 13.0],
+  cannon: [36.8, 17.5, 48.4, 28.5], staff:  [33.0, 23.0, 18.0, 59.0], orb:     [39.0, 51.0, 20.0, 20.0],
+  pot:    [39.5, 48.0, 13.0, 24.5], fist:   [38.0, 65.0, 15.0, 13.0], rapier:   [33.9, 34.4, 35.1, 44.2],
+  dagger: [29.6, 43.5, 32.0, 33.4], wrench: [33.8, 35.8, 31.4, 42.4],
+};
+const ICON_PAD = 1.18;   // a little air around the art so nothing touches the tile edge
+function wepIcon(k) {
+  const w = ARMORY[k], ink = FACTION_INK[w.faction], b = WEAPON_BOX[w.look];
+  const art = WEAPONS[w.look]({ trim: ink, orb: ink }, 42, 70);
+  if (!b) return `<svg viewBox="0 0 100 100" aria-hidden="true">${art}</svg>`;
+  const side = Math.max(b[2], b[3]) * ICON_PAD;
+  const x = b[0] + b[2] / 2 - side / 2, y = b[1] + b[3] / 2 - side / 2;
+  const r = (n) => Math.round(n * 10) / 10;
+  return `<svg viewBox="${r(x)} ${r(y)} ${r(side)} ${r(side)}" aria-hidden="true">${art}</svg>`;
+}
+
+// The rack at the Ironsmith: every weapon, by faction, for the chosen champion.
+function rackHTML(id) {
+  const c = charById(id), held = gearRaw(id).wp;
+  const groups = FACTION_KEYS.map((f) => {
+    const own = c.faction === f;
+    const rows = ARMORY_KEYS.filter((k) => ARMORY[k].faction === f).map((k) => {
+      const w = ARMORY[k], on = held === k, ok = profile.gold >= w.price, spare = profile.stash.weapons[k] || 0;
+      const lines = wepLines(w.bonus).map((t) => `<li>${t}</li>`).join('');
+      const edge = own ? wepLines(ATTUNE[f]).map((t) => `<li class="attune">${t}</li>`).join('') : '';
+      const btn = on ? `<button class="btn small" type="button" data-k="wsell">Sell back for ${wepRefund(k)} gold</button>`
+        : spare ? `<button class="btn small primary" type="button" data-k="wgive:${k}:${id}">Take one from your stash</button>`
+        : `<button class="btn small${ok ? ' primary' : ''}" type="button" data-k="wep:${k}"${ok ? '' : ' disabled'}>Buy for ${w.price} gold</button>`;
+      return `<div class="ware${on ? ' worn' : ''}"><div class="ico wico">${wepIcon(k)}</div>
+        <strong>${w.name}${on ? ' · held' : ''}</strong>
+        <p class="note">${w.flavor}</p><ul class="affix">${lines}${edge}</ul>
+        <div class="buy"><span class="note">${w.price} gold${spare ? ` · ${spare} in your stash` : ''}</span>${btn}</div></div>`;
+    }).join('');
+    return `<h4 class="rackHead${own ? ' own' : ''}">${FACTIONS[f].name}${own ? ` · attuned to ${shortName(c)}` : ''}</h4>
+      <div class="trinkets">${rows}</div>`;
+  }).join('');
+  const w = wepOf(id), u = makeUnit(c, 1, 'p', 0);
+  return `<div class="anvil">
+    <div class="who2"><div class="pic">${spriteSVG(id)}</div>
+      <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${FACTIONS[c.faction].name}</p>
+        <p class="note">Holding: <b>${w ? w.name : 'nothing but their fists'}</b>${w && attuned(id) ? ' · attuned' : ''}</p>
+        <p class="note">At level 1: ${u.maxHp} HP · ${u.atk} Attack · ${Math.round(u.crit * 100)}% crit</p></div></div>
+    ${groups}
+  </div>`;
+}
+
+/* ==================================================================
+   THE ARMOR STAND - worn kit, one piece per champion, bought from
+   Brann at the Ironsmith and saved as profile.gear[id].eq. Separate
+   from the anvil, which forges the armor a champion already wears
+   (flat Defense and HP): a piece off the stand is a named garment
+   carrying minor buffs of its own, and only one can be worn.
+
+   Two kinds hang on the stand:
+     - Free Company kit (faction 'all') - anyone in any warband wears it.
+     - Faction kit - cut for one faction and worn only by its own
+       champions, each piece echoing how that faction already fights.
+
+   bonus keys. The first five belong to the stand: makeUnit reads them
+   into the unit, strikeOnce applies the wards and the amplifiers, and
+   healUnit applies the healing. The rest were already understood by
+   weapons, trinkets and furniture (see gearOf).
+     blockPhys   turns aside N of every physical blow
+     blockMagic  turns aside N of every magic blow
+     physAmp     the wearer deals N more physical damage
+     magicAmp    the wearer deals N more magic damage
+     healTaken   every heal the wearer receives is N stronger
+     atkPct, hpPct, agi, hpRegen, mp, mpRegen, manaSteal, crit
+   ================================================================== */
+const EQUIPMENT = {
+  // Free Company kit - plain road gear off the common rack, for anyone who pays.
+  roadjerkin:  { name: 'Free Company Jerkin', faction: 'all', look: 'jerkin', price: 90,
+                 flavor: 'Boiled leather, three owners, and a patch over the last one.',
+                 bonus: { blockPhys: 0.02 } },
+  ashcloak:    { name: 'Ashwarden Cloak', faction: 'all', look: 'cloak', price: 110,
+                 flavor: 'Woven to shed cinders. It turns out spellfire falls much the same way.',
+                 bonus: { blockMagic: 0.02 } },
+  mendersash:  { name: "Mender's Sash", faction: 'all', look: 'sash', price: 200,
+                 flavor: 'Field surgeons wrap one twice. The bandages come off it, not out of a bag.',
+                 bonus: { healTaken: 0.2 } },
+  whetbaldric: { name: 'Whetstone Baldric', faction: 'all', look: 'harness', price: 240,
+                 flavor: 'A strap of pockets, every one of them holding a stone.',
+                 bonus: { physAmp: 0.12 } },
+  spellweave:  { name: "Spellbinder's Weave", faction: 'all', look: 'robe', price: 260,
+                 flavor: 'Silver thread laid in a spiral. It hums when the caster means it.',
+                 bonus: { magicAmp: 0.15 } },
+  roadharness: { name: 'Roadworn Harness', faction: 'all', look: 'mail', price: 340,
+                 flavor: 'Plate scraps, mail scraps and rope. Brann calls it honest work.',
+                 bonus: { blockPhys: 0.03, blockMagic: 0.03, hpPct: 0.05 } },
+
+  // Ironclad Union - a boiler wants plating, and lead cloth to keep the spellfire off it.
+  boilerplate: { name: 'Riveted Boiler Plate', faction: 'mech', look: 'plate', price: 150,
+                 flavor: 'Second skin for a steam hull. The rivets are the strong part.',
+                 bonus: { blockPhys: 0.04, hpPct: 0.05 } },
+  dampenshroud:{ name: 'Dampening Shroud', faction: 'mech', look: 'cloak', price: 320,
+                 flavor: 'Lead-threaded sheeting hung over the furnace. Lightning finds nothing to bite.',
+                 bonus: { blockMagic: 0.07, blockPhys: 0.02 } },
+
+  // Bloodtusk Horde - Rage fights hardest when it is hurt, so the Horde buy time, not safety.
+  tuskharness: { name: 'Tusk-Bone Harness', faction: 'orc', look: 'harness', price: 150,
+                 flavor: 'Boar ribs lashed across the chest. Mogra swears it has stopped an axe.',
+                 bonus: { blockPhys: 0.05 } },
+  warhide:     { name: 'Bloodtusk Warhide', faction: 'orc', look: 'mail', price: 320,
+                 flavor: 'Cured with ash and spit. Horde shamans say a wound mends faster under it.',
+                 bonus: { healTaken: 0.25, hpRegen: 4 } },
+
+  // Kingdom of Aldmere - Discipline: issued kit, blessed at the chapel before the march.
+  kitsurcoat:  { name: 'Aldmere Surcoat', faction: 'human', look: 'jerkin', price: 150,
+                 flavor: 'Quartered blue and gold, blessed at the dawn chapel, issued to every recruit.',
+                 bonus: { blockPhys: 0.02, blockMagic: 0.02, healTaken: 0.1 } },
+  kingsplate:  { name: 'Kingsguard Plate', faction: 'human', look: 'plate', price: 320,
+                 flavor: 'Full harness out of the royal armory. Two squires and an hour to buckle it.',
+                 bonus: { blockPhys: 0.07, hpPct: 0.04 } },
+
+  // Stoneleaf Accord - elf heartwood over dwarf stonework, and runes cut for patience.
+  heartmantle: { name: 'Heartwood Mantle', faction: 'stone', look: 'mantle', price: 150,
+                 flavor: 'Grown across the shoulders over a season. The leaves never brown.',
+                 bonus: { blockMagic: 0.04, healTaken: 0.15 } },
+  runeplate:   { name: 'Runed Stoneplate', faction: 'stone', look: 'plate', price: 320,
+                 flavor: 'Dwarf-cut slate over elf-spun lining. Neither side will say who finished it.',
+                 bonus: { blockPhys: 0.05, blockMagic: 0.04, hpRegen: 5 } },
+
+  // The Tideborn - the reef mends what it covers, and deep scale turns a curse aside.
+  pearlwrap:   { name: 'Pearlscale Wrap', faction: 'tide', look: 'robe', price: 150,
+                 flavor: 'Reef silk sewn with seed pearls. Maren blesses every one she sells.',
+                 bonus: { healTaken: 0.2, mpRegen: 2 } },
+  abyssmail:   { name: 'Abyssal Scale Mail', faction: 'tide', look: 'mail', price: 320,
+                 flavor: 'Scales off something that lives where the light stops.',
+                 bonus: { blockMagic: 0.06, healTaken: 0.15 } },
+
+  // The Crimson Court - Bloodthirst: silk for the blood-witch, regalia that makes every mouthful count.
+  bloodsilk:   { name: 'Bloodsilk Vestment', faction: 'crimson', look: 'robe', price: 150,
+                 flavor: 'Spun in the Court cellars. Morwenna will not say by what.',
+                 bonus: { magicAmp: 0.15, mp: 20 } },
+  courtregalia:{ name: 'Court Regalia', faction: 'crimson', look: 'cloak', price: 320,
+                 flavor: 'Worn to the Long Table. Vesper insists the collar is practical.',
+                 bonus: { physAmp: 0.12, healTaken: 0.2 } },
+};
+const EQUIP_KEYS = Object.keys(EQUIPMENT);
+
+const kitOf = (id) => EQUIPMENT[gearRaw(id).eq] || null;
+// Faction kit fits only its own faction; Free Company kit fits anyone.
+const fitsKit = (k, id) => {
+  const e = EQUIPMENT[k], c = charById(id);
+  return !!e && !!c && (e.faction === 'all' || e.faction === c.faction);
+};
+// What gearOf folds into the unit. A piece a champion cannot wear gives nothing, so no
+// save can smuggle another faction's kit into battle.
+function equipBonus(id) {
+  const g = gearRaw(id);
+  return g.eq && fitsKit(g.eq, id) ? { ...EQUIPMENT[g.eq].bonus } : {};
+}
+const kitRefund = (k) => Math.floor(EQUIPMENT[k].price / 2);
+
+// A new piece goes on the champion; whatever they wore is sent home to the stash.
+function buyKit(k) {
+  const id = forgeHero(), g = { ...gearRaw(id) }, cost = EQUIPMENT[k]?.price;
+  if (!fitsKit(k, id) || g.eq === k || profile.gold < cost) return false;
+  profile.gold -= cost;
+  if (g.eq) profile.stash.equipment[g.eq] = (profile.stash.equipment[g.eq] || 0) + 1;
+  g.eq = k;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+function sellKit() {
+  const id = forgeHero(), g = { ...gearRaw(id) };
+  if (!g.eq) return false;
+  profile.gold += kitRefund(g.eq);
+  delete g.eq;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+// Out of the stash and onto a champion; whatever they wore goes back to the stash.
+function giveKit(k, id) {
+  const st = profile.stash.equipment, g = { ...gearRaw(id) };
+  if (!fitsKit(k, id) || !(st[k] > 0) || g.eq === k) return false;
+  st[k]--;
+  if (!st[k]) delete st[k];
+  if (g.eq) st[g.eq] = (st[g.eq] || 0) + 1;
+  g.eq = k;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+function unequipKit(id) {
+  const g = { ...gearRaw(id) };
+  if (!g.eq) return false;
+  profile.stash.equipment[g.eq] = (profile.stash.equipment[g.eq] || 0) + 1;
+  delete g.eq;
+  profile.gear[id] = g;
+  saveProfile();
+  return true;
+}
+
+/* Kit icons: a garment glyph drawn in the faction's color (FACTION_INK), the way wepIcon
+   draws the rack's steel. Free Company kit is drawn in plain road brown. */
+const KIT_ART = {
+  jerkin: (ink) => `<path d="M12 4 7 8 6 16h3l1 12h12l1-12h3l-1-8-5-4z" fill="${ink}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M12 4q4 4 8 0M16 8v20" stroke="${INK}" stroke-width="1.2" fill="none"/><path d="M11 20h4M17 20h4" stroke="#e8d9b5" stroke-width="1.1"/>`,
+  cloak:  (ink) => `<path d="M16 4q-7 1-9 8l-2 16h7l1-14h6l1 14h7L25 12q-2-7-9-8z" fill="${ink}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M10 4q6 6 12 0q-3 6-6 6t-6-6z" fill="${INK}" opacity=".55"/><circle cx="16" cy="9" r="2" fill="#e8d9b5" stroke="${INK}" stroke-width="1"/>`,
+  sash:   (ink) => `<path d="M8 7l4-3 14 17-4 3z" fill="${ink}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M10 6l14 17" stroke="#fff" stroke-width="1" opacity=".3"/>
+    <path d="M6 22q5-3 9 2M24 26q-4-1-5-5" stroke="${ink}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
+  robe:   (ink) => `<path d="M13 4l-4 5-2 19h18l-2-19-4-5z" fill="${ink}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M13 4l3 5 3-5M16 9v19" stroke="${INK}" stroke-width="1.2" fill="none"/>
+    <path d="M9 14q3 2 7 2t7-2" stroke="#e8d9b5" stroke-width="1.1" fill="none"/>`,
+  plate:  (ink) => `<path d="M16 4 8 7v9q0 8 8 12 8-4 8-12V7z" fill="${ink}" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M16 5v26M9 13h14" stroke="${INK}" stroke-width="1.2"/>
+    <path d="M11 9q5 2 10 0" stroke="#dfe7f2" stroke-width="1.2" fill="none"/>`,
+  mail:   (ink) => `<path d="M12 4 7 9 6 17h3l1 11h12l1-11h3l-1-8-5-5z" fill="${ink}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+    ${[12, 17, 22].map((y) => [11, 14, 17, 20].map((x) => `<circle cx="${x}" cy="${y}" r="1.4" fill="none" stroke="${INK}" stroke-width=".9" opacity=".7"/>`).join('')).join('')}`,
+  harness:(ink) => `<path d="M9 5l14 20M23 5 9 25" stroke="${ink}" stroke-width="3.4" stroke-linecap="round"/>
+    <rect x="12" y="13" width="8" height="6" rx="1.5" fill="${ink}" stroke="${INK}" stroke-width="1.3"/>
+    <path d="M6 26q6 3 20 0" stroke="${ink}" stroke-width="2.8" fill="none" stroke-linecap="round"/>`,
+  mantle: (ink) => `<path d="M16 6q-9 0-11 8l1 6h5l1-5h8l1 5h5l1-6q-2-8-11-8z" fill="${ink}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M16 20v8M16 23q-4-1-5-4M16 26q4-1 5-4" stroke="#6cc28a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+};
+const kitIcon = (k) => {
+  const e = EQUIPMENT[k], ink = e.faction === 'all' ? WOOD : FACTION_INK[e.faction];
+  return `<svg viewBox="0 0 32 32" aria-hidden="true">${KIT_ART[e.look](ink)}</svg>`;
+};
+
+/* What a champion can carry, and the one rule every ward reads. Shown in the Elder's Hut
+   and under the gear button, beside the factions and the weather. */
+const GEAR_LORE = [
+  ['Physical and magic damage',
+   `Every blow that lands is one or the other. <b>Physical</b> is steel, shot, tusk, fist and the free Attack.
+    <b>Magic</b> is spellfire, lightning, holy light, siren song, ink and curses &mdash; a skill card marks those
+    with <b>Magic</b>. A ward off the armor stand turns aside its own kind and nothing else, and an amplifier
+    lifts only the kind its wearer deals. Burn, Poison and Bleed tick away underneath all of it: nothing wards those.`],
+  ['Four things a champion carries',
+   `The <b>anvil</b> at the Ironsmith forges a champion's own weapon edge and armor, tier by tier, for flat
+    Attack, HP and Defense. The <b>weapon rack</b> at the Armory next door holds named weapons, one per champion, each
+    belonging to a faction &mdash; wield your own faction's work and you are <b>attuned</b> for an extra edge.
+    The Armory's <b>armor stand</b> holds worn kit, one piece per champion: Free Company kit fits anyone, while a
+    faction's own kit is cut for its champions alone. The <b>Jeweler</b> sells the one trinket they wear.
+    All four stack, and all four count in every battle for that champion only.`],
+  ['Where spare gear goes',
+   `Replace a weapon, a piece of kit or a trinket and the old one is sent home to Your House rather than sold.
+    Weapons wait on the rack there, kit in the chest and trinkets in the stash, and you can hand any of them
+    to another champion in your warband for nothing. Selling a piece back at the shop pays half its price.`],
+];
+
+/* The stand at the Armory: the common rack, then this champion's own faction's kit.
+   Other factions' pieces hang here too, but only their own champions can wear them, so
+   they show up when one of theirs is picked rather than greyed out a dozen at a time. */
+function kitHTML(id) {
+  const c = charById(id), worn = gearRaw(id).eq;
+  const row = (k) => {
+    const e = EQUIPMENT[k], on = worn === k, ok = profile.gold >= e.price, spare = profile.stash.equipment[k] || 0;
+    const lines = wepLines(e.bonus).map((t) => `<li>${t}</li>`).join('');
+    const btn = on ? `<button class="btn small" type="button" data-k="eqsell">Sell back for ${kitRefund(k)} gold</button>`
+      : spare ? `<button class="btn small primary" type="button" data-k="eqgive:${k}:${id}">Wear one from your stash</button>`
+      : `<button class="btn small${ok ? ' primary' : ''}" type="button" data-k="eqbuy:${k}"${ok ? '' : ' disabled'}>Buy for ${e.price} gold</button>`;
+    return `<div class="ware${on ? ' worn' : ''}"><div class="ico wico">${kitIcon(k)}</div>
+      <strong>${e.name}${on ? ' · worn' : ''}</strong>
+      <p class="note">${e.flavor}</p><ul class="affix">${lines}</ul>
+      <div class="buy"><span class="note">${e.price} gold${spare ? ` &middot; ${spare} in your stash` : ''}</span>${btn}</div></div>`;
+  };
+  const group = (label, f, own) =>
+    `<h4 class="rackHead${own ? ' own' : ''}">${label}</h4>
+     <div class="trinkets">${EQUIP_KEYS.filter((k) => EQUIPMENT[k].faction === f).map(row).join('')}</div>`;
+  const e = kitOf(id), u = makeUnit(c, 1, 'p', 0);
+  return `<div class="anvil">
+    <div class="who2"><div class="pic">${spriteSVG(id)}</div>
+      <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} &middot; ${FACTIONS[c.faction].name}</p>
+        <p class="note">Wearing: <b>${e ? e.name : 'nothing off the stand'}</b></p>
+        <p class="note">At level 1: ${u.maxHp} HP &middot; ${u.def} Defense &middot; turns aside ${Math.round(u.blockPhys * 100)}% physical, ${Math.round(u.blockMagic * 100)}% magic</p></div></div>
+    ${group('Free Company &middot; anyone may wear it', 'all', false)}
+    ${group(`${FACTIONS[c.faction].name} &middot; cut for ${shortName(c)}`, c.faction, true)}
+  </div>`;
+}
+
+/* ==================================================================
    RENDERING — shared bits
    ================================================================== */
 function log(text, kind) {
@@ -5161,6 +5703,8 @@ function loadoutCardHTML(c, kind, id, on) {
       + (MANA.pool[c.faction] ? ` · ${s.o?.mp ?? (id === 'a' ? MANA.skillCost : id === 'b' ? MANA.ultCost : MANA.skill2Cost)} MP` : '')
       + (s.cd ? ` · cooldown ${s.cd}` : '')
       + (r ? ` · Rank ${r}/${RANK_CAP}` : '')
+      // Worn kit wards physical and magic separately, so a damage skill says which it is.
+      + (s.kind === 'damage' && isMagic(s.o) ? ` · Magic` : '')
     : id === 'own' ? `${shortName(c)}'s passive` : id === 'alt' ? `${shortName(c)}'s other passive` : 'Learned passive';
   const rkrow = r || canUp ? `<span class="rkrow">
       ${r ? `<span class="rkd">Rank ${r}: ${rankBonusText(s, r)}</span>` : ''}
@@ -5449,8 +5993,10 @@ const PLACES = {
             flavor: 'A roped-off pit behind the Arena where sellsword bands settle who drinks free. Pay the stake, step over the rope, and prove it.' },
   guild:  { name: 'Guild House', kick: 'Enlist', blurb: 'Join a sellsword guild for a standing perk that grows with favor.',
             flavor: 'The old timber hall where Cinderhold\'s three guilds keep their ledgers. Every victory in their colors earns favor, and favor earns rank.' },
-  forge:  { name: 'Ironsmith', kick: 'Upgrade', blurb: 'Forge stronger weapons and armor for your champions.',
+  forge:  { name: 'Ironsmith', kick: 'Upgrade', blurb: 'Forge a sharper weapon edge and heavier armor, tier by tier.',
             flavor: 'Brann Ashhand works the forge day and night. Ash-iron takes an edge like nothing else on the road.' },
+  armory: { name: 'The Armory', kick: 'Gear up', blurb: 'Named weapons and worn kit for every champion.',
+            flavor: 'Quartermaster Tova Ironvale keeps every blade, shield and buckle in Cinderhold, from all six factions, and knows which champion each was made for.' },
   home:   { name: 'Your House', kick: 'Home', blurb: 'Your stash, your warband\'s gear and the furniture you\'ve bought.',
             flavor: 'A crooked little cottage at the edge of Cinderhold. The roof leaks, but it is yours.' },
   bounty: { name: 'Bounty Board', kick: 'Jobs', blurb: 'Three new jobs every day, paid in gold.',
@@ -5472,7 +6018,7 @@ const PLACES = {
   tavern: { name: 'The Smoldering Mug', kick: 'Rest', blurb: 'Rumors, tips and the tales told of you.',
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'cave', 'gate', 'bounty', 'forge', 'jeweler', 'market', 'carnival', 'elder', 'tavern'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'carnival', 'elder', 'tavern'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 
 /* ------------------------------------------------------------------
@@ -5496,7 +6042,7 @@ const KEEPERS = {
     ],
     react: ['Again. Slower. Good — that one was almost right.', 'Feel that? Remember it. That is the whole lesson.',
       'Sloppy, but it landed. We will take it.', 'Better. Now do it when somebody is shooting at you.'] },
-  forge: { id: 'brann', name: 'Brann Ashhand', title: 'Ironsmith', at: [850, 897], flip: false,
+  forge: { id: 'brann', name: 'Brann Ashhand', title: 'Ironsmith', at: [926, 929], flip: false,
     greet: [
       'Ash-iron, quenched in snowmelt off the mountain. Nothing on the road holds an edge like it.',
       'Armor goes on whoever stands at the front. I say that because it is true, not because I sell armor.',
@@ -5555,6 +6101,15 @@ const KEEPERS = {
     ],
     react: ['It suits you. Truly. I would say so even if it did not, but it does.', 'Wear it close to the skin. The stone likes the warmth.',
       'Lovely. A gem hums when it likes its owner. Listen.', 'A fine match. Mind the clasp; it bites.'] },
+  armory: { id: 'tova', name: 'Tova Ironvale', title: 'Quartermaster', at: [713, 985], flip: false,
+    greet: [
+      'Every blade on that rack has a name and a faction. Pick the one that knows your champion.',
+      'Steel for the hand, kit for the back. Brann sharpens it next door; I make sure it fits.',
+      'Free Company kit fits anyone. Faction kit fits only its own. I do not do alterations.',
+      () => (ctxGold() < 90 ? 'Window shopping? Fine. Win a fight or two and come back with coin.' : null),
+    ],
+    react: ['Good choice. Mind the edge, it is sharper than it looks.', 'Fits like it was made for you. Some of it was.',
+      'Buckled and ready. Go and break something that is not mine.', 'Your old piece goes home to the stash. Do not let it rust.'] },
   arena: { id: 'roska', name: 'Roska', title: 'Pit Master', at: [1256, 725], flip: true,
     greet: [
       'The crowd wants blood and the purse wants winners. Give them both!',
@@ -6274,11 +6829,39 @@ const PLACE_BODY = {
       <div class="depths">${cards}</div>`;
   },
 
+  // The Ironsmith: Brann's anvil, which forges a champion's weapon edge and armor tier by tier.
   forge() {
     const sel = forgeHero();
     const list = heroListHTML(sel, (id) => { const g = gearRaw(id); return [`Weapon ${g.w || 0} · Armor ${g.a || 0}`, (g.w || 0) + (g.a || 0) > 0]; });
     return `<div class="forge">${list}${anvilHTML(sel)}</div>
-      <p class="note">★ marks your warband. Upgrades are permanent and count in every battle, for this champion only.</p>`;
+      <p class="note">★ marks your warband. Upgrades are permanent and count in every battle, for this champion only.
+        Named weapons and worn kit hang next door at <b>the Armory</b>; the anvil's Weapon tier sharpens whichever weapon a champion holds.</p>
+      <div class="btns"><button class="btn small" type="button" data-k="open:armory">Visit the Armory</button></div>`;
+  },
+
+  // The Armory: named weapons on the rack (THE ARMORY data) and worn kit on the stand (THE ARMOR STAND).
+  // It shares state.forgeHero with the Ironsmith and the Jeweler, so the champion you picked stays picked.
+  armory() {
+    const sel = forgeHero(), tab = state.armoryTab || 'rack';
+    const tabs = `<div class="filters" role="group" aria-label="The Armory">${[['rack', 'Weapon rack'], ['kit', 'Armor stand']]
+      .map(([k, n]) => `<button class="fbtn" type="button" data-k="atab:${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>`;
+    if (tab === 'kit') {
+      const held = heroListHTML(sel, (id) => { const e = kitOf(id); return [e ? e.name : 'No kit', !!e]; });
+      return `${tabs}<div class="forge">${held}${kitHTML(sel)}</div>
+        <p class="note">★ marks your warband. Each champion wears <b>one piece of kit</b>, and it stacks with the anvil,
+          the weapon rack and the Jeweler. <b>Free Company</b> kit fits anyone; a faction's own kit is cut for its
+          champions alone, so pick one of theirs to see it. Buying another sends the old piece home to your stash.
+          Wards cut a share off every blow of their kind: <b>physical</b> is steel, shot, tusk and fist, while
+          <b>magic</b> is spellfire, lightning, holy light, song, ink and curses.</p>`;
+    }
+    {
+      const held = heroListHTML(sel, (id) => { const w = wepOf(id); return [w ? w.name : 'Bare-handed', !!w]; });
+      return `${tabs}<div class="forge">${held}${rackHTML(sel)}</div>
+        <p class="note">★ marks your warband. Each champion carries one weapon, and every weapon belongs to a faction:
+          anyone can wield any of them, but a champion holding their own faction's work is <b>attuned</b> and gains that
+          faction's extra edge on top. Buying another sends the old one home to your stash, and the anvil's Weapon tier
+          sharpens whichever one they are holding.</p>`;
+    }
   },
 
   jeweler() {
@@ -6327,10 +6910,10 @@ const PLACE_BODY = {
           <button class="btn small" type="button" data-k="take:${k}"${m && n < SATCHEL_MAX ? '' : ' disabled'}>To satchel</button></div></div>`;
     }).join('');
     const team = state.team.map((id) => {
-      const c = charById(id), g = gearRaw(id), t = TRINKETS[g.t];
+      const c = charById(id), g = gearRaw(id), t = TRINKETS[g.t], w = ARMORY[g.wp], e = EQUIPMENT[g.eq];
       return `<div class="inv"><div class="mini">${spriteSVG(id)}</div>
-        <div class="t"><strong>${shortName(c)}</strong><small>${TIER[g.w || 0]} weapon · ${TIER[g.a || 0]} armor · ${t ? t.name : 'No trinket'}</small></div>
-        ${t ? `<div class="mv"><button class="btn small" type="button" data-k="unequip:${id}">Take off</button></div>` : ''}</div>`;
+        <div class="t"><strong>${shortName(c)}</strong><small>${w ? `${w.name}${attuned(id) ? ' (attuned)' : ''}` : 'Bare-handed'} · ${TIER[g.w || 0]} edge · ${TIER[g.a || 0]} armor · ${e ? e.name : 'No kit'} · ${t ? t.name : 'No trinket'}</small></div>
+        ${w || t || e ? `<div class="mv">${w ? `<button class="btn small" type="button" data-k="wunequip:${id}">Rack weapon</button>` : ''}${e ? `<button class="btn small" type="button" data-k="equnequip:${id}">Take off kit</button>` : ''}${t ? `<button class="btn small" type="button" data-k="unequip:${id}">Take off trinket</button>` : ''}</div>` : ''}</div>`;
     }).join('');
     const spare = TRINKET_KEYS.filter((k) => s.trinkets[k] > 0).map((k) => {
       const tr = TRINKETS[k];
@@ -6341,6 +6924,22 @@ const PLACE_BODY = {
       return `<div class="inv"><span class="ico">${TRINKET_ICON[k]}</span>
         <div class="t"><strong>${tr.name}${s.trinkets[k] > 1 ? ` ×${s.trinkets[k]}` : ''}</strong><small>${tr.desc}</small></div><div class="mv">${who}</div></div>`;
     }).join('');
+    const rack = ARMORY_KEYS.filter((k) => s.weapons[k] > 0).map((k) => {
+      const w = ARMORY[k];
+      const who = state.team.map((id) => `<button class="btn small" type="button" data-k="wgive:${k}:${id}"${gearRaw(id).wp === k ? ' disabled' : ''}>${attuned(id, k) ? '★ ' : ''}Give to ${shortName(charById(id))}</button>`).join('');
+      return `<div class="inv"><span class="ico wico">${wepIcon(k)}</span>
+        <div class="t"><strong>${w.name}${s.weapons[k] > 1 ? ` ×${s.weapons[k]}` : ''}</strong>
+          <small>${FACTIONS[w.faction].name} · ${wepLines(w.bonus).join(' · ')}</small></div><div class="mv">${who}</div></div>`;
+    }).join('');
+    const chest = EQUIP_KEYS.filter((k) => s.equipment[k] > 0).map((k) => {
+      const e = EQUIPMENT[k];
+      const who = state.team.filter((id) => fitsKit(k, id))
+        .map((id) => `<button class="btn small" type="button" data-k="eqgive:${k}:${id}"${gearRaw(id).eq === k ? ' disabled' : ''}>Give to ${shortName(charById(id))}</button>`).join('');
+      return `<div class="inv"><span class="ico wico">${kitIcon(k)}</span>
+        <div class="t"><strong>${e.name}${s.equipment[k] > 1 ? ` &times;${s.equipment[k]}` : ''}</strong>
+          <small>${e.faction === 'all' ? 'Free Company' : FACTIONS[e.faction].name} · ${wepLines(e.bonus).join(` · `)}</small></div>
+        <div class="mv">${who || '<span class="note">Nobody in your warband can wear it</span>'}</div></div>`;
+    }).join('');
     return `<div class="room">${roomSVG()}</div>
       <p class="note">${profile.home.length ? `${profile.home.length} of ${DECOR_KEYS.length} pieces of furniture.${perkText ? ` Warband perks: <b>${perkText}</b>.` : ''}` : 'Bare walls and a cold floor.'}
         Odo Mott sells furniture under <b>Home goods</b> at the Market.</p>
@@ -6348,6 +6947,10 @@ const PLACE_BODY = {
       <div class="homeGrid">
         <section><p class="label">Satchel and stash</p><div class="invList">${items}</div></section>
         <section><p class="label">Your warband's gear</p><div class="invList">${team}</div>
+          <p class="label">Weapons on the rack</p>
+          <div class="invList">${rack || '<p class="note">Nothing spare on the rack. Weapons you unhand, or replace at the Armory, end up here. ★ marks a champion the weapon is attuned to.</p>'}</div>
+          <p class="label">Kit in the chest</p>
+          <div class="invList">${chest || '<p class="note">No spare kit. Pieces you take off, or replace at the Armory, end up here. A faction\'s own kit can only be given to its own champions.</p>'}</div>
           <p class="label">Trinkets in your stash</p>
           <div class="invList">${spare || '<p class="note">No spare trinkets. Ones you take off, or replace at the Jeweler, end up here.</p>'}</div></section>
       </div>`;
@@ -6503,6 +7106,7 @@ function anvilHTML(id) {
   return `<div class="anvil">
     <div class="who2"><div class="pic">${spriteSVG(id)}</div>
       <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${FACTIONS[c.faction].name}</p>
+        <p class="note">Holding: <b>${wepOf(id)?.name || 'nothing but their fists'}</b> — see the <b>Weapon rack</b>.</p>
         <p class="note">At level 1: ${u.maxHp} HP · ${u.atk} Attack · ${u.def} Defense</p></div></div>
     ${row('w')}${row('a')}
   </div>`;
@@ -6511,13 +7115,14 @@ function anvilHTML(id) {
 // The rules of the road: factions, weather and the speed bar. Shown in the Elder's Hut and on the square.
 function codexHTML() {
   const tab = state.codex;
-  const tabs = [['factions', 'Factions'], ['weather', 'Weather'], ['speed', 'The speed bar']]
+  const tabs = [['factions', 'Factions'], ['weather', 'Weather'], ['speed', 'The speed bar'], ['gear', 'Gear & damage']]
     .map(([k, n]) => `<button class="fbtn" type="button" data-k="codex:${k}" aria-pressed="${k === tab}">${n}</button>`).join('');
   let body;
   // The weather tab also covers what stands in for weather underground: the cave's quakes and the dungeon conditions.
   if (tab === 'weather') body = [...Object.values(WEATHER).map((w) => entryHTML(w.name, w.desc)),
     ...DUNGEONS.filter((d) => d.cond).map((d) => entryHTML(`${DG_CONDS[d.cond].name} · ${d.name}`, DG_CONDS[d.cond].desc))].join('');
   else if (tab === 'speed') body = SPEED_LORE.map(([h, p]) => entryHTML(h, p)).join('');
+  else if (tab === 'gear') body = GEAR_LORE.map(([h, t]) => entryHTML(h, t)).join('');
   else body = FACTION_KEYS.map((k) => {
     const f = FACTIONS[k], w = Object.values(WEATHER).find((x) => x.favors === k);
     return entryHTML(f.name, `<b>${f.mechanic}.</b> ${f.rule} Favored by ${w.name}. Mana pool: ${poolLabel(k)}.`);
@@ -6998,6 +7603,38 @@ function townPlaces() {
     for (const [dx, dy, r] of [[-120, 4, 16], [118, 12, 20], [70, 28, 12]]) s += `<circle cx="${n1(x + dx)}" cy="${n1(y + dy)}" r="${r}" fill="#4a4450"/>`;
     out.cave = [1060, s, [x, y - 168], 'Emberhollow Cave'];   // outside the wall: drawn among the outer forest
   }
+
+  // THE ARMORY: a stone-and-timber hall beside the Ironsmith, a weapon rack and an armor stand out front.
+  {
+    const [gx, gy, w, d, h] = [15, 30.4, 3.6, 3, 44], wall = '#8a8070', fy = gy + d;
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+    for (let u = gx + .9; u < gx + w; u += .9) s += line3([u, fy, 0], [u, fy, h], '#4a3426', 3);
+    s += line3([gx, fy, h * .55], [gx + w, fy, h * .55], '#4a3426', 3);
+    s += onLeft(fy, 16.35, 17.25, 0, 30, '#2a1d16') + line3([16.8, fy, 0], [16.8, fy, 30], '#4a3426', 2);
+    s += onLeft(fy, 15.25, 15.8, 14, 22, '#ffd28a', ' class="lit"') + onLeft(fy, 17.8, 18.35, 14, 22, '#ffd28a', ' class="lit"');
+    s += onRight(gx + w, 31, 31.7, 16, 28, '#e8b060', ' class="lit"') + onRight(gx + w, 32.2, 32.9, 16, 28, '#e8b060', ' class="lit"');
+    s += gable(gx, gy, w, d, h, 34, '#3e4a5c', wall, 'y');
+    // The crest on the gable end: a red shield bearing an upright sword.
+    const [cx, cy] = P2(gx + w / 2, fy, h + 12);
+    s += `<path d="M${n1(cx - 10)} ${n1(cy - 11)} h20 v9 q0 9 -10 13 q-10 -4 -10 -13z" fill="#c0303f"/>`
+      + `<path d="M${n1(cx)} ${n1(cy - 8)} v15" stroke="#e9eef6" stroke-width="3"/><path d="M${n1(cx - 5)} ${n1(cy + 2)} h10" stroke="#e8a548" stroke-width="2.5"/>`;
+    // Weapon rack (left of the door): two posts, two rails, a spear, a sword and an axe.
+    s += box(15, 34.1, .14, .14, 32, '#4a3426') + box(16.05, 34.1, .14, .14, 32, '#4a3426');
+    s += line3([15.07, 34.17, 28], [16.12, 34.17, 28], '#5a3e28', 3) + line3([15.07, 34.17, 10], [16.12, 34.17, 10], '#5a3e28', 3);
+    s += line3([15.3, 34.17, 4], [15.3, 34.17, 50], '#7a5434', 2.5) + line3([15.3, 34.17, 50], [15.3, 34.17, 58], '#c9d1de', 3.5)
+      + line3([15.6, 34.17, 6], [15.6, 34.17, 42], '#c9d1de', 3) + line3([15.5, 34.17, 14], [15.7, 34.17, 14], '#e8a548', 3)
+      + line3([15.9, 34.17, 4], [15.9, 34.17, 38], '#7a5434', 2.5);
+    const [ax, ay] = P2(15.9, 34.17, 36);
+    s += `<path d="M${n1(ax)} ${n1(ay)} q8 2 8 9 q-8 -1 -8 -3z" fill="#c9d1de"/>`;
+    // Armor stand (right of the door): a post, a breastplate, a helm and a leaning shield.
+    s += box(18.05, 34.15, .12, .12, 36, '#4a3426') + cyl(18.11, 34.21, .3, 18, '#9aa3b5', 16);
+    const [hx, hy] = P2(18.11, 34.21, 40);
+    s += `<path d="M${n1(hx - 7)} ${n1(hy + 2)} v-6 a7 7 0 0 1 14 0 v6z" fill="#7a8296"/><path d="M${n1(hx - 5)} ${n1(hy - 1)} h10" stroke="#2a2228" stroke-width="2"/>`;
+    const [bx, by] = P2(18.7, 34.4, 0);
+    s += `<path d="M${n1(bx - 8)} ${n1(by - 2)} v-16 q8 -6 16 0 v16 q-8 7 -16 0z" fill="#3e5a8c" stroke="#e8a548" stroke-width="2"/>`;
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 34);
+    out.armory = [52.5, s, [sx + 40, sy - 52], 'The Armory'];
+  }
   return out;
 }
 
@@ -7076,8 +7713,7 @@ function buildTownMap() {
     [28.5, 4.2, 3, 2.5, 34, '#8a6a4a', '#4f6a4a', 'x', true], [32.5, 6, 2.5, 2.5, 30, '#7a6a5a', '#7a3a2e', 'y'],
     [33.5, 10.5, 2.5, 2.5, 32, '#8a7a64', '#3e5a8c', 'x'], [34, 14.5, 2.2, 2.2, 28, '#7a6a5a', '#a8483a', 'y'],
     [33, 28.5, 2.6, 2.4, 32, '#8a6a4a', '#3e5a8c', 'x', true], [33.5, 32.5, 2.4, 2.4, 30, '#7a6a5a', '#7a3a2e', 'y'],
-    [22.8, 33.6, 2.4, 2.2, 30, '#8a7a64', '#4f6a4a', 'x'], [15, 31, 3, 2.4, 32, '#7a6a5a', '#a8483a', 'y', true],
-    [15.5, 34.4, 2.4, 2.2, 28, '#8a6a4a', '#3e5a8c', 'x'], [4, 30.5, 2.6, 2.4, 30, '#7a6a5a', '#4f6a4a', 'y'],
+    [22.8, 33.6, 2.4, 2.2, 30, '#8a7a64', '#4f6a4a', 'x'],  [4, 30.5, 2.6, 2.4, 30, '#7a6a5a', '#4f6a4a', 'y'],
     [4, 14, 2.6, 2.4, 32, '#8a7a64', '#7a3a2e', 'x', true], [4.2, 34.2, 2.2, 2.2, 28, '#8a6a4a', '#a8483a', 'x'],
   ];
   for (const [gx, gy, w, d, h, wall, roof, axis, ch] of HOUSES) add(gx + w + gy + d, house(gx, gy, w, d, h, wall, roof, axis, ch));
@@ -7126,7 +7762,7 @@ function buildTownMap() {
 }
 const TOWN_LABELS = {
   arena: 'The Arena: fight the gauntlet', elder: "Elder's Hut: lore and rules", carnival: 'Carnival: games that pay out gold',
-  forge: 'Ironsmith: upgrade weapons and armor', train: 'Training Yard: drill new techniques and earn skill points',
+  forge: 'Ironsmith: forge upgrades for weapons and armor', armory: 'The Armory: weapons and armor for your champions', train: 'Training Yard: drill new techniques and earn skill points',
   guild: 'Guild House: join a sellsword guild', jeweler: 'Jeweler: trinkets for your champions',
   tavern: 'The Smoldering Mug tavern: rumors and records', home: 'Your House: your stash and belongings',
   market: 'Market: buy supplies for battle', bounty: 'Bounty Board: daily jobs that pay gold',
@@ -7276,6 +7912,10 @@ function openPlace(k) {
   render();
 }
 
+// Weapons and kit are sold at the Armory (and were once at the Ironsmith): the keeper you're facing reacts.
+const GEAR_SHOPS = ['armory', 'forge'];
+const gearShop = () => (state.place === 'forge' ? 'forge' : 'armory');
+
 function villageAction(k) {
   const [verb, arg, arg2] = k.split(':');
   if (verb === 'open') return openPlace(arg);
@@ -7307,6 +7947,18 @@ function villageAction(k) {
     }
   }
   else if (verb === 'up') { if (forgeUp(arg)) { keeperReact('forge'); questEvent('forge'); } }
+  // The Ironsmith's weapon rack (see THE ARMORY).
+  else if (verb === 'ftab') state.forgeTab = arg;
+  else if (verb === 'atab') state.armoryTab = arg;
+  else if (verb === 'wep') { if (buyWeapon(arg)) keeperReact(gearShop()); }
+  else if (verb === 'wsell') { if (sellWeapon()) keeperReact(gearShop()); }
+  else if (verb === 'wgive') { if (giveWeapon(arg, arg2) && GEAR_SHOPS.includes(state.place)) keeperReact(gearShop()); }
+  else if (verb === 'wunequip') unequipWeapon(arg);
+  // The Ironsmith's armor stand (see THE ARMOR STAND).
+  else if (verb === 'eqbuy') { if (buyKit(arg)) keeperReact(gearShop()); }
+  else if (verb === 'eqsell') { if (sellKit()) keeperReact(gearShop()); }
+  else if (verb === 'eqgive') { if (giveKit(arg, arg2) && GEAR_SHOPS.includes(state.place)) keeperReact(gearShop()); }
+  else if (verb === 'equnequip') unequipKit(arg);
   else if (verb === 'buy') { if (buyItem(arg)) { keeperReact('market'); questEvent('buy'); } }
   else if (verb === 'trinket') { if (buyTrinket(arg)) { keeperReact('jeweler'); questEvent('trinket'); } }
   else if (verb === 'sell') { if (sellTrinket()) keeperReact('jeweler'); }
@@ -7561,12 +8213,15 @@ function prefetchClips() {
    or null when there is no clip to play, which is the signal to fall back to a CSS pose.
    Multi-hit skills call this once per hit: rather than restart on every one, the follow-ups
    ride the clip already playing, paced by its own hit frames where the artist drew several. */
-function playAttack(u) {
+// fresh: always restart the clip, even if the last swing's clip is still running (a Double Attack's
+// second swing comes round sooner than a clip lasts). Otherwise a multi-hit skill's later hits ride
+// the clip already playing.
+function playAttack(u, fresh = false) {
   const a = animOf(u), img = animImg(u);
   const blob = a && clipBlobs.get(a.attack.src);
   if (!a || !img || !blob) return null;
   const hits = a.attack.hitsMs || [];
-  if (img.clipUntil > performance.now()) return hits.length > 1 ? hits[1] - hits[0] : 140;
+  if (!fresh && img.clipUntil > performance.now()) return hits.length > 1 ? hits[1] - hits[0] : 140;
 
   const url = URL.createObjectURL(blob);
   img.clipUntil = performance.now() + a.attack.ms;
@@ -7651,8 +8306,8 @@ function pose(u, frames, ms) {
 }
 
 // Weapon swing: lean in and twist, or the champion's own attack clip. Resolves at the moment of impact.
-async function strikePose(u) {
-  const hit = playAttack(u);
+async function strikePose(u, fresh = false) {
+  const hit = playAttack(u, fresh);
   if (hit != null) return sleep(hit);
   const d = facing(u);
   if (!pose(u, [{ transform: 'none' }, { transform: `translateX(${d * 14}px) rotate(${d * 12}deg)`, offset: 0.4 }, { transform: 'none' }], 240)) return;
@@ -8453,7 +9108,7 @@ function start(data) {
   buildVillage();
   if (data && data.state) {
     // Older snapshots predate the village; give them its defaults.
-    state = { place: null, codex: 'factions', tip: 0, forgeHero: null, runPending: false, itemUsed: false, keeperSays: '', folk: state.folk, ...data.state };
+    state = { place: null, codex: 'factions', tip: 0, forgeHero: null, forgeTab: 'anvil', runPending: false, itemUsed: false, keeperSays: '', folk: state.folk, ...data.state };
     if (!state.nextWeather) state.nextWeather = rollWeather(wx());
     if (state.screen === 'battle') {
       if (state.time == null) {   // saved before the speed bar existed
