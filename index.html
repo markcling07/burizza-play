@@ -3442,11 +3442,32 @@ function skillsOf(u) {
   return [attack, ...actives.filter((s) => eq.includes(s.id)).map(boost), ...neutrals.map(boost), guard];
 }
 
+/* THE FRONT LINE — the opening of every battle belongs to the melee.
+   Until a warband's melee have been attacked twice — hit or miss, skill or basic attack, by
+   player or AI alike — enemies can only target that warband's melee. Each side's count is its
+   own (state.frontline[side], reset every battle). Taunt still outranks everything, area
+   attacks can't single anyone out (each melee they go for counts toward the two), and a
+   warband with no melee standing was never shielded to begin with. */
+const FRONTLINE_HITS = 2;
+const frontlineUp = (side) => (state.frontline?.[side] ?? FRONTLINE_HITS) < FRONTLINE_HITS
+  && state.teams[side].some((x) => x.hp > 0 && x.role === 'melee');
+function frontlineHit(t) {
+  if (!t || t.role !== 'melee' || !state.frontline || state.frontline[t.side] >= FRONTLINE_HITS) return;
+  if (++state.frontline[t.side] === FRONTLINE_HITS)
+    log(t.side === 'p' ? 'Your front line has taken its two blows — your back line is exposed.'
+      : 'The enemy front line has taken its two blows — their back line is open.', 'sys');
+}
+
 function validTargets(u, sk) {
   if (sk.target === 'enemy') {
     const foes = foesOf(u);
     const taunters = foes.filter((f) => has(f, 'taunt'));
-    return taunters.length ? taunters : foes;
+    if (taunters.length) return taunters;
+    if (frontlineUp(foes[0]?.side)) {
+      const front = foes.filter((f) => f.role === 'melee');
+      if (front.length) return front;
+    }
+    return foes;
   }
   if (sk.target === 'ally') return alliesOf(u);
   return [];
@@ -3671,6 +3692,7 @@ async function resolveCounters() {
     float(c.by, riposte ? 'Riposte!' : 'Counter!', 'fx');
     log(`${c.by.name} ${riposte ? 'ripostes' : 'counterattacks'}!`, c.by.side);
     await strikePose(c.by);
+    frontlineHit(c.at);
     strikeOnce(c.by, c.at, c.mult, c.label, c.o);
     render();
     await wait(260);
@@ -3699,6 +3721,8 @@ async function damageSkill(u, t, sk) {
     }
   }
   const targets = sk.target === 'allEnemies' ? foesOf(u) : [t];
+  // Front line: every melee this attack goes for counts toward their side's two, hit or miss.
+  for (const tg of targets) frontlineHit(tg);
   if (o.selfCost) {
     const c = Math.round(u.maxHp * o.selfCost);
     u.hp = Math.max(1, u.hp - c);
@@ -3752,6 +3776,7 @@ async function damageSkill(u, t, sk) {
     const next = foesOf(u).filter((f) => !targets.includes(f));
     if (next.length) {
       const tg = pick(next);
+      frontlineHit(tg);
       if (melee) await strikePose(u); else await shoot(u, tg, proj);
       await hitOnce(tg, sk.mult * o.bounce);
     }
@@ -4102,12 +4127,9 @@ function aiChoose(u) {
 
   let t = u;
   if (sk.target === 'enemy') {
-    let opts = validTargets(u, sk);
-    // The opening exchange goes to the front line: through round 1 everyone swings at the melee
-    // fighters, and only from round 2 does the AI start picking off whoever is weakest. Taunt still
-    // wins outright — validTargets has already narrowed to the taunters if there are any.
-    const front = state.round === 1 ? opts.filter((f) => f.role === 'melee') : [];
-    if (front.length) opts = front;
+    // validTargets already applies both targeting laws — Taunt first, then the front line
+    // (melee only until this warband's melee have been attacked twice) — for AI and player alike.
+    const opts = validTargets(u, sk);
     t = chance(0.6) ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0] : pick(opts);
   } else if (sk.target === 'ally') {
     const opts = validTargets(u, sk);
@@ -4665,6 +4687,7 @@ function startBattle(retry) {
     for (const u of state.teams.e) if (state.team.includes(u.id)) u.name = `Rival ${u.name}`;
   }
   state.round = 1; state.time = 0; state.moving = false; state.active = null;
+  state.frontline = { p: 0, e: 0 };   // the front-line rule starts fresh every battle
   // Everyone lines up at the start of the speed bar and races to Act together.
   for (const u of allUnits()) u.pos = 0;
   state.opening = true;
