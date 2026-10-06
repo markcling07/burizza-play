@@ -140,7 +140,6 @@ h1 {
 .xpline .xpnum { grid-column: 2; }
 .xpgain { color: var(--accent); font-size: 1.05rem; }
 .xpkill { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
-.lvlup { font-weight: 800; color: var(--good); }
 .herotag {
   display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 4px; border-radius: 999px;
   background: var(--panel); border: 1px solid var(--line); min-width: 0;
@@ -514,6 +513,15 @@ h1 {
   pointer-events: auto; transition: left .5s ease, top .5s ease;
 }
 .unit.summon { --size: clamp(44px, 9.5cqw, 110px); }
+/* Dungeon chase: a wounded monster turns tail and runs off the right edge; then the warband runs after it. */
+.unit.fleeing { transition: left 1s ease-in, opacity .7s ease-in .3s; opacity: 0; pointer-events: none; }
+.unit.e.fleeing .upic svg, .unit.e.fleeing .upic img { transform: none; }
+.unit.running { transition: left 1.7s ease-in; pointer-events: none; }
+.unit.running .body { animation: runBob .3s ease-in-out infinite !important; }
+@keyframes runBob { 50% { transform: translateY(-7%) rotate(4deg); } }
+.chaseFade { position: absolute; inset: 0; z-index: 50; background: #07060a; opacity: 0; transition: opacity .55s ease; pointer-events: none; }
+.chaseFade.dark { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .unit.running .body { animation: none !important; } }
 .unit.elite { --size: clamp(68px, 17cqw, 190px); }
 .unit.elite .plate { border-color: var(--bad); }
 .unit .chips { justify-content: center; min-height: 0; gap: 2px; }
@@ -603,6 +611,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit.st-soaked .upic > :is(.art, svg, .anim) { filter: saturate(.8) brightness(.92) drop-shadow(0 0 2px rgba(110, 180, 255, .55)); }
 .unit.st-poison .upic > :is(.art, svg, .anim) { filter: drop-shadow(0 0 3px rgba(140, 220, 80, .6)); }
 .unit.st-bleed .upic > :is(.art, svg, .anim) { filter: drop-shadow(0 0 2px rgba(220, 40, 60, .7)); }
+.unit.st-taunt .upic > :is(.art, svg, .anim) { filter: drop-shadow(0 0 3px rgba(255, 90, 60, .8)); }
 .unit.st-burn.st-soaked .upic > :is(.art, svg, .anim) { filter: sepia(.15) saturate(1.1); }
 
 /* Projectiles, lightning and impact effects */
@@ -667,6 +676,18 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .bolt.backwash.bloodlink .bw-body { stroke: #c0303f; }
 .bolt.backwash.bloodlink .bw-core { stroke: #ff9aa8; }
 .bolt.backwash.bloodlink circle { fill: #c0303f; stroke: #4a0a14; }
+/* ...and for her whole turn while the channel is open, a standing vein to every ally: blood flows
+   along it and a heartbeat pulses where it takes hold (syncBloodTethers). */
+.tethers { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 245; pointer-events: none; overflow: visible; animation: tvIn .35s ease-out; }
+.tethers .tv-glow { fill: none; stroke: #7a0f22; stroke-width: 8; stroke-linecap: round; opacity: .45; filter: blur(2px); }
+.tethers .tv-body { fill: none; stroke: #c0303f; stroke-width: 3.2; stroke-linecap: round; }
+.tethers .tv-flow { fill: none; stroke: #ff9aa8; stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 3 14; animation: tvFlow .8s linear infinite; }
+.tethers .tv-node { fill: #c0303f; stroke: #4a0a14; stroke-width: 1.2; transform-box: fill-box; transform-origin: center; animation: tvBeat 1.1s ease-in-out infinite; }
+.tethers .tv-src { fill: rgba(192, 48, 63, .35); stroke: #ff9aa8; stroke-width: 1.4; transform-box: fill-box; transform-origin: center; animation: tvBeat 1.1s ease-in-out infinite; }
+.tethers.still, .tethers.still * { animation: none; }
+@keyframes tvFlow { to { stroke-dashoffset: -17; } }   /* the dashes run from Morwenna toward each ally */
+@keyframes tvBeat { 15% { transform: scale(1.5); } 30% { transform: scale(1); } 45% { transform: scale(1.3); } 60% { transform: scale(1); } }
+@keyframes tvIn { from { opacity: 0; } }
 .burst-splash { width: 115%; background: radial-gradient(circle at 35% 35%, #fff 0 4%, transparent 5%), radial-gradient(circle at 66% 42%, #dff7ff 0 3%, transparent 4%), radial-gradient(circle, rgba(170, 235, 250, .85) 0 22%, rgba(63, 182, 216, .55) 44%, transparent 66%); animation-duration: .6s; }
 .burst {
   position: absolute; left: 50%; top: 50%; width: 110%; aspect-ratio: 1; border-radius: 50%;
@@ -895,9 +916,6 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .kick { font-size: .74rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
 .card h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 2rem; line-height: 1.05; text-wrap: balance; }
 .card p { margin: 0; }
-.gains { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
-.gains th { text-align: left; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 800; padding: 0 8px 4px 0; }
-.gains td { padding: 3px 8px 3px 0; border-top: 1px solid var(--line); }
 .up { color: var(--good); font-weight: 800; }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -913,7 +931,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 /* ---------- Village (Cinderhold): a drawn map of clickable buildings, then the open building's panel ---------- */
 .town {
   position: relative; overflow: hidden; height: 100dvh; touch-action: none; user-select: none; -webkit-user-select: none;
-  background: linear-gradient(#15152a, #3a2533 45%, #2e2522 46%, #191517);
+  background: #26301f;   /* the forest beyond the map, if you ever see past its edge */
 }
 .town.panning { cursor: grabbing; }
 /* In the village the page is the village: no page padding, no page scroll (sheets scroll inside). */
@@ -949,7 +967,11 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 /* Everything else floats on the village: name tags and quest marks keep a readable size at any zoom. */
 .townView .npc .tag { transform: translateX(-50%) scale(var(--zinv, 1)); transform-origin: 50% 100%; }
 .townView .npc.here .tag { opacity: 1; }
-.townView .qmark { width: 22cqw; min-width: calc(14px * var(--zinv, 1)); font-size: max(calc(10px * var(--zinv, 1)), 16cqw); }
+/* On the village map the quest mark keeps one on-screen size at any zoom: an 18px badge with a 13px "!". */
+.townView .qmark {
+  width: calc(18px * var(--zinv, 1)); min-width: 0; height: calc(18px * var(--zinv, 1));
+  font-size: calc(13px * var(--zinv, 1)); border-width: calc(2px * var(--zinv, 1)); box-shadow: 0 0 calc(8px * var(--zinv, 1)) rgba(232, 165, 72, .7);
+}
 .vwrap { display: block; }
 /* The sheet: a building's panel, or your warband / skills. A bottom sheet on portrait screens,
    a card on the right on landscape ones. It scrolls inside; the village never scrolls. */
@@ -987,7 +1009,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .bld { cursor: pointer; transition: filter .2s; outline: none; }
 .bld:hover, .bld:focus-visible, .bld.open { filter: brightness(1.22) drop-shadow(0 0 8px rgba(232, 165, 72, .55)); }
 .sign rect { fill: rgba(22, 25, 37, .88); stroke: var(--line); stroke-width: 1.5; }
-.sign text { fill: var(--fg); font-family: var(--font-display); font-weight: 700; font-size: 21px; text-anchor: middle; }
+.sign text { fill: var(--fg); font-family: var(--font-display); font-weight: 700; font-size: 28px; text-anchor: middle; }
 .bld:hover .sign rect, .bld:focus-visible .sign rect, .bld.open .sign rect { stroke: var(--accent); stroke-width: 2.5; }
 .bld:hover .sign text, .bld:focus-visible .sign text, .bld.open .sign text { fill: var(--accent); }
 .smoke { transform-box: fill-box; transform-origin: center; animation: smoke 5.1s linear infinite; }
@@ -1030,7 +1052,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 @keyframes swing { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
 /* Your warband stands around the fire in the square. */
 .townies { position: absolute; inset: 0; pointer-events: none; }
-.townie { position: absolute; width: 4.333%; aspect-ratio: 1; transform: translate(-50%, -94%); }
+.townie { position: absolute; width: 2.6%; aspect-ratio: 1; transform: translate(-50%, -94%); }
 .townie > div { width: 100%; height: 100%; animation: townIdle 2.8s ease-in-out infinite; }
 .townie img, .townie svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .townie.flip img, .townie.flip svg { transform: scaleX(-1); }
@@ -1038,7 +1060,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 /* NPCs: keepers stand by their buildings, townsfolk stroll a short lane (--x0 ↔ --x1) and talk when clicked. */
 .npcs { position: absolute; inset: 0; pointer-events: none; }
 .npc {
-  position: absolute; width: 4.333%; aspect-ratio: 1; transform: translate(-50%, -94%); pointer-events: auto;
+  position: absolute; width: 2.6%; aspect-ratio: 1; transform: translate(-50%, -94%); pointer-events: auto;
   padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; outline: none;
 }
 .npc .face, .npc .bob { width: 100%; height: 100%; }
@@ -1052,11 +1074,11 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   font-size: .72rem; font-weight: 800; color: var(--accent); opacity: 0; transition: opacity .15s; pointer-events: none;
 }
 .npc:hover .tag, .npc:focus-visible .tag { opacity: 1; }
-.npc.walker { left: var(--x0); animation: stroll var(--dur, 22s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+.npc.walker { left: var(--x0); top: var(--y0); animation: stroll var(--dur, 22s) ease-in-out infinite; animation-delay: var(--d, 0s); }
 .npc.walker .face { animation: strollFace var(--dur, 22s) step-end infinite; animation-delay: var(--d, 0s); }
 .npc.walker:hover, .npc.walker:focus-visible, .npc.walker.talking,
 .npc.walker:hover .face, .npc.walker:focus-visible .face, .npc.walker.talking .face { animation-play-state: paused; }
-@keyframes stroll { 0%, 10% { left: var(--x0); } 45%, 60% { left: var(--x1); } 95%, 100% { left: var(--x0); } }
+@keyframes stroll { 0%, 10% { left: var(--x0); top: var(--y0); } 45%, 60% { left: var(--x1); top: var(--y1); } 95%, 100% { left: var(--x0); top: var(--y0); } }
 @keyframes strollFace { 0% { transform: scaleX(var(--f0)); } 52% { transform: scaleX(var(--f1)); } }
 .say {
   position: absolute; z-index: 2; max-width: min(260px, 70%); padding: 8px 11px; border-radius: 10px;
@@ -1259,611 +1281,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
     <div class="vwrap" id="vwrap">
     <div class="town" id="town">
       <div class="townView" id="townView">
-      <svg class="townMap" viewBox="-800 0 2400 600" role="group" aria-label="Map of Cinderhold">
-        <defs>
-          <linearGradient id="tSky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#15152a"/><stop offset=".55" stop-color="#3a2533"/><stop offset="1" stop-color="#7a3f2c"/>
-          </linearGradient>
-          <linearGradient id="tGround" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#2e2522"/><stop offset="1" stop-color="#191517"/>
-          </linearGradient>
-          <radialGradient id="tSun"><stop offset="0" stop-color="#ffcf7a" stop-opacity=".9"/><stop offset=".35" stop-color="#e8743a" stop-opacity=".4"/><stop offset="1" stop-color="#e8743a" stop-opacity="0"/></radialGradient>
-          <radialGradient id="tGlow"><stop offset="0" stop-color="#ffb347" stop-opacity=".85"/><stop offset="1" stop-color="#ff7a2f" stop-opacity="0"/></radialGradient>
-          <radialGradient id="tGem"><stop offset="0" stop-color="#bfefff" stop-opacity=".9"/><stop offset="1" stop-color="#7fe3ff" stop-opacity="0"/></radialGradient>
-          <radialGradient id="tWin"><stop offset="0" stop-color="#ffe2a0"/><stop offset="1" stop-color="#f0a040"/></radialGradient>
-          <pattern id="awnA" width="25" height="10" patternUnits="userSpaceOnUse"><rect width="12.5" height="10" fill="#c0303f"/><rect x="12.5" width="12.5" height="10" fill="#e9e4d8"/></pattern>
-          <pattern id="awnB" width="25" height="10" patternUnits="userSpaceOnUse"><rect width="12.5" height="10" fill="#3e5a8c"/><rect x="12.5" width="12.5" height="10" fill="#e9e4d8"/></pattern>
-          <pattern id="awnC" width="25" height="10" patternUnits="userSpaceOnUse"><rect width="12.5" height="10" fill="#e8a548"/><rect x="12.5" width="12.5" height="10" fill="#3a2a20"/></pattern>
-          <!-- A villager's hut, drawn around its base center -->
-          <g id="hutG">
-            <ellipse cx="0" cy="1" rx="46" ry="6" fill="#000" opacity=".3"/>
-            <rect x="-34" y="-44" width="68" height="45" fill="#54443a"/>
-            <path d="M-34 -30 h68 M-34 -16 h68" stroke="#463830" stroke-width="2"/>
-            <path d="M-46 -40 L0 -80 L46 -40 Z" fill="#6a4632"/>
-            <path d="M-46 -40 L0 -80 L46 -40" stroke="#4a2f22" stroke-width="3" fill="none"/>
-            <rect x="-22" y="-26" width="15" height="27" rx="2" fill="#241a16"/>
-            <rect x="6" y="-32" width="14" height="12" rx="1.5" fill="url(#tWin)" class="lit"/>
-            <path d="M13 -32 v12 M6 -26 h14" stroke="#3a2a20" stroke-width="1.5"/>
-          </g>
-          <!-- A two-story cottage with a slate roof, and a small round thatched hut -->
-          <g id="hutB">
-            <ellipse cx="0" cy="1" rx="44" ry="6" fill="#000" opacity=".3"/>
-            <rect x="14" y="-104" width="10" height="26" fill="#4b4440"/>
-            <rect x="-32" y="-70" width="64" height="71" fill="#6a5a4a"/>
-            <path d="M-32 -48h64M-32 -24h64" stroke="#5a4a3c" stroke-width="2"/>
-            <path d="M-40 -66 L0 -100 L40 -66 Z" fill="#3e4a5c"/>
-            <path d="M-40 -66 L0 -100 L40 -66" stroke="#2a3240" stroke-width="3" fill="none"/>
-            <rect x="-8" y="-24" width="16" height="25" rx="2" fill="#241a16"/>
-            <rect x="-24" y="-60" width="12" height="11" rx="1.5" fill="url(#tWin)" class="lit"/>
-            <rect x="12" y="-60" width="12" height="11" rx="1.5" fill="url(#tWin)" class="lit" style="animation-delay:-2s"/>
-            <rect x="-24" y="-38" width="12" height="10" rx="1.5" fill="#2a2228"/>
-          </g>
-          <g id="hutC">
-            <ellipse cx="0" cy="1" rx="36" ry="5" fill="#000" opacity=".3"/>
-            <path d="M-28 1 V-26 Q0 -32 28 -26 V1 Q0 5 -28 1 Z" fill="#5e4a3a"/>
-            <path d="M-38 -24 Q0 -10 38 -24 L0 -66 Z" fill="#8a6a3a"/>
-            <path d="M0 -66 L-22 -20 M0 -66 L0 -16 M0 -66 L22 -20" stroke="#6b5230" stroke-width="2"/>
-            <path d="M-7 1 V-14 Q0 -21 7 -14 V1 Z" fill="#2a1f1a"/>
-            <circle cx="-16" cy="-12" r="4" fill="url(#tWin)" class="lit"/>
-          </g>
-          <g id="treeG">
-            <path d="M-3 0 L-2 -30 L3 -30 L4 0 Z" fill="#1d171c"/>
-            <path d="M0 -26 L-3 -40 L-14 -62 M-3 -40 L2 -58 L-4 -78 M2 -58 L14 -72 M-1 -24 L12 -38" stroke="#1d171c" stroke-width="4" fill="none" stroke-linecap="round"/>
-          </g>
-          <g id="lampG">
-            <rect x="-1.5" y="-38" width="3" height="38" fill="#2a2228"/>
-            <path d="M-1.5 -38 h8 v3" stroke="#2a2228" stroke-width="2" fill="none"/>
-            <circle cx="6.5" cy="-31" r="10" fill="url(#tGlow)" class="glow"/>
-            <rect x="3.5" y="-35" width="6" height="7" rx="1.5" fill="#ffd28a"/>
-          </g>
-        </defs>
-
-        <!-- Sky, the ash-veiled sun and the volcano that gives the road its name -->
-        <rect x="-800" width="2400" height="600" fill="url(#tSky)"/>
-        <g fill="#ece6d8" opacity=".45"><circle cx="90" cy="40" r="1.2"/><circle cx="210" cy="78" r="1"/><circle cx="520" cy="34" r="1.3"/><circle cx="690" cy="70" r="1"/><circle cx="1060" cy="46" r="1.2"/><circle cx="1150" cy="98" r="1"/><circle cx="610" cy="120" r=".9"/><circle cx="-560" cy="58" r="1.2"/><circle cx="-430" cy="104" r="1"/><circle cx="-180" cy="46" r=".9"/><circle cx="1560" cy="66" r="1.1"/></g>
-        <circle cx="880" cy="200" r="170" fill="url(#tSun)"/>
-        <circle cx="880" cy="200" r="30" fill="#ffd28a" opacity=".5"/>
-        <path d="M-800 300 L-800 250 L-726 226 L-652 252 L-634 228 L-560 252 L-488 226 L-414 254 L-344 232 L-300 248 L-228 230 L-150 254 L-78 230 L0 262 L70 236 L140 258 L215 226 L290 250 L360 234 L440 258 L520 232 L610 256 L700 222 L790 248 L865 232 L950 258 L1040 226 L1120 250 L1200 234 L1272 256 L1352 226 L1430 250 L1500 236 L1600 252 L1600 300 Z" fill="#2c2338"/>
-        <path d="M120 330 L265 168 Q285 160 305 168 L470 330 Z" fill="#241b26"/>
-        <circle cx="285" cy="170" r="42" fill="url(#tGlow)" class="glow"/>
-        <path d="M268 170 Q285 182 302 170 Q285 164 268 170 Z" fill="#ff7a2f"/>
-        <path d="M280 176 Q270 220 252 262 M292 178 Q300 215 318 252" stroke="#ff7a2f" stroke-width="2.5" fill="none" opacity=".45"/>
-        <g class="plume" fill="#4a4048" opacity=".7">
-          <ellipse cx="290" cy="140" rx="30" ry="20"/><ellipse cx="322" cy="112" rx="42" ry="24"/><ellipse cx="372" cy="88" rx="56" ry="26"/><ellipse cx="442" cy="72" rx="64" ry="24"/>
-        </g>
-        <rect x="-800" y="345" width="2400" height="255" fill="url(#tGround)"/>
-        <path d="M-800 346 L-800 330 Q-700 300 -600 334 Q-520 310 -450 336 Q-370 316 -300 334 Q-150 300 0 352 Q140 306 300 330 T620 318 T940 326 T1200 312 Q1360 296 1500 326 Q1550 314 1600 330 L1600 346 Z" fill="#2a2126"/>
-
-        <!-- The Emberhollow road, running out of the west postern to the mine. Drawn before the wall
-             so the wall covers it where it passes through, leaving only the stretch outside. -->
-        <g aria-hidden="true" stroke="#45382f" fill="none" stroke-linecap="round">
-          <path d="M-330 448 Q-390 448 -443 452 Q-545 458 -626 474" stroke-width="19"/>
-        </g>
-        <g aria-hidden="true" fill="#3a3038">
-          <path d="M-712 486 q10 -16 22 0 q-11 7 -22 0 Z"/>
-          <path d="M-566 556 q12 -18 25 0 q-13 8 -25 0 Z"/>
-        </g>
-
-        <!-- ===== THE RING WALL =====
-             Cinderhold is a walled town. The curtain wall runs along the back of the map and sweeps
-             forward at both ends, so it reads as a ring closing around you — the near half of the
-             ring is behind the camera. Everything inside is the town; the Emberhollow road and the
-             Ashfall road run out through the west postern and the east gatehouse.
-             Drawn here, after the terrain and before the back row, so the town stands in front of it. -->
-        <g aria-hidden="true">
-          <!-- the wall's shadow falling inward across the ground -->
-          <path d="M-530 640 C-494 540 -448 440 -400 386 C-320 348 -40 334 600 331 C1240 334 1370 350 1430 388 C1478 440 1524 540 1560 640"
-                fill="none" stroke="#000" stroke-width="18" opacity=".28"/>
-          <!-- the stone face: base line out, crenellated top line back -->
-          <path d="M-530 640 C-494 540 -448 440 -400 386 C-320 348 -40 334 600 331 C1240 334 1370 350 1430 388 C1478 440 1524 540 1560 640
-                   L1560 532 C1524 452 1478 372 1430 331 C1370 300 1240 287 600 285 C-40 287 -320 299 -400 329 C-448 372 -494 452 -530 532 Z"
-                fill="#4a4249" stroke="#2f2a30" stroke-width="2.5"/>
-          <!-- merlons along the walkway -->
-          <path d="M-530 532 C-494 452 -448 372 -400 329 C-320 299 -40 287 600 285 C1240 287 1370 300 1430 331 C1478 372 1524 452 1560 532"
-                fill="none" stroke="#554c54" stroke-width="15" stroke-dasharray="17 13"/>
-          <!-- a course of lighter stone under the walkway, and a weathered band lower down -->
-          <path d="M-522 570 C-486 490 -440 404 -392 352 C-312 318 -38 305 600 302 C1238 305 1364 320 1422 354 C1470 406 1516 490 1552 570"
-                fill="none" stroke="#554c54" stroke-width="5" opacity=".65"/>
-          <path d="M-514 606 C-478 516 -432 424 -388 370 C-308 334 -36 320 600 317 C1236 320 1360 336 1416 372 C1464 426 1508 514 1544 606"
-                fill="none" stroke="#3d363d" stroke-width="2.5" opacity=".75"/>
-        </g>
-        <!-- The west postern: a low arch in the wall where the Emberhollow road leaves town -->
-        <g aria-hidden="true">
-          <path d="M-465 450 V418 Q-465 398 -443 398 Q-421 398 -421 418 V450 Z" fill="#17120f"/>
-          <path d="M-469 450 V418 Q-469 394 -443 394 Q-417 394 -417 418 V450" fill="none" stroke="#6b4f32" stroke-width="6"/>
-          <path d="M-461 450 V422 Q-461 406 -443 406" fill="none" stroke="#2c2328" stroke-width="3" opacity=".8"/>
-          <circle cx="-475" cy="406" r="7" fill="url(#tGlow)" class="glow"/>
-          <circle cx="-411" cy="408" r="7" fill="url(#tGlow)" class="glow"/>
-          <rect x="-478" y="402" width="5" height="7" rx="1.2" fill="#ffd28a"/>
-          <rect x="-414" y="404" width="5" height="7" rx="1.2" fill="#ffd28a"/>
-        </g>
-
-        <!-- Shoulder towers, where the wall turns and starts coming toward you -->
-        <g aria-hidden="true">
-          <ellipse cx="-400" cy="390" rx="32" ry="7" fill="#000" opacity=".3"/>
-          <rect x="-427" y="300" width="54" height="90" fill="#554c54" stroke="#2f2a30" stroke-width="2"/>
-          <path d="M-427 326h54M-427 354h54" stroke="#3d363d" stroke-width="2"/>
-          <rect x="-410" y="334" width="13" height="17" rx="2" fill="url(#tWin)" class="lit"/>
-          <rect x="-435" y="288" width="70" height="13" rx="2" fill="#5f5560" stroke="#2f2a30" stroke-width="2"/>
-          <path d="M-437 288L-400 256L-363 288Z" fill="#4a2f2a"/>
-          <line x1="-400" y1="256" x2="-400" y2="240" stroke="#2a2228" stroke-width="2"/>
-          <path class="flag" d="M-399 241L-382 246L-399 251Z" fill="#c0303f"/>
-        </g>
-        <!-- The east shoulder has no tower of its own: the Expedition Gate's gatehouse stands there. -->
-
-        <!-- Back row: trees and villagers' huts -->
-        <use href="#treeG" transform="translate(470 342) scale(.8)"/>
-        <use href="#treeG" transform="translate(735 340) scale(.7)"/>
-        <use href="#treeG" transform="translate(1085 348) scale(.9)"/>
-        <!-- CARNIVAL: a striped big top with a Ferris wheel turning behind it, at the west edge -->
-        <g class="bld" data-place="carnival" tabindex="0" role="button" aria-label="Carnival: games that pay out gold">
-          <path d="M38 362L64 262L90 362M46 334H82" stroke="#3a2e3e" stroke-width="4" fill="none"/>
-          <g class="ferris" style="transform-origin: 64px 262px">
-            <circle cx="64" cy="262" r="48" fill="none" stroke="#5a4a5e" stroke-width="3"/>
-            <circle cx="64" cy="262" r="38" fill="none" stroke="#4a3e4e" stroke-width="1.5"/>
-            <path d="M16 262H112M64 214V310M30 228L98 296M98 228L30 296" stroke="#4a3e4e" stroke-width="1.5"/>
-            <g class="lit"><circle cx="112" cy="262" r="5" fill="#c0303f"/><circle cx="98" cy="296" r="5" fill="#ffd166"/><circle cx="64" cy="310" r="5" fill="#6fb5e6"/><circle cx="30" cy="296" r="5" fill="#6cc28a"/>
-              <circle cx="16" cy="262" r="5" fill="#c48be0"/><circle cx="30" cy="228" r="5" fill="#e8a548"/><circle cx="64" cy="214" r="5" fill="#e0645a"/><circle cx="98" cy="228" r="5" fill="#9fd6ff"/></g>
-          </g>
-          <circle cx="64" cy="262" r="5" fill="#e8a548"/>
-          <ellipse cx="84" cy="381" rx="58" ry="8" fill="#000" opacity=".35"/>
-          <rect x="40" y="332" width="88" height="49" fill="url(#awnA)"/>
-          <path d="M32 338L84 290L136 338Z" fill="#c0303f"/>
-          <path d="M84 290L46 338M84 290L66 338M84 290L102 338M84 290L122 338" stroke="#e9e4d8" stroke-width="5"/>
-          <path d="M32 338q6.5 9 13 0q6.5 9 13 0q6.5 9 13 0q6.5 9 13 0q6.5 9 13 0q6.5 9 13 0q6.5 9 13 0q6.5 9 13 0Z" fill="#e8a548"/>
-          <line x1="84" y1="290" x2="84" y2="270" stroke="#2a2228" stroke-width="2"/>
-          <path class="flag" d="M85 271L104 277L85 283Z" fill="#e8a548"/>
-          <path d="M70 381L84 350L98 381Z" fill="#2a1420"/>
-          <path d="M84 350L70 381H64ZM84 350L98 381H104Z" fill="#9a2f36" stroke="#e9e4d8" stroke-width="1.2"/>
-          <circle cx="84" cy="368" r="10" fill="url(#tGlow)" class="glow"/>
-          <g class="sign" transform="translate(78 404)"><rect x="-56" y="-15" width="112" height="30" rx="7"/><text y="7">Carnival</text></g>
-        </g>
-        <use href="#hutG" transform="translate(398 354) scale(.68)"/>
-
-        <!-- West quarter (x -300..0), back row: the old windmill and villagers' homes -->
-        <use href="#treeG" transform="translate(-288 352)"/>
-        <use href="#treeG" transform="translate(-172 346) scale(.8)"/>
-        <g aria-hidden="true">
-          <ellipse cx="-230" cy="384" rx="34" ry="6" fill="#000" opacity=".3"/>
-          <path d="M-254 384 L-244 300 L-216 300 L-206 384 Z" fill="#6a5a4a"/>
-          <path d="M-250 352h40M-247 326h34" stroke="#5a4a3c" stroke-width="2"/>
-          <path d="M-238 384 V364 Q-230 356 -222 364 V384 Z" fill="#241a16"/>
-          <rect x="-235" y="316" width="10" height="10" rx="1.5" fill="url(#tWin)" class="lit"/>
-          <path d="M-250 302 L-230 282 L-210 302 Z" fill="#5a3a2e"/>
-          <g class="mill" style="transform-origin: -230px 292px">
-            <path d="M-230 292L-226 226L-214 228L-224 292Z" fill="#c9b28a" stroke="#6b4f32" stroke-width="1.5"/>
-            <path d="M-230 292L-226 226L-214 228L-224 292Z" fill="#c9b28a" stroke="#6b4f32" stroke-width="1.5" transform="rotate(90 -230 292)"/>
-            <path d="M-230 292L-226 226L-214 228L-224 292Z" fill="#c9b28a" stroke="#6b4f32" stroke-width="1.5" transform="rotate(180 -230 292)"/>
-            <path d="M-230 292L-226 226L-214 228L-224 292Z" fill="#c9b28a" stroke="#6b4f32" stroke-width="1.5" transform="rotate(270 -230 292)"/>
-          </g>
-          <circle cx="-230" cy="292" r="5" fill="#4a3426"/>
-        </g>
-        <!-- GUILD HOUSE: the sellsword guilds' timber hall in the west quarter (replaces two huts) -->
-        <g class="bld" data-place="guild" tabindex="0" role="button" aria-label="Guild House: join a sellsword guild">
-          <ellipse cx="-90" cy="388" rx="92" ry="9" fill="#000" opacity=".35"/>
-          <rect x="-168" y="310" width="156" height="78" fill="#5d544c"/>
-          <path d="M-168 334 h156 M-168 360 h156 M-140 310 v24 M-62 310 v24 M-118 334 v26 M-40 334 v26 M-146 360 v28 M-30 360 v28" stroke="#4d4540" stroke-width="2"/>
-          <rect x="-174" y="268" width="168" height="46" fill="#b39f84"/>
-          <path d="M-174 268 h168 v46 h-168 Z M-132 268 v46 M-48 268 v46 M-174 268 L-132 302 M-6 268 L-48 302" stroke="#3a2a20" stroke-width="4" fill="none"/>
-          <path d="M-188 274 L-90 212 L8 274 Z" fill="#3e4a5c"/>
-          <path d="M-188 274 L-90 212 L8 274" stroke="#2a3240" stroke-width="5" fill="none"/>
-          <!-- the three guilds' pennants on the ridge -->
-          <path d="M-90 212 V186" stroke="#2a2228" stroke-width="3"/>
-          <path class="flag" d="M-89 188 L-64 195 L-89 202 Z" fill="#e8a548"/>
-          <path d="M-140 244 V222" stroke="#2a2228" stroke-width="2.5"/>
-          <path class="flag" style="animation-delay:-.7s" d="M-139 224 L-118 230 L-139 236 Z" fill="#7fb5e6"/>
-          <path d="M-40 244 V222" stroke="#2a2228" stroke-width="2.5"/>
-          <path class="flag" style="animation-delay:-1.3s" d="M-39 224 L-18 230 L-39 236 Z" fill="#6cc28a"/>
-          <!-- lit windows, the crest and the door -->
-          <g fill="url(#tWin)" class="lit"><rect x="-160" y="276" width="16" height="14" rx="2"/><rect x="-26" y="276" width="16" height="14" rx="2"/></g>
-          <rect x="-98" y="274" width="16" height="16" rx="2" fill="url(#tWin)" class="lit" style="animation-delay:-2.2s"/>
-          <path d="M-90 274 v16 M-98 282 h16" stroke="#3a2a20" stroke-width="1.5"/>
-          <g fill="url(#tWin)" class="lit" style="animation-delay:-1.1s"><rect x="-154" y="318" width="18" height="13" rx="2"/><rect x="-54" y="318" width="18" height="13" rx="2"/></g>
-          <path d="M-90 322 l13 5 v11 q0 10 -13 14 q-13 -4 -13 -14 v-11 Z" fill="#e8a548" stroke="#8a5a14" stroke-width="2"/>
-          <path d="M-97 334 l7 -7 l7 7 M-97 341 l7 -7 l7 7" stroke="#8a5a14" stroke-width="2" fill="none"/>
-          <path d="M-104 388 V356 Q-90 342 -76 356 V388 Z" fill="#241a16"/>
-          <circle cx="-81" cy="372" r="1.6" fill="#e8a548"/>
-          <rect x="-16" y="346" width="14" height="18" rx="3" fill="#6b4f32"/><path d="M-16 352 h14 M-16 358 h14" stroke="#3a2a20" stroke-width="2"/>
-          <g class="sign" transform="translate(-90 414)"><rect x="-74" y="-15" width="148" height="30" rx="7"/><text y="7">Guild House</text></g>
-        </g>
-
-        <!-- East quarter (x 1200..1500), back row: homes. The old timber watchtower that used to
-             stand here was the palisade gate; the curtain wall and its gatehouse replaced both. -->
-        <use href="#hutC" transform="translate(1252 372) scale(.85)"/>
-        <use href="#treeG" transform="translate(1394 346) scale(.8)"/>
-        <use href="#hutB" transform="translate(1332 370) scale(.8)"/>
-
-        <!-- EXPEDITION GATE: the east gate, where Ashfall Road leaves Cinderhold for the dungeons -->
-        <g class="bld" data-place="gate" tabindex="0" role="button" aria-label="Expedition Gate: dungeons along Ashfall Road">
-          <ellipse cx="1500" cy="472" rx="92" ry="11" fill="#000" opacity=".35"/>
-          <!-- gatehouse body, set astride the wall line -->
-          <rect x="1440" y="366" width="120" height="104" fill="#4a4249" stroke="#2f2a30" stroke-width="2.5"/>
-          <path d="M1440 396h120M1440 428h120" stroke="#3d363d" stroke-width="2"/>
-          <!-- the two drum towers that flank the road -->
-          <rect x="1418" y="334" width="46" height="136" fill="#554c54" stroke="#2f2a30" stroke-width="2.5"/>
-          <rect x="1536" y="334" width="46" height="136" fill="#554c54" stroke="#2f2a30" stroke-width="2.5"/>
-          <path d="M1418 364h46M1418 398h46M1536 364h46M1536 398h46" stroke="#3d363d" stroke-width="2"/>
-          <rect x="1432" y="372" width="14" height="18" rx="2" fill="url(#tWin)" class="lit"/>
-          <rect x="1552" y="372" width="14" height="18" rx="2" fill="url(#tWin)" class="lit"/>
-          <path d="M1412 334L1441 300L1470 334Z" fill="#4a2f2a"/>
-          <path d="M1530 334L1559 300L1588 334Z" fill="#4a2f2a"/>
-          <!-- merlons along the gatehouse walkway -->
-          <path d="M1468 360h64" fill="none" stroke="#554c54" stroke-width="14" stroke-dasharray="15 11"/>
-          <!-- the road out: an arch through the gatehouse, portcullis up -->
-          <path d="M1474 470V436Q1474 408 1500 408Q1526 408 1526 436V470Z" fill="#17120f"/>
-          <path d="M1470 470V436Q1470 404 1500 404Q1530 404 1530 436V470" fill="none" stroke="#6b4f32" stroke-width="6"/>
-          <g stroke="#2c2328" stroke-width="2.5" opacity=".85"><path d="M1484 470v-56M1500 470v-62M1516 470v-56"/></g>
-          <circle cx="1459" cy="414" r="8" fill="url(#tGlow)" class="glow"/>
-          <circle cx="1541" cy="414" r="8" fill="url(#tGlow)" class="glow"/>
-          <rect x="1456" y="410" width="6" height="8" rx="1.4" fill="#ffd28a"/>
-          <rect x="1538" y="410" width="6" height="8" rx="1.4" fill="#ffd28a"/>
-          <path d="M1490 366v26l10-7 10 7v-26z" fill="#c0303f"/>
-          <line x1="1441" y1="300" x2="1441" y2="282" stroke="#2a2228" stroke-width="2"/>
-          <path class="flag" d="M1442 283L1461 289L1442 295Z" fill="#c0303f"/>
-          <g class="sign" transform="translate(1500 496)"><rect x="-82" y="-15" width="164" height="30" rx="7"/><text y="7">Expedition Gate</text></g>
-        </g>
-
-        <!-- Roads and the square -->
-        <g stroke="#45382f" fill="none" stroke-linecap="round">
-          <path d="M430 458 Q350 482 300 522" stroke-width="30"/>
-          <path d="M770 458 Q850 482 905 522" stroke-width="30"/>
-          <path d="M455 425 Q360 392 292 372" stroke-width="22"/>
-          <path d="M745 425 Q840 394 915 374" stroke-width="22"/>
-          <path d="M292 372 Q200 420 120 432 T-300 448" stroke-width="22"/>
-          <path d="M785 446 Q1000 418 1200 426 Q1320 433 1408 448" stroke-width="26"/>
-        </g>
-        <path d="M575 400 L582 338 L618 338 L625 400 Z" fill="#45382f"/>
-        <path d="M500 600 Q560 530 572 470 L628 470 Q640 530 700 600 Z" fill="#45382f"/>
-        <ellipse cx="600" cy="445" rx="185" ry="52" fill="#45382f" stroke="#54453a" stroke-width="3"/>
-        <ellipse cx="600" cy="445" rx="140" ry="38" fill="none" stroke="#54453a" stroke-width="2" stroke-dasharray="14 8"/>
-        <ellipse cx="600" cy="445" rx="92" ry="24" fill="none" stroke="#54453a" stroke-width="2" stroke-dasharray="10 7"/>
-
-        <!-- ARENA -->
-        <g class="bld" data-place="arena" tabindex="0" role="button" aria-label="The Arena: fight the gauntlet">
-          <ellipse cx="600" cy="342" rx="200" ry="16" fill="#000" opacity=".35"/>
-          <ellipse cx="600" cy="226" rx="180" ry="26" fill="#87705c"/>
-          <ellipse cx="600" cy="230" rx="158" ry="17" fill="#2b211f"/>
-          <path d="M452 226 Q600 206 748 226" stroke="#4a3a34" stroke-width="6" stroke-dasharray="3 4" fill="none"/>
-          <g stroke="#2a2228" stroke-width="2.5">
-            <line x1="450" y1="212" x2="450" y2="170"/><line x1="525" y1="203" x2="525" y2="160"/><line x1="600" y1="200" x2="600" y2="152"/><line x1="675" y1="203" x2="675" y2="160"/><line x1="750" y1="212" x2="750" y2="170"/>
-          </g>
-          <path class="flag" d="M451 171 L476 178 L451 185 Z" fill="#c0303f"/>
-          <path class="flag" style="animation-delay:-.6s" d="M526 161 L551 168 L526 175 Z" fill="#e8a548"/>
-          <path class="flag" style="animation-delay:-1.1s" d="M601 153 L630 161 L601 169 Z" fill="#6fb5e6"/>
-          <path class="flag" style="animation-delay:-.3s" d="M676 161 L701 168 L676 175 Z" fill="#6cc28a"/>
-          <path class="flag" style="animation-delay:-1.5s" d="M751 171 L776 178 L751 185 Z" fill="#c48be0"/>
-          <path d="M420 226 Q600 278 780 226 L780 326 Q600 360 420 326 Z" fill="#6e5b4b"/>
-          <path d="M420 233 Q600 285 780 233" stroke="#87705c" stroke-width="7" fill="none"/>
-          <path d="M420 319 Q600 353 780 319" stroke="#5a4a3e" stroke-width="6" fill="none"/>
-          <g fill="#2a2026">
-            <rect x="441" y="246" width="18" height="26" rx="8"/><rect x="481" y="254" width="18" height="26" rx="8"/><rect x="521" y="260" width="18" height="26" rx="8"/><rect x="561" y="263" width="18" height="26" rx="8"/>
-            <rect x="621" y="263" width="18" height="26" rx="8"/><rect x="661" y="260" width="18" height="26" rx="8"/><rect x="701" y="254" width="18" height="26" rx="8"/><rect x="741" y="246" width="18" height="26" rx="8"/>
-            <rect x="441" y="282" width="18" height="26" rx="8"/><rect x="481" y="290" width="18" height="26" rx="8"/><rect x="521" y="296" width="18" height="26" rx="8"/>
-            <rect x="661" y="296" width="18" height="26" rx="8"/><rect x="701" y="290" width="18" height="26" rx="8"/><rect x="741" y="282" width="18" height="26" rx="8"/>
-          </g>
-          <path d="M570 344 L570 300 A30 30 0 0 1 630 300 L630 344 Z" fill="#1a1216"/>
-          <path d="M576 344 L576 304 A24 24 0 0 1 624 304 L624 344 Z" fill="#ff7a2f" opacity=".2" class="glow"/>
-          <path d="M580 278 V344 M590 272 V344 M600 270 V344 M610 272 V344 M620 278 V344 M570 312 H630 M570 328 H630" stroke="#4a3e36" stroke-width="2.5"/>
-          <rect x="594" y="264" width="12" height="9" rx="2" fill="#87705c"/>
-          <circle cx="556" cy="296" r="18" fill="url(#tGlow)" class="glow"/><circle cx="644" cy="296" r="18" fill="url(#tGlow)" class="glow"/>
-          <rect x="554" y="300" width="4" height="16" fill="#3a2a20"/><rect x="642" y="300" width="4" height="16" fill="#3a2a20"/>
-          <path class="flame" d="M550 301 Q551 290 556 284 Q561 291 562 301 Z" fill="#ffb347"/>
-          <path class="flame" style="animation-delay:-.2s" d="M638 301 Q639 290 644 284 Q649 291 650 301 Z" fill="#ffb347"/>
-          <g class="sign" transform="translate(600 372)"><rect x="-62" y="-15" width="124" height="30" rx="7"/><text y="7">The Arena</text></g>
-        </g>
-
-        <!-- ELDER'S HUT -->
-        <g class="bld" data-place="elder" tabindex="0" role="button" aria-label="Elder's Hut: lore and rules">
-          <ellipse cx="250" cy="357" rx="95" ry="10" fill="#000" opacity=".3"/>
-          <g fill="#5a5260" opacity=".7"><circle class="smoke" cx="245" cy="214" r="7"/><circle class="smoke" cx="245" cy="214" r="7" style="animation-delay:-2.5s"/></g>
-          <path d="M185 356 L185 300 Q245 290 305 300 L305 356 Q245 364 185 356 Z" fill="#5e4a3a"/>
-          <path d="M205 296 V358 M225 293 V360 M265 293 V360 M285 296 V358" stroke="#4e3d30" stroke-width="2"/>
-          <path d="M164 304 Q245 322 326 304 L245 220 Z" fill="#8a6a3a"/>
-          <path d="M245 220 L190 308 M245 220 L218 313 M245 220 L245 315 M245 220 L272 313 M245 220 L300 308" stroke="#6b5230" stroke-width="2"/>
-          <path d="M164 304 Q245 322 326 304" stroke="#6b5230" stroke-width="5" fill="none" stroke-dasharray="5 3"/>
-          <path d="M238 226 L245 206 L252 226 Z" fill="#6b5230"/>
-          <path d="M232 358 L232 330 Q245 318 258 330 L258 358 Z" fill="#2a1f1a"/>
-          <circle cx="207" cy="330" r="8" fill="url(#tWin)" class="lit"/><circle cx="283" cy="330" r="8" fill="url(#tWin)" class="lit" style="animation-delay:-2s"/>
-          <g stroke="#d8c8a8" stroke-width="1.2"><line x1="180" y1="308" x2="180" y2="326"/><line x1="312" y1="308" x2="312" y2="324"/></g>
-          <circle cx="180" cy="328" r="3" fill="#c48be0"/><circle cx="312" cy="326" r="3" fill="#9fe08a"/>
-          <rect x="336" y="300" width="7" height="58" fill="#6b4f32"/>
-          <circle cx="339.5" cy="296" r="8" fill="#e9e4d8"/><circle cx="337" cy="295" r="1.6" fill="#1d2130"/><circle cx="342" cy="295" r="1.6" fill="#1d2130"/>
-          <path d="M332 292 q-8 -6 -6 -16 M347 292 q8 -6 6 -16 M327 282 l-5 -3 M352 282 l5 -3" stroke="#d8c8a8" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-          <g class="sign" transform="translate(398 398)"><rect x="-68" y="-15" width="136" height="30" rx="7"/><text y="7">Elder's Hut</text></g>
-        </g>
-
-        <!-- TAVERN -->
-        <g class="bld" data-place="tavern" tabindex="0" role="button" aria-label="The Smoldering Mug tavern: rumors and records">
-          <ellipse cx="960" cy="360" rx="104" ry="10" fill="#000" opacity=".3"/>
-          <rect x="1004" y="184" width="18" height="50" fill="#4b4440"/>
-          <g fill="#5a5260" opacity=".7"><circle class="smoke" cx="1013" cy="176" r="8"/><circle class="smoke" cx="1013" cy="176" r="8" style="animation-delay:-1.7s"/><circle class="smoke" cx="1013" cy="176" r="8" style="animation-delay:-3.4s"/></g>
-          <rect x="892" y="300" width="136" height="58" fill="#5d544c"/>
-          <path d="M892 318 h136 M892 338 h136 M910 300 v18 M950 300 v18 M990 300 v18 M930 318 v20 M1010 318 v20 M910 338 v20 M990 338 v20" stroke="#4d4540" stroke-width="2"/>
-          <rect x="882" y="236" width="156" height="66" fill="#b39f84"/>
-          <path d="M882 236 h156 v66 h-156 Z M921 236 v66 M960 236 v66 M999 236 v66 M882 236 L921 269 M1038 236 L999 269" stroke="#3a2a20" stroke-width="4" fill="none"/>
-          <path d="M866 242 L960 176 L1054 242 Z" fill="#4a2f2a"/>
-          <path d="M866 242 L960 176 L1054 242" stroke="#2e1d1a" stroke-width="5" fill="none"/>
-          <g fill="url(#tWin)" class="lit"><rect x="930" y="252" width="21" height="22" rx="2"/><rect x="969" y="252" width="21" height="22" rx="2"/></g>
-          <g fill="url(#tWin)" class="lit" style="animation-delay:-1.5s"><rect x="904" y="318" width="24" height="18" rx="2"/><rect x="992" y="318" width="24" height="18" rx="2"/></g>
-          <path d="M940.5 252 v22 M979.5 252 v22 M916 318 v18 M1004 318 v18" stroke="#3a2a20" stroke-width="2"/>
-          <rect x="882" y="300" width="156" height="5" fill="#000" opacity=".3"/>
-          <path d="M946 360 L946 326 Q960 312 974 326 L974 360 Z" fill="#2a1f1a"/>
-          <path d="M1026 296 h40" stroke="#2a2228" stroke-width="3"/>
-          <g class="swing" style="transform-origin: 1050px 296px">
-            <path d="M1038 296 V306 M1062 296 V306" stroke="#2a2228" stroke-width="1.5"/>
-            <rect x="1034" y="305" width="32" height="25" rx="3" fill="#6b4f32" stroke="#e8a548" stroke-width="1.5"/>
-            <rect x="1043" y="311" width="11" height="14" rx="2" fill="#e8a548"/>
-            <path d="M1054 314 q5 0 5 4 q0 4 -5 4" stroke="#e8a548" stroke-width="2" fill="none"/>
-            <circle cx="1046" cy="311" r="2.5" fill="#f1ead6"/><circle cx="1050.5" cy="310" r="3" fill="#f1ead6"/>
-          </g>
-          <rect x="866" y="336" width="18" height="22" rx="4" fill="#6b4f32"/><path d="M866 342 h18 M866 352 h18" stroke="#3a2a20" stroke-width="2"/>
-          <rect x="1034" y="338" width="16" height="20" rx="4" fill="#6b4f32"/><path d="M1034 344 h16 M1034 353 h16" stroke="#3a2a20" stroke-width="2"/>
-          <g class="sign" transform="translate(960 386)"><rect x="-52" y="-15" width="104" height="30" rx="7"/><text y="7">Tavern</text></g>
-        </g>
-
-        <!-- JEWELER: a narrow gem-topped tower between the Arena and the Tavern -->
-        <g class="bld" data-place="jeweler" tabindex="0" role="button" aria-label="Jeweler: trinkets for your champions">
-          <ellipse cx="816" cy="361" rx="42" ry="7" fill="#000" opacity=".35"/>
-          <rect x="790" y="282" width="52" height="79" fill="#4a3f5c"/>
-          <path d="M790 304 h52 M790 326 h52 M802 282 v22 M828 282 v22 M815 304 v22 M797 326 v35 M835 326 v35" stroke="#3e344f" stroke-width="2"/>
-          <path d="M784 286 Q800 274 816 232 Q832 274 848 286 Z" fill="#2f2840"/>
-          <path d="M784 286 Q800 274 816 232 Q832 274 848 286" stroke="#d9b44a" stroke-width="2.5" fill="none"/>
-          <circle cx="816" cy="222" r="18" fill="url(#tGem)" class="glow"/>
-          <path d="M816 211 l6 9 l-6 11 l-6 -11 z" fill="#7fe3ff" stroke="#e9f8ff" stroke-width="1"/>
-          <circle cx="816" cy="300" r="9" fill="url(#tWin)" class="lit"/>
-          <path d="M816 291 v18 M807 300 h18" stroke="#3e344f" stroke-width="2"/>
-          <path d="M800 334 L832 334 L828 327 L804 327 Z" fill="#6e3a86"/>
-          <path d="M806 361 V343 Q816 334 826 343 V361 Z" fill="#1d1622"/>
-          <circle cx="822" cy="352" r="1.5" fill="#d9b44a"/>
-          <g fill="#c48be0" class="lit"><circle cx="796" cy="340" r="1.6"/><circle cx="837" cy="346" r="1.6" fill="#9fe08a"/></g>
-          <path d="M842 312 h20" stroke="#2a2228" stroke-width="3"/>
-          <g class="swing" style="transform-origin: 856px 312px">
-            <path d="M856 312 V318" stroke="#2a2228" stroke-width="1.5"/>
-            <path d="M856 318 l9 10 l-9 10 l-9 -10 z" fill="#2f2840" stroke="#d9b44a" stroke-width="1.5"/>
-            <path d="M856 323 l4 5 l-4 5 l-4 -5 z" fill="#c48be0"/>
-          </g>
-          <!-- Sign above the gem: a townsfolk lane (FOLK_LANES) crosses below the tower. -->
-          <g class="sign" transform="translate(826 190)"><rect x="-50" y="-15" width="100" height="30" rx="7"/><text y="7">Jeweler</text></g>
-        </g>
-
-        <!-- YOUR HOUSE: the player's cottage at the east edge of the village -->
-        <g class="bld" data-place="home" tabindex="0" role="button" aria-label="Your House: your stash and belongings">
-          <ellipse cx="1154" cy="382" rx="50" ry="7" fill="#000" opacity=".35"/>
-          <rect x="1170" y="288" width="13" height="32" fill="#4b4440"/>
-          <g fill="#5a5260" opacity=".7"><circle class="smoke" cx="1176" cy="282" r="7"/><circle class="smoke" cx="1176" cy="282" r="7" style="animation-delay:-2.5s"/></g>
-          <rect x="1120" y="324" width="68" height="58" fill="#6a5240"/>
-          <path d="M1120 338h68M1120 352h68M1120 366h68" stroke="#5a4434" stroke-width="2"/>
-          <path d="M1110 328L1154 290L1198 328Z" fill="#7a3a2e"/>
-          <path d="M1110 328L1154 290L1198 328" stroke="#4e2620" stroke-width="4" fill="none"/>
-          <path d="M1124 320l30-24M1136 322l18-14M1184 320l-30-24" stroke="#5e2c24" stroke-width="1.5"/>
-          <line x1="1154" y1="290" x2="1154" y2="268" stroke="#2a2228" stroke-width="2"/>
-          <path class="flag" d="M1155 269L1174 275L1155 281Z" fill="#e8a548"/>
-          <path d="M1146 382V356Q1154 346 1162 356V382Z" fill="#3a2418"/>
-          <circle cx="1159" cy="368" r="1.5" fill="#e8a548"/>
-          <rect x="1126" y="340" width="14" height="13" rx="1.5" fill="url(#tWin)" class="lit"/>
-          <rect x="1168" y="340" width="14" height="13" rx="1.5" fill="url(#tWin)" class="lit" style="animation-delay:-2s"/>
-          <path d="M1133 340v13M1126 346.5h14M1175 340v13M1168 346.5h14" stroke="#3a2a20" stroke-width="1.5"/>
-          <rect x="1124" y="353" width="20" height="5" fill="#5a3e28"/><rect x="1166" y="353" width="20" height="5" fill="#5a3e28"/>
-          <g><circle cx="1129" cy="352" r="2" fill="#ff8a3d"/><circle cx="1135" cy="351" r="2" fill="#c48be0"/><circle cx="1141" cy="352" r="2" fill="#9fe08a"/>
-             <circle cx="1171" cy="352" r="2" fill="#e0645a"/><circle cx="1177" cy="351" r="2" fill="#ffd166"/><circle cx="1183" cy="352" r="2" fill="#6fb5e6"/></g>
-          <path d="M1108 384V368M1116 384V368M1192 384V368M1199 384V368M1104 372H1120M1188 372H1200" stroke="#6b4f32" stroke-width="2.5"/>
-          <g class="sign" transform="translate(1136 406)"><rect x="-62" y="-15" width="124" height="30" rx="7"/><text y="7">Your House</text></g>
-        </g>
-
-        <!-- The square's bonfire and lamps -->
-        <circle cx="600" cy="405" r="48" fill="url(#tGlow)" class="glow" opacity=".7"/>
-        <ellipse cx="600" cy="428" rx="26" ry="8" fill="#2a2228"/>
-        <path d="M576 428 L580 418 L620 418 L624 428 Z" fill="#5a5058"/>
-        <path class="flame" d="M586 419 Q584 400 594 392 Q594 402 600 404 Q598 388 606 378 Q612 396 612 402 Q618 398 616 390 Q624 404 614 419 Z" fill="#ff8a3d"/>
-        <path class="flame" style="animation-delay:-.25s" d="M592 419 Q592 406 598 400 Q600 408 604 406 Q606 398 610 396 Q612 410 608 419 Z" fill="#ffd166"/>
-        <use href="#lampG" transform="translate(528 528)"/>
-        <use href="#lampG" transform="translate(672 528)"/>
-        <use href="#lampG" transform="translate(562 372) scale(.8)"/>
-        <use href="#lampG" transform="translate(638 372) scale(.8)"/>
-
-        <!-- IRONSMITH -->
-        <g class="bld" data-place="forge" tabindex="0" role="button" aria-label="Ironsmith: upgrade weapons and armor">
-          <ellipse cx="228" cy="532" rx="146" ry="12" fill="#000" opacity=".35"/>
-          <rect x="246" y="362" width="28" height="70" fill="#3d3940"/>
-          <rect x="242" y="356" width="36" height="9" rx="2" fill="#2e2a31"/>
-          <g fill="#5a5260" opacity=".75"><circle class="smoke" cx="260" cy="348" r="10"/><circle class="smoke" cx="260" cy="348" r="10" style="animation-delay:-1.7s"/><circle class="smoke" cx="260" cy="348" r="10" style="animation-delay:-3.4s"/></g>
-          <g fill="#ffb347"><circle class="ember" cx="256" cy="354" r="1.6" style="animation-duration:2.4s"/><circle class="ember" cx="266" cy="354" r="1.3" style="animation-duration:2.9s;animation-delay:-1.2s"/></g>
-          <rect x="120" y="432" width="170" height="100" fill="#4f4a52"/>
-          <path d="M120 457 h170 M120 482 h170 M120 507 h170 M150 432 v25 M200 432 v25 M250 432 v25 M175 457 v25 M225 457 v25 M275 457 v25 M240 482 v25 M265 507 v25 M228 507 v25" stroke="#433e46" stroke-width="2"/>
-          <path d="M104 438 L205 380 L306 438 Z" fill="#34303b"/>
-          <path d="M104 438 L205 380 L306 438" stroke="#25222a" stroke-width="4" fill="none"/>
-          <circle cx="178" cy="505" r="48" fill="url(#tGlow)" class="glow"/>
-          <path d="M146 532 L146 492 A32 32 0 0 1 210 492 L210 532 Z" fill="#1c1316"/>
-          <path d="M152 532 L152 500 A26 22 0 0 1 204 500 L204 532 Z" fill="#ff7a2f" opacity=".35" class="glow"/>
-          <path class="flame" d="M154 532 q6 -12 12 0 q6 -15 12 0 q6 -11 12 0 q6 -14 12 0 Z" fill="#ffb347"/>
-          <circle cx="205" cy="413" r="12" fill="#2a2228" stroke="#e8a548" stroke-width="2"/>
-          <path d="M199 407 l12 12 M211 407 l-12 12" stroke="#e8a548" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M290 452 L364 474 L364 481 L290 461 Z" fill="#6b4f32"/>
-          <rect x="358" y="478" width="5" height="54" fill="#4a3426"/>
-          <path d="M306 504 h46 q-2 7 -14 8 v9 h9 v8 h-34 v-8 h9 v-9 q-12 -1 -16 -8 z" fill="#2a2a32"/>
-          <g transform="rotate(-20 340 498)"><rect x="338" y="474" width="4" height="26" fill="#7a5434"/><rect x="331" y="470" width="18" height="9" rx="2" fill="#9aa3b5"/></g>
-          <rect x="94" y="486" width="24" height="4" fill="#4a3426"/><rect x="94" y="520" width="24" height="4" fill="#4a3426"/>
-          <path d="M100 532 V472 M106 532 V466 M112 532 V476" stroke="#c9d1de" stroke-width="2.5"/>
-          <path d="M96 478 h8 M102 472 h8 M108 482 h8" stroke="#e8a548" stroke-width="2"/>
-          <g class="sign" transform="translate(228 562)"><rect x="-64" y="-15" width="128" height="30" rx="7"/><text y="7">Ironsmith</text></g>
-        </g>
-
-        <!-- MARKET -->
-        <g class="bld" data-place="market" tabindex="0" role="button" aria-label="Market: buy supplies for battle">
-          <ellipse cx="990" cy="534" rx="170" ry="12" fill="#000" opacity=".35"/>
-          <path d="M835 452 Q937 474 1040 452 Q1092 472 1145 452" stroke="#2a2228" stroke-width="1.5" fill="none"/>
-          <g fill="#ffd28a" class="lit"><circle cx="875" cy="461" r="3.5"/><circle cx="937" cy="463" r="3.5"/><circle cx="1000" cy="460" r="3.5"/><circle cx="1092" cy="462" r="3.5"/></g>
-          <!-- stall 1: food -->
-          <rect x="839" y="472" width="5" height="60" fill="#4a3426"/><rect x="926" y="472" width="5" height="60" fill="#4a3426"/>
-          <rect x="833" y="500" width="104" height="32" rx="2" fill="#6b4f32"/><rect x="830" y="496" width="110" height="6" fill="#7a5a3a"/>
-          <g fill="#c0303f"><circle cx="850" cy="491" r="5"/><circle cx="860" cy="491" r="5"/><circle cx="855" cy="483" r="5"/></g>
-          <g fill="#6cc28a"><circle cx="878" cy="491" r="5"/><circle cx="888" cy="491" r="5"/></g>
-          <path d="M905 496 q-4 -16 8 -16 q12 0 8 16 Z" fill="#a3895f"/><path d="M907 482 h12" stroke="#6b4f32" stroke-width="2"/>
-          <path d="M835 476 L843 452 L927 452 L935 476 Z" fill="url(#awnA)"/>
-          <path d="M835 476 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 Z" fill="url(#awnA)"/>
-          <!-- stall 2: potions -->
-          <rect x="944" y="472" width="5" height="60" fill="#4a3426"/><rect x="1031" y="472" width="5" height="60" fill="#4a3426"/>
-          <rect x="938" y="500" width="104" height="32" rx="2" fill="#6b4f32"/><rect x="935" y="496" width="110" height="6" fill="#7a5a3a"/>
-          <g><rect x="952" y="482" width="9" height="14" rx="3" fill="#e0645a"/><rect x="954.5" y="477" width="4" height="6" fill="#d8c8a8"/>
-             <rect x="968" y="480" width="9" height="16" rx="3" fill="#9fe08a"/><rect x="970.5" y="475" width="4" height="6" fill="#d8c8a8"/>
-             <rect x="984" y="483" width="9" height="13" rx="3" fill="#6fb5e6"/><rect x="986.5" y="478" width="4" height="6" fill="#d8c8a8"/>
-             <rect x="1000" y="481" width="9" height="15" rx="3" fill="#c48be0"/><rect x="1002.5" y="476" width="4" height="6" fill="#d8c8a8"/>
-             <circle cx="1022" cy="489" r="7" fill="#2a2f3f"/><path d="M1022 482 q3 -5 6 -4" stroke="#c9b28a" stroke-width="1.5" fill="none"/></g>
-          <path d="M940 476 L948 452 L1032 452 L1040 476 Z" fill="url(#awnB)"/>
-          <path d="M940 476 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 Z" fill="url(#awnB)"/>
-          <!-- stall 3: cloth and charms -->
-          <rect x="1049" y="472" width="5" height="60" fill="#4a3426"/><rect x="1136" y="472" width="5" height="60" fill="#4a3426"/>
-          <rect x="1043" y="500" width="104" height="32" rx="2" fill="#6b4f32"/><rect x="1040" y="496" width="110" height="6" fill="#7a5a3a"/>
-          <g><rect x="1056" y="486" width="26" height="10" rx="5" fill="#3e5a8c"/><rect x="1060" y="478" width="24" height="9" rx="4.5" fill="#c0303f"/><rect x="1088" y="486" width="24" height="10" rx="5" fill="#d9c58a"/>
-             <circle cx="1128" cy="487" r="8" fill="#8a5a32" stroke="#c9a25e" stroke-width="2"/></g>
-          <g stroke="#d8c8a8" stroke-width="1"><line x1="1066" y1="478" x2="1066" y2="490"/><line x1="1124" y1="478" x2="1124" y2="488"/></g>
-          <path d="M1045 476 L1053 452 L1137 452 L1145 476 Z" fill="url(#awnC)"/>
-          <path d="M1045 476 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 q6.25 10 12.5 0 Z" fill="url(#awnC)"/>
-          <rect x="868" y="514" width="24" height="20" fill="#7a5a3a" stroke="#4a3426" stroke-width="2"/><path d="M868 514 l24 20 M892 514 l-24 20" stroke="#4a3426" stroke-width="2"/>
-          <g class="sign" transform="translate(990 562)"><rect x="-56" y="-15" width="112" height="30" rx="7"/><text y="7">Market</text></g>
-        </g>
-
-        <!-- West quarter, front: the village well and more homes -->
-        <g aria-hidden="true">
-          <ellipse cx="-140" cy="482" rx="28" ry="6" fill="#000" opacity=".3"/>
-          <path d="M-162 480V462h44V480Z" fill="#6a6470"/><ellipse cx="-140" cy="462" rx="22" ry="6" fill="#4a4450"/>
-          <ellipse cx="-140" cy="462" rx="15" ry="3.5" fill="#1c1f36"/>
-          <path d="M-160 462V426M-120 462V426" stroke="#5a3e28" stroke-width="4"/>
-          <path d="M-168 430L-140 412L-112 430Z" fill="#7a3a2e"/>
-          <path d="M-160 438H-120" stroke="#3a2a20" stroke-width="2"/><path d="M-140 438V452" stroke="#8a7048" stroke-width="1.5"/>
-          <rect x="-145" y="450" width="10" height="8" rx="1" fill="#6b4f32"/>
-        </g>
-        <use href="#lampG" transform="translate(-20 448)"/>
-        <use href="#hutB" transform="translate(-78 590)"/>
-
-        <!-- TRAINING YARD: a fenced drill field on the west road, between the postern and the mine path.
-             Straw dummies, a weapon rack and a lot of churned dirt. -->
-        <g class="bld" data-place="train" tabindex="0" role="button" aria-label="Training Yard: drill new techniques and earn skill points">
-          <ellipse cx="-380" cy="532" rx="152" ry="13" fill="#000" opacity=".35"/>
-          <!-- churned ground, trodden paler where the drilling happens -->
-          <ellipse cx="-380" cy="510" rx="144" ry="34" fill="#54453a"/>
-          <ellipse cx="-380" cy="507" rx="124" ry="27" fill="#45382f"/>
-          <ellipse cx="-380" cy="505" rx="92" ry="19" fill="#3b312a"/>
-          <!-- back fence: posts with two sagging rails -->
-          <g stroke="#6b4f32" stroke-width="5" stroke-linecap="round">
-            <path d="M-500 500 v-30 M-440 492 v-30 M-380 488 v-30 M-320 492 v-30 M-260 500 v-30"/>
-          </g>
-          <path d="M-500 478 q60 -8 120 -11 q60 3 120 11" fill="none" stroke="#7d5c3a" stroke-width="4"/>
-          <path d="M-500 490 q60 -8 120 -11 q60 3 120 11" fill="none" stroke="#6b4f32" stroke-width="3.5"/>
-          <!-- two straw dummies, the near one battered off true -->
-          <g transform="translate(-444 0)">
-            <rect x="-3" y="462" width="6" height="56" fill="#5a4430"/>
-            <rect x="-24" y="478" width="48" height="5" rx="2.5" fill="#6b4f32"/>
-            <path d="M-15 474 h30 l-4 34 h-22 Z" fill="#c8a764"/>
-            <circle cx="0" cy="466" r="10" fill="#d8bb7d"/>
-            <path d="M-14 486 h28 M-13 496 h26" stroke="#8a7048" stroke-width="2.5"/>
-            <path d="M-6 464 l5 5 M6 464 l-5 5" stroke="#6b4f32" stroke-width="2"/>
-          </g>
-          <g transform="translate(-330 2) rotate(-7 0 516)">
-            <rect x="-3" y="466" width="6" height="52" fill="#5a4430"/>
-            <rect x="-22" y="480" width="44" height="5" rx="2.5" fill="#6b4f32"/>
-            <path d="M-14 476 h28 l-4 32 h-20 Z" fill="#bb9a5c"/>
-            <circle cx="0" cy="469" r="9.5" fill="#cbae72"/>
-            <path d="M-13 488 h26 M-12 497 h24" stroke="#8a7048" stroke-width="2.5"/>
-            <!-- loose straw knocked out of its side -->
-            <path d="M12 492 l9 -4 M12 497 l10 1" stroke="#d8bb7d" stroke-width="2" stroke-linecap="round"/>
-          </g>
-          <!-- weapon rack -->
-          <g transform="translate(-252 0)">
-            <path d="M-26 516 L-18 482 M26 516 L18 482" stroke="#6b4f32" stroke-width="5" stroke-linecap="round"/>
-            <rect x="-24" y="480" width="48" height="5" rx="2.5" fill="#7d5c3a"/>
-            <path d="M-12 482 v-28" stroke="#8a93a6" stroke-width="3.5" stroke-linecap="round"/>
-            <path d="M-18 462 h12" stroke="#5a4430" stroke-width="3"/>
-            <path d="M2 482 v-24" stroke="#8a93a6" stroke-width="3.5" stroke-linecap="round"/>
-            <path d="M-4 466 h12" stroke="#5a4430" stroke-width="3"/>
-            <circle cx="15" cy="470" r="9" fill="none" stroke="#7d5c3a" stroke-width="3.5"/>
-          </g>
-          <!-- torch at the gate of the yard -->
-          <rect x="-516" y="470" width="4" height="30" fill="#3a2a20"/>
-          <circle cx="-514" cy="465" r="12" fill="url(#tGlow)" class="glow"/>
-          <g class="sign" transform="translate(-380 556)"><rect x="-78" y="-15" width="156" height="30" rx="7"/><text y="7">Training Yard</text></g>
-        </g>
-
-        <!-- EMBERHOLLOW CAVE: an old mine mouth in the western rocks, out beyond the wall.
-             Drawn around (-232, 548); shifted west through the postern and a little up the rising
-             ground to (-670, 508), which also lifts its name tag clear of the dock. -->
-        <g class="bld" data-place="cave" tabindex="0" role="button" transform="translate(-438 -40)" aria-label="Emberhollow Cave: hunt monsters for XP and gold, outside the west wall">
-          <ellipse cx="-232" cy="548" rx="78" ry="9" fill="#000" opacity=".35"/>
-          <path d="M-302 548 Q-296 474 -262 454 Q-236 434 -206 450 Q-172 468 -162 548 Z" fill="#4a3f3a" stroke="#2a2422" stroke-width="2"/>
-          <path d="M-286 548 Q-280 504 -262 490 M-178 548 Q-184 507 -202 486 M-250 456 Q-236 448 -220 456" stroke="#5c514a" stroke-width="6" fill="none" opacity=".75"/>
-          <path d="M-258 548 V508 Q-258 486 -232 486 Q-206 486 -206 508 V548 Z" fill="#120d0c"/>
-          <ellipse class="glow" cx="-232" cy="534" rx="17" ry="10" fill="#ff7a2f" opacity=".35"/>
-          <circle cx="-240" cy="520" r="2.4" fill="#ffd166"/><circle cx="-226" cy="520" r="2.4" fill="#ffd166"/>
-          <path d="M-261 548 V506 M-203 548 V506" stroke="#6b4f32" stroke-width="5"/>
-          <path d="M-266 488 H-198" stroke="#6b4f32" stroke-width="7" stroke-linecap="round"/>
-          <path d="M-248 488 l4 10 l4 -10 M-222 488 l3 8 l3 -8" fill="#3a302c"/>
-          <g class="sign" transform="translate(-232 574)"><rect x="-88" y="-15" width="176" height="30" rx="7"/><text y="7">Emberhollow Cave</text></g>
-        </g>
-
-        <!-- BOUNTY BOARD: by the east road, where the jobs come in -->
-        <g class="bld" data-place="bounty" tabindex="0" role="button" aria-label="Bounty Board: daily jobs that pay gold">
-          <ellipse cx="1330" cy="522" rx="54" ry="7" fill="#000" opacity=".35"/>
-          <path d="M1296 520V452M1364 520V452" stroke="#4a3426" stroke-width="6"/>
-          <rect x="1286" y="448" width="88" height="50" rx="2" fill="#6b4f32" stroke="#4a3426" stroke-width="2"/>
-          <path d="M1280 452L1330 432L1380 452Z" fill="#4a2f2a"/>
-          <rect x="1294" y="456" width="20" height="24" fill="#e9dcc0" transform="rotate(-4 1304 468)"/>
-          <rect x="1318" y="454" width="22" height="28" fill="#f1ead6" transform="rotate(3 1329 468)"/>
-          <rect x="1344" y="458" width="20" height="22" fill="#e0c79a" transform="rotate(-2 1354 469)"/>
-          <rect x="1306" y="482" width="18" height="12" fill="#e9dcc0" transform="rotate(5 1315 488)"/>
-          <rect x="1336" y="482" width="20" height="13" fill="#f1ead6" transform="rotate(-6 1346 488)"/>
-          <path d="M1321 462h16M1321 467h12M1321 472h14M1297 463h12M1297 468h9M1347 464h12M1347 469h10" stroke="#8a7048" stroke-width="1.4"/>
-          <path d="M1323 476h14" stroke="#c0303f" stroke-width="2"/>
-          <g fill="#c0303f"><circle cx="1304" cy="457" r="1.8"/><circle cx="1329" cy="455" r="1.8"/><circle cx="1354" cy="459" r="1.8"/></g>
-          <g class="sign" transform="translate(1330 548)"><rect x="-76" y="-15" width="152" height="30" rx="7"/><text y="7">Bounty Board</text></g>
-        </g>
-
-        <!-- PROVING GROUNDS: a roped duelling pit on the east lawn between Your House and the Bounty Board -->
-        <g class="bld" data-place="pvp" tabindex="0" role="button" aria-label="Proving Grounds: duel rival warbands for gold">
-          <ellipse cx="1320" cy="400" rx="96" ry="10" fill="#000" opacity=".35"/>
-          <ellipse cx="1320" cy="376" rx="84" ry="23" fill="#54453a"/>
-          <ellipse cx="1320" cy="372" rx="70" ry="17" fill="#2b211f"/>
-          <ellipse cx="1320" cy="370" rx="62" ry="14" fill="#45382f"/>
-          <!-- fence posts and the rope -->
-          <g stroke="#6b4f32" stroke-width="5" stroke-linecap="round">
-            <path d="M1236 374 v-19 M1268 388 v-19 M1320 394 v-19 M1372 388 v-19 M1404 374 v-19 M1380 352 v-17 M1320 346 v-17 M1260 352 v-17"/>
-          </g>
-          <ellipse cx="1320" cy="361" rx="84" ry="21" fill="none" stroke="#c9a25e" stroke-width="2.5" stroke-dasharray="10 6"/>
-          <!-- two duelists mid-clash -->
-          <g fill="#241b26">
-            <circle cx="1303" cy="356" r="5.2"/><path d="M1297.5 361 q5.5 4.5 11 0 l3 13 q-8.5 4 -17 0 Z"/>
-            <circle cx="1337" cy="356" r="5.2"/><path d="M1331.5 361 q5.5 4.5 11 0 l3 13 q-8.5 4 -17 0 Z"/>
-          </g>
-          <path d="M1308 366 L1322 352 M1332 366 L1318 352" stroke="#8a93a6" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="1320" cy="359" r="2.2" fill="#ffd166"/>
-          <!-- torches -->
-          <rect x="1228" y="330" width="4" height="28" fill="#3a2a20"/><circle cx="1230" cy="325" r="13" fill="url(#tGlow)" class="glow"/>
-          <path class="flame" d="M1225 330 Q1226 320 1230 314 Q1234 321 1235 330 Z" fill="#ffb347"/>
-          <rect x="1408" y="330" width="4" height="28" fill="#3a2a20"/><circle cx="1410" cy="325" r="13" fill="url(#tGlow)" class="glow" style="animation-delay:-.4s"/>
-          <path class="flame" style="animation-delay:-.3s" d="M1405 330 Q1406 320 1410 314 Q1414 321 1415 330 Z" fill="#ffb347"/>
-          <g class="sign" transform="translate(1320 303)"><rect x="-92" y="-15" width="184" height="30" rx="7"/><text y="7">Proving Grounds</text></g>
-        </g>
-
-        <!-- East quarter, front homes -->
-        <use href="#hutB" transform="translate(1240 598) scale(.95)"/>
-        <use href="#hutG" transform="translate(1455 600)"/>
-
-        <!-- Foreground: framing trees and drifting embers -->
-        <use href="#treeG" transform="translate(-338 598) scale(1.4)"/>
-        <use href="#treeG" transform="translate(42 598) scale(1.4)"/>
-        <use href="#treeG" transform="translate(1172 598) scale(1.3)"/>
-        <use href="#treeG" transform="translate(1574 598) scale(1.3)"/>
-        <g fill="#ff9a4a">
-          <circle class="ember" cx="-220" cy="600" r="2" style="animation-delay:-3s"/><circle class="ember" cx="-90" cy="596" r="1.6" style="animation-delay:-6s;animation-duration:10s"/>
-          <circle class="ember" cx="1290" cy="600" r="1.8" style="animation-delay:-1.5s"/><circle class="ember" cx="1420" cy="598" r="2" style="animation-delay:-4.5s;animation-duration:11s"/>
-        </g>
-        <g fill="#ff9a4a">
-          <circle class="ember" cx="80" cy="590" r="2"/><circle class="ember" cx="190" cy="600" r="1.6" style="animation-delay:-2s"/>
-          <circle class="ember" cx="340" cy="595" r="2.2" style="animation-delay:-5s;animation-duration:11s"/><circle class="ember" cx="470" cy="600" r="1.5" style="animation-delay:-7s"/>
-          <circle class="ember" cx="600" cy="420" r="1.8" style="animation-delay:-1s;animation-duration:6s"/><circle class="ember" cx="610" cy="415" r="1.4" style="animation-delay:-3.5s;animation-duration:7s"/>
-          <circle class="ember" cx="760" cy="600" r="2" style="animation-delay:-4s"/><circle class="ember" cx="880" cy="596" r="1.6" style="animation-delay:-6s;animation-duration:10s"/>
-          <circle class="ember" cx="1010" cy="600" r="2.1" style="animation-delay:-8s"/><circle class="ember" cx="1130" cy="592" r="1.5" style="animation-delay:-3s;animation-duration:12s"/>
-        </g>
-      </svg>
+      <svg class="townMap" id="townMap" viewBox="0 0 2400 1400" role="group" aria-label="Map of Cinderhold"></svg>
       <div class="townies" id="townies" aria-hidden="true"></div>
       <div class="npcs" id="npcs" role="group" aria-label="People of Cinderhold"></div>
       </div>
@@ -1990,7 +1408,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
    ================================================================== */
 const FACTIONS = {
   mech:  { name: 'Ironclad Union',     mechanic: 'Heat',
-           rule: 'Every action builds Heat, filling the overheat bar in quarters (25 / 50 / 75 / 100) and adding up to 40% damage. Each quarter sears anyone it trades blows with — attacking or being attacked — for 10 / 20 / 30 / 40. At 100 Heat the unit overheats and skips its next turn; Guard vents 50 Heat. Water douses it: a Soaked unit (from Tideborn hits or a Downpour) drops to 0 Heat and cannot build any until the Soaked wears off. A destroyed Ironclad champion leaves a Salvage Bot behind.' },
+           rule: 'Every action builds Heat, filling the overheat bar in quarters (25 / 50 / 75 / 100) and adding up to 40% damage. Each quarter sears anyone it trades blows with — attacking or being attacked — for 10 / 20 / 30 / 40. At 100 Heat the unit overheats and skips its next turn; Guard vents 50 Heat. Water douses it: a Soaked unit (from Tideborn hits or a Downpour) drops to 0 Heat and cannot build any until the Soaked wears off. A destroyed Ironclad champion leaves a Salvage Bot behind. Machines don\'t bleed: Ironclad units are immune to Bleed.' },
   orc:   { name: 'Bloodtusk Horde',    mechanic: 'Rage',
            rule: 'Deals more damage the more hurt it is, up to +50% near death.' },
   human: { name: 'Kingdom of Aldmere', mechanic: 'Discipline',
@@ -3194,12 +2612,18 @@ function rollPack(d) {
 }
 
 /* ==================================================================
-   DUNGEONS — expeditions from the Expedition Gate. A run is a chain of
-   rooms (monster packs) and then a boss room. HP and MP carry over
-   between rooms: fallen champions get back up at 30%, and everyone
-   rests a little. Each room pays XP and gold; the boss guards a chest,
+   DUNGEONS — expeditions from the Expedition Gate. A run is DG_ROOM_COUNT
+   rooms (monster packs) and then a boss room: 7 battles in all. The first
+   rooms are the dungeon's own `rooms`; the rest are rolled from the same
+   monsters when you set out (state.dg.plan). HP and MP carry over between
+   rooms: fallen champions get back up at 30%, and everyone catches their
+   breath a little. Each room pays XP and gold; the boss guards a chest,
    and the first clear of each dungeon also gives a trinket.
-   You can retreat between rooms and keep what you earned.
+   Wounded minions flee: on its turn, a monster at 10–40% HP runs deeper
+   into the dungeon (at most DG_FLEE_CAP per room, never in the boss room,
+   and each monster only once). The warband chases straight into the next
+   room, where the runaways rejoin the new pack still wounded.
+   Abandoning the run keeps everything earned so far.
    Monsters fight at your level, never below the dungeon's minimum.
    ================================================================== */
 /* DUNGEON CONDITIONS — a standing rule for every room of a run. Unlike weather it never
@@ -3242,9 +2666,13 @@ const DUNGEONS = [
     chest: { gold: 520, items: 3 }, firstClear: 'hagthorn' },
 ];
 const dungeonById = (id) => DUNGEONS.find((d) => d.id === id);
-const DG_REVIVE = 0.3, DG_REST_HP = 0.25, DG_REST_MP = 0.3;   // between rooms
+const DG_REVIVE = 0.3, DG_REST_HP = 0.12, DG_REST_MP = 0.15;  // between rooms (a short breather mid-chase)
 const BOSS_ENRAGE_AT = 0.5;                                    // bosses enrage below this share of HP
-const DG_XP_MULT = 0.6;                                        // a full run is worth about a level and a bit
+const DG_XP_MULT = 0.35;                                       // a full 7-battle run is worth about a level and a bit
+const DG_ROOM_COUNT = 6;                                       // rooms before the boss room
+const DG_MAX_FOES = 4;                                         // a pack plus its runaways never tops this
+const DG_FLEE_MIN = 0.10, DG_FLEE_MAX = 0.40;                  // a minion flees with HP in (10%, 40%]
+const DG_FLEE_CAP = 2;                                         // at most this many flee from one room
 
 // Heroes live in their faction folder; summons in characters/summons/; monsters in characters/monsters/.
 function spriteSVG(id) {
@@ -4106,6 +3534,11 @@ function addFx(u, id, turns, value = 0, quiet = false) {
     if (!quiet) { float(u, 'Airborne', 'fx'); log(`${u.name} floats — the Stagger finds no footing.`, u.side); }
     return;
   }
+  // Machines don't bleed: every Ironclad unit (champions and their Salvage Bots) is immune to Bleed.
+  if (id === 'bleed' && u.faction === 'mech') {
+    if (!quiet) { float(u, 'No blood', 'fx'); log(`${u.name} is a machine — the Bleed finds no blood.`, u.side); }
+    return;
+  }
   const ex = has(u, id);
   const until = TIMED_FX[id] ? state.time + TIMED_FX[id] : null;
   if (ex) {
@@ -4684,6 +4117,7 @@ async function nextTurn() {
     const s = await beginTurn(u);
     if (token !== state.token || checkEnd()) return;
     if (s !== 'ok') { endTurn(u); continue; }
+    if (shouldFlee(u)) { await flee(u); continue; }
     // Your heroes wait for you; summons (on either side) act on their own.
     // Only your champion waits for your orders; recruits and summons act on their own.
     if (u.you) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
@@ -4907,6 +4341,15 @@ function startBattle(retry) {
         const c = state.dg.carry[u.id];
         if (c) { u.hp = Math.max(1, Math.min(u.maxHp, c.hp)); u.mp = Math.max(0, Math.min(u.maxMp, c.mp)); }
       }
+      // Monsters that fled the last room are here, still wounded, and won't run a second time.
+      for (const f of state.dg.fled || []) {
+        const u = state.teams.e.find((x) => x.id === f.id && !x.fledOnce && !x.boss);
+        if (!u) continue;
+        u.fledOnce = true;
+        u.hp = Math.max(1, Math.round(u.maxHp * f.hp));
+      }
+      state.dg.fled = [];
+      state.dg.fledNow = 0;
     }
   } else if (duel) {
     // Proving Grounds: a rival warband at the tier's level and strength.
@@ -4929,7 +4372,7 @@ function startBattle(retry) {
   state.screen = 'battle';
   state.token++;
   $('#overlay').hidden = true;
-  if (dg) log(`${dg.name}, ${dgIsBossRoom() ? 'the boss room' : `room ${state.dg.room + 1} of ${dgRooms(dg)}`}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
+  if (dg) log(`${dg.name}, ${dgIsBossRoom() ? 'the boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}: ${state.teams.e.map((u) => `${u.name}${u.fledOnce ? ' (wounded)' : ''}`).join(', ')}.`, 'sys');
   else if (hunt) log(`${CAVE.name}, ${hunt.name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (duel) log(`The Proving Grounds, ${duel.name} for ${duel.pay} gold: ${duel.band} — ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else log(`Battle ${state.battle + 1} of ${state.order.length} against ${theFaction(FACTIONS[fac])}.`, 'sys');
@@ -5044,23 +4487,80 @@ const dungeonRun = () => (state.mode === 'dungeon' ? dungeonById(state.dg?.id) :
 // The run's standing condition (see DG_CONDS). Null in every other mode and in the plain dungeons.
 const dgCond = () => { const d = dungeonRun(); return d?.cond ? DG_CONDS[d.cond] : null; };
 const dgCondIs = (id) => dungeonRun()?.cond === id;
-const dgRooms = (d) => d.rooms.length + 1;                 // normal rooms + the boss room
-const dgIsBossRoom = () => { const d = dungeonRun(); return !!d && state.dg.room === d.rooms.length; };
+const dgRooms = () => DG_ROOM_COUNT + 1;                   // normal rooms + the boss room
+const dgIsBossRoom = () => !!dungeonRun() && state.dg.room === DG_ROOM_COUNT;
+
+// The run's rooms: the dungeon's own packs first, then fresh packs rolled from the same monsters.
+function dgPlan(d) {
+  const kinds = [...new Set(d.rooms.flat())];
+  const plan = d.rooms.slice(0, DG_ROOM_COUNT);
+  while (plan.length < DG_ROOM_COUNT) {
+    const size = plan.length === d.rooms.length ? 3 : 4;
+    plan.push(Array.from({ length: size }, () => pick(kinds)));
+  }
+  return plan;
+}
 
 function startDungeon(id) {
   const d = dungeonById(id);
   if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (!d || heroLevel() < d.minLv || state.runPending) return;
   state.mode = 'dungeon';
-  state.dg = { id, room: 0, gold: 0, xp: 0, carry: {}, done: false };
+  state.dg = { id, room: 0, gold: 0, xp: 0, carry: {}, done: false, plan: dgPlan(d), fled: [] };
   enterRoom();
 }
 
-// The next room's monsters (or the boss and its adds), then the battle.
+// The next room's monsters (or the boss and its adds), then the battle. Monsters that fled the
+// last room are waiting here with the new pack; startBattle puts their wounds back on them.
 function enterRoom() {
-  const d = dungeonRun();
-  state.enemyIds = dgIsBossRoom() ? [d.boss, ...d.bossAdds] : d.rooms[state.dg.room];
+  const d = dungeonRun(), runaways = (state.dg.fled || []).map((f) => f.id);
+  const fresh = (state.dg.plan || d.rooms)[state.dg.room] || pick(d.rooms);
+  state.enemyIds = dgIsBossRoom()
+    ? [d.boss, ...runaways, ...d.bossAdds].slice(0, DG_MAX_FOES)
+    : [...runaways, ...fresh].slice(0, Math.max(DG_MAX_FOES, runaways.length));
   startBattle(true);
+}
+
+// A wounded minion takes its turn to run for it (see DUNGEONS above).
+function shouldFlee(u) {
+  if (!dungeonRun() || dgIsBossRoom() || u.side !== 'e' || !u.monster || u.boss || u.fledOnce || !alive(u)) return false;
+  const left = u.hp / u.maxHp;
+  return left > DG_FLEE_MIN && left <= DG_FLEE_MAX && (state.dg.fledNow || 0) < DG_FLEE_CAP;
+}
+
+async function flee(u) {
+  state.dg.fledNow = (state.dg.fledNow || 0) + 1;
+  state.dg.fled.push({ id: u.id, hp: u.hp / u.maxHp });
+  log(`${u.name} is badly hurt and flees deeper into ${dungeonRun().name}!`, 'sys');
+  float(u, 'Flees!', 'fx');
+  const el = document.getElementById(`u-${u.uid}`);
+  if (el) { el.classList.add('fleeing'); el.style.setProperty('--x', 115); }
+  await wait(950);
+  removeUnit(u);   // its summons go with it (cleanupSummons: no owner left)
+  render();
+}
+
+// Room won: no stopping. The warband runs on after anything that fled, straight into the next room.
+async function chaseDeeper() {
+  const token = state.token, d = dungeonRun(), runaways = state.dg.fled.length;
+  const ahead = state.dg.room + 1 === DG_ROOM_COUNT ? `${MONSTERS[d.boss].name} waits ahead` : `Room ${state.dg.room + 2} of ${dgRooms()}`;
+  announce(runaways ? 'After them!' : 'Deeper in', runaways ? `${runaways === 1 ? 'A wounded monster runs' : 'The wounded run'} deeper · ${ahead}` : ahead);
+  for (const u of state.teams.p) {
+    const el = document.getElementById(`u-${u.uid}`);
+    if (!el || !alive(u)) continue;
+    el.classList.add('running');
+    el.style.setProperty('--x', 112);
+  }
+  const fade = document.createElement('div');
+  fade.className = 'chaseFade';
+  $('#arena').appendChild(fade);
+  await wait(1700);
+  fade.classList.add('dark');
+  await wait(600);
+  fade.remove();
+  if (token !== state.token || !dungeonRun()) return;   // abandoned mid-chase
+  state.dg.room++;
+  enterRoom();
 }
 
 // Bosses: enrage below half HP, and every few turns wind up a big telegraphed attack,
@@ -5130,7 +4630,7 @@ function endDungeonRoom(won) {
       if (state.dg.chest.trinket) profile.stash.trinkets[d.firstClear] = (profile.stash.trinkets[d.firstClear] || 0) + 1;
       rec.clears++;
       state.dg.done = true;
-      news.push(...questEvent('dungeon', { id: d.id, cleared: true, rooms: dgRooms(d) }));
+      news.push(...questEvent('dungeon', { id: d.id, cleared: true, rooms: dgRooms() }));
     }
     profile.gold += state.goldWon;
     profile.stats.earned += state.goldWon; profile.stats.wins++;
@@ -5194,6 +4694,7 @@ async function endBattle(won) {
   for (const t of state.questNews) log(t, 'sys');
   render();
   await wait(700);
+  if (dungeonRun() && state.phase === 'won' && !state.dg.done) return chaseDeeper();
   showEndOverlay();
 }
 
@@ -5640,7 +5141,7 @@ function render() {
   if (state.screen === 'village') renderVillage();
   else if (state.screen === 'select') renderSelect();
   else if (state.screen === 'skills') renderSkills();
-  else renderBattle();
+  else { renderBattle(); syncBloodTethers(); }
 }
 
 /* ==================================================================
@@ -5972,7 +5473,7 @@ const PLACES = {
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
 };
 const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'cave', 'gate', 'bounty', 'forge', 'jeweler', 'market', 'carnival', 'elder', 'tavern'];
-const TOWNIE_SPOTS = [[50, 80.5], [46, 78.5], [54, 78.5], [42, 80]];   // [x%, feet y%] around the bonfire (map x 600, 528, 672, 504)
+const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 
 /* ------------------------------------------------------------------
    NPCs. Art is characters/npcs/<id>.svg. Positions are in map units
@@ -5985,7 +5486,7 @@ const nextFoe = () => (state.runPending ? FACTIONS[state.order[state.battle + 1]
 
 // Keepers stand by their building. Clicking one opens it, and inside they greet you and react to purchases.
 const KEEPERS = {
-  train: { id: 'serel', name: 'Serel Vance', title: 'Drillmaster', at: [-300, 556],
+  train: { id: 'serel', name: 'Serel Vance', title: 'Drillmaster', at: [542, 939], flip: false,
     greet: [
       'You can swing. Anyone can swing. I teach you what to do when swinging is not working.',
       'Three mornings on a technique. Four if it is worth having. No, you cannot skip to the end.',
@@ -5995,7 +5496,7 @@ const KEEPERS = {
     ],
     react: ['Again. Slower. Good — that one was almost right.', 'Feel that? Remember it. That is the whole lesson.',
       'Sloppy, but it landed. We will take it.', 'Better. Now do it when somebody is shooting at you.'] },
-  forge: { id: 'brann', name: 'Brann Ashhand', title: 'Ironsmith', at: [392, 540], flip: true,
+  forge: { id: 'brann', name: 'Brann Ashhand', title: 'Ironsmith', at: [850, 897], flip: false,
     greet: [
       'Ash-iron, quenched in snowmelt off the mountain. Nothing on the road holds an edge like it.',
       'Armor goes on whoever stands at the front. I say that because it is true, not because I sell armor.',
@@ -6005,7 +5506,7 @@ const KEEPERS = {
     ],
     react: ['*CLANG* There. Feel the weight of that?', 'Hold still... done. Try not to chip it on the first orc you meet.',
       'That will outlast you. Probably.', 'Good steel. Better than good. Do not tell the other smiths.'] },
-  market: { id: 'mott', name: 'Odo Mott', title: 'Trader', at: [810, 542], flip: true,
+  market: { id: 'mott', name: 'Odo Mott', title: 'Trader', at: [1144, 1058], flip: false,
     greet: [
       'Draughts, tonics, bombs! Everything a sensible champion needs, and a few things a foolish one wants.',
       'No haggling, friend. The ash roads set my prices, not me.',
@@ -6015,7 +5516,7 @@ const KEEPERS = {
     ],
     react: ['A fine choice! Odo Mott thanks you.', 'Pleasure doing business. Mind the cork.', 'Sold! Do not shake that one.',
       'Excellent. Come back alive, and come back often.'] },
-  tavern: { id: 'hesta', name: 'Hesta Brewhold', title: 'Keeper of the Smoldering Mug', at: [1090, 364], flip: true,
+  tavern: { id: 'hesta', name: 'Hesta Brewhold', title: 'Keeper of the Smoldering Mug', at: [1502, 809], flip: true,
     greet: [
       'Sit down, warm up. The ale is hot and the gossip is hotter.',
       'Everyone who comes through that door has a story. Most of them are lying.',
@@ -6026,7 +5527,7 @@ const KEEPERS = {
       () => (profile.stats.clears ? 'A gauntlet champion in my tavern! First round is on the house. Second round is not.' : null),
     ],
     react: [] },
-  carnival: { id: 'zazzo', name: 'Zazzo the Magnificent', title: 'Carnival barker', at: [122, 388], flip: false,
+  carnival: { id: 'zazzo', name: 'Zazzo the Magnificent', title: 'Carnival barker', at: [752, 781], flip: false,
     greet: [
       'Step right up, step right up! Fortune favors the bold, and the bold pay the entry fee!',
       'Every game is fair, friend. Some are just fairer to me.',
@@ -6036,7 +5537,7 @@ const KEEPERS = {
     ],
     react: ['A winner! Everyone, look at this winner!', 'Ohhh, so close! Again? Again!', 'The crowd goes wild! Well, Pip does.',
       'Ha! The wheel of fortune spins for no one... except you, apparently.'] },
-  elder: { id: 'ysolde', name: 'Elder Ysolde', title: 'Elder of Cinderhold', at: [204, 374], flip: false,
+  elder: { id: 'ysolde', name: 'Elder Ysolde', title: 'Elder of Cinderhold', at: [898, 691], flip: false,
     greet: [
       'Sit, child. The road has taught me much, and I forget less than they think.',
       'Six banners have marched past this hut. Each fought differently. Each bled the same.',
@@ -6044,7 +5545,7 @@ const KEEPERS = {
       'The mountain is restless tonight. It always is. That is how we know it is alive.',
     ],
     react: [] },
-  jeweler: { id: 'vesna', name: 'Vesna Glimmerglass', title: 'Jeweler', at: [768, 364], flip: true,
+  jeweler: { id: 'vesna', name: 'Vesna Glimmerglass', title: 'Jeweler', at: [1704, 719], flip: true,
     greet: [
       'Every stone here drank the mountain\'s fire. Wear one, and a little of that fire is yours.',
       'One trinket per champion. Two, and the stones start arguing. You do not want to hear stones argue.',
@@ -6054,7 +5555,7 @@ const KEEPERS = {
     ],
     react: ['It suits you. Truly. I would say so even if it did not, but it does.', 'Wear it close to the skin. The stone likes the warmth.',
       'Lovely. A gem hums when it likes its owner. Listen.', 'A fine match. Mind the clasp; it bites.'] },
-  arena: { id: 'roska', name: 'Roska', title: 'Pit Master', at: [694, 352], flip: true,
+  arena: { id: 'roska', name: 'Roska', title: 'Pit Master', at: [1256, 725], flip: true,
     greet: [
       'The crowd wants blood and the purse wants winners. Give them both!',
       'Six factions, six fights, one warband. Hrah! I love this job.',
@@ -6136,17 +5637,20 @@ function salute(npcId) {
 const withSalute = (npcId, line) => { const hi = salute(npcId); return hi ? `${hi} ${line}` : line; };
 const greetedFolk = new Set();   // townsfolk who have said hello this visit
 
-// Lanes the townsfolk stroll: x0 → x1 and back, feet at y.
+// Lanes the townsfolk stroll, in map units: (x0, y0) → (x1, y1) and back (a lane may give one y for both ends).
 const FOLK_LANES = [
-  { x0: 470, x1: 392, y: 502 }, { x0: 728, x1: 772, y: 494 }, { x0: 1085, x1: 1135, y: 592 },
-  { x0: 868, x1: 822, y: 420 }, { x0: 706, x1: 792, y: 586 },
-  { x0: -250, x1: -130, y: 438 }, { x0: 1220, x1: 1400, y: 432 },   // the west and east quarters
+  { x0: 1298, y0: 911, x1: 1522, y1: 1023 },   // the east avenue, toward the Expedition Gate
+  { x0: 1340, y0: 778, x1: 1508, y1: 694 },    // the north road, past the tavern
+  { x0: 1060, y0: 918, x1: 864, y1: 1016 },    // the south road
+  { x0: 1060, y0: 778, x1: 892, y1: 694 },     // the west road, toward the Elder's Hut
+  { x0: 990, y0: 918, x1: 808, y1: 827 },      // the lane by the Ironsmith
+  { x0: 1480, y0: 988, x1: 1564, y1: 946 },    // the path to Your House
+  { x0: 1438, y0: 627, x1: 1522, y1: 669 },    // the lane by the Guild House
 ];
 const FOLK_OUT = 3;
-// The town map's viewBox is -800 0 2400 600: map x → % of its width, map y → % of its height.
-// Cinderhold proper runs x -300..1500 inside the ring wall; the land beyond (the Emberhollow
-// road to the west, the Ashfall road east of the gate) fills the rest.
-const MAP_X0 = -800, MAP_W = 2400, MAP_H = 600;
+// The town map's viewBox is 0 0 2400 1400, a bird's-eye view (see TOWN MAP): map units → % of its width and height.
+const MAP_X0 = 0, MAP_W = 2400, MAP_H = 1400;
+const MAP_HOME = [1200, 820];   // where the first look at the village lands: the square's bonfire
 const MAP_AR = MAP_W / MAP_H;   // the view is this many times wider than tall; the pan/zoom math uses it
 document.documentElement.style.setProperty('--map-ar', `${MAP_W} / ${MAP_H}`);
 const mapX = (x) => `${((x - MAP_X0) / MAP_W * 100).toFixed(2)}%`, mapY = (y) => `${(y / MAP_H * 100).toFixed(2)}%`;
@@ -6446,13 +5950,13 @@ const QMARK = (id) => `<span class="qmark" style="top:${NPC_HEAD[id] ?? 12}%" ar
 function npcsHTML() {
   const keepers = Object.entries(KEEPERS).map(([place, n]) => `
     <button class="npc stand${n.flip ? ' flip' : ''}" type="button" data-place="${place}" data-npc="${n.id}"
-      style="left:${mapX(n.at[0])};top:${mapY(n.at[1])};--d:${(-Math.random() * 3).toFixed(2)}s"
+      style="left:${mapX(n.at[0])};top:${mapY(n.at[1])};z-index:${n.at[1]};--d:${(-Math.random() * 3).toFixed(2)}s"
       data-label="${n.name}, ${n.title}. Opens ${PLACES[place].name}">
       <span class="tag">${n.name}</span>${QMARK(n.id)}<div class="face"><div class="bob">${npcArt(n.id)}</div></div></button>`);
   const folk = state.folk.map(({ id, lane }) => {
     const n = TOWNSFOLK[id], f0 = lane.x1 > lane.x0 ? 1 : -1;
     return `<button class="npc walker" type="button" data-folk="${id}" data-npc="${id}"
-      style="top:${mapY(lane.y)};--x0:${mapX(lane.x0)};--x1:${mapX(lane.x1)};--f0:${f0};--f1:${-f0};--dur:${18 + Math.round(Math.random() * 10)}s;--d:${(-Math.random() * 20).toFixed(2)}s"
+      style="z-index:${Math.round(Math.max(lane.y0 ?? lane.y, lane.y1 ?? lane.y))};--x0:${mapX(lane.x0)};--x1:${mapX(lane.x1)};--y0:${mapY(lane.y0 ?? lane.y)};--y1:${mapY(lane.y1 ?? lane.y)};--f0:${f0};--f1:${-f0};--dur:${18 + Math.round(Math.random() * 10)}s;--d:${(-Math.random() * 20).toFixed(2)}s"
       data-label="${n.name}, ${n.title}. Talk">
       <span class="tag">${n.name}</span>${QMARK(id)}<div class="face"><div class="bob">${npcArt(id)}</div></div></button>`;
   });
@@ -6755,7 +6259,7 @@ const PLACE_BODY = {
         <div class="dmini">${kinds.map((id) => `<span class="mini" title="${MONSTERS[id].name}">${spriteSVG(id)}</span>`).join('')}
           <span class="mini boss" title="${boss.name}">${spriteSVG(d.boss)}</span></div>
         <h3>${d.name}</h3><p>${d.blurb}</p>
-        <small>Level ${d.minLv}+ · ${d.rooms.length} rooms, then <b>${boss.name}</b></small>
+        <small>Level ${d.minLv}+ · ${DG_ROOM_COUNT} rooms, then <b>${boss.name}</b></small>
         ${c ? `<small class="cond" title="${c.desc}">${c.icon} <b>${c.name}</b> — ${c.brief}</small>` : ''}
         <small class="reward">Chest: ${d.chest.gold} gold and ${d.chest.items} items${rec?.clears ? ` · cleared ${rec.clears}×` : ` · first clear: a ${TRINKETS[d.firstClear].name}`}</small>
         <button class="btn${open ? ' primary' : ''}" type="button" data-k="dungeon:${d.id}"${open ? '' : ' disabled'}>${open ? 'Set out' : `Unlocks at level ${d.minLv}`}</button>
@@ -6764,7 +6268,8 @@ const PLACE_BODY = {
     return `<p class="note">A dungeon is a run of rooms with no full heal between them: HP and MP carry over, the fallen get back up at 30%,
         and everyone rests a little. Each room pays XP and gold. The boss at the end guards a chest. Bosses enrage below half HP,
         and before their big attack they warn you a turn ahead: that's the moment to Guard or shield up.
-        You can retreat between rooms and keep what you've earned.</p>
+        Badly wounded monsters flee deeper, and your warband gives chase: they'll be in the next room, still hurt.
+        Abandon the run any time and you keep what you've earned.</p>
       <div class="teamRow">${teamMinis()}</div>
       <div class="depths">${cards}</div>`;
   },
@@ -7095,7 +6600,7 @@ function renderVillage() {
   if (townies.dataset.k !== key) {
     townies.innerHTML = state.team.map((id, i) => {
       const [x, y] = TOWNIE_SPOTS[i];
-      return `<div class="townie${i === 2 ? ' flip' : ''}" style="left:${x}%;top:${y}%"><div>${spriteSVG(id)}</div></div>`;
+      return `<div class="townie${i === 2 ? ' flip' : ''}" style="left:${mapX(x)};top:${mapY(y)};z-index:${y}"><div>${spriteSVG(id)}</div></div>`;
     }).join('');
     townies.dataset.k = key;
   }
@@ -7118,6 +6623,516 @@ function renderVillage() {
   $('#dock').innerHTML = dockHTML();
   zoomTown();
 }
+
+/* ==================================================================
+   TOWN MAP — Cinderhold seen from above, in 2:1 isometric (a bird's-eye view).
+   World positions are tiles: gx runs down-right on screen, gy down-left, z is height
+   in map units. isoisoP(gx, gy, z) projects onto the MAP_W × MAP_H map. buildTownMap() draws it
+   once at boot. Every place you can visit is a <g class="bld" data-place="…"> (its drawing)
+   plus a second one holding only its .sign plate, in a top layer so no roof covers a sign.
+   Keepers, townsfolk and your warband are HTML on top, placed in map units
+   (KEEPERS[].at, FOLK_LANES, TOWNIE_SPOTS). The village wall runs tiles 3..37 both ways;
+   the square's bonfire is at tile (21, 21) = map (1200, 848).
+   ================================================================== */
+const ISO = { x0: 1200, y0: 260, kx: 28, ky: 14 };
+const RX = ISO.kx * Math.SQRT2, RY = ISO.ky * Math.SQRT2;   // a world circle of radius 1 → this ellipse
+const n1 = (v) => String(Math.round(v * 10) / 10);
+const isoX = (gx, gy) => ISO.x0 + (gx - gy) * ISO.kx;
+const isoY = (gx, gy, z = 0) => ISO.y0 + (gx + gy) * ISO.ky - z;
+const isoP = (gx, gy, z = 0) => `${n1(isoX(gx, gy))},${n1(isoY(gx, gy, z))}`;
+const NS = ' stroke="none"';
+const poly = (pts, fill, more = '') => `<polygon points="${pts.join(' ')}" fill="${fill}"${more}/>`;
+
+// Lighten (f > 0) or darken (f < 0) a #rrggbb colour.
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16), t = f < 0 ? 0 : 255, p = Math.abs(f);
+  return `#${[n >> 16, (n >> 8) & 255, n & 255].map((v) => Math.round(v + (t - v) * p).toString(16).padStart(2, '0')).join('')}`;
+}
+
+// A soft shadow cast down-right of a footprint.
+const shadowOf = (gx, gy, w, d, o = .35) =>
+  poly([isoP(gx + o, gy + o), isoP(gx + w + o * 2, gy + o), isoP(gx + w + o * 2, gy + d + o * 2), isoP(gx + o, gy + d + o * 2)], 'rgba(0,0,0,.28)', NS);
+// A circle on the ground (or at height z).
+const disc = (cx, cy, r, fill, z = 0, more = '') =>
+  `<ellipse cx="${n1(isoX(cx, cy))}" cy="${n1(isoY(cx, cy, z))}" rx="${n1(r * RX)}" ry="${n1(r * RY)}" fill="${fill}"${more}/>`;
+
+// A solid box on tiles [gx, gx+w] × [gy, gy+d], h tall from z0. We see its left face (the gy+d side),
+// its right face (the gx+w side) and its top; light comes from the upper left.
+function box(gx, gy, w, d, h, col, z0 = 0) {
+  const a = z0, b = z0 + h;
+  return poly([isoP(gx, gy + d, a), isoP(gx + w, gy + d, a), isoP(gx + w, gy + d, b), isoP(gx, gy + d, b)], shade(col, -.1))
+    + poly([isoP(gx + w, gy + d, a), isoP(gx + w, gy, a), isoP(gx + w, gy, b), isoP(gx + w, gy + d, b)], shade(col, -.3))
+    + poly([isoP(gx, gy, b), isoP(gx + w, gy, b), isoP(gx + w, gy + d, b), isoP(gx, gy + d, b)], shade(col, .12));
+}
+// A gable roof on a w×d box of height h: ridge along gx ('x') or gy ('y'), rise rh, overhang o.
+function gable(gx, gy, w, d, h, rh, roof, wall, axis = 'x', o = .3) {
+  if (axis === 'x') {
+    const m = gy + d / 2;
+    return poly([isoP(gx - o, gy - o, h), isoP(gx + w + o, gy - o, h), isoP(gx + w + o, m, h + rh), isoP(gx - o, m, h + rh)], shade(roof, .15))
+      + poly([isoP(gx + w, gy, h), isoP(gx + w, gy + d, h), isoP(gx + w, m, h + rh)], shade(wall, -.3))
+      + poly([isoP(gx - o, m, h + rh), isoP(gx + w + o, m, h + rh), isoP(gx + w + o, gy + d + o, h), isoP(gx - o, gy + d + o, h)], roof);
+  }
+  const m = gx + w / 2;
+  return poly([isoP(gx - o, gy - o, h), isoP(m, gy - o, h + rh), isoP(m, gy + d + o, h + rh), isoP(gx - o, gy + d + o, h)], shade(roof, .15))
+    + poly([isoP(gx, gy + d, h), isoP(gx + w, gy + d, h), isoP(m, gy + d, h + rh)], shade(wall, -.1))
+    + poly([isoP(m, gy - o, h + rh), isoP(gx + w + o, gy - o, h), isoP(gx + w + o, gy + d + o, h), isoP(m, gy + d + o, h + rh)], shade(roof, -.22));
+}
+// A four-sided (hip) roof rising to a point.
+function hip(gx, gy, w, d, h, rh, roof, o = .3) {
+  const A = isoP(gx - o, gy - o, h), B = isoP(gx + w + o, gy - o, h), C = isoP(gx + w + o, gy + d + o, h), D = isoP(gx - o, gy + d + o, h);
+  const T = isoP(gx + w / 2, gy + d / 2, h + rh);
+  return poly([A, B, T], shade(roof, .18)) + poly([D, A, T], shade(roof, .08)) + poly([B, C, T], shade(roof, -.25)) + poly([C, D, T], roof);
+}
+// An upright cylinder (towers, round huts, the arena wall).
+function cyl(cx, cy, r, h, col, z0 = 0) {
+  const x = isoX(cx, cy), yb = isoY(cx, cy, z0), yt = yb - h, rx = r * RX, ry = r * RY;
+  return `<path d="M${n1(x - rx)} ${n1(yb)} A${n1(rx)} ${n1(ry)} 0 0 0 ${n1(x + rx)} ${n1(yb)} L${n1(x + rx)} ${n1(yt)} L${n1(x - rx)} ${n1(yt)} Z" fill="${shade(col, -.15)}"/>`
+    + `<ellipse cx="${n1(x)}" cy="${n1(yt)}" rx="${n1(rx)}" ry="${n1(ry)}" fill="${shade(col, .1)}"/>`;
+}
+// Points around the front half of a circle at height z (t: 0 = right rim, π = left rim, through the front).
+const rimPt = (cx, cy, r, z, t) => `${n1(isoX(cx, cy) + r * RX * Math.cos(t))},${n1(isoY(cx, cy, z) + r * RY * Math.sin(t))}`;
+// A cone roof on a circle of radius r at height z, apex rh higher; stripes = [colourA, colourB, wedges].
+function cone(cx, cy, r, z, rh, col, stripes) {
+  const x = isoX(cx, cy), y = isoY(cx, cy, z), rx = r * RX, ry = r * RY, apex = `${n1(x)},${n1(y - rh)}`;
+  let s = `<path d="M${n1(x - rx)} ${n1(y)} A${n1(rx)} ${n1(ry)} 0 0 0 ${n1(x + rx)} ${n1(y)} L${apex} Z" fill="${col}"/>`;
+  if (stripes) {
+    const [a, b, n] = stripes;
+    for (let i = 0; i < n; i++) {
+      const t0 = Math.PI * i / n, t1 = Math.PI * (i + 1) / n;
+      s += `<polygon points="${apex} ${rimPt(cx, cy, r, z, t0)} ${rimPt(cx, cy, r, z, (t0 + t1) / 2)} ${rimPt(cx, cy, r, z, t1)}" fill="${i % 2 ? b : a}"/>`;
+    }
+  }
+  return s;
+}
+// Vertical bands round the front of a cylinder (the carnival tent's striped wall).
+function bands(cx, cy, r, z0, h, a, b, n) {
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    const t0 = Math.PI * i / n, t1 = Math.PI * (i + 1) / n;
+    s += `<polygon points="${rimPt(cx, cy, r, z0, t0)} ${rimPt(cx, cy, r, z0, t1)} ${rimPt(cx, cy, r, z0 + h, t1)} ${rimPt(cx, cy, r, z0 + h, t0)}" fill="${i % 2 ? b : a}"/>`;
+  }
+  return s;
+}
+// A patch painted on a box's left face (the side at gy, running along gx from u0 to u1), or its right face (at gx).
+const onLeft = (gy, u0, u1, z0, z1, fill, more = '') => poly([isoP(u0, gy, z0), isoP(u1, gy, z0), isoP(u1, gy, z1), isoP(u0, gy, z1)], fill, more);
+const onRight = (gx, v0, v1, z0, z1, fill, more = '') => poly([isoP(gx, v0, z0), isoP(gx, v1, z0), isoP(gx, v1, z1), isoP(gx, v0, z1)], fill, more);
+// A straight line in the world (ropes, fence rails).
+const line3 = (a, b, col, w = 2) => `<path d="M${isoP(...a)} L${isoP(...b)}" stroke="${col}" stroke-width="${w}" fill="none"/>`;
+// A road between two tiles, w tiles wide.
+function road(a, b, w, fill) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), nx = -dy / L * w / 2, ny = dx / L * w / 2;
+  return poly([isoP(a[0] + nx, a[1] + ny), isoP(b[0] + nx, b[1] + ny), isoP(b[0] - nx, b[1] - ny), isoP(a[0] - nx, a[1] - ny)], fill, NS);
+}
+const smokeAt = (x, y, r = 9) => `<g fill="#6a6070" opacity=".6"${NS}>${[0, -1.7, -3.4].map((d) => `<circle class="smoke" cx="${n1(x)}" cy="${n1(y)}" r="${r}" style="animation-delay:${d}s"/>`).join('')}</g>`;
+const glowAt = (x, y, r) => `<circle cx="${n1(x)}" cy="${n1(y)}" r="${r}" fill="url(#tGlow)" class="glow"${NS}/>`;
+
+// Trees: a leafy one (kind 0), a pine (1) or a dead ash tree (2).
+function tree(gx, gy, s = 1, kind = 0) {
+  const x = isoX(gx, gy), y = isoY(gx, gy), q = (v) => n1(v * s);
+  const shadow = `<ellipse cx="${n1(x + 6 * s)}" cy="${n1(y + 2)}" rx="${q(18)}" ry="${q(8)}" fill="rgba(0,0,0,.28)"${NS}/>`;
+  if (kind === 1) return `${shadow}<rect x="${n1(x - 3 * s)}" y="${n1(y - 14 * s)}" width="${q(6)}" height="${q(14)}" fill="#4a3426"/>`
+    + [[0, 30, 18], [-4, 46, 14], [-8, 60, 10]].map(([dy, h, w], i) => `<polygon points="${n1(x - w * s)},${n1(y - (10 + dy + i * 12) * s)} ${n1(x + w * s)},${n1(y - (10 + dy + i * 12) * s)} ${n1(x)},${n1(y - (10 + h) * s)}" fill="${['#24382a', '#2c4430', '#355238'][i]}"/>`).join('');
+  if (kind === 2) return `${shadow}<path d="M${n1(x)} ${n1(y)} L${n1(x)} ${n1(y - 34 * s)} M${n1(x)} ${n1(y - 20 * s)} L${n1(x - 12 * s)} ${n1(y - 36 * s)} M${n1(x)} ${n1(y - 26 * s)} L${n1(x + 11 * s)} ${n1(y - 42 * s)}" stroke="#2a2026" stroke-width="${q(4)}" fill="none" stroke-linecap="round"/>`;
+  return `${shadow}<rect x="${n1(x - 3 * s)}" y="${n1(y - 18 * s)}" width="${q(6)}" height="${q(18)}" fill="#5a3e28"/>`
+    + `<circle cx="${n1(x)}" cy="${n1(y - 34 * s)}" r="${q(20)}" fill="#2f4a33"/><circle cx="${n1(x - 10 * s)}" cy="${n1(y - 27 * s)}" r="${q(13)}" fill="#3b5a3a"/>`
+    + `<circle cx="${n1(x + 8 * s)}" cy="${n1(y - 42 * s)}" r="${q(12)}" fill="#4a6a40"/>`;
+}
+function lamp(gx, gy) {
+  const x = isoX(gx, gy), y = isoY(gx, gy);
+  return `<path d="M${n1(x)} ${n1(y)} V${n1(y - 44)}" stroke="#2a2228" stroke-width="3"/>${glowAt(x, y - 50, 20)}<rect x="${n1(x - 4)}" y="${n1(y - 56)}" width="8" height="11" rx="2" fill="#ffd28a"/>`;
+}
+// A villager's house: walls, a gable roof, a lit window and a door on the left face.
+function house(gx, gy, w, d, h, wall, roof, axis = 'x', chimney = false) {
+  let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+  s += onLeft(gy + d, gx + w * .35, gx + w * .35 + .55, 0, h * .62, '#2a1d16');
+  s += onLeft(gy + d, gx + w * .65, gx + w * .65 + .6, h * .45, h * .78, '#ffd28a', ' class="lit"');
+  s += onRight(gx + w, gy + d * .3, gy + d * .3 + .6, h * .45, h * .78, '#e8b060', ' class="lit"');
+  s += gable(gx, gy, w, d, h, axis === 'x' ? d * 9 : w * 9, roof, wall, axis);
+  if (chimney) {
+    const cx = gx + w * .7, cy = gy + d * .25, top = h + (axis === 'x' ? d * 9 : w * 9) + 14;
+    s += box(cx, cy, .5, .5, top, '#5a5460') + smokeAt(isoX(cx + .25, cy + .25), isoY(cx + .25, cy + .25, top) - 8, 7);
+  }
+  return s;
+}
+
+// Each place: [depth (front corner gx+gy, for painter's order), drawing, sign position, sign text].
+function townPlaces() {
+  const P2 = (gx, gy, z) => [isoX(gx, gy), isoY(gx, gy, z)];
+  const out = {};
+
+  // THE ARENA: a colosseum you look down into, gate facing the square.
+  {
+    const c = [13, 13], R = 4.6, H = 54;
+    let s = disc(c[0] + .5, c[1] + .5, R + .3, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], R, H, '#b08e62');
+    for (const [r, z, f] of [[4.3, H, '#7a5a40'], [3.95, H - 9, '#a0805a'], [3.6, H - 18, '#8a6a4a'], [3.25, H - 27, '#a0805a'], [2.9, H - 36, '#5e4636'], [2.65, 6, '#c9a773']]) s += disc(c[0], c[1], r, f, z);
+    s += disc(c[0], c[1], 1.2, 'none', 6, ' stroke="#a8875c" stroke-width="2" stroke-dasharray="8 6"');
+    for (const zRow of [8, 30]) {
+      for (let a = -30; a <= 120; a += 15) {
+        if (zRow === 8 && Math.abs(a - 45) < 12) continue;
+        const t = a * Math.PI / 180, [x, y] = P2(c[0] + R * Math.cos(t), c[1] + R * Math.sin(t), zRow);
+        s += `<path d="M${n1(x - 6)} ${n1(y)} v-15 a6 6 0 0 1 12 0 v15z" fill="#3a2a22"/>`;
+      }
+    }
+    const [gx, gy] = P2(c[0] + R * .707, c[1] + R * .707, 0);
+    s += `<path d="M${n1(gx - 16)} ${n1(gy)} v-28 a16 16 0 0 1 32 0 v28z" fill="#1a1216"/><path d="M${n1(gx - 10)} ${n1(gy)} v-30 M${n1(gx)} ${n1(gy)} v-38 M${n1(gx + 10)} ${n1(gy)} v-30" stroke="#5a4a3e" stroke-width="2"/>`;
+    s += glowAt(gx - 24, gy - 30, 14) + glowAt(gx + 24, gy - 30, 14);
+    s += `<path class="flame" d="M${n1(gx - 28)} ${n1(gy - 26)} q2 -10 4 -12 q3 6 4 12z" fill="#ffb347"${NS}/><path class="flame" d="M${n1(gx + 20)} ${n1(gy - 26)} q2 -10 4 -12 q3 6 4 12z" fill="#ffb347"${NS}/>`;
+    const flagCols = ['#c0303f', '#e8a548', '#6fb5e6', '#6cc28a', '#c48be0', '#e0645a'];
+    [-150, -110, -70, -20, 110, 150].forEach((a, i) => {
+      const t = a * Math.PI / 180, [x, y] = P2(c[0] + R * Math.cos(t), c[1] + R * Math.sin(t), H);
+      s += `<path d="M${n1(x)} ${n1(y)} V${n1(y - 38)}" stroke="#2a2228" stroke-width="2"/><path class="flag" style="animation-delay:-${i * .4}s" d="M${n1(x + 1)} ${n1(y - 37)} l22 6 l-22 6z" fill="${flagCols[i]}"/>`;
+    });
+    const [sx, sy] = P2(c[0], c[1], H);
+    out.arena = [33, s, [sx, sy - R * RY - 52], 'The Arena'];
+  }
+
+  // ELDER'S HUT: a round thatched hut with a skull totem.
+  {
+    const c = [8, 18];
+    let s = disc(c[0] + .3, c[1] + .3, 2.3, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], 1.9, 34, '#7a5a40');
+    const [dx, dy] = P2(c[0] + 1.34, c[1] + 1.34, 0);
+    s += `<path d="M${n1(dx - 9)} ${n1(dy)} v-22 a9 9 0 0 1 18 0 v22z" fill="#2a1d16"/>`;
+    for (const a of [10, 85]) { const t = a * Math.PI / 180, [x, y] = P2(c[0] + 1.9 * Math.cos(t), c[1] + 1.9 * Math.sin(t), 20); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="5" fill="#ffd28a" class="lit"/>`; }
+    s += cone(c[0], c[1], 2.4, 30, 66, '#b08a4a', ['#b08a4a', '#9a7840', 8]);
+    s += box(10.4, 15.4, .32, .32, 66, '#6b4f32');
+    const [tx, ty] = P2(10.56, 15.56, 66);
+    s += `<circle cx="${n1(tx)}" cy="${n1(ty - 4)}" r="7" fill="#e9e4d8"/><path d="M${n1(tx - 6)} ${n1(ty - 8)} q-8 -6 -6 -16 M${n1(tx + 6)} ${n1(ty - 8)} q8 -6 6 -16" stroke="#d8c8a8" stroke-width="2.5" fill="none"/>`;
+    const [sx, sy] = P2(c[0], c[1], 96);
+    out.elder = [28.7, s, [sx, sy - 34], "Elder's Hut"];
+  }
+
+  // CARNIVAL: a striped big top with the Ferris wheel turning behind it.
+  {
+    const c = [7, 25.5], [wx, wy] = P2(4.2, 22.8, 0), hub = [wx, wy - 118];
+    let s = `<path d="M${n1(wx - 44)} ${n1(wy)} L${n1(hub[0])} ${n1(hub[1])} L${n1(wx + 44)} ${n1(wy)} M${n1(wx - 30)} ${n1(wy - 36)} H${n1(wx + 30)}" stroke="#3a2e3e" stroke-width="5" fill="none"/>`;
+    const spokes = [0, 45, 90, 135].map((a) => { const t = a * Math.PI / 180; return `M${n1(hub[0] - 84 * Math.cos(t))} ${n1(hub[1] - 84 * Math.sin(t))} L${n1(hub[0] + 84 * Math.cos(t))} ${n1(hub[1] + 84 * Math.sin(t))}`; }).join(' ');
+    const cars = ['#c0303f', '#ffd166', '#6fb5e6', '#6cc28a', '#c48be0', '#e8a548', '#e0645a', '#9fd6ff'].map((col, i) => { const t = i * Math.PI / 4; return `<circle cx="${n1(hub[0] + 84 * Math.cos(t))}" cy="${n1(hub[1] + 84 * Math.sin(t))}" r="9" fill="${col}"/>`; }).join('');
+    s += `<g class="ferris" style="transform-origin: ${n1(hub[0])}px ${n1(hub[1])}px"><circle cx="${n1(hub[0])}" cy="${n1(hub[1])}" r="84" fill="none" stroke="#5a4a5e" stroke-width="4"/><path d="${spokes}" stroke="#4a3e4e" stroke-width="2" fill="none"/><g class="lit">${cars}</g></g><circle cx="${n1(hub[0])}" cy="${n1(hub[1])}" r="7" fill="#e8a548"/>`;
+    s += disc(c[0] + .4, c[1] + .4, 3, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], 2.8, 34, '#e9e4d8') + bands(c[0], c[1], 2.8, 0, 34, '#c0303f', '#e9e4d8', 10);
+    s += cone(c[0], c[1], 3.1, 34, 92, '#c0303f', ['#c0303f', '#e9e4d8', 12]);
+    const [ax, ay] = P2(c[0], c[1], 126);
+    s += `<path d="M${n1(ax)} ${n1(ay)} V${n1(ay - 22)}" stroke="#2a2228" stroke-width="2"/><path class="flag" d="M${n1(ax + 1)} ${n1(ay - 21)} l20 6 l-20 6z" fill="#e8a548"/>`;
+    const [ex, ey] = P2(c[0] + 1.98, c[1] + 1.98, 0);
+    s += `<path d="M${n1(ex - 14)} ${n1(ey)} L${n1(ex)} ${n1(ey - 30)} L${n1(ex + 14)} ${n1(ey)}Z" fill="#2a1420"/>` + glowAt(ex, ey - 10, 14);
+    out.carnival = [36.5, s, [hub[0] + 40, hub[1] - 110], 'Carnival'];
+  }
+
+  // IRONSMITH: a stone forge with a glowing mouth, an anvil out front and a smoking chimney.
+  {
+    const [gx, gy, w, d, h] = [13, 24, 5, 3.5, 46], wall = '#7a7480';
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+    s += onLeft(gy + d, 13.5, 15.4, 0, 28, '#1c1316') + onLeft(gy + d, 13.75, 15.15, 0, 22, '#ff7a2f', ' class="glow"' + NS);
+    s += onLeft(gy + d, 16.1, 17.2, 0, 32, '#2a1d16') + onRight(gx + w, 24.5, 25.6, 20, 32, '#ffd28a', ' class="lit"');
+    const [gwx, gwy] = P2(14.5, 27.5, 10);
+    s += glowAt(gwx, gwy, 40);
+    s += gable(gx, gy, w, d, h, 32, '#4a4658', wall, 'x');
+    s += box(16.4, 24.3, .8, .8, 112, '#5a5460');
+    const [cx, cy] = P2(16.8, 24.7, 112);
+    s += smokeAt(cx, cy - 10, 11) + `<g fill="#ffb347"${NS}><circle class="ember" cx="${n1(cx - 4)}" cy="${n1(cy)}" r="1.8" style="animation-duration:2.4s"/><circle class="ember" cx="${n1(cx + 5)}" cy="${n1(cy)}" r="1.5" style="animation-duration:2.9s;animation-delay:-1.2s"/></g>`;
+    s += box(17.8, 28.4, .9, .45, 12, '#2a2a32') + box(17.6, 28.3, 1.3, .65, 4, '#3a3a44', 12);
+    s += box(12.2, 24.6, .6, 2.6, 30, '#6b4f32') + [24.9, 25.6, 26.3].map((v) => line3([12.5, v, 30], [12.5, v, 62], '#c9d1de', 3)).join('');
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 32);
+    out.forge = [45.5, s, [sx, sy - 46], 'Ironsmith'];
+  }
+
+  // TRAINING YARD: a fenced sand yard with straw dummies, a target and a weapon rack.
+  {
+    const [gx, gy, w, d] = [8.5, 30, 5.5, 5];
+    let s = poly([isoP(gx, gy), isoP(gx + w, gy), isoP(gx + w, gy + d), isoP(gx, gy + d)], '#c2a273');
+    for (const [a, b] of [[[gx, gy], [gx + w, gy]], [[gx, gy], [gx, gy + d]]]) s += line3([...a, 14], [...b, 14], '#7a5434', 3) + line3([...a, 7], [...b, 7], '#7a5434', 3);
+    for (let i = 0; i <= w; i += 1.1) s += box(gx + i, gy - .1, .2, .2, 18, '#6b4f32');
+    for (let i = 1.1; i <= d; i += 1.1) s += box(gx - .1, gy + i, .2, .2, 18, '#6b4f32');
+    for (const [x, y] of [[10, 31.5], [12, 31.5], [10.6, 33.6]]) {
+      s += box(x, y, .18, .18, 44, '#6b4f32') + box(x - .6, y, 1.4, .18, 5, '#6b4f32', 34) + cyl(x + .09, y + .09, .45, 22, '#c9b28a', 12);
+      const [hx, hy] = P2(x + .09, y + .09, 46);
+      s += `<circle cx="${n1(hx)}" cy="${n1(hy)}" r="8" fill="#d8c08a"/>`;
+    }
+    const [tx, ty] = P2(13, 33.5, 0);
+    s += `<path d="M${n1(tx - 10)} ${n1(ty)} L${n1(tx)} ${n1(ty - 30)} L${n1(tx + 10)} ${n1(ty)}" stroke="#6b4f32" stroke-width="3" fill="none"/><circle cx="${n1(tx)}" cy="${n1(ty - 34)}" r="16" fill="#e9e4d8"/><circle cx="${n1(tx)}" cy="${n1(ty - 34)}" r="10" fill="#c0303f"/><circle cx="${n1(tx)}" cy="${n1(ty - 34)}" r="4" fill="#e9e4d8"/>`;
+    for (const [a, b] of [[[gx + w, gy], [gx + w, gy + d]], [[gx, gy + d], [gx + w, gy + d]]]) s += line3([...a, 14], [...b, 14], '#7a5434', 3) + line3([...a, 7], [...b, 7], '#7a5434', 3);
+    for (let i = 0; i <= d; i += 1.1) s += box(gx + w - .1, gy + i, .2, .2, 18, '#6b4f32');
+    for (let i = 0; i <= w; i += 1.1) s += box(gx + i, gy + d - .1, .2, .2, 18, '#6b4f32');
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, 60);
+    out.train = [49, s, [sx, sy - 20], 'Training Yard'];
+  }
+
+  // GUILD HOUSE: a long hall hung with guild banners.
+  {
+    const [gx, gy, w, d, h] = [15, 3.8, 5, 4, 56], wall = '#8a6a4a';
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+    s += onLeft(gy + d, 16.9, 18.1, 0, 36, '#2a1d16');
+    ['#c0303f', '#3e5a8c', '#3f7a4f', '#e8a548'].forEach((col, i) => { const u = [15.3, 16.1, 18.5, 19.3][i]; s += onLeft(gy + d, u, u + .55, 14, 46, col); });
+    s += onRight(gx + w, 4.6, 5.4, 24, 40, '#ffd28a', ' class="lit"') + onRight(gx + w, 6.2, 7, 24, 40, '#ffd28a', ' class="lit"');
+    s += gable(gx, gy, w, d, h, 40, '#7a2e2a', wall, 'x');
+    const [cx, cy] = P2(gx + w, gy + d / 2, h + 18);
+    s += `<circle cx="${n1(cx)}" cy="${n1(cy)}" r="11" fill="#2a2228"/><path d="M${n1(cx - 7)} ${n1(cy - 7)} l14 14 M${n1(cx + 7)} ${n1(cy - 7)} l-14 14" stroke="#e8a548" stroke-width="3"/>`;
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 40);
+    out.guild = [27.8, s, [sx, sy - 40], 'Guild House'];
+  }
+
+  // JEWELER: a slim purple tower with a glowing gem on its spire.
+  {
+    const c = [24.5, 5.5];
+    let s = disc(c[0] + .3, c[1] + .3, 1.5, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], 1.3, 92, '#5a4a7a');
+    const [dx, dy] = P2(c[0] + .92, c[1] + .92, 0);
+    s += `<path d="M${n1(dx - 8)} ${n1(dy)} v-22 a8 8 0 0 1 16 0 v22z" fill="#1d1622"/><path d="M${n1(dx - 14)} ${n1(dy - 30)} h28 l-4 -8 h-20z" fill="#6e3a86"/>`;
+    for (const z of [44, 70]) { const [x, y] = P2(c[0] + .5, c[1] + 1.2, z); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="6" fill="#ffd28a" class="lit"/>`; }
+    s += disc(c[0], c[1], 1.3, 'none', 92, ' stroke="#d9b44a" stroke-width="3"');
+    s += cone(c[0], c[1], 1.6, 92, 72, '#2f2840');
+    const [gx, gy] = P2(c[0], c[1], 164);
+    s += `<circle cx="${n1(gx)}" cy="${n1(gy - 10)}" r="22" fill="url(#tGem)" class="glow"${NS}/><path d="M${n1(gx)} ${n1(gy - 22)} l7 10 l-7 12 l-7 -12z" fill="#7fe3ff" stroke="#e9f8ff" stroke-width="1"/>`;
+    out.jeweler = [31.8, s, [gx, gy - 52], 'Jeweler'];
+  }
+
+  // TAVERN: The Smoldering Mug, stone below, timber above, a swinging mug sign.
+  {
+    const [gx, gy, w, d] = [23, 9, 5, 4];
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, 34, '#7a6a5a') + box(gx, gy, w, d, 30, '#d2bd96', 34);
+    for (let u = gx + .9; u < gx + w; u += 1) s += line3([u, gy + d, 34], [u, gy + d, 64], '#4a3426', 3);
+    for (let v = gy + .9; v < gy + d; v += 1) s += line3([gx + w, v, 34], [gx + w, v, 64], '#4a3426', 3);
+    s += onLeft(gy + d, 24.9, 26, 0, 26, '#2a1d16');
+    for (const u of [23.5, 26.6]) s += onLeft(gy + d, u, u + .7, 10, 24, '#ffd28a', ' class="lit"');
+    for (const u of [23.4, 25.2, 27]) s += onLeft(gy + d, u, u + .7, 42, 56, '#ffd28a', ' class="lit"');
+    s += onRight(gx + w, 10.2, 10.9, 42, 56, '#e8b060', ' class="lit"') + onRight(gx + w, 11.8, 12.5, 42, 56, '#e8b060', ' class="lit"');
+    s += gable(gx, gy, w, d, 64, 38, '#6a3a2a', '#d2bd96', 'x');
+    s += box(26.6, 9.5, .7, .7, 122, '#5a5450');
+    const [cx, cy] = P2(26.95, 9.85, 122);
+    s += smokeAt(cx, cy - 10, 10);
+    const [hx, hy] = P2(22.6, 13.2, 46);
+    s += `<path d="M${n1(hx + 18)} ${n1(hy - 8)} h-22" stroke="#2a2228" stroke-width="3"/><g class="swing" style="transform-origin:${n1(hx)}px ${n1(hy - 8)}px"><rect x="${n1(hx - 14)}" y="${n1(hy - 4)}" width="28" height="22" rx="3" fill="#6b4f32"/><rect x="${n1(hx - 6)}" y="${n1(hy)}" width="10" height="13" rx="2" fill="#e8a548"/></g>`;
+    for (const [x, y] of [[22.4, 11.4], [22.4, 12.3]]) s += cyl(x, y, .35, 16, '#6b4f32');
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, 102);
+    out.tavern = [41, s, [sx, sy - 40], 'Tavern'];
+  }
+
+  // YOUR HOUSE: a cosy cottage with a flower box, a garden fence and your banner.
+  {
+    const [gx, gy, w, d, h] = [29.5, 14, 3, 2.5, 38], wall = '#8a6a4a';
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+    s += onLeft(gy + d, 30.6, 31.3, 0, 26, '#3a2418') + onLeft(gy + d, 29.8, 30.4, 14, 26, '#ffd28a', ' class="lit"') + onLeft(gy + d, 31.6, 32.2, 14, 26, '#ffd28a', ' class="lit"');
+    s += onLeft(gy + d + .05, 29.7, 30.5, 10, 14, '#5a3e28') + onLeft(gy + d + .05, 31.5, 32.3, 10, 14, '#5a3e28');
+    s += onRight(gx + w, 14.5, 15.2, 14, 26, '#e8b060', ' class="lit"');
+    s += gable(gx, gy, w, d, h, 30, '#a8483a', wall, 'y');
+    s += box(31.6, 14.3, .5, .5, 82, '#5a5460');
+    const [cx, cy] = P2(31.85, 14.55, 82);
+    s += smokeAt(cx, cy - 8, 7);
+    const [fx, fy] = P2(gx + w / 2, gy + d / 2, h + 30);
+    s += `<path d="M${n1(fx)} ${n1(fy)} V${n1(fy - 26)}" stroke="#2a2228" stroke-width="2"/><path class="flag" d="M${n1(fx + 1)} ${n1(fy - 25)} l18 5 l-18 5z" fill="#e8a548"/>`;
+    for (let u = 29.3; u <= 32.9; u += .6) s += box(u, 17.4, .12, .12, 12, '#6b4f32');
+    s += line3([29.3, 17.46, 9], [33, 17.46, 9], '#7a5434', 2);
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 30);
+    out.home = [49, s, [sx, sy - 52], 'Your House'];
+  }
+
+  // MARKET: three striped stalls piled with goods, crates and barrels.
+  {
+    let s = '';
+    const stall = (gx, gy, a, b, goods) => {
+      let t = shadowOf(gx, gy, 2, 2, .25);
+      for (const [x, y] of [[gx, gy], [gx + 1.85, gy]]) t += box(x, y, .15, .15, 46, '#4a3426');
+      t += box(gx, gy + 1.2, 2, .65, 16, '#7a5a3a');
+      t += goods.map((col, i) => { const [x, y] = P2(gx + .3 + i * .45, gy + 1.5, 16); return `<circle cx="${n1(x)}" cy="${n1(y - 4)}" r="6" fill="${col}"/>`; }).join('');
+      for (const [x, y] of [[gx, gy + 1.85], [gx + 1.85, gy + 1.85]]) t += box(x, y, .15, .15, 38, '#4a3426');
+      for (let i = 0; i < 6; i++) {
+        const u0 = gx - .15 + i * .383, u1 = u0 + .383;
+        t += poly([isoP(u0, gy - .15, 48), isoP(u1, gy - .15, 48), isoP(u1, gy + 2.15, 38), isoP(u0, gy + 2.15, 38)], i % 2 ? b : a);
+      }
+      return t;
+    };
+    s += stall(25, 25, '#c0303f', '#e9e4d8', ['#c0303f', '#6cc28a', '#c0303f', '#e8a548']);
+    s += stall(27.6, 25, '#3e5a8c', '#e9e4d8', ['#e0645a', '#9fe08a', '#6fb5e6', '#c48be0']);
+    s += stall(30.2, 25, '#e8a548', '#3a2a20', ['#3e5a8c', '#c0303f', '#d9c58a', '#8a5a32']);
+    s += box(26, 28.2, .8, .8, 16, '#8a6a4a') + box(26.1, 28.3, .6, .6, 12, '#7a5a3a', 16) + cyl(31.5, 28.6, .38, 18, '#6b4f32');
+    const [sx, sy] = P2(28.6, 26, 48);
+    out.market = [60, s, [sx, sy - 44], 'Market'];
+  }
+
+  // BOUNTY BOARD: a roofed notice board covered in pinned jobs.
+  {
+    let s = shadowOf(33, 24.4, 2.1, .4) + box(33.1, 24.4, .16, .16, 48, '#4a3426') + box(34.9, 24.4, .16, .16, 48, '#4a3426');
+    s += box(33, 24.5, 2.2, .14, 30, '#6b4f32', 14);
+    const face = 24.64;
+    [[33.15, 33.65, 24, 40, '#e9dcc0'], [33.8, 34.35, 22, 42, '#f1ead6'], [34.45, 35.05, 26, 40, '#e0c79a'], [33.4, 33.9, 16, 22, '#f1ead6'], [34.1, 34.7, 15, 21, '#e9dcc0']]
+      .forEach(([u0, u1, z0, z1, f]) => { s += onLeft(face, u0, u1, z0, z1, f); });
+    for (const [u, z] of [[33.4, 40], [34.08, 42], [34.75, 40]]) { const [x, y] = P2(u, face, z); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="2.6" fill="#c0303f"${NS}/>`; }
+    s += gable(32.9, 24.3, 2.4, .5, 46, 12, '#4a2f2a', '#4a2f2a', 'x', .1);
+    const [sx, sy] = P2(34.1, 24.5, 58);
+    out.bounty = [59.6, s, [sx, sy - 34], 'Bounty Board'];
+  }
+
+  // PROVING GROUNDS: a roped duelling ring on a wooden platform.
+  {
+    const [gx, gy, w] = [27.5, 31, 5];
+    let s = shadowOf(gx, gy, w, w) + box(gx, gy, w, w, 8, '#8a6a4a');
+    const [cx, cy] = P2(gx + w / 2, gy + w / 2, 8);
+    s += `<path d="M${n1(cx - 26)} ${n1(cy - 13)} l52 26 M${n1(cx + 26)} ${n1(cy - 13)} l-52 26" stroke="#5a3e28" stroke-width="5"/>`;
+    const post = (x, y, col) => box(x - .15, y - .15, .3, .3, 34, col, 8);
+    const rope = (a, b) => line3([...a, 36], [...b, 36], '#e9e4d8', 2.5) + line3([...a, 26], [...b, 26], '#e9e4d8', 2.5);
+    const A = [gx + .2, gy + .2], B = [gx + w - .2, gy + .2], C = [gx + w - .2, gy + w - .2], D = [gx + .2, gy + w - .2];
+    s += post(...A, '#c0303f') + post(...B, '#3e5a8c') + post(...D, '#3e5a8c') + rope(A, B) + rope(A, D);
+    s += post(...C, '#c0303f') + rope(B, C) + rope(D, C);
+    const [sx, sy] = P2(gx + w / 2, gy + w / 2, 42);
+    out.pvp = [68.5, s, [sx, sy - 52], 'Proving Grounds'];
+  }
+
+  // EXPEDITION GATE: twin stone towers astride the east road, in the village wall.
+  {
+    const stone = '#6a6470';
+    let s = box(36.6, 18.6, 1.4, 1.4, 96, stone) + hip(36.6, 18.6, 1.4, 1.4, 96, 30, '#4a2f2a');
+    s += box(36.8, 20, 1, 3, 22, '#5a5460', 74);
+    ['#c0303f', '#e8a548', '#3e5a8c'].forEach((col, i) => { const v = 20.4 + i * .8; s += onRight(37.8, v, v + .5, 40, 74, col); });
+    s += box(36.6, 23, 1.4, 1.4, 96, stone) + hip(36.6, 23, 1.4, 1.4, 96, 30, '#4a2f2a');
+    for (const v of [19.3, 23.7]) { const [x, y] = P2(38, v, 60); s += glowAt(x, y, 14) + `<rect x="${n1(x - 3)}" y="${n1(y - 5)}" width="6" height="8" rx="2" fill="#ffd28a"/>`; }
+    const [sx, sy] = P2(40, 22.5, 0);   // the sign stands outside, on the road it opens onto
+    out.gate = [900, s, [sx, sy - 40], 'Expedition Gate'];
+  }
+
+  // EMBERHOLLOW CAVE: a dark mouth in a rocky knoll outside the west wall, glowing deep inside.
+  {
+    const [x, y] = P2(12, 48, 0);   // deep in the western woods, a walk down the forest trail from the wall
+    let s = `<ellipse cx="${n1(x + 10)}" cy="${n1(y + 6)}" rx="150" ry="52" fill="rgba(0,0,0,.3)"${NS}/>`;
+    s += `<path d="M${n1(x - 140)} ${n1(y + 10)} L${n1(x - 110)} ${n1(y - 70)} L${n1(x - 40)} ${n1(y - 128)} L${n1(x + 30)} ${n1(y - 140)} L${n1(x + 100)} ${n1(y - 96)} L${n1(x + 150)} ${n1(y + 6)} Q${n1(x)} ${n1(y + 50)} ${n1(x - 140)} ${n1(y + 10)}Z" fill="#5a5058"/>`;
+    s += `<path d="M${n1(x - 40)} ${n1(y - 128)} L${n1(x + 30)} ${n1(y - 140)} L${n1(x + 100)} ${n1(y - 96)} L${n1(x + 20)} ${n1(y - 86)}Z" fill="#6e6470"/><path d="M${n1(x + 100)} ${n1(y - 96)} L${n1(x + 150)} ${n1(y + 6)} L${n1(x + 60)} ${n1(y + 30)} L${n1(x + 20)} ${n1(y - 86)}Z" fill="#433c46"/>`;
+    s += `<path d="M${n1(x - 52)} ${n1(y + 24)} Q${n1(x - 50)} ${n1(y - 66)} ${n1(x - 6)} ${n1(y - 70)} Q${n1(x + 36)} ${n1(y - 60)} ${n1(x + 34)} ${n1(y + 26)}Z" fill="#140c10"/>`;
+    s += glowAt(x - 8, y - 6, 44) + `<path d="M${n1(x - 30)} ${n1(y + 22)} q20 -26 46 -2" stroke="#ff7a2f" stroke-width="3" fill="none" opacity=".7"${NS}/>`;
+    for (const [dx, dy, r] of [[-120, 4, 16], [118, 12, 20], [70, 28, 12]]) s += `<circle cx="${n1(x + dx)}" cy="${n1(y + dy)}" r="${r}" fill="#4a4450"/>`;
+    out.cave = [1060, s, [x, y - 168], 'Emberhollow Cave'];   // outside the wall: drawn among the outer forest
+  }
+  return out;
+}
+
+// Seeded random numbers so the forest grows the same way on every visit.
+function seeded(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+function buildTownMap() {
+  const svg = $('#townMap');
+  const items = [];                        // [depth, svg] for everything that stands up
+  const add = (depth, s) => items.push([depth, s]);
+  const rnd = seeded(7);
+
+  // Sky, mountains and the volcano, painted behind the world.
+  let back = `<defs>
+    <linearGradient id="tSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1a30"/><stop offset=".6" stop-color="#4a2c38"/><stop offset="1" stop-color="#8a4a34"/></linearGradient>
+    <radialGradient id="tSun"><stop offset="0" stop-color="#ffcf7a" stop-opacity=".9"/><stop offset=".35" stop-color="#e8743a" stop-opacity=".4"/><stop offset="1" stop-color="#e8743a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tGlow"><stop offset="0" stop-color="#ffb347" stop-opacity=".85"/><stop offset="1" stop-color="#ff7a2f" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tGem"><stop offset="0" stop-color="#bfefff" stop-opacity=".9"/><stop offset="1" stop-color="#7fe3ff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tVale" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#4a5a3a"/><stop offset="1" stop-color="#26301f"/></radialGradient>
+  </defs>
+  <rect width="${MAP_W}" height="${MAP_H}" fill="url(#tVale)"/>
+  <rect width="${MAP_W}" height="420" fill="url(#tSky)"/>
+  <circle cx="1720" cy="190" r="190" fill="url(#tSun)"/><circle cx="1720" cy="190" r="40" fill="#ffd28a" opacity=".5"/>
+  <path d="M0 330 L120 250 L260 300 L400 210 L560 280 L680 230 L760 260 L900 200 L1040 270 L1180 220 L1320 290 L1460 230 L1620 280 L1760 210 L1900 270 L2060 220 L2220 280 L2400 230 L2400 420 L0 420Z" fill="#2c2338"/>
+  <path d="M520 360 L780 120 Q810 104 840 120 L1110 360Z" fill="#251c27"/>
+  <circle cx="810" cy="122" r="50" fill="url(#tGlow)" class="glow"/>
+  <path d="M786 124 Q810 140 834 124 Q810 114 786 124Z" fill="#ff7a2f"/>
+  <path d="M800 132 Q786 200 760 270 M820 134 Q832 196 860 260" stroke="#ff7a2f" stroke-width="3" fill="none" opacity=".45"/>
+  <g class="plume" fill="#4a4048" opacity=".7"><ellipse cx="820" cy="88" rx="40" ry="24"/><ellipse cx="860" cy="56" rx="56" ry="28"/><ellipse cx="930" cy="32" rx="74" ry="28"/></g>
+  <path d="M0 400 Q300 330 600 380 T1200 360 T1800 372 T2400 350 L2400 470 L0 470Z" fill="#2a3324"/>`;
+
+  // The village floor: packed earth inside the walls, the roads and the square.
+  let ground = poly([isoP(2.2, 2.2), isoP(37.8, 2.2), isoP(37.8, 37.8), isoP(2.2, 37.8)], '#6a5844', NS)
+    + poly([isoP(3, 3), isoP(37, 3), isoP(37, 37), isoP(3, 37)], '#7a6650', NS);
+  const roadCol = '#a08a6a', ROADS = [
+    [[21, 21], [44, 21.5], 2.2], [[21, 21], [16.2, 16.2], 2], [[21, 21], [21, 44], 2.2], [[17, 21], [7.5, 21], 1.8],
+    [[21, 21], [21, 6.5], 1.8], [[21, 28.5], [9, 28.5], 1.8], [[31, 21.5], [31, 17], 1.4], [[12, 28.5], [12, 39.5], 1.4], [[12, 39.5], [10.6, 43.5], 1.2], [[10.6, 43.5], [12, 47], 1.2],
+    [[21, 9], [17.5, 9], 1.4], [[33.4, 21.5], [33.4, 24], 1.2], [[21, 30], [27.5, 33.5], 1.4],
+  ];
+  for (const [a, b, w] of ROADS) ground += road(a, b, w + .4, '#5e4c38') + road(a, b, w, roadCol);
+  ground += disc(21, 21, 4.3, '#5e4c38', 0, NS) + disc(21, 21, 4, '#8f7d68', 0, NS)
+    + disc(21, 21, 3.1, 'none', 0, ' stroke="#6e5e4c" stroke-width="3" stroke-dasharray="16 9"')
+    + disc(21, 21, 2.1, 'none', 0, ' stroke="#6e5e4c" stroke-width="3" stroke-dasharray="12 8"');
+  ground += disc(12, 39.5, .6, roadCol, 0, NS) + disc(10.6, 43.5, .6, roadCol, 0, NS);   // the trail's bends out to the cave
+
+  // The square's bonfire.
+  {
+    const [x, y] = [isoX(21, 21), isoY(21, 21)];
+    add(42, cyl(21, 21, .6, 9, '#6a6470') + glowAt(x, y - 30, 64)
+      + `<path class="flame" d="M${n1(x - 14)} ${n1(y - 8)} Q${n1(x - 16)} ${n1(y - 30)} ${n1(x - 6)} ${n1(y - 38)} Q${n1(x - 6)} ${n1(y - 28)} ${n1(x)} ${n1(y - 26)} Q${n1(x - 2)} ${n1(y - 44)} ${n1(x + 6)} ${n1(y - 54)} Q${n1(x + 12)} ${n1(y - 34)} ${n1(x + 12)} ${n1(y - 28)} Q${n1(x + 18)} ${n1(y - 32)} ${n1(x + 16)} ${n1(y - 40)} Q${n1(x + 24)} ${n1(y - 24)} ${n1(x + 14)} ${n1(y - 8)}Z" fill="#ff8a3d"${NS}/>`
+      + `<path class="flame" style="animation-delay:-.2s" d="M${n1(x - 8)} ${n1(y - 8)} Q${n1(x - 8)} ${n1(y - 22)} ${n1(x - 2)} ${n1(y - 28)} Q${n1(x)} ${n1(y - 20)} ${n1(x + 4)} ${n1(y - 22)} Q${n1(x + 6)} ${n1(y - 30)} ${n1(x + 10)} ${n1(y - 32)} Q${n1(x + 12)} ${n1(y - 18)} ${n1(x + 8)} ${n1(y - 8)}Z" fill="#ffd166"${NS}/>`
+      + `<g fill="#ff9a4a"${NS}>${[0, -2.5, -5].map((d, i) => `<circle class="ember" cx="${n1(x - 6 + i * 6)}" cy="${n1(y - 30)}" r="2" style="animation-delay:${d}s;animation-duration:6s"/>`).join('')}</g>`);
+  }
+
+  // The village wall: a timber palisade with corner towers, gaps for the gates.
+  const stakes = (from, to, h) => {
+    let s = '';
+    const n = Math.max(1, Math.round(Math.hypot(to[0] - from[0], to[1] - from[1]) / .45));
+    for (let i = 0; i < n; i++) {
+      const t0 = i / n, t1 = (i + 1) / n, a = [from[0] + (to[0] - from[0]) * t0, from[1] + (to[1] - from[1]) * t0], b = [from[0] + (to[0] - from[0]) * t1, from[1] + (to[1] - from[1]) * t1];
+      const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      s += poly([isoP(...a, 0), isoP(...b, 0), isoP(...b, h), isoP(...m, h + 7), isoP(...a, h)], i % 2 ? '#6b4f32' : '#5e452c');
+    }
+    return s;
+  };
+  const tower = (gx, gy) => box(gx - .6, gy - .6, 1.2, 1.2, 58, '#6b4f32') + hip(gx - .6, gy - .6, 1.2, 1.2, 58, 24, '#4a2f2a');
+  add(-1, stakes([3, 3], [3, 37], 30) + stakes([3, 3], [37, 3], 30) + tower(3, 3));
+  add(890, tower(3, 37) + tower(37, 3));
+  add(895, stakes([37, 3], [37, 18.6], 30) + stakes([37, 24.4], [37, 37], 30)
+    + stakes([3, 37], [11, 37], 30) + stakes([13, 37], [19.8, 37], 30) + stakes([22.2, 37], [37, 37], 30) + tower(37, 37)
+    + box(19.4, 36.6, .8, .8, 52, '#6b4f32') + box(22.2, 36.6, .8, .8, 52, '#6b4f32') + box(19.4, 36.7, 3.6, .6, 10, '#5e452c', 42));
+
+  // Villagers' homes, a windmill, the well, lamps and trees inside the walls.
+  const HOUSES = [
+    [4.5, 4.5, 3, 2.5, 34, '#8a7a64', '#3e5a8c', 'x', true], [9, 4, 3, 2.5, 32, '#7a6a5a', '#7a3a2e', 'y'],
+    [28.5, 4.2, 3, 2.5, 34, '#8a6a4a', '#4f6a4a', 'x', true], [32.5, 6, 2.5, 2.5, 30, '#7a6a5a', '#7a3a2e', 'y'],
+    [33.5, 10.5, 2.5, 2.5, 32, '#8a7a64', '#3e5a8c', 'x'], [34, 14.5, 2.2, 2.2, 28, '#7a6a5a', '#a8483a', 'y'],
+    [33, 28.5, 2.6, 2.4, 32, '#8a6a4a', '#3e5a8c', 'x', true], [33.5, 32.5, 2.4, 2.4, 30, '#7a6a5a', '#7a3a2e', 'y'],
+    [22.8, 33.6, 2.4, 2.2, 30, '#8a7a64', '#4f6a4a', 'x'], [15, 31, 3, 2.4, 32, '#7a6a5a', '#a8483a', 'y', true],
+    [15.5, 34.4, 2.4, 2.2, 28, '#8a6a4a', '#3e5a8c', 'x'], [4, 30.5, 2.6, 2.4, 30, '#7a6a5a', '#4f6a4a', 'y'],
+    [4, 14, 2.6, 2.4, 32, '#8a7a64', '#7a3a2e', 'x', true], [4.2, 34.2, 2.2, 2.2, 28, '#8a6a4a', '#a8483a', 'x'],
+  ];
+  for (const [gx, gy, w, d, h, wall, roof, axis, ch] of HOUSES) add(gx + w + gy + d, house(gx, gy, w, d, h, wall, roof, axis, ch));
+  {
+    const c = [5.5, 10], [hx, hy] = [isoX(6.4, 10.9), isoY(6.4, 10.9, 74)];
+    const blades = [0, 90, 180, 270].map((a) => `<path d="M${n1(hx)} ${n1(hy)} l4 -62 l12 2 l-10 60z" fill="#c9b28a" transform="rotate(${a} ${n1(hx)} ${n1(hy)})"/>`).join('');
+    add(17, disc(c[0] + .3, c[1] + .3, 1.2, 'rgba(0,0,0,.3)', 0, NS) + cyl(...c, .95, 76, '#7a6a5a') + cone(...c, 1.15, 76, 30, '#5a3a2e')
+      + `<g class="mill" style="transform-origin:${n1(hx)}px ${n1(hy)}px">${blades}</g><circle cx="${n1(hx)}" cy="${n1(hy)}" r="5" fill="#4a3426"/>`);
+  }
+  {
+    const [x, y] = [isoX(24.5, 17.5), isoY(24.5, 17.5, 12)];
+    add(42.6, cyl(24.5, 17.5, .6, 12, '#6a6470') + disc(24.5, 17.5, .42, '#1c1f36', 12)
+      + box(23.95, 17.45, .1, .1, 44, '#5a3e28') + box(24.95, 17.45, .1, .1, 44, '#5a3e28')
+      + `<path d="M${n1(x - 30)} ${n1(y - 28)} L${n1(x)} ${n1(y - 48)} L${n1(x + 30)} ${n1(y - 28)}Z" fill="#7a3a2e"/>`);
+  }
+  for (const [gx, gy] of [[18.5, 18.2], [23.6, 23.8], [18.4, 23.8], [23.6, 18.4], [25.5, 22.8], [29, 22.8], [19.8, 26], [19.8, 31], [22.6, 14], [19.6, 11], [15, 22.6], [10, 22.6]])
+    add(gx + gy, lamp(gx, gy));
+  const INSIDE_TREES = [[6, 7.5], [11.5, 7.5], [7.5, 13.5], [18, 11], [27, 8], [31, 9], [35, 8], [28, 17.5], [35.5, 18], [35.5, 26.5], [26, 36], [30.5, 30],
+    [18, 29.5], [13, 30], [6, 28.5], [6.5, 20], [11, 21.5], [5, 23.2], [17.5, 36], [7, 36], [25, 30.5], [9.6, 26.6]];
+  for (const [gx, gy] of INSIDE_TREES) add(gx + gy, tree(gx, gy, .9 + rnd() * .3, rnd() < .15 ? 2 : 0));
+
+  // The forest outside the walls, kept off the roads.
+  const nearRoad = (gx, gy) => (Math.abs(gy - 21.5) < 1.8 && gx > 36) || (Math.abs(gx - 21) < 1.8 && gy > 36) || (Math.abs(gx - 11.5) < 2.6 && gy > 36 && gy < 46) || Math.hypot(gx - 12, gy - 48) < 4.2;
+  for (let gy = -10; gy <= 54; gy += 1.9) {
+    for (let gx = -10; gx <= 54; gx += 1.9) {
+      const jx = gx + (rnd() - .5) * 1.4, jy = gy + (rnd() - .5) * 1.4;
+      if (jx > 1.4 && jx < 38.6 && jy > 1.4 && jy < 38.6) continue;
+      const x = isoX(jx, jy), y = isoY(jx, jy);
+      if (x < -40 || x > MAP_W + 40 || y < 380 || y > MAP_H + 60 || nearRoad(jx, jy) || rnd() < .25) continue;
+      add(jx + jy + (jx > 38 || jy > 38 ? 1000 : -100), tree(jx, jy, .9 + rnd() * .4, rnd() < .55 ? 1 : 0));   // behind the back walls, or in front of the front ones
+    }
+  }
+
+  // The places, then their signs in a top layer.
+  const places = townPlaces(), LABEL = {};
+  for (const [k, [depth, art]] of Object.entries(places)) {
+    add(depth, `<g class="bld" data-place="${k}" tabindex="0" role="button" aria-label="${TOWN_LABELS[k]}">${art}</g>`);
+  }
+  const signs = Object.entries(places).map(([k, [, , [x, y], text]]) => {
+    const w = Math.round(text.length * 14.5 + 40);
+    return `<g class="bld signOnly" data-place="${k}" aria-hidden="true"><g class="sign" transform="translate(${n1(x)} ${n1(y)})"><rect x="${-w / 2}" y="-23" width="${w}" height="46" rx="10"/><text y="10">${text}</text></g></g>`;
+  }).join('');
+
+  items.sort((a, b) => a[0] - b[0]);
+  svg.innerHTML = `${back}${ground}<g stroke="#241812" stroke-width="1.6" stroke-linejoin="round">${items.map((i) => i[1]).join('')}</g>${signs}`;
+}
+const TOWN_LABELS = {
+  arena: 'The Arena: fight the gauntlet', elder: "Elder's Hut: lore and rules", carnival: 'Carnival: games that pay out gold',
+  forge: 'Ironsmith: upgrade weapons and armor', train: 'Training Yard: drill new techniques and earn skill points',
+  guild: 'Guild House: join a sellsword guild', jeweler: 'Jeweler: trinkets for your champions',
+  tavern: 'The Smoldering Mug tavern: rumors and records', home: 'Your House: your stash and belongings',
+  market: 'Market: buy supplies for battle', bounty: 'Bounty Board: daily jobs that pay gold',
+  pvp: 'Proving Grounds: duel rival warbands for gold', gate: 'Expedition Gate: dungeons along Ashfall Road',
+  cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
+};
 
 /* VILLAGE STAGE — Cinderhold fills the screen. The map, townies and NPCs share #townView: one
    transform (scale s, then translate tx/ty, in px) pans and zooms them together. On the square the map
@@ -7172,10 +7187,10 @@ function frameOn(k, zoom = true) {
   return clampView({ s, tx: (a.x0 + a.x1) / 2 - s * f.cx * W, ty: (a.y0 + a.y1) / 2 - s * f.cy * W / MAP_AR });
 }
 
-// The square at first sight: cover scale, looking at the bonfire in the middle of town (map x 600).
+// The square at first sight: cover scale, centred on the bonfire (MAP_HOME).
 function homeView() {
-  const { W, H } = stageSize(), s = coverScale(), cx = (600 - MAP_X0) / MAP_W;
-  return clampView({ s, tx: W / 2 - s * cx * W, ty: H - s * W / MAP_AR });
+  const { W, H } = stageSize(), s = coverScale(), cx = (MAP_HOME[0] - MAP_X0) / MAP_W, cy = MAP_HOME[1] / MAP_H;
+  return clampView({ s, tx: W / 2 - s * cx * W, ty: H / 2 - s * cy * W / MAP_AR });
 }
 
 function setView(v, glide) {
@@ -7199,17 +7214,18 @@ function zoomTown(force = false) {
   if (!force) hideSay();
   if (force || first) {
     // Resize or first sight: frame without a glide. On the square, keep looking where you were.
-    const keep = view && !k ? { cx: (stageSize().W / 2 - view.tx) / (view.s * stageSize().W) } : null;
+    const { W: sw, H: sh } = stageSize();
+    const keep = view && !k ? { cx: (sw / 2 - view.tx) / (view.s * sw), cy: (sh / 2 - view.ty) / (view.s * sw / MAP_AR) } : null;
     if (k) return setView(frameOn(k));
     if (!keep) return setView(homeView());
-    const { W } = stageSize(), s = coverScale();
-    return setView(clampView({ s, tx: W / 2 - s * keep.cx * W, ty: -Infinity }));
+    const s = coverScale();
+    return setView(clampView({ s, tx: sw / 2 - s * keep.cx * sw, ty: sh / 2 - s * keep.cy * sw / MAP_AR }));
   }
   // Into a building: glide onto it. Back to the square: glide out, still looking at the building you left.
   setView(k ? frameOn(k) : frameOn(from, false) || homeView(), true);
 }
 
-// Drag (mouse or finger) to look around the village; the wheel pans sideways. A drag never counts as a tap.
+// Drag (mouse or finger) to look around the village; the wheel pans too. A drag never counts as a tap.
 function buildStage() {
   const town = $('#town');
   let drag = null, dragged = false;
@@ -7241,7 +7257,8 @@ function buildStage() {
     if (!view || ev.target.closest('#placePanel')) return;
     ev.preventDefault();
     hideSay();
-    setView(clampView({ s: view.s, tx: view.tx - (ev.deltaX || ev.deltaY), ty: view.ty - (ev.deltaX ? ev.deltaY : 0) }));
+    // The map is wide and tall now: the wheel pans up and down, Shift+wheel (or a trackpad) sideways.
+    setView(clampView({ s: view.s, tx: view.tx - (ev.shiftKey ? ev.deltaY : ev.deltaX), ty: view.ty - (ev.shiftKey ? 0 : ev.deltaY) }));
   }, { passive: false });
 }
 
@@ -7308,6 +7325,7 @@ function villageAction(k) {
 }
 
 function buildVillage() {
+  buildTownMap();
   const town = $('#town');
   town.addEventListener('click', (ev) => {
     if (ev.target.closest('#placePanel, .townHud')) return;   // they have their own handlers
@@ -7368,7 +7386,7 @@ function unitCardHTML(u) {
 /* Status overlays: characters/animations/status/<id>.webp are looping transparent clips drawn in the
    champion art's own 100x100 space, so they sit straight over .upic (see .stfx in the CSS).
    Soaked follows soaked(u), so wet weather drips on everyone too. */
-const STATUS_FX = ['stride', 'roots', 'soaked', 'poison', 'bleed', 'burn', 'stun'];
+const STATUS_FX = ['stride', 'taunt', 'roots', 'soaked', 'poison', 'bleed', 'burn', 'stun'];
 const ROOTS_GROW_MS = 585;  // roots-grow.webp plays once (13 frames x 45 ms), then the looping roots.webp takes over
 // 'stride' = a breeze at the feet of everyone sped up by Elowen's Forest Stride (same test as barAgi).
 const statusOn = (u, id) => (id === 'soaked' ? soaked(u)
@@ -7940,6 +7958,56 @@ const BEAM = {
 };
 const bloodLink = (src, t) => backwash(src, t, 'blood');
 
+/* Crimson Mend, standing: while the acting unit has an open blood channel, a vein runs from her to
+   every living ally for the whole of her turn — not just the flash of each tick. Called on every
+   render, it re-aims the veins at wherever everyone stands now, drops the fallen, and clears itself
+   once her turn is over (the bar moves on) or the channel closes. Elements are kept between renders
+   so the flowing blood never stutters. */
+function syncBloodTethers() {
+  const live = !state.moving && !['won', 'lost', 'cleared'].includes(state.phase);
+  const m = live ? unitBy(state.active) : null;
+  let svg = document.getElementById('bloodTethers');
+  if (!m || m.hp <= 0 || !has(m, 'bloodchannel')) { svg?.remove(); return; }
+  const s = stageBox(m);
+  if (!s) return;
+  if (!svg || svg.dataset.uid !== m.uid) {
+    svg?.remove();
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.id = 'bloodTethers';
+    svg.setAttribute('class', `tethers${reduced ? ' still' : ''}`);
+    svg.dataset.uid = m.uid;
+    svg.innerHTML = '<circle class="tv-src" r="7"/>';
+    $('#arena').appendChild(svg);
+  }
+  const from = { x: s.x + facing(m) * s.w * 0.12, y: s.top + s.h * 0.42 };
+  const src = svg.querySelector('.tv-src');
+  src.setAttribute('cx', from.x.toFixed(1));
+  src.setAttribute('cy', from.y.toFixed(1));
+  const allies = alliesOf(m).filter((a) => a.uid !== m.uid);
+  const keep = new Set(allies.map((a) => a.uid));
+  svg.querySelectorAll('g[data-uid]').forEach((g) => { if (!keep.has(g.dataset.uid)) g.remove(); });
+  for (const a of allies) {
+    const e = stageBox(a);
+    if (!e) continue;
+    const to = { x: e.x, y: e.top + e.h * 0.45 };
+    const len = Math.hypot(to.x - from.x, to.y - from.y);
+    // A vein sags a little between the two, like a cord under its own weight.
+    const c = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 + Math.min(40, len * 0.18) };
+    const d = `M${from.x.toFixed(1)} ${from.y.toFixed(1)} Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${to.x.toFixed(1)} ${to.y.toFixed(1)}`;
+    let g = svg.querySelector(`g[data-uid="${a.uid}"]`);
+    if (!g) {
+      g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.dataset.uid = a.uid;
+      g.innerHTML = '<path class="tv-glow"/><path class="tv-body"/><path class="tv-flow"/><circle class="tv-node" r="4.5"/>';
+      svg.insertBefore(g, src);   // her own pulse draws on top of every vein
+    }
+    g.querySelectorAll('path').forEach((p) => p.setAttribute('d', d));
+    const n = g.querySelector('.tv-node');
+    n.setAttribute('cx', to.x.toFixed(1));
+    n.setAttribute('cy', to.y.toFixed(1));
+  }
+}
+
 async function backwash(src, u, style = 'water') {
   const b = BEAM[style] || BEAM.water;
   const s = stageBox(src), e = stageBox(u);
@@ -8051,14 +8119,14 @@ function renderBattle() {
 
   const hunt = huntDepth(), dg = dungeonRun();
   $('#tagline').textContent = dg
-    ? `${dg.name}, ${dgIsBossRoom() ? 'boss room' : `room ${state.dg.room + 1} of ${dgRooms(dg)}`}. Warband level ${state.level}.`
+    ? `${dg.name}, ${dgIsBossRoom() ? 'boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}. Warband level ${state.level}.`
     : hunt ? `${CAVE.name}, ${hunt.name}. Warband level ${state.level}.`
     : `Ashfall Road, battle ${state.battle + 1} of ${state.order.length}. Warband level ${state.level}.`;
   // Dungeons: the ladder lists the rooms, ending with the boss.
-  $('#ladder').innerHTML = dg ? Array.from({ length: dgRooms(dg) }, (_, i) => {
+  $('#ladder').innerHTML = dg ? Array.from({ length: dgRooms() }, (_, i) => {
     const done = i < state.dg.room || (i === state.dg.room && state.phase === 'won');
     const cls = done ? 'done' : i === state.dg.room ? 'now' : '';
-    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${i === dg.rooms.length ? MONSTERS[dg.boss].name : `Room ${i + 1}`}</span></li>`;
+    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${i === DG_ROOM_COUNT ? MONSTERS[dg.boss].name : `Room ${i + 1}`}</span></li>`;
   }).join('') : hunt ? '' : state.order.map((k, i) => {
     const done = i < state.battle || (i === state.battle && (state.phase === 'won' || state.phase === 'cleared'));
     const cls = done ? 'done' : i === state.battle ? 'now' : '';
@@ -8194,22 +8262,15 @@ function xpBarHTML() {
     <small class="xpnum">Lv ${heroLevel()} · ${maxed ? 'max level' : `${profile.xp || 0} / ${need} XP`}</small>`;
 }
 
-// XP earned this battle, plus a stat table when your champion levelled up.
+// "A, B, C and D"
+const listAnd = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
+// XP earned this battle. (A level-up shows in the card's title and the XP bar.)
 function rewardHTML() {
   const r = state.reward;
   if (!r) return '';
   let html = `<div class="xpline"><b class="xpgain">+${r.xp} XP</b>${xpBarHTML()}</div>`;
   if (r.kill) html += `<p class="xpkill">${r.kill} XP of that for the ${r.kills === 1 ? 'killing blow' : `${numWord(r.kills)} killing blows`} ${heroName()} landed.</p>`;
-  if (r.to > r.from) {
-    const rows = state.team.map((id, i) => {
-      const c = charById(id), a = makeUnit(c, r.from, 'p', 0), b = makeUnit(c, r.to, 'p', 0);
-      return `<tr><td>${i === 0 ? heroName() : shortName(c)}</td><td>${a.maxHp} → <span class="up">${b.maxHp}</span></td><td>${a.atk} → <span class="up">${b.atk}</span></td><td>${a.def} → <span class="up">${b.def}</span></td></tr>`;
-    }).join('');
-    const opened = SLOT_UNLOCKS.filter((s) => s.lv > r.from && s.lv <= r.to);
-    const slotNote = opened.map((s) => `New ${s.kind === 'act' ? 'active' : 'passive'} skill slot unlocked!`).join(' ');
-    html += `<p class="lvlup">Level up! ${heroName()} is now level ${r.to}, and your recruits rise with you. +${r.to - r.from} skill point${r.to - r.from === 1 ? '' : 's'} — spend ${r.to - r.from === 1 ? 'it' : 'them'} under Choose skills at the Arena.${slotNote ? ` ${slotNote} Choose what goes in it at the Arena.` : ''}</p>
-      <table class="gains"><thead><tr><th>Champion</th><th>HP</th><th>Attack</th><th>Defense</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
   return html;
 }
 
@@ -8233,12 +8294,12 @@ function showEndOverlay() {
       <p>This run: <b>${state.dg.gold} gold</b> and <b>${state.dg.xp} XP</b> in total.</p>${questNewsHTML()}`;
     buttons = [{ label: 'Return to the village', primary: true, fn: () => { toVillage(); openPlace('gate'); } }];
   } else if (dg && phase === 'won') {
-    const next = state.dg.room + 1, bossNext = next === dg.rooms.length;
-    kick = `${dg.name} · room ${state.dg.room + 1} of ${dgRooms(dg)} cleared`;
+    const next = state.dg.room + 1, bossNext = next === DG_ROOM_COUNT;
+    kick = `${dg.name} · room ${state.dg.room + 1} of ${dgRooms()} cleared`;
     title = state.reward.to > state.reward.from ? `${heroName()} reaches level ${state.reward.to}` : 'Room cleared';
     body = `<p class="loot">+${state.goldWon} gold</p>${rewardHTML()}
       <p>Your HP and MP carry over. The fallen get back up at 30%, and everyone catches their breath.</p>${partyHTML()}
-      <p>${bossNext ? `Ahead: <b>${MONSTERS[dg.boss].name}</b>. Watch for the warning before its big attack, then Guard or shield up.` : `Ahead: room ${next + 1} of ${dgRooms(dg)}.`}</p>${questNewsHTML()}`;
+      <p>${bossNext ? `Ahead: <b>${MONSTERS[dg.boss].name}</b>. Watch for the warning before its big attack, then Guard or shield up.` : `Ahead: room ${next + 1} of ${dgRooms()}.`}</p>${questNewsHTML()}`;
     buttons = [
       { label: bossNext ? `Face ${MONSTERS[dg.boss].name}` : 'Go deeper', primary: true, fn: () => { state.dg.room++; enterRoom(); } },
       { label: 'Retreat with your loot', fn: retreatDungeon },
@@ -8290,8 +8351,7 @@ function showEndOverlay() {
     const next = FACTIONS[state.order[state.battle + 1]];
     kick = `Victory · battle ${state.battle + 1} of ${state.order.length}`;
     title = to > from ? `${heroName()} reaches level ${to}` : `Battle ${state.battle + 1} won`;
-    body = `<p class="loot">+${state.goldWon} gold</p>${rewardHTML()}
-      <p>Everyone is fully healed. Next up: ${theFaction(next)} (${next.mechanic}). You can stop in Cinderhold first to forge and shop.</p>${questNewsHTML()}`;
+    body = `<p class="loot">+${state.goldWon} gold</p>${rewardHTML()}${questNewsHTML()}`;
     buttons = [
       { label: `Fight ${theFaction(next)}`, primary: true, fn: () => { state.battle++; startBattle(false); } },
       { label: 'Visit the village first', fn: () => { state.runPending = true; toVillage(); } },
@@ -8300,11 +8360,8 @@ function showEndOverlay() {
     kick = 'Gauntlet cleared';
     title = `All ${state.order.length} factions defeated`;
     body = `<p class="loot">+${state.goldWon} gold, including the ${CLEAR_BONUS} gold clearing bonus</p>${rewardHTML()}
-      <p>${heroName()} and ${state.team.slice(1).map((id) => shortName(charById(id))).join(' and ')} cleared Ashfall Road.</p>${questNewsHTML()}`;
-    buttons = [
-      { label: 'Run it again', primary: true, fn: startGauntlet },
-      { label: 'Return to the village', fn: toVillage },
-    ];
+      <p>${listAnd([heroName(), ...state.team.slice(1).map((id) => shortName(charById(id)))])} cleared Ashfall Road.</p>${questNewsHTML()}`;
+    buttons = [{ label: 'Return to the village', primary: true, fn: toVillage }];   // the run ends: no new gauntlet from here
   } else if (phase === 'lost') {
     kick = 'Defeat';
     title = `${theFaction(FACTIONS[state.order[state.battle]], true)} win this one`;
@@ -8359,7 +8416,7 @@ function setWxPop(open) {
 $('#weather').addEventListener('click', (ev) => { ev.stopPropagation(); setWxPop($('#wxPop').hidden); });
 document.addEventListener('click', (ev) => { if (!$('#wxPop').hidden && !ev.target.closest('#wxPop')) setWxPop(false); });
 document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') setWxPop(false); });
-$('#abandonBtn').addEventListener('click', () => { state.runPending = false; toVillage(); });
+$('#abandonBtn').addEventListener('click', () => { state.runPending = false; if (dungeonRun()) retreatDungeon(); else toVillage(); });
 // Battle speed toggle on the speed bar: 1.5× ⇄ 2×, remembered in this browser. Takes effect from the next motion.
 function renderSpeedBtn() {
   const b = $('#speedBtn');

@@ -105,5 +105,19 @@
     "frameMs": 60,
     "ms": 1440,
     "loop": 0
+  },
+  "taunt": {
+    "src": "status/taunt.webp",
+    "w": 325,
+    "h": 312,
+    "box": {
+      "x": 38,
+      "y": 62,
+      "size": 250
+    },
+    "frames": 24,
+    "frameMs": 60,
+    "ms": 1440,
+    "loop": 0
   }
 }

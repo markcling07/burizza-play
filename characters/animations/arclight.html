@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arclight Showcase</title>
+<style>
+/* Arclight v2 redesign: the art (large + in-game sizes) and his rigged idle and attack. */
+:root { --bg: #1b1e2b; --card: #1e2232; --line: #2c3146; --fg: #ece6d8; --muted: #8e8aa2; --accent: #7fe3ff; color-scheme: dark; }
+html, body { margin: 0; background: var(--bg); color: var(--fg); font: 500 13px/1.4 "Segoe UI", system-ui, sans-serif; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; }
+h1 { margin: 0; font-size: 1.5rem; color: var(--accent); }
+.sub { margin: 2px 0 0; color: var(--muted); }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; gap: 6px; justify-items: center; }
+.card span { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; }
+.big { width: 260px; height: 260px; }
+.s78 { width: 78px; height: 78px; }
+.s64 { width: 64px; height: 64px; }
+.mir { transform: scaleX(-1); }
+.anim { height: 240px; width: auto; max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Arclight</h1>
+    <p class="sub">Ironclad Union · Ranged · Tesla-coil sniper unit. Redesigned from the reference card.</p>
+  </header>
+  <div class="row">
+    <div class="card"><img class="big" src="../mech/arclight.svg" alt="Arclight"><span>Art</span></div>
+    <div class="card"><img class="s78" src="../mech/arclight.svg" alt=""><span>78 px</span></div>
+    <div class="card"><img class="s64" src="../mech/arclight.svg" alt=""><span>64 px</span></div>
+    <div class="card"><img class="s78 mir" src="../mech/arclight.svg" alt=""><span>As enemy</span></div>
+  </div>
+  <div class="row">
+    <div class="card"><img class="anim" src="arclight-idle.gif" alt="Arclight idle"><span>Idle</span></div>
+    <div class="card"><img class="anim" src="arclight-attack.gif" alt="Arclight attack"><span>Attack: Tesla Bolt</span></div>
+  </div>
+</div>
+</body>
+</html>
