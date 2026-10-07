@@ -571,6 +571,9 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 .unit.summon .plate { border-style: dashed; }
 .unit.acting .plate { border-color: var(--accent); }
+/* Your own champion on the field: a gold star and a gold name on the plate, every turn. */
+.unit.you .who strong { color: var(--accent); }
+.unit.you .who strong::before { content: '★ '; }
 .unit.targetable { cursor: pointer; }
 .unit.targetable .plate { border-color: var(--target); }
 .unit.targetable.ally .plate { border-color: var(--good); }
@@ -1083,6 +1086,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   background: rgba(30, 33, 48, .97); border-top: 1px solid var(--accent); box-shadow: 0 -10px 30px rgba(0, 0, 0, .5);
 }
 #placePanel > .panel { padding: 0; border: 0; background: none; }
+/* Panel header: the title on the left, "Back to the square" (or Close) pinned to the top right, never wrapped below. */
+#placePanel > .panel > .phead { flex-wrap: nowrap; align-items: flex-start; }
+#placePanel > .panel > .phead > div { flex: 1 1 auto; min-width: 0; }
+#placePanel > .panel > .phead > .btn { flex: none; margin-left: auto; }
 #placePanel .phead h2 { font-size: 1.6rem; }
 #placePanel .forge, #placePanel .homeGrid { grid-template-columns: minmax(0, 1fr); }
 @media (min-aspect-ratio: 1/1) {
@@ -1112,6 +1119,34 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 }
 .dock .badge { min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .74rem; line-height: 20px; text-align: center; }
 .town.sheetOpen .dock { display: none; }
+/* Battle: bottom-right of the village, opposite the dock. Opens a menu of the three ways to fight;
+   each one walks you to that building. Hidden under any open sheet. */
+.battleDock { position: absolute; z-index: 3; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); display: grid; justify-items: end; gap: 8px; }
+.battleBtn {
+  display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 18px 6px 14px; cursor: pointer;
+  border-radius: 999px; border: 2px solid #2a1a05; background: linear-gradient(#f3bd62, var(--accent) 55%, #c9822f);
+  color: var(--accent-ink); font: inherit; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: .02em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+.battleBtn svg { width: 24px; height: 24px; }
+.battleBtn:hover, .battleBtn[aria-expanded="true"] { filter: brightness(1.08); }
+.battleMenu {
+  display: grid; gap: 6px; width: 170px; padding: 8px; border-radius: 14px;
+  border: 1px solid var(--accent); background: rgba(22, 25, 37, .96); box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+}
+.battleMenu[hidden] { display: none; }
+.battleMenu button {
+  display: grid; gap: 1px; text-align: left; padding: 9px 12px; cursor: pointer; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); font: inherit;
+}
+.battleMenu button:hover, .battleMenu button:focus-visible { border-color: var(--accent); outline: none; }
+.battleMenu b { font-family: var(--font-display); font-size: 1.15rem; color: var(--accent); }
+.town.sheetOpen .battleDock { display: none; }
+/* Narrow phones: a round Battle button so it sits clear of the dock. */
+@media (max-width: 480px) {
+  .battleBtn { flex-direction: column; justify-content: center; gap: 0; width: 62px; height: 62px; min-height: 0; padding: 0; border-radius: 50%; font-size: .78rem; }
+  .battleBtn svg { width: 26px; height: 26px; }
+}
 @media (min-aspect-ratio: 1/1) { .town.sheetOpen .dock { display: flex; } }
 .bld { cursor: pointer; transition: filter .2s; outline: none; }
 .bld:hover, .bld:focus-visible, .bld.open { filter: brightness(1.22) drop-shadow(0 0 8px rgba(232, 165, 72, .55)); }
@@ -1161,6 +1196,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .townies { position: absolute; inset: 0; pointer-events: none; }
 .townie { position: absolute; width: 2.6%; aspect-ratio: 1; transform: translate(-50%, -94%); }
 .townie > div { width: 100%; height: 100%; animation: townIdle 2.8s ease-in-out infinite; }
+/* Night in the village: people are a shade dimmer, like the streets they stand in (tags and quest marks stay bright). */
+.townView .npc .bob, .townView .townie > div { filter: brightness(.86) saturate(.92); }
 .townie img, .townie svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .townie.flip img, .townie.flip svg { transform: scaleX(-1); }
 @keyframes townIdle { 50% { transform: translateY(-3%); } }
@@ -1241,12 +1278,104 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .wlist { display: grid; gap: 8px; }
 .wcard { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); }
 .wcard.you { border-color: var(--accent); }
-.wcard .wpic { width: 54px; height: 54px; flex: none; }
+.wcard .wpic { position: relative; width: 54px; height: 54px; flex: none; }
+.wcard .wlvl {
+  position: absolute; left: -6px; top: -6px; z-index: 1; padding: 1px 6px; border-radius: 999px;
+  background: rgba(12, 14, 22, .92); border: 1px solid var(--line); color: var(--accent);
+  font-size: .64rem; font-weight: 800; line-height: 15px; white-space: nowrap;
+}
+.wcard.you .wlvl { border-color: var(--accent); }
+.wcard .wname { flex: 1 1 auto; }
+.wcard .wskills { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; max-width: 58%; }
+.wcard .wsk { width: 30px; height: 30px; flex: none; }
+.wcard .wsk .sic { width: 100%; height: 100%; display: block; }
+.wcard .wsk.pas { border-radius: 50%; box-shadow: 0 0 0 1.5px var(--accent); }
+.wcard .wchange, .wcard .wswap { flex: none; display: inline-flex; align-items: center; gap: 5px; }
+/* Inventory */
+.invBtn { display: inline-flex; align-items: center; gap: 5px; }
+.invBtn svg { width: 16px; height: 16px; }
+#placePanel > .panel > .phead > .btn + .btn { margin-left: 6px; }
+@media (max-width: 480px) { .invBtn .lbl { display: none; } }
+.invWho { display: flex; gap: 6px; flex-wrap: wrap; }
+.invWho button { width: 46px; height: 46px; padding: 3px; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); }
+.invWho button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 10px rgba(232, 165, 72, .35); }
+.invWho img, .invWho svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.invGrid { display: grid; grid-template-columns: minmax(104px, 36%) minmax(0, 1fr); gap: 12px; align-items: start; }
+.invChamp { display: grid; justify-items: center; gap: 2px; padding: 10px 8px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); text-align: center; }
+.invPic { width: 100%; max-width: 150px; aspect-ratio: 1; }
+.invPic img, .invPic svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.invChamp b { font-family: var(--font-display); font-size: 1.15rem; line-height: 1.1; }
+.invChamp small { color: var(--muted); font-size: .76rem; }
+.invStats { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; width: 100%; font-size: .78rem; }
+.invStats li { display: flex; justify-content: space-between; gap: 6px; }
+.invStats li span { color: var(--muted); }
+.invItems { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.invItems .label { margin: 4px 0 0; }
+.invSlots { display: flex; gap: 8px; }
+.islot { display: grid; justify-items: center; gap: 3px; }
+.islot small { font-size: .62rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.invBag { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; }
+.invBag .note { grid-column: 1 / -1; }
+.itile {
+  position: relative; display: grid; place-items: center; width: 52px; height: 52px; padding: 6px; cursor: pointer;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg);
+}
+.invBag .itile { width: 100%; height: auto; aspect-ratio: 1; }
+.itile svg, .itile img { width: 100%; height: 100%; display: block; }
+.itile:hover:not(.empty), .itile:focus-visible { border-color: var(--accent); outline: none; background: var(--panel-hi); }
+.itile.on { border-color: var(--accent); box-shadow: inset 0 0 10px rgba(232, 165, 72, .25); }
+.itile.empty { border-style: dashed; cursor: default; background: none; }
+.itile.off { opacity: .4; cursor: not-allowed; }
+.itile.loot { cursor: pointer; }
+.itile.off { cursor: pointer; }
+.itile.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent), 0 0 12px rgba(232, 165, 72, .45); opacity: 1; }
+.fuseList { display: grid; gap: 8px; }
+.fuseRow { display: grid; gap: 6px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); }
+.fuseRow > b { font-size: .9rem; }
+.fuseGrades { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.fuseCell { display: grid; justify-items: center; gap: 2px; min-width: 76px; }
+.fuseCell.none { opacity: .4; }
+.fuseCell .sico { width: 34px; height: 34px; }
+.fuseCell .sico svg { width: 100%; height: 100%; display: block; }
+.fuseCell small { font-size: .68rem; color: var(--muted); font-weight: 700; }
+.fuseArrow { color: var(--muted); }
+.stoneShop { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px; }
+.stoneWare { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); }
+.stoneWare .sico { width: 34px; height: 34px; flex: none; }
+.stoneWare .sico svg { width: 100%; height: 100%; display: block; }
+.stoneWare .st { flex: 1; min-width: 0; display: grid; }
+.stoneWare b { font-size: .88rem; }
+.stoneWare small { color: var(--muted); font-size: .72rem; }
+.stoneWare .btn { flex: none; }
+.invDetail { display: grid; gap: 6px; margin-top: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--accent); background: var(--panel-2); }
+.invDetail b { font-family: var(--font-display); font-size: 1.15rem; color: var(--accent); }
+.invDetail ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; font-size: .86rem; }
+.icount { position: absolute; right: -4px; bottom: -4px; min-width: 18px; padding: 0 4px; border-radius: 999px; background: rgba(12, 14, 22, .92); border: 1px solid var(--line); font-size: .66rem; font-weight: 800; line-height: 16px; text-align: center; }
+.wcard .wswap svg { width: 15px; height: 15px; }
+.wcard .wswap[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 480px) { .wcard .wswap .lbl { display: none; } .wcard .wswap { padding: 6px 8px; } }
+/* The swap picker under a recruit's card: champion models only, no name boxes (names on hover). */
+.wpicker {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; margin: -2px 0 4px;
+  padding: 8px; border-radius: 10px; border: 1px dashed var(--accent); background: var(--panel);
+}
+.wpick { aspect-ratio: 1; padding: 3px; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); }
+.wpick:hover, .wpick:focus-visible { border-color: var(--accent); outline: none; background: var(--panel-hi); }
+.wpick img, .wpick svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.wcard .wchange svg { width: 15px; height: 15px; }
+@media (max-width: 480px) { .wcard .wchange .lbl { display: none; } .wcard .wchange { padding: 6px 8px; } }
+/* Skills screen: your warband across the top, to pick whose skills you're editing. */
+.lwho { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.lwho button {
+  display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; cursor: pointer; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); font: inherit; font-weight: 800; font-size: .9rem;
+}
+.lwho button .mini { width: 34px; height: 34px; }
+.lwho button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px rgba(232, 165, 72, .3); }
 .wcard .wpic img, .wcard .wpic svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .wcard b { display: block; font-family: var(--font-display); font-size: 1.15rem; line-height: 1.1; }
 .wcard small { display: block; color: var(--muted); font-size: .78rem; }
 .wcard > span { min-width: 0; }
-.wcard .wlv { margin-left: auto; font-size: .72rem; font-weight: 800; color: var(--accent); text-align: right; }
 .sklist { display: grid; gap: 6px; }
 .skrow { display: flex; gap: 8px; align-items: center; font-size: .88rem; }
 .skrow .sic { width: 28px; height: 28px; flex: none; }
@@ -1271,8 +1400,14 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .stat { padding: 8px 10px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--line); }
 .stat b { display: block; font-size: 1.4rem; font-variant-numeric: tabular-nums; }
 .stat span { font-size: .75rem; color: var(--muted); }
-.teamRow { display: flex; gap: 10px; flex-wrap: wrap; }
-.teamRow .mini { width: 60px; height: 60px; }
+.teamRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.teamRow .mini { width: 56px; height: 56px; }
+.tmini { margin: 0; display: grid; justify-items: center; gap: 2px; width: 76px; padding: 6px 4px 5px; border-radius: 12px; border: 1px solid transparent; }
+.tmini figcaption { max-width: 100%; text-align: center; font-size: .76rem; font-weight: 800; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tmini small { display: block; font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+/* Your own champion: always framed in gold. */
+.tmini.you { border-color: var(--accent); background: radial-gradient(closest-side, rgba(232, 165, 72, .26), transparent 90%), var(--panel-2); box-shadow: 0 0 12px rgba(232, 165, 72, .3); }
+.tmini.you figcaption, .tmini.you small { color: var(--accent); }
 /* Ironsmith */
 .forge { display: grid; gap: 14px; min-width: 0; }
 @media (min-width: 860px) { .forge { grid-template-columns: minmax(0, 1fr) minmax(300px, 370px); align-items: start; } }
@@ -1320,6 +1455,12 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .inv .t small { font-size: .76rem; color: var(--muted); }
 .inv .mv { display: flex; flex-wrap: wrap; gap: 6px; }
 .trinkets { display: grid; gap: 8px; }
+.mats { display: flex; flex-wrap: wrap; gap: 6px; }
+.mat { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px 2px 3px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-weight: 800; font-size: .84rem; font-variant-numeric: tabular-nums; }
+.mat .ico { width: 22px; height: 22px; }
+.mat.short { color: var(--bad); border-color: var(--bad); }
+.ware.tome { border-color: rgba(232, 165, 72, .55); background: linear-gradient(135deg, rgba(110, 58, 134, .22), var(--panel-2) 60%); }
+.ware.tome .btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .trinkets .ware { background: var(--panel); }
 .ware.worn { border-color: var(--accent); }
 /* The Ironsmith's weapon rack: faction headings, and the affix list on each weapon. */
@@ -1327,7 +1468,19 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .rackHead.own { color: var(--accent); }
 .ware .affix { grid-column: 2; margin: 4px 0 0; padding-left: 16px; font-size: .84rem; }
 .ware .affix li { margin: 1px 0; }
-.ware .affix li.attune { color: var(--accent); }
+.ware .affix li.dead { color: var(--muted); opacity: .75; }
+/* The socket bench under the held weapon or worn kit. */
+.sockets { margin: 10px 0 0; display: grid; gap: 6px; }
+.socket { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 10px; border-radius: 10px;
+  background: var(--panel-2); border: 1px solid var(--line); }
+.socket.set { border-color: var(--accent); }
+.socket .ico { width: 30px; height: 30px; flex: none; }
+.socket .ico.empty { opacity: .7; }
+.socket .t { display: grid; flex: 1 1 150px; min-width: 0; }
+.socket .t strong { font-size: .92rem; }
+.socket .t small { font-size: .76rem; color: var(--muted); }
+.socket .mv { display: flex; flex-wrap: wrap; gap: 6px; }
+.socketNone { margin: 8px 0 0; }
 .ico.wico svg { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .5)); }
 .satchel { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
 .items { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1403,6 +1556,14 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
       </div>
       <div class="say" id="npcSay" role="status" hidden></div>
       <nav class="dock" id="dock" aria-label="Your warband and skills"></nav>
+      <div class="battleDock" id="battleDock" hidden>
+        <div class="battleMenu" id="battleMenu" role="menu" aria-label="Choose a battle" hidden>
+          <button type="button" role="menuitem" data-go="arena"><b>Arena</b></button>
+          <button type="button" role="menuitem" data-go="cave"><b>Dungeon</b></button>
+          <button type="button" role="menuitem" data-go="gate"><b>Expedition</b></button>
+        </div>
+        <button class="battleBtn" id="battleBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="battleMenu"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l10 10M20 4L10 14"/><path d="M12.5 16.5l-2 2M11.5 16.5l2 2" /><path d="M7 15l2 2-2.5 2.5-2-2zM17 15l-2 2 2.5 2.5 2-2z"/></g></svg><span>Battle</span></button>
+      </div>
       <div id="placePanel" hidden></div>
       <div class="townHud" id="townHud">
         <button class="gearBtn" id="gearBtn" type="button" aria-label="Game mechanics" title="Game mechanics"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.6 7.6 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button>
@@ -1536,7 +1697,7 @@ const FACTIONS = {
   crimson: { name: 'The Crimson Court', mechanic: 'Bloodthirst',
            rule: 'The Court keeps no mana — it pays in blood. A skill costs 15% of the caster\'s current HP and a ★ signature 20%, and no toll can take their last point: they are left standing on 1 HP at worst. Attack and Guard are free. Every hit drains 20% of the damage dealt as HP, and every attack drinks a further 5% of the victim\'s maximum HP on top of whatever the skill itself steals. The Court has no ranged fighters: four melee and a support who Hexes enemies so they heal for half.' },
   undead: { name: 'The Pale Host',     mechanic: 'Undying',
-           rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet, lit by a pale green light and already dead: nothing can heal it, and it stands and fights until one more instance of damage lands — a blow, a tick, anything — and that one is the end. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will stand past its death a second time.' },
+           rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet, lit by a pale green light and already dead: nothing can heal it, and it stands and fights until one more instance of damage lands — a blow, a tick, anything — and that one is the end. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will stand past its death a second time. The dead are in no hurry: the whole Host crosses the speed bar 5% slower.' },
 };
 const FACTION_KEYS = Object.keys(FACTIONS);
 // "the Bloodtusk Horde", "the Tideborn": names that already start with "The" don't get a second one.
@@ -1548,6 +1709,8 @@ const theFaction = (f, start = false) => `${start ? 'The' : 'the'} ${f.name.repl
 const MANA = {
   pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0 },
   skillCost: 20, skill2Cost: 25, ultCost: 40,   // default costs; a skill can override with o.mp
+  poolScale: 0.9,                       // champions' own pool runs 10% leaner (gear and passives add on top, in full)
+  spellExtra: 10, healExtra: 20,        // every spell costs 10 MP over its listed price; a healing skill 20 more on top of that
   regen: 6, regenPct: 0.04,             // per turn: 6 + 4% of max mana
   attackGain: 4, guardGain: 15,
   leakPerAction: 12,                    // Mana Leak: MP burned every time the unit acts
@@ -1567,6 +1730,10 @@ const CRIMSON_MEND_PCT = 0.07;
 const BLOOD_COST = { skill: 0.15, sig: 0.2 };
 const BLOOD_STEAL = 0.05;
 
+// What a skill actually costs in MP: its own o.mp (or its tier's default) plus the spell surcharge,
+// and the healing surcharge on top for a heal. skillsOf and the Training Yard both read this.
+const spellCost = (s, base) => (s.o?.mp ?? base) + MANA.spellExtra + (s.kind === 'heal' ? MANA.healExtra : 0);
+
 const poolLabel = (f) => (MANA.pool[f] === 0
   ? (f === 'crimson' ? 'None, runs on blood' : 'None, runs on Heat')
   : ({ 1.5: 'Huge', 1: 'Normal', 0.7: 'Small' })[MANA.pool[f]]);
@@ -1581,9 +1748,10 @@ const SAVE_KEY = 'burizza.profile.v1';
 // stash = what's kept at Your House ({ items: {key: n}, trinkets: {key: n} }); home = furniture keys you own (see DECOR).
 // hero = your one champion { id, name } (null until you create one); level/xp = your champion's progression;
 // recruits = the TEAM_SIZE − 1 champion ids the AI plays beside you.
-const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {} }, home: [],
+const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {}, stones: {} }, home: [],
   hero: null, level: 1, xp: 0, recruits: [],
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
+  recruitLoadouts: {},   // skills you chose for recruits, per champion id; a recruit with none auto-picks
   skillRanks: {},  // skill points spent, per champion id: { a: 2, flashpowder: 1 } (see SKILL RANKS)
   training: {},    // drills done, per champion id: { smokebomb: 2, might: 3 } (see THE TRAINING YARD)
   dungeons: {},    // per dungeon id: { clears } (first clear pays a trinket; see DUNGEONS)
@@ -1653,8 +1821,8 @@ function syncTeam() {
   if (profile.hero) state.team = [profile.hero.id, ...(profile.recruits || [])].slice(0, TEAM_SIZE);
 }
 
-// gearRaw = what's saved ({ w, a, t, wp }). gearOf adds up the weapon in hand (ARMORY, plus its
-// faction edge if the champion is attuned), the worn trinket's bonus (TRINKETS) and the perks of
+// gearRaw = what's saved ({ w, a, t, wp, eq }). gearOf adds up the weapon in hand (ARMORY), the
+// kit worn (EQUIPMENT), the worn trinket's bonus (TRINKETS) and the perks of
 // furniture at home (DECOR) for makeUnit: mp, mpRegen, manaSteal, hpRegen, agi, hpPct, atkPct,
 // crit, critMult, double, stealMax, stealLost, stealFoe, and the kit's own wards and amplifiers
 // (blockPhys, blockMagic, healTaken, magicAmp, physAmp).
@@ -1662,7 +1830,8 @@ const gearRaw = (id) => profile.gear[id] || {};
 const addUp = (into, bonus) => { for (const k in bonus) into[k] = (into[k] || 0) + bonus[k]; return into; };
 const homePerks = () => profile.home.reduce((sum, k) => addUp(sum, DECOR[k]?.perk || {}), {});
 const gearOf = (id) => { const g = gearRaw(id);
-  return addUp(addUp(addUp(addUp({ ...g }, TRINKETS[g.t]?.bonus || {}), weaponBonus(id)), equipBonus(id)), homePerks()); };
+  return addUp(addUp(addUp(addUp(addUp({ ...g }, TRINKETS[g.t]?.bonus || {}), weaponBonus(id)), equipBonus(id)),
+    socketBonus(id)), homePerks()); };
 
 const ROLES = {
   melee:   { label: 'Melee',   hp: 150, atk: 18, def: 10, agi: 10, dodge: 0,    mp: 60 },
@@ -3116,7 +3285,9 @@ const foesOf = (u) => state.teams[u.side === 'p' ? 'e' : 'p'].filter(alive);
 const highTide = () => state.round > 0 && state.round % 2 === 0;
 const effAgi = (u) => u.agi * (has(u, 'slow') ? 0.6 : 1);
 // Speed along the bar: Agility, plus Elowen's Forest Stride for her whole warband (dodge still uses effAgi).
-const barAgi = (u) => effAgi(u) * (1 + Math.max(0, ...alliesOf(u).map((a) => pv(a).haste || 0)));
+// The Pale Host shamble: every one of them, summons included, crosses the bar 5% slower.
+const PALE_HOST_PACE = 0.95;
+const barAgi = (u) => effAgi(u) * (u.faction === 'undead' ? PALE_HOST_PACE : 1) * (1 + Math.max(0, ...alliesOf(u).map((a) => pv(a).haste || 0)));
 const wx = () => state.weather || 'clear';
 const favored = (u) => WEATHER[wx()].favors === u.faction;
 const disciplineBonus = () => (wx() === 'sun' ? 0.3 : 0.15);
@@ -3240,25 +3411,38 @@ function autoLoadout(c, lv) {
   return { act, pas };
 }
 
-/* Your champion's saved loadout, trimmed to the slots your level allows and to the techniques they
-   have actually drilled. Before you choose, it's the auto pick. An untrained technique simply drops
-   out, leaving the slot empty until you train it at the yard. */
-function heroLoadout(c, lv) {
-  const base = profile.loadout || autoLoadout(c, lv);
-  const keep = (ids, known) => ids.filter((id) => known(id) && isTrained(c.id, id));
+/* Loadouts for your warband. Your champion's saved loadout is trimmed to the slots your level allows
+   and to the techniques they have actually drilled; an untrained technique simply drops out, leaving
+   the slot empty until you train it at the yard. Recruits can have one too (profile.recruitLoadouts):
+   they may carry their own skills, their own passive and the generic passives, but not the neutral
+   techniques, which only your champion learns at the Training Yard. A recruit you haven't set auto-picks. */
+const isHeroId = (cid) => profile.hero?.id === cid;
+const savedLoadoutOf = (cid) => (isHeroId(cid) ? profile.loadout : profile.recruitLoadouts?.[cid]);
+const canCarry = (c, id) => (isHeroId(c.id) ? isTrained(c.id, id) : !NEUTRAL_SKILLS[id]);
+function loadoutFor(c, lv) {
+  const saved = savedLoadoutOf(c.id);
+  if (!saved && !isHeroId(c.id)) return autoLoadout(c, lv);
+  const base = saved || autoLoadout(c, lv);
+  const keep = (ids, known) => ids.filter((id) => known(id) && canCarry(c, id));
   return {
     act: keep(base.act, (id) => activeIdsOf(c).includes(id) || NEUTRAL_SKILLS[id]).slice(0, activeSlots(lv)),
     pas: keep(base.pas, (id) => !!passiveById(c, id)).slice(0, passiveSlots(lv)),
   };
 }
+const heroLoadout = (c, lv) => loadoutFor(c, lv);
 
-// After a level-up that opens a slot, fill it with the next skill you don't have equipped yet.
+// After a level-up that opens a slot, fill it with the next skill not equipped yet: for your champion,
+// and for every recruit you've set skills for.
 function fillNewSlots(lv) {
-  if (!profile.hero || !profile.loadout) return;
-  const c = charById(profile.hero.id), lo = profile.loadout, auto = autoLoadout(c, lv);
-  const ready = (id) => isTrained(c.id, id);   // never fill a slot with a technique they haven't drilled
-  for (const id of [...auto.act, ...activeIdsOf(c), ...NEUTRAL_KEYS]) if (lo.act.length < activeSlots(lv) && !lo.act.includes(id) && ready(id)) lo.act.push(id);
-  for (const id of [...auto.pas, ...GENERIC_KEYS]) if (lo.pas.length < passiveSlots(lv) && !lo.pas.includes(id) && ready(id)) lo.pas.push(id);
+  if (!profile.hero) return;
+  const cids = [profile.hero.id, ...Object.keys(profile.recruitLoadouts || {})];
+  for (const cid of cids) {
+    const lo = savedLoadoutOf(cid), c = charById(cid);
+    if (!lo || !c) continue;
+    const auto = autoLoadout(c, lv), ready = (id) => canCarry(c, id);   // never a technique they can't carry
+    for (const id of [...auto.act, ...activeIdsOf(c), ...NEUTRAL_KEYS]) if (lo.act.length < activeSlots(lv) && !lo.act.includes(id) && ready(id)) lo.act.push(id);
+    for (const id of [...auto.pas, ...GENERIC_KEYS]) if (lo.pas.length < passiveSlots(lv) && !lo.pas.includes(id) && ready(id)) lo.pas.push(id);
+  }
 }
 
 /* SKILL RANKS — every level-up grants a skill point to spend on one of your champion's
@@ -3289,8 +3473,9 @@ function rankUp(sid) {
 
 // scale < 1 softens a unit (used for early gauntlet enemies).
 function makeUnit(c, lv, side, slot, scale = 1) {
-  // Loadout: your own champion uses what you picked; everyone else auto-picks.
-  const lo = side === 'p' && slot === 0 && profile.hero?.id === c.id ? heroLoadout(c, lv) : autoLoadout(c, lv);
+  // Loadout: your own champion, and any recruit you've set skills for, use what you picked;
+  // everyone else (other recruits, every enemy) auto-picks.
+  const lo = side === 'p' && savedLoadoutOf(c.id) || side === 'p' && slot === 0 && isHeroId(c.id) ? loadoutFor(c, lv) : autoLoadout(c, lv);
   const equipped = lo.pas.map((id) => passiveById(c, id)).filter(Boolean);
   const ps = Object.assign({}, ...equipped);                  // passive options the engine reads through pv(u)
   const st = equipped.reduce((sum, p) => addUp(sum, p.stat || {}), {});   // generic passives' stat bonuses
@@ -3300,7 +3485,7 @@ function makeUnit(c, lv, side, slot, scale = 1) {
   const wg = (1 + FORGE.w.per * (gear.w || 0)) * (1 + (gear.atkPct || 0));
   const ag = 1 + FORGE.a.per * (gear.a || 0);
   const maxHp = Math.round(r.hp * (m.hp || 1) * g * scale * ag * (1 + (gear.hpPct || 0)) * (1 + (st.hpPct || 0)));
-  const maxMp = pool ? Math.round(r.mp * pool * (1 + 0.08 * (lv - 1))) + (gear.mp || 0) + (st.mp || 0) : 0;
+  const maxMp = pool ? Math.round(r.mp * pool * MANA.poolScale * (1 + 0.08 * (lv - 1))) + (gear.mp || 0) + (st.mp || 0) : 0;
   return {
     uid: `${side}${slot}`, id: c.id, side, name: shortName(c), level: lv,
     faction: c.faction, race: c.race || null, role: c.role, floats: !!c.floats,
@@ -3316,6 +3501,9 @@ function makeUnit(c, lv, side, slot, scale = 1) {
     // Worn kit (see THE ARMOR STAND): wards against a kind of damage, and amplifiers for dealing it.
     blockPhys: gear.blockPhys || 0, blockMagic: gear.blockMagic || 0, healTaken: gear.healTaken || 0,
     physAmp: gear.physAmp || 0, magicAmp: gear.magicAmp || 0,
+    // Gem stones: a share of damage dealt back as HP, and per-battle charges of debuffs shrugged off
+    // and of buffs that last a turn longer (counted down in addFx).
+    lifesteal: gear.lifesteal || 0, wardDebuffs: gear.wardDebuffs || 0, blessBuffs: gear.blessBuffs || 0,
     pv: ps, loadout: lo.act, passives: lo.pas,
     // The ★ signature (ultimate) starts on cooldown so it first unlocks on the hero's 3rd turn
     // (cooldowns tick down at the start of each of the hero's turns: 3 → 2 → 1 → 0 on turn 3).
@@ -3348,7 +3536,7 @@ function skillsOf(u) {
     : u.maxMp ? { ...GUARD, desc: `${GUARD.desc} Restores ${MANA.guardGain} MP.` } : GUARD;
   const attack = u.maxMp ? { ...ATTACK, desc: `${ATTACK.desc} Restores ${MANA.attackGain} MP.` } : ATTACK;
   // Mana cost: the skill's own o.mp, else the default; champions with no mana (mechs) cast for free.
-  const cost = (s, d) => (u.maxMp ? (s.o?.mp ?? d) : 0);
+  const cost = (s, d) => (u.maxMp ? spellCost(s, d) : 0);
   // Order on the bar: the cheap opener, then the three second-tier skills, with the ★ signature last.
   const actives = [
     { ...c.skills[0], id: 'a', mp: cost(c.skills[0], MANA.skillCost), o: { heat: 25, ...c.skills[0].o } },
@@ -3927,7 +4115,7 @@ async function damageSkill(u, t, sk) {
   // Kept as a helper because a Double Attack's second swing has to drain exactly the same way.
   const drain = (dealt) => {
     if (!dealt || u.hp <= 0) return;
-    let steal = (o.lifesteal || 0) + (u.faction === 'crimson' ? 0.2 : 0);
+    let steal = (o.lifesteal || 0) + (u.lifesteal || 0) + (u.faction === 'crimson' ? 0.2 : 0);
     if (wx() === 'moon') steal *= 2;
     if (steal) healUnit(u, u, Math.round(dealt * steal), u.faction === 'crimson' && !o.lifesteal ? 'Bloodthirst' : sk.name);
     // The Court's blood tithe: on top of the share above, every attack drinks a fixed cut of what
@@ -4097,6 +4285,20 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   if (FX[id].kind === 'bad' && id !== 'overheat' && (has(u, 'immune') || pv(u).immune?.includes(id))) {
     if (!quiet) { float(u, 'Resisted', 'fx'); log(`${u.name} resists ${FX[id].label}.`, u.side); }
     return;
+  }
+  // Warding Pearl: the first N debuffs each battle are shrugged off. (Not Soaked, which the weather and
+  // every Tideborn hit lay on quietly, nor the self-inflicted Overheat and wind-up.)
+  if (FX[id].kind === 'bad' && !['overheat', 'soaked', 'windup'].includes(id) && (u.wardLeft ?? u.wardDebuffs) > 0) {
+    u.wardLeft = (u.wardLeft ?? u.wardDebuffs) - 1;
+    float(u, `${FX[id].icon} Warded`, 'fx');
+    log(`${u.name}'s Warding Pearl turns aside ${FX[id].label}.`, u.side);
+    return;
+  }
+  // Blessing Citrine: the first N buffs each battle last one turn longer.
+  if (FX[id].kind === 'good' && !quiet && turns < 99 && (u.blessLeft ?? u.blessBuffs) > 0) {
+    u.blessLeft = (u.blessLeft ?? u.blessBuffs) - 1;
+    turns += 1;
+    float(u, 'Blessed +1', 'fx');
   }
   // Stagger needs footing to take hold, and floating units — champion, monster or summon —
   // have none. Innate — unlike a passive immunity, no loadout swap turns it off — and it
@@ -5305,8 +5507,11 @@ function endHunt(won) {
   const d = huntDepth(), lv = state.teams.e[0]?.level || 1;
   const slain = state.teams.e.filter((u) => u.monster && !alive(u));
   const news = slain.flatMap((u) => questEvent('slay', { monster: u.id }));
+  state.stoneNews = [];
   if (won) {
     state.phase = 'won';
+    // A won hunt sometimes turns up a Chipped gem stone among the pack's leavings.
+    if (Math.random() < HUNT_STONE_CHANCE) { const sid = rollStone(1); addStone(sid); state.stoneNews.push(stoneName(sid)); }
     state.goldWon = guildGold(HUNT_GOLD_BASE + HUNT_GOLD_PER * state.teams.e.length);
     profile.gold += state.goldWon;
     profile.stats.earned += state.goldWon; profile.stats.wins++;
@@ -5490,9 +5695,15 @@ function bossPlan(u) {
 }
 
 // Chest loot: satchel items (into the satchel if there's room, else the stash, else their price in gold).
+const HUNT_STONE_CHANCE = 0.35;
 function chestLoot(d) {
   const got = [];
   let extraGold = 0;
+  // Gem stones: one Chipped or Flawless, and from the boss's hoard a Flawless or, now and then, a Perfect.
+  for (const sid of [rollStone(Math.random() < 0.5 ? 2 : 1), rollStone(Math.random() < 0.2 ? 3 : 2)]) {
+    addStone(sid);
+    got.push(`${stoneName(sid)} (stones)`);
+  }
   for (let i = 0; i < d.chest.items; i++) {
     const k = pick(ITEM_KEYS);
     if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; got.push(`${ITEMS[k].name} (satchel)`); }
@@ -5662,6 +5873,148 @@ function forgeUp(slot) {
 }
 
 // Goes into the satchel; once that's full, it's sent home to the stash. True = a purchase happened.
+/* THE WORKSHOP — crafting. Five materials (MATS), kept in profile.mats = { key: count }.
+   Where they come from, all through questEvent (craftEvent is called first thing, like bountyEvent):
+     'slay' { monster }  each monster killed: 55% chance of its own material (matOf); elites and
+                         bosses always drop 2 of it plus 1 more of anything
+     'boss'              a dungeon boss falls: 3 more of anything
+     'win' { vs }        a gauntlet win against a faction: 1 of anything (hunts and dungeons pay in kills)
+     'clear'             the whole gauntlet cleared: 4 of anything
+   plus SALVAGE at the Workshop: break a spare weapon, piece of kit or trinket from your stash into parts.
+   RECIPES turn materials into things that already exist: satchel ITEMS (into the satchel, or the stash
+   when it's full), a Tome of Insight (profile.tomes) and two TRINKETS (into stash.trinkets). */
+const MATS = {
+  ore:   { name: 'Ash-iron Ore', icon: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 22l4-11 9-4 9 6 1 10-8 4H11z" fill="#6a6470" stroke="#2a2228" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 15l5 3 4-6M16 18l3 6M21 13l3 7" stroke="#ff9a4a" stroke-width="1.6" fill="none"/></svg>' },
+  hide:  { name: 'Beast Hide', icon: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 9q3-3 6-1q4-3 8 0q3-2 6 1q-2 4 0 8q-2 5 1 8q-4 3-8 1q-3 2-7 0q-4 2-7-1q2-4 0-8q2-4 1-8z" fill="#a0784e" stroke="#4a3426" stroke-width="1.4" stroke-linejoin="round"/><path d="M11 13q5 3 10 0M11 19q5 3 10 0" stroke="#6b4f32" stroke-width="1.2" fill="none"/></svg>' },
+  ember: { name: 'Ember Shard', icon: '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="11" fill="#ff8a3d" opacity=".25"/><path d="M16 4l6 10-6 14-6-14z" fill="#ff8a3d" stroke="#7a2e1a" stroke-width="1.4" stroke-linejoin="round"/><path d="M16 4v24M10 14h12" stroke="#ffd166" stroke-width="1"/></svg>' },
+  spore: { name: 'Glowcap Spore', icon: '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="14" r="11" fill="#9fe08a" opacity=".22"/><path d="M5 15q1-9 11-9t11 9z" fill="#6cc28a" stroke="#24382a" stroke-width="1.4"/><path d="M13 15h6l1 12h-8z" fill="#e9e4d8" stroke="#24382a" stroke-width="1.2"/><circle cx="11" cy="11" r="1.6" fill="#dfffd0"/><circle cx="19" cy="9.5" r="1.4" fill="#dfffd0"/><circle cx="22" cy="12.5" r="1.2" fill="#dfffd0"/></svg>' },
+  bone:  { name: 'Bone Dust', icon: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 24l14-14" stroke="#e9e4d8" stroke-width="5" stroke-linecap="round"/><circle cx="7" cy="22" r="3.2" fill="#e9e4d8"/><circle cx="10" cy="25.5" r="3.2" fill="#e9e4d8"/><circle cx="22" cy="7" r="3.2" fill="#e9e4d8"/><circle cx="25.5" cy="10" r="3.2" fill="#e9e4d8"/><circle cx="23" cy="25" r="1.4" fill="#c9c2b0"/><circle cx="26" cy="22" r="1" fill="#c9c2b0"/></svg>' },
+};
+const MAT_KEYS = Object.keys(MATS);
+// Which material a monster leaves, read from its id and name; anything unrecognised drops hide.
+const MAT_FROM = [['bone', /bone|crypt|wraith|phantom|banshee|knight|necro|mourn|king|abbot|grave|crone|ghoul/],
+  ['ore', /golem|clock|iron|gargoyle|stone|rust|foreman/], ['spore', /glowcap|spore|coven|matron|spider|fung|grotto/],
+  ['hide', /bat|crawler|troll|hound|beast|boar|wolf/], ['ember', /magma|ember|ash|cinder|drake|wyrm|imp/]];
+const matOf = (id) => { const n = `${id} ${MONSTERS[id]?.name || ''}`.toLowerCase(); return MAT_FROM.find(([, re]) => re.test(n))?.[0] || 'hide'; };
+const mats = () => (profile.mats ||= {});
+const bagText = (bag) => Object.entries(bag).filter(([, n]) => n).map(([k, n]) => `${n} ${MATS[k].name}`).join(', ');
+const matChip = (k, n, short = false) => `<span class="mat${short ? ' short' : ''}" title="${MATS[k].name}"><span class="ico">${MATS[k].icon}</span>${n}</span>`;
+function gainMats(bag) { const m = mats(); for (const k in bag) m[k] = (m[k] || 0) + bag[k]; }
+
+function craftEvent(t, info = {}) {
+  const bag = {}, add = (k, n = 1) => { bag[k] = (bag[k] || 0) + n; };
+  if (t === 'slay' && MONSTERS[info.monster]) {
+    const m = MONSTERS[info.monster];
+    if (m.elite || m.boss) { add(matOf(info.monster), 2); add(pick(MAT_KEYS)); } else if (chance(.55)) add(matOf(info.monster));
+  } else if (t === 'boss') { for (let i = 0; i < 3; i++) add(pick(MAT_KEYS)); }
+  else if (t === 'win' && info.vs) add(pick(MAT_KEYS));
+  else if (t === 'clear') { for (let i = 0; i < 4; i++) add(pick(MAT_KEYS)); }
+  if (!Object.keys(bag).length) return [];
+  gainMats(bag);
+  saveProfile();
+  return [`Materials: +${bagText(bag)}.`];
+}
+
+const RECIPES = [
+  { id: 'draught', out: { item: 'draught' }, cost: { spore: 2 } },
+  { id: 'tonic', out: { item: 'tonic' }, cost: { spore: 1, ember: 1 } },
+  { id: 'salts', out: { item: 'salts' }, cost: { bone: 2 } },
+  { id: 'firebomb', out: { item: 'firebomb' }, cost: { ember: 2, ore: 1 } },
+  { id: 'horn', out: { item: 'horn' }, cost: { hide: 2, bone: 1 } },
+  { id: 'tome', out: { tome: 1 }, cost: { bone: 4, spore: 3, ember: 2 } },
+  { id: 'trollblood', out: { trinket: 'trollblood' }, cost: { hide: 5, bone: 3, spore: 2 } },
+  { id: 'quicksilver', out: { trinket: 'quicksilver' }, cost: { ore: 6, ember: 4, hide: 2 } },
+];
+// What a recipe makes: its name, description and icon, borrowed from the thing itself.
+function recipeOut(r) {
+  const o = r.out;
+  if (o.item) return { name: ITEMS[o.item].name, desc: ITEMS[o.item].desc, icon: ITEM_ICON[o.item], where: 'into your satchel' };
+  if (o.tome) return { name: TOME.name, desc: "Read it to gain half a level's worth of XP. No waiting on Odo's shelf.", icon: TOME_ICON, where: 'home, ready to read' };
+  return { name: TRINKETS[o.trinket].name, desc: TRINKETS[o.trinket].desc, icon: TRINKET_ICON[o.trinket], where: 'to your stash, ready to give' };
+}
+const canAfford = (cost) => Object.entries(cost).every(([k, n]) => (mats()[k] || 0) >= n);
+// Like buying a satchel item, minus the gold: the satchel first, then the stash.
+function stowItem(key) {
+  const n = profile.items[key] || 0, m = profile.stash.items[key] || 0;
+  if (n < SATCHEL_MAX) profile.items[key] = n + 1;
+  else if (m < stashCap()) profile.stash.items[key] = m + 1;
+  else return false;
+  return true;
+}
+function craft(id) {
+  const r = RECIPES.find((x) => x.id === id);
+  if (!r || !canAfford(r.cost)) return '';
+  const o = r.out;
+  if (o.item && !stowItem(o.item)) return `No room for another ${ITEMS[o.item].name}: your satchel and stash are full.`;
+  if (o.tome) profile.tomes = (profile.tomes || 0) + 1;
+  if (o.trinket) profile.stash.trinkets[o.trinket] = (profile.stash.trinkets[o.trinket] || 0) + 1;
+  for (const [k, n] of Object.entries(r.cost)) mats()[k] -= n;
+  saveProfile();
+  return `Crafted: ${recipeOut(r).name}, ${recipeOut(r).where}.`;
+}
+
+// Salvage: spare gear from your stash, broken into parts. Pricier pieces give more.
+const SALVAGE = {
+  weapons:   (k) => ARMORY[k] && { ore: 1 + Math.floor(ARMORY[k].price / 70), ember: 1 },
+  equipment: (k) => EQUIPMENT[k] && { hide: 1 + Math.floor(EQUIPMENT[k].price / 60), ore: 1 },
+  trinkets:  (k) => TRINKETS[k] && { ember: 1 + Math.floor(TRINKETS[k].price / 80), spore: 1 },
+};
+function salvage(kind, k) {
+  const st = profile.stash[kind], bag = SALVAGE[kind]?.(k);
+  if (!st || !(st[k] > 0) || !bag) return '';
+  st[k]--;
+  gainMats(bag);
+  saveProfile();
+  return `Broken down: +${bagText(bag)}.`;
+}
+
+/* TOME OF INSIGHT — the Market's one rare book. Odo Mott keeps a single copy on the shelf; once
+   it is bought he restocks it TOME_RESTOCK_MS later (12 hours, by this device's clock), saved as
+   profile.tomeBought. Bought tomes wait at home (profile.tomes) until read, and reading one gives
+   your champion TOME.share of what their current level needs to level up (see xpToNext). */
+const TOME = { name: 'Tome of Insight', price: 150, share: .5 };
+const TOME_RESTOCK_MS = 12 * 60 * 60 * 1000;
+const TOME_ICON = '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="15" r="13" fill="#ffd28a" opacity=".18"/><path d="M5 8q5-3 11 0v18q-6-3-11 0z" fill="#e9dcc0" stroke="#5a3e28" stroke-width="1.2"/><path d="M27 8q-5-3-11 0v18q6-3 11 0z" fill="#f1ead6" stroke="#5a3e28" stroke-width="1.2"/><path d="M4 9v18q6-3 12 0q6-3 12 0V9" fill="none" stroke="#6e3a86" stroke-width="2.2"/><path d="M8 13h5M8 16h5M19 13h5M19 16h4" stroke="#8a7048" stroke-width="1"/><path d="M21.5 19.5l1 2.2 2.2 1-2.2 1-1 2.2-1-2.2-2.2-1 2.2-1z" fill="#e8a548"/></svg>';
+const tomeXp = () => Math.round(xpToNext(heroLevel()) * TOME.share);
+const tomeRestockIn = () => Math.max(0, (profile.tomeBought || 0) + TOME_RESTOCK_MS - Date.now());
+const tomeInStock = () => tomeRestockIn() === 0;
+const fmtWait = (ms) => { const m = Math.ceil(ms / 60000), h = Math.floor(m / 60); return h ? `${h}h ${m % 60}m` : `${m}m`; };
+
+function buyTome() {
+  if (!tomeInStock() || profile.gold < TOME.price) return false;
+  profile.gold -= TOME.price;
+  profile.tomes = (profile.tomes || 0) + 1;
+  profile.tomeBought = Date.now();
+  saveProfile();
+  return true;
+}
+
+// Read one tome. Returns a line for the panel (with any level-up and newly offered quests), or '' if it can't be read.
+function readTome() {
+  if (!(profile.tomes > 0) || !profile.hero || heroLevel() >= LEVEL_CAP) return '';
+  profile.tomes--;
+  const r = gainXp(tomeXp());
+  if (r.to > r.from) { state.level = r.to; fillNewSlots(r.to); }
+  saveProfile();
+  const up = r.to > r.from ? ` ${heroName()} reaches level ${r.to}!` : '';
+  return [`${heroName()} reads the ${TOME.name}: +${r.xp} XP.${up}`, ...(r.to > r.from ? questsUnlocked(r.from, r.to) : [])].join(' ');
+}
+
+// The tome's card, shared by the Market (to buy) and Your House (to read).
+function tomeHTML(where) {
+  const stock = tomeInStock(), ok = stock && profile.gold >= TOME.price, have = profile.tomes || 0;
+  const canRead = have && profile.hero && heroLevel() < LEVEL_CAP;
+  const xpLine = profile.hero ? (heroLevel() < LEVEL_CAP ? ` Right now that's <b>${tomeXp()} XP</b> for ${heroName()}.` : ` ${heroName()} is already at the level cap.`) : '';
+  const shelf = stock ? '<b>1</b> on the shelf' : `Sold out · restocks in <b>${fmtWait(tomeRestockIn())}</b>`;
+  return `<div class="ware tome"><div class="ico">${TOME_ICON}</div><strong>${TOME.name}</strong>
+    <p>Read it to gain half a level's worth of XP.${xpLine} Odo gets one copy at a time, and a new one 12 hours after it sells.</p>
+    ${state.tomeNews ? `<p class="loot">${state.tomeNews}</p>` : ''}
+    <div class="buy"><span class="note">${where === 'market' ? shelf : ''}${have ? `${where === 'market' ? ' · ' : ''}<b>${have}</b> at home` : ''}</span>
+      <span class="btns">${where === 'market' ? `<button class="btn small${ok ? ' primary' : ''}" type="button" data-k="tbuy"${ok ? '' : ' disabled'}>${stock ? `Buy for ${TOME.price} gold` : 'Sold out'}</button>` : ''}
+        ${have ? `<button class="btn small${where === 'home' ? ' primary' : ''}" type="button" data-k="tread"${canRead ? '' : ' disabled'}>Read one</button>` : ''}</span></div>
+  </div>`;
+}
+
 function buyItem(key) {
   const it = ITEMS[key], n = profile.items[key] || 0, m = profile.stash.items[key] || 0;
   if ((n >= SATCHEL_MAX && m >= stashCap()) || profile.gold < it.price) return false;
@@ -5997,10 +6350,13 @@ function sellTrinket() {
    (flat Attack), while a weapon off the rack carries minor buffs on
    top of its own damage.
 
-   Every weapon belongs to a faction. Anyone can wield any of them, but
-   a champion holding their own faction's work is ATTUNED and gets that
-   faction's extra edge as well — picked to suit how the faction already
-   fights, so the Ironclad swing again and the Horde drink from a wound.
+   Two kinds hang on the rack, the same split as the armor stand:
+     - Free Company work (faction 'all') - plain, honest steel any champion
+       may wield, whatever warband they came from.
+     - Faction work - cut for one faction and wielded only by its own
+       champions. Each faction's three carry that faction's edge built in,
+       picked to suit how it already fights: the Ironclad swing again, the
+       Horde drink from a wound, and the Pale Host take back from the grave.
 
    bonus keys. The first six are read into the unit by makeUnit; the rest
    were already understood by trinkets and furniture (see gearOf).
@@ -6013,106 +6369,119 @@ function sellTrinket() {
      atkPct, hpPct, agi, hpRegen, mp, mpRegen, manaSteal
    ================================================================== */
 const ARMORY = {
+  // Free Company - what the common rack holds. No faction edge, so it never matches a champion's
+  // own work head-on, but it is cheap at the low end and comes in shapes no one faction offers.
+  roadcudgel:   { name: 'Road Cudgel', faction: 'all', look: 'hammer', price: 90,
+                  flavor: 'A length of ash-iron pipe with a leather grip. It never needs sharpening.',
+                  bonus: { atkPct: 0.04 } },
+  pittedbow:    { name: 'Pitted Shortbow', faction: 'all', look: 'bow', price: 120,
+                  flavor: 'Bought off a dead man by the man who sold it to Brann.',
+                  bonus: { atkPct: 0.04, crit: 0.04 } },
+  companybow:   { name: 'Free Company Crossbow', faction: 'all', look: 'crossbow', price: 180,
+                  flavor: 'Cranked, not drawn, so anyone can be taught it in a morning.',
+                  bonus: { atkPct: 0.07, crit: 0.05 } },
+  journeyblade: { name: "Journeyman's Blade", faction: 'all', look: 'sword', price: 240,
+                  flavor: 'Guild-stamped at the tang, which is the only part Brann will vouch for.',
+                  bonus: { atkPct: 0.08, crit: 0.05, agi: 1 } },
+  sellsworddirk:{ name: "Sellsword's Dirk", faction: 'all', look: 'dagger', price: 300,
+                  flavor: 'Short, quick and meant for the gap in someone else\'s armor.',
+                  bonus: { atkPct: 0.10, crit: 0.07, double: 0.05 } },
+  wayfarerstave:{ name: "Wayfarer's Stave", faction: 'all', look: 'staff', price: 360,
+                  flavor: 'Road-worn at one end and capped at the other. It has walked further than you have.',
+                  bonus: { atkPct: 0.12, mpRegen: 4, hpRegen: 3 } },
+
   // Ironclad Union — pistons and repeating mechanisms: the machines swing again.
   pistonmaul:   { name: 'Piston Maul', faction: 'mech', look: 'hammer', price: 110,
                   flavor: 'A sledge with a steam ram in the shaft. It rebounds before you do.',
-                  bonus: { atkPct: 0.05, double: 0.04 } },
+                  bonus: { atkPct: 0.05, double: 0.09 } },
   ripsaw:       { name: 'Ripsaw Limb', faction: 'mech', look: 'saw', price: 220,
                   flavor: 'Bolted straight to the arm socket. Brann will not say whose arm it was.',
-                  bonus: { atkPct: 0.09, double: 0.06, crit: 0.05 } },
+                  bonus: { atkPct: 0.09, double: 0.11, crit: 0.05 } },
   voltbore:     { name: 'Voltbore Repeater', faction: 'mech', look: 'gun', price: 380,
                   flavor: 'Six chambers, one trigger, and a coil that hums for an hour after.',
-                  bonus: { atkPct: 0.14, double: 0.08, critMult: 0.20 } },
+                  bonus: { atkPct: 0.14, double: 0.13, critMult: 0.20 } },
 
   // Bloodtusk Horde — Rage drinks deepest from a wound, so their steel does too.
   tuskcleaver:  { name: 'Tuskcleaver', faction: 'orc', look: 'axe', price: 110,
                   flavor: 'Ground from a boar tusk and never once cleaned.',
-                  bonus: { atkPct: 0.05, stealLost: 0.06 } },
+                  bonus: { atkPct: 0.05, stealLost: 0.14 } },
   gorefist:     { name: 'Gorefist Wraps', faction: 'orc', look: 'fist', price: 220,
                   flavor: 'Leather, ash-iron studs, and somebody else’s teeth set in the knuckles.',
-                  bonus: { atkPct: 0.09, stealLost: 0.10, double: 0.04 } },
+                  bonus: { atkPct: 0.09, stealLost: 0.18, double: 0.04 } },
   skullsplitter:{ name: 'Skullsplitter', faction: 'orc', look: 'hammer', price: 380,
                   flavor: 'Named for what it does, by the Horde, who name nothing else.',
-                  bonus: { atkPct: 0.14, stealLost: 0.14, crit: 0.06 } },
+                  bonus: { atkPct: 0.14, stealLost: 0.22, crit: 0.06 } },
 
   // Kingdom of Aldmere — Discipline: drilled strikes land where they are aimed.
   oathblade:    { name: 'Oathblade', faction: 'human', look: 'sword', price: 110,
                   flavor: 'Every Aldmere recruit swears on one. Most keep it sharper than the oath.',
-                  bonus: { atkPct: 0.05, crit: 0.05 } },
+                  bonus: { atkPct: 0.05, crit: 0.11 } },
   aldbow:       { name: 'Aldmere Longbow', faction: 'human', look: 'bow', price: 220,
                   flavor: 'Yew from the last green valley north of the road.',
-                  bonus: { atkPct: 0.09, crit: 0.08, critMult: 0.15 } },
+                  bonus: { atkPct: 0.09, crit: 0.14, critMult: 0.15 } },
   kingslance:   { name: 'Kingsguard Lance', faction: 'human', look: 'spear', price: 380,
                   flavor: 'Issued to the hundred who held the gate at Ashfall. Twelve came home.',
-                  bonus: { atkPct: 0.14, crit: 0.12, double: 0.04 } },
+                  bonus: { atkPct: 0.14, crit: 0.18, double: 0.04 } },
 
   // Stoneleaf Accord — Precision: the elves pick the gap, the dwarves widen it.
   runehammer:   { name: 'Runed Stonehammer', faction: 'stone', look: 'hammer', price: 110,
                   flavor: 'Dwarf-cut runes down the head, each one a word for patience.',
-                  bonus: { atkPct: 0.05, critMult: 0.15 } },
+                  bonus: { atkPct: 0.05, critMult: 0.35 } },
   leafrecurve:  { name: 'Stoneleaf Recurve', faction: 'stone', look: 'bow', price: 220,
                   flavor: 'Grown, not carved. The Accord will not say how long it took.',
-                  bonus: { atkPct: 0.09, critMult: 0.25, crit: 0.05 } },
+                  bonus: { atkPct: 0.09, critMult: 0.45, crit: 0.05 } },
   deeproot:     { name: 'Deeproot Bardiche', faction: 'stone', look: 'axe', price: 380,
                   flavor: 'Heartwood haft, ash-iron edge, and it has never needed honing.',
-                  bonus: { atkPct: 0.14, critMult: 0.35, agi: 1 } },
+                  bonus: { atkPct: 0.14, critMult: 0.55, agi: 1 } },
 
   // The Tideborn — the tide takes what it finds, and the biggest thing first.
   tidefork:     { name: 'Tidefork', faction: 'tide', look: 'trident', price: 110,
                   flavor: 'Three barbs that whistle on the backswing like water down a drain.',
-                  bonus: { atkPct: 0.05, stealFoe: 0.015 } },
+                  bonus: { atkPct: 0.05, stealFoe: 0.035 } },
   brinelance:   { name: 'Brinecoral Lance', faction: 'tide', look: 'spear', price: 220,
                   flavor: 'Live coral still growing along the shaft. It drinks when it strikes.',
-                  bonus: { atkPct: 0.09, stealFoe: 0.025, mpRegen: 2 } },
+                  bonus: { atkPct: 0.09, stealFoe: 0.045, mpRegen: 2 } },
   abbotstave:   { name: 'Drowned Abbot’s Stave', faction: 'tide', look: 'staff', price: 380,
                   flavor: 'Fished out of the Sunken Crypt. It is still wet. It is always still wet.',
-                  bonus: { atkPct: 0.14, stealFoe: 0.035, crit: 0.06 } },
+                  bonus: { atkPct: 0.14, stealFoe: 0.055, crit: 0.06 } },
 
   // The Crimson Court — Bloodthirst, in the steel as much as the wielder.
   nightthorn:   { name: 'Nightthorn Rapier', faction: 'crimson', look: 'rapier', price: 110,
                   flavor: 'A duelling blade with a thorn for a guard. It beads at the point.',
-                  bonus: { atkPct: 0.05, stealMax: 0.015 } },
+                  bonus: { atkPct: 0.05, stealMax: 0.035 } },
   bloodorb:     { name: 'Bloodweaver’s Orb', faction: 'crimson', look: 'orb', price: 220,
                   flavor: 'Morwenna sold one once, for a price she has never named.',
-                  bonus: { atkPct: 0.09, stealMax: 0.025, hpRegen: 3 } },
+                  bonus: { atkPct: 0.09, stealMax: 0.045, hpRegen: 3 } },
   heartreaper:  { name: 'Heartreaper Fangs', faction: 'crimson', look: 'dagger', price: 380,
                   flavor: 'A matched pair. Vesper gives them as gifts, and expects them back.',
-                  bonus: { atkPct: 0.14, stealMax: 0.03, crit: 0.08 } },
+                  bonus: { atkPct: 0.14, stealMax: 0.05, crit: 0.08 } },
 
   // The Pale Host - grave goods. Their own rule halves the healing they take, so these lean on a
   // patient edge and what the grave gives back rather than on drinking from a wound.
   hollowmarker: { name: 'Hollow Marker', faction: 'undead', look: 'headstone', price: 110,
                   flavor: 'The name wore off it a hundred winters ago. It still knows whose it was.',
-                  bonus: { atkPct: 0.05, crit: 0.05 } },
+                  bonus: { atkPct: 0.05, crit: 0.05, hpRegen: 4 } },
   ribsling:     { name: 'Ribcage Sling', faction: 'undead', look: 'sling', price: 220,
                   flavor: 'Strung on a rib that did not want to be given up. It never tires of the throw.',
-                  bonus: { atkPct: 0.09, double: 0.05, hpRegen: 2 } },
+                  bonus: { atkPct: 0.09, double: 0.05, hpRegen: 6 } },
   mournerscross:{ name: "Mourner's Cross", faction: 'undead', look: 'cross', price: 380,
                   flavor: 'Carried at the front of a funeral nobody came back from. It leads still.',
-                  bonus: { atkPct: 0.14, critMult: 0.30, hpRegen: 3 } },
+                  bonus: { atkPct: 0.14, critMult: 0.30, hpRegen: 7 } },
 };
 const ARMORY_KEYS = Object.keys(ARMORY);
 
-// Attunement: the extra edge a champion gets from their own faction's weapon, chosen to
-// echo that faction's mechanic — Heat hammers twice, Rage drinks from the wound, and so on.
-const ATTUNE = {
-  mech:    { double: 0.05 },
-  orc:     { stealLost: 0.08 },
-  human:   { crit: 0.06 },
-  stone:   { critMult: 0.20 },
-  tide:    { stealFoe: 0.02 },
-  crimson: { stealMax: 0.02 },
-  undead:  { hpRegen: 4 },   // the grave gives a little back every turn, since healing barely does
-};
-
 const wepOf = (id) => ARMORY[gearRaw(id).wp] || null;
-const attuned = (id, key = gearRaw(id).wp) => !!ARMORY[key] && charById(id)?.faction === ARMORY[key].faction;
-// What gearOf folds into the unit: the weapon's own bonus, plus its faction's edge if attuned.
+// Faction work is wielded only by its own faction; Free Company work by anyone.
+// Same shape as fitsKit on the armor stand, so both racks refuse a sale the same way.
+const fitsWeapon = (k, id) => {
+  const w = ARMORY[k], c = charById(id);
+  return !!w && !!c && (w.faction === 'all' || w.faction === c.faction);
+};
+// What gearOf folds into the unit. A weapon a champion cannot wield gives nothing, so a save
+// that still holds one off-faction gets no use out of it before rackIllegalWeapons sweeps it.
 function weaponBonus(id) {
-  const w = wepOf(id);
-  if (!w) return {};
-  const out = addUp({}, w.bonus);
-  return attuned(id) ? addUp(out, ATTUNE[w.faction] || {}) : out;
+  const g = gearRaw(id);
+  return g.wp && fitsWeapon(g.wp, id) ? addUp({}, ARMORY[g.wp].bonus) : {};
 }
 const wepRefund = (k) => Math.floor(ARMORY[k].price / 2);
 
@@ -6138,16 +6507,123 @@ const WEP_TEXT = {
   mp:        (n) => `+${n} max MP`,
   mpRegen:   (n) => `+${n} MP each turn`,
   manaSteal: (n) => `Regain MP equal to ${PCT(n)} of the damage dealt`,
+  lifesteal: (n) => `Heal for ${PCT(n)} of the damage dealt`,
+  wardDebuffs: (n) => (n === 1 ? 'Shrugs off the first debuff each battle' : `Shrugs off the first ${n} debuffs each battle`),
+  blessBuffs: (n) => (n === 1 ? 'The first buff each battle lasts one turn longer' : `The first ${n} buffs each battle last one turn longer`),
 };
 const WEP_ORDER = Object.keys(WEP_TEXT);
+
+/* GEM STONES — crafting stones that enhance weapons and kit once socketed (the sockets are built on
+   the weapon and kit side). Each stone comes in three grades; three of one grade fuse into one of the
+   next. A stone id is '<kind>.<grade>' (grade 1 Chipped, 2 Flawless, 3 Perfect), e.g. 'ember.2'.
+   They live in profile.stash.stones[id] = count. stoneBonus(id) is the bonus object to fold into a
+   champion's gear (gearOf keys, so makeUnit and the battle already read every one of them).
+   Stones drop from cave hunts and dungeon chests, and the Jeweler sells Chipped ones. */
+const STONE_GRADES = ['Chipped', 'Flawless', 'Perfect'];
+const STONES = {
+  ember:      { name: 'Ember Ruby',            color: '#d6303a', key: 'atkPct',     by: [0.03, 0.06, 0.10] },
+  tide:       { name: 'Tide Sapphire',         color: '#2f62d6', key: 'mp',         by: [10, 20, 35] },
+  well:       { name: 'Wellspring Aquamarine', color: '#4fc6e0', key: 'mpRegen',    by: [2, 4, 7] },
+  earth:      { name: 'Earthheart',            color: '#8a5a32', key: 'hpPct',      by: [0.04, 0.08, 0.13] },
+  verdant:    { name: 'Verdant Emerald',       color: '#2f9e55', key: 'hpRegen',    by: [2, 4, 7] },
+  sun:        { name: 'Sun Topaz',             color: '#f0c23a', key: 'crit',       by: [0.03, 0.05, 0.08] },
+  fireopal:   { name: 'Fire Opal',             color: '#f07f2a', key: 'critMult',   by: [0.10, 0.20, 0.35] },
+  onyx:       { name: 'Shadow Onyx',           color: '#3a3442', key: 'physAmp',    by: [0.04, 0.07, 0.12] },
+  amethyst:   { name: 'Arcane Amethyst',       color: '#8e4fd0', key: 'magicAmp',   by: [0.04, 0.07, 0.12] },
+  granite:    { name: 'Granite Ward',          color: '#8a8f99', key: 'blockPhys',  by: [0.03, 0.05, 0.08] },
+  moonquartz: { name: 'Moon Quartz',           color: '#e6ecf5', key: 'blockMagic', by: [0.03, 0.05, 0.08] },
+  zephyr:     { name: 'Zephyr Stone',          color: '#55e0d0', key: 'agi',        by: [1, 2, 3] },
+  bloodgarnet:{ name: 'Blood Garnet',          color: '#8f1020', key: 'lifesteal',  by: [0.03, 0.05, 0.08] },
+  rose:       { name: 'Rose Quartz',           color: '#f29ab8', key: 'healTaken',  by: [0.05, 0.10, 0.15] },
+  pearl:      { name: 'Warding Pearl',         color: '#f3efe6', key: 'wardDebuffs',by: [1, 2, 3] },
+  citrine:    { name: 'Blessing Citrine',      color: '#e8b22c', key: 'blessBuffs', by: [1, 2, 3] },
+};
+const STONE_KINDS = Object.keys(STONES);
+const STONE_PRICE = 45;              // a Chipped stone at the Jeweler
+const FUSE_COST = [30, 90];          // gold to fuse 3 Chipped → Flawless, 3 Flawless → Perfect
+const stoneParts = (id) => { const [k, g] = String(id).split('.'); return [k, Number(g) || 1]; };
+const stoneId = (k, g) => `${k}.${g}`;
+const stoneName = (id) => { const [k, g] = stoneParts(id); return STONES[k] ? `${STONE_GRADES[g - 1]} ${STONES[k].name}` : ''; };
+const stoneBonus = (id) => { const [k, g] = stoneParts(id), d = STONES[k]; return d ? { [d.key]: d.by[g - 1] } : {}; };
+const stoneLines = (id) => wepLines(stoneBonus(id));
+const stonesHeld = (id) => profile.stash.stones?.[id] || 0;
+function addStone(id, n = 1) {
+  if (!STONES[stoneParts(id)[0]]) return;
+  const st = (profile.stash.stones ||= {});
+  st[id] = (st[id] || 0) + n;
+}
+// A random stone of a grade, for drops.
+const rollStone = (g = 1) => stoneId(pick(STONE_KINDS), g);
+// Fuse three of a grade into one of the next, for gold. Returns the new stone's id, or null.
+function fuseStones(id) {
+  const [k, g] = stoneParts(id), cost = FUSE_COST[g - 1];
+  if (!STONES[k] || g >= 3 || stonesHeld(id) < 3 || profile.gold < cost) return null;
+  profile.gold -= cost;
+  profile.stash.stones[id] -= 3;
+  if (!profile.stash.stones[id]) delete profile.stash.stones[id];
+  const up = stoneId(k, g + 1);
+  addStone(up);
+  saveProfile();
+  return up;
+}
+function buyStone(k) {
+  if (!STONES[k] || profile.gold < STONE_PRICE) return false;
+  profile.gold -= STONE_PRICE;
+  addStone(stoneId(k, 1));
+  saveProfile();
+  return true;
+}
+// The gem itself: the stone's color, cut finer with each grade (rough, faceted, brilliant with a glint).
+function stoneIcon(id) {
+  const [k, g] = stoneParts(id), d = STONES[k];
+  if (!d) return '';
+  const c = d.color, edge = 'rgba(12, 10, 16, .75)';
+  const shape = g === 1 ? 'M9 13 L15 6 L24 10 L23 22 L12 26 L7 20 Z'
+    : g === 2 ? 'M16 4 L26 11 L22 27 L10 27 L6 11 Z'
+    : 'M8 12 L12 6 H20 L24 12 L16 28 Z';
+  const facets = g === 1 ? '<path d="M15 6 L13 15 L23 22 M13 15 L7 20" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>'
+    : g === 2 ? '<path d="M11 13 H21 L18 22 H14 Z M6 11 L11 13 M26 11 L21 13 M10 27 L14 22 M22 27 L18 22" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="1"/>'
+    : '<path d="M8 12 H24 M12 6 L14 12 L16 28 M20 6 L18 12 L16 28 M14 12 L16 6 L18 12" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="1"/>';
+  const shine = '<path d="M12 10 L15 8 L14 12 Z" fill="#fff" opacity=".55"/>';
+  const glint = g === 3 ? '<path d="M25 4 L26 7 L29 8 L26 9 L25 12 L24 9 L21 8 L24 7 Z" fill="#fff" opacity=".9"/>' : '';
+  return `<svg class="stone" viewBox="0 0 32 32" aria-hidden="true"><path d="${shape}" fill="${c}" stroke="${edge}" stroke-width="1.6" stroke-linejoin="round"/>${facets}${shine}${glint}</svg>`;
+}
 const wepLines = (bonus) => WEP_ORDER.filter((k) => bonus[k]).map((k) => WEP_TEXT[k](bonus[k]));
+
+/* Mana affixes do nothing for a champion with no pool - the Ironclad run on Heat and the Crimson
+   Court pays in blood - because gainMp returns early once maxMp is 0. A trinket that is nothing but
+   mana is simply refused at the Jeweler, but a weapon carries its damage and the rest of its affixes
+   besides, so the rack still sells it and marks only the line that will do nothing in those hands. */
+const MANA_AFFIX = new Set(['mp', 'mpRegen', 'manaSteal']);
+const affixListHTML = (bonus, id, cls = '') => WEP_ORDER.filter((k) => bonus[k]).map((k) => {
+  const dead = MANA_AFFIX.has(k) && !hasMana(id);
+  const klass = [cls, dead ? 'dead' : ''].filter(Boolean).join(' ');
+  return `<li${klass ? ` class="${klass}"` : ''}>${WEP_TEXT[k](bonus[k])}${dead ? ' \u2014 no use without mana' : ''}</li>`;
+}).join('');
+
+/* Weapons were wieldable by anyone until they were cut per faction, so an older save can have
+   a champion holding another faction's work. Rather than confiscate it, every such weapon goes
+   back on the rack at Your House, where it can be handed to a champion who can actually use it. */
+function rackIllegalWeapons() {
+  let moved = 0;
+  for (const id in profile.gear) {
+    const g = profile.gear[id];
+    if (!g.wp || fitsWeapon(g.wp, id)) continue;
+    profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
+    popStones(g, 'wp');   // otherwise they would carry over to the next weapon as free stats
+    delete g.wp;
+    moved++;
+  }
+  if (moved) saveProfile();
+}
 
 // A new weapon goes in the champion's hands; the one they held is sent home to the stash.
 function buyWeapon(k) {
   const id = forgeHero(), g = { ...gearRaw(id) }, cost = ARMORY[k]?.price;
-  if (!ARMORY[k] || g.wp === k || profile.gold < cost) return false;
+  if (!fitsWeapon(k, id) || g.wp === k || profile.gold < cost) return false;
   profile.gold -= cost;
   if (g.wp) profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
+  popStones(g, 'wp');   // the old weapon's gems come home rather than leaving with it
   g.wp = k;
   profile.gear[id] = g;
   saveProfile();
@@ -6158,6 +6634,7 @@ function sellWeapon() {
   const id = forgeHero(), g = { ...gearRaw(id) };
   if (!g.wp) return false;
   profile.gold += wepRefund(g.wp);
+  popStones(g, 'wp');
   delete g.wp;
   profile.gear[id] = g;
   saveProfile();
@@ -6167,10 +6644,11 @@ function sellWeapon() {
 // Out of the stash and into a champion's hands; whatever they held goes back to the stash.
 function giveWeapon(k, id) {
   const st = profile.stash.weapons, g = { ...gearRaw(id) };
-  if (!ARMORY[k] || !charById(id) || !(st[k] > 0) || g.wp === k) return false;
+  if (!fitsWeapon(k, id) || !(st[k] > 0) || g.wp === k) return false;
   st[k]--;
   if (!st[k]) delete st[k];
   if (g.wp) st[g.wp] = (st[g.wp] || 0) + 1;
+  popStones(g, 'wp');
   g.wp = k;
   profile.gear[id] = g;
   saveProfile();
@@ -6181,6 +6659,7 @@ function unequipWeapon(id) {
   const g = { ...gearRaw(id) };
   if (!g.wp) return false;
   profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
+  popStones(g, 'wp');
   delete g.wp;
   profile.gear[id] = g;
   saveProfile();
@@ -6208,7 +6687,7 @@ const WEAPON_BOX = {
 };
 const ICON_PAD = 1.18;   // a little air around the art so nothing touches the tile edge
 function wepIcon(k) {
-  const w = ARMORY[k], ink = FACTION_INK[w.faction], b = WEAPON_BOX[w.look];
+  const w = ARMORY[k], ink = w.faction === 'all' ? WOOD : FACTION_INK[w.faction], b = WEAPON_BOX[w.look];
   const art = WEAPONS[w.look]({ trim: ink, orb: ink }, 42, 70);
   if (!b) return `<svg viewBox="0 0 100 100" aria-hidden="true">${art}</svg>`;
   const side = Math.max(b[2], b[3]) * ICON_PAD;
@@ -6217,33 +6696,33 @@ function wepIcon(k) {
   return `<svg viewBox="${r(x)} ${r(y)} ${r(side)} ${r(side)}" aria-hidden="true">${art}</svg>`;
 }
 
-// The rack at the Ironsmith: every weapon, by faction, for the chosen champion.
+/* The rack at the Armory: the common rack, then this champion's own faction's work.
+   Faction weapons are cut for their own champions, so the other six factions' steel is
+   shown when one of theirs is picked rather than greyed out eighteen rows at a time. */
 function rackHTML(id) {
   const c = charById(id), held = gearRaw(id).wp;
-  const groups = FACTION_KEYS.map((f) => {
-    const own = c.faction === f;
-    const rows = ARMORY_KEYS.filter((k) => ARMORY[k].faction === f).map((k) => {
-      const w = ARMORY[k], on = held === k, ok = profile.gold >= w.price, spare = profile.stash.weapons[k] || 0;
-      const lines = wepLines(w.bonus).map((t) => `<li>${t}</li>`).join('');
-      const edge = own ? wepLines(ATTUNE[f]).map((t) => `<li class="attune">${t}</li>`).join('') : '';
-      const btn = on ? `<button class="btn small" type="button" data-k="wsell">Sell back for ${wepRefund(k)} gold</button>`
-        : spare ? `<button class="btn small primary" type="button" data-k="wgive:${k}:${id}">Take one from your stash</button>`
-        : `<button class="btn small${ok ? ' primary' : ''}" type="button" data-k="wep:${k}"${ok ? '' : ' disabled'}>Buy for ${w.price} gold</button>`;
-      return `<div class="ware${on ? ' worn' : ''}"><div class="ico wico">${wepIcon(k)}</div>
-        <strong>${w.name}${on ? ' · held' : ''}</strong>
-        <p class="note">${w.flavor}</p><ul class="affix">${lines}${edge}</ul>
-        <div class="buy"><span class="note">${w.price} gold${spare ? ` · ${spare} in your stash` : ''}</span>${btn}</div></div>`;
-    }).join('');
-    return `<h4 class="rackHead${own ? ' own' : ''}">${FACTIONS[f].name}${own ? ` · attuned to ${shortName(c)}` : ''}</h4>
-      <div class="trinkets">${rows}</div>`;
-  }).join('');
+  const row = (k) => {
+    const w = ARMORY[k], on = held === k, ok = profile.gold >= w.price, spare = profile.stash.weapons[k] || 0;
+    const btn = on ? `<button class="btn small" type="button" data-k="wsell">Sell back for ${wepRefund(k)} gold</button>`
+      : spare ? `<button class="btn small primary" type="button" data-k="wgive:${k}:${id}">Take one from your stash</button>`
+      : `<button class="btn small${ok ? ' primary' : ''}" type="button" data-k="wep:${k}"${ok ? '' : ' disabled'}>Buy for ${w.price} gold</button>`;
+    return `<div class="ware${on ? ' worn' : ''}"><div class="ico wico">${wepIcon(k)}</div>
+      <strong>${w.name}${on ? ' · held' : ''}</strong>
+      <p class="note">${w.flavor}</p><ul class="affix">${affixListHTML(w.bonus, id)}</ul>
+      <div class="buy"><span class="note">${w.price} gold${spare ? ` · ${spare} in your stash` : ''}${socketsOf(w) ? ` · ${socketsOf(w)} socket${socketsOf(w) === 1 ? '' : 's'}` : ''}</span>${btn}</div></div>`;
+  };
+  const group = (label, f, own) =>
+    `<h4 class="rackHead${own ? ' own' : ''}">${label}</h4>
+     <div class="trinkets">${ARMORY_KEYS.filter((k) => ARMORY[k].faction === f).map(row).join('')}</div>`;
   const w = wepOf(id), u = makeUnit(c, 1, 'p', 0);
   return `<div class="anvil">
     <div class="who2"><div class="pic">${spriteSVG(id)}</div>
       <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${FACTIONS[c.faction].name}</p>
-        <p class="note">Holding: <b>${w ? w.name : 'nothing but their fists'}</b>${w && attuned(id) ? ' · attuned' : ''}</p>
+        <p class="note">Holding: <b>${w ? w.name : 'nothing but their fists'}</b></p>
         <p class="note">At level 1: ${u.maxHp} HP · ${u.atk} Attack · ${Math.round(u.crit * 100)}% crit</p></div></div>
-    ${groups}
+    ${socketsHTML(id, 'wp')}
+    ${group('Free Company · anyone may wield it', 'all', false)}
+    ${group(`${FACTIONS[c.faction].name} · cut for ${shortName(c)}`, c.faction, true)}
   </div>`;
 }
 
@@ -6338,6 +6817,15 @@ const EQUIPMENT = {
   courtregalia:{ name: 'Court Regalia', faction: 'crimson', look: 'cloak', price: 320,
                  flavor: 'Worn to the Long Table. Vesper insists the collar is practical.',
                  bonus: { physAmp: 0.12, healTaken: 0.2 } },
+
+  // The Pale Host - nothing mends grave-flesh, and nothing at all reaches one standing Undying,
+  // so a ward is the only mitigation the Host can buy. Both pieces turn blows aside instead.
+  barrowshroud:{ name: 'Barrow Shroud', faction: 'undead', look: 'cloak', price: 150,
+                 flavor: 'Grave-linen off a barrow lord. What is already dead has little left to curse.',
+                 bonus: { blockMagic: 0.05 } },
+  gravewarden: { name: 'Gravewarden Plate', faction: 'undead', look: 'plate', price: 320,
+                 flavor: 'Cut for the watch that guarded the crypt, and worn by them still.',
+                 bonus: { blockPhys: 0.06, blockMagic: 0.04 } },
 };
 const EQUIP_KEYS = Object.keys(EQUIPMENT);
 
@@ -6361,6 +6849,7 @@ function buyKit(k) {
   if (!fitsKit(k, id) || g.eq === k || profile.gold < cost) return false;
   profile.gold -= cost;
   if (g.eq) profile.stash.equipment[g.eq] = (profile.stash.equipment[g.eq] || 0) + 1;
+  popStones(g, 'eq');
   g.eq = k;
   profile.gear[id] = g;
   saveProfile();
@@ -6371,6 +6860,7 @@ function sellKit() {
   const id = forgeHero(), g = { ...gearRaw(id) };
   if (!g.eq) return false;
   profile.gold += kitRefund(g.eq);
+  popStones(g, 'eq');
   delete g.eq;
   profile.gear[id] = g;
   saveProfile();
@@ -6384,6 +6874,7 @@ function giveKit(k, id) {
   st[k]--;
   if (!st[k]) delete st[k];
   if (g.eq) st[g.eq] = (st[g.eq] || 0) + 1;
+  popStones(g, 'eq');
   g.eq = k;
   profile.gear[id] = g;
   saveProfile();
@@ -6394,6 +6885,7 @@ function unequipKit(id) {
   const g = { ...gearRaw(id) };
   if (!g.eq) return false;
   profile.stash.equipment[g.eq] = (profile.stash.equipment[g.eq] || 0) + 1;
+  popStones(g, 'eq');
   delete g.eq;
   profile.gear[id] = g;
   saveProfile();
@@ -6439,10 +6931,10 @@ const GEAR_LORE = [
     lifts only the kind its wearer deals. Burn, Poison and Bleed tick away underneath all of it: nothing wards those.`],
   ['Four things a champion carries',
    `The <b>anvil</b> at the Ironsmith forges a champion's own weapon edge and armor, tier by tier, for flat
-    Attack, HP and Defense. The <b>weapon rack</b> at the Armory next door holds named weapons, one per champion, each
-    belonging to a faction &mdash; wield your own faction's work and you are <b>attuned</b> for an extra edge.
-    The Armory's <b>armor stand</b> holds worn kit, one piece per champion: Free Company kit fits anyone, while a
-    faction's own kit is cut for its champions alone. The <b>Jeweler</b> sells the one trinket they wear.
+    Attack, HP and Defense. The <b>weapon rack</b> at the Armory next door holds named weapons, one per champion, and the
+    Armory's <b>armor stand</b> holds worn kit, one piece per champion. Both split the same way: <b>Free Company</b>
+    work fits anyone, while a faction's own is cut for its champions alone &mdash; and a faction's three weapons
+    carry that faction's edge built into them. The <b>Jeweler</b> sells the one trinket they wear.
     All four stack, and all four count in every battle for that champion only.`],
   ['Where spare gear goes',
    `Replace a weapon, a piece of kit or a trinket and the old one is sent home to Your House rather than sold.
@@ -6453,6 +6945,157 @@ const GEAR_LORE = [
 /* The stand at the Armory: the common rack, then this champion's own faction's kit.
    Other factions' pieces hang here too, but only their own champions can wear them, so
    they show up when one of theirs is picked rather than greyed out a dozen at a time. */
+/* ==================================================================
+   SOCKETS - the crafting slots cut into weapons and worn kit, and the
+   bench where stones go into them. The stones themselves are GEM STONES
+   above; everything here is the hole they sit in.
+
+   Sockets belong to a champion's weapon or kit SLOT, not to the item, because
+   gear is stored as a bare key (profile.gear[id].wp = 'oathblade') with no
+   instance to hang anything on. So what is set in them lives beside it:
+
+     profile.gear[id].wpStones = ['ember.2', null]   the weapon's sockets
+     profile.gear[id].eqStones = [null]              the worn kit's sockets
+
+   When an item leaves that slot - sold, swapped, racked, or swept up by
+   rackIllegalWeapons - whatever was set in it is prised out and goes home to
+   profile.stash.stones rather than vanishing with it. Nothing is ever destroyed
+   by losing track of the thing it was set into.
+
+   How many sockets: the item's own `slots` if it declares one, otherwise a
+   count derived from its price, so a piece either side adds later is cut with a
+   sensible number instead of silently none. Add `slots: n` to any ARMORY or
+   EQUIPMENT entry to override.
+
+   Socketed stats are folded in by socketBonus through gearOf, the same path the
+   weapon and the kit already take, so the engine needs to know nothing about
+   any of this - a socketed +6% Attack reaches makeUnit indistinguishable from
+   one forged into the blade.
+   ================================================================== */
+const SOCKET_PRICE = [[150, 1], [300, 2]];   // under 150 gold: 1 socket. Under 300: 2. Above that: 3.
+const SOCKET_MAX = 3;
+const socketsOf = (item) => (item ? item.slots ?? (SOCKET_PRICE.find(([p]) => item.price < p)?.[1] ?? SOCKET_MAX) : 0);
+
+// Prising a stone back out costs gold, by grade - a Perfect stone is a careful job. Putting one in is free.
+// A stone that comes out because the item left the slot is NOT a prise and is never charged for.
+const PRISE_FEE = [10, 25, 60];   // the stones session's numbers, to sit with its Jeweler and fuse prices
+const priseFee = (sid) => PRISE_FEE[(stoneParts(sid)[1] || 1) - 1] ?? PRISE_FEE[0];
+
+// The two socketed slots: where the item key lives, where its stones live, and which map defines it.
+const SOCKET_SLOTS = {
+  wp: { stones: 'wpStones', label: 'Weapon', items: () => ARMORY, fits: (k, id) => fitsWeapon(k, id) },
+  eq: { stones: 'eqStones', label: 'Worn kit', items: () => EQUIPMENT, fits: (k, id) => fitsKit(k, id) },
+};
+const SOCKET_KEYS = Object.keys(SOCKET_SLOTS);
+
+const looseStones = () => Object.keys(profile.stash.stones || {}).filter((id) => stonesHeld(id) > 0 && stoneName(id));
+
+// The item in a champion's slot, but only if it is really there and they may really use it: an
+// off-faction weapon grants nothing (see weaponBonus), so nothing set into it may count either,
+// or its sockets would become a way around the faction lock.
+function slotItem(id, slot) {
+  const S = SOCKET_SLOTS[slot], key = gearRaw(id)[slot];
+  if (!key) return null;
+  const item = S.items()[key];
+  return item && S.fits(key, id) ? item : null;
+}
+
+// What is sitting in that slot's sockets, always exactly as long as the item has sockets.
+// Anything stale - a stone that no longer exists, or one past the end of a smaller item - reads as empty.
+function stonesIn(id, slot) {
+  const saved = gearRaw(id)[SOCKET_SLOTS[slot].stones];
+  const raw = Array.isArray(saved) ? saved : [];
+  return Array.from({ length: socketsOf(slotItem(id, slot)) }, (_, i) => (stoneName(raw[i]) ? raw[i] : null));
+}
+
+// Every socketed stat a champion is carrying, for gearOf.
+function socketBonus(id) {
+  const out = {};
+  for (const slot of SOCKET_KEYS) for (const sid of stonesIn(id, slot)) if (sid) addUp(out, stoneBonus(sid));
+  return out;
+}
+
+// Prise everything out of a slot and send it home, free of charge. Called wherever an item
+// leaves that slot, so stones are never stranded in a socket that no longer has an item in it.
+// Takes the gear object being edited, so it composes with buy/sell/give/unequip and the sweep.
+function popStones(g, slot) {
+  const field = SOCKET_SLOTS[slot].stones;
+  for (const sid of g[field] || []) if (sid) addStone(sid);
+  delete g[field];
+}
+
+// Set a stone into an empty socket. Free, and a filled socket must be prised out first.
+function setStone(id, slot, i, sid) {
+  if (!stoneName(sid) || stonesHeld(sid) < 1) return false;
+  const stones = stonesIn(id, slot);
+  if (i < 0 || i >= stones.length || stones[i]) return false;
+  profile.stash.stones[sid]--;
+  if (!profile.stash.stones[sid]) delete profile.stash.stones[sid];
+  stones[i] = sid;
+  profile.gear[id] = { ...gearRaw(id), [SOCKET_SLOTS[slot].stones]: stones };
+  saveProfile();
+  return true;
+}
+
+// Take one back out for the fee. It goes to the stash whole, never nowhere.
+function priseStone(id, slot, i) {
+  const stones = stonesIn(id, slot), sid = stones[i];
+  if (!sid) return false;
+  const fee = priseFee(sid);
+  if (profile.gold < fee) return false;
+  profile.gold -= fee;
+  stones[i] = null;
+  profile.gear[id] = { ...gearRaw(id), [SOCKET_SLOTS[slot].stones]: stones };
+  addStone(sid);   // saves the profile
+  saveProfile();
+  return true;
+}
+
+/* The socket bench, shown under whatever the champion is actually carrying.
+   One row per socket: what is set in it and what it costs to take back, or what may go in. */
+function socketsHTML(id, slot) {
+  const item = slotItem(id, slot);
+  if (!item) return '';
+  const S = SOCKET_SLOTS[slot], n = socketsOf(item);
+  if (!n) return `<p class="note socketNone">${item.name} is cut with no sockets.</p>`;
+  const stones = stonesIn(id, slot), loose = looseStones();
+  const rows = stones.map((sid, i) => {
+    if (sid) {
+      const fee = priseFee(sid), can = profile.gold >= fee;
+      return `<div class="socket set"><span class="ico">${stoneIcon(sid)}</span>
+        <div class="t"><strong>${stoneName(sid)}</strong><small>${stoneLines(sid).join(' · ') || 'No effect'}</small></div>
+        <button class="btn small" type="button" data-k="prise:${id}:${slot}:${i}"${can ? '' : ' disabled'}>
+          ${can ? `Prise out · ${fee} gold` : `Needs ${fee} gold`}</button></div>`;
+    }
+    const pick = loose.length
+      ? loose.map((s) => `<button class="btn small" type="button" data-k="setstone:${id}:${slot}:${i}:${s}">
+          ${stoneName(s)} ×${stonesHeld(s)}</button>`).join('')
+      : '<span class="note">No stones in your stash. They drop in the caves and the dungeons, and the Jeweler sells Chipped ones.</span>';
+    return `<div class="socket"><span class="ico empty">${emptySocketSVG()}</span>
+      <div class="t"><strong>Empty socket</strong><small>Setting a stone is free.</small></div>
+      <div class="mv">${pick}</div></div>`;
+  }).join('');
+  const filled = stones.filter(Boolean).length;
+  return `<div class="sockets"><p class="label">${S.label} sockets · ${filled}/${n} set</p>${rows}
+    <p class="note">A stone comes back out whole for a fee, and anything still set in a piece is returned to your stash for nothing when you part with it.</p></div>`;
+}
+const emptySocketSVG = () => '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="9" fill="#1b1826" stroke="#4a4458" stroke-width="2" stroke-dasharray="3 2.5"/><circle cx="16" cy="16" r="4" fill="#15121d"/></svg>';
+
+// Your House: the cut stones waiting for a socket, and who in the warband has one free.
+function stoneStashHTML() {
+  const loose = looseStones();
+  if (!loose.length) return '<p class="note">No stones in your stash. Anything you prise out of a piece ends up here.</p>';
+  return loose.map((sid) => {
+    const open = state.team.filter((id) => SOCKET_KEYS.some((s) => stonesIn(id, s).some((x) => !x)));
+    return `<div class="inv"><span class="ico">${stoneIcon(sid)}</span>
+      <div class="t"><strong>${stoneName(sid)} ×${stonesHeld(sid)}</strong>
+        <small>${stoneLines(sid).join(' · ') || 'No effect'}</small></div>
+      <div class="mv"><span class="note">${open.length
+        ? `Open sockets: ${open.map((id) => shortName(charById(id))).join(', ')} — set them at the Armory.`
+        : 'No open sockets in your warband.'}</span></div></div>`;
+  }).join('');
+}
+
 function kitHTML(id) {
   const c = charById(id), worn = gearRaw(id).eq;
   const row = (k) => {
@@ -6475,6 +7118,7 @@ function kitHTML(id) {
       <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} &middot; ${FACTIONS[c.faction].name}</p>
         <p class="note">Wearing: <b>${e ? e.name : 'nothing off the stand'}</b></p>
         <p class="note">At level 1: ${u.maxHp} HP &middot; ${u.def} Defense &middot; turns aside ${Math.round(u.blockPhys * 100)}% physical, ${Math.round(u.blockMagic * 100)}% magic</p></div></div>
+    ${socketsHTML(id, 'eq')}
     ${group('Free Company &middot; anyone may wear it', 'all', false)}
     ${group(`${FACTIONS[c.faction].name} &middot; cut for ${shortName(c)}`, c.faction, true)}
   </div>`;
@@ -6540,24 +7184,27 @@ function render() {
    RENDERING — Skills screen (your champion's loadout)
    ================================================================== */
 const currentLoadout = () => { const c = charById(profile.hero.id); return heroLoadout(c, heroLevel()); };
+// The champion the Skills screen is editing: your own, or a recruit picked from the Warband sheet.
+const skillsCid = () => (state.skillsFor && state.team.includes(state.skillsFor) ? state.skillsFor : profile.hero.id);
 
 function loadoutCardHTML(c, kind, id, on) {
   const s = kind === 'act' ? activeById(c, id) : passiveById(c, id);
   const r = kind === 'act' ? skillRank(c.id, id) : 0;
   // A technique nobody has drilled yet can't be equipped or ranked — the Training Yard comes first.
-  const locked = !isTrained(c.id, id), drills = drillsDone(c.id, id);
-  const canUp = kind === 'act' && !locked && skillPoints(c.id) > 0 && r < RANK_CAP;
+  const locked = !canCarry(c, id), drills = drillsDone(c.id, id);
+  // Skill points and ranks belong to your own champion; recruits never spend them.
+  const canUp = isHeroId(c.id) && kind === 'act' && !locked && skillPoints(c.id) > 0 && r < RANK_CAP;
   const tag = kind === 'act'
     ? (NEUTRAL_SKILLS[id] ? 'Neutral' : id === 'b' ? `★ Signature · from turn ${ULT_FIRST_TURN}` : 'Active')
       // Same tiers skillsOf charges: a is the cheap opener, b the signature, c/d/e/f the rest.
-      + (MANA.pool[c.faction] ? ` · ${s.o?.mp ?? (id === 'a' ? MANA.skillCost : id === 'b' ? MANA.ultCost : MANA.skill2Cost)} MP` : '')
+      + (MANA.pool[c.faction] ? ` · ${spellCost(s, id === 'a' ? MANA.skillCost : id === 'b' ? MANA.ultCost : MANA.skill2Cost)} MP` : '')
       // The Court pay in blood instead, as a share of whatever they have left when they cast.
       + (c.faction === 'crimson' ? ` · ${Math.round((id === 'b' ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}% HP` : '')
       + (s.cd ? ` · cooldown ${s.cd}` : '')
       + (r ? ` · Rank ${r}/${RANK_CAP}` : '')
       // Worn kit wards physical and magic separately, so a damage skill says which it is.
       + (s.kind === 'damage' && isMagic(s.o) ? ` · Magic` : '')
-    : id === 'own' ? `${shortName(c)}'s passive` : id === 'alt' ? `${shortName(c)}'s other passive` : 'Learned passive';
+    : id === 'own' ? `${shortName(c)}'s passive` : id === 'alt' ? `${shortName(c)}'s other passive` : isHeroId(c.id) ? 'Learned passive' : 'General passive';
   const rkrow = r || canUp ? `<span class="rkrow">
       ${r ? `<span class="rkd">Rank ${r}: ${rankBonusText(s, r)}</span>` : ''}
       ${canUp ? `<span class="rkup" role="button" tabindex="0" data-rank="${id}" aria-label="Spend a skill point: raise ${s.name} to rank ${r + 1}">+1 Rank</span>` : ''}
@@ -6585,34 +7232,41 @@ function slotRowHTML(c, kind, ids) {
 
 function renderSkills() {
   if (!profile.hero) { state.screen = 'select'; return render(); }
-  const c = charById(profile.hero.id), lv = heroLevel(), lo = currentLoadout();
-  $('#tagline').textContent = `Season 1: Ashfall Road. Choose the skills ${heroName()} brings into battle.`;
+  const cid = skillsCid(), mine = isHeroId(cid);
+  const c = charById(cid), lv = heroLevel(), lo = loadoutFor(c, lv), who = mine ? heroName() : c.name;
+  $('#tagline').textContent = `Season 1: Ashfall Road. Choose the skills ${who} brings into battle.`;
   const pts = skillPoints(c.id);
-  $('#skillsInfo').textContent = `${heroName()} · ${c.name} · level ${lv}. ${activeSlots(lv)} active and ${passiveSlots(lv)} passive slot${passiveSlots(lv) === 1 ? '' : 's'}. Attack and Guard are always available.`
-    + ` Skill points: ${pts}${pts ? ' — spend them below with +1 Rank (+8% power each)' : ' — every level-up grants one'}.`;
-  $('#skillsBody').innerHTML = `
+  $('#skillsInfo').textContent = `${mine ? `${heroName()} · ${c.name}` : `${c.name} · recruit`} · level ${lv}. ${activeSlots(lv)} active and ${passiveSlots(lv)} passive slot${passiveSlots(lv) === 1 ? '' : 's'}. Attack and Guard are always available.`
+    + (mine ? ` Skill points: ${pts}${pts ? ' — spend them below with +1 Rank (+8% power each)' : ' — every level-up grants one'}.`
+      : savedLoadoutOf(cid) ? ' You chose these skills; "Use recommended" hands the choice back to them.' : ' They pick their own skills until you choose some.');
+  // Your warband across the top: tap a champion to edit their skills.
+  const whoRow = `<div class="lwho" role="group" aria-label="Whose skills">${state.team.map((id, i) =>
+    `<button type="button" data-who="${id}" aria-pressed="${id === cid}"><span class="mini">${spriteSVG(id)}</span>
+      <span>${i === 0 ? heroName() : shortName(charById(id))}</span></button>`).join('')}</div>`;
+  $('#skillsBody').innerHTML = `${whoRow}
     <section class="lsec">
       <header><h2>Active skills</h2><p class="rule">Click a skill to equip or unequip it. More slots open at levels ${SLOT_UNLOCKS.filter((s) => s.kind === 'act').map((s) => s.lv).join(' and ')}.</p></header>
       ${slotRowHTML(c, 'act', lo.act)}
       <div class="lpool">${activeIdsOf(c).map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
     </section>
-    <section class="lsec">
+    ${mine ? `<section class="lsec">
       <header><h2>Neutral skills</h2><p class="rule">Tricks any champion can learn, whatever their class. They share your active slots. Drill them at the Training Yard before you can carry them.</p></header>
       <div class="lpool">${NEUTRAL_KEYS.map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
-    </section>
+    </section>` : ''}
     <section class="lsec">
-      <header><h2>Passives</h2><p class="rule">Your champion's own passive, or a learned one from the Training Yard. A second passive slot opens at level ${SLOT_UNLOCKS.find((s) => s.kind === 'pas').lv}.</p></header>
+      <header><h2>Passives</h2><p class="rule">${mine ? "Your champion's own passive, or a learned one from the Training Yard." : `${shortName(c)}'s own passive, or one of the general passives.`} A second passive slot opens at level ${SLOT_UNLOCKS.find((s) => s.kind === 'pas').lv}.</p></header>
       ${slotRowHTML(c, 'pas', lo.pas)}
       <div class="lpool">${passivePool(c).map((id) => loadoutCardHTML(c, 'pas', id, lo.pas.includes(id))).join('')}</div>
     </section>`;
 }
 
 function toggleLoadout(kind, id) {
-  const lv = heroLevel(), lo = currentLoadout(), list = lo[kind];
+  const cid = skillsCid(), c = charById(cid), mine = isHeroId(cid);
+  const lv = heroLevel(), lo = loadoutFor(c, lv), list = lo[kind];
   const max = kind === 'act' ? activeSlots(lv) : passiveSlots(lv);
   $('#skillsNote').textContent = '';
-  if (!isTrained(profile.hero.id, id)) {
-    const left = trainNeed(id) - drillsDone(profile.hero.id, id);
+  if (!canCarry(c, id)) {
+    const left = trainNeed(id) - drillsDone(cid, id);
     $('#skillsNote').textContent = `${heroName()} has not learned that yet — ${left} more drill${left === 1 ? '' : 's'} at the Training Yard.`;
     return;
   }
@@ -6620,7 +7274,8 @@ function toggleLoadout(kind, id) {
   if (i >= 0) list.splice(i, 1);
   else if (list.length < max) list.push(id);
   else { $('#skillsNote').textContent = `All ${kind === 'act' ? 'active' : 'passive'} slots are full. Unequip one first.`; return; }
-  profile.loadout = lo;
+  if (mine) profile.loadout = lo;
+  else (profile.recruitLoadouts ||= {})[cid] = lo;
   saveProfile();
   renderSkills();
 }
@@ -6637,6 +7292,9 @@ function buildSkills() {
       renderSkills();
       return;
     }
+    // The warband row: switch whose skills you're editing.
+    const w = ev.target.closest('[data-who]');
+    if (w) { state.skillsFor = w.dataset.who; $('#skillsNote').textContent = ''; renderSkills(); return; }
     const b = ev.target.closest('[data-sk]');
     if (!b) return;
     const [kind, id] = b.dataset.sk.split(':');
@@ -6649,9 +7307,17 @@ function buildSkills() {
       ev.target.click();
     }
   });
-  $('#skillsBack').addEventListener('click', () => { toVillage(); openPlace('arena'); });
+  // Back: to the Warband sheet if that's where you came from, otherwise to the Arena.
+  $('#skillsBack').addEventListener('click', () => {
+    const fromBand = state.skillsFrom === 'warband';
+    state.skillsFrom = null;
+    toVillage();
+    if (fromBand) { state.place = null; state.sheet = 'warband'; render(); } else openPlace('arena');
+  });
   $('#skillsAuto').addEventListener('click', () => {
-    profile.loadout = autoLoadout(charById(profile.hero.id), heroLevel());
+    const cid = skillsCid();
+    if (isHeroId(cid)) profile.loadout = autoLoadout(charById(cid), heroLevel());
+    else if (profile.recruitLoadouts) delete profile.recruitLoadouts[cid];   // a recruit goes back to picking their own
     saveProfile();
     $('#skillsNote').textContent = '';
     renderSkills();
@@ -6840,7 +7506,7 @@ function renderSelect() {
    ================================================================== */
 const PLACES = {
   arena:  { name: 'The Arena', kick: 'Fight', blurb: 'Pick your warband and run the gauntlet.',
-            flavor: 'Six factions wait in the pit beneath the stands. Roska runs the pit. Win, and the crowd pays in gold.' },
+            flavor: '' },
   pvp:    { name: 'Proving Grounds', kick: 'Duel', blurb: 'Challenge rival warbands and wager gold on the outcome.',
             flavor: 'A roped-off pit behind the Arena where sellsword bands settle who drinks free. Pay the stake, step over the rope, and prove it.' },
   guild:  { name: 'Guild House', kick: 'Enlist', blurb: 'Join a sellsword guild for a standing perk that grows with favor.',
@@ -6859,6 +7525,8 @@ const PLACES = {
             flavor: 'A fenced stretch of packed dirt outside the west wall, full of straw dummies and old scars. Serel Vance drills anyone who pays and most who do not.' },
   cave:   { name: 'Emberhollow Cave', kick: 'Hunt', blurb: 'Hunt monster packs for XP and gold.',
             flavor: 'The old ash-iron mine west of the village. The miners left years ago. Something else moved in.' },
+  workshop: { name: 'The Workshop', kick: 'Craft', blurb: 'Turn monster parts and spare gear into supplies, tomes and trinkets.',
+            flavor: "Mira Coalwhistle's workshop sits outside the south wall, where the kiln smoke bothers nobody. Bring her parts; she'll make something of them." },
   carnival: { name: 'Carnival', kick: 'Play', blurb: 'Games of luck and skill that pay out gold.',
             flavor: 'Zazzo\'s carnival rolled into Cinderhold one ash-season and never left. The Ferris wheel only creaks a little.' },
   jeweler: { name: 'Jeweler', kick: 'Adorn', blurb: 'Trinkets that grant mana, regeneration or speed.',
@@ -6870,7 +7538,7 @@ const PLACES = {
   tavern: { name: 'The Smoldering Mug', kick: 'Rest', blurb: 'Rumors, tips and the tales told of you.',
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'carnival', 'elder', 'tavern'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'workshop', 'carnival', 'elder', 'tavern'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 
 /* ------------------------------------------------------------------
@@ -6962,6 +7630,15 @@ const KEEPERS = {
     ],
     react: ['Good choice. Mind the edge, it is sharper than it looks.', 'Fits like it was made for you. Some of it was.',
       'Buckled and ready. Go and break something that is not mine.', 'Your old piece goes home to the stash. Do not let it rust.'] },
+  workshop: { id: 'mira', name: 'Mira Coalwhistle', title: 'Master Crafter', at: [780, 1254], flip: false,
+    greet: [
+      'Bring me hide, bone and ore, and I will hand you back something worth carrying.',
+      'Every monster in that cave is a pile of parts with an attitude. Bring me the parts.',
+      'Spare sword gathering dust in your stash? Let me break it down. Nothing goes to waste out here.',
+      () => (MAT_KEYS.every((k) => !(profile.mats?.[k] > 0)) ? 'Empty pockets? Hunt in Emberhollow, or win a few fights. Parts always turn up.' : null),
+    ],
+    react: ['There. Still warm.', 'Mind your fingers. Mine are all accounted for, mostly.',
+      'Good as anything Odo sells. Better, if you ask me.', 'Another one for the road. Use it well.'] },
   arena: { id: 'roska', name: 'Roska', title: 'Pit Master', at: [1256, 725], flip: true,
     greet: [
       'The crowd wants blood and the purse wants winners. Give them both!',
@@ -7243,6 +7920,7 @@ const rewardText = (q) => [q.gold ? `${q.gold} gold` : '', q.item ? `a ${ITEMS[q
 // Something happened that quests might care about. Returns news lines for the battle log / victory card.
 function questEvent(t, info = {}) {
   const bountyNews = bountyEvent(t, info);   // the Bounty Board listens to the same events
+  const matNews = craftEvent(t, info);        // ...and so does the Workshop (material drops)
   const news = [];
   for (const q of QUESTS) {
     const st = questSt(q), g = q.goal;
@@ -7255,7 +7933,7 @@ function questEvent(t, info = {}) {
     } else news.push(`Quest: ${q.title}, ${st.n} of ${goalN(q)}.`);
   }
   if (news.length) saveProfile();
-  return [...bountyNews, ...news];
+  return [...bountyNews, ...matNews, ...news];
 }
 
 function acceptQuest(id) {
@@ -7500,7 +8178,12 @@ const SPEED_LORE = [
 
 const entryHTML = (h, p) => `<div class="entry"><h4>${h}</h4><p>${p}</p></div>`;
 const statHTML = (v, label) => `<div class="stat"><b>${v}</b><span>${label}</span></div>`;
-const teamMinis = () => state.team.map((id) => `<div class="mini" title="${charById(id).name}">${spriteSVG(id)}</div>`).join('');
+// Your warband in a row, each with their name; your own champion framed in gold.
+const teamMinis = () => state.team.map((id, i) => {
+  const you = i === 0, name = you ? heroName() : shortName(charById(id));
+  return `<figure class="tmini${you ? ' you' : ''}"><div class="mini">${spriteSVG(id)}</div>
+    <figcaption>${name}<small>${you ? 'You' : 'Recruit'}</small></figcaption></figure>`;
+}).join('');
 
 const PLACE_BODY = {
   arena() {
@@ -7709,10 +8392,10 @@ const PLACE_BODY = {
     {
       const held = heroListHTML(sel, (id) => { const w = wepOf(id); return [w ? w.name : 'Bare-handed', !!w]; });
       return `${tabs}<div class="forge">${held}${rackHTML(sel)}</div>
-        <p class="note">★ marks your warband. Each champion carries one weapon, and every weapon belongs to a faction:
-          anyone can wield any of them, but a champion holding their own faction's work is <b>attuned</b> and gains that
-          faction's extra edge on top. Buying another sends the old one home to your stash, and the anvil's Weapon tier
-          sharpens whichever one they are holding.</p>`;
+        <p class="note">★ marks your warband. Each champion carries <b>one weapon</b>. <b>Free Company</b> steel is wielded
+          by anyone; a faction's own three are cut for its champions alone and carry that faction's edge built in, so
+          pick one of theirs to see it. Buying another sends the old one home to your stash, and the anvil's Weapon
+          tier sharpens whichever one they are holding.</p>`;
     }
   },
 
@@ -7720,7 +8403,37 @@ const PLACE_BODY = {
     const sel = forgeHero();
     const list = heroListHTML(sel, (id) => { const t = TRINKETS[gearRaw(id).t]; return [t ? t.name : 'No trinket', !!t]; });
     return `<div class="forge">${list}${trinketCaseHTML(sel)}</div>
-      <p class="note">★ marks your warband. Each champion wears one trinket. Buying another sends the old one home to your stash.</p>`;
+      <p class="note">★ marks your warband. Each champion wears one trinket. Buying another sends the old one home to your stash.</p>
+      ${stoneShopHTML()}`;
+  },
+
+  workshop() {
+    const tab = state.craftTab || 'craft';
+    const tabs = `<div class="filters" role="group" aria-label="The Workshop">${[['craft', 'Craft'], ['salvage', 'Salvage'], ['fuse', 'Fuse stones']]
+      .map(([k, n]) => `<button class="fbtn" type="button" data-k="ctab:${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>`;
+    const pouch = `<p class="label">Your materials</p><div class="mats">${MAT_KEYS.map((k) => matChip(k, mats()[k] || 0)).join('')}</div>`;
+    const news = state.craftNews ? `<p class="loot">${state.craftNews}</p>` : '';
+    if (tab === 'fuse') return `${pouch}${tabs}${news}${stoneFuseHTML()}`;
+    if (tab === 'salvage') {
+      const NAMES = { weapons: ARMORY, equipment: EQUIPMENT, trinkets: TRINKETS };
+      const rows = Object.keys(SALVAGE).flatMap((kind) => Object.entries(profile.stash[kind] || {}).filter(([, n]) => n > 0).map(([k, n]) => {
+        const bag = SALVAGE[kind](k);
+        if (!bag) return '';
+        return `<div class="inv"><div class="t"><strong>${NAMES[kind][k].name}${n > 1 ? ` &times;${n}` : ''}</strong>
+          <small>Breaks down into</small><div class="mats">${Object.entries(bag).map(([m, c]) => matChip(m, c)).join('')}</div></div>
+          <div class="mv"><button class="btn small" type="button" data-k="salv:${kind}:${k}">Break down</button></div></div>`;
+      })).join('');
+      return `${pouch}${tabs}${news}<div class="invList">${rows || '<p class="note">Nothing spare in your stash. Gear you replace at the Armory or the Jeweler goes there; bring it here to break it down.</p>'}</div>
+        <p class="note">Only spare pieces in your stash can be broken down. What your champions wear is safe.</p>`;
+    }
+    const cards = RECIPES.map((r) => {
+      const o = recipeOut(r), ok = canAfford(r.cost);
+      return `<div class="ware"><div class="ico">${o.icon}</div><strong>${o.name}</strong><p>${o.desc}</p>
+        <div class="buy"><div class="mats">${Object.entries(r.cost).map(([k, n]) => matChip(k, n, (mats()[k] || 0) < n)).join('')}</div>
+          <button class="btn small${ok ? ' primary' : ''}" type="button" data-k="craft:${r.id}"${ok ? '' : ' disabled'}>Craft</button></div></div>`;
+    }).join('');
+    return `${pouch}${tabs}${news}<div class="wares">${cards}</div>
+      <p class="note">Monsters in Emberhollow and the dungeons drop materials, elites and bosses more of them. Every gauntlet win brings one more, and clearing the gauntlet a handful. Red counts are what you're short of.</p>`;
   },
 
   market() {
@@ -7738,7 +8451,7 @@ const PLACE_BODY = {
       <p class="note">Furniture goes straight to Your House. Perks count in every battle for your whole warband.</p>`;
     }
     const cap = stashCap();
-    return `${tabs}<div class="wares">${ITEM_KEYS.map((k) => {
+    return `${tabs}<div class="wares">${tomeHTML('market')}${ITEM_KEYS.map((k) => {
       const it = ITEMS[k], n = profile.items[k] || 0, m = profile.stash.items[k] || 0;
       const full = n >= SATCHEL_MAX && m >= cap, ok = !full && profile.gold >= it.price;
       const label = full ? 'Satchel and stash full' : n >= SATCHEL_MAX ? `Buy for ${it.price} gold, to your stash` : `Buy for ${it.price} gold`;
@@ -7764,7 +8477,7 @@ const PLACE_BODY = {
     const team = state.team.map((id) => {
       const c = charById(id), g = gearRaw(id), t = TRINKETS[g.t], w = ARMORY[g.wp], e = EQUIPMENT[g.eq];
       return `<div class="inv"><div class="mini">${spriteSVG(id)}</div>
-        <div class="t"><strong>${shortName(c)}</strong><small>${w ? `${w.name}${attuned(id) ? ' (attuned)' : ''}` : 'Bare-handed'} · ${TIER[g.w || 0]} edge · ${TIER[g.a || 0]} armor · ${e ? e.name : 'No kit'} · ${t ? t.name : 'No trinket'}</small></div>
+        <div class="t"><strong>${shortName(c)}</strong><small>${w ? w.name : 'Bare-handed'} · ${TIER[g.w || 0]} edge · ${TIER[g.a || 0]} armor · ${e ? e.name : 'No kit'} · ${t ? t.name : 'No trinket'}</small></div>
         ${w || t || e ? `<div class="mv">${w ? `<button class="btn small" type="button" data-k="wunequip:${id}">Rack weapon</button>` : ''}${e ? `<button class="btn small" type="button" data-k="equnequip:${id}">Take off kit</button>` : ''}${t ? `<button class="btn small" type="button" data-k="unequip:${id}">Take off trinket</button>` : ''}</div>` : ''}</div>`;
     }).join('');
     const spare = TRINKET_KEYS.filter((k) => s.trinkets[k] > 0).map((k) => {
@@ -7778,10 +8491,12 @@ const PLACE_BODY = {
     }).join('');
     const rack = ARMORY_KEYS.filter((k) => s.weapons[k] > 0).map((k) => {
       const w = ARMORY[k];
-      const who = state.team.map((id) => `<button class="btn small" type="button" data-k="wgive:${k}:${id}"${gearRaw(id).wp === k ? ' disabled' : ''}>${attuned(id, k) ? '★ ' : ''}Give to ${shortName(charById(id))}</button>`).join('');
+      const who = state.team.filter((id) => fitsWeapon(k, id))
+        .map((id) => `<button class="btn small" type="button" data-k="wgive:${k}:${id}"${gearRaw(id).wp === k ? ' disabled' : ''}>Give to ${shortName(charById(id))}</button>`).join('');
       return `<div class="inv"><span class="ico wico">${wepIcon(k)}</span>
         <div class="t"><strong>${w.name}${s.weapons[k] > 1 ? ` ×${s.weapons[k]}` : ''}</strong>
-          <small>${FACTIONS[w.faction].name} · ${wepLines(w.bonus).join(' · ')}</small></div><div class="mv">${who}</div></div>`;
+          <small>${w.faction === 'all' ? 'Free Company' : FACTIONS[w.faction].name} · ${wepLines(w.bonus).join(' · ')}</small></div>
+        <div class="mv">${who || '<span class="note">Nobody in your warband can wield it</span>'}</div></div>`;
     }).join('');
     const chest = EQUIP_KEYS.filter((k) => s.equipment[k] > 0).map((k) => {
       const e = EQUIPMENT[k];
@@ -7797,12 +8512,16 @@ const PLACE_BODY = {
         Odo Mott sells furniture under <b>Home goods</b> at the Market.</p>
       <div class="btns"><button class="btn small" type="button" data-k="homeshop">Shop for furniture</button></div>
       <div class="homeGrid">
-        <section><p class="label">Satchel and stash</p><div class="invList">${items}</div></section>
+        <section><p class="label">Satchel and stash</p><div class="invList">${items}</div>
+          ${profile.tomes ? `<div class="wares">${tomeHTML('home')}</div>` : ''}
+          ${MAT_KEYS.some((k) => mats()[k] > 0) ? `<p class="label">Materials</p><div class="mats">${MAT_KEYS.map((k) => matChip(k, mats()[k] || 0)).join('')}</div><p class="note">Craft with them at the Workshop.</p>` : ''}</section>
         <section><p class="label">Your warband's gear</p><div class="invList">${team}</div>
           <p class="label">Weapons on the rack</p>
-          <div class="invList">${rack || '<p class="note">Nothing spare on the rack. Weapons you unhand, or replace at the Armory, end up here. ★ marks a champion the weapon is attuned to.</p>'}</div>
+          <div class="invList">${rack || '<p class="note">Nothing spare on the rack. Weapons you unhand, or replace at the Armory, end up here. A faction\'s own work can only be handed to its own champions.</p>'}</div>
           <p class="label">Kit in the chest</p>
           <div class="invList">${chest || '<p class="note">No spare kit. Pieces you take off, or replace at the Armory, end up here. A faction\'s own kit can only be given to its own champions.</p>'}</div>
+          <p class="label">Stones in your stash</p>
+          <div class="invList">${stoneStashHTML()}</div>
           <p class="label">Trinkets in your stash</p>
           <div class="invList">${spare || '<p class="note">No spare trinkets. Ones you take off, or replace at the Jeweler, end up here.</p>'}</div></section>
       </div>`;
@@ -8000,10 +8719,86 @@ function questDockHTML() {
   return `<button type="button" data-k="sheet:quests" aria-label="Quests" aria-pressed="${state.sheet === 'quests'}">${SCROLL_ICON}<span class="lbl">Quests</span>${ready ? `<span class="badge" aria-label="${ready} quest${ready === 1 ? '' : 's'} to hand in">${ready}</span>` : ''}</button>`;
 }
 
+/* INVENTORY — opened from the Warband sheet. The chosen champion stands on the left with their
+   stats; on the right, what they have equipped (weapon, kit, trinket) and the bag: every spare
+   weapon, piece of kit and trinket in the stash, plus the loot (battle items in the satchel and
+   stash). Tap a bag item to equip it on the champion; tap an equipped item to put it back. */
+const invCid = () => (state.invFor && state.team.includes(state.invFor) ? state.invFor : profile.hero.id);
+function inventoryHTML(close) {
+  const cid = invCid(), c = charById(cid), lv = heroLevel(), g = gearRaw(cid), st = profile.stash;
+  const you = isHeroId(cid), name = you ? heroName() : c.name;
+  const u = makeUnit(c, lv, 'p', state.team.indexOf(cid));
+  const who = `<div class="invWho" role="group" aria-label="Whose gear">${state.team.map((id, i) =>
+    `<button type="button" data-k="invfor:${id}" aria-pressed="${id === cid}" title="${escHTML(i === 0 ? heroName() : charById(id).name)}">${spriteSVG(id)}</button>`).join('')}</div>`;
+  const stats = [['HP', u.maxHp], ['Attack', u.atk], ['Defense', u.def], ['Crit', `${Math.round((u.crit || 0) * 100)}%`],
+    ...(u.maxMp ? [['MP', u.maxMp]] : [])].map(([k, v]) => `<li><span>${k}</span><b>${v}</b></li>`).join('');
+  // Tapping a tile selects it (sel = 'where-kind:key'); its details and action show below the bag.
+  const sel = state.invSel;
+  const tile = (icon, label, k, cls = '', count = 0) =>
+    `<button class="itile${cls}${k && k === `isel:${sel}` ? ' sel' : ''}" type="button" ${k ? `data-k="${k}"` : ''} title="${escHTML(label)}" aria-label="${escHTML(label)}">${icon}${count > 1 ? `<span class="icount">${count}</span>` : ''}</button>`;
+  // Equipped: weapon, kit, trinket.
+  const w = ARMORY[g.wp], e = EQUIPMENT[g.eq], t = TRINKETS[g.t];
+  const slot = (label, item, icon, kind) => `<div class="islot"><small>${label}</small>${item
+    ? tile(icon, item.name, `isel:slot-${kind}:${g[kind]}`, ' on')
+    : `<span class="itile empty" aria-label="No ${label.toLowerCase()}"></span>`}</div>`;
+  const slots = slot('Weapon', w, w && wepIcon(g.wp), 'wp') + slot('Kit', e, e && kitIcon(g.eq), 'eq') + slot('Trinket', t, t && TRINKET_ICON[g.t], 't');
+  // The bag.
+  const bag = [
+    ...ARMORY_KEYS.filter((k) => st.weapons?.[k] > 0).map((k) =>
+      tile(wepIcon(k), ARMORY[k].name, `isel:bag-wp:${k}`, fitsWeapon(k, cid) ? '' : ' off', st.weapons[k])),
+    ...EQUIP_KEYS.filter((k) => st.equipment?.[k] > 0).map((k) =>
+      tile(kitIcon(k), EQUIPMENT[k].name, `isel:bag-eq:${k}`, fitsKit(k, cid) ? '' : ' off', st.equipment[k])),
+    ...TRINKET_KEYS.filter((k) => st.trinkets?.[k] > 0).map((k) =>
+      tile(TRINKET_ICON[k], TRINKETS[k].name, `isel:bag-t:${k}`, TRINKETS[k].mana && !hasMana(cid) ? ' off' : '', st.trinkets[k])),
+    ...ITEM_KEYS.map((k) => [k, (profile.items[k] || 0) + (st.items?.[k] || 0)]).filter(([, n]) => n > 0).map(([k, n]) =>
+      tile(ITEM_ICON[k], ITEMS[k].name, `isel:loot-item:${k}`, ' loot', n)),
+    ...Object.keys(st.stones || {}).filter((sid) => st.stones[sid] > 0).sort().map((sid) =>
+      tile(stoneIcon(sid), stoneName(sid), `isel:stone-gem:${sid}`, ' loot', st.stones[sid])),
+  ].join('');
+  // The selected item's details: its name, each bonus as a bullet, and what you can do with it.
+  let detail = '';
+  if (sel) {
+    const [wk, key] = sel.split(':'), [where, kind] = wk.split('-');
+    const def = kind === 'gem' ? { name: stoneName(key), bonus: stoneBonus(key) } : { wp: ARMORY, eq: EQUIPMENT, t: TRINKETS, item: ITEMS }[kind]?.[key];
+    if (def) {
+      const lines = def.bonus && wepLines(def.bonus).length ? wepLines(def.bonus) : [def.desc];
+      const why = kind === 'wp' && !fitsWeapon(key, cid) ? `${FACTIONS[def.faction]?.name || 'Another faction'} work: ${name} can't wield it. A faction's own work can only be handed to its own champions.`
+        : kind === 'eq' && !fitsKit(key, cid) ? `Cut for ${FACTIONS[def.faction]?.name || 'another faction'}: ${name} can't wear it.`
+        : kind === 't' && def.mana && !hasMana(cid) ? `${name} has no mana, so this does nothing for them.` : '';
+      const act = where === 'slot' ? `<button class="btn small" type="button" data-k="iunq:${kind}">Put back in the bag</button>`
+        : where === 'loot' ? '<span class="note">Used in battle from your satchel.</span>'
+        : where === 'stone' ? (() => {
+            const [, g] = stoneParts(key), n = stonesHeld(key);
+            if (g >= 3) return `<span class="note">${n} held. Perfect is the finest grade. Socket it into a weapon or kit.</span>`;
+            return `<span class="note">${n} held. Three fuse into a ${STONE_GRADES[g]} stone at the Workshop (${FUSE_COST[g - 1]} gold)${n < 3 ? `, ${3 - n} more needed` : ''}.</span>`;
+          })()
+        : why ? `<span class="note">${why}</span>`
+        : `<button class="btn small primary" type="button" data-k="iequip:${kind}:${key}">Equip on ${name}</button>`;
+      detail = `<div class="invDetail"><b>${def.name}</b><ul>${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div class="btns">${act}</div></div>`;
+    }
+  }
+  return `<section class="panel" id="panel" aria-label="Inventory">
+    <div class="phead"><div><p class="label">Inventory</p><h2>${name}</h2></div>
+      <button class="btn small" type="button" data-k="sheet:warband">Back</button>${close}</div>
+    ${who}
+    <div class="invGrid">
+      <div class="invChamp"><div class="invPic">${spriteSVG(cid)}</div><b>${name}</b><small>Level ${lv}</small><ul class="invStats">${stats}</ul></div>
+      <div class="invItems">
+        <p class="label">Equipped</p><div class="invSlots">${slots}</div>
+        <p class="label">Bag</p>
+        <div class="invBag">${bag || '<p class="note">Your bag is empty. Weapons and kit come from the Armory, trinkets from the Jeweler, and loot from the Market and dungeon chests.</p>'}</div>
+        ${detail}
+      </div>
+    </div>
+    <p class="note">Tap any item to see what it does, then equip it on ${name} or put it back in the bag.</p>
+  </section>`;
+}
+
 // The warband and skills sheets that the dock opens.
 function sheetHTML(which) {
   const lv = heroLevel(), c = charById(profile.hero.id);
   const close = '<button class="btn small" type="button" data-k="sheet:">Close</button>';
+  if (which === 'inventory') return inventoryHTML(close);
   if (which === 'quests') {
     return `<section class="panel" id="panel" aria-label="Quests">
       <div class="phead"><div><p class="label">Quests</p><h2>Quest log</h2></div>${close}</div>
@@ -8027,18 +8822,57 @@ function sheetHTML(which) {
       <div><button class="btn${pts ? ' primary' : ''}" type="button" data-k="skills">Choose skills</button></div>
     </section>`;
   }
+  // Each champion: portrait with their level, name, and the skills they take into battle
+  // (your chosen loadout; recruits pick their own at your level, as makeUnit does).
   const cards = state.team.map((id, i) => {
-    const ch = charById(id), you = i === 0;
-    return `<div class="wcard${you ? ' you' : ''}"><span class="wpic">${spriteSVG(id)}</span>
-      <span><b>${you ? heroName() : ch.name}</b><small>${you ? `${ch.name} · ` : ''}${FACTIONS[ch.faction].name} · ${ROLES[ch.role].label}</small></span>
-      <span class="wlv">${you ? 'You' : 'Recruit'} · Lv ${lv}</span></div>`;
+    const ch = charById(id), you = i === 0, lo = loadoutFor(ch, lv);
+    const kit = [...lo.act.map((k) => [activeById(ch, k), '']), ...lo.pas.map((k) => [passiveById(ch, k), ' pas'])]
+      .filter(([sk]) => sk).map(([sk, cls]) => `<span class="wsk${cls}" title="${escHTML(sk.name)}">${skillIcon(sk)}</span>`).join('');
+    // Recruits can be swapped out right here: Swap opens a grid of champion models to pick the replacement.
+    const swap = you ? '' : `<button class="btn small wswap" type="button" data-k="swap:${i}" aria-pressed="${state.swapSlot === i}" aria-label="Swap out ${ch.name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13l-3-3M20 16H7l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Swap</span></button>`;
+    const picker = !you && state.swapSlot === i ? `<div class="wpicker" role="group" aria-label="Choose who replaces ${ch.name}">${
+      ROSTER.filter((x) => !state.team.includes(x.id)).map((x) =>
+        `<button class="wpick" type="button" data-k="recruit:${i}:${x.id}" title="${escHTML(x.name)}" aria-label="Recruit ${escHTML(x.name)}">${spriteSVG(x.id)}</button>`).join('')}</div>` : '';
+    return `<div class="wcard${you ? ' you' : ''}"><span class="wpic">${spriteSVG(id)}<span class="wlvl">Lv ${lv}</span></span>
+      <span class="wname"><b>${you ? heroName() : ch.name}</b></span>
+      ${swap}
+      <span class="wskills" aria-label="Skills">${kit}</span>
+      <button class="btn small wchange" type="button" data-k="skillsfor:${id}" aria-label="Change ${you ? heroName() : ch.name}'s skills"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 7l3 3" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Change</span></button></div>${picker}`;
   }).join('');
   return `<section class="panel" id="panel" aria-label="Your warband">
-    <div class="phead"><div><p class="label">Your warband</p><h2>${heroName()}'s warband</h2></div>${close}</div>
+    <div class="phead"><div><p class="label">Your warband</p><h2>${heroName()}'s warband</h2></div>
+      <button class="btn small invBtn" type="button" data-k="sheet:inventory"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8V6a4 4 0 0 1 8 0v2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 8h14l-1 12H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12h6" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Inventory</span></button>${close}</div>
     <div class="wlist">${cards}</div>
     <p class="note">Recruits fight at your level and choose their own skills.</p>
     <div><button class="btn" type="button" data-k="team">Change recruits</button></div>
   </section>`;
+}
+
+// The Workshop's stone bench: every kind you hold, its three grades, and a Fuse button wherever three wait.
+function stoneFuseHTML() {
+  const kinds = STONE_KINDS.filter((k) => [1, 2, 3].some((g) => stonesHeld(stoneId(k, g)) > 0));
+  const rows = kinds.map((k) => `<div class="fuseRow"><b>${STONES[k].name}</b><div class="fuseGrades">${[1, 2, 3].map((g) => {
+    const sid = stoneId(k, g), n = stonesHeld(sid), cost = FUSE_COST[g - 1], ok = g < 3 && n >= 3 && profile.gold >= cost;
+    return `<div class="fuseCell${n ? '' : ' none'}" title="${escHTML(`${stoneName(sid)}: ${stoneLines(sid).join(', ')}`)}">
+      <span class="sico">${stoneIcon(sid)}</span><small>${STONE_GRADES[g - 1]} ×${n}</small>
+      ${g < 3 ? `<button class="btn small${ok ? ' primary' : ''}" type="button" data-k="sfuse:${sid}"${ok ? '' : ' disabled'}>Fuse 3 · ${cost}g</button>` : ''}</div>`;
+  }).join('<span class="fuseArrow" aria-hidden="true">→</span>')}</div></div>`).join('');
+  return `<div class="fuseList">${rows || '<p class="note">No gem stones yet. They turn up in Emberhollow hunts and dungeon chests, and the Jeweler sells Chipped ones.</p>'}</div>
+    <p class="note">Three stones of one grade fuse into one of the next: Chipped → Flawless for ${FUSE_COST[0]} gold, Flawless → Perfect for ${FUSE_COST[1]} gold.</p>`;
+}
+
+// The Jeweler's gem counter: Chipped stones of every kind, and how many of each you hold.
+function stoneShopHTML() {
+  const ok = profile.gold >= STONE_PRICE;
+  return `<p class="label">Gem stones</p>
+    <div class="stoneShop">${STONE_KINDS.map((k) => {
+      const sid = stoneId(k, 1), held = STONE_GRADES.map((_, i) => stonesHeld(stoneId(k, i + 1))).reduce((a, b) => a + b, 0);
+      return `<div class="stoneWare"><span class="sico">${stoneIcon(sid)}</span>
+        <span class="st"><b>${STONES[k].name}</b><small>${stoneLines(sid).join(' · ')}${held ? ` · you hold ${held}` : ''}</small></span>
+        <button class="btn small${ok ? ' primary' : ''}" type="button" data-k="sbuy:${k}"${ok ? '' : ' disabled'}>${STONE_PRICE} gold</button></div>`;
+    }).join('')}</div>
+    <p class="note">Gem stones go into the sockets on weapons and kit. Three of a grade fuse into the next:
+      Chipped → Flawless for ${FUSE_COST[0]} gold, Flawless → Perfect for ${FUSE_COST[1]}. Fuse them at the Workshop.</p>`;
 }
 
 function placesHTML() {
@@ -8052,7 +8886,7 @@ function placeHTML(k) {
   const p = PLACES[k];
   return `<section class="panel" id="panel" aria-label="${p.name}">
     <div class="phead">
-      <div><p class="label">${p.kick}</p><h2>${p.name}</h2><p class="flavor">${p.flavor}</p></div>
+      <div><p class="label">${p.kick}</p><h2>${p.name}</h2>${p.flavor ? `<p class="flavor">${p.flavor}</p>` : ''}</div>
       <button class="btn small" type="button" data-k="back">Back to the square</button>
     </div>
     ${keeperHTML(k)}
@@ -8091,6 +8925,7 @@ function renderVillage() {
   host.innerHTML = html;
   if (focusKey) host.querySelector(`[data-k="${focusKey}"]`)?.focus();
   $('#dock').innerHTML = dockHTML();
+  $('#battleDock').hidden = !profile.hero;
   zoomTown();
 }
 
@@ -8184,8 +9019,16 @@ function bands(cx, cy, r, z0, h, a, b, n) {
   return s;
 }
 // A patch painted on a box's left face (the side at gy, running along gx from u0 to u1), or its right face (at gx).
-const onLeft = (gy, u0, u1, z0, z1, fill, more = '') => poly([isoP(u0, gy, z0), isoP(u1, gy, z0), isoP(u1, gy, z1), isoP(u0, gy, z1)], fill, more);
-const onRight = (gx, v0, v1, z0, z1, fill, more = '') => poly([isoP(gx, v0, z0), isoP(gx, v1, z0), isoP(gx, v1, z1), isoP(gx, v0, z1)], fill, more);
+// Night lighting: whatever gives off light registers here as it's drawn: glows (lamps, fires, torches)
+// and any window painted with class "lit". buildTownMap then cuts the night open around each one
+// (see nightLayer). { x, y in map units, r: how far the light reaches, a: strength 0..1 }
+let LIGHTS = [];
+const light = (x, y, r, a = 1) => { LIGHTS.push({ x, y, r, a }); return ''; };
+const litFace = (more, gx, gy, z) => (more.includes('lit') ? light(isoX(gx, gy), isoY(gx, gy, z), 72, .75) : '');
+const onLeft = (gy, u0, u1, z0, z1, fill, more = '') => litFace(more, (u0 + u1) / 2, gy, (z0 + z1) / 2)
+  + poly([isoP(u0, gy, z0), isoP(u1, gy, z0), isoP(u1, gy, z1), isoP(u0, gy, z1)], fill, more);
+const onRight = (gx, v0, v1, z0, z1, fill, more = '') => litFace(more, gx, (v0 + v1) / 2, (z0 + z1) / 2)
+  + poly([isoP(gx, v0, z0), isoP(gx, v1, z0), isoP(gx, v1, z1), isoP(gx, v0, z1)], fill, more);
 // A straight line in the world (ropes, fence rails).
 const line3 = (a, b, col, w = 2) => `<path d="M${isoP(...a)} L${isoP(...b)}" stroke="${col}" stroke-width="${w}" fill="none"/>`;
 // A road between two tiles, w tiles wide.
@@ -8194,7 +9037,8 @@ function road(a, b, w, fill) {
   return poly([isoP(a[0] + nx, a[1] + ny), isoP(b[0] + nx, b[1] + ny), isoP(b[0] - nx, b[1] - ny), isoP(a[0] - nx, a[1] - ny)], fill, NS);
 }
 const smokeAt = (x, y, r = 9) => `<g fill="#6a6070" opacity=".6"${NS}>${[0, -1.7, -3.4].map((d) => `<circle class="smoke" cx="${n1(x)}" cy="${n1(y)}" r="${r}" style="animation-delay:${d}s"/>`).join('')}</g>`;
-const glowAt = (x, y, r) => `<circle cx="${n1(x)}" cy="${n1(y)}" r="${r}" fill="url(#tGlow)" class="glow"${NS}/>`;
+const glowAt = (x, y, r) => light(x, y, Math.min(260, Math.max(80, r * 5)), .95)
+  + `<circle cx="${n1(x)}" cy="${n1(y)}" r="${r}" fill="url(#tGlow)" class="glow"${NS}/>`;
 
 // Trees: a leafy one (kind 0), a pine (1) or a dead ash tree (2).
 function tree(gx, gy, s = 1, kind = 0) {
@@ -8262,7 +9106,7 @@ function townPlaces() {
     let s = disc(c[0] + .3, c[1] + .3, 2.3, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], 1.9, 34, '#7a5a40');
     const [dx, dy] = P2(c[0] + 1.34, c[1] + 1.34, 0);
     s += `<path d="M${n1(dx - 9)} ${n1(dy)} v-22 a9 9 0 0 1 18 0 v22z" fill="#2a1d16"/>`;
-    for (const a of [10, 85]) { const t = a * Math.PI / 180, [x, y] = P2(c[0] + 1.9 * Math.cos(t), c[1] + 1.9 * Math.sin(t), 20); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="5" fill="#ffd28a" class="lit"/>`; }
+    for (const a of [10, 85]) { const t = a * Math.PI / 180, [x, y] = P2(c[0] + 1.9 * Math.cos(t), c[1] + 1.9 * Math.sin(t), 20); light(x, y, 64, .7); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="5" fill="#ffd28a" class="lit"/>`; }
     s += cone(c[0], c[1], 2.4, 30, 66, '#b08a4a', ['#b08a4a', '#9a7840', 8]);
     s += box(10.4, 15.4, .32, .32, 66, '#6b4f32');
     const [tx, ty] = P2(10.56, 15.56, 66);
@@ -8278,6 +9122,7 @@ function townPlaces() {
     const spokes = [0, 45, 90, 135].map((a) => { const t = a * Math.PI / 180; return `M${n1(hub[0] - 84 * Math.cos(t))} ${n1(hub[1] - 84 * Math.sin(t))} L${n1(hub[0] + 84 * Math.cos(t))} ${n1(hub[1] + 84 * Math.sin(t))}`; }).join(' ');
     const cars = ['#c0303f', '#ffd166', '#6fb5e6', '#6cc28a', '#c48be0', '#e8a548', '#e0645a', '#9fd6ff'].map((col, i) => { const t = i * Math.PI / 4; return `<circle cx="${n1(hub[0] + 84 * Math.cos(t))}" cy="${n1(hub[1] + 84 * Math.sin(t))}" r="9" fill="${col}"/>`; }).join('');
     s += `<g class="ferris" style="transform-origin: ${n1(hub[0])}px ${n1(hub[1])}px"><circle cx="${n1(hub[0])}" cy="${n1(hub[1])}" r="84" fill="none" stroke="#5a4a5e" stroke-width="4"/><path d="${spokes}" stroke="#4a3e4e" stroke-width="2" fill="none"/><g class="lit">${cars}</g></g><circle cx="${n1(hub[0])}" cy="${n1(hub[1])}" r="7" fill="#e8a548"/>`;
+    light(hub[0], hub[1], 150, .55);   // the wheel's bulbs
     s += disc(c[0] + .4, c[1] + .4, 3, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], 2.8, 34, '#e9e4d8') + bands(c[0], c[1], 2.8, 0, 34, '#c0303f', '#e9e4d8', 10);
     s += cone(c[0], c[1], 3.1, 34, 92, '#c0303f', ['#c0303f', '#e9e4d8', 12]);
     const [ax, ay] = P2(c[0], c[1], 126);
@@ -8346,10 +9191,11 @@ function townPlaces() {
     let s = disc(c[0] + .3, c[1] + .3, 1.5, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], 1.3, 92, '#5a4a7a');
     const [dx, dy] = P2(c[0] + .92, c[1] + .92, 0);
     s += `<path d="M${n1(dx - 8)} ${n1(dy)} v-22 a8 8 0 0 1 16 0 v22z" fill="#1d1622"/><path d="M${n1(dx - 14)} ${n1(dy - 30)} h28 l-4 -8 h-20z" fill="#6e3a86"/>`;
-    for (const z of [44, 70]) { const [x, y] = P2(c[0] + .5, c[1] + 1.2, z); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="6" fill="#ffd28a" class="lit"/>`; }
+    for (const z of [44, 70]) { const [x, y] = P2(c[0] + .5, c[1] + 1.2, z); light(x, y, 64, .7); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="6" fill="#ffd28a" class="lit"/>`; }
     s += disc(c[0], c[1], 1.3, 'none', 92, ' stroke="#d9b44a" stroke-width="3"');
     s += cone(c[0], c[1], 1.6, 92, 72, '#2f2840');
     const [gx, gy] = P2(c[0], c[1], 164);
+    light(gx, gy - 10, 150, .8);   // the gem lights the rooftops around it
     s += `<circle cx="${n1(gx)}" cy="${n1(gy - 10)}" r="22" fill="url(#tGem)" class="glow"${NS}/><path d="M${n1(gx)} ${n1(gy - 22)} l7 10 l-7 12 l-7 -12z" fill="#7fe3ff" stroke="#e9f8ff" stroke-width="1"/>`;
     out.jeweler = [31.8, s, [gx, gy - 52], 'Jeweler'];
   }
@@ -8407,6 +9253,8 @@ function townPlaces() {
         const u0 = gx - .15 + i * .383, u1 = u0 + .383;
         t += poly([isoP(u0, gy - .15, 48), isoP(u1, gy - .15, 48), isoP(u1, gy + 2.15, 38), isoP(u0, gy + 2.15, 38)], i % 2 ? b : a);
       }
+      const [lx, ly] = P2(gx + 1, gy + 2.15, 38);   // a lantern hung under the awning's front edge
+      t += `<path d="M${n1(lx)} ${n1(ly)} v7" stroke="#2a2228" stroke-width="1.5"/>${glowAt(lx, ly + 12, 16)}<rect x="${n1(lx - 3.5)}" y="${n1(ly + 7)}" width="7" height="9" rx="2" fill="#ffd28a"/>`;
       return t;
     };
     s += stall(25, 25, '#c0303f', '#e9e4d8', ['#c0303f', '#6cc28a', '#c0303f', '#e8a548']);
@@ -8426,6 +9274,8 @@ function townPlaces() {
       .forEach(([u0, u1, z0, z1, f]) => { s += onLeft(face, u0, u1, z0, z1, f); });
     for (const [u, z] of [[33.4, 40], [34.08, 42], [34.75, 40]]) { const [x, y] = P2(u, face, z); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="2.6" fill="#c0303f"${NS}/>`; }
     s += gable(32.9, 24.3, 2.4, .5, 46, 12, '#4a2f2a', '#4a2f2a', 'x', .1);
+    const [lx, ly] = P2(33.18, 24.6, 44);   // a lantern on the left post, so the jobs can be read at night
+    s += `${glowAt(lx - 6, ly, 18)}<rect x="${n1(lx - 10)}" y="${n1(ly - 5)}" width="7" height="9" rx="2" fill="#ffd28a"/>`;
     const [sx, sy] = P2(34.1, 24.5, 58);
     out.bounty = [59.6, s, [sx, sy - 34], 'Bounty Board'];
   }
@@ -8441,6 +9291,10 @@ function townPlaces() {
     const A = [gx + .2, gy + .2], B = [gx + w - .2, gy + .2], C = [gx + w - .2, gy + w - .2], D = [gx + .2, gy + w - .2];
     s += post(...A, '#c0303f') + post(...B, '#3e5a8c') + post(...D, '#3e5a8c') + rope(A, B) + rope(A, D);
     s += post(...C, '#c0303f') + rope(B, C) + rope(D, C);
+    for (const [x0, y0] of [B, D]) {   // torches on the two side posts
+      const [tx, ty] = P2(x0, y0, 44);
+      s += glowAt(tx, ty - 6, 18) + `<path class="flame" d="M${n1(tx - 4)} ${n1(ty)} q1 -9 4 -12 q3 6 4 12z" fill="#ffb347"${NS}/>`;
+    }
     const [sx, sy] = P2(gx + w / 2, gy + w / 2, 42);
     out.pvp = [68.5, s, [sx, sy - 52], 'Proving Grounds'];
   }
@@ -8500,6 +9354,29 @@ function townPlaces() {
     const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 34);
     out.armory = [52.5, s, [sx + 40, sy - 52], 'The Armory'];
   }
+
+  // THE WORKSHOP: a crafter's timber shed outside the south wall, a kiln smoking beside it, a workbench out front.
+  {
+    const [gx, gy, w, d, h] = [27, 39.4, 3.6, 2.6, 40], wall = '#7a5a3a', fy = gy + d;
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+    for (let u = gx + .6; u < gx + w; u += .6) s += line3([u, fy, 0], [u, fy, h], '#5a3e28', 2);
+    s += onLeft(fy, 27.35, 29.05, 0, 28, '#2a1d16') + onLeft(fy, 27.55, 28.85, 2, 20, '#ff9a4a', ' class="glow"' + NS);
+    s += onLeft(fy, 29.6, 30.25, 14, 26, '#ffd28a', ' class="lit"') + onRight(gx + w, 39.9, 40.6, 14, 26, '#e8b060', ' class="lit"');
+    s += gable(gx, gy, w, d, h, 30, '#4f6a4a', wall, 'x');
+    // The kiln: a squat stone dome with a glowing mouth and its own chimney.
+    s += box(31.75, 39.6, .4, .4, 66, '#5a5460');
+    const [cx, cy] = P2(31.95, 39.8, 66);
+    s += smokeAt(cx, cy - 8, 8) + cyl(31.7, 40.3, .85, 26, '#6a6470') + cone(31.7, 40.3, .9, 26, 16, '#5a5460');
+    const [kx, ky] = P2(31.7 + .6, 40.3 + .6, 6);
+    s += glowAt(kx, ky - 6, 22) + `<path d="M${n1(kx - 7)} ${n1(ky + 3)} v-7 a7 7 0 0 1 14 0 v7z" fill="#ff7a2f"${NS}/>`;
+    // Workbench, a vice and tools; crates of parts.
+    s += box(27.5, 42.5, 1.7, .6, 14, '#8a6a4a') + box(27.8, 42.6, .3, .3, 6, '#4a5164', 14) + box(28.6, 42.55, .5, .2, 3, '#9aa3b5', 14);
+    s += box(29.7, 42.5, .7, .7, 14, '#7a5a3a') + box(29.8, 42.6, .5, .5, 10, '#6b4f32', 14) + box(30.6, 42.2, .6, .6, 12, '#8a6a4a');
+    const [lx, ly] = P2(29.3, 42.1, 32);
+    s += box(29.25, 42.05, .1, .1, 34, '#4a3426') + glowAt(lx, ly, 16) + `<rect x="${n1(lx - 3.5)}" y="${n1(ly - 4)}" width="7" height="9" rx="2" fill="#ffd28a"/>`;
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 30);
+    out.workshop = [1072.6, s, [sx, sy - 46], 'The Workshop'];   // outside the wall: drawn among the outer forest
+  }
   return out;
 }
 
@@ -8508,6 +9385,9 @@ function seeded(seed) { return () => { seed = (seed * 16807) % 2147483647; retur
 
 function buildTownMap() {
   const svg = $('#townMap');
+  LIGHTS = [];
+  light(810, 124, 230, .9);    // the volcano's crater
+  light(1720, 190, 200, .35);  // the last of the sun, low over the hills
   const items = [];                        // [depth, svg] for everything that stands up
   const add = (depth, s) => items.push([depth, s]);
   const rnd = seeded(7);
@@ -8537,7 +9417,7 @@ function buildTownMap() {
   const roadCol = '#a08a6a', ROADS = [
     [[21, 21], [44, 21.5], 2.2], [[21, 21], [16.2, 16.2], 2], [[21, 21], [21, 44], 2.2], [[17, 21], [7.5, 21], 1.8],
     [[21, 21], [21, 6.5], 1.8], [[21, 28.5], [9, 28.5], 1.8], [[31, 21.5], [31, 17], 1.4], [[12, 28.5], [12, 39.5], 1.4], [[12, 39.5], [10.6, 43.5], 1.2], [[10.6, 43.5], [12, 47], 1.2],
-    [[21, 9], [17.5, 9], 1.4], [[33.4, 21.5], [33.4, 24], 1.2], [[21, 30], [27.5, 33.5], 1.4],
+    [[21, 9], [17.5, 9], 1.4], [[33.4, 21.5], [33.4, 24], 1.2], [[22.1, 40.7], [27.2, 40.7], 1.3], [[21, 30], [27.5, 33.5], 1.4],
   ];
   for (const [a, b, w] of ROADS) ground += road(a, b, w + .4, '#5e4c38') + road(a, b, w, roadCol);
   ground += disc(21, 21, 4.3, '#5e4c38', 0, NS) + disc(21, 21, 4, '#8f7d68', 0, NS)
@@ -8565,7 +9445,11 @@ function buildTownMap() {
     }
     return s;
   };
-  const tower = (gx, gy) => box(gx - .6, gy - .6, 1.2, 1.2, 58, '#6b4f32') + hip(gx - .6, gy - .6, 1.2, 1.2, 58, 24, '#4a2f2a');
+  const tower = (gx, gy) => {
+    const [x, y] = [isoX(gx + .6, gy + .6), isoY(gx + .6, gy + .6, 44)];   // its front corner, where the watch hangs a lantern
+    return box(gx - .6, gy - .6, 1.2, 1.2, 58, '#6b4f32') + hip(gx - .6, gy - .6, 1.2, 1.2, 58, 24, '#4a2f2a')
+      + `<path d="M${n1(x)} ${n1(y - 8)} v6" stroke="#2a2228" stroke-width="2"/>${glowAt(x, y + 4, 26)}<rect x="${n1(x - 4.5)}" y="${n1(y - 2)}" width="9" height="11" rx="2" fill="#ffd28a"/>`;
+  };
   add(-1, stakes([3, 3], [3, 37], 30) + stakes([3, 3], [37, 3], 30) + tower(3, 3));
   add(890, tower(3, 37) + tower(37, 3));
   add(895, stakes([37, 3], [37, 18.6], 30) + stakes([37, 24.4], [37, 37], 30)
@@ -8601,7 +9485,7 @@ function buildTownMap() {
   for (const [gx, gy] of INSIDE_TREES) add(gx + gy, tree(gx, gy, .9 + rnd() * .3, rnd() < .15 ? 2 : 0));
 
   // The forest outside the walls, kept off the roads.
-  const nearRoad = (gx, gy) => (Math.abs(gy - 21.5) < 1.8 && gx > 36) || (Math.abs(gx - 21) < 1.8 && gy > 36) || (Math.abs(gx - 11.5) < 2.6 && gy > 36 && gy < 46) || Math.hypot(gx - 12, gy - 48) < 4.2;
+  const nearRoad = (gx, gy) => (Math.abs(gy - 21.5) < 1.8 && gx > 36) || (Math.abs(gx - 21) < 1.8 && gy > 36) || (Math.abs(gx - 11.5) < 2.6 && gy > 36 && gy < 46) || Math.hypot(gx - 12, gy - 48) < 4.2 || Math.hypot(gx - 29.5, gy - 41) < 4;
   for (let gy = -10; gy <= 54; gy += 1.9) {
     for (let gx = -10; gx <= 54; gx += 1.9) {
       const jx = gx + (rnd() - .5) * 1.4, jy = gy + (rnd() - .5) * 1.4;
@@ -8623,7 +9507,21 @@ function buildTownMap() {
   }).join('');
 
   items.sort((a, b) => a[0] - b[0]);
-  svg.innerHTML = `${back}${ground}<g stroke="#241812" stroke-width="1.6" stroke-linejoin="round">${items.map((i) => i[1]).join('')}</g>${signs}`;
+  svg.innerHTML = `${back}${ground}<g stroke="#241812" stroke-width="1.6" stroke-linejoin="round">${items.map((i) => i[1]).join('')}</g>${nightLayer()}${signs}`;
+}
+// Night falls over Cinderhold: a dark veil over the whole map with a soft hole cut around every light,
+// then a warm pool of light where each one falls. Signs are drawn above it, so they stay readable.
+// NIGHT.depth is how dark it gets (0 = daylight, 1 = pitch black).
+const NIGHT = { color: '#0b0a1f', depth: .5 };
+function nightLayer() {
+  const holes = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r)}" fill="url(#nightHole)" opacity="${l.a}"/>`).join('');
+  const pools = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r * .75)}" fill="url(#warmPool)" opacity="${(l.a * .45).toFixed(2)}"/>`).join('');
+  return `<defs>
+      <radialGradient id="nightHole"><stop offset="0" stop-color="#000"/><stop offset=".45" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+      <radialGradient id="warmPool"><stop offset="0" stop-color="#ffb35c" stop-opacity=".6"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
+      <mask id="nightMask" maskUnits="userSpaceOnUse" x="0" y="0" width="${MAP_W}" height="${MAP_H}"><rect width="${MAP_W}" height="${MAP_H}" fill="#fff"/>${holes}</mask>
+    </defs>
+    <g class="night" pointer-events="none"><rect width="${MAP_W}" height="${MAP_H}" fill="${NIGHT.color}" opacity="${NIGHT.depth}" mask="url(#nightMask)"/><g style="mix-blend-mode:screen">${pools}</g></g>`;
 }
 const TOWN_LABELS = {
   arena: 'The Arena: fight the gauntlet', elder: "Elder's Hut: lore and rules", carnival: 'Carnival: games that pay out gold',
@@ -8631,7 +9529,7 @@ const TOWN_LABELS = {
   guild: 'Guild House: join a sellsword guild', jeweler: 'Jeweler: trinkets for your champions',
   tavern: 'The Smoldering Mug tavern: rumors and records', home: 'Your House: your stash and belongings',
   market: 'Market: buy supplies for battle', bounty: 'Bounty Board: daily jobs that pay gold',
-  pvp: 'Proving Grounds: duel rival warbands for gold', gate: 'Expedition Gate: dungeons along Ashfall Road',
+  pvp: 'Proving Grounds: duel rival warbands for gold', workshop: 'The Workshop: craft supplies, tomes and trinkets from materials', gate: 'Expedition Gate: dungeons along Ashfall Road',
   cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
 };
 
@@ -8731,7 +9629,7 @@ function buildStage() {
   const town = $('#town');
   let drag = null, dragged = false;
   town.addEventListener('pointerdown', (ev) => {
-    if (ev.button !== 0 || !view || ev.target.closest('#placePanel, .townHud, .dock, #npcSay')) return;
+    if (ev.button !== 0 || !view || ev.target.closest('#placePanel, .townHud, .dock, #battleDock, #npcSay')) return;
     drag = { x: ev.clientX, y: ev.clientY, v: { ...view }, id: ev.pointerId, moved: false };
   });
   town.addEventListener('pointermove', (ev) => {
@@ -8769,6 +9667,7 @@ function openPlace(k) {
   state.trainNews = '';                       // and the yard forgets this morning's drill
   hideSay();
   state.keeperLoot = '';
+  state.tomeNews = ''; state.craftNews = '';
   keeperGreet(k);
   deliverTo(k);
   if (k === 'pvp') rollDuels();   // fresh challengers wait at the rope every visit
@@ -8782,7 +9681,7 @@ const GEAR_SHOPS = ['armory', 'forge'];
 const gearShop = () => (state.place === 'forge' ? 'forge' : 'armory');
 
 function villageAction(k) {
-  const [verb, arg, arg2] = k.split(':');
+  const [verb, arg, arg2, arg3, arg4] = k.split(':');
   if (verb === 'open') return openPlace(arg);
   if (verb === 'homeshop') { state.marketTab = 'home'; return openPlace('market'); }
   if (verb === 'fight') return startGauntlet();
@@ -8792,9 +9691,40 @@ function villageAction(k) {
   if (verb === 'dungeon') return startDungeon(arg);
   if (verb === 'continue') { state.runPending = false; state.battle++; return startBattle(false); }
   if (verb === 'team') { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
-  if (verb === 'skills') { state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
+  if (verb === 'skills') { state.skillsFor = null; state.skillsFrom = null; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
+  if (verb === 'skillsfor') { state.skillsFor = arg; state.skillsFrom = 'warband'; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'play') { if (startBooth(arg)) { render(); runBooth(); } return; }
-  if (verb === 'sheet') { state.place = null; state.booth = null; state.sheet = arg && state.sheet !== arg ? arg : null; }
+  if (verb === 'sheet') { state.place = null; state.booth = null; state.swapSlot = null; state.invSel = null; state.sheet = arg && state.sheet !== arg ? arg : null; }
+  else if (verb === 'swap') state.swapSlot = state.swapSlot === Number(arg) ? null : Number(arg);
+  // Inventory: whose gear, equip from the bag, put an equipped item back.
+  else if (verb === 'invfor') { state.invFor = arg; state.invSel = null; }
+  else if (verb === 'sbuy') { if (buyStone(arg)) keeperReact('jeweler'); }
+  else if (verb === 'sfuse') {
+    const up = fuseStones(arg);
+    if (up) { state.craftNews = `Three ${stoneName(arg)} stones fuse into a ${stoneName(up)}.`; if (state.place === 'workshop') keeperReact('workshop'); }
+  }
+  else if (verb === 'isel') state.invSel = state.invSel === `${arg}:${arg2}` ? null : `${arg}:${arg2}`;
+  else if (verb === 'iequip') {
+    state.invSel = null;
+    const cid = invCid();
+    if (arg === 'wp') giveWeapon(arg2, cid); else if (arg === 'eq') giveKit(arg2, cid); else if (arg === 't') giveTrinket(arg2, cid);
+  }
+  else if (verb === 'iunq') {
+    state.invSel = null;
+    const cid = invCid();
+    if (arg === 'wp') unequipWeapon(cid); else if (arg === 'eq') unequipKit(cid); else if (arg === 't') unequipTrinket(cid);
+  }
+  else if (verb === 'recruit') {
+    // Swap a recruit for another champion: slot i of the warband (1..3) is profile.recruits[i - 1].
+    const i = Number(arg), rec = [...(profile.recruits || [])];
+    if (i >= 1 && i < TEAM_SIZE && charById(arg2) && !state.team.includes(arg2)) {
+      rec[i - 1] = arg2;
+      profile.recruits = rec;
+      syncTeam();
+      saveProfile();
+    }
+    state.swapSlot = null;
+  }
   else if (verb === 'back') { state.place = null; state.booth = null; }
   else if (verb === 'bclaim') claimBounty(Number(arg));
   else if (verb === 'breroll') rerollBounties();
@@ -8824,7 +9754,15 @@ function villageAction(k) {
   else if (verb === 'eqsell') { if (sellKit()) keeperReact(gearShop()); }
   else if (verb === 'eqgive') { if (giveKit(arg, arg2) && GEAR_SHOPS.includes(state.place)) keeperReact(gearShop()); }
   else if (verb === 'equnequip') unequipKit(arg);
+  // The socket bench (see SOCKETS): setstone:<champion>:<slot>:<index>:<stone>, prise:<champion>:<slot>:<index>.
+  else if (verb === 'setstone') { if (setStone(arg, arg2, Number(arg3), arg4)) keeperReact(gearShop()); }
+  else if (verb === 'prise') { if (priseStone(arg, arg2, Number(arg3))) keeperReact(gearShop()); }
   else if (verb === 'buy') { if (buyItem(arg)) { keeperReact('market'); questEvent('buy'); } }
+  else if (verb === 'ctab') state.craftTab = arg;
+  else if (verb === 'craft') { const line = craft(arg); if (line) { state.craftNews = line; if (line.startsWith('Crafted')) keeperReact('workshop'); } }
+  else if (verb === 'salv') { const line = salvage(arg, arg2); if (line) { state.craftNews = line; keeperReact('workshop'); } }
+  else if (verb === 'tbuy') { if (buyTome()) { keeperReact('market'); questEvent('buy'); state.tomeNews = 'Bought. It waits for you at home, or read it right here.'; } }
+  else if (verb === 'tread') { const line = readTome(); if (line) state.tomeNews = line; }
   else if (verb === 'trinket') { if (buyTrinket(arg)) { keeperReact('jeweler'); questEvent('trinket'); } }
   else if (verb === 'sell') { if (sellTrinket()) keeperReact('jeweler'); }
   // Your House: furniture, satchel ↔ stash, and trinkets between the stash and your champions.
@@ -8845,7 +9783,7 @@ function buildVillage() {
   buildTownMap();
   const town = $('#town');
   town.addEventListener('click', (ev) => {
-    if (ev.target.closest('#placePanel, .townHud')) return;   // they have their own handlers
+    if (ev.target.closest('#placePanel, .townHud, #battleDock')) return;   // they have their own handlers
     const dk = ev.target.closest('.dock [data-k]');
     if (dk) return villageAction(dk.dataset.k);
     const said = ev.target.closest('#npcSay [data-k]');
@@ -8867,6 +9805,18 @@ function buildVillage() {
   $('#villageBtn').addEventListener('click', toVillage);
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') hideSay(); });
   addEventListener('resize', () => { if (!$('#villageScreen').hidden) zoomTown(true); });
+  // Battle: the button opens its menu; a choice walks you to that building (its panel has the fights).
+  const setBattleMenu = (open) => { $('#battleMenu').hidden = !open; $('#battleBtn').setAttribute('aria-expanded', String(open)); };
+  $('#battleBtn').addEventListener('click', (ev) => { ev.stopPropagation(); setBattleMenu($('#battleMenu').hidden); });
+  $('#battleMenu').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-go]');
+    if (!b) return;
+    ev.stopPropagation();
+    setBattleMenu(false);
+    openPlace(b.dataset.go);
+  });
+  document.addEventListener('click', (ev) => { if (!ev.target.closest('#battleDock')) setBattleMenu(false); });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') setBattleMenu(false); });
   buildStage();
   // Gear → game mechanics window. Its tabs re-render in place; Esc or Close shuts it.
   const dlg = $('#rulesDlg');
@@ -8883,7 +9833,7 @@ function buildVillage() {
    RENDERING — battle
    ================================================================== */
 const artOf = (u) => u.art || u.id;
-const unitClasses = (u) => `${u.side}${u.summon ? ' summon' : ''}${u.inert ? ' inert' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
+const unitClasses = (u) => `${u.side}${u.you ? ' you' : ''}${u.summon ? ' summon' : ''}${u.inert ? ' inert' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
 
 // A champion standing on the battlefield (--d staggers the idle breathing so nobody bobs in sync).
 function unitCardHTML(u) {
@@ -10117,8 +11067,9 @@ function showEndOverlay() {
   } else if (d && phase === 'won') {
     const { from, to } = state.reward;
     kick = `Hunt won · ${CAVE.name}`;
+    const found = state.stoneNews?.length ? `<p class="loot">Found: ${state.stoneNews.join(', ')}</p>` : '';
     title = to > from ? `${heroName()} reaches level ${to}` : `The ${d.name} pack is down`;
-    body = `<p class="loot">+${state.goldWon} gold</p>${rewardHTML()}
+    body = `<p class="loot">+${state.goldWon} gold</p>${found}${rewardHTML()}
       <p>Hunt again for a fresh pack, or head back to Cinderhold. Your warband is fully healed either way.</p>${questNewsHTML()}`;
     buttons = [
       { label: 'Hunt again', primary: true, fn: () => startHunt(d.id) },
@@ -10280,6 +11231,7 @@ function start(data) {
   // Your warband comes from your saved champion and recruits. A new player starts by creating a champion.
   syncTeam();
   grandfatherTraining();   // saves from before the yard opened keep the techniques they already carry
+  rackIllegalWeapons();    // saves from before weapons were faction-cut hand back what no longer fits
   if (!profile.hero) { state.team = []; state.screen = 'select'; }
   render();
 }
