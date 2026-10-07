@@ -28,6 +28,7 @@ PAL = {
     'stone':   ('#355d40', '#0e1d12', '#a8d06b'),
     'tide':    ('#1c6b7c', '#091f26', '#7fe3d8'),
     'crimson': ('#5c1a2d', '#18060d', '#e0455a'),
+    'undead':  ('#3f5244', '#0e1510', '#8ee696'),
 }
 
 DEFS = f'''
@@ -52,6 +53,9 @@ DEFS = f'''
 <linearGradient id="demon" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c84a4a"/><stop offset="1" stop-color="#5a1418"/></linearGradient>
 <radialGradient id="holy" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe6"/><stop offset=".5" stop-color="#ffe08a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd060" stop-opacity="0"/></radialGradient>
 <radialGradient id="pearl" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#f2e6f0"/><stop offset="1" stop-color="#b8a8c4"/></radialGradient>
+<linearGradient id="grave" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcffe6"/><stop offset="1" stop-color="#4f8a60"/></linearGradient>
+<radialGradient id="graveR" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#eafff0"/><stop offset=".5" stop-color="#9fe8b4" stop-opacity=".75"/><stop offset="1" stop-color="#6fcf8a" stop-opacity="0"/></radialGradient>
+<linearGradient id="shroud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a9a8c"/><stop offset="1" stop-color="#2e3a30"/></linearGradient>
 <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
 <filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.4" stdDeviation="1" flood-color="#000" flood-opacity=".55"/></filter>
 '''
@@ -1632,6 +1636,14 @@ CATALOG = {
         ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Bloodhound', 'Gorehound', 'passive'),
         ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
     ]),
+    'undead': ('The Pale Host', [
+        ('Grave Cross', 'Mordrek the Interred', 'skill'), ('Graveside Chill', 'Mordrek the Interred', 'skill'), ('Last Rites', 'Mordrek the Interred', 'sig'), ('Plant the Marker', 'Mordrek the Interred', 'skill'), ('Second Grave', 'Mordrek the Interred', 'passive'),
+        ('Tomb Slab', 'Barrow', 'skill'), ('Grasping Hands', 'Barrow', 'skill'), ('Barrow Wall', 'Barrow', 'sig'), ('Crypt Breaker', 'Barrow', 'skill'), ('Hold the Grave', 'Barrow', 'skill'), ('Feast of the Fallen', 'Barrow', 'passive'),
+        ('Bone Dart', 'Cadris Gravecall', 'skill'), ('Shambling Rise', 'Cadris Gravecall', 'skill'), ('Charnel Volley', 'Cadris Gravecall', 'sig'), ('Rot Shot', 'Cadris Gravecall', 'skill'), ('Marrow Pierce', 'Cadris Gravecall', 'skill'), ('Toll of the Dead', 'Cadris Gravecall', 'passive'),
+        ('Shroud Arrow', 'Vaun Shroudfletch', 'skill'), ('Withering Shot', 'Vaun Shroudfletch', 'skill'), ('Pall of Arrows', 'Vaun Shroudfletch', 'sig'), ('Graveshot', 'Vaun Shroudfletch', 'skill'), ('Scatter of Bones', 'Vaun Shroudfletch', 'skill'), ('Deathmark', 'Vaun Shroudfletch', 'passive'),
+        ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
+        ('Clawing Grasp', 'Shambler (summon)', 'skill'),
+    ]),
 }
 
 
@@ -2147,6 +2159,282 @@ def _():
 def slug(name):
     """Must match skillSlug() in index.html."""
     return re.sub(r'[^a-z0-9]+', '-', name.lower().replace("'", '')).strip('-')
+
+
+
+
+# ---- The Pale Host
+def headstone(fill='url(#iron)', s=1):
+    """A round-topped grave marker, origin at its foot."""
+    return g(f'<path d="M-9 0 V-16 Q-9 -26 0 -26 Q9 -26 9 -16 V0 Z" fill="{fill}"/>'
+             '<path d="M-5 -14 H5 M-5 -9 H5" stroke-width="1.2"/>', 0, 0, 0, s)
+
+
+def gravecross(fill='url(#iron)'):
+    """Mordrek's iron grave marker, origin at its center, point at the foot."""
+    return (f'<path d="M-3 -22 H3 V-12 H13 V-6 H3 V14 L0 22 L-3 14 V-6 H-13 V-12 H-3 Z" fill="{fill}"/>'
+            '<circle cx="0" cy="-9" r="2.2" fill="#2a2e3a"/>')
+
+
+def bone_shard(length=18, fill='url(#bone)'):
+    """A splintered bone, lobes at the back, point at the front. Points along +x."""
+    h = length / 2
+    return (f'<path d="M{-h} -3.4 Q{-h - 4} -5.6 {-h - 2.6} -1.4 Q{-h - 5.4} -.4 {-h - 2.6} 1.8 Q{-h - 4} 5.6 {-h} 3.4 L{h} 1 L{h + 4} 0 L{h} -1 Z" fill="{fill}"/>')
+
+
+def coffin_shape(fill='url(#wood)', w=1):
+    """A shouldered coffin, upright, origin at center."""
+    return (f'<path d="M-{7 * w} -20 L{7 * w} -20 L{10 * w} -8 L{6 * w} 20 L-{6 * w} 20 L-{10 * w} -8 Z" fill="{fill}"/>'
+            f'<path d="M-{9 * w} -8 H{9 * w}" stroke-width="1.2"/>')
+
+
+def mound():
+    """A fresh grave mound with a few stones."""
+    return ('<path d="M-16 8 Q0 -2 16 8 L16 10 H-16 Z" fill="url(#hide)"/>'
+            '<circle cx="-7" cy="7" r="1.6" fill="#8a7a62" stroke-width="1"/>'
+            '<circle cx="5" cy="6.4" r="1.3" fill="#8a7a62" stroke-width="1"/>')
+
+
+def bonehand(fill='url(#bone)'):
+    """A skeletal hand reaching up, wrist at the origin."""
+    return (f'<path d="M-5 10 L-4 -2 L-6 -12 L-3.4 -12 L-1.6 -3 L-1 -14 L1.6 -14 L2 -3 L4 -11 L6.4 -10 L4.6 -1 L5 10 Z" fill="{fill}"/>')
+
+
+@icon('Grave Cross')
+def _():
+    return (speed_lines(8, 20, 3, 9, 6, '#9fe8b4', -30)
+            + g(gravecross(), 34, 33, -38, 1.05)
+            + twinkle(51, 13, .8, '#dcffe6'))
+
+
+@icon('Last Rites')
+def _():
+    # The marker driven straight down, point-first, through the glow of the pact.
+    return ('<ellipse cx="32" cy="52" rx="15" ry="4" fill="url(#graveR)" stroke="none"/>'
+            + burst(32, 50, 3.4, 8, 8, '#9fe8b4')
+            + g(gravecross('url(#steel)'), 32, 27, 180, 1.1))
+
+
+@icon('Graveside Chill')
+def _():
+    return (g(headstone(), 44, 50, 0, .8)
+            + poly('M8 30 Q16 24 24 30 T40 30', '#bfeccb', 2.6)
+            + poly('M6 40 Q14 34 22 40 T38 40 T52 40', '#9fe8b4', 2.6)
+            + poly('M10 50 Q18 44 26 50 T42 50', '#7ec898', 2.6)
+            + twinkle(14, 18, .7, '#dcffe6'))
+
+
+@icon('Plant the Marker')
+def _():
+    return ('<ellipse cx="32" cy="50" rx="17" ry="5" fill="url(#graveR)" stroke="none"/>'
+            + g(mound(), 32, 44)
+            + g(gravecross(), 32, 27, 0, 1.0)
+            + arc_lines(32, 30, 24, 3, 50, '#9fe8b4', 0, 2))
+
+
+@icon('Tomb Slab')
+def _():
+    # The grave slab mid-slam, corner-first.
+    return (burst(42, 50, 3, 7.5, 8, '#c9ccd8')
+            + g('<rect x="-13" y="-19" width="26" height="38" rx="3" fill="url(#iron)"/>'
+                '<path d="M-6 -12 H6 M-8 -6 H8 M-8 0 H8" stroke-width="1.3"/>'
+                '<path d="M0 -12 V-4 M-4 -8 H4" stroke="#c9ccd8" stroke-width="2"/>', 30, 29, -34))
+
+
+@icon('Barrow Wall')
+def _():
+    return ('<circle cx="32" cy="32" r="21" fill="url(#graveR)" stroke="none"/>'
+            + g(heater('url(#iron)', '#8ee696'), 32, 32, 0, 1.1)
+            + '<path d="M32 22 V42 M24 29 H40" stroke="#8ee696" stroke-width="2.6"/>')
+
+
+@icon('Grasping Hands')
+def _():
+    return ('<path d="M8 52 H56" stroke="#4a4036" stroke-width="3"/>'
+            + g(bonehand(), 18, 46, -8, .9)
+            + g(bonehand(), 32, 44, 0, 1.05)
+            + g(bonehand(), 46, 46, 8, .9))
+
+
+@icon('Crypt Breaker')
+def _():
+    return (g('<rect x="-14" y="-6" width="28" height="12" rx="2" fill="url(#iron)"/>'
+              '<path d="M-3 -6 L1 0 L-2 6 M1 0 L6 -2" stroke="#15121d" stroke-width="1.6" fill="none"/>', 32, 46)
+            + burst(32, 40, 3, 7, 8, '#ffd166')
+            + g(hammer('url(#steel)'), 33, 22, 42, 1.05))
+
+
+@icon('Hold the Grave')
+def _():
+    spikes = ''.join(f'<g transform="rotate({a} 32 32)"><path d="M32 9 L29.6 15 L34.4 15 Z" fill="url(#bone)"/></g>'
+                     for a in (0, 45, 90, 135, 180, 225, 270, 315))
+    return spikes + g(heater('url(#iron)', '#8ee696'), 32, 32, 0, .82)
+
+
+@icon('Bone Dart')
+def _():
+    return (speed_lines(7, 38, 3, 10, 6, '#e9e4d8', -12)
+            + g(bone_shard(22), 33, 31, -12, 1.15)
+            + twinkle(52, 16, .8, '#ffffff'))
+
+
+@icon('Charnel Volley')
+def _():
+    return (g(bone_shard(16), 26, 20, -24)
+            + g(bone_shard(18), 32, 34, -12, 1.1)
+            + g(bone_shard(15), 26, 47, 2)
+            + speed_lines(6, 34, 3, 8, 7, '#bfeccb', -12))
+
+
+@icon('Shambling Rise')
+def _():
+    return (g(headstone('url(#iron)', .85), 45, 50)
+            + g(mound(), 26, 48)
+            + g(bonehand('url(#grave)'), 26, 40, -4, 1.2)
+            + '<circle cx="14" cy="30" r="1.6" fill="#8a7a62" stroke-width="1"/>'
+            + '<circle cx="36" cy="26" r="1.4" fill="#8a7a62" stroke-width="1"/>'
+            + arc_lines(26, 36, 17, 3, 60, '#9fe8b4', 0, 1.8))
+
+
+@icon('Rot Shot')
+def _():
+    return (g(arrow('url(#bone)', '#6a7055'), 31, 31, -32)
+            + g(drop('url(#poison)'), 46, 44, 0, .85)
+            + speed_lines(8, 46, 2, 8, 6, '#9ac46b', -32))
+
+
+@icon('Marrow Pierce')
+def _():
+    # A long bone spike punched clean through a plate.
+    return (g('<rect x="-9" y="-13" width="18" height="26" rx="3" fill="url(#iron)"/>', 38, 36, 12)
+            + g(bone_shard(34), 30, 32, 18, 1.1)
+            + burst(44, 41, 2.4, 5.5, 8, '#e9e4d8'))
+
+
+@icon('Shroud Arrow')
+def _():
+    return (poly('M10 44 Q18 36 14 26 Q22 32 20 20', '#8a9a8c', 2.4)
+            + g(arrow('url(#steel)', '#44523f'), 33, 30, -28)
+            + poly('M22 44 Q30 40 28 32', '#6a7a6c', 2))
+
+
+@icon('Pall of Arrows')
+def _():
+    arr = '<path d="M0 -8 V6 M0 6 L-2.6 1.8 M0 6 L2.6 1.8 M-2 -8 L0 -5 L2 -8" stroke-width="2" fill="none"/>'
+    return ('<path d="M10 16 Q16 8 26 12 Q32 4 42 10 Q52 8 54 17 Q58 24 48 25 L14 25 Q6 23 10 16 Z" fill="url(#shroud)"/>'
+            + g(arr, 20, 38) + g(arr, 32, 42) + g(arr, 44, 38))
+
+
+@icon('Withering Shot')
+def _():
+    return (g(arrow('url(#steel)', '#44523f'), 30, 28, -22)
+            + poly('M42 40 L47 46 L52 40', '#d6a0ff', 2.4)
+            + poly('M42 48 L47 54 L52 48', '#a860e0', 2.4))
+
+
+@icon('Graveshot')
+def _():
+    return (g(skull(), 46, 42, 0, .6)
+            + g(arrow('url(#steel)', '#44523f'), 28, 28, -30)
+            + speed_lines(8, 42, 2, 9, 6, '#bfeccb', -30))
+
+
+@icon('Scatter of Bones')
+def _():
+    return (g(bone_shard(15), 20, 22, 20)
+            + g(bone_shard(13), 42, 20, -35)
+            + g(bone_shard(16), 30, 38, 65)
+            + g(bone_shard(12), 46, 42, 10)
+            + g(drop(), 16, 44, 0, .7)
+            + twinkle(33, 12, .7, '#e9e4d8'))
+
+
+@icon('Grave Mend')
+def _():
+    return ('<circle cx="32" cy="32" r="18" fill="url(#graveR)" stroke="none"/>'
+            + g(plus('url(#grave)'), 32, 32, 0, 1.1)
+            + twinkle(16, 18, .8, '#dcffe6') + twinkle(48, 44, .7, '#dcffe6'))
+
+
+@icon('Second Burial')
+def _():
+    # The lid off, and the pale light standing up out of the box.
+    return ('<ellipse cx="30" cy="20" rx="10" ry="14" fill="url(#graveR)" stroke="none"/>'
+            + '<path d="M30 10 V26 M24 17 L30 10 L36 17" stroke="#dcffe6" stroke-width="2.6" fill="none"/>'
+            + g(coffin_shape(), 30, 40, 0, .9)
+            + g('<path d="M-6 -18 L6 -18 L9 -7 L5 18 L-1 18 Z" fill="url(#wood)"/>', 49, 38, 18, .8))
+
+
+@icon('Coffin')
+def _():
+    return ('<circle cx="32" cy="32" r="21" fill="url(#graveR)" stroke="none"/>'
+            + g(coffin_shape(), 32, 32, 0, 1.15)
+            + '<path d="M32 18 V28 M27 23 H37" stroke="#8ee696" stroke-width="2.2"/>')
+
+
+@icon('Hex of Ruin')
+def _():
+    return ('<ellipse cx="32" cy="32" rx="22" ry="14" fill="url(#hex)"/>'
+            + '<circle cx="32" cy="32" r="8.5" fill="#f4f0ff"/>'
+            + '<circle cx="32" cy="32" r="4.4" fill="#2a1d40"/>'
+            + '<path d="M46 14 L52 20 M52 14 L46 20" stroke="#8ee696" stroke-width="2.4"/>'
+            + g(plus('url(#heal)'), 16, 48, 0, .5)
+            + '<path d="M9 41 L23 55" stroke="#e0455a" stroke-width="2.8"/>')
+
+
+@icon('Soul Siphon')
+def _():
+    return (g(skull('url(#bone)', '#1a241c'), 18, 40, 0, .85)
+            + poly('M24 32 Q32 20 42 24 Q36 28 38 34 Q44 30 48 22', '#9fe8b4', 2.6)
+            + '<circle cx="49" cy="18" r="5" fill="url(#graveR)" stroke="none"/>'
+            + '<circle cx="49" cy="18" r="2.6" fill="#dcffe6"/>')
+
+
+@icon('Clawing Grasp')
+def _():
+    return g(claw('#b9c0a6'), 32, 32, -12, .95) + speed_lines(10, 18, 2, 8, 6, '#9fe8b4', -12)
+
+
+@icon('Second Grave')
+def _():
+    return ('<path d="M8 52 H56" stroke="#4a4036" stroke-width="3"/>'
+            + g(headstone('url(#iron)', .95), 23, 52)
+            + g(headstone('url(#steel)', .8), 43, 52)
+            + twinkle(43, 20, .8, '#dcffe6'))
+
+
+@icon('Feast of the Fallen')
+def _():
+    return (g(skull(), 32, 26, 0, 1.0)
+            + poly('M20 44 Q26 50 32 44 Q38 50 44 44', '#9fe8b4', 2.4)
+            + g(drop('url(#grave)'), 32, 48, 0, .8))
+
+
+@icon('Toll of the Dead')
+def _():
+    # The charnel bell, cracked, with a bone for a clapper.
+    return (g('<path d="M-11 8 Q-11 -12 0 -14 Q11 -12 11 8 L14 12 H-14 Z" fill="url(#iron)"/>'
+              '<path d="M-2 -14 Q0 -17 2 -14" fill="none" stroke-width="2"/>'
+              '<path d="M2 -6 L5 2 L3 8" fill="none" stroke-width="1.4"/>', 32, 28)
+            + g(bone_shard(8), 32, 44, 90, .8)
+            + arc_lines(32, 30, 22, 2, 40, '#9fe8b4', 90, 2)
+            + arc_lines(32, 30, 22, 2, 40, '#9fe8b4', -90, 2))
+
+
+@icon('Deathmark')
+def _():
+    return ('<circle cx="32" cy="32" r="17" fill="none" stroke="#e0455a" stroke-width="2.6"/>'
+            + '<path d="M32 10 V20 M32 44 V54 M10 32 H20 M44 32 H54" stroke="#e0455a" stroke-width="2.6"/>'
+            + g(skull(), 32, 33, 0, .85))
+
+
+@icon('Keeper of the Coffin')
+def _():
+    return (g(coffin_shape(), 32, 32, 0, 1.05)
+            + '<circle cx="32" cy="26" r="6.5" fill="url(#graveR)" stroke="none"/>'
+            + g(plus('url(#heal)'), 32, 26, 0, .55))
+
+
 
 
 def frame(faction, kind, glyph, name):

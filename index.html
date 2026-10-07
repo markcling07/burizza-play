@@ -528,6 +528,16 @@ h1 {
 .unit.elite .plate { border-color: var(--bad); }
 .unit .chips { justify-content: center; min-height: 0; gap: 2px; }
 .unit .chip { font-size: .5rem; line-height: 11px; padding: 0 4px; background: var(--plate); }
+/* The chip's label slowly fades away, leaving just the icon. Anything that touches the champion —
+   damage, a mend, a new status — restamps the unit's last-touched time (float / addFx), and render
+   feeds it in as a negative delay (--chipAge), so the fade runs on across re-renders and the words
+   come back whenever something new lands. */
+.unit .chip .txt {
+  display: inline-block; vertical-align: top; overflow: hidden; max-width: 16ch;
+  animation: chipTxt 10s linear var(--chipAge, 0ms) forwards;
+}
+@keyframes chipTxt { 0%, 55% { opacity: 1; max-width: 16ch; } 85% { opacity: 0; } 100% { opacity: 0; max-width: 0; } }
+@media (prefers-reduced-motion: reduce) { .unit .chip .txt { animation: none; } }
 /* Battle text wears Google Sans a size down: with eight champions (plus summons) on the field,
    plates and chips must hug their content or they hide whoever stands behind them. */
 body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
@@ -583,7 +593,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 /* The fallen keep nothing: name, bars and status chips fade out with the fall. visibility
    (not display) so the card's layout holds and the body doesn't jump as they vanish. */
 .unit.down .plate, .unit.down .chips { opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility 0s .5s; }
-/* UNDYING (the Pale Host): a champion standing on its last round burns pale green and keeps
+/* UNDYING (the Pale Host): a champion standing past its death burns pale green and keeps
    the colour the fall would have drained out of it. See the UNDYING block in the script. */
 .unit.undying .body {
   filter: drop-shadow(0 0 10px rgba(126, 230, 150, .85)) drop-shadow(0 0 22px rgba(90, 200, 120, .45)) saturate(.7) brightness(.94);
@@ -699,6 +709,16 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .bolt.backwash.bloodlink .bw-body { stroke: #c0303f; }
 .bolt.backwash.bloodlink .bw-core { stroke: #ff9aa8; }
 .bolt.backwash.bloodlink circle { fill: #c0303f; stroke: #4a0a14; }
+/* Sister Liesl's Sacred Light (sacredLight()): a shaft of dawn opens high over the ally and pours
+   straight down onto them, pooling where they stand, then lifts away as the mend takes hold. */
+.bolt.sacredlight { z-index: 240; }
+.bolt.sacredlight polygon { stroke: none; }
+.bolt.sacredlight .sl-glow { fill: rgba(255, 214, 106, .22); filter: blur(2px); }
+.bolt.sacredlight .sl-body { fill: rgba(255, 233, 168, .5); }
+.bolt.sacredlight .sl-core { fill: rgba(255, 251, 230, .92); filter: drop-shadow(0 0 10px rgba(255, 224, 138, .8)); }
+.bolt.sacredlight .sl-pool { fill: rgba(255, 224, 138, .55); filter: blur(3px); }
+.bolt.sacredlight circle { fill: #fffbe6; filter: drop-shadow(0 0 4px #ffd166); }
+.bolt.sacredlight circle, .bolt.sacredlight .sl-pool { transform-box: fill-box; transform-origin: center; }
 /* ...and for her whole turn while the channel is open, a standing vein to every ally: blood flows
    along it and a heartbeat pulses where it takes hold (syncBloodTethers). */
 .tethers { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 245; pointer-events: none; overflow: visible; animation: tvIn .35s ease-out; }
@@ -830,6 +850,14 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   display: grid; gap: 10px; align-content: start; min-width: 0;
   padding: 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line);
 }
+/* Your turn: the command deck lights up gold so it's plain the game is waiting on you. */
+.deck.your-turn {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(232, 165, 72, .45), 0 0 18px rgba(232, 165, 72, .22);
+  animation: deckCall 1.7s ease-in-out infinite;
+}
+@keyframes deckCall { 50% { box-shadow: 0 0 0 1px rgba(232, 165, 72, .8), 0 0 28px rgba(232, 165, 72, .45); } }
+@media (prefers-reduced-motion: reduce) { .deck.your-turn { animation: none; } }
 .dhead { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; }
 .dhead h3 { margin: 2px 0 0; font-family: var(--font-display); font-weight: 600; font-size: 1.45rem; line-height: 1.1; }
 .passive { margin: 0; font-size: .86rem; color: var(--muted); }
@@ -1440,7 +1468,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
    ================================================================== */
 const FACTIONS = {
   mech:  { name: 'Ironclad Union',     mechanic: 'Heat',
-           rule: 'Every action builds Heat, filling the overheat bar in quarters (25 / 50 / 75 / 100) and adding up to 40% damage. Each quarter sears anyone it trades blows with — attacking or being attacked — for 10 / 20 / 30 / 40. At 100 Heat the unit overheats and skips its next turn; Guard vents 50 Heat. Water douses it: a Soaked unit (from Tideborn hits or a Downpour) drops to 0 Heat and cannot build any until the Soaked wears off. A destroyed Ironclad champion leaves a Salvage Bot behind. Machines don\'t bleed: Ironclad units are immune to Bleed.' },
+           rule: 'Every action builds Heat, filling the overheat bar in quarters (25 / 50 / 75 / 100) and adding up to 40% damage. Each quarter sears anyone who closes to melee with it — a melee attacker striking the Mech, or a melee Mech striking home — for 10 / 20 / 30 / 40. Ranged units trade fire from a safe distance and are never seared. At 100 Heat the unit overheats and skips its next turn; Guard vents 50 Heat. Water douses it: a Soaked unit (from Tideborn hits or a Downpour) drops to 0 Heat and cannot build any until the Soaked wears off. A destroyed Ironclad champion leaves a Salvage Bot behind. Machines don\'t bleed: Ironclad units are immune to Bleed.' },
   orc:   { name: 'Bloodtusk Horde',    mechanic: 'Rage',
            rule: 'Deals more damage the more hurt it is, up to +50% near death.' },
   human: { name: 'Kingdom of Aldmere', mechanic: 'Discipline',
@@ -1452,7 +1480,7 @@ const FACTIONS = {
   crimson: { name: 'The Crimson Court', mechanic: 'Bloodthirst',
            rule: 'The Court keeps no mana — it pays in blood. A skill costs 15% of the caster\'s current HP and a ★ signature 20%, and no toll can take their last point: they are left standing on 1 HP at worst. Attack and Guard are free. Every hit drains 20% of the damage dealt as HP, and every attack drinks a further 5% of the victim\'s maximum HP on top of whatever the skill itself steals. The Court has no ranged fighters: four melee and a support who Hexes enemies so they heal for half.' },
   undead: { name: 'The Pale Host',     mechanic: 'Undying',
-           rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet for one more round, lit by a pale green light and already dead: nothing can heal it, nothing can hurry the round along, and when the round runs out it falls for good. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will have its last round a second time.' },
+           rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet, lit by a pale green light and already dead: nothing can heal it, and it stands and fights until one more instance of damage lands — a blow, a tick, anything — and that one is the end. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will stand past its death a second time.' },
 };
 const FACTION_KEYS = Object.keys(FACTIONS);
 // "the Bloodtusk Horde", "the Tideborn": names that already start with "The" don't get a second one.
@@ -1627,7 +1655,7 @@ const FX = {
   immune:   { icon: '🧚', label: 'Charmed',   kind: 'good', verb: 'is protected by a charm: new debuffs fail' },
   // The Pale Host's innate (see UNDYING) and the Necromancer's coffin. Both are states a unit is
   // held in rather than blows it has taken, so neither can be cleansed, stolen or resisted.
-  undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: one last round, and no mending can reach it' },
+  undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: the next damage it takes is the end, and no mending can reach it' },
   coffin:   { icon: '⚰️', label: 'Coffined',  kind: 'good', verb: 'is sealed in a coffin: nothing can target it, area attacks wash over it, and no mending reaches in' },
 };
 // Icon shown on floating damage numbers for magic / elemental hits.
@@ -1846,7 +1874,7 @@ const ROSTER = [
   { id: 'liesl', name: 'Sister Liesl', short: 'Liesl', faction: 'human', role: 'support', bio: 'Cleric of the dawn chapel.',
     mods: {},
     look: { body: 'human', main: '#e9e4d8', trim: '#d9b44a', skin: '#f0c9a6', hair: '#c9a25e', weapon: 'staff', orb: '#fff1b8' },
-    skills: [H('Sacred Light', 'Heal an ally and clear all their debuffs.', 2, 3.2, { cleanse: true }),
+    skills: [H('Sacred Light', 'Heal an ally and clear all their debuffs.', 2, 3.2, { cleanse: true, lightbeam: true }),
              H('Prayer of Dawn', 'Heal all allies and restore 25 mana to each.', 5, 2.0, { all: true, manaRestore: 25 }),
              B('Guardian Angel', 'Shield an ally for 2 turns and give them Regen.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
              B('Benediction', 'An ally takes 60% less damage for 2 turns and resists new debuffs.', 4, 'ally', [['ward', 2], ['immune', 3]], { aiTarget: 'lowest' }),
@@ -2006,7 +2034,7 @@ const ROSTER = [
              D('Graveside Chill', '85% to all enemies. Weakens them.', 4, 0.85, { aoe: true, fx: [['weaken', 3]] }),
              D('Bonebreaker', 'Two blows of 75% that sunder armor.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
              B('Plant the Marker', 'Drive the cross into the ground: taunt every enemy and brace, shielded for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]])],
-    passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: his Undying round lasts twice as long.', { undyingLong: 2 }) },
+    passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
     look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'hammer', shield: '#4a5244' },
@@ -2038,7 +2066,7 @@ const ROSTER = [
     mods: { def: 1.1 },
     look: { body: 'wraith', main: '#4a5a4e', trim: '#9fc4a2', eye: '#8ee6a0', weapon: 'coffin', orb: '#8ee6a0' },
     skills: [H('Grave Mend', 'Mend an ally with grave-dust and a whispered name.', 2, 2.8),
-             R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — they stand Undying again — but mending can reach them once more.', 6, 0.10),
+             R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — the Undying pact holds anew when they next fall — and mending can reach them once more.', 6, 0.10),
              C('Coffin', 'Shut an ally into the coffin until their next turn. Nothing can target them, area attacks wash over them for nothing, and no mending reaches inside. When the lid opens, everything laid on them — blessing and curse alike — stays behind in the box.', 4),
              B('Hex of Ruin', 'Hex an enemy for 3 turns: all healing they receive is halved.', 3, 'enemy', [['hex', 4]]),
              D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 })],
@@ -3227,7 +3255,7 @@ function validTargets(u, sk) {
   }
   if (sk.target === 'ally') return openAllies(u);
   // Second Burial alone looks past the living: its marks are this side's fallen champions. One
-  // already spending its Undying round is not among them — it is still on its feet.
+  // already standing Undying is not among them — it is still on its feet.
   if (sk.target === 'deadAlly') return state.teams[u.side].filter((a) => a.hp <= 0 && !a.summon && !undyingOn(a));
   return [];
 }
@@ -3295,43 +3323,41 @@ function spendCharge(u, e, msg) {
    death in the game funnels through fell() below, whatever dealt it —
    a skill, a Burn tick, thorns, a Firebomb, Soul Link's shared share —
    so this is the only place that has to know about the pact.
-   The unit is pinned at 1 HP, lit pale green, and owed one round of
-   bar time (two, with Mordrek's Second Grave). Nothing mends it while
-   it stands there, and nothing can cut the round short either: a
-   further blow just pins it at 1 again. When the round runs out,
-   tickUndying lets the death through for real.
+   The unit is pinned at 1 HP, lit pale green, and already dead: it can
+   take one more instance of damage (two, with Mordrek's Second Grave)
+   and that instance ends it, whatever it is — a blow, a tick, a sear.
+   Nothing mends it while it stands there. Until something lands, it
+   keeps its feet and keeps fighting.
    Summons are not covered — a Shambler is already borrowed time — and
-   a champion called back by Second Burial is owed the round afresh.
+   a champion called back by Second Burial holds the pact afresh.
    ================================================================== */
-const undyingOn = (u) => u.undyingUntil != null;
+const undyingOn = (u) => (u.undyingHits || 0) > 0;
 // Every body on the field, both sides, champions and summons alike: what Cadris counts.
-// A champion standing on an Undying round is at 1 HP, so it is rightly not among them.
+// A champion standing Undying is at 1 HP, so it is rightly not among them.
 const deadCount = () => allUnits().filter((x) => x.hp <= 0).length;
 
-// Absorbs the death of a Pale Host champion that still has its last round owed to it.
+// Absorbs the death of a Pale Host champion that is still owed the pact.
 // Returns true when the death was absorbed, so fell() knows to stop short.
 function undyingCatch(v) {
   if (v.faction !== 'undead' || v.summon || v.undyingSpent) return false;
-  v.hp = Math.max(1, v.hp);        // back on its feet; later blows only ever pin it here again
-  if (undyingOn(v)) return true;   // already inside its last round
-  v.undyingUntil = state.time + ROUND_TIME * (pv(v).undyingLong || 1);
-  addFx(v, 'undying', 99, 0, true);   // the chip on the plate; tickUndying is what ends it
-  float(v, 'Undying', 'fx');
-  log(`${v.name} should be down, and is still standing.`, 'sys');
-  return true;
-}
-
-// Called from the battle loop. When the owed round has run out, the death goes through for good.
-function tickUndying() {
-  for (const u of allUnits()) {
-    if (!undyingOn(u) || u.undyingUntil > state.time + EPS) continue;
-    u.undyingUntil = null;
-    u.undyingSpent = true;   // the pact is used up; only a revival renews it
-    u.effects = u.effects.filter((e) => e.id !== 'undying');
-    u.hp = 0;
-    log(`${u.name}'s last round runs out.`, 'sys');
-    fell(u, unitBy(u.lastHitBy));
+  if (undyingOn(v)) {
+    // Already standing Undying: this instance spends one of the hits it is owed.
+    v.undyingHits--;
+    if (v.undyingHits > 0) {         // Second Grave: Mordrek shrugs off one more
+      v.hp = Math.max(1, v.hp);
+      log(`${v.name} takes the blow and does not fall.`, 'sys');
+      return true;
+    }
+    v.undyingSpent = true;           // the pact is used up; only a revival renews it
+    v.effects = v.effects.filter((e) => e.id !== 'undying');
+    return false;                    // the death goes through for real
   }
+  v.undyingHits = pv(v).undyingHits || 1;   // how many more instances it can take
+  v.hp = Math.max(1, v.hp);                 // back on its feet, lit pale green
+  addFx(v, 'undying', 99, 0, true);         // the chip on the plate; the next hit is what ends it
+  float(v, 'Undying', 'fx');
+  log(`${v.name} should be down, and is still standing. The next blow is the end.`, 'sys');
+  return true;
 }
 
 /* Barrow: Feast of the Fallen. Any real death on the field feeds everyone carrying the passive.
@@ -3552,9 +3578,11 @@ function strikeOnce(u, t, mult, label, o) {
     if (u.hp <= 0) fell(u, t);
   }
   if (t.hp <= 0) fell(t, u);
-  // Ironclad heat sears on contact — a living Mech burns whoever it trades blows with.
-  if (u.faction === 'mech') searContact(u, t);   // its blow sears the enemy it struck
-  if (t.faction === 'mech') searContact(t, u);   // and striking a hot Mech burns the attacker
+  // Ironclad heat sears on contact — a living Mech burns whoever actually gets near it.
+  // Only melee brings bodies together: a melee Mech closes in to strike, and a melee attacker
+  // closes in to strike a Mech. Ranged units trade fire from afar and are never seared.
+  if (u.faction === 'mech' && u.role === 'melee') searContact(u, t);   // a melee Mech's blow sears the enemy it struck
+  if (t.faction === 'mech' && u.role === 'melee') searContact(t, u);   // striking a hot Mech up close burns the attacker
   return { dmg, crit };
 }
 
@@ -3790,7 +3818,7 @@ function healPower(u, mult, o = {}) {
 
 function healUnit(src, t, amount, label, o = {}) {
   if (t.hp <= 0) return;
-  // Shut in the coffin, or standing on an Undying round: no mending reaches either of them.
+  // Shut in the coffin, or standing Undying: no mending reaches either of them.
   if (has(t, 'coffin') || undyingOn(t)) {
     float(t, 'No mending', 'fx');
     log(`${t.name} cannot be mended.`, 'sys');
@@ -3822,6 +3850,7 @@ async function healSkill(u, t, sk) {
   const targets = sk.target === 'allAllies' ? openAllies(u) : [t];
   await castPose(u, true);
   for (const a of targets) {
+    if (o.lightbeam) await sacredLight(a);   // Sacred Light: the shaft lands before the mend pops
     burst(a, 'heal');
     healUnit(u, a, healPower(u, sk.mult, o), sk.name);
     if (o.cleanse) cleanse(a);
@@ -3899,6 +3928,7 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   } else if (until != null) u.effects.push({ id, turns, value, until, start: state.time });
   else u.effects.push({ id, turns, value });
   if (id === 'soaked') douse(u, 'The soaking');
+  u.chipsAt = Date.now();   // even a quiet status re-shows the chip text (float covers the rest)
   if (quiet) return;
   float(u, `${FX[id].icon} ${FX[id].label}`, 'fx');
   log(`${u.name} ${FX[id].verb}.`, FX[id].kind === 'good' ? u.side : 'sys');
@@ -3923,7 +3953,7 @@ async function beginTurn(u) {
     // Undying can catch this: fell() puts a Pale Host champion back on 1 HP, and the turn goes on.
     if (u.hp <= 0) { fell(u, unitBy(e.by)); render(); await wait(450); if (u.hp <= 0) return 'dead'; }
   }
-  // Nothing mends what is sealed in a coffin or already spending its last round.
+  // Nothing mends what is sealed in a coffin or already standing Undying.
   const sealed = has(u, 'coffin') || undyingOn(u);
   const rg = has(u, 'regen');
   if (rg && u.hp < u.maxHp && !sealed) {
@@ -3937,7 +3967,7 @@ async function beginTurn(u) {
   // Natural HP regen: champions (not summons) recover a small share of max HP each turn. Hex halves it.
   // Elowen's Verdant Aura adds to it for her whole warband.
   // The Pale Host keep their own slow mending at full strength: the grave sustains them even
-  // though spells barely can. What it cannot do is reach into a coffin or an Undying round.
+  // though spells barely can. What it cannot do is reach into a coffin or an Undying stand.
   if (!u.summon && u.hp < u.maxHp && !sealed) {
     let amt = Math.round(u.maxHp * (HP_REGEN_PCT + (allyHas(u, 'allyRegen') ? 0.02 : 0))) + (u.hpRegen || 0);
     if (has(u, 'hex')) amt = Math.round(amt * 0.5);
@@ -4420,7 +4450,7 @@ async function strikeOnSpawn(s) {
 function reviveUnit(src, t, pct, label) {
   t.hp = Math.max(1, Math.round(t.maxHp * pct));
   t.felled = false;
-  t.undyingUntil = null; t.undyingSpent = false;
+  t.undyingHits = 0; t.undyingSpent = false;
   t.effects = [];
   t.downAt = null;
   t.pos = 0;
@@ -4536,7 +4566,6 @@ async function advanceClock(token) {
     if (token !== state.token) return null;
 
     expireTimed();
-    tickUndying();   // a Pale Host champion whose last round has run out falls here (see UNDYING)
     cleanupSummons();
     if (dtRound <= dt + 1e-9) {
       const changed = newRound();
@@ -6040,6 +6069,7 @@ function bump(u, cls) {
 }
 
 function float(u, text, kind) {
+  u.chipsAt = Date.now();   // anything popping over a champion re-shows their chip text for a while
   const host = document.querySelector(`#u-${u.uid} .upic`);
   if (!host) return;
   const el = document.createElement('span');
@@ -7006,7 +7036,7 @@ const TIPS = [
   'Summons vanish the moment their summoner falls. Strike the master, not the beast.',
   'A taunting enemy must be dealt with first, but attacks that hit every enemy ignore taunts.',
   'Ironclad champions overheat at 100 Heat. Guard vents half of it, and so does a Mana Tonic.',
-  'A hot Ironclad sears everyone it trades blows with — the fuller its overheat bar, the worse the burn.',
+  'A hot Ironclad sears anyone who closes to melee with it — the fuller its overheat bar, the worse the burn. Keep your distance and shoot.',
   'Destroy an Ironclad champion and it leaves a Salvage Bot behind. It fights on, but never saves them from a loss.',
   'Dwarves grow tougher every time they are hit. Burn, Poison and Bleed do not care.',
   'Elves sharpen their aim each turn nobody hits them. Keep the archers under pressure.',
@@ -9092,6 +9122,43 @@ async function backwash(src, u, style = 'water') {
   svg.remove();
 }
 
+/* SACRED LIGHT — Sister Liesl's mend: a shaft of dawn opens high over the ally and pours straight
+   down onto them, pooling where they stand. Purely visual — healSkill moves the HP. The await
+   returns once the light has landed, so the heal number pops while the shaft still stands. */
+async function sacredLight(t) {
+  const e = stageBox(t);
+  if (reduced || !e) return;
+  const topW = e.w * 0.5, botW = e.w * 0.68, y0 = -8, y1 = e.feet + 2;
+  // Three nested shafts, each a slim trapezoid from above the sky edge down to the ally's feet.
+  const shaft = (k) => `${(e.x - topW * k).toFixed(1)},${y0} ${(e.x + topW * k).toFixed(1)},${y0} `
+    + `${(e.x + botW * k).toFixed(1)},${y1.toFixed(1)} ${(e.x - botW * k).toFixed(1)},${y1.toFixed(1)}`;
+  const motes = [-1, 0, 1].map((side, i) =>
+    `<circle cx="${(e.x + side * e.w * 0.26).toFixed(1)}" cy="${(y1 * (0.35 + i * 0.18)).toFixed(1)}" r="2.4"/>`).join('');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'bolt sacredlight');
+  svg.innerHTML = `<polygon class="sl-glow" points="${shaft(1.5)}"/><polygon class="sl-body" points="${shaft(1)}"/>`
+    + `<polygon class="sl-core" points="${shaft(0.45)}"/>`
+    + `<ellipse class="sl-pool" cx="${e.x.toFixed(1)}" cy="${y1.toFixed(1)}" rx="${(botW * 1.6).toFixed(1)}" ry="7"/>` + motes;
+  $('#arena').appendChild(svg);
+  const ms = beat(950);
+  // The shaft sweeps down out of the sky, holds while the mend lands, then lifts away.
+  svg.animate([
+    { clipPath: 'inset(0 0 100% 0)', opacity: 0.9 },
+    { clipPath: 'inset(0 0 0% 0)', opacity: 1, offset: 0.22 },
+    { clipPath: 'inset(0 0 0% 0)', opacity: 1, offset: 0.72 },
+    { clipPath: 'inset(0 0 0% 0)', opacity: 0 },
+  ], { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  // Light motes drift down the shaft; the pool spreads where it strikes the ground.
+  svg.querySelectorAll('circle').forEach((c, i) => c.animate(
+    [{ opacity: 0, transform: 'translateY(-14px)' }, { opacity: 1, offset: 0.3 + i * 0.12 },
+     { opacity: 0, transform: 'translateY(14px)' }], { duration: ms, fill: 'forwards' }));
+  svg.querySelector('.sl-pool').animate(
+    [{ transform: 'scaleX(.25)', opacity: 0 }, { opacity: .9, offset: .35 }, { transform: 'scaleX(1)', opacity: 0 }],
+    { duration: ms, fill: 'forwards' });
+  setTimeout(() => svg.remove(), ms + 60);
+  await sleep(ms * 0.4);
+}
+
 // Positions every icon on the speed bar. ms = glide time for this move.
 function renderTrack(ms) {
   for (const u of allUnits()) {
@@ -9148,11 +9215,10 @@ function factionPassive(u) {
   if (u.faction === 'crimson') return `<b>Bloodthirst:</b> every hit drains ${wx() === 'moon' ? 40 : 20}% of the damage dealt as HP.`;
   if (u.faction === 'undead') {
     if (undyingOn(u)) {
-      const left = Math.max(1, Math.ceil((u.undyingUntil - state.time) / ROUND_TIME * 10) / 10);
-      return `<b>Undying:</b> already dead and still standing. Falls for good in ${left} round${left === 1 ? '' : 's'}, and nothing can mend it until then.`;
+      const left = u.undyingHits;
+      return `<b>Undying:</b> already dead and still standing. ${left > 1 ? `Falls for good after ${left} more instances of damage` : 'The next damage it takes ends it for good'}, and nothing can mend it until then.`;
     }
-    if (u.undyingSpent) return '<b>Undying: spent.</b> It has had its last round. The next blow that lands is the end.';
-    return '<b>Undying:</b> the next blow that would fell it leaves it standing one more round instead. Healing from spells and potions is halved.';
+    return '<b>Undying:</b> the blow that would fell it leaves it standing instead — dead on its feet until one more instance of damage lands. Healing from spells and potions is halved.';
   }
   return f.rule;
 }
@@ -9163,7 +9229,6 @@ function passiveChips(u) {
   if (u.race === 'elf' && u.stacks) c.push(`Precision ${u.stacks}`);
   if (u.race === 'dwarf' && u.stacks) c.push(`Fortify ${u.stacks}`);
   if (u.faction === 'tide' && highTide() && u.hp > 0) c.push('High Tide');
-  if (u.faction === 'undead' && u.undyingSpent && u.hp > 0) c.push('Undying spent');
   if (pv(u).deadScale && u.hp > 0) { const d = deadCount(); if (d) c.push(`Toll +${Math.round(pv(u).deadScale * d * 100)}%`); }
   if (favored(u) && u.hp > 0) c.push(WEATHER[wx()].name);
   return c.map((t) => `<li class="chip pass">${t}</li>`).join('');
@@ -9234,13 +9299,16 @@ function renderBattle() {
       mpBar.querySelector('.fill').style.width = `${(u.mp / u.maxMp) * 100}%`;
       mpBar.querySelector('span').textContent = `${u.mp} / ${u.maxMp} MP`;
     }
-    el.querySelector('.chips').innerHTML = passiveChips(u) + u.effects.map((e) =>
-      `<li class="chip ${FX[e.id].kind}"><span class="ico">${FX[e.id].icon}</span>${FX[e.id].label}${e.charges != null ? ` ×${e.charges}` : e.until != null || e.turns >= 99 ? '' : ` ${e.turns}`}</li>`).join('');
+    // Status chips: the icon stays put; the label sits in .txt so it can fade away (see .unit .chip .txt).
+    const chips = el.querySelector('.chips');
+    chips.style.setProperty('--chipAge', `${-(Date.now() - (u.chipsAt || 0))}ms`);
+    chips.innerHTML = passiveChips(u) + u.effects.map((e) =>
+      `<li class="chip ${FX[e.id].kind}"><span class="ico">${FX[e.id].icon}</span><span class="txt">${FX[e.id].label}${e.charges != null ? ` ×${e.charges}` : e.until != null || e.turns >= 99 ? '' : ` ${e.turns}`}</span></li>`).join('');
     syncStatusFx(el, u);
     el.classList.toggle('winding', !!u.windup);
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
-    // The Pale Host's last round, and Mortessa's coffin: both are states you need to see at a glance.
+    // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
     const tgt = targets.includes(u);
@@ -9253,6 +9321,8 @@ function renderBattle() {
 
   // Command deck
   const acts = $('#acts');
+  // Light the deck up whenever the game is waiting on you ('choose' only ever means your champion).
+  $('.deck').classList.toggle('your-turn', state.phase === 'choose');
   renderSatchel(act);
   if (!act) {
     const over = ['won', 'lost', 'cleared'].includes(state.phase);

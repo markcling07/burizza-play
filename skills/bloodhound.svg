@@ -23,6 +23,9 @@
 <linearGradient id="demon" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c84a4a"/><stop offset="1" stop-color="#5a1418"/></linearGradient>
 <radialGradient id="holy" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe6"/><stop offset=".5" stop-color="#ffe08a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd060" stop-opacity="0"/></radialGradient>
 <radialGradient id="pearl" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#f2e6f0"/><stop offset="1" stop-color="#b8a8c4"/></radialGradient>
+<linearGradient id="grave" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcffe6"/><stop offset="1" stop-color="#4f8a60"/></linearGradient>
+<radialGradient id="graveR" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#eafff0"/><stop offset=".5" stop-color="#9fe8b4" stop-opacity=".75"/><stop offset="1" stop-color="#6fcf8a" stop-opacity="0"/></radialGradient>
+<linearGradient id="shroud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a9a8c"/><stop offset="1" stop-color="#2e3a30"/></linearGradient>
 <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
 <filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.4" stdDeviation="1" flood-color="#000" flood-opacity=".55"/></filter>
 <radialGradient id="bg" cx=".5" cy=".3" r=".85"><stop offset="0" stop-color="#5c1a2d"/><stop offset="1" stop-color="#18060d"/></radialGradient></defs>
