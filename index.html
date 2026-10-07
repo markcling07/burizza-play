@@ -670,6 +670,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .proj-hawkarrow { filter: drop-shadow(0 0 5px #ffd166); }
 .proj-venomarrow, .proj-venombolt, .proj-thorn, .proj-vine { filter: drop-shadow(0 0 4px #9fe08a); }
 .proj-toxarrow, .proj-inkjet { filter: drop-shadow(0 0 4px #b07ae0); }
+.proj-firefly { filter: drop-shadow(0 0 6px #8ee6a0); }
+.proj-skullshot { filter: drop-shadow(0 0 4px rgba(159, 232, 180, .6)); }
 .proj-spark { width: 16px; height: 4px; margin: -2px 0 0 -8px; border-radius: 2px; background: linear-gradient(90deg, transparent, #7fe3ff 40%, #fff); box-shadow: 0 0 8px #7fe3ff; }
 .proj-plasma { width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: radial-gradient(circle, #fff 0 16%, #9fe7ff 34%, #3f8aff 56%, transparent 72%); box-shadow: 0 0 18px #6fb5ff, 0 0 4px #fff inset; animation: ppulse .14s infinite; }
 .proj-tracer { width: 30px; height: 2px; margin: -1px 0 0 -15px; border-radius: 1px; background: linear-gradient(90deg, transparent, #ffd166 60%, #fff); box-shadow: 0 0 6px #ffd166; }
@@ -2028,7 +2030,7 @@ const ROSTER = [
   // ---- The Pale Host (Undead) ----
   { id: 'mordrek', name: 'Mordrek the Interred', short: 'Mordrek', faction: 'undead', role: 'melee', bio: 'Dug himself out, and brought his own marker with him.',
     mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
-    look: { body: 'revenant', main: '#ded7bf', trim: '#47564a', weapon: 'cross' },
+    look: { body: 'zombie', main: '#5a5c4a', trim: '#47564a', skin: '#97a884', weapon: 'cross' },
     skills: [D('Grave Cross', '130% swing of the iron marker.', 2, 1.3),
              D('Last Rites', '215% overhead blow that ignores armor.', 5, 2.15, { pierce: true }),
              D('Graveside Chill', '85% to all enemies. Weakens them.', 4, 0.85, { aoe: true, fx: [['weaken', 3]] }),
@@ -2037,7 +2039,7 @@ const ROSTER = [
     passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
-    look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'hammer', shield: '#4a5244' },
+    look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'headstone', shield: '#4a5244' },
     skills: [D('Tomb Slab', '120% slam with the grave slab.', 2, 1.2),
              B('Barrow Wall', 'Taunt every enemy and raise the grave-plate: shielded for 3 turns, and every ill thing on him is left in the dirt.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
              D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
@@ -2055,7 +2057,7 @@ const ROSTER = [
     passive: P('Toll of the Dead', 'Deals 5% more damage for every body lying on the field, whoever it belonged to.', { deadScale: 0.05 }) },
   { id: 'vaun', name: 'Vaun Shroudfletch', short: 'Vaun', faction: 'undead', role: 'ranged', bio: 'Fletches with its own ribs. Never needs to breathe to steady a shot.',
     mods: { atk: 1.1, agi: 1.05, hp: 0.95 },
-    look: { body: 'skeleton', main: '#e2dcc4', trim: '#44523f' },
+    look: { body: 'skeleton', main: '#e2dcc4', trim: '#44523f', weapon: 'sling' },
     skills: [D('Shroud Arrow', '125% arrow.', 2, 1.25),
              D('Pall of Arrows', '70% to all enemies, twice. Blinds them all.', 5, 0.7, { aoe: true, hits: 2, fx: [['blind', 2]] }),
              D('Withering Shot', '110% arrow. Weakens the target and sunders its armor.', 3, 1.1, { fx: [['weaken', 3], ['sunder', 3]] }),
@@ -2064,7 +2066,7 @@ const ROSTER = [
     passive: P('Deathmark', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }) },
   { id: 'mortessa', name: 'Mortessa', faction: 'undead', role: 'support', bio: 'Necromancer of the Pale Host. Brings the coffin everywhere, for anyone.',
     mods: { def: 1.1 },
-    look: { body: 'wraith', main: '#4a5a4e', trim: '#9fc4a2', eye: '#8ee6a0', weapon: 'coffin', orb: '#8ee6a0' },
+    look: { body: 'haunted', main: '#3c4a42', trim: '#9fc4a2', skin: '#ddd8cb', hair: '#f1efe6', eye: '#8ee6a0', weapon: 'coffin', orb: '#8ee6a0' },
     skills: [H('Grave Mend', 'Mend an ally with grave-dust and a whispered name.', 2, 2.8),
              R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — the Undying pact holds anew when they next fall — and mending can reach them once more.', 6, 0.10),
              C('Coffin', 'Shut an ally into the coffin until their next turn. Nothing can target them, area attacks wash over them for nothing, and no mending reaches inside. When the lid opens, everything laid on them — blessing and curse alike — stays behind in the box.', 4),
@@ -2359,8 +2361,52 @@ const BODIES = {
        <circle cx="47" cy="32" r="3.4" fill="${INK}"/><circle cx="56" cy="32" r="3.4" fill="${INK}"/>
        <path d="M47 41 v3 M51 41 v3 M55 41 v3" stroke="${INK}" stroke-width="1.4"/>
        <line x1="56" y1="50" x2="70" y2="61" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
-       <line x1="68" y1="66" x2="80" y2="32" stroke="${WOOD}" stroke-width="3" stroke-linecap="round"/>
-       <path d="M68 33 Q80 25 92 37" stroke="${STEEL}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` };
+       ${a.weapon ? '' : `<line x1="68" y1="66" x2="80" y2="32" stroke="${WOOD}" stroke-width="3" stroke-linecap="round"/>
+       <path d="M68 33 Q80 25 92 37" stroke="${STEEL}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`}` };
+  },
+  // A body that came back up still wearing its burial flesh: grave-green skin gone slack, the
+  // jaw hanging, ribs showing through the torn burial coat. One arm hangs; the other carries.
+  zombie(a) {
+    const eye = a.eye || '#8ee6a0';
+    return { hand: [69, 57], shieldY: 0, svg:
+      `<rect x="39" y="73" width="9" height="20" rx="3.5" fill="${DARK}"/>
+       <rect x="53" y="76" width="9" height="17" rx="3.5" fill="${DARK}"/>
+       <path d="M36 47 Q33 63 37 78 L63 78 Q67 62 64 47 Q50 41 36 47 Z" fill="${a.main}"/>
+       <path d="M37 78 l4 5 l4.5 -5 l4.5 6 l5 -6 l4 5 l4 -5" fill="${a.main}"/>
+       <path d="M43 51 q7 -3 14 0 l-1.5 11 q-5.5 -2.5 -11 0 Z" fill="${a.skin}"/>
+       <path d="M45.5 54.5 h9 M46 58 h8" stroke="#efe9d8" stroke-width="1.7"/>
+       <path d="M37 49 Q31 60 33 72" stroke="${a.skin}" stroke-width="5" fill="none" stroke-linecap="round"/>
+       <circle cx="33" cy="74" r="3" fill="${a.skin}"/>
+       <g transform="rotate(7 52 30)">
+         <circle cx="52" cy="30" r="11.5" fill="${a.skin}"/>
+         <path d="M41.5 27 Q43 17 54 17.5 Q62 18 62.5 24 Q55 20 48 23 Q44 24.5 41.5 31 Z" fill="${a.trim}"/>
+         <circle cx="48.5" cy="29" r="3.1" fill="${INK}"/><circle cx="48.5" cy="29" r="1.3" fill="${eye}"/>
+         <path d="M55 27.5 l4.5 1" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
+         <path d="M47 38 q4.5 4.5 9.5 1.5 l-.8 3.6 q-4.5 2.4 -8 -.6 z" fill="${a.skin}"/>
+         <path d="M49 40.5 l1.2 2 M52.5 41 l1 1.8" stroke="#efe9d8" stroke-width="1.1"/>
+         <path d="M57 33 l4 2 M58.5 32.2 l.8 3.2 M60.2 31.8 l.6 3.4" stroke="${INK}" stroke-width=".9"/>
+       </g>
+       <path d="M61 50 Q67 51 69 57" stroke="${a.skin}" stroke-width="5" fill="none" stroke-linecap="round"/>` };
+  },
+  // A haunted woman: corpse-pale, hollow-eyed, long white hair falling past her shoulders,
+  // in a grave-dark dress that trails the ground. Her coffin rides on her back (the weapon recipe).
+  haunted(a) {
+    const eye = a.eye || '#8ee6a0';
+    return { hand: [66, 62], shieldY: 0, svg:
+      `<path d="M40 26 Q36 48 38 72 Q41 70 43 72 Q41 46 44 30 Z" fill="${a.hair}" opacity=".85"/>
+       <path d="M38 93 L41 50 Q50 43 59 50 L62 93 Q56 90 50 93 Q44 90 38 93 Z" fill="${a.main}"/>
+       <path d="M41 56 Q50 52 59 56" stroke="${a.trim}" stroke-width="1.8" fill="none" opacity=".6"/>
+       <path d="M43 66 Q46 78 44 90 M57 64 Q55 78 57 90" stroke="${INK}" stroke-width="1" fill="none" opacity=".25"/>
+       <path d="M57 52 Q63 55 66 62" stroke="${a.main}" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+       <circle cx="66" cy="62" r="3" fill="${a.skin}"/>
+       <circle cx="50" cy="30" r="10.5" fill="${a.skin}"/>
+       <path d="M44 34 q2 2 4 2 M53 36 q2 0 3.5 -1.5" stroke="#b9b2a4" stroke-width=".9" fill="none"/>
+       <ellipse cx="47" cy="30" rx="2.4" ry="3" fill="${INK}"/><circle cx="47" cy="30.4" r="1.05" fill="${eye}"/>
+       <ellipse cx="55" cy="30" rx="2.2" ry="2.8" fill="${INK}"/><circle cx="55" cy="30.4" r="1" fill="${eye}"/>
+       <path d="M48.5 38 h5" stroke="#8d8578" stroke-width="1.2" stroke-linecap="round"/>
+       <path d="M39.5 29 Q39 15 50 15.5 Q61 15 60.5 29 Q60 21 54 19.5 Q57 24 55 27 Q52 19 46 20 Q42 22 42 28 Z" fill="${a.hair}"/>
+       <path d="M59 24 Q64 38 61 60 Q58 62 57 58 Q59 40 57 28 Z" fill="${a.hair}" opacity=".95"/>
+       <path d="M41 24 Q37 40 40 58" stroke="${a.hair}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` };
   },
   // Like the skeleton, but still wearing some of what it was buried in — and with its sword hand
   // free, so the weapon recipe decides what it carries. Eye-lights default to the Pale Host's green.
@@ -2482,8 +2528,36 @@ const WEAPONS = {
   rapier: (a, x, y) => `<g transform="rotate(35 ${x} ${y})"><rect x="${x - 0.9}" y="${y - 40}" width="1.8" height="40" fill="${STEEL}"/><path d="M${x - 5} ${y} q5 -6 10 0 z" fill="${a.trim}"/><rect x="${x - 1.2}" y="${y}" width="2.4" height="7" fill="${INK}"/></g>`,
   dagger: (a, x, y) => `<g transform="rotate(60 ${x} ${y})"><path d="M${x - 2} ${y - 2} L${x} ${y - 20} L${x + 2} ${y - 2} Z" fill="${STEEL}"/><rect x="${x - 4.5}" y="${y - 2.5}" width="9" height="2.5" rx="1" fill="${a.trim}"/><rect x="${x - 1}" y="${y}" width="2" height="6" fill="${INK}"/></g><g transform="rotate(-20 40 62)"><path d="M38 60 L40 44 L42 60 Z" fill="${STEEL}"/><rect x="35.5" y="59.5" width="9" height="2.5" rx="1" fill="${a.trim}"/></g>`,
   wrench: (a, x, y) => `<g transform="rotate(30 ${x} ${y})"><rect x="${x - 1.8}" y="${y - 28}" width="3.6" height="34" rx="1.5" fill="${STEEL}"/><path d="M${x - 6} ${y - 36} h12 v6 h-4 v-3 h-4 v3 h-4 z" fill="${STEEL}"/></g>`,
-  // A grave marker torn out of the ground and swung: iron cross-bar, and a foot worn to a point.
-  cross: (a, x, y) => `<g transform="rotate(18 ${x} ${y})"><rect x="${x - 2}" y="${y - 44}" width="4" height="56" rx="1.5" fill="${WOOD}"/><rect x="${x - 11}" y="${y - 34}" width="22" height="4.5" rx="1.5" fill="${STEEL}"/><rect x="${x - 3.6}" y="${y - 49}" width="7.2" height="6" rx="2" fill="${a.trim}"/><path d="M${x - 2} ${y + 12} l2 7 l2 -7 z" fill="${STEEL}"/></g>`,
+  // A giant stone graveyard cross, torn out of the earth and shouldered whole — moss still on the
+  // stone, grave soil still clinging to the foot it was rooted by.
+  cross: (a, x, y) => `<g transform="rotate(18 ${x} ${y})">
+    <rect x="${x - 3.5}" y="${y - 50}" width="7" height="72" rx="2.5" fill="#9aa3b5"/>
+    <rect x="${x - 19}" y="${y - 38}" width="38" height="7.5" rx="2.5" fill="#9aa3b5"/>
+    <path d="M${x - 3.5} ${y - 50} h2.6 v72 h-2.6 z" fill="#c3cad6" opacity=".5"/>
+    <path d="M${x - 19} ${y - 38} h3 v7.5 h-3 z M${x + 16} ${y - 38} h3 v7.5 h-3 z" fill="#6f7788" opacity=".6"/>
+    <circle cx="${x}" cy="${y - 34.2}" r="2.6" fill="${a.trim}"/>
+    <path d="M${x - 3.5} ${y - 18} q-2 4 0 8 M${x + 3.5} ${y - 46} q2 3 0 7" stroke="${a.trim}" stroke-width="2" fill="none" opacity=".7"/>
+    <path d="M${x - 3.5} ${y + 22} L${x} ${y + 30} L${x + 3.5} ${y + 22} Z" fill="#9aa3b5"/>
+    <path d="M${x - 6} ${y + 20} q6 5 12 0" stroke="#5a4a3a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+  </g>`,
+  // Barrow carries no forged weapon at all: he smashes with a headstone pulled off somebody's
+  // tomb, hoisted back over his shoulder — engraving, moss, crack and all.
+  headstone: (a, x, y) => `<g transform="rotate(-24 ${x} ${y})">
+    <path d="M${x - 9} ${y + 6} V${y - 21} Q${x - 9} ${y - 31} ${x} ${y - 31} Q${x + 9} ${y - 31} ${x + 9} ${y - 21} V${y + 6} Z" fill="#9aa3b5"/>
+    <path d="M${x - 9} ${y + 6} V${y - 21} Q${x - 9} ${y - 31} ${x} ${y - 31} l0 2.6 Q${x - 6.4} ${y - 28.4} ${x - 6.4} ${y - 21} V${y + 6} Z" fill="#c3cad6" opacity=".45"/>
+    <path d="M${x - 1.2} ${y - 27} v5 M${x - 3.6} ${y - 25} h4.8" stroke="${INK}" stroke-width="1.5" opacity=".6"/>
+    <path d="M${x - 4.5} ${y - 17} h9 M${x - 4.5} ${y - 13} h9 M${x - 3.5} ${y - 9} h7" stroke="${INK}" stroke-width="1.3" opacity=".45"/>
+    <path d="M${x + 4} ${y + 6} l-2.5 -5 l3 -3.5" stroke="${INK}" stroke-width="1.1" fill="none" opacity=".5"/>
+    <path d="M${x - 9} ${y - 4} q3 3 0 7" stroke="${a.trim}" stroke-width="2" fill="none" opacity=".7"/>
+  </g>`,
+  // Vaun's sling: two cords off the draw hand and a skull seated in the leather pouch,
+  // the next shot already loaded.
+  sling: (a, x, y) => `
+    <path d="M${x} ${y} q6 7 2 15 M${x} ${y} q-6 7 -4 15" stroke="#6b4422" stroke-width="1.8" fill="none"/>
+    <circle cx="${x - 1}" cy="${y + 16.5}" r="4.2" fill="#e9e4d8"/>
+    <rect x="${x - 3.6}" y="${y + 19.2}" width="5.2" height="2.6" rx="1.1" fill="#e9e4d8"/>
+    <circle cx="${x - 2.6}" cy="${y + 16}" r="1.15" fill="${INK}"/><circle cx="${x + 0.6}" cy="${y + 16}" r="1.15" fill="${INK}"/>
+    <path d="M${x - 5.2} ${y + 19} q4.2 4.5 8.6 0" stroke="#8a5a32" stroke-width="2.4" fill="none" stroke-linecap="round"/>`,
   // Carried, not wielded: the coffin rides on her back (drawn behind, since everyone faces right)
   // and she works with a short grave-staff in her hand.
   coffin: (a, x, y) => `<g transform="rotate(-12 22 58)"><path d="M10 28 L22 22 L34 28 L32 88 L13 90 Z" fill="${WOOD}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 36 h16 M14 47 h17" stroke="${a.trim}" stroke-width="1.8" opacity=".75"/><path d="M18 62 h9 M22.5 57 v14" stroke="${a.trim}" stroke-width="2.4" stroke-linecap="round"/></g><rect x="${x - 1.5}" y="${y - 30}" width="3" height="40" rx="1" fill="${WOOD}"/><circle cx="${x}" cy="${y - 34}" r="8" fill="${a.orb}" opacity=".25"/><circle cx="${x}" cy="${y - 34}" r="4.5" fill="${a.orb}"/>`,
@@ -8792,6 +8866,7 @@ const PROJ_ATTACK = {
   aldous: { kind: 'ember', impact: 'fire' }, seraphine: { kind: 'bubble' }, octavia: { kind: 'inkball' },
   patchwork: { kind: 'rivet' }, elowen: { kind: 'leaf' }, maren: { kind: 'pearl' }, faelan: { kind: 'xbolt' },
   scrapbot: { kind: 'rivet' }, illusion: { kind: 'inkball' },
+  cadris: { kind: 'firefly' },   // his basic attack sends a small green grave-firefly
 };
 const PROJ_SKILL = {
   // Ironclad Union
@@ -8900,6 +8975,19 @@ const PROJ_ART = {
   flash: [12, 12, `<path d="M3 4 Q6 1 9 4 L10 10 Q6 12 2 10 Z" fill="#e8e4d8" ${PI_}/><path d="M4 4 H8" stroke="#8a5a32" stroke-width="1.2"/>
     <circle class="pk" cx="6" cy="7.5" r="1.6" fill="#fff6c2"/>`],
   caltrop: [14, 14, `<path d="M7 0 L8.5 5.5 L14 7 L8.5 8.5 L7 14 L5.5 8.5 L0 7 L5.5 5.5 Z" fill="#9aa3b5" ${PI_}/>`],
+  // Cadris's basic attack: a small grave-firefly, green lantern trailing.
+  firefly: [18, 12, `<circle class="pk" cx="6" cy="6" r="4.2" fill="#8ee6a0" opacity=".4"/>
+    <circle cx="6" cy="6" r="2.2" fill="#d2ffdd"/>
+    <ellipse cx="11.5" cy="6" rx="3" ry="2.3" fill="#33402f" ${PI_}/>
+    <circle cx="15" cy="6" r="1.8" fill="#222b20" ${PI_}/>
+    <path d="M9.5 4 q0 -3.5 3.5 -3.5 q1.5 1.5 -1 3.5 M12 4 q2 -3 4.5 -2 q0 2.5 -3 3" fill="#eaf6ee" opacity=".8"/>
+    <circle cx="1.5" cy="4.5" r=".8" fill="#b6ffc9"/><circle cx="2.5" cy="8" r=".6" fill="#b6ffc9"/>`],
+  // What Vaun's sling throws: a skull, end over end.
+  skullshot: [13, 12, `<circle cx="6.5" cy="5.4" r="4.8" fill="#e9e4d8" ${PI_}/>
+    <path d="M4 9.2 h5 v2.3 h-5 z" fill="#e9e4d8" ${PI_}/>
+    <circle cx="4.8" cy="5" r="1.4" fill="#15121d"/><circle cx="8.4" cy="5" r="1.4" fill="#15121d"/>
+    <path d="M6.6 6.9 l-.9 1.5 h1.8 z" fill="#15121d"/>
+    <path d="M5.1 9.4 v1.7 M6.6 9.4 v1.7 M8.1 9.4 v1.7" stroke="#15121d" stroke-width=".7"/>`],
 };
 
 function projectileFor(u, sk) {
@@ -8915,6 +9003,7 @@ function projectileFor(u, sk) {
     case 'crossbow': return { kind: 'xbolt' };
     case 'gun': return a.orb ? { kind: 'orb', color: a.orb } : { kind: 'bullet' };
     case 'cannon': return { kind: 'shell', arc: true };
+    case 'sling': return { kind: 'skullshot', arc: true };   // Vaun: every shot is a slung skull
     case 'spear': case 'trident': return { kind: 'spear' };
     default: return { kind: 'orb', color: a.orb || '#9fe08a' };
   }
