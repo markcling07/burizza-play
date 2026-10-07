@@ -403,6 +403,30 @@ h1 {
 .arena > .side { position: absolute; inset: 0; pointer-events: none; }
 .arena::before, .arena::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .8s; }
 .arena[data-wx="ash"] { --sky-now: var(--sky-ash); }
+/* Brimstone Fall: the warning sky (yellow and bright orange two rounds out, dusky beige-orange the
+   round before) and the burning sky of the round itself. Meteors land in .meteorHit flashes. */
+.arena[data-omen="2"] {
+  background: radial-gradient(60% 18% at 50% 72%, var(--floorglow), transparent 70%),
+    linear-gradient(to bottom, #ffd45c 0%, #f9a53a 18%, #ef7b22 34%, var(--horizon) 34% 36%, var(--ground) 36% 100%);
+}
+.arena[data-omen="1"] {
+  background: radial-gradient(60% 18% at 50% 72%, var(--floorglow), transparent 70%),
+    linear-gradient(to bottom, #cfae8a 0%, #b88a62 16%, #9c6040 34%, var(--horizon) 34% 36%, var(--ground) 36% 100%);
+}
+.arena[data-wx="brim"] {
+  background: radial-gradient(60% 18% at 50% 72%, rgba(255, 110, 40, .35), transparent 70%),
+    linear-gradient(to bottom, #3a0d08 0%, #7a1f10 20%, #c2441a 34%, var(--horizon) 34% 36%, var(--ground) 36% 100%);
+}
+.fireball { filter: drop-shadow(0 0 7px #ff7a2f) drop-shadow(0 0 2px #ffd27a); }
+.meteorHit {
+  position: absolute; left: 0; top: 0; z-index: 240; width: 46px; height: 24px; margin: -12px 0 0 -23px; pointer-events: none;
+  border-radius: 50%; background: radial-gradient(closest-side, #fff3b8, #ff9a3a 45%, rgba(255, 80, 30, 0) 78%);
+  animation: meteorHit .55s ease-out forwards;
+}
+@keyframes meteorHit {
+  from { transform: translate(var(--x), var(--y)) scale(.3); opacity: 1; }
+  to { transform: translate(var(--x), var(--y)) scale(1.7); opacity: 0; }
+}
 .arena[data-wx="storm"] { --sky-now: var(--sky-storm); }
 .arena[data-wx="rain"] { --sky-now: var(--sky-rain); }
 .arena[data-wx="sun"] { --sky-now: var(--sky-sun); }
@@ -747,6 +771,12 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .burst-buff { background: radial-gradient(circle, rgba(232, 165, 72, .6), transparent 65%); animation-name: rise; }
 .burst-curse { background: radial-gradient(circle, rgba(196, 139, 224, .65), transparent 65%); }
 .burst-roar { border: 3px solid rgba(240, 100, 90, .85); animation-name: ring; }
+/* Second Burial: grave-light pulsing over the body, and the risen's green-lit eyes (raiseRitual). */
+.burst-grave { width: 120%; border: 2.5px solid rgba(170, 255, 195, .9); background: radial-gradient(circle, rgba(120, 245, 160, .45) 0 22%, rgba(80, 210, 125, .2) 48%, transparent 66%); box-shadow: 0 0 16px rgba(110, 240, 150, .7), inset 0 0 14px rgba(110, 240, 150, .6); animation-name: rise; animation-duration: .9s; }
+.upic .eyeglow { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.upic .eyeglow i { position: absolute; width: 10%; height: 10%; margin: -5% 0 0 -5%; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 18%, #c8ffd6 32%, rgba(110, 240, 150, .6) 55%, transparent 72%); animation: eyelit 3s ease-out forwards; }
+@keyframes eyelit { 0% { opacity: 0; transform: scale(.4); } 12% { opacity: 1; transform: scale(1.2); } 75% { opacity: 1; transform: scale(1); } 100% { opacity: 0; } }
 .burst-smoke { width: 140%; background: radial-gradient(circle, rgba(225, 225, 235, .8) 0 28%, rgba(180, 180, 195, .45) 50%, transparent 70%); animation-duration: .9s; }
 /* Hellfire Slam and kin (skill option `wave`): a ring of pit-fire rolling out from the slam
    point across the ground in every direction (fireWave). Sized and centered by JS through
@@ -1672,7 +1702,7 @@ const ELEM_ICON = { lightning: '⚡', fire: '🔥', holy: '✨' };
 const WEATHER = {
   clear: { name: 'Clear Skies',  favors: null,    desc: 'No faction is favored. When the skies clear, every Blind lifts at once.' },
   // The herald of every Ash Storm. Its meteors fall once, on the turn it arrives, and never again.
-  brim:  { name: 'Brimstone Fall', favors: null,  desc: 'The sky burns before the ash comes. Meteors fall once as it arrives and everyone on the field — both warbands — takes damage equal to 10% of the HP they have already lost; the unhurt feel nothing, and no one is slain by it. An Ash Storm always follows.' },
+  brim:  { name: 'Brimstone Fall', favors: null,  desc: 'For one round the sky burns. Meteors rain on everyone — both warbands — for 10% of their max HP, and it can kill. Then the fires catch: everyone left standing Burns for 5% of the HP they have left. An Ash Storm follows next round. The sky gives warning: yellow and bright orange two rounds before, dusky orange the round before.' },
   ash:   { name: 'Ash Storm',    favors: 'orc',   desc: 'Bloodtusk Horde deal 20% more damage. Burn deals 50% more to everyone.' },
   storm: { name: 'Thunderstorm', favors: 'mech',  desc: 'Ironclad Union deal 20% more damage. Everyone counts as Soaked, so Ironclad Heat is doused and cannot build. Lightning deals 30% more to everyone, and 30% more again to the Soaked.' },
   rain:  { name: 'Downpour',     favors: 'tide',  desc: 'Tideborn deal 20% more damage and healing. Everyone counts as Soaked. Burn deals 50% less to everyone. Ironclad Heat is washed out and cannot build.' },
@@ -1687,10 +1717,13 @@ const WEATHER_EVERY = 3;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
 // 'brim' is never rolled — it is drawn whenever ash is, and hands the sky to the Ash Storm after it.
 const SEASON_WEATHER = { clear: 1, ash: 2, storm: 1, rain: 1, sun: 1, mist: 1, moon: 1, pall: 1 };
-// Golden Dawn mends this share of max HP as it breaks; Brimstone Fall takes this share of the HP
-// a fighter has already lost. Both land once, on arrival — never again while the weather holds.
+// Golden Dawn mends this share of max HP as it breaks. Brimstone Fall strikes for this share of
+// max HP, then sets everyone Burning for BRIMSTONE_BURN of the HP they have left. Both land once,
+// on arrival. Brimstone Fall lasts BRIMSTONE_ROUNDS; every other sky lasts WEATHER_EVERY.
 const DAWN_HEAL_PCT = 0.10;
 const BRIMSTONE_PCT = 0.10;
+const BRIMSTONE_BURN = 0.05;
+const BRIMSTONE_ROUNDS = 1;
 
 // Draw the next sky. Drawing an Ash Storm gives you its herald instead: Brimstone Fall comes
 // first and newRound hands the sky to the ash after it, so no ash ever arrives unannounced.
@@ -2394,7 +2427,7 @@ const BODIES = {
   haunted(a) {
     const eye = a.eye || '#8ee6a0';
     return { hand: [66, 62], shieldY: 0, svg:
-      `<path d="M40 26 Q36 48 38 72 Q41 70 43 72 Q41 46 44 30 Z" fill="${a.hair}" opacity=".85"/>
+      `<path class="hair" style="transform-origin:42px 28px" d="M40 26 Q36 48 38 72 Q41 70 43 72 Q41 46 44 30 Z" fill="${a.hair}" opacity=".85"/>
        <path d="M38 93 L41 50 Q50 43 59 50 L62 93 Q56 90 50 93 Q44 90 38 93 Z" fill="${a.main}"/>
        <path d="M41 56 Q50 52 59 56" stroke="${a.trim}" stroke-width="1.8" fill="none" opacity=".6"/>
        <path d="M43 66 Q46 78 44 90 M57 64 Q55 78 57 90" stroke="${INK}" stroke-width="1" fill="none" opacity=".25"/>
@@ -2402,12 +2435,12 @@ const BODIES = {
        <circle cx="66" cy="62" r="3" fill="${a.skin}"/>
        <circle cx="50" cy="30" r="10.5" fill="${a.skin}"/>
        <path d="M44 34 q2 2 4 2 M53 36 q2 0 3.5 -1.5" stroke="#b9b2a4" stroke-width=".9" fill="none"/>
-       <ellipse cx="47" cy="30" rx="2.4" ry="3" fill="${INK}"/><circle cx="47" cy="30.4" r="1.05" fill="${eye}"/>
-       <ellipse cx="55" cy="30" rx="2.2" ry="2.8" fill="${INK}"/><circle cx="55" cy="30.4" r="1" fill="${eye}"/>
+       <ellipse cx="47" cy="30" rx="2.4" ry="3" fill="${INK}"/><circle class="eyelight" style="transform-origin:47px 30.4px" cx="47" cy="30.4" r="1.05" fill="${eye}"/>
+       <ellipse cx="55" cy="30" rx="2.2" ry="2.8" fill="${INK}"/><circle class="eyelight" style="transform-origin:55px 30.4px" cx="55" cy="30.4" r="1" fill="${eye}"/>
        <path d="M48.5 38 h5" stroke="#8d8578" stroke-width="1.2" stroke-linecap="round"/>
        <path d="M39.5 29 Q39 15 50 15.5 Q61 15 60.5 29 Q60 21 54 19.5 Q57 24 55 27 Q52 19 46 20 Q42 22 42 28 Z" fill="${a.hair}"/>
-       <path d="M59 24 Q64 38 61 60 Q58 62 57 58 Q59 40 57 28 Z" fill="${a.hair}" opacity=".95"/>
-       <path d="M41 24 Q37 40 40 58" stroke="${a.hair}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` };
+       <path class="hair hair-r" style="transform-origin:58px 25px" d="M59 24 Q64 38 61 60 Q58 62 57 58 Q59 40 57 28 Z" fill="${a.hair}" opacity=".95"/>
+       <path class="hair" style="transform-origin:41px 24px" d="M41 24 Q37 40 40 58" stroke="${a.hair}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` };
   },
   // Like the skeleton, but still wearing some of what it was buried in — and with its sword hand
   // free, so the weapon recipe decides what it carries. Eye-lights default to the Pale Host's green.
@@ -2974,7 +3007,8 @@ function builtinSprite(id) {
   // An off-hand weapon held where a shield would be (Barrow's second headstone), a little smaller.
   if (a.offhand) {
     const oy = 72 + b.shieldY;
-    g += `<g class="wpn2" transform="translate(37 ${oy}) scale(.82) translate(-37 ${-oy})">${WEAPONS[a.offhand](a, 37, oy, 6)}</g>`;
+    // Outer group = the animatable one (WEAPON_STRIKES .off), pivoting on the off hand; inner = the fixed scale.
+    g += `<g class="wpn2" style="transform-origin:37px ${oy}px"><g transform="translate(37 ${oy}) scale(.82) translate(-37 ${-oy})">${WEAPONS[a.offhand](a, 37, oy, 6)}</g></g>`;
   }
   if (a.scale) g = `<g transform="translate(50 94) scale(${a.scale}) translate(-50 -94)">${g}</g>`;
   const rx = a.body === 'dwarf' || a.scale ? 18 : 23;
@@ -4196,10 +4230,8 @@ async function doAction(u, sk, t) {
     await wait(520);
   }
   else if (sk.kind === 'revive') {
-    await castPose(u, true);
-    reviveUnit(u, t, sk.pct, sk.name);
-    render();
-    await wait(700);
+    // Walk to the body, chant, and the fallen rise slowly with green-lit eyes (raiseRitual).
+    await raiseRitual(u, t, () => reviveUnit(u, t, sk.pct, sk.name));
   }
   else if (sk.kind === 'windup') {
     // A boss announces its big attack; it lands on the boss's next turn.
@@ -4408,22 +4440,34 @@ function newRound() {
   log(`Round ${state.round}${highTide() ? ' · High Tide' : ''}`, 'round');
   // Underground there is no weather. Emberhollow Cave has the shifting rock instead; dungeons have nothing.
   if (underground()) return tickQuake();
-  if ((state.round - 1) % WEATHER_EVERY === 0) {
-    state.weather = state.nextWeather;
-    // Brimstone Fall is only ever the herald: the Ash Storm it announces always follows it.
-    state.nextWeather = state.weather === 'brim' ? 'ash' : rollWeather(state.weather);
-    const W = WEATHER[state.weather];
-    log(`The weather turns: ${W.name}. ${W.desc}`, 'wx');
-    // Downpour or Thunderstorm hits the field: douse every mech's Heat at once. It stays doused until the weather passes.
-    if (wetWeather()) douseMechs();
-    if (state.weather === 'clear') clearSight();
-    announceWeather();
-    // The two skies that strike as they arrive, once each and never again while they hold.
-    if (state.weather === 'sun') dawnMend();
-    if (state.weather === 'brim') brimstoneFall();
-    return true;
-  }
-  return false;
+  // A new sky is due when its round comes up. (Battles saved before skies had their own length
+  // fall back to the old every-WEATHER_EVERY-rounds clock.)
+  const due = state.wxNext != null ? state.round >= state.wxNext : (state.round - 1) % WEATHER_EVERY === 0;
+  if (!due) { brimstoneOmen(); return false; }
+  state.weather = state.nextWeather;
+  // Brimstone Fall is only ever the herald: the Ash Storm it announces always follows it, next round.
+  state.nextWeather = state.weather === 'brim' ? 'ash' : rollWeather(state.weather);
+  state.wxNext = state.round + (state.weather === 'brim' ? BRIMSTONE_ROUNDS : WEATHER_EVERY);
+  const W = WEATHER[state.weather];
+  log(`The weather turns: ${W.name}. ${W.desc}`, 'wx');
+  // Downpour or Thunderstorm hits the field: douse every mech's Heat at once. It stays doused until the weather passes.
+  if (wetWeather()) douseMechs();
+  if (state.weather === 'clear') clearSight();
+  announceWeather();
+  // The two skies that strike as they arrive, once each and never again while they hold.
+  if (state.weather === 'sun') dawnMend();
+  if (state.weather === 'brim') state.wxFx = brimstoneFall();   // the round loop waits for the meteors
+  brimstoneOmen();
+  return true;
+}
+
+// The sky's warning before Brimstone Fall: the arena sky turns (renderBattle sets data-omen from
+// roundsUntilWeather) and the log says so, two rounds out and again the round before.
+function brimstoneOmen() {
+  if (state.nextWeather !== 'brim') return;
+  const left = roundsUntilWeather();
+  if (left === 2) log('The sky turns yellow and bright orange. Something is burning beyond the clouds.', 'wx');
+  else if (left === 1) log('The sky darkens to a dusky orange. Brimstone falls next round.', 'wx');
 }
 
 /* Golden Dawn breaking: the light mends everyone still standing, both warbands alike, for a
@@ -4439,23 +4483,74 @@ function dawnMend() {
   log(healed.length ? `The dawn mends the field: ${healed.join(', ')}.` : 'The dawn breaks over a field with no wounds to mend.', 'wx');
 }
 
-/* Brimstone Fall: meteors strike every fighter for a share of the HP they have ALREADY LOST, so
-   the unhurt walk away untouched and the wounded pay for their wounds. It never lands a killing
-   blow — the ash storm it heralds can finish what it starts. */
-function brimstoneFall() {
+/* Brimstone Fall: fireballs rain all over the field. As they land, every fighter on both sides
+   takes 10% of their max HP, and that can kill (Undying still catches the Pale Host, and a felled
+   Ironclad still leaves its Salvage Bot). Then the fires catch: everyone left standing Burns for
+   5% of the HP they have left, one tick on their next turn (an Ash Storm fans it, as ever). */
+async function brimstoneFall() {
+  meteorShower();
+  await wait(650);   // the first meteors are landing
   const struck = [];
   for (const u of allUnits()) {
     if (u.hp <= 0) continue;
-    const dmg = Math.round((u.maxHp - u.hp) * BRIMSTONE_PCT);
-    if (dmg < 1) continue;
-    u.hp = Math.max(1, u.hp - dmg);   // the sky wounds; it does not slay
+    const dmg = Math.max(1, Math.round(u.maxHp * BRIMSTONE_PCT));
+    u.hp = Math.max(0, u.hp - dmg);
     burst(u, 'fire');
     bump(u, 'hurt');
     float(u, `${dmg}`, 'dot');
     struck.push(`${u.name} ${dmg}`);
+    if (u.hp <= 0) fell(u, null);
   }
-  log(struck.length ? `Meteors fall across the field: ${struck.join(', ')}.` : 'Meteors fall across a field of unhurt fighters, and nothing burns.', 'wx');
+  log(`Meteors fall across the field: ${struck.join(', ')}.`, 'wx');
+  sweepDeathBots();
+  if (!reduced) $('#arena').animate([{ translate: '0 0' }, { translate: '6px -4px' }, { translate: '-5px 4px' }, { translate: '0 0' }], { duration: beat(320) });
   render();
+  await wait(450);
+  const burning = [];
+  for (const u of allUnits()) {
+    if (u.hp <= 0) continue;
+    addFx(u, 'burn', 1, Math.max(1, Math.round(u.hp * BRIMSTONE_BURN)), true);
+    if (has(u, 'burn')) burning.push(u.name);
+  }
+  if (burning.length) log(`The fires catch: ${listAnd(burning)} ${burning.length === 1 ? 'is' : 'are'} burning.`, 'wx');
+  render();
+}
+
+// Fireballs all over the place: meteors streak down from the upper left onto every part of the
+// field, each landing in a flash of fire. Purely visual; brimstoneFall deals the damage.
+// A fireball for the shower: a white-hot core trailing an orange flame tail, pointing right.
+const FIREBALL_ART = [46, 22, `<defs><linearGradient id="fbTail"><stop offset="0" stop-color="#ff5a1f" stop-opacity="0"/>
+    <stop offset=".65" stop-color="#ff8a2a" stop-opacity=".85"/><stop offset="1" stop-color="#ffd27a"/></linearGradient>
+    <radialGradient id="fbCore"><stop offset="0" stop-color="#fffbe2"/><stop offset=".45" stop-color="#ffd05a"/>
+    <stop offset=".8" stop-color="#ff6a1f"/><stop offset="1" stop-color="#ff4a10" stop-opacity="0"/></radialGradient></defs>
+  <path d="M0 11 Q15 3 34 4.5 L34 17.5 Q15 19 0 11 Z" fill="url(#fbTail)"/><circle cx="35" cy="11" r="10" fill="url(#fbCore)"/>`];
+
+function meteorShower(n = 32, span = 1100) {
+  if (reduced) return;
+  const arena = $('#arena'), W = arena.clientWidth, H = arena.clientHeight;
+  const [w, h, svg] = FIREBALL_ART;
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('div');
+    el.className = 'proj fireball';
+    Object.assign(el.style, { width: `${w}px`, height: `${h}px`, margin: `${-h / 2}px 0 0 ${-w / 2}px` });
+    el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${svg}</svg>`;
+    const tx = Math.random() * W, ty = H * (0.42 + Math.random() * 0.52);   // somewhere on the ground
+    const fx = tx - 110 - Math.random() * 90, fy = -30 - Math.random() * 40;
+    const ang = Math.atan2(ty - fy, tx - fx) * 180 / Math.PI, sc = 0.7 + Math.random() * 0.8;
+    const at = (x, y) => `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${ang.toFixed(1)}deg) scale(${sc.toFixed(2)})`;
+    arena.appendChild(el);
+    const a = el.animate([{ transform: at(fx, fy) }, { transform: at(tx, ty) }],
+      { duration: beat(360 + Math.random() * 240), delay: beat(Math.random() * span * 0.8), easing: 'ease-in', fill: 'backwards' });
+    a.finished.then(() => {
+      el.remove();
+      const hit = document.createElement('div');
+      hit.className = 'meteorHit';
+      hit.style.setProperty('--x', `${tx.toFixed(1)}px`);
+      hit.style.setProperty('--y', `${ty.toFixed(1)}px`);
+      arena.appendChild(hit);
+      setTimeout(() => hit.remove(), 600);
+    }).catch(() => el.remove());
+  }
 }
 
 // Big centered text over the arena (weather changes, battle start).
@@ -4475,6 +4570,7 @@ function announceWeather() {
 const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕', quake: '🪨', pall: '🪦' };
 
 function roundsUntilWeather() {
+  if (state.wxNext != null) return state.wxNext - state.round;
   return WEATHER_EVERY - ((state.round - 1) % WEATHER_EVERY);
 }
 
@@ -4668,7 +4764,11 @@ async function advanceClock(token) {
     if (dtRound <= dt + 1e-9) {
       const changed = newRound();
       render();
-      if (changed) { await wait(1400); if (token !== state.token) return null; }
+      if (changed) {
+        await Promise.all([wait(1400), state.wxFx]);   // Brimstone Fall: let every meteor land first
+        state.wxFx = null;
+        if (token !== state.token) return null;
+      }
     }
     if (next && dtActor <= dt + 1e-9 && alive(next) && state.teams[next.side].includes(next)) { next.pos = TRACK; return next; }
   }
@@ -4742,7 +4842,9 @@ function onSkill(id) {
   const u = unitBy(state.active);
   const sk = skillsOf(u).find((s) => s.id === id);
   if (!sk || !usable(u, sk)) return;
-  if (sk.target === 'enemy' || sk.target === 'ally') {
+  // Single-target skills ask for a target, including a fallen ally for Second Burial (with only one
+  // body on the field it is raised straight away).
+  if (sk.target === 'enemy' || sk.target === 'ally' || sk.target === 'deadAlly') {
     const opts = validTargets(u, sk);
     if (opts.length === 1) return commit(u, sk, opts[0]);
     state.pending = sk.id;
@@ -4952,6 +5054,7 @@ function startBattle(retry) {
   state.phase = 'busy'; state.pending = null; state.reward = null; state.log = [];
   state.killXp = 0; state.kills = 0;   // what your champion's killing blows earn here, paid out at the end
   state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0;
+  state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;   // battles open under Clear Skies; the first change is at round 4
   state.screen = 'battle';
   state.token++;
   $('#overlay').hidden = true;
@@ -8860,6 +8963,47 @@ const WEAPON_STRIKES = {
       { transform: `translateX(${d * 12}px) translateY(3px) rotate(${d * 9}deg)`, offset: 0.8 },
       { transform: `translateX(${d * 10}px) translateY(3px) rotate(${d * 8}deg)`, offset: 0.9 },
       { transform: 'none' }] },
+  // Tomb Slab ('id:Skill name' = a skill's own move): Barrow throws both headstones out wide, then
+  // claps them together on the enemy's face. off = keyframes for the off-hand headstone (.wpn2).
+  'barrow:Tomb Slab': { ms: 900, hit: 0.6,
+    wpn: [{ transform: 'translate(0px, 0px) rotate(0deg)' },
+      { transform: 'translate(24px, -16px) rotate(84deg)', offset: 0.4, easing: 'ease-out' },
+      { transform: 'translate(26px, -18px) rotate(92deg)', offset: 0.5, easing: 'cubic-bezier(.6,0,1,.4)' },
+      { transform: 'translate(24px, -20px) rotate(24deg)', offset: 0.6 },
+      { transform: 'translate(23px, -20px) rotate(28deg)', offset: 0.75 },
+      { transform: 'translate(0px, 0px) rotate(0deg)' }],
+    off: [{ transform: 'translate(0px, 0px) rotate(0deg)' },
+      { transform: 'translate(44px, -30px) rotate(-56deg)', offset: 0.4, easing: 'ease-out' },
+      { transform: 'translate(44px, -32px) rotate(-64deg)', offset: 0.5, easing: 'cubic-bezier(.6,0,1,.4)' },
+      { transform: 'translate(53px, -32px) rotate(-6deg)', offset: 0.6 },
+      { transform: 'translate(52px, -32px) rotate(-10deg)', offset: 0.75 },
+      { transform: 'translate(0px, 0px) rotate(0deg)' }],
+    body: (d) => [{ transform: 'none' },
+      { transform: `translateY(-2px) scaleY(1.04)`, offset: 0.4 },
+      { transform: `translateX(${d * 8}px) rotate(${d * 6}deg)`, offset: 0.6 },
+      { transform: `translateX(${d * 8}px) rotate(${d * 6}deg)`, offset: 0.75 },
+      { transform: 'none' }] },
+  // Crypt Breaker: both headstones hoisted high overhead, a rise onto his toes, then a double slam
+  // that brings them crashing down together in front of him, like smashing open a crypt lid.
+  'barrow:Crypt Breaker': { ms: 1000, hit: 0.78,
+    wpn: [{ transform: 'translate(0px, 0px) rotate(0deg)' },
+      { transform: 'translate(-14px, -34px) rotate(14deg)', offset: 0.5, easing: 'ease-in-out' },
+      { transform: 'translate(-16px, -38px) rotate(6deg)', offset: 0.66, easing: 'cubic-bezier(.6,0,1,.5)' },
+      { transform: 'translate(4px, 7px) rotate(140deg)', offset: 0.78 },
+      { transform: 'translate(4px, 8px) rotate(137deg)', offset: 0.9 },
+      { transform: 'translate(0px, 0px) rotate(0deg)' }],
+    off: [{ transform: 'translate(0px, 0px) rotate(0deg)' },
+      { transform: 'translate(11px, -44px) rotate(8deg)', offset: 0.5, easing: 'ease-in-out' },
+      { transform: 'translate(10px, -48px) rotate(2deg)', offset: 0.66, easing: 'cubic-bezier(.6,0,1,.5)' },
+      { transform: 'translate(48px, -12px) rotate(120deg)', offset: 0.78 },
+      { transform: 'translate(48px, -11px) rotate(117deg)', offset: 0.9 },
+      { transform: 'translate(0px, 0px) rotate(0deg)' }],
+    body: (d) => [{ transform: 'none' },
+      { transform: 'translateY(-3px) scaleY(1.04)', offset: 0.5 },
+      { transform: `translateY(-5px) scaleY(1.06) rotate(${-d * 4}deg)`, offset: 0.66 },
+      { transform: `translateX(${d * 10}px) translateY(4px) rotate(${d * 9}deg)`, offset: 0.78 },
+      { transform: `translateX(${d * 9}px) translateY(4px) rotate(${d * 8}deg)`, offset: 0.9 },
+      { transform: 'none' }] },
   // Mordrek turns the cross over and drives its iron-shod foot into the enemy like a spear.
   mordrek: { ms: 720, hit: 0.55,
     wpn: [{ transform: 'rotate(0deg)' },
@@ -8879,11 +9023,13 @@ async function strikePose(u, fresh = false, sk = null) {
   const hit = playAttack(u, fresh);
   if (hit != null) return sleep(hit);
   const d = facing(u);
-  const ws = sk?.id === 'attack' && WEAPON_STRIKES[u.id];
+  // A skill's own move ('barrow:Tomb Slab') first, then the champion's basic-Attack move.
+  const ws = sk && (WEAPON_STRIKES[`${u.id}:${sk.name}`] || (sk.id === 'attack' && WEAPON_STRIKES[u.id]));
   const wpn = ws && !reduced && u.hp > 0 && bodyEl(u)?.querySelector('.wpn');
   if (wpn) {
     const ms = beat(ws.ms);
     wpn.animate(ws.wpn, { duration: ms });
+    if (ws.off) bodyEl(u).querySelector('.wpn2')?.animate(ws.off, { duration: ms });
     pose(u, ws.body(d), ws.ms);
     await sleep(ms * ws.hit);
     return;
@@ -8911,6 +9057,78 @@ async function castPose(u, clip = false) {
     { transform: 'translateY(-12px)', filter: 'brightness(1.4) drop-shadow(0 0 8px #e8a548)', offset: 0.4 },
     { transform: 'none', filter: 'none' }], 420)) return;
   await sleep(beat(200));
+}
+
+/* RAISING THE FALLEN (revive skills: Mortessa's Second Burial). She walks over to the body and
+   chants — her hair blown outward, her eyes blazing green, grave-light pulsing over the corpse —
+   then the fallen ally rises slowly back onto their feet with eyes lit bright green.
+   The revive itself happens at the moment they begin to stand (onRise). */
+const EYE_SPOTS = {};   // art id → [{ x, y }] eye positions in the 100x100 art box
+async function eyeSpots(u) {
+  const id = artOf(u);
+  if (EYE_SPOTS[id]) return EYE_SPOTS[id];
+  // Built-in sprites are drawn inline; file art is read from the SVG itself.
+  let svg = bodyEl(u)?.querySelector('.upic > svg');
+  if (!svg && ART_FOLDER[u.faction]) {
+    try {
+      const txt = await (await fetch(`characters/${ART_FOLDER[u.faction]}/${id}.${ART_EXT}`)).text();
+      svg = new DOMParser().parseFromString(txt, 'image/svg+xml').documentElement;
+    } catch { svg = null; }
+  }
+  // Eyes = small round shapes in the head's height band; the front-most (champions face right) wins.
+  const found = [];
+  svg?.querySelectorAll('circle, ellipse').forEach((c) => {
+    const r = +(c.getAttribute('r') || c.getAttribute('ry') || 0), x = +c.getAttribute('cx'), y = +c.getAttribute('cy');
+    if (r >= 0.8 && r <= 3.4 && y >= 12 && y <= 46 && x >= 42 && x <= 72) found.push({ x, y });
+  });
+  found.sort((a, b) => b.x - a.x);
+  const eyes = found.length ? found.filter((e) => Math.abs(e.y - found[0].y) < 4 && found[0].x - e.x < 11).slice(0, 2) : [{ x: 57, y: 30 }];
+  return (EYE_SPOTS[id] = eyes);
+}
+async function lightEyes(u) {
+  const host = bodyEl(u)?.querySelector('.upic');
+  if (!host) return;
+  const eyes = await eyeSpots(u), flip = u.side === 'e';   // enemies are drawn mirrored
+  const el = document.createElement('div');
+  el.className = 'eyeglow';
+  el.innerHTML = eyes.map((e) => `<i style="left:${flip ? 100 - e.x : e.x}%;top:${e.y}%"></i>`).join('');
+  host.appendChild(el);
+  setTimeout(() => el.remove(), beat(3000));
+}
+async function raiseRitual(u, t, onRise) {
+  if (!t) return;   // nobody to raise: never leave the turn hanging
+  const trip = t !== u ? await dashTo(u, [t]) : null;   // walk over to the body
+  const b = bodyEl(u), ms = beat(1500);
+  if (!reduced && b) {
+    // Hair blown outward on a grave-wind, fluttering; eyes flare bright green.
+    b.querySelectorAll('.hair').forEach((h) => {
+      const out = h.classList.contains('hair-r') ? -1 : 1;
+      h.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${out * 34}deg) scaleX(1.12)`, offset: 0.2 },
+        { transform: `rotate(${out * 26}deg) scaleX(1.08)`, offset: 0.4 }, { transform: `rotate(${out * 38}deg) scaleX(1.14)`, offset: 0.6 },
+        { transform: `rotate(${out * 28}deg) scaleX(1.1)`, offset: 0.8 }, { transform: 'rotate(0deg)' }], { duration: ms, easing: 'ease-in-out' });
+    });
+    b.querySelectorAll('.eyelight').forEach((e) => e.animate([{ fill: '#8ee6a0', transform: 'scale(1)', filter: 'none' },
+      { fill: '#f2fff4', transform: 'scale(2)', filter: 'drop-shadow(0 0 1.6px #6ff09a)', offset: 0.2 },
+      { fill: '#f2fff4', transform: 'scale(2)', filter: 'drop-shadow(0 0 1.6px #6ff09a)', offset: 0.85 },
+      { fill: '#8ee6a0', transform: 'scale(1)', filter: 'none' }], { duration: ms }));
+    pose(u, [{ filter: 'none', transform: 'none' }, { filter: 'drop-shadow(0 0 6px #6ff09a)', transform: 'translateY(-3px)', offset: 0.25 },
+      { filter: 'drop-shadow(0 0 8px #6ff09a)', transform: 'translateY(-3px)', offset: 0.85 }, { filter: 'none', transform: 'none' }], 1500);
+    // The incantation: grave-light pulses over the body three times.
+    for (const k of [0.05, 0.35, 0.65]) setTimeout(() => burst(t, 'grave'), ms * k);
+  }
+  await sleep(reduced ? 0 : ms * 0.75);
+  // The rise: slow the fallen body's stand-up transition, then bring them back.
+  const tb = bodyEl(t);
+  // The body stands up slowly, but the death-grey and fade clear almost at once, so the green-lit
+  // eyes (inside the body) shine at full strength through the whole rise.
+  if (tb && !reduced) tb.style.transition = `transform ${beat(1400)}ms ease-out, opacity ${beat(250)}ms ease-out, filter ${beat(250)}ms ease-out`;
+  onRise();
+  render();
+  lightEyes(t);
+  await sleep(reduced ? 0 : ms * 0.25);
+  await dashBack(u, trip);
+  await sleep(reduced ? 0 : beat(1400) * 0.6 + beat(200));   // let them finish standing
+  if (tb) tb.style.transition = '';
 }
 
 // Getting hit: knocked back toward its own side, flashing white. Crits hit harder and shake the field.
@@ -9460,6 +9678,8 @@ function renderBattle() {
   const quake = !!hunt && quaking();
   const cond = dg ? dgCond() : null;   // the dungeon's standing condition, where it has one
   $('#arena').dataset.wx = under ? 'cave' : wx();
+  // Brimstone Fall's warning sky: '2' two rounds out, '1' the round before (see brimstoneOmen).
+  $('#arena').dataset.omen = !under && state.nextWeather === 'brim' && left <= 2 ? left : '';
   $('#arena').dataset.dg = dg ? dg.look : '';
   $('#arena').classList.toggle('quake', !!quake);
   const wxName = quake ? WEATHER.quake.name : cond ? cond.name : under ? (dg ? dg.name : 'Underground') : W.name;
@@ -9568,7 +9788,7 @@ function renderBattle() {
     combo.textContent = `Discipline +${Math.round(disciplineBonus() * 100)}%`;
   });
   $('#prompt').hidden = !pending;
-  if (pending) $('#promptTxt').textContent = `${pending.name}: click a highlighted ${pending.target === 'ally' ? 'ally' : 'enemy'}.`;
+  if (pending) $('#promptTxt').textContent = `${pending.name}: click a highlighted ${pending.target === 'ally' ? 'ally' : pending.target === 'deadAlly' ? 'fallen ally' : 'enemy'}.`;
 }
 
 // Satchel row under the actions: only on your own champion's turn. Keys 6–9 then 0 follow ITEM_KEYS order.
