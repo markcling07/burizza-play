@@ -1627,10 +1627,10 @@ CATALOG = {
     ]),
     'crimson': ('The Crimson Court', [
         ('Crimson Lunge', 'Vesper Nightshade', 'skill'), ('Night Waltz', 'Vesper Nightshade', 'skill'), ('Exsanguinate', 'Vesper Nightshade', 'sig'), ('Throat Tear', 'Vesper Nightshade', 'skill'), ('Mist Form', 'Vesper Nightshade', 'skill'), ('Riposte', 'Vesper Nightshade', 'passive'),
-        ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'),
+        ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Blood Pact', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'),
         ('Kiss of Ruin', 'Seraxa Thornwing', 'skill'), ('Shadowstep', 'Seraxa Thornwing', 'skill'), ('Dance of Knives', 'Seraxa Thornwing', 'sig'), ('Wing Carve', 'Seraxa Thornwing', 'skill'), ("Predator's Grace", 'Seraxa Thornwing', 'skill'), ('Flurry', 'Seraxa Thornwing', 'passive'),
         ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Bloodhound', 'Gorehound', 'passive'),
-        ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
+        ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
     ]),
 }
 
@@ -2108,6 +2108,32 @@ def _():
             + g(heart('url(#blood)'), 32, 32, 0, 1.3)
             + g(plus('#ffd9d9'), 32, 32, 0, .5)
             + twinkle(14, 18, .8, '#e0455a') + twinkle(50, 18, .8, '#e0455a'))
+
+
+@icon('Blood Pact')
+def _():
+    """One blow, split four ways: a heart at the centre feeding four drops on a ring."""
+    spokes = ''.join(line(32, 32,
+                          32 + 19 * math.cos(math.radians(a)),
+                          32 + 19 * math.sin(math.radians(a)), '#c0303f', 2.2, False)
+                     for a in (45, 135, 225, 315))
+    drops = ''.join(g(drop(), 32 + 21 * math.cos(math.radians(a)), 32 + 21 * math.sin(math.radians(a)), 0, .72)
+                    for a in (45, 135, 225, 315))
+    return (glow(f'<circle cx="32" cy="32" r="20" fill="#5c1a2d"/>', .5)
+            + '<circle cx="32" cy="32" r="20" fill="none" stroke="#c0303f" stroke-width="1.8" opacity=".85"/>'
+            + spokes + drops
+            + g(heart('url(#blood)'), 32, 32, 0, 1.15))
+
+
+@icon('Blood Ward')
+def _():
+    """Her veins spread over a shield: half of every blow stops here."""
+    return (glow(g(heater('#5c1a2d', 'url(#blood)'), 32, 32, 0, 1.0), .5)
+            + g(heater('#5c1a2d', 'url(#blood)'), 32, 32, 0, 1.0)
+            + '<path d="M32 18 V44 M32 26 L24 32 M32 26 L40 32 M32 35 L25 40 M32 35 L39 40" '
+              'stroke="#e0455a" stroke-width="2" fill="none" stroke-linecap="round"/>'
+            + g(drop(), 32, 24, 0, .8)
+            + twinkle(16, 22, .7, '#e0455a') + twinkle(48, 22, .7, '#e0455a'))
 
 
 @icon('Wither')

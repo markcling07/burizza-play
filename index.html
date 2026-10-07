@@ -52,6 +52,7 @@
   --floorglow: rgba(255, 255, 255, .05);
   --plate: rgba(20, 22, 34, .84);
   --sky-moon: #2e1420;
+  --sky-pall: #262e26;
   --cave-rock: #1d1816;
   --cave-rock-hi: #2c2420;
   --cave-floor: #191513;
@@ -406,6 +407,7 @@ h1 {
 .arena[data-wx="rain"] { --sky-now: var(--sky-rain); }
 .arena[data-wx="sun"] { --sky-now: var(--sky-sun); }
 .arena[data-wx="mist"] { --sky-now: var(--sky-mist); }
+.arena[data-wx="pall"] { --sky-now: var(--sky-pall); }
 .arena[data-wx="rain"]::before, .arena[data-wx="storm"]::before {
   opacity: 1; background-image: repeating-linear-gradient(100deg, transparent 0 9px, var(--rain) 9px 10px);
   background-size: 60px 60px; animation: rain .5s linear infinite;
@@ -581,6 +583,27 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 /* The fallen keep nothing: name, bars and status chips fade out with the fall. visibility
    (not display) so the card's layout holds and the body doesn't jump as they vanish. */
 .unit.down .plate, .unit.down .chips { opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility 0s .5s; }
+/* UNDYING (the Pale Host): a champion standing on its last round burns pale green and keeps
+   the colour the fall would have drained out of it. See the UNDYING block in the script. */
+.unit.undying .body {
+  filter: drop-shadow(0 0 10px rgba(126, 230, 150, .85)) drop-shadow(0 0 22px rgba(90, 200, 120, .45)) saturate(.7) brightness(.94);
+  animation: undyingPulse 1.5s ease-in-out infinite;
+}
+@keyframes undyingPulse { 50% { filter: drop-shadow(0 0 16px rgba(150, 255, 175, .95)) drop-shadow(0 0 30px rgba(90, 200, 120, .6)) saturate(.7) brightness(1.04); } }
+.unit.undying .plate { border-color: #7ee696; box-shadow: 0 0 0 1px rgba(126, 230, 150, .6); }
+.unit.undying .body::before { background: radial-gradient(closest-side, rgba(126, 230, 150, .5), transparent 70%); }
+/* Second Burial can reach a body, so a corpse the revive can target has to be visible and
+   clickable again — the fall normally dims it to scenery. */
+.unit.down.targetable .body { opacity: .85; filter: grayscale(.35) drop-shadow(0 0 12px rgba(126, 230, 150, .8)); }
+.unit.down.targetable { cursor: pointer; }
+/* THE COFFIN: shut away, so the figure goes dark and still and a lid closes over the spot. */
+.unit.boxed .body { animation: none; filter: brightness(.45) saturate(.5); opacity: .7; }
+.unit.boxed .body::after {
+  content: ''; position: absolute; left: 18%; right: 18%; top: 6%; bottom: 0;
+  background: linear-gradient(170deg, #6b4a2c, #2e1f12 60%, #1a110a);
+  border: 1px solid #0f0a06; border-radius: 10% 10% 4% 4%;
+  box-shadow: inset 0 0 0 2px rgba(159, 196, 162, .25);
+}
 @keyframes idle { 50% { transform: translateY(-2px) scaleY(1.015); } }
 @keyframes ringPulse { 50% { opacity: .45; } }
 .upic { position: relative; width: 100%; height: 100%; }
@@ -834,6 +857,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   background: rgba(12, 14, 22, .92); color: var(--mp); font-size: .8rem; font-weight: 800; line-height: 18px; font-variant-numeric: tabular-nums;
 }
 .act .mpc.short { color: var(--bad); }
+/* The Crimson Court pay in blood, not mana, so their badge reads as a wound rather than a pool. */
+.act .mpc.blood { color: var(--hp); }
 .act .mpc:empty, .act .cdn:empty { display: none; }
 .act .cdn { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 0 1px 4px #000; }
 .act .star { position: absolute; left: -6px; top: -7px; color: var(--accent); font-size: .95rem; text-shadow: 0 1px 2px #000; }
@@ -1273,7 +1298,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   <header class="top" id="top">
     <div>
       <h1>Burizza</h1>
-      <p class="tag" id="tagline">Season 1: Ashfall Road. Pick three champions from six factions, form your warband and fight the gauntlet.</p>
+      <p class="tag" id="tagline">Season 1: Ashfall Road. Pick your warband from seven factions and fight the gauntlet.</p>
     </div>
     <div class="topR">
       <ol class="ladder" id="ladder" aria-label="Gauntlet battles" hidden></ol>
@@ -1425,7 +1450,9 @@ const FACTIONS = {
   tide:  { name: 'The Tideborn',       mechanic: 'Tide',
            rule: 'Every even round is High Tide: +25% damage and healing. Their hits Soak the target, and Soaked targets take 30% more lightning damage.' },
   crimson: { name: 'The Crimson Court', mechanic: 'Bloodthirst',
-           rule: 'Every hit drains 20% of the damage dealt as HP. The Court has no ranged fighters: four melee and a support who Hexes enemies so they heal for half.' },
+           rule: 'The Court keeps no mana — it pays in blood. A skill costs 15% of the caster\'s current HP and a ★ signature 20%, and no toll can take their last point: they are left standing on 1 HP at worst. Attack and Guard are free. Every hit drains 20% of the damage dealt as HP, and every attack drinks a further 5% of the victim\'s maximum HP on top of whatever the skill itself steals. The Court has no ranged fighters: four melee and a support who Hexes enemies so they heal for half.' },
+  undead: { name: 'The Pale Host',     mechanic: 'Undying',
+           rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet for one more round, lit by a pale green light and already dead: nothing can heal it, nothing can hurry the round along, and when the round runs out it falls for good. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will have its last round a second time.' },
 };
 const FACTION_KEYS = Object.keys(FACTIONS);
 // "the Bloodtusk Horde", "the Tideborn": names that already start with "The" don't get a second one.
@@ -1435,7 +1462,7 @@ const theFaction = (f, start = false) => `${start ? 'The' : 'the'} ${f.name.repl
    the role's base pool × the faction's multiplier. Skills and ultimates cost mana;
    it regenerates every turn, Attack restores a little and Guard restores more. */
 const MANA = {
-  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 1, orc: 0.7, mech: 0 },
+  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0 },
   skillCost: 20, skill2Cost: 25, ultCost: 40,   // default costs; a skill can override with o.mp
   regen: 6, regenPct: 0.04,             // per turn: 6 + 4% of max mana
   attackGain: 4, guardGain: 15,
@@ -1446,8 +1473,19 @@ const HP_REGEN_PCT = 0.03;
 // Morwenna's Crimson Mend channel: the share of max HP each ally is mended for every tick, and the
 // share of her own max HP it costs her to do it. Both ends use the same number (see beginTurn).
 const CRIMSON_MEND_PCT = 0.07;
+/* THE BLOOD PRICE — the Crimson Court keeps no mana pool (MANA.pool.crimson is 0, as it is for
+   the mechs). Instead every skill is paid for in blood, as a share of the caster's CURRENT HP:
+   the more they have left, the more a cast costs them. Attack and Guard are always free, and
+   bloodCost never takes the last point — a Courtier is left on 1 HP at worst, never killed by
+   their own spending. BLOOD_STEAL is the other half of the bargain: on top of Bloodthirst's 20%
+   of the damage dealt, every attack drinks this share of the victim's MAXIMUM HP, so even a
+   glancing blow on something huge is worth drinking. Both ends are doubled by a Blood Moon. */
+const BLOOD_COST = { skill: 0.15, sig: 0.2 };
+const BLOOD_STEAL = 0.05;
 
-const poolLabel = (f) => ({ 1.5: 'Huge', 1: 'Normal', 0.7: 'Small', 0: 'None, runs on Heat' })[MANA.pool[f]];
+const poolLabel = (f) => (MANA.pool[f] === 0
+  ? (f === 'crimson' ? 'None, runs on blood' : 'None, runs on Heat')
+  : ({ 1.5: 'Huge', 1: 'Normal', 0.7: 'Small' })[MANA.pool[f]]);
 
 /* PROFILE — what the village remembers between visits, saved in this browser:
    gold, forged gear per champion, the satchel of battle items, and your records.
@@ -1568,6 +1606,10 @@ const FX = {
   hex:      { icon: '🧿', label: 'Hexed',     kind: 'bad',  verb: 'is hexed: all healing received is halved' },
   link:     { icon: '🔗', label: 'Linked',    kind: 'good', verb: 'is linked: a third of any hit they take is divided among their teammates' },
   bloodchannel: { icon: '🫀', label: 'Crimson Mend', kind: 'good', verb: 'opens a blood channel: her veins mend the warband at the start of each of her turns' },
+  // Malgrath's Blood Pact and Morwenna's Blood Ward. Both are counted in blows rather than turns
+  // (o.charges, shown as ×N on the chip) and are spent in strikeOnce as the damage lands.
+  bloodpact: { icon: '🩸', label: 'Blood Pact', kind: 'good', verb: 'binds the warband in a blood pact: the next blows he takes are split evenly across every living ally' },
+  bloodward: { icon: '🛡️', label: 'Blood Ward', kind: 'good', verb: 'spreads a blood ward over the warband: she takes half of the next blows any ally suffers' },
   leak:     { icon: '🪫', label: 'Mana Leak', kind: 'bad',  verb: 'is leaking mana: every action burns 12 MP' },
   toll:     { icon: '😈', label: 'Infernal Toll', kind: 'bad', verb: 'is marked by Infernal Toll: its next skill also costs 5% of its HP' },
   exposed:  { icon: '🎯', label: 'Exposed',   kind: 'bad',  verb: 'is exposed: takes 25% more damage' },
@@ -1583,6 +1625,10 @@ const FX = {
   regen:    { icon: '💚', label: 'Regen',     kind: 'good', verb: 'begins to regenerate' },
   evade:    { icon: '💨', label: 'Evasive',   kind: 'good', verb: 'turns slippery: attacks that can miss will miss' },
   immune:   { icon: '🧚', label: 'Charmed',   kind: 'good', verb: 'is protected by a charm: new debuffs fail' },
+  // The Pale Host's innate (see UNDYING) and the Necromancer's coffin. Both are states a unit is
+  // held in rather than blows it has taken, so neither can be cleansed, stolen or resisted.
+  undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: one last round, and no mending can reach it' },
+  coffin:   { icon: '⚰️', label: 'Coffined',  kind: 'good', verb: 'is sealed in a coffin: nothing can target it, area attacks wash over it, and no mending reaches in' },
 };
 // Icon shown on floating damage numbers for magic / elemental hits.
 const ELEM_ICON = { lightning: '⚡', fire: '🔥', holy: '✨' };
@@ -1602,13 +1648,14 @@ const WEATHER = {
   sun:   { name: 'Golden Dawn',  favors: 'human', desc: 'The light mends every fighter on the field once as it breaks, friend and foe alike, for 10% of their max HP. Kingdom of Aldmere deal 15% more damage and Discipline doubles to +30%. All healing is 20% stronger.' },
   mist:  { name: 'Elder Mist',   favors: 'stone', desc: 'Stoneleaf Accord gain an extra Precision or Fortify stack each turn. Everyone dodges 10% more often.' },
   moon:  { name: 'Blood Moon',   favors: 'crimson', desc: 'The Crimson Court deal 20% more damage. All lifesteal is doubled.' },
+  pall:  { name: 'Grave Pall',   favors: 'undead', desc: 'The Pale Host deal 20% more damage. A grey pall settles over the field and every mending anyone receives — spell, potion or regeneration — is a quarter weaker.' },
   // Emberhollow Cave only: no sky, but the rock moves. Rolled by tickQuake, never by rollWeather.
   quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. The floor bucks and everyone on the field is Staggered, stopping and starting along the speed bar until the tremor passes.' },
 };
 const WEATHER_EVERY = 3;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
 // 'brim' is never rolled — it is drawn whenever ash is, and hands the sky to the Ash Storm after it.
-const SEASON_WEATHER = { clear: 1, ash: 2, storm: 1, rain: 1, sun: 1, mist: 1, moon: 1 };
+const SEASON_WEATHER = { clear: 1, ash: 2, storm: 1, rain: 1, sun: 1, mist: 1, moon: 1, pall: 1 };
 // Golden Dawn mends this share of max HP as it breaks; Brimstone Fall takes this share of the HP
 // a fighter has already lost. Both land once, on arrival — never again while the weather holds.
 const DAWN_HEAL_PCT = 0.10;
@@ -1649,9 +1696,14 @@ const B = (name, desc, cd, target, fx, o = {}) => ({ name, desc, cd, fx, o, kind
 // S = summon skill: creates an uncontrolled unit from SUMMONS (one per hero; recasting replaces it).
 const S = (name, desc, cd, summon, o = {}) => ({ name, desc, cd, summon, o, kind: 'summon', target: 'self' });
 const P = (name, desc, o = {}) => ({ name, desc, ...o });
+// The Pale Host's two: C = coffin skill (seals an ally away for a turn, see THE COFFIN);
+// R = revive skill, which alone among skills targets an ally who has already fallen. `pct` is
+// the share of max HP they come back on.
+const C = (name, desc, cd, o = {}) => ({ name, desc, cd, o, kind: 'coffin', target: 'ally' });
+const R = (name, desc, cd, pct, o = {}) => ({ name, desc, cd, pct, o, kind: 'revive', target: 'deadAlly' });
 
 /* ==================================================================
-   ROSTER — 6 factions × 5 champions
+   ROSTER — 7 factions × 5 champions
    skills = [skill, ★ signature, then three more]; passive = always-on trait (P), the default;
    passiveAlt = an optional second own passive the player can equip instead (loadout id 'alt')
    look = placeholder sprite recipe (see SPRITES below)
@@ -1914,7 +1966,8 @@ const ROSTER = [
              D('Infernal Wrath', '230% hit. Costs 15% of his own HP.', 4, 2.3, { selfCost: 0.15 }),
              B('Demonic Roar', 'Taunt all enemies and deal 30% more damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
              D('Pit Chains', '130% hit. Drags the target back along the speed bar and Exposes it.', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
-             D('Sulphur Breath', '55% fire to all enemies. Never misses. Burns and Blinds them all.', 4, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] })],
+             D('Sulphur Breath', '55% fire to all enemies. Never misses. Burns and Blinds them all.', 4, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] }),
+             B('Blood Pact', 'Malgrath binds the warband in blood. The next 3 blows he takes are split evenly between him and every living ally — with three beside him he carries a quarter of each.', 4, 'self', [['bloodpact', 99]], { charges: 3 })],
     passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }) },
   { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer — her feet never touch the ash.',
     mods: { hp: 0.9, agi: 1.3 }, floats: true,
@@ -1941,13 +1994,60 @@ const ROSTER = [
              H('Blood Communion', 'Heal all allies and Hex all enemies for 2 turns.', 5, 1.8, { all: true, enemyFx: [['hex', 3]] }),
              D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { magic: true, noDodge: true, allySteal: 1 }),
              B('Crimson Mend', `Open a blood channel for 3 turns. At the start of each of her turns it mends every ally — summoned units included — for ${Math.round(CRIMSON_MEND_PCT * 100)}% of their max HP, and costs Morwenna ${Math.round(CRIMSON_MEND_PCT * 100)}% of hers.`, 4, 'self', [['bloodchannel', 3]], { channel: true }),
-             D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] })],
+             D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] }),
+             B('Blood Ward', 'Morwenna spreads her ward over the whole warband. The next 3 blows any ally takes are halved, and she bleeds the other half herself. Blows aimed at her are hers alone.', 4, 'self', [['bloodward', 99]], { charges: 3 })],
     passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }) },
+  // ---- The Pale Host (Undead) ----
+  { id: 'mordrek', name: 'Mordrek the Interred', short: 'Mordrek', faction: 'undead', role: 'melee', bio: 'Dug himself out, and brought his own marker with him.',
+    mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
+    look: { body: 'revenant', main: '#ded7bf', trim: '#47564a', weapon: 'cross' },
+    skills: [D('Grave Cross', '130% swing of the iron marker.', 2, 1.3),
+             D('Last Rites', '215% overhead blow that ignores armor.', 5, 2.15, { pierce: true }),
+             D('Graveside Chill', '85% to all enemies. Weakens them.', 4, 0.85, { aoe: true, fx: [['weaken', 3]] }),
+             D('Bonebreaker', 'Two blows of 75% that sunder armor.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
+             B('Plant the Marker', 'Drive the cross into the ground: taunt every enemy and brace, shielded for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]])],
+    passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: his Undying round lasts twice as long.', { undyingLong: 2 }) },
+  { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
+    mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
+    look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'hammer', shield: '#4a5244' },
+    skills: [D('Tomb Slab', '120% slam with the grave slab.', 2, 1.2),
+             B('Barrow Wall', 'Taunt every enemy and raise the grave-plate: shielded for 3 turns, and every ill thing on him is left in the dirt.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
+             D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
+             D('Crypt Breaker', '155% blow that ignores armor.', 3, 1.55, { pierce: true }),
+             B('Hold the Grave', 'Set his feet: thorns and a shield for 2 turns.', 4, 'self', [['thorns', 3], ['shield', 2]])],
+    passive: P('Feast of the Fallen', 'Whenever anything on the field dies, friend or foe, he drinks 15% of his current HP. The grave feeds him directly, so the Pale Host\'s halved mending does not touch it.', { deathHeal: 0.15 }) },
+  { id: 'cadris', name: 'Cadris Gravecall', short: 'Cadris', faction: 'undead', role: 'ranged', bio: 'Raises what the road leaves behind, and spends it freely.',
+    mods: {},
+    look: { body: 'revenant', main: '#d6cfb6', trim: '#3f5244', weapon: 'staff', orb: '#8ee6a0' },
+    skills: [D('Bone Dart', '120% splinter of bone.', 2, 1.2),
+             D('Charnel Volley', '85% to all enemies, twice.', 5, 0.85, { aoe: true, hits: 2 }),
+             S('Shambling Rise', 'Claw up a 1-HP Shambler. It swings the moment it stands, swings once more if it is somehow still standing, then falls apart. It answers to nobody, and the Undying pact does not cover it.', 3, 'zombie'),
+             D('Rot Shot', '110% shot that poisons.', 3, 1.1, { fx: [['poison', 3, 0.3]] }),
+             D('Marrow Pierce', '150% shot that ignores armor.', 3, 1.5, { pierce: true })],
+    passive: P('Toll of the Dead', 'Deals 5% more damage for every body lying on the field, whoever it belonged to.', { deadScale: 0.05 }) },
+  { id: 'vaun', name: 'Vaun Shroudfletch', short: 'Vaun', faction: 'undead', role: 'ranged', bio: 'Fletches with its own ribs. Never needs to breathe to steady a shot.',
+    mods: { atk: 1.1, agi: 1.05, hp: 0.95 },
+    look: { body: 'skeleton', main: '#e2dcc4', trim: '#44523f' },
+    skills: [D('Shroud Arrow', '125% arrow.', 2, 1.25),
+             D('Pall of Arrows', '70% to all enemies, twice. Blinds them all.', 5, 0.7, { aoe: true, hits: 2, fx: [['blind', 2]] }),
+             D('Withering Shot', '110% arrow. Weakens the target and sunders its armor.', 3, 1.1, { fx: [['weaken', 3], ['sunder', 3]] }),
+             D('Graveshot', '165% arrow, 50% stronger against a Poisoned target.', 3, 1.65, { bonusVs: 'poison' }),
+             D('Scatter of Bones', '55% to all enemies. Causes Bleed.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.22]] })],
+    passive: P('Deathmark', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }) },
+  { id: 'mortessa', name: 'Mortessa', faction: 'undead', role: 'support', bio: 'Necromancer of the Pale Host. Brings the coffin everywhere, for anyone.',
+    mods: { def: 1.1 },
+    look: { body: 'wraith', main: '#4a5a4e', trim: '#9fc4a2', eye: '#8ee6a0', weapon: 'coffin', orb: '#8ee6a0' },
+    skills: [H('Grave Mend', 'Mend an ally with grave-dust and a whispered name.', 2, 2.8),
+             R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — they stand Undying again — but mending can reach them once more.', 6, 0.10),
+             C('Coffin', 'Shut an ally into the coffin until their next turn. Nothing can target them, area attacks wash over them for nothing, and no mending reaches inside. When the lid opens, everything laid on them — blessing and curse alike — stays behind in the box.', 4),
+             B('Hex of Ruin', 'Hex an enemy for 3 turns: all healing they receive is halved.', 3, 'enemy', [['hex', 4]]),
+             D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 })],
+    passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
 ];
 
 const ATTACK = { id: 'attack', name: 'Attack', desc: 'Basic hit for 100%.', cd: 0, kind: 'damage', target: 'enemy', mult: 1, o: { heat: 10 } };
 const GUARD  = { id: 'guard',  name: 'Guard',  desc: 'Take 50% less damage until your next turn.', cd: 0, kind: 'guard', target: 'self', o: { heat: -50 } };
-const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One ally', allAllies: 'All allies', self: 'Self' };
+const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One ally', allAllies: 'All allies', self: 'Self', deadAlly: 'One fallen ally' };
 
 /* ==================================================================
    SUMMONS — uncontrolled units created by a hero's skill.
@@ -2001,6 +2101,18 @@ const SUMMONS = {
     leave: (u) => `${u.name} sinks back into the black water.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.25), atk: Math.round(o.atk * 0.8), def: o.def, agi: 9, crit: 0.05, dodge: 0 }),
     skills: [{ ...ATTACK, name: 'Grasp', desc: '100% hit.' }],
+  },
+  // Cadris's Shambling Rise. One hit point, one swing the moment it stands (strikesOnSpawn), and
+  // one more if it somehow lives to take a turn of its own — then it comes apart. `life` is short
+  // on purpose: long enough for that single turn at Agility 16, too short for a second.
+  // It still leaves a body, which is worth something to Cadris and to Barrow.
+  zombie: {
+    name: 'Shambler', role: 'melee', life: 60, strikesOnSpawn: true,
+    desc: 'A body hauled up off the road with one swing left in it. Comes apart on its own.',
+    look: { body: 'ghoul', main: '#6a7055', trim: '#cbbf92', skin: '#a8b094' },
+    leave: (u) => `${u.name} comes apart where it stands.`,
+    stats: (o) => ({ maxHp: 1, atk: Math.round(o.atk * 0.9), def: 0, agi: 16, crit: 0.05, dodge: 0 }),
+    skills: [{ ...ATTACK, name: 'Clawing Grasp', desc: '100% hit.' }],
   },
   // Pulled up by Lady Mournhollow.
   shade: {
@@ -2222,6 +2334,25 @@ const BODIES = {
        <line x1="68" y1="66" x2="80" y2="32" stroke="${WOOD}" stroke-width="3" stroke-linecap="round"/>
        <path d="M68 33 Q80 25 92 37" stroke="${STEEL}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` };
   },
+  // Like the skeleton, but still wearing some of what it was buried in — and with its sword hand
+  // free, so the weapon recipe decides what it carries. Eye-lights default to the Pale Host's green.
+  revenant(a) {
+    return { hand: [70, 60], shieldY: 2, svg:
+      `<line x1="46" y1="78" x2="42" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+       <line x1="56" y1="78" x2="60" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+       <path d="M42 77 h18" stroke="${a.main}" stroke-width="5" stroke-linecap="round"/>
+       <path d="M38 48 Q36 70 40 80 L62 80 Q66 70 64 48 Z" fill="${a.trim}" opacity=".5"/>
+       <rect x="48" y="44" width="6" height="34" rx="3" fill="${a.main}"/>
+       <path d="M40 50 h22 M39 57 h24 M40 64 h22" stroke="${a.main}" stroke-width="3.2" stroke-linecap="round"/>
+       <path d="M36 46 Q50 40 64 46 L62 54 Q50 49 38 54 Z" fill="${a.trim}" opacity=".85"/>
+       <circle cx="51" cy="31" r="12" fill="${a.main}"/>
+       <rect x="45" y="38" width="12" height="7" rx="2" fill="${a.main}"/>
+       <path d="M38.5 30 Q38.5 17 51 17 Q63.5 17 63.5 30 Z" fill="${a.trim}"/>
+       <circle cx="47" cy="32" r="3.4" fill="${INK}"/><circle cx="56" cy="32" r="3.4" fill="${INK}"/>
+       <circle cx="47" cy="32" r="1.5" fill="${a.eye || '#8ee6a0'}"/><circle cx="56" cy="32" r="1.5" fill="${a.eye || '#8ee6a0'}"/>
+       <path d="M47 41 v3 M51 41 v3 M55 41 v3" stroke="${INK}" stroke-width="1.4"/>
+       <line x1="56" y1="50" x2="70" y2="60" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>` };
+  },
   shroom(a) {
     return { hand: [66, 66], shieldY: 0, svg:
       `<ellipse cx="50" cy="42" rx="32" ry="17" fill="${a.trim}" opacity=".12"/>
@@ -2323,6 +2454,11 @@ const WEAPONS = {
   rapier: (a, x, y) => `<g transform="rotate(35 ${x} ${y})"><rect x="${x - 0.9}" y="${y - 40}" width="1.8" height="40" fill="${STEEL}"/><path d="M${x - 5} ${y} q5 -6 10 0 z" fill="${a.trim}"/><rect x="${x - 1.2}" y="${y}" width="2.4" height="7" fill="${INK}"/></g>`,
   dagger: (a, x, y) => `<g transform="rotate(60 ${x} ${y})"><path d="M${x - 2} ${y - 2} L${x} ${y - 20} L${x + 2} ${y - 2} Z" fill="${STEEL}"/><rect x="${x - 4.5}" y="${y - 2.5}" width="9" height="2.5" rx="1" fill="${a.trim}"/><rect x="${x - 1}" y="${y}" width="2" height="6" fill="${INK}"/></g><g transform="rotate(-20 40 62)"><path d="M38 60 L40 44 L42 60 Z" fill="${STEEL}"/><rect x="35.5" y="59.5" width="9" height="2.5" rx="1" fill="${a.trim}"/></g>`,
   wrench: (a, x, y) => `<g transform="rotate(30 ${x} ${y})"><rect x="${x - 1.8}" y="${y - 28}" width="3.6" height="34" rx="1.5" fill="${STEEL}"/><path d="M${x - 6} ${y - 36} h12 v6 h-4 v-3 h-4 v3 h-4 z" fill="${STEEL}"/></g>`,
+  // A grave marker torn out of the ground and swung: iron cross-bar, and a foot worn to a point.
+  cross: (a, x, y) => `<g transform="rotate(18 ${x} ${y})"><rect x="${x - 2}" y="${y - 44}" width="4" height="56" rx="1.5" fill="${WOOD}"/><rect x="${x - 11}" y="${y - 34}" width="22" height="4.5" rx="1.5" fill="${STEEL}"/><rect x="${x - 3.6}" y="${y - 49}" width="7.2" height="6" rx="2" fill="${a.trim}"/><path d="M${x - 2} ${y + 12} l2 7 l2 -7 z" fill="${STEEL}"/></g>`,
+  // Carried, not wielded: the coffin rides on her back (drawn behind, since everyone faces right)
+  // and she works with a short grave-staff in her hand.
+  coffin: (a, x, y) => `<g transform="rotate(-12 22 58)"><path d="M10 28 L22 22 L34 28 L32 88 L13 90 Z" fill="${WOOD}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 36 h16 M14 47 h17" stroke="${a.trim}" stroke-width="1.8" opacity=".75"/><path d="M18 62 h9 M22.5 57 v14" stroke="${a.trim}" stroke-width="2.4" stroke-linecap="round"/></g><rect x="${x - 1.5}" y="${y - 30}" width="3" height="40" rx="1" fill="${WOOD}"/><circle cx="${x}" cy="${y - 34}" r="8" fill="${a.orb}" opacity=".25"/><circle cx="${x}" cy="${y - 34}" r="4.5" fill="${a.orb}"/>`,
 };
 
 /* Character art is loaded from the characters/ folder:
@@ -2330,7 +2466,7 @@ const WEAPONS = {
    Switch ART_EXT to 'png' once your art is PNG. If a file is missing,
    the built-in placeholder drawing below is used instead. */
 const ART_EXT = 'svg';
-const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson' };
+const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead' };
 
 /* ==================================================================
    MONSTERS — the wild things of Emberhollow Cave. They fight with the
@@ -2799,7 +2935,8 @@ const foeHas = (u, key) => foesOf(u).some((f) => pv(f)[key]);
    Slots grow with level: 2 active + 1 passive at first, then
    Lv 5 → 3rd active, Lv 10 → 2nd passive, Lv 15 → 4th active.
    Attack and Guard are always available and never use a slot.
-   Pool: the champion's 5 actives (skill a, ★ signature b, then c, d and e),
+   Pool: the champion's 5 actives (skill a, ★ signature b, then c, d and e) — 6 for the few who
+   carry an extra ('f'; see activeIdsOf) —
    the neutral skills below (class-free actives anyone can learn),
    their own passive ('own'), their alternative own passive if they have one ('alt'), and the generic passives below.
    You pick your champion's loadout; recruits and enemies auto-pick.
@@ -2809,7 +2946,12 @@ const activeSlots = (lv) => 2 + SLOT_UNLOCKS.filter((s) => s.kind === 'act' && l
 const passiveSlots = (lv) => 1 + SLOT_UNLOCKS.filter((s) => s.kind === 'pas' && lv >= s.lv).length;
 // a = first skill, b = ★ signature, c/d/e = the rest. Five to pick from, four slots at most,
 // so from Lv 15 the last one is a real choice rather than a formality.
+// A champion may carry a sixth, 'f' (Malgrath's Blood Pact, Morwenna's Blood Ward); it widens the
+// pool to choose from without widening the slots. activeIdsOf is the pool for a given champion —
+// use it rather than ACTIVE_IDS wherever the champion is known.
 const ACTIVE_IDS = ['a', 'b', 'c', 'd', 'e'];
+const SIXTH_ID = 'f';
+const activeIdsOf = (c) => (c && c.skills.length > 5 ? [...ACTIVE_IDS, SIXTH_ID] : ACTIVE_IDS);
 // Neutral skills: class-free actives any champion can equip in an active slot.
 // Kept modest on purpose — utility that rounds out a kit, never outshines one.
 const NEUTRAL_SKILLS = {
@@ -2844,7 +2986,7 @@ const GENERIC_PASSIVES = {
 const GENERIC_KEYS = Object.keys(GENERIC_PASSIVES);
 const passiveById = (c, id) => (id === 'own' ? c.passive : id === 'alt' ? c.passiveAlt : GENERIC_PASSIVES[id]);
 const passivePool = (c) => ['own', ...(c.passiveAlt ? ['alt'] : []), ...GENERIC_KEYS];
-const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4 }[id]];
+const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5 }[id]];
 
 /* THE TRAINING YARD — a neutral skill or a learned passive is a technique, and a champion has to
    drill at the yard before they can carry one into battle. Each technique takes a few drills; the
@@ -2892,7 +3034,11 @@ function grandfatherTraining() {
 function autoLoadout(c, lv) {
   const pas = ['own'];
   if (passiveSlots(lv) > 1) pas.push(c.role === 'melee' ? 'toughness' : c.role === 'ranged' ? 'keenedge' : MANA.pool[c.faction] ? 'deepwell' : 'secondwind');
-  return { act: ACTIVE_IDS.slice(0, activeSlots(lv)), pas };
+  // A sixth skill would never be reached by taking the pool in order, so for the champions who
+  // carry one it takes the last slot. Otherwise only your own hero would ever bring it to a fight.
+  const act = ACTIVE_IDS.slice(0, activeSlots(lv));
+  if (c.skills[5] && act.length > 2) act[act.length - 1] = SIXTH_ID;
+  return { act, pas };
 }
 
 /* Your champion's saved loadout, trimmed to the slots your level allows and to the techniques they
@@ -2902,7 +3048,7 @@ function heroLoadout(c, lv) {
   const base = profile.loadout || autoLoadout(c, lv);
   const keep = (ids, known) => ids.filter((id) => known(id) && isTrained(c.id, id));
   return {
-    act: keep(base.act, (id) => ACTIVE_IDS.includes(id) || NEUTRAL_SKILLS[id]).slice(0, activeSlots(lv)),
+    act: keep(base.act, (id) => activeIdsOf(c).includes(id) || NEUTRAL_SKILLS[id]).slice(0, activeSlots(lv)),
     pas: keep(base.pas, (id) => !!passiveById(c, id)).slice(0, passiveSlots(lv)),
   };
 }
@@ -2912,7 +3058,7 @@ function fillNewSlots(lv) {
   if (!profile.hero || !profile.loadout) return;
   const c = charById(profile.hero.id), lo = profile.loadout, auto = autoLoadout(c, lv);
   const ready = (id) => isTrained(c.id, id);   // never fill a slot with a technique they haven't drilled
-  for (const id of [...auto.act, ...ACTIVE_IDS, ...NEUTRAL_KEYS]) if (lo.act.length < activeSlots(lv) && !lo.act.includes(id) && ready(id)) lo.act.push(id);
+  for (const id of [...auto.act, ...activeIdsOf(c), ...NEUTRAL_KEYS]) if (lo.act.length < activeSlots(lv) && !lo.act.includes(id) && ready(id)) lo.act.push(id);
   for (const id of [...auto.pas, ...GENERIC_KEYS]) if (lo.pas.length < passiveSlots(lv) && !lo.pas.includes(id) && ready(id)) lo.pas.push(id);
 }
 
@@ -3000,7 +3146,7 @@ function skillsOf(u) {
   if (u.monster) return MONSTERS[u.id].skills.map((s, i) => ({ ...s, id: i === 0 ? 'attack' : `s${i}` }));
   const c = charById(u.id);
   const guard = u.faction === 'mech' ? { ...GUARD, desc: 'Take 50% less damage until your next turn. Vents 50 Heat.' }
-    : { ...GUARD, desc: `${GUARD.desc} Restores ${MANA.guardGain} MP.` };
+    : u.maxMp ? { ...GUARD, desc: `${GUARD.desc} Restores ${MANA.guardGain} MP.` } : GUARD;
   const attack = u.maxMp ? { ...ATTACK, desc: `${ATTACK.desc} Restores ${MANA.attackGain} MP.` } : ATTACK;
   // Mana cost: the skill's own o.mp, else the default; champions with no mana (mechs) cast for free.
   const cost = (s, d) => (u.maxMp ? (s.o?.mp ?? d) : 0);
@@ -3012,8 +3158,10 @@ function skillsOf(u) {
     { ...c.skills[4], id: 'e', mp: cost(c.skills[4], MANA.skill2Cost), o: { heat: 30, ...c.skills[4].o } },
     { ...c.skills[1], id: 'b', sig: true, mp: cost(c.skills[1], MANA.ultCost), o: { heat: 40, ...c.skills[1].o } },
   ];
+  // A sixth skill, for the few champions who carry one, at the second-tier cost.
+  if (c.skills[5]) actives.push({ ...c.skills[5], id: SIXTH_ID, mp: cost(c.skills[5], MANA.skill2Cost), o: { heat: 30, ...c.skills[5].o } });
   // Only the skills in this champion's loadout come into battle; Attack and Guard always do.
-  const eq = u.loadout || ACTIVE_IDS;
+  const eq = u.loadout || activeIdsOf(c);
   // Equipped neutral skills come in after the champion's own, at the cheap-skill mana tier.
   const neutrals = eq.filter((id) => NEUTRAL_SKILLS[id])
     .map((id) => ({ ...NEUTRAL_SKILLS[id], id, mp: cost(NEUTRAL_SKILLS[id], MANA.skillCost), o: { heat: 25, ...NEUTRAL_SKILLS[id].o } }));
@@ -3057,9 +3205,18 @@ function frontlineHit(t) {
       : 'The enemy front line has taken its two blows — their back line is open.', 'sys');
 }
 
+/* THE COFFIN — Mortessa shuts an ally away for a turn. While the lid is down nothing can pick
+   that unit out as a target and nothing with a radius touches it either, so it is filtered out
+   of every target list: single blows here, and area attacks and mass blessings through
+   openFoes / openAllies. It still takes its own turn — stepping out of the box is what ends the
+   effect — and it loses everything that was laid on it in the process (see beginTurn). */
+const inBox = (u) => !!has(u, 'coffin');
+const openFoes = (u) => foesOf(u).filter((f) => !inBox(f));
+const openAllies = (u) => alliesOf(u).filter((a) => !inBox(a));
+
 function validTargets(u, sk) {
   if (sk.target === 'enemy') {
-    const foes = foesOf(u);
+    const foes = openFoes(u);
     const taunters = foes.filter((f) => has(f, 'taunt') || has(f, 'provoke'));
     if (taunters.length) return taunters;
     if (frontlineUp(foes[0]?.side)) {
@@ -3068,7 +3225,10 @@ function validTargets(u, sk) {
     }
     return foes;
   }
-  if (sk.target === 'ally') return alliesOf(u);
+  if (sk.target === 'ally') return openAllies(u);
+  // Second Burial alone looks past the living: its marks are this side's fallen champions. One
+  // already spending its Undying round is not among them — it is still on its feet.
+  if (sk.target === 'deadAlly') return state.teams[u.side].filter((a) => a.hp <= 0 && !a.summon && !undyingOn(a));
   return [];
 }
 
@@ -3078,7 +3238,7 @@ function usable(u, sk) {
   if (silenced(u, sk)) return false;
   if (u.cooldowns[sk.id] > 0) return false;
   if ((sk.mp || 0) > (u.mp || 0)) return false;
-  if ((sk.target === 'enemy' || sk.target === 'ally') && !validTargets(u, sk).length) return false;
+  if (['enemy', 'ally', 'deadAlly'].includes(sk.target) && !validTargets(u, sk).length) return false;
   return true;
 }
 
@@ -3105,13 +3265,92 @@ const killXpOf = (v) => (v.summon ? 0 : Math.max(1, Math.round(v.monster
 const DOT_IDS = ['burn', 'poison', 'bleed'];
 function ownFx(by, t, id) { const e = DOT_IDS.includes(id) && has(t, id); if (e) e.by = by.uid; }
 
+// A share of a blow that someone else is carrying: Soul Link's split, Malgrath's Blood Pact,
+// Morwenna's Blood Ward. It lands outside the normal defensive chain on purpose — the blow has
+// already been rolled and reduced against whoever it was aimed at — but the striker still takes
+// the credit if the share is what fells the one absorbing it.
+function shareBlow(m, amount, by) {
+  if (!m || m.hp <= 0 || amount < 1) return;
+  m.hp = Math.max(0, m.hp - amount);
+  float(m, `${amount}`, 'dot');
+  if (m.hp <= 0) fell(m, by);
+}
+
+// Effects counted in blows rather than turns (o.charges — Provoke, Blood Pact, Blood Ward):
+// spend one, and drop the effect when the last is gone.
+function spendCharge(u, e, msg) {
+  if (!e || e.charges == null) return;
+  if (--e.charges <= 0) {
+    u.effects = u.effects.filter((x) => x !== e);
+    log(msg, 'sys');
+  }
+}
+
 /* Called the moment a unit's HP reaches 0, from wherever the damage came from: it announces the
    death and settles the credit. `by` is whoever struck the last blow, or null for a nameless
    source. A summon's kill belongs to whoever conjured it — it fights as its owner's hand. */
+/* ==================================================================
+   UNDYING — the Pale Host's innate.
+   A blow that would end an Undead champion does not end it yet. Every
+   death in the game funnels through fell() below, whatever dealt it —
+   a skill, a Burn tick, thorns, a Firebomb, Soul Link's shared share —
+   so this is the only place that has to know about the pact.
+   The unit is pinned at 1 HP, lit pale green, and owed one round of
+   bar time (two, with Mordrek's Second Grave). Nothing mends it while
+   it stands there, and nothing can cut the round short either: a
+   further blow just pins it at 1 again. When the round runs out,
+   tickUndying lets the death through for real.
+   Summons are not covered — a Shambler is already borrowed time — and
+   a champion called back by Second Burial is owed the round afresh.
+   ================================================================== */
+const undyingOn = (u) => u.undyingUntil != null;
+// Every body on the field, both sides, champions and summons alike: what Cadris counts.
+// A champion standing on an Undying round is at 1 HP, so it is rightly not among them.
+const deadCount = () => allUnits().filter((x) => x.hp <= 0).length;
+
+// Absorbs the death of a Pale Host champion that still has its last round owed to it.
+// Returns true when the death was absorbed, so fell() knows to stop short.
+function undyingCatch(v) {
+  if (v.faction !== 'undead' || v.summon || v.undyingSpent) return false;
+  v.hp = Math.max(1, v.hp);        // back on its feet; later blows only ever pin it here again
+  if (undyingOn(v)) return true;   // already inside its last round
+  v.undyingUntil = state.time + ROUND_TIME * (pv(v).undyingLong || 1);
+  addFx(v, 'undying', 99, 0, true);   // the chip on the plate; tickUndying is what ends it
+  float(v, 'Undying', 'fx');
+  log(`${v.name} should be down, and is still standing.`, 'sys');
+  return true;
+}
+
+// Called from the battle loop. When the owed round has run out, the death goes through for good.
+function tickUndying() {
+  for (const u of allUnits()) {
+    if (!undyingOn(u) || u.undyingUntil > state.time + EPS) continue;
+    u.undyingUntil = null;
+    u.undyingSpent = true;   // the pact is used up; only a revival renews it
+    u.effects = u.effects.filter((e) => e.id !== 'undying');
+    u.hp = 0;
+    log(`${u.name}'s last round runs out.`, 'sys');
+    fell(u, unitBy(u.lastHitBy));
+  }
+}
+
+/* Barrow: Feast of the Fallen. Any real death on the field feeds everyone carrying the passive.
+   The grave hands this one over directly rather than mending it in, so it is passed as `innate`
+   and the Pale Host's halved healing does not bite on it. */
+function feastOfTheFallen(dead) {
+  for (const u of allUnits()) {
+    const pct = pv(u).deathHeal;
+    if (!pct || u.hp <= 0 || u === dead || undyingOn(u) || has(u, 'coffin')) continue;
+    healUnit(u, u, Math.max(1, Math.round(u.hp * pct)), 'Feast of the Fallen', { innate: true });
+  }
+}
+
 function fell(v, by) {
+  if (undyingCatch(v)) return;   // the Pale Host is owed one more round (see UNDYING)
   if (v.felled) return;   // one death, one payout, however many sources pile onto the corpse
   v.felled = true;
   log(`${v.name} is down.`, 'sys');
+  feastOfTheFallen(v);
   const killer = by && by.summon ? unitBy(by.owner) : by;
   if (!killer || !killer.you || killer.side === v.side) return;
   const xp = killXpOf(v);
@@ -3139,6 +3378,7 @@ function powerMult(u) {
   if (u.faction === 'mech') m *= 1 + u.heat / 250;
   if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus();
   if (u.faction === 'tide' && highTide()) m *= 1.25;
+  if (pv(u).deadScale) m *= 1 + pv(u).deadScale * deadCount();   // Cadris: Toll of the Dead
   if (favored(u)) m *= wx() === 'sun' ? 1.15 : 1.2;
   if (has(u, 'weaken')) m *= 0.7;
   if (has(u, 'empower')) m *= 1.3;
@@ -3224,6 +3464,32 @@ function strikeOnce(u, t, mult, label, o) {
       }
       log(`${t.name}'s Soul Link spreads ${each * mates.length} damage across the team.`, t.side);
     }
+  }
+  // Malgrath: Blood Pact divides the blow he is taking evenly across the whole living warband,
+  // himself included, so a four-strong band leaves him carrying a quarter of it. Spends a charge
+  // whether or not anyone is left to share with, and what the others take is routed through
+  // shareBlow so a share that fells someone still credits the kill.
+  const pact = has(t, 'bloodpact');
+  if (pact) {
+    const mates = alliesOf(t).filter((a) => a.uid !== t.uid);
+    if (mates.length) {
+      const share = Math.max(1, Math.round(taken / (mates.length + 1)));
+      for (const m of mates) shareBlow(m, share, u);
+      taken = share;
+      log(`${t.name}'s Blood Pact splits the blow ${mates.length + 1} ways — ${share} each.`, t.side);
+    }
+    spendCharge(t, pact, `${t.name}'s Blood Pact is spent.`);
+  }
+  // Morwenna: Blood Ward covers every ally at once out of one pool of charges. She takes half of
+  // any blow meant for someone else; a blow aimed at her is hers alone to carry.
+  const warden = alliesOf(t).find((a) => a.uid !== t.uid && has(a, 'bloodward'));
+  if (warden && taken > 1) {
+    const soak = Math.max(1, Math.round(taken * 0.5));
+    taken = Math.max(1, taken - soak);
+    bloodLink(warden, t);
+    shareBlow(warden, soak, u);
+    log(`${warden.name}'s Blood Ward takes ${soak} of the blow meant for ${t.name}.`, warden.side);
+    spendCharge(warden, has(warden, 'bloodward'), `${warden.name}'s Blood Ward is spent.`);
   }
   t.hp = Math.max(0, t.hp - taken);
   if (t.hp <= 0 && TP.lastStand && !t.lastStandUsed) {
@@ -3377,7 +3643,7 @@ async function damageSkill(u, t, sk) {
       t = nt;
     }
   }
-  const targets = sk.target === 'allEnemies' ? foesOf(u) : [t];
+  const targets = sk.target === 'allEnemies' ? openFoes(u) : [t];
   // Front line: every melee this attack goes for counts toward their side's two, hit or miss.
   for (const tg of targets) markAttacked(tg);
   if (o.selfCost) {
@@ -3453,6 +3719,15 @@ async function damageSkill(u, t, sk) {
     let steal = (o.lifesteal || 0) + (u.faction === 'crimson' ? 0.2 : 0);
     if (wx() === 'moon') steal *= 2;
     if (steal) healUnit(u, u, Math.round(dealt * steal), u.faction === 'crimson' && !o.lifesteal ? 'Bloodthirst' : sk.name);
+    // The Court's blood tithe: on top of the share above, every attack drinks a fixed cut of what
+    // the victim could hold, so a small cut on something huge is still worth taking. Measured on
+    // whoever this swing last landed on — an area attack drinks from the last of them, once.
+    if (u.faction === 'crimson' && lastHit) {
+      let tithe = lastHit.maxHp * BLOOD_STEAL;
+      if (wx() === 'moon') tithe *= 2;
+      tithe = Math.round(tithe);
+      if (tithe > 0 && u.hp < u.maxHp) healUnit(u, u, tithe, 'Bloodthirst');
+    }
     if (u.manaSteal) gainMp(u, Math.round(dealt * u.manaSteal));   // mana lifesteal (from items)
     // Weapon drains (see THE ARMORY). These don't scale with the damage dealt but with a pool of HP:
     // the wielder's own total, the wound they are already carrying, or whatever the target has left.
@@ -3513,13 +3788,23 @@ function healPower(u, mult, o = {}) {
   return Math.round(m);
 }
 
-function healUnit(src, t, amount, label) {
+function healUnit(src, t, amount, label, o = {}) {
   if (t.hp <= 0) return;
+  // Shut in the coffin, or standing on an Undying round: no mending reaches either of them.
+  if (has(t, 'coffin') || undyingOn(t)) {
+    float(t, 'No mending', 'fx');
+    log(`${t.name} cannot be mended.`, 'sys');
+    return;
+  }
   const P = src === t ? {} : pv(src);
   if (P.lowHeal && t.hp / t.maxHp < P.lowHeal.below) amount = Math.round(amount * (1 + P.lowHeal.bonus));   // Liesl: Mercy
   if (P.healMp) gainMp(t, P.healMp);   // Maren: Tidecaller
   if (t.healTaken) amount = Math.round(amount * (1 + t.healTaken));   // worn kit: healing received
   if (has(t, 'hex')) amount = Math.round(amount * 0.5);
+  // Grave-flesh mends poorly: the Pale Host takes half of every spell and potion. Their own innate
+  // feeding (Feast of the Fallen) comes straight out of the grave and passes `innate` to skip this.
+  if (t.faction === 'undead' && !o.innate) amount = Math.round(amount * 0.5);
+  if (wx() === 'pall') amount = Math.round(amount * 0.75);   // Grave Pall dulls every mending
   const got = Math.min(amount, t.maxHp - t.hp);
   t.hp += got;
   float(t, `+${got}`, 'heal');
@@ -3534,7 +3819,7 @@ function cleanse(u) {
 
 async function healSkill(u, t, sk) {
   const o = sk.o || {};
-  const targets = sk.target === 'allAllies' ? alliesOf(u) : [t];
+  const targets = sk.target === 'allAllies' ? openAllies(u) : [t];
   await castPose(u, true);
   for (const a of targets) {
     burst(a, 'heal');
@@ -3546,7 +3831,7 @@ async function healSkill(u, t, sk) {
       addFx(a, id, turns, val ? Math.round(u.atk * val) : 0);
     }
   }
-  for (const f of o.enemyFx ? foesOf(u) : []) {
+  for (const f of o.enemyFx ? openFoes(u) : []) {
     burst(f, 'curse');
     for (const [id, turns] of o.enemyFx) addFx(f, id, turns);
   }
@@ -3556,7 +3841,7 @@ async function healSkill(u, t, sk) {
 
 async function buffSkill(u, t, sk) {
   const o = sk.o || {};
-  const targets = sk.target === 'allAllies' ? alliesOf(u) : sk.target === 'self' ? [u] : [t];
+  const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
   await castPose(u, true);
   const ids = sk.fx.map(([id]) => id);
   const look = ids.includes('taunt') ? 'roar' : ids.some((id) => id === 'shield' || id === 'ward') ? 'shield' : 'buff';
@@ -3635,11 +3920,14 @@ async function beginTurn(u) {
     float(u, `${dmg}`, 'dot');
     log(`${u.name} takes ${dmg} from ${FX[id].label}.`, 'sys');
     ticked = true;
-    if (u.hp <= 0) { fell(u, unitBy(e.by)); render(); await wait(450); return 'dead'; }
+    // Undying can catch this: fell() puts a Pale Host champion back on 1 HP, and the turn goes on.
+    if (u.hp <= 0) { fell(u, unitBy(e.by)); render(); await wait(450); if (u.hp <= 0) return 'dead'; }
   }
+  // Nothing mends what is sealed in a coffin or already spending its last round.
+  const sealed = has(u, 'coffin') || undyingOn(u);
   const rg = has(u, 'regen');
-  if (rg && u.hp < u.maxHp) {
-    const mend = Math.round(rg.value * (1 + (u.healTaken || 0)));   // worn kit: healing received
+  if (rg && u.hp < u.maxHp && !sealed) {
+    const mend = Math.round(rg.value * (1 + (u.healTaken || 0)) * (wx() === 'pall' ? 0.75 : 1));   // worn kit; Grave Pall dulls it
     const got = Math.min(has(u, 'hex') ? Math.round(mend * 0.5) : mend, u.maxHp - u.hp);
     u.hp += got;
     float(u, `+${got}`, 'heal');
@@ -3648,9 +3936,12 @@ async function beginTurn(u) {
   }
   // Natural HP regen: champions (not summons) recover a small share of max HP each turn. Hex halves it.
   // Elowen's Verdant Aura adds to it for her whole warband.
-  if (!u.summon && u.hp < u.maxHp) {
+  // The Pale Host keep their own slow mending at full strength: the grave sustains them even
+  // though spells barely can. What it cannot do is reach into a coffin or an Undying round.
+  if (!u.summon && u.hp < u.maxHp && !sealed) {
     let amt = Math.round(u.maxHp * (HP_REGEN_PCT + (allyHas(u, 'allyRegen') ? 0.02 : 0))) + (u.hpRegen || 0);
     if (has(u, 'hex')) amt = Math.round(amt * 0.5);
+    if (wx() === 'pall') amt = Math.round(amt * 0.75);
     const got = Math.min(amt, u.maxHp - u.hp);
     if (got > 0) { u.hp += got; float(u, `+${got}`, 'heal'); }
   }
@@ -3684,10 +3975,32 @@ async function beginTurn(u) {
   if (u.race === 'elf') { if (!u.hitSince) u.stacks = Math.min(3, u.stacks + 1); u.hitSince = false; }
   if (u.faction === 'stone' && wx() === 'mist') u.stacks = Math.min(3, u.stacks + 1);
 
+  /* The coffin opens at the start of the turn it was shut for, and everything laid on the unit
+     while it was in there — blessings and curses alike — stays behind in the box. The Undying
+     pact is not one of those things: the grave's claim goes into the coffin and comes back out. */
+  const box = has(u, 'coffin');
+  if (box && box.turns <= 1 && u.effects.length > 1) {
+    u.effects = u.effects.filter((e) => e.id === 'undying');
+    float(u, 'Unsealed', 'fx');
+    log(`${u.name} steps out of the coffin, stripped of everything laid on them.`, u.side);
+  }
   u.effects.forEach((e) => { if (e.until == null) e.turns--; });
   u.effects = u.effects.filter((e) => e.until != null || e.turns > 0);
   for (const k in u.cooldowns) if (u.cooldowns[k] > 0) u.cooldowns[k]--;
   return 'ok';
+}
+
+// THE BLOOD PRICE — what a Crimson Court cast costs its caster, in place of mana (see BLOOD_COST).
+// A share of their CURRENT HP, so the toll shrinks as they are worn down, and never their last
+// point: a Courtier can always act, even on 1 HP. Attack and Guard are free.
+function bloodCost(u, sk) {
+  if (u.faction !== 'crimson' || sk.id === 'attack' || sk.id === 'guard') return;
+  const loss = Math.round(u.hp * (sk.sig ? BLOOD_COST.sig : BLOOD_COST.skill));
+  if (loss < 1) return;
+  u.hp = Math.max(1, u.hp - loss);
+  bump(u, 'hurt');
+  float(u, `${loss}`, 'dot');
+  log(`${u.name} pays ${loss} HP in blood for ${sk.name}.`, u.side);
 }
 
 // A share of the caster's current HP, taken by an enemy passive. Never lethal on its own.
@@ -3728,6 +4041,9 @@ async function doAction(u, sk, t) {
   // Mana: remember the pool before paying (mana-scaling damage uses it), pay the cost, then any leak.
   u.castMp = u.mp || 0;
   if (sk.mp) u.mp -= sk.mp;
+  // The Crimson Court pay in blood instead of mana — their own price comes off first, before any
+  // toll an enemy has laid on them, so a Courtier is never taxed on blood they have already spent.
+  bloodCost(u, sk);
   // Skills (anything but Attack and Guard) pay extra HP to an Infernal Toll mark and Maren's Backwash.
   if (sk.id !== 'attack' && sk.id !== 'guard') {
     infernalToll(u);
@@ -3754,6 +4070,20 @@ async function doAction(u, sk, t) {
     burst(s, 'smoke');
     render();
     await wait(500);
+    if (SUMMONS[sk.summon].strikesOnSpawn) await strikeOnSpawn(s);
+  }
+  else if (sk.kind === 'coffin') {
+    await castPose(u, true);
+    burst(t, 'shield');
+    addFx(t, 'coffin', 1);
+    render();
+    await wait(520);
+  }
+  else if (sk.kind === 'revive') {
+    await castPose(u, true);
+    reviveUnit(u, t, sk.pct, sk.name);
+    render();
+    await wait(700);
   }
   else if (sk.kind === 'windup') {
     // A boss announces its big attack; it lands on the boss's next turn.
@@ -3808,12 +4138,32 @@ function aiChoose(u) {
     if (s.kind === 'heal') w = hurt.length ? 6 : 0;
     if (s.kind === 'buff') w = s.target === 'self' ? (u.hp / u.maxHp < 0.7 ? 3 : 0.5) : 2;
     if (s.kind === 'buff' && s.o?.cleanse) w = allies.some(debuffs) ? 4 : 0.3;
-    if (s.o?.charges) w = allies.some((a) => has(a, 'taunt') || has(a, 'provoke')) ? 0.2 : 2;
+    // Provoke's charges are about drawing fire, so they are wasted on a band that already has a
+    // taunt up. The Court's two blood buffs are counted in charges as well but play nothing like
+    // it, so each is judged on its own below rather than by the charge rule.
+    const fxIds = s.fx ? s.fx.map(([id]) => id) : [];
+    if (s.o?.charges && fxIds.includes('provoke')) w = allies.some((a) => has(a, 'taunt') || has(a, 'provoke')) ? 0.2 : 2;
+    // Blood Pact spreads what he takes, so it is worth opening when he is the one being worn down
+    // and there are allies healthy enough to carry a share — never onto a band already bleeding out.
+    if (fxIds.includes('bloodpact')) {
+      const mates = allies.filter((a) => a.uid !== u.uid);
+      w = u.hp / u.maxHp < 0.75 && mates.length && mates.every((a) => a.hp / a.maxHp > 0.45) ? 5 : 0.4;
+    }
+    // Blood Ward pays out of her own veins, so she wants the band hurt and herself hale.
+    if (fxIds.includes('bloodward')) {
+      const mates = allies.filter((a) => a.uid !== u.uid);
+      w = mates.some((a) => a.hp / a.maxHp < 0.6) && u.hp / u.maxHp > 0.55 ? 5 : 0.4;
+    }
     // A channel pays out of the caster's own HP, so the self-buff rule above has it backwards:
     // open it when the warband is hurt and she can afford the bleed, not when she is the hurt one.
     if (s.o?.channel) w = hurt.length && u.hp / u.maxHp > 0.5 ? 5 : 0.2;
     if (s.id !== 'guard' && s.o?.heat < 0) w = u.heat >= 40 ? 3 : 1;   // venting skills: better when hot
     if (s.kind === 'summon') w = summonOf(u) ? 0 : 4;
+    // Second Burial: usable() has already checked there is a body to raise, so if it is on the
+    // list at all it is worth more than anything else she could do with the turn.
+    if (s.kind === 'revive') w = 9;
+    // The coffin is for an ally about to be killed, not a routine play.
+    if (s.kind === 'coffin') w = allies.some((a) => a.hp / a.maxHp < 0.3) ? 5 : 0.4;
     return { s, w };
   }).filter((x) => x.w > 0);
   let roll = Math.random() * scored.reduce((a, x) => a + x.w, 0);
@@ -3830,9 +4180,12 @@ function aiChoose(u) {
     const opts = validTargets(u, sk);
     t = sk.o?.aiTarget === 'debuffed' ? [...opts].sort((a, b) => debuffs(b) - debuffs(a))[0]
       : sk.o?.aiTarget === 'tank' ? [...opts].sort((a, b) => b.hp * (50 + b.def) - a.hp * (50 + a.def))[0]
-      : sk.kind === 'heal' || sk.o?.aiTarget === 'lowest'
+      : sk.kind === 'heal' || sk.kind === 'coffin' || sk.o?.aiTarget === 'lowest'
         ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]
         : [...opts].sort((a, b) => b.atk - a.atk)[0];
+  } else if (sk.target === 'deadAlly') {
+    // Raise the body worth the most: a champion who can actually fight once they are up.
+    t = [...validTargets(u, sk)].sort((a, b) => b.maxHp * b.atk - a.maxHp * a.atk)[0];
   }
   return { sk, t };
 }
@@ -3991,7 +4344,7 @@ function announceWeather() {
 }
 
 // Weather icons for the battle's weather pill.
-const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕', quake: '🪨' };
+const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕', quake: '🪨', pall: '🪦' };
 
 function roundsUntilWeather() {
   return WEATHER_EVERY - ((state.round - 1) % WEATHER_EVERY);
@@ -4041,6 +4394,41 @@ function summonUnit(owner, kind) {
   float(u, 'Summoned', 'fx');
   if (def.onSpawn) def.onSpawn(u);
   return u;
+}
+
+/* A Shambler swings the instant it stands, before the speed bar gets any say. It picks its mark
+   the way the AI would and throws the one blow it has; anything after that is the bar's business.
+   damageSkill is called straight out, because a summon has no mana, cooldown or toll to settle. */
+async function strikeOnSpawn(s) {
+  if (s.hp <= 0) return;
+  const sk = skillsOf(s)[0];
+  const opts = validTargets(s, sk);
+  if (!opts.length) return;
+  const t = chance(0.6) ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0] : pick(opts);
+  log(`${s.name} lurches up and swings at once.`, s.side);
+  await damageSkill(s, t, sk);
+  cleanupSummons();
+  render();
+}
+
+/* SECOND BURIAL — Mortessa's ★ signature, and the only skill in the game that targets the dead.
+   A fallen champion never leaves the field: the dead stay in state.teams, which is how the body
+   goes on lying there. So raising one is a matter of undoing the death rather than building a new
+   unit — clear the kill flag, hand back a sliver of HP, drop whatever was lying on the corpse,
+   and give the Undying pact back, because the grave never gave up its claim in the first place.
+   The ★ signature goes back on a short cooldown so the newly raised cannot open with one. */
+function reviveUnit(src, t, pct, label) {
+  t.hp = Math.max(1, Math.round(t.maxHp * pct));
+  t.felled = false;
+  t.undyingUntil = null; t.undyingSpent = false;
+  t.effects = [];
+  t.downAt = null;
+  t.pos = 0;
+  t.lastHitBy = null;
+  t.cooldowns = { ...t.cooldowns, b: Math.max(t.cooldowns?.b || 0, 2) };
+  burst(t, 'heal');
+  float(t, 'Raised', 'fx');
+  log(`${src.name}'s ${label} calls ${t.name} back onto their feet.`, src.side);
 }
 
 function removeUnit(u) {
@@ -4148,6 +4536,7 @@ async function advanceClock(token) {
     if (token !== state.token) return null;
 
     expireTimed();
+    tickUndying();   // a Pale Host champion whose last round has run out falls here (see UNDYING)
     cleanupSummons();
     if (dtRound <= dt + 1e-9) {
       const changed = newRound();
@@ -4287,7 +4676,7 @@ async function useItem(u, key, t) {
     else if (t.faction === 'mech') { t.heat = Math.max(0, t.heat - 50); float(t, 'Vented', 'fx'); log(`${t.name} vents Heat.`, t.side); }
   } else if (key === 'salts') { burst(t, 'buff'); cleanse(t); log(`${t.name} is purified.`, t.side); }
   else if (key === 'firebomb') {
-    for (const f of foesOf(u)) {
+    for (const f of openFoes(u)) {
       const dmg = Math.max(1, Math.round(f.maxHp * 0.1));
       f.hp = Math.max(0, f.hp - dmg);
       burst(f, 'fire');
@@ -5256,6 +5645,7 @@ const ATTUNE = {
   stone:   { critMult: 0.20 },
   tide:    { stealFoe: 0.02 },
   crimson: { stealMax: 0.02 },
+  undead:  { hpRegen: 4 },   // the grave gives a little back every turn, since healing barely does
 };
 
 const wepOf = (id) => ARMORY[gearRaw(id).wp] || null;
@@ -5348,7 +5738,7 @@ function unequipWeapon(id) {
    box each recipe actually paints when handed (42, 70) — [x, y, width, height] — and wepIcon fits
    a square viewBox around it so every weapon fills its tile. To regenerate after changing the art,
    render a recipe into a <g> and read getBBox(); a look with no entry falls back to the full box. */
-const FACTION_INK = { mech: '#7d8aa3', orc: '#6b8f56', human: '#3e5a8c', stone: '#3f7a4f', tide: '#2a7f8f', crimson: '#c0303f' };
+const FACTION_INK = { mech: '#7d8aa3', orc: '#6b8f56', human: '#3e5a8c', stone: '#3f7a4f', tide: '#2a7f8f', crimson: '#c0303f', undead: '#6f8f6a' };
 const WEAPON_BOX = {
   sword:  [32.1, 34.4, 31.5, 46.2], axe:    [33.1, 35.5, 26.4, 46.5], hammer:   [30.7, 31.0, 29.8, 51.0],
   saw:    [39.0, 57.0, 28.0, 22.0], spear:  [31.5, 24.7, 38.9, 59.4], trident:  [28.9, 21.7, 40.6, 65.7],
@@ -5699,8 +6089,10 @@ function loadoutCardHTML(c, kind, id, on) {
   const canUp = kind === 'act' && !locked && skillPoints(c.id) > 0 && r < RANK_CAP;
   const tag = kind === 'act'
     ? (NEUTRAL_SKILLS[id] ? 'Neutral' : id === 'b' ? `★ Signature · from turn ${ULT_FIRST_TURN}` : 'Active')
-      // Same tiers skillsOf charges: a is the cheap opener, b the signature, c/d/e the rest.
+      // Same tiers skillsOf charges: a is the cheap opener, b the signature, c/d/e/f the rest.
       + (MANA.pool[c.faction] ? ` · ${s.o?.mp ?? (id === 'a' ? MANA.skillCost : id === 'b' ? MANA.ultCost : MANA.skill2Cost)} MP` : '')
+      // The Court pay in blood instead, as a share of whatever they have left when they cast.
+      + (c.faction === 'crimson' ? ` · ${Math.round((id === 'b' ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}% HP` : '')
       + (s.cd ? ` · cooldown ${s.cd}` : '')
       + (r ? ` · Rank ${r}/${RANK_CAP}` : '')
       // Worn kit wards physical and magic separately, so a damage skill says which it is.
@@ -5742,7 +6134,7 @@ function renderSkills() {
     <section class="lsec">
       <header><h2>Active skills</h2><p class="rule">Click a skill to equip or unequip it. More slots open at levels ${SLOT_UNLOCKS.filter((s) => s.kind === 'act').map((s) => s.lv).join(' and ')}.</p></header>
       ${slotRowHTML(c, 'act', lo.act)}
-      <div class="lpool">${ACTIVE_IDS.map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
+      <div class="lpool">${activeIdsOf(c).map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
     </section>
     <section class="lsec">
       <header><h2>Neutral skills</h2><p class="rule">Tricks any champion can learn, whatever their class. They share your active slots. Drill them at the Training Yard before you can carry them.</p></header>
@@ -5996,7 +6388,7 @@ const PLACES = {
   forge:  { name: 'Ironsmith', kick: 'Upgrade', blurb: 'Forge a sharper weapon edge and heavier armor, tier by tier.',
             flavor: 'Brann Ashhand works the forge day and night. Ash-iron takes an edge like nothing else on the road.' },
   armory: { name: 'The Armory', kick: 'Gear up', blurb: 'Named weapons and worn kit for every champion.',
-            flavor: 'Quartermaster Tova Ironvale keeps every blade, shield and buckle in Cinderhold, from all six factions, and knows which champion each was made for.' },
+            flavor: 'Quartermaster Tova Ironvale keeps every blade, shield and buckle in Cinderhold, from all seven factions, and knows which champion each was made for.' },
   home:   { name: 'Your House', kick: 'Home', blurb: 'Your stash, your warband\'s gear and the furniture you\'ve bought.',
             flavor: 'A crooked little cottage at the edge of Cinderhold. The roof leaks, but it is yours.' },
   bounty: { name: 'Bounty Board', kick: 'Jobs', blurb: 'Three new jobs every day, paid in gold.',
@@ -6232,7 +6624,7 @@ const QUESTS = [
     ask: 'One win is luck. Five is a show. Win five fights and the betting tables will fill up.',
     done: 'Five! The bookmakers are weeping. Take this before they find me.' },
   { id: 'roska3', from: 'roska', title: 'Champion of the Pit', goal: { t: 'clear' }, gold: 300,
-    ask: 'Now the real thing. Beat all six factions in one run and I will paint your name on the gate.',
+    ask: 'Now the real thing. Beat all seven factions in one run and I will paint your name on the gate.',
     done: 'Your name goes on the gate tomorrow. Spelled right, even. Mostly.' },
 
   { id: 'brann1', from: 'brann', title: 'Pit Scrap', goal: { t: 'win', n: 2 }, gold: 60,
@@ -8754,6 +9146,14 @@ function factionPassive(u) {
   if (u.race === 'dwarf') return `<b>Fortify ${u.stacks}/3:</b> −${u.stacks * 8}% damage taken.`;
   if (u.faction === 'tide') return highTide() ? '<b>High Tide:</b> +25% damage and healing this round.' : '<b>Low Tide.</b> High Tide arrives next round.';
   if (u.faction === 'crimson') return `<b>Bloodthirst:</b> every hit drains ${wx() === 'moon' ? 40 : 20}% of the damage dealt as HP.`;
+  if (u.faction === 'undead') {
+    if (undyingOn(u)) {
+      const left = Math.max(1, Math.ceil((u.undyingUntil - state.time) / ROUND_TIME * 10) / 10);
+      return `<b>Undying:</b> already dead and still standing. Falls for good in ${left} round${left === 1 ? '' : 's'}, and nothing can mend it until then.`;
+    }
+    if (u.undyingSpent) return '<b>Undying: spent.</b> It has had its last round. The next blow that lands is the end.';
+    return '<b>Undying:</b> the next blow that would fell it leaves it standing one more round instead. Healing from spells and potions is halved.';
+  }
   return f.rule;
 }
 
@@ -8763,6 +9163,8 @@ function passiveChips(u) {
   if (u.race === 'elf' && u.stacks) c.push(`Precision ${u.stacks}`);
   if (u.race === 'dwarf' && u.stacks) c.push(`Fortify ${u.stacks}`);
   if (u.faction === 'tide' && highTide() && u.hp > 0) c.push('High Tide');
+  if (u.faction === 'undead' && u.undyingSpent && u.hp > 0) c.push('Undying spent');
+  if (pv(u).deadScale && u.hp > 0) { const d = deadCount(); if (d) c.push(`Toll +${Math.round(pv(u).deadScale * d * 100)}%`); }
   if (favored(u) && u.hp > 0) c.push(WEATHER[wx()].name);
   return c.map((t) => `<li class="chip pass">${t}</li>`).join('');
 }
@@ -8838,9 +9240,12 @@ function renderBattle() {
     el.classList.toggle('winding', !!u.windup);
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
+    // The Pale Host's last round, and Mortessa's coffin: both are states you need to see at a glance.
+    el.classList.toggle('undying', undyingOn(u));
+    el.classList.toggle('boxed', inBox(u));
     const tgt = targets.includes(u);
     el.classList.toggle('targetable', tgt);
-    el.classList.toggle('ally', tgt && pending.target === 'ally');
+    el.classList.toggle('ally', tgt && (pending.target === 'ally' || pending.target === 'deadAlly'));
     el.tabIndex = tgt ? 0 : -1;
     el.setAttribute('role', tgt ? 'button' : 'group');
     el.setAttribute('aria-label', `${u.side === 'p' ? 'Your' : 'Enemy'} ${u.name}, ${u.hp} of ${u.maxHp} HP`);
@@ -8880,9 +9285,13 @@ function renderBattle() {
     const cd = act.cooldowns[s.id] || 0;
     const hushed = silenced(act, s), broke = (s.mp || 0) > (act.mp || 0);
     // Blue mana cost on the icon (red when you can't afford it); a cooldown or silence covers the icon.
+    // The Court have no mana to spend, so their badge shows the share of current HP the cast
+    // will cost instead. It is never unaffordable — bloodCost leaves them standing on 1 HP.
+    const blood = act.faction === 'crimson' && s.id !== 'attack' && s.id !== 'guard';
     const mpc = b.querySelector('.mpc');
-    mpc.textContent = s.mp ? s.mp : '';
-    mpc.classList.toggle('short', broke);
+    mpc.textContent = blood ? `${Math.round((s.sig ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}%` : s.mp ? s.mp : '';
+    mpc.classList.toggle('short', !blood && broke);
+    mpc.classList.toggle('blood', blood);
     b.querySelector('.cdn').textContent = hushed ? '🔇' : cd ? cd : '';
     b.disabled = !(state.phase === 'choose' && act.side === 'p' && usable(act, s));
     b.classList.toggle('armed', state.pending === s.id);

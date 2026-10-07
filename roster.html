@@ -80,8 +80,8 @@ ul.sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   <div id="out"></div>
 </main>
 <script>
-const FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson' };
-const ACC = { mech: '#f0a73a', orc: '#d48c3c', human: '#e0bb55', stone: '#a8d06b', tide: '#7fe3d8', crimson: '#e0455a' };
+const FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead' };
+const ACC = { mech: '#f0a73a', orc: '#d48c3c', human: '#e0bb55', stone: '#a8d06b', tide: '#7fe3d8', crimson: '#e0455a', undead: '#7ee696' };
 const slug = (n) => n.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const icon = (n) => `<img src="skills/${slug(n)}.svg" alt="" onerror="this.style.visibility='hidden'">`;
