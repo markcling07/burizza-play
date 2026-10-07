@@ -672,6 +672,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .proj-toxarrow, .proj-inkjet { filter: drop-shadow(0 0 4px #b07ae0); }
 .proj-firefly { filter: drop-shadow(0 0 6px #8ee6a0); }
 .proj-skullshot { filter: drop-shadow(0 0 4px rgba(159, 232, 180, .6)); }
+.proj-bloodbones { filter: drop-shadow(0 0 3px rgba(179, 32, 46, .7)); }
 .proj-spark { width: 16px; height: 4px; margin: -2px 0 0 -8px; border-radius: 2px; background: linear-gradient(90deg, transparent, #7fe3ff 40%, #fff); box-shadow: 0 0 8px #7fe3ff; }
 .proj-plasma { width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: radial-gradient(circle, #fff 0 16%, #9fe7ff 34%, #3f8aff 56%, transparent 72%); box-shadow: 0 0 18px #6fb5ff, 0 0 4px #fff inset; animation: ppulse .14s infinite; }
 .proj-tracer { width: 30px; height: 2px; margin: -1px 0 0 -15px; border-radius: 1px; background: linear-gradient(90deg, transparent, #ffd166 60%, #fff); box-shadow: 0 0 6px #ffd166; }
@@ -1669,7 +1670,7 @@ const ELEM_ICON = { lightning: '⚡', fire: '🔥', holy: '✨' };
    announced ahead of time so players can plan.
    ================================================================== */
 const WEATHER = {
-  clear: { name: 'Clear Skies',  favors: null,    desc: 'No effects.' },
+  clear: { name: 'Clear Skies',  favors: null,    desc: 'No faction is favored. When the skies clear, every Blind lifts at once.' },
   // The herald of every Ash Storm. Its meteors fall once, on the turn it arrives, and never again.
   brim:  { name: 'Brimstone Fall', favors: null,  desc: 'The sky burns before the ash comes. Meteors fall once as it arrives and everyone on the field — both warbands — takes damage equal to 10% of the HP they have already lost; the unhurt feel nothing, and no one is slain by it. An Ash Storm always follows.' },
   ash:   { name: 'Ash Storm',    favors: 'orc',   desc: 'Bloodtusk Horde deal 20% more damage. Burn deals 50% more to everyone.' },
@@ -2039,7 +2040,7 @@ const ROSTER = [
     passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
-    look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'headstone', shield: '#4a5244' },
+    look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'headstone', offhand: 'headstone' },
     skills: [D('Tomb Slab', '120% slam with the grave slab.', 2, 1.2),
              B('Barrow Wall', 'Taunt every enemy and raise the grave-plate: shielded for 3 turns, and every ill thing on him is left in the dirt.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
              D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
@@ -2541,8 +2542,9 @@ const WEAPONS = {
     <path d="M${x - 6} ${y + 20} q6 5 12 0" stroke="#5a4a3a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
   </g>`,
   // Barrow carries no forged weapon at all: he smashes with a headstone pulled off somebody's
-  // tomb, hoisted back over his shoulder — engraving, moss, crack and all.
-  headstone: (a, x, y) => `<g transform="rotate(-24 ${x} ${y})">
+  // tomb, hoisted back over his shoulder — engraving, moss, crack and all. (He carries a second
+  // one in his off hand, held upright: look.offhand, drawn by builtinSprite with rot = 6.)
+  headstone: (a, x, y, rot = -24) => `<g transform="rotate(${rot} ${x} ${y})">
     <path d="M${x - 9} ${y + 6} V${y - 21} Q${x - 9} ${y - 31} ${x} ${y - 31} Q${x + 9} ${y - 31} ${x + 9} ${y - 21} V${y + 6} Z" fill="#9aa3b5"/>
     <path d="M${x - 9} ${y + 6} V${y - 21} Q${x - 9} ${y - 31} ${x} ${y - 31} l0 2.6 Q${x - 6.4} ${y - 28.4} ${x - 6.4} ${y - 21} V${y + 6} Z" fill="#c3cad6" opacity=".45"/>
     <path d="M${x - 1.2} ${y - 27} v5 M${x - 3.6} ${y - 25} h4.8" stroke="${INK}" stroke-width="1.5" opacity=".6"/>
@@ -2966,8 +2968,14 @@ function builtinSprite(id) {
   const a = lookOf(id);
   const b = BODIES[a.body](a);
   const [x, y] = b.hand;
-  let g = b.svg + (a.weapon ? WEAPONS[a.weapon](a, x, y) : '');
+  // The weapon is its own group, pivoting on the hand, so an attack pose can swing it (WEAPON_STRIKES).
+  let g = b.svg + (a.weapon ? `<g class="wpn" style="transform-origin:${x}px ${y}px">${WEAPONS[a.weapon](a, x, y)}</g>` : '');
   if (a.shield) g += `<path d="M29 ${50 + b.shieldY} h17 v14 q0 10 -8.5 13 q-8.5 -3 -8.5 -13 z" fill="${a.shield}" stroke="${a.trim}" stroke-width="2"/>`;
+  // An off-hand weapon held where a shield would be (Barrow's second headstone), a little smaller.
+  if (a.offhand) {
+    const oy = 72 + b.shieldY;
+    g += `<g class="wpn2" transform="translate(37 ${oy}) scale(.82) translate(-37 ${-oy})">${WEAPONS[a.offhand](a, 37, oy, 6)}</g>`;
+  }
   if (a.scale) g = `<g transform="translate(50 94) scale(${a.scale}) translate(-50 -94)">${g}</g>`;
   const rx = a.body === 'dwarf' || a.scale ? 18 : 23;
   return (spriteCache[id] = `<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="94" rx="${rx}" ry="3.6" fill="#000" opacity=".35"/>${g}</svg>`);
@@ -3440,7 +3448,8 @@ function undyingCatch(v) {
 function feastOfTheFallen(dead) {
   for (const u of allUnits()) {
     const pct = pv(u).deathHeal;
-    if (!pct || u.hp <= 0 || u === dead || undyingOn(u) || has(u, 'coffin')) continue;
+    // At full HP there's nothing to drink, so skip it rather than log and float a "+0".
+    if (!pct || u.hp <= 0 || u.hp >= u.maxHp || u === dead || undyingOn(u) || has(u, 'coffin')) continue;
     healUnit(u, u, Math.max(1, Math.round(u.hp * pct)), 'Feast of the Fallen', { innate: true });
   }
 }
@@ -3791,7 +3800,7 @@ async function damageSkill(u, t, sk) {
   } else for (const tg of targets) {
     for (let i = 0; i < hits; i++) {
       if (tg.hp <= 0 || u.hp <= 0) break;
-      if (melee) await strikePose(u);
+      if (melee) await strikePose(u, false, sk);
       else if (targets.length === 1) await shoot(u, tg, proj);
       if (o.slash && melee) slashFx(tg, facing(u));
       await hitOnce(tg, sk.mult);
@@ -3861,7 +3870,7 @@ async function damageSkill(u, t, sk) {
       // Stay in reach and swing again straight away — or, at range, loose a second shot.
       log(melee ? `${u.name} keeps swinging: a second strike!` : `${u.name} looses a second shot!`, u.side);
       await wait(200);
-      if (melee) await strikePose(u, true);
+      if (melee) await strikePose(u, true, sk);
       else { await aimPose(u); await shoot(u, t, proj); }
       await hitOnce(t, sk.mult);
     } else {
@@ -3870,14 +3879,17 @@ async function damageSkill(u, t, sk) {
       await dashBack(u, trip);
       await wait(260);   // a beat at home so the call-out reads before the second charge
       trip = await dashTo(u, [t]);
-      await strikePose(u, true);
+      await strikePose(u, true, sk);
       await hitOnce(t, sk.mult);
     }
     drain(total - before);
     render();
     await resolveCounters();
   }
-  if (trip) await dashBack(u, trip);
+  // A Shambler that falls in front of the enemy (a counter, thorns, Retribution...) doesn't walk
+  // home: its corpse stays where it dropped, lying at the enemy's feet until it crumbles.
+  if (trip && u.id === 'zombie' && u.hp <= 0) layoutSides();
+  else if (trip) await dashBack(u, trip);
   await wait(120);
 }
 
@@ -4334,6 +4346,17 @@ function douse(u, by) {
   log(`${by} douses ${u.name}'s Heat.`, u.side);
 }
 // Downpour or Thunderstorm washes the Heat out of every living Ironclad champion at once.
+// Clear Skies arriving: the light comes back and every Blind on the field lifts at once.
+// (Battles open under Clear Skies too, but nobody is Blinded yet then, so only the turn of the weather counts.)
+function clearSight() {
+  const seen = allUnits().filter((u) => u.hp > 0 && has(u, 'blind'));
+  for (const u of seen) {
+    u.effects = u.effects.filter((e) => e.id !== 'blind');
+    float(u, 'Sight returns', 'fx');
+  }
+  if (seen.length) log(`The skies clear: ${listAnd(seen.map((u) => u.name))} can see again.`, 'wx');
+}
+
 function douseMechs() {
   for (const u of allUnits()) douse(u, `The ${WEATHER[wx()].name}`);
 }
@@ -4393,6 +4416,7 @@ function newRound() {
     log(`The weather turns: ${W.name}. ${W.desc}`, 'wx');
     // Downpour or Thunderstorm hits the field: douse every mech's Heat at once. It stays doused until the weather passes.
     if (wetWeather()) douseMechs();
+    if (state.weather === 'clear') clearSight();
     announceWeather();
     // The two skies that strike as they arrive, once each and never again while they hold.
     if (state.weather === 'sun') dawnMend();
@@ -5736,6 +5760,18 @@ const ARMORY = {
   heartreaper:  { name: 'Heartreaper Fangs', faction: 'crimson', look: 'dagger', price: 380,
                   flavor: 'A matched pair. Vesper gives them as gifts, and expects them back.',
                   bonus: { atkPct: 0.14, stealMax: 0.03, crit: 0.08 } },
+
+  // The Pale Host - grave goods. Their own rule halves the healing they take, so these lean on a
+  // patient edge and what the grave gives back rather than on drinking from a wound.
+  hollowmarker: { name: 'Hollow Marker', faction: 'undead', look: 'headstone', price: 110,
+                  flavor: 'The name wore off it a hundred winters ago. It still knows whose it was.',
+                  bonus: { atkPct: 0.05, crit: 0.05 } },
+  ribsling:     { name: 'Ribcage Sling', faction: 'undead', look: 'sling', price: 220,
+                  flavor: 'Strung on a rib that did not want to be given up. It never tires of the throw.',
+                  bonus: { atkPct: 0.09, double: 0.05, hpRegen: 2 } },
+  mournerscross:{ name: "Mourner's Cross", faction: 'undead', look: 'cross', price: 380,
+                  flavor: 'Carried at the front of a funeral nobody came back from. It leads still.',
+                  bonus: { atkPct: 0.14, critMult: 0.30, hpRegen: 3 } },
 };
 const ARMORY_KEYS = Object.keys(ARMORY);
 
@@ -5849,6 +5885,8 @@ const WEAPON_BOX = {
   cannon: [36.8, 17.5, 48.4, 28.5], staff:  [33.0, 23.0, 18.0, 59.0], orb:     [39.0, 51.0, 20.0, 20.0],
   pot:    [39.5, 48.0, 13.0, 24.5], fist:   [38.0, 65.0, 15.0, 13.0], rapier:   [33.9, 34.4, 35.1, 44.2],
   dagger: [29.6, 43.5, 32.0, 33.4], wrench: [33.8, 35.8, 31.4, 42.4],
+  headstone: [21.2, 38.0, 31.5, 41.1], sling: [36.8, 70.0, 8.8, 21.8], cross: [14.7, 16.6, 60.9, 87.8],
+  coffin: [2.8, 20.3, 47.2, 71.5],
 };
 const ICON_PAD = 1.18;   // a little air around the art so nothing touches the tile edge
 function wepIcon(k) {
@@ -8801,11 +8839,55 @@ function pose(u, frames, ms) {
   return b.animate(frames, { duration: beat(ms), easing: 'ease-out' });
 }
 
+/* Basic attacks for champions drawn by builtinSprite whose weapon swings on its own (the .wpn group,
+   pivoting on the hand). wpn = keyframes for the weapon in the sprite's own space (enemies are
+   mirrored as a whole, so the same frames work on both sides); body(d) = keyframes for the body,
+   d = facing; hit = the share of ms at which the blow lands. */
+const WEAPON_STRIKES = {
+  // Barrow plods in, slowly hauls the headstone up over his head... then brings it down.
+  barrow: { ms: 1150, hit: 0.8,
+    // The hand rises with the stone (translate), so the headstone ends up held high over his head,
+    // then it swings over and comes down nose-first in front of him.
+    wpn: [{ transform: 'translate(0px, 0px) rotate(0deg)' },
+      { transform: 'translate(-14px, -34px) rotate(14deg)', offset: 0.6, easing: 'ease-in-out' },
+      { transform: 'translate(-16px, -37px) rotate(6deg)', offset: 0.72, easing: 'cubic-bezier(.6,0,1,.5)' },
+      { transform: 'translate(4px, 6px) rotate(140deg)', offset: 0.8 },
+      { transform: 'translate(4px, 7px) rotate(136deg)', offset: 0.9 },
+      { transform: 'translate(0px, 0px) rotate(0deg)' }],
+    body: (d) => [{ transform: 'none' },
+      { transform: `translateX(${-d * 3}px) rotate(${-d * 5}deg)`, offset: 0.6 },
+      { transform: `translateX(${-d * 4}px) rotate(${-d * 6}deg)`, offset: 0.72 },
+      { transform: `translateX(${d * 12}px) translateY(3px) rotate(${d * 9}deg)`, offset: 0.8 },
+      { transform: `translateX(${d * 10}px) translateY(3px) rotate(${d * 8}deg)`, offset: 0.9 },
+      { transform: 'none' }] },
+  // Mordrek turns the cross over and drives its iron-shod foot into the enemy like a spear.
+  mordrek: { ms: 720, hit: 0.55,
+    wpn: [{ transform: 'rotate(0deg)' },
+      { transform: 'translate(-6px, 0px) rotate(-100deg)', offset: 0.35, easing: 'ease-in' },
+      { transform: 'translate(16px, 2px) rotate(-100deg)', offset: 0.55 },
+      { transform: 'translate(14px, 2px) rotate(-100deg)', offset: 0.68 },
+      { transform: 'rotate(0deg)' }],
+    body: (d) => [{ transform: 'none' },
+      { transform: `translateX(${-d * 5}px) rotate(${-d * 4}deg)`, offset: 0.35 },
+      { transform: `translateX(${d * 12}px) rotate(${d * 6}deg)`, offset: 0.55 },
+      { transform: 'none' }] },
+};
+
 // Weapon swing: lean in and twist, or the champion's own attack clip. Resolves at the moment of impact.
-async function strikePose(u, fresh = false) {
+// sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
+async function strikePose(u, fresh = false, sk = null) {
   const hit = playAttack(u, fresh);
   if (hit != null) return sleep(hit);
   const d = facing(u);
+  const ws = sk?.id === 'attack' && WEAPON_STRIKES[u.id];
+  const wpn = ws && !reduced && u.hp > 0 && bodyEl(u)?.querySelector('.wpn');
+  if (wpn) {
+    const ms = beat(ws.ms);
+    wpn.animate(ws.wpn, { duration: ms });
+    pose(u, ws.body(d), ws.ms);
+    await sleep(ms * ws.hit);
+    return;
+  }
   if (!pose(u, [{ transform: 'none' }, { transform: `translateX(${d * 14}px) rotate(${d * 12}deg)`, offset: 0.4 }, { transform: 'none' }], 240)) return;
   await sleep(beat(100));
 }
@@ -8866,7 +8948,7 @@ const PROJ_ATTACK = {
   aldous: { kind: 'ember', impact: 'fire' }, seraphine: { kind: 'bubble' }, octavia: { kind: 'inkball' },
   patchwork: { kind: 'rivet' }, elowen: { kind: 'leaf' }, maren: { kind: 'pearl' }, faelan: { kind: 'xbolt' },
   scrapbot: { kind: 'rivet' }, illusion: { kind: 'inkball' },
-  cadris: { kind: 'firefly' },   // his basic attack sends a small green grave-firefly
+  cadris: { kind: 'firefly', wander: true },   // his basic attack sends a small green grave-firefly, drifting every which way before it strikes
 };
 const PROJ_SKILL = {
   // Ironclad Union
@@ -8905,6 +8987,8 @@ const PROJ_SKILL = {
   // The Crimson Court
   'Blight Hex': { kind: 'hexorb', impact: 'curse' },
   'Blood Siphon': { kind: 'bloodbolt' },
+  // The Pale Host
+  'Scatter of Bones': { kind: 'bloodbones', arc: true },   // Vaun flings a fistful of broken, bloody ribs
   // Neutral skills (when a ranged champion equips them)
   'Throwing Axe': { kind: 'axe', arc: true },
   'Flash Powder': { kind: 'flash', arc: true, impact: 'flash' },
@@ -8983,6 +9067,12 @@ const PROJ_ART = {
     <path d="M9.5 4 q0 -3.5 3.5 -3.5 q1.5 1.5 -1 3.5 M12 4 q2 -3 4.5 -2 q0 2.5 -3 3" fill="#eaf6ee" opacity=".8"/>
     <circle cx="1.5" cy="4.5" r=".8" fill="#b6ffc9"/><circle cx="2.5" cy="8" r=".6" fill="#b6ffc9"/>`],
   // What Vaun's sling throws: a skull, end over end.
+  // Scatter of Bones: a snapped rib with a jagged end and a loose shard, both wet with blood.
+  bloodbones: [24, 16, `<path d="M2 12 Q7 2 17 3.5 L18.5 1.6 L19.4 4.2 L21 3 L19.8 6 Q10 5.5 5 13.5 Z" fill="#e9e4d8" ${PI_}/>
+    <path d="M17 3.5 L18.5 1.6 L19.4 4.2 L21 3 L19.8 6 Q18 5.6 16.6 5.4 Z" fill="#b3202e"/>
+    <path d="M3 13 q1 2.4 0 3.2 q-1 -.8 0 -3.2 M11 6.6 q.8 2 0 2.8 q-.8 -.8 0 -2.8" fill="#b3202e"/>
+    <path d="M14 11 L22 9.6 L21.6 12.4 L14.6 13.6 Z" fill="#ddd6c2" ${PI_}/>
+    <path d="M20.4 9.8 L22 9.6 L21.6 12.4 L20 12.6 Z" fill="#b3202e"/>`],
   skullshot: [13, 12, `<circle cx="6.5" cy="5.4" r="4.8" fill="#e9e4d8" ${PI_}/>
     <path d="M4 9.2 h5 v2.3 h-5 z" fill="#e9e4d8" ${PI_}/>
     <circle cx="4.8" cy="5" r="1.4" fill="#15121d"/><circle cx="8.4" cy="5" r="1.4" fill="#15121d"/>
@@ -9003,7 +9093,7 @@ function projectileFor(u, sk) {
     case 'crossbow': return { kind: 'xbolt' };
     case 'gun': return a.orb ? { kind: 'orb', color: a.orb } : { kind: 'bullet' };
     case 'cannon': return { kind: 'shell', arc: true };
-    case 'sling': return { kind: 'skullshot', arc: true };   // Vaun: every shot is a slung skull
+    case 'sling': return { kind: 'skullshot', arc: true, lift: 230 };   // Vaun: every shot is a skull, slung high in a tumbling arch
     case 'spear': case 'trident': return { kind: 'spear' };
     default: return { kind: 'orb', color: a.orb || '#9fe08a' };
   }
@@ -9066,17 +9156,18 @@ async function shoot(u, t, p) {
     el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${svg}</svg>`;
   }
   $('#arena').appendChild(el);
-  // Flight time grows with distance; lobbed shots (pots, shells) hang a little longer in the air.
+  // Flight time grows with distance; lobbed shots (pots, shells) hang a little longer in the air,
+  // and a wandering wisp takes its time getting there.
   const dist = Math.hypot(to.x - from.x, to.y - from.y);
-  const ms = beat(p.arc ? clamp(dist * 0.6, 240, 400) : clamp(dist * 0.4, 120, 260));
+  const ms = beat(p.wander ? clamp(dist * 1.1, 520, 860) : p.arc ? clamp(dist * 0.6, 240, 400) * (p.lift ? 1.25 : 1) : clamp(dist * 0.4, 120, 260));
   const deg = (dx, dy) => Math.atan2(dy, dx) * 180 / Math.PI;
   const ang = p.upright ? 0 : deg(to.x - from.x, to.y - from.y);
   const at = (x, y, r) => `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r.toFixed(1)}deg)`;
   let frames;
   if (p.arc) {
-    // Lobbed: a smooth parabola (quadratic curve peaking ~70px above the higher end), sampled into keyframes.
-    // arc: true tumbles end over end; arc: 'curve' flies nose-first along the curve.
-    const c = { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - 140 };
+    // Lobbed: a smooth parabola (quadratic curve peaking ~70px above the higher end, or lift / 2), sampled
+    // into keyframes. arc: true tumbles end over end; arc: 'curve' flies nose-first along the curve.
+    const c = { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - (p.lift || 140) };
     let prev = null;
     frames = Array.from({ length: 13 }, (_, i) => {
       const k = i / 12, j = 1 - k;
@@ -9085,6 +9176,24 @@ async function shoot(u, t, p) {
       if (prev != null && p.arc === 'curve') r += 360 * Math.round((prev - r) / 360);   // no spinning the long way round
       prev = r;
       return { transform: at(x, y, r) };
+    });
+  } else if (p.wander) {
+    // Wandering (Cadris's grave-firefly): weaves on a random path, loops and doubles back, and only
+    // homes in on the target at the very end. The wobble fades to nothing at both ends (sin πk), so it
+    // still leaves the hand and lands on the target exactly. Faces the way it's drifting.
+    const dx = to.x - from.x, dy = to.y - from.y, len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len, ny = dx / len, amp = clamp(len * 0.35, 30, 90);
+    const [s0, s1, s2] = [0, 1, 2].map(() => Math.random() * Math.PI * 2);
+    const pt = (k) => {
+      const env = Math.sin(Math.PI * k);
+      const side = amp * env * (0.65 * Math.sin(2 * Math.PI * 1.5 * k + s0) + 0.35 * Math.sin(2 * Math.PI * 3 * k + s1));
+      const along = amp * 0.3 * env * Math.sin(2 * Math.PI * 2 * k + s2);
+      return { x: from.x + dx * k + nx * side + (dx / len) * along, y: from.y + dy * k + ny * side + (dy / len) * along };
+    };
+    const n = 28;
+    frames = Array.from({ length: n + 1 }, (_, i) => {
+      const a = pt(i / n), b = pt(Math.min(1, (i + 1) / n)), z = pt(Math.max(0, (i - 1) / n));
+      return { transform: at(a.x, a.y, deg(b.x - z.x, b.y - z.y)) };
     });
   } else frames = [{ transform: at(from.x, from.y, ang) }, { transform: at(to.x, to.y, ang) }];
   const anim = el.animate(frames, { duration: ms, easing: p.arc ? 'ease-in-out' : 'linear' });
