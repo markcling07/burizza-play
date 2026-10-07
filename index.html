@@ -614,6 +614,21 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit.frozen .body { animation-play-state: paused; filter: grayscale(.45); }
 .unit.down .body { animation: none; transform: rotate(var(--fall, -82deg)) translateY(12%); opacity: .45; filter: grayscale(1); transition: transform .5s ease, opacity .5s; }
 .unit.e { --fall: 82deg; }
+/* PLANT THE MARKER: the Grave Cross is stone, so it never breathes or falls over; it is never on the
+   speed bar; it hides its plate while flying home; and Mordrek's own cross is gone while it stands. */
+.unit.inert .body { animation: none; }
+.unit.inert.down .body { transform: none; opacity: 1; filter: none; }
+.unit.flying .plate, .unit.flying .chips, .unit.flying .stfx { visibility: hidden; }
+.tok.inert { display: none; }
+.unit.planted .upic .wpn { visibility: hidden; }
+/* LAST RITES: two giant iron crosses driven in over the target, crossed above its head like a cage.
+   Drawn in the body's own 100x100 space (not mirrored), and the pinned unit stops breathing. */
+.body > .rites { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; display: none; z-index: 3; }
+.unit.pinned .body > .rites { display: block; }
+.unit.pinned .body { animation: none; }
+.unit.pinned .plate, .unit.pinned .chips { position: relative; z-index: 4; }   /* the crosses tower over the body, not the name */
+.rites-drop { position: absolute; z-index: 250; pointer-events: none; will-change: transform; }
+.rites-drop svg { width: 100%; height: 100%; overflow: visible; display: block; }
 /* The fallen keep nothing: name, bars and status chips fade out with the fall. visibility
    (not display) so the card's layout holds and the body doesn't jump as they vanish. */
 .unit.down .plate, .unit.down .chips { opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility 0s .5s; }
@@ -1089,6 +1104,12 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .dock .faces span + span { margin-left: -10px; }
 .dock .faces img, .dock .faces svg { position: absolute; width: 170%; height: 170%; left: -35%; top: -12%; max-width: none; }
 .dock .sic { width: 30px; height: 30px; }
+/* Narrow phones: the dock's three buttons go icon-only (faces, skill icon, scroll) so they fit across. */
+@media (max-width: 480px) {
+  .dock { gap: 6px; }
+  .dock .lbl { display: none; }
+  .dock button { padding: 5px 9px 5px 6px; gap: 6px; }
+}
 .dock .badge { min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .74rem; line-height: 20px; text-align: center; }
 .town.sheetOpen .dock { display: none; }
 @media (min-aspect-ratio: 1/1) { .town.sheetOpen .dock { display: flex; } }
@@ -1204,6 +1225,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .qbar i { display: block; height: 100%; background: var(--accent); }
 .qlog { display: grid; gap: 10px; margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
 .qlog .phead { align-items: baseline; }
+.panel .qlog { margin: 0; padding: 0; border: 0; background: none; }
+.panel .qlog .phead .label { display: none; }
 .qlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
 .qnews { margin: 0; padding-left: 18px; color: var(--accent); font-weight: 700; font-size: .9rem; }
 .say.ask { pointer-events: auto; }
@@ -1680,6 +1703,9 @@ const FX = {
   empower:  { icon: '💪', label: 'Empowered', kind: 'good', verb: 'is empowered' },
   enraged:  { icon: '😡', label: 'Enraged',   kind: 'good', verb: 'is enraged: it deals 35% more damage' },
   windup:   { icon: '⏳', label: 'Winding up', kind: 'bad', verb: 'is winding up a big attack' },
+  // Mordrek's Last Rites: two iron crosses pin the target. It is held until Mordrek's next turn
+  // (by = his uid, released in beginTurn) rather than ticking on its own turns, which it never gets.
+  rites:    { icon: '✝️', label: 'Last Rites', kind: 'bad',  verb: 'is pinned under two iron crosses until Mordrek\'s next turn' },
   taunt:    { icon: '📢', label: 'Taunting',  kind: 'good', verb: 'draws every enemy\'s attention' },
   provoke:  { icon: '📢', label: 'Provoking', kind: 'good', verb: 'provokes every enemy: they must come at it' },
   thorns:   { icon: '🌵', label: 'Thorns',    kind: 'good', verb: 'bristles with thorns' },
@@ -2066,10 +2092,10 @@ const ROSTER = [
     mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
     look: { body: 'zombie', main: '#5a5c4a', trim: '#47564a', skin: '#97a884', weapon: 'cross' },
     skills: [D('Grave Cross', '130% swing of the iron marker.', 2, 1.3),
-             D('Last Rites', '215% overhead blow that ignores armor.', 5, 2.15, { pierce: true }),
+             D('Last Rites', 'Two giant iron crosses come down on the target one after the other: two 110% blows that ignore armor. They pin it where it stands, so it cannot act until Mordrek\'s next turn. If Mordrek falls first, the crosses crumble and it goes free.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
              D('Graveside Chill', '85% to all enemies. Weakens them.', 4, 0.85, { aoe: true, fx: [['weaken', 3]] }),
              D('Bonebreaker', 'Two blows of 75% that sunder armor.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
-             B('Plant the Marker', 'Drive the cross into the ground: taunt every enemy and brace, shielded for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]])],
+             S('Plant the Marker', 'Step forward and drive the cross into the ground. The Grave Cross stands as a unit of its own and Taunts every enemy until it has taken 6 blows, whatever their size; then it flies back to his hand. While it is planted, Mordrek cannot use his basic Attack.', 4, 'gravecross')],
     passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
@@ -2177,6 +2203,20 @@ const SUMMONS = {
     leave: (u) => `${u.name} comes apart where it stands.`,
     stats: (o) => ({ maxHp: 1, atk: Math.round(o.atk * 0.9), def: 0, agi: 16, crit: 0.05, dodge: 0 }),
     skills: [{ ...ATTACK, name: 'Clawing Grasp', desc: '100% hit.' }],
+  },
+  // Mordrek's Plant the Marker: his own weapon, driven into the ground in front of him. It is a
+  // unit (it can be targeted, struck and caught in sweeps) but an inert one: it never takes a turn,
+  // shrugs off every effect but its Taunt, and counts blows rather than damage — its HP is the
+  // number of blows it has left (see countBlows). Broken, it leaves no body: it flies back to
+  // Mordrek's hand (crossFliesHome), and while it stands he has no weapon to Attack with.
+  gravecross: {
+    name: 'Grave Cross', role: 'melee', life: null, inert: true, plant: true,
+    desc: 'Mordrek\'s cross, driven into the ground. Taunts every enemy and takes 6 blows of any size, then flies back to him.',
+    look: { body: 'marker', main: '#9aa3b5', trim: '#47564a' },
+    stats: () => ({ maxHp: 6, atk: 0, def: 0, agi: 0, crit: 0, dodge: 0 }),
+    onSpawn: (s) => { countBlows(s); addFx(s, 'taunt', 99, 0, true); },
+    leave: (u) => `${u.name} is pulled free.`,
+    skills: [],
   },
   // Pulled up by Lady Mournhollow.
   shade: {
@@ -2421,6 +2461,21 @@ const BODIES = {
          <path d="M57 33 l4 2 M58.5 32.2 l.8 3.2 M60.2 31.8 l.6 3.4" stroke="${INK}" stroke-width=".9"/>
        </g>
        <path d="M61 50 Q67 51 69 57" stroke="${a.skin}" stroke-width="5" fill="none" stroke-linecap="round"/>` };
+  },
+  // Not a body at all: Mordrek's grave cross standing where he drove it in (Plant the Marker),
+  // upright in a heap of broken grave soil. The same stone as WEAPONS.cross, just bigger.
+  marker(a) {
+    return { hand: [50, 50], shieldY: 0, svg:
+      `<rect x="45" y="14" width="10" height="74" rx="3" fill="${a.main}"/>
+       <rect x="28" y="28" width="44" height="10" rx="3" fill="${a.main}"/>
+       <path d="M45 14 h3.6 v74 h-3.6 z M28 28 h4 v10 h-4 z" fill="#c3cad6" opacity=".5"/>
+       <path d="M68 28 h4 v10 h-4 z M51.5 40 h3.5 v46 h-3.5 z" fill="#6f7788" opacity=".55"/>
+       <circle cx="50" cy="33" r="3.4" fill="${a.trim}"/>
+       <path d="M45 52 q-2.6 5 0 10 M55 18 q2.6 4 0 9 M28 34 q-2 2 0 4" stroke="${a.trim}" stroke-width="2.4" fill="none" opacity=".75"/>
+       <path d="M49 44 l2 5 l-1.5 4 l1.8 5" stroke="${DARK}" stroke-width="1" fill="none" opacity=".6"/>
+       <path d="M26 94 Q30 83 41 82 Q50 79 59 82 Q70 83 74 94 Z" fill="#4a3a2c"/>
+       <path d="M33 88 q4 -3 8 -1 M57 86 q5 -2 9 1 M44 91 q3 -2 6 0" stroke="#2e2219" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+       <circle cx="36" cy="84" r="1.8" fill="#6a5644"/><circle cx="64" cy="85" r="2.2" fill="#6a5644"/><circle cx="53" cy="83" r="1.4" fill="#6a5644"/>` };
   },
   // A haunted woman: corpse-pale, hollow-eyed, long white hair falling past her shoulders,
   // in a grave-dark dress that trails the ground. Her coffin rides on her back (the weapon recipe).
@@ -3356,7 +3411,8 @@ function frontlineHit(t) {
    effect — and it loses everything that was laid on it in the process (see beginTurn). */
 const inBox = (u) => !!has(u, 'coffin');
 const openFoes = (u) => foesOf(u).filter((f) => !inBox(f));
-const openAllies = (u) => alliesOf(u).filter((a) => !inBox(a));
+// A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
+const openAllies = (u) => alliesOf(u).filter((a) => !inBox(a) && !a.inert);
 
 function validTargets(u, sk) {
   if (sk.target === 'enemy') {
@@ -3380,6 +3436,8 @@ const silenced = (u, sk) => !!has(u, 'silence') && (['a', 'b', 'c'].includes(sk.
 
 function usable(u, sk) {
   if (silenced(u, sk)) return false;
+  // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
+  if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
   if (u.cooldowns[sk.id] > 0) return false;
   if ((sk.mp || 0) > (u.mp || 0)) return false;
   if (['enemy', 'ally', 'deadAlly'].includes(sk.target) && !validTargets(u, sk).length) return false;
@@ -3450,7 +3508,7 @@ function spendCharge(u, e, msg) {
 const undyingOn = (u) => (u.undyingHits || 0) > 0;
 // Every body on the field, both sides, champions and summons alike: what Cadris counts.
 // A champion standing Undying is at 1 HP, so it is rightly not among them.
-const deadCount = () => allUnits().filter((x) => x.hp <= 0).length;
+const deadCount = () => allUnits().filter((x) => x.hp <= 0 && !x.inert).length;   // a knocked-loose cross is no body
 
 // Absorbs the death of a Pale Host champion that is still owed the pact.
 // Returns true when the death was absorbed, so fell() knows to stop short.
@@ -3492,6 +3550,9 @@ function fell(v, by) {
   if (undyingCatch(v)) return;   // the Pale Host is owed one more round (see UNDYING)
   if (v.felled) return;   // one death, one payout, however many sources pile onto the corpse
   v.felled = true;
+  // A Grave Cross is not a death: no feast, no kill XP. It is knocked loose and goes home.
+  if (v.inert) { crossFliesHome(v); return; }
+  releaseRites(v, `is freed: the Last Rites crumble with ${v.name}.`);
   log(`${v.name} is down.`, 'sys');
   feastOfTheFallen(v);
   const killer = by && by.summon ? unitBy(by.owner) : by;
@@ -3553,7 +3614,7 @@ function searContact(mech, foe) {
 // One hit: dodge → damage = ATK × mult × (±10%) × 50/(50+DEF) → crit, status and faction modifiers.
 function strikeOnce(u, t, mult, label, o) {
   if (t.hp <= 0) return { miss: true };
-  const dodge = o.noDodge ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
+  const dodge = o.noDodge || t.inert ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
   const miss = dodge + (has(u, 'blind') ? 0.35 : 0);
   if (miss > 0 && chance(miss)) {
     float(t, 'Miss', 'miss');
@@ -3677,13 +3738,13 @@ function strikeOnce(u, t, mult, label, o) {
   // Ripostes and counterattacks are queued and played out once the attacker's blows have landed
   // (resolveCounters), so the defender visibly swings back. One per defender per action.
   const queued = (state.counters ||= []).some((c) => c.by === t);
-  if (TP.riposte && !queued && !o.counter && t.hp > 0 && u.hp > 0 && u.role === 'melee' && chance(TP.riposte.chance)) {
+  if (TP.riposte && !queued && !o.counter && !o.hurl && t.hp > 0 && u.hp > 0 && u.role === 'melee' && chance(TP.riposte.chance)) {
     state.counters.push({ by: t, at: u, mult: TP.riposte.mult, label: 'Riposte', o: { noDodge: true, counter: true } });
   }
   // Counterattack: any melee unit struck by another melee unit has a 10% chance to strike back.
   // The counter is a normal hit the original attacker can still dodge (per their stats) and never
   // chains (counter: true). Champions with a Riposte passive use that instead of this.
-  else if (!TP.riposte && !queued && !o.counter && t.hp > 0 && u.hp > 0 && t.role === 'melee' && u.role === 'melee' && chance(0.10)) {
+  else if (!TP.riposte && !queued && !o.counter && !o.hurl && t.hp > 0 && u.hp > 0 && t.role === 'melee' && !t.inert && u.role === 'melee' && chance(0.10)) {
     state.counters.push({ by: t, at: u, mult: 1, label: 'Counterattack', o: { counter: true } });
   }
   const th = has(t, 'thorns');
@@ -3797,18 +3858,21 @@ async function damageSkill(u, t, sk) {
     float(u, `${c}`, 'dot');
   }
   // Melee champions (and melee summons) run in; everyone else shoots from where they stand.
-  const melee = u.role === 'melee';
-  const proj = melee ? null : projectileFor(u, sk);
+  // Hurled skills (Last Rites) come down from the sky: no run-in, no shot, the caster stays put.
+  const melee = u.role === 'melee' && !o.hurl;
+  const proj = melee || o.hurl ? null : projectileFor(u, sk);
   let trip = melee ? await dashTo(u, targets) : null;   // reassigned if a Double Attack charges in again
-  if (!melee) await aimPose(u);
+  if (!melee && !o.hurl) await aimPose(u);
   // Area attacks from range: every projectile flies at once, then the hits resolve.
   if (!melee && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills.
   const hits = (o.hits || 1) + (o.hits > 1 ? pv(u).extraHit || 0 : 0);
+  const struck = new Set();   // everyone a blow of this skill actually landed on (Last Rites pins only what it hit)
   const hitOnce = async (tg, mult) => {
     const r = strikeOnce(u, tg, mult, sk.name, o);
     if (!r.miss) {
+      struck.add(tg);
       total += r.dmg;
       lastHit = tg;
       applyHitEffects(u, tg, o);
@@ -3835,6 +3899,7 @@ async function damageSkill(u, t, sk) {
     for (let i = 0; i < hits; i++) {
       if (tg.hp <= 0 || u.hp <= 0) break;
       if (melee) await strikePose(u, false, sk);
+      else if (o.hurl) await hurlCross(u, tg, i, sk);
       else if (targets.length === 1) await shoot(u, tg, proj);
       if (o.slash && melee) slashFx(tg, facing(u));
       await hitOnce(tg, sk.mult);
@@ -3850,6 +3915,7 @@ async function damageSkill(u, t, sk) {
       await hitOnce(tg, sk.mult * o.bounce);
     }
   }
+  if (o.hurl) settleCrosses(u, t, o.pin && struck.has(t));
   for (const [id, turns] of o.selfFx || []) if (u.hp > 0) addFx(u, id, turns);
   if (o.selfStacks) gainStacks(u, o.selfStacks);
   if (o.allyHeal && u.hp > 0) for (const a of alliesOf(u)) { burst(a, 'heal'); healUnit(u, a, healPower(u, o.allyHeal), sk.name); }
@@ -3884,9 +3950,13 @@ async function damageSkill(u, t, sk) {
       let got = u.maxHp * w.max + (u.maxHp - u.hp) * w.lost + foeHp * w.foe;
       if (wx() === 'moon') got *= 2;
       got = Math.round(got);
-      // A champion already at full health has nothing to drain into, and healUnit still logs and
-      // floats a +0, so say nothing rather than spamming the log on every swing.
-      if (got > 0 && u.hp < u.maxHp) healUnit(u, u, got, wepOf(u.id)?.name || 'their weapon');
+      // A champion already at full health has nothing to drain into, and one who cannot be mended
+      // at all - inert, coffined, or standing Undying - turns every swing into a 'cannot be mended'
+      // line. healUnit says so for a potion or an ally's spell, where the player spent something and
+      // deserves to know; a passive drain firing it every swing only drowns that out. Mirrors the
+      // early returns at the top of healUnit - keep the two in step.
+      const mendable = u.hp < u.maxHp && !u.inert && !has(u, 'coffin') && !undyingOn(u);
+      if (got > 0 && mendable) healUnit(u, u, got, wepOf(u.id)?.name || 'their weapon');
     }
   };
   drain(total);
@@ -3937,7 +4007,7 @@ function healPower(u, mult, o = {}) {
 }
 
 function healUnit(src, t, amount, label, o = {}) {
-  if (t.hp <= 0) return;
+  if (t.hp <= 0 || t.inert) return;   // a Grave Cross is stone: nothing to mend
   // Shut in the coffin, or standing Undying: no mending reaches either of them.
   if (has(t, 'coffin') || undyingOn(t)) {
     float(t, 'No mending', 'fx');
@@ -4022,6 +4092,7 @@ function gainStacks(u, n) {
 const TIMED_FX = { stun: 100, overheat: 100, stagger: 150 };
 
 function addFx(u, id, turns, value = 0, quiet = false) {
+  if (u.inert && id !== 'taunt') return;   // a planted Grave Cross takes nothing but its own Taunt
   // Bone Charm (immune) and Thick Skull (passive immune list) stop new debuffs.
   if (FX[id].kind === 'bad' && id !== 'overheat' && (has(u, 'immune') || pv(u).immune?.includes(id))) {
     if (!quiet) { float(u, 'Resisted', 'fx'); log(`${u.name} resists ${FX[id].label}.`, u.side); }
@@ -4057,6 +4128,7 @@ function addFx(u, id, turns, value = 0, quiet = false) {
 // Start of a unit's turn: damage/heal over time, faction upkeep, durations and cooldowns tick down.
 // (Stun is handled on the speed bar: a stunned unit never reaches the end while frozen.)
 async function beginTurn(u) {
+  releaseRites(u, `is released from ${u.name}'s Last Rites.`);   // his turn has come round: the crosses lift
   let ticked = false;
   for (const id of DOT_IDS) {
     const e = has(u, id);
@@ -4210,6 +4282,7 @@ async function doAction(u, sk, t) {
   if (sk.kind === 'damage') await damageSkill(u, t, sk);
   else if (sk.kind === 'heal') await healSkill(u, t, sk);
   else if (sk.kind === 'buff') await buffSkill(u, t, sk);
+  else if (sk.kind === 'summon' && SUMMONS[sk.summon].plant) await plantMarker(u, sk);
   else if (sk.kind === 'summon') {
     await castPose(u, true);
     const s = summonUnit(u, sk.summon);
@@ -4275,7 +4348,7 @@ async function doAction(u, sk, t) {
    ================================================================== */
 const debuffs = (u) => u.effects.filter((e) => FX[e.id].kind === 'bad' && e.id !== 'soaked').length;
 function aiChoose(u) {
-  const allies = alliesOf(u);
+  const allies = alliesOf(u).filter((a) => !a.inert);
   const hurt = allies.filter((a) => a.hp / a.maxHp < 0.55).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
   const skills = skillsOf(u).filter((s) => usable(u, s));
   const guard = skills.find((s) => s.id === 'guard');
@@ -4314,6 +4387,7 @@ function aiChoose(u) {
     if (s.kind === 'coffin') w = allies.some((a) => a.hp / a.maxHp < 0.3) ? 5 : 0.4;
     return { s, w };
   }).filter((x) => x.w > 0);
+  if (!scored.length) return { sk: guard, t: u };   // e.g. Mordrek with his cross planted and every skill cooling down
   let roll = Math.random() * scored.reduce((a, x) => a + x.w, 0);
   let sk = scored[0].s;
   for (const x of scored) { roll -= x.w; if (roll <= 0) { sk = x.s; break; } }
@@ -4357,7 +4431,8 @@ function staggerPhase(u) {
   return (state.time - e.start) % STAGGER_CYCLE;
 }
 const staggerStopped = (u) => { const ph = staggerPhase(u); return ph != null && ph < STAGGER_STOP - EPS; };
-const frozen = (u) => hardFrozen(u) || staggerStopped(u);
+const pinned = (u) => !!has(u, 'rites');   // Last Rites: held in place until Mordrek's next turn
+const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u);
 
 // Time until a staggered unit next switches between stopping and moving.
 function staggerSwitchIn(u) {
@@ -4608,16 +4683,153 @@ function summonUnit(owner, kind) {
     uid: `${owner.uid}s${state.summonSeq}`, id: kind, art: def.copy ? owner.id : kind,
     side: owner.side, summon: true, owner: owner.uid,
     name: def.copy ? `Ink ${owner.name}` : def.name,
-    level: owner.level, faction: owner.faction, race: null, role: def.role, floats: !!def.floats,
+    level: owner.level, faction: owner.faction, race: null, role: def.role, floats: !!def.floats, inert: !!def.inert,
     ...st, hp: st.maxHp, effects: [], cooldowns: {}, heat: 0, stacks: 0, hitSince: false, lastAction: null, combo: false,
     pos: 300 + Math.random() * 200, expires: def.life ? state.time + def.life : null,
   };
   state.teams[owner.side].push(u);
   addUnitDom(u);
-  log(`${owner.name} summons ${u.name}.`, owner.side);
-  float(u, 'Summoned', 'fx');
+  if (!def.plant) {   // a planted cross announces itself when it lands (plantMarker)
+    log(`${owner.name} summons ${u.name}.`, owner.side);
+    float(u, 'Summoned', 'fx');
+  }
   if (def.onSpawn) def.onSpawn(u);
   return u;
+}
+
+/* GRAVE CROSS — blows, not damage. The cross's HP is how many blows it has left: whatever a hit
+   would have taken off, it loses exactly one, and nothing can put any back. Every damage path in
+   the game ends in a write to hp (strikeOnce, sweeps, meteors, shared blows), so counting at the
+   write catches them all without each one having to know about the cross. */
+function countBlows(u) {
+  let left = u.maxHp;
+  Object.defineProperty(u, 'hp', {
+    enumerable: true, configurable: true,
+    get: () => left,
+    set: (v) => { if (v < left) left -= 1; },
+  });
+}
+
+/* Plant the Marker: Mordrek strides forward, heaves the cross up and drives it into the ground.
+   The cross is already on the field (so its spot is known) but kept out of sight until it lands. */
+async function plantMarker(u, sk) {
+  const s = summonUnit(u, sk.summon);
+  const sEl = actorEl(s);
+  if (sEl) sEl.style.visibility = 'hidden';
+  render();
+  const trip = await dashTo(u, [s]);
+  await strikePose(u, true, sk);   // resolves as the foot of the cross meets the ground
+  u.planted = true;
+  if (sEl) sEl.style.visibility = '';
+  if (!reduced) {
+    bodyEl(s)?.animate([{ transform: 'translateY(-34%)', opacity: 0.4 }, { transform: 'none', opacity: 1 }],
+      { duration: beat(140), easing: 'ease-in' });
+    $('#arena').animate([{ translate: '0 0' }, { translate: '0 4px' }, { translate: '0 -2px' }, { translate: '0 0' }], { duration: beat(260) });
+  }
+  burst(s, 'smoke');
+  float(s, 'Taunt', 'fx');
+  log(`${u.name} drives his cross into the ground. Every enemy turns to face it.`, u.side);
+  render();
+  await wait(500);
+  await dashBack(u, trip);
+}
+
+/* LAST RITES — Mordrek calls two giant iron crosses down on one enemy, one after the other.
+   Each lands as a blow (damageSkill's own hit loop, so armor, dodge and drains work as usual), and
+   the pair stays driven in over the target, crossed above its head: it is pinned ('rites', frozen
+   on the speed bar) until Mordrek's next turn starts, or until he truly falls (releaseRites).
+   Both crosses are drawn in the target's body space (100x100, feet at y=94): the falling copy and
+   the standing pair (.body > .rites) use the same art, so the hand-over is seamless. */
+const ironCross = (cx, rot) => `<g transform="translate(${cx} 94) rotate(${rot}) scale(1.38)">
+    <ellipse cx="0" cy="1" rx="11" ry="3.4" fill="#3a2c20"/>
+    <path d="M-5 4 L-5 -100 L5 -100 L5 4 L0 9 Z" fill="#3b404b" stroke="#1d2130" stroke-width="1.2"/>
+    <rect x="-22" y="-84" width="44" height="10" rx="1.5" fill="#3b404b" stroke="#1d2130" stroke-width="1.2"/>
+    <rect x="-26" y="-87" width="6" height="16" rx="1.5" fill="#4a505c" stroke="#1d2130" stroke-width="1.2"/>
+    <rect x="20" y="-87" width="6" height="16" rx="1.5" fill="#4a505c" stroke="#1d2130" stroke-width="1.2"/>
+    <rect x="-8" y="-105" width="16" height="6" rx="1.5" fill="#4a505c" stroke="#1d2130" stroke-width="1.2"/>
+    <path d="M-5 -99 h2.6 v100 h-2.6 z M-21 -83 h40 v2.4 h-40 z" fill="#8a909c" opacity=".45"/>
+    <circle cx="0" cy="-79" r="5.4" fill="#2a2e37" stroke="#7a8190" stroke-width="1.4"/>
+    <circle cx="-14" cy="-79" r="1.4" fill="#a0a6b2"/><circle cx="14" cy="-79" r="1.4" fill="#a0a6b2"/>
+    <circle cx="0" cy="-60" r="1.4" fill="#a0a6b2"/><circle cx="0" cy="-30" r="1.4" fill="#a0a6b2"/>
+    <path d="M2.5 -74 q1.5 10 -.5 22 M-3 -40 q-1 7 .5 14" stroke="#8a4a2a" stroke-width="1.6" fill="none" opacity=".7"/>
+  </g>`;
+const RITES_CROSSES = [ironCross(17, 15), ironCross(83, -15)];   // first in from the left, second from the right
+const RITES_ART = RITES_CROSSES.join('');
+
+async function hurlCross(u, t, i, sk) {
+  await strikePose(u, false, sk);   // he lifts his cross to the sky and calls the next one down
+  const box = stageBox(t);
+  if (reduced || !box) return;
+  const el = document.createElement('div');
+  el.className = 'rites-drop';
+  el.dataset.on = t.uid;
+  Object.assign(el.style, { left: `${box.x - box.w / 2}px`, top: `${box.feet - box.h}px`, width: `${box.w}px`, height: `${box.h}px` });
+  el.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">${RITES_CROSSES[i % 2]}</svg>`;
+  $('#arena').appendChild(el);
+  const ms = beat(360);
+  const fall = el.animate([{ transform: `translateY(${(-(box.feet + box.h * 0.8)).toFixed(1)}px)` }, { transform: 'none' }],
+    { duration: ms, easing: 'cubic-bezier(.55, 0, 1, .45)', fill: 'forwards' });
+  await done(fall, ms);
+  burst(t, 'smoke');
+  $('#arena').animate([{ translate: '0 0' }, { translate: '0 7px' }, { translate: '0 -3px' }, { translate: '0 0' }], { duration: beat(280) });
+}
+
+// After the second cross: pin the target if a cross landed on it, and swap the falling copies for the standing pair.
+function settleCrosses(u, t, landed) {
+  if (landed && t && t.hp > 0 && u.hp > 0) {
+    addFx(t, 'rites', 99);
+    const e = has(t, 'rites');
+    if (e) e.by = u.uid;   // resisted (a charm, an inert cross) → no pin
+  }
+  render();
+  for (const d of document.querySelectorAll(`.rites-drop[data-on="${t?.uid}"]`)) {
+    if (t.hp > 0 && pinned(t)) { d.remove(); continue; }
+    done(d.animate([{ opacity: 1 }, { opacity: 0, transform: 'translateY(12px)' }], { duration: beat(450), fill: 'forwards' }), beat(450)).then(() => d.remove());
+  }
+}
+
+// Mordrek's turn comes round, or he truly falls: everything pinned under his Last Rites goes free.
+function releaseRites(src, msg) {
+  let any = false;
+  for (const x of allUnits()) {
+    const e = has(x, 'rites');
+    if (!e || e.by !== src.uid) continue;
+    x.effects = x.effects.filter((f) => f !== e);
+    if (x.hp <= 0) continue;
+    any = true;
+    burst(x, 'smoke');
+    float(x, 'Freed', 'fx');
+    log(`${x.name} ${msg}`, 'sys');
+  }
+  if (any) render();
+}
+
+/* Knocked loose after its sixth blow: the cross tears out of the ground, tumbles back through the
+   air and lands in Mordrek's hand, and he can Attack again. If he is gone, it just topples. */
+async function crossFliesHome(s) {
+  const owner = unitBy(s.owner);
+  const home = owner && owner.hp > 0;
+  log(home ? `${s.name} is knocked loose and flies back to ${owner.name}.` : `${s.name} is knocked loose and topples.`, 'sys');
+  float(s, 'Knocked loose', 'fx');
+  await sleep(beat(380));   // let the blow that broke it land first
+  const el = actorEl(s), from = stageBox(s), to = home ? stageBox(owner) : null;
+  if (el && from && to && !reduced) {
+    el.classList.add('flying');
+    el.style.zIndex = 200;
+    const dx = to.x - from.x, dy = to.feet - from.feet, ms = beat(700);
+    const spin = -facing(s) * 360;
+    const a = el.animate([{ translate: '0 0' }, { translate: `${(dx * 0.5).toFixed(1)}px ${(dy * 0.5 - 90).toFixed(1)}px`, offset: 0.5 },
+      { translate: `${dx.toFixed(1)}px ${dy.toFixed(1)}px` }], { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+    bodyEl(s)?.animate([{ transform: 'rotate(0deg) scale(1)' }, { transform: `rotate(${spin}deg) scale(.6)` }],
+      { duration: ms, easing: 'ease-in', fill: 'forwards' });
+    await done(a, ms);
+  }
+  removeUnit(s);   // hands the weapon back (owner.planted)
+  if (home && state.teams[owner.side].includes(owner)) {
+    burst(owner, 'shield');
+    float(owner, 'Cross returns', 'fx');
+  }
+  render();
 }
 
 /* A Shambler swings the instant it stands, before the speed bar gets any say. It picks its mark
@@ -4656,6 +4868,7 @@ function reviveUnit(src, t, pct, label) {
 }
 
 function removeUnit(u) {
+  if (u.inert) { const o = unitBy(u.owner); if (o) o.planted = false; }   // the cross is back in Mordrek's hand
   state.teams[u.side] = state.teams[u.side].filter((x) => x !== u);
   document.getElementById(`u-${u.uid}`)?.remove();
   document.getElementById(`tok-${u.uid}`)?.remove();
@@ -4699,6 +4912,8 @@ function cleanupSummons() {
   sweepDeathBots();
   for (const u of allUnits().filter((x) => x.summon)) {
     const owner = unitBy(u.owner);
+    // A broken Grave Cross leaves no body; crossFliesHome takes it off the field once it is home.
+    if (u.inert && u.hp <= 0) { if (!u.felled) fell(u, null); continue; }
     if (u.hp <= 0) {
       // Illusions pop; everything else drops a body. The first pass past a fresh corpse starts its
       // clock (overwriting whatever was left of its life timer), later passes clear it away.
@@ -4736,7 +4951,7 @@ function expireTimed() {
 async function advanceClock(token) {
   while (token === state.token) {
     const living = allUnits().filter(alive);
-    const movers = living.filter((u) => !frozen(u));
+    const movers = living.filter((u) => !frozen(u) && !u.inert);   // a planted cross never takes a turn
     let next = null, dtActor = Infinity;
     for (const u of movers) {
       const dt = (TRACK - u.pos) / barAgi(u);
@@ -7774,14 +7989,27 @@ function dockHTML() {
   if (!profile.hero) return '<button type="button" data-k="team">Create your champion</button>';
   const c = charById(profile.hero.id), pts = skillPoints(c.id);
   const faces = state.team.map((id) => `<span>${spriteSVG(id)}</span>`).join('');
-  return `<button type="button" data-k="sheet:warband" aria-pressed="${state.sheet === 'warband'}"><span class="faces">${faces}</span>Warband</button>
-    <button type="button" data-k="sheet:skills" aria-pressed="${state.sheet === 'skills'}">${skillIcon(activeById(c, 'b'))}Skills${pts ? `<span class="badge" aria-label="${pts} skill points">${pts}</span>` : ''}</button>`;
+  return `<button type="button" data-k="sheet:warband" aria-label="Warband" aria-pressed="${state.sheet === 'warband'}"><span class="faces">${faces}</span><span class="lbl">Warband</span></button>
+    <button type="button" data-k="sheet:skills" aria-label="Skills" aria-pressed="${state.sheet === 'skills'}">${skillIcon(activeById(c, 'b'))}<span class="lbl">Skills</span>${pts ? `<span class="badge" aria-label="${pts} skill points">${pts}</span>` : ''}</button>
+    ${questDockHTML()}`;
+}
+// The quest log's dock button. The badge counts finished quests waiting to be handed in.
+const SCROLL_ICON = '<svg class="sic" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 6h15a3 3 0 0 1 3 3v1h-4v14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-2h4V9a3 3 0 0 1 3-3z" fill="#d9c58a" stroke="#2a1a05" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 12h8M12 16h8M12 20h5" stroke="#6b4f32" stroke-width="1.6" stroke-linecap="round"/></svg>';
+function questDockHTML() {
+  const ready = QUESTS.filter((q) => questSt(q)?.s === 'ready').length;
+  return `<button type="button" data-k="sheet:quests" aria-label="Quests" aria-pressed="${state.sheet === 'quests'}">${SCROLL_ICON}<span class="lbl">Quests</span>${ready ? `<span class="badge" aria-label="${ready} quest${ready === 1 ? '' : 's'} to hand in">${ready}</span>` : ''}</button>`;
 }
 
 // The warband and skills sheets that the dock opens.
 function sheetHTML(which) {
   const lv = heroLevel(), c = charById(profile.hero.id);
   const close = '<button class="btn small" type="button" data-k="sheet:">Close</button>';
+  if (which === 'quests') {
+    return `<section class="panel" id="panel" aria-label="Quests">
+      <div class="phead"><div><p class="label">Quests</p><h2>Quest log</h2></div>${close}</div>
+      ${questLogHTML()}
+    </section>`;
+  }
   if (which === 'skills') {
     const lo = currentLoadout(), pts = skillPoints(c.id);
     const row = (s, sub) => `<div class="skrow">${skillIcon(s)}<span><b>${s.name}</b> <small>${sub}</small></span></div>`;
@@ -8655,7 +8883,7 @@ function buildVillage() {
    RENDERING — battle
    ================================================================== */
 const artOf = (u) => u.art || u.id;
-const unitClasses = (u) => `${u.side}${u.summon ? ' summon' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
+const unitClasses = (u) => `${u.side}${u.summon ? ' summon' : ''}${u.inert ? ' inert' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
 
 // A champion standing on the battlefield (--d staggers the idle breathing so nobody bobs in sync).
 function unitCardHTML(u) {
@@ -8668,7 +8896,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${u.faction === 'mech' && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic">${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div></div>
+      <div class="body"><div class="upic">${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg></div>
     </div>`;
 }
 
@@ -8734,6 +8962,7 @@ function addUnitDom(u) {
 
 function unitLevelText(u) {
   if (!u.summon) return `Lv ${u.level}`;
+  if (u.inert) return 'Planted';
   if (u.hp <= 0) return 'Fallen';   // a corpse's `expires` is its clear-away clock, not time left to fight
   if (u.expires == null) return 'Summon';
   const left = Math.max(1, Math.ceil((u.expires - state.time) / ROUND_TIME));
@@ -8784,6 +9013,7 @@ function layoutSides() {
     for (const u of state.teams[side].filter((x) => x.summon)) {
       const home = at[u.owner];
       if (!home) { place(u, SLOTS.summon[orphan++ % SLOTS.summon.length]); continue; }
+      if (u.inert) { place(u, [49, 72]); continue; }   // the cross: planted out in the open ground between the two lines
       const i = nth[u.owner] = (nth[u.owner] ?? -1) + 1;
       const [dx, dy] = SUMMON_OFFSET[i % SUMMON_OFFSET.length];
       place(u, [clamp(home[0] + dx, 8, 46), clamp(home[1] + dy, 40, 98)]);
@@ -9014,6 +9244,27 @@ const WEAPON_STRIKES = {
     body: (d) => [{ transform: 'none' },
       { transform: `translateX(${-d * 5}px) rotate(${-d * 4}deg)`, offset: 0.35 },
       { transform: `translateX(${d * 12}px) rotate(${d * 6}deg)`, offset: 0.55 },
+      { transform: 'none' }] },
+  // Plant the Marker: stand the cross upright, heave it overhead, and drive it down into the earth.
+  // (The planted Grave Cross takes over at the hit; his own .wpn is hidden from then on.)
+  // Last Rites: he raises the cross to the sky, and a giant iron one comes down on the target (hurlCross).
+  'mordrek:Last Rites': { ms: 760, hit: 0.55,
+    wpn: [{ transform: 'rotate(0deg)' },
+      { transform: 'translate(0px, -22px) rotate(-18deg)', offset: 0.4, easing: 'ease-out' },
+      { transform: 'translate(0px, -24px) rotate(-18deg)', offset: 0.7 },
+      { transform: 'rotate(0deg)' }],
+    body: (d) => [{ transform: 'none' },
+      { transform: `translateY(-5px) rotate(${-d * 6}deg)`, offset: 0.4 },
+      { transform: `translateY(-5px) rotate(${-d * 6}deg)`, offset: 0.7 },
+      { transform: 'none' }] },
+  'mordrek:Plant the Marker': { ms: 1000, hit: 0.72,
+    wpn: [{ transform: 'rotate(0deg)' },
+      { transform: 'translate(2px, -26px) rotate(-18deg)', offset: 0.45, easing: 'ease-in' },
+      { transform: 'translate(10px, 10px) rotate(-18deg)', offset: 0.72 },
+      { transform: 'translate(10px, 10px) rotate(-18deg)' }],
+    body: (d) => [{ transform: 'none' },
+      { transform: `translateY(-6px) rotate(${-d * 5}deg)`, offset: 0.45 },
+      { transform: `translateY(4px) rotate(${d * 9}deg)`, offset: 0.72 },
       { transform: 'none' }] },
 };
 
@@ -9584,14 +9835,14 @@ function renderTrack(ms) {
     el.style.setProperty('--x', ((u.pos || 0) / TRACK * 100).toFixed(2));
     const isFrozen = hardFrozen(u), isSlow = !!has(u, 'slow');
     const isStagger = staggerPhase(u) != null, halted = staggerStopped(u);
-    el.classList.toggle('frozen', isFrozen);
+    el.classList.toggle('frozen', isFrozen || pinned(u));
     el.classList.toggle('stagger', isStagger && !isFrozen);
     el.classList.toggle('halt', halted && !isFrozen);
     el.classList.toggle('slow', isSlow && !isFrozen && !isStagger);
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     const st = el.querySelector('.st');
-    const label = isFrozen ? (has(u, 'overheat') ? 'Overheated' : 'Stunned')
+    const label = isFrozen ? (has(u, 'overheat') ? 'Overheated' : 'Stunned') : pinned(u) ? 'Pinned'
       : isStagger ? (isSlow ? 'Staggered + Slow' : 'Staggered') : isSlow ? 'Slowed' : '';
     st.hidden = !label;
     st.textContent = label;
@@ -9700,7 +9951,7 @@ function renderBattle() {
     const el = $(`#u-${u.uid}`);
     if (!el) continue;
     el.querySelector('.bar.hp .fill').style.width = `${(u.hp / u.maxHp) * 100}%`;
-    el.querySelector('.bar.hp span').textContent = `${u.hp} / ${u.maxHp}`;
+    el.querySelector('.bar.hp span').textContent = u.inert ? `${u.hp} / ${u.maxHp} blows` : `${u.hp} / ${u.maxHp}`;
     el.querySelector('.lvl').textContent = unitLevelText(u);
     el.classList.toggle('frozen', hardFrozen(u) || staggerStopped(u));
     const heat = el.querySelector('.bar.heat');
@@ -9729,6 +9980,8 @@ function renderBattle() {
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
+    el.classList.toggle('planted', !!u.planted);
+    el.classList.toggle('pinned', u.hp > 0 && pinned(u));   // Last Rites: the two iron crosses stand over it   // Mordrek with his cross in the ground: no weapon in hand
     const tgt = targets.includes(u);
     el.classList.toggle('targetable', tgt);
     el.classList.toggle('ally', tgt && (pending.target === 'ally' || pending.target === 'deadAlly'));
