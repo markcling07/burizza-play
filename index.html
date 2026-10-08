@@ -829,6 +829,35 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 @keyframes firewave { from { scale: .12; opacity: 1; } 70% { opacity: .95; } to { scale: 1; opacity: 0; } }
 @keyframes firewaveCore { to { opacity: 0; } }
+/* Graveside Chill (skill option `gust`, graveGust): a green grave-wind sweeps across the enemy
+   line from left to right, fluttering past each fighter before the cold settles into them. */
+.gravegust {
+  position: absolute; z-index: 240; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(150, 250, 180, .5), rgba(90, 215, 130, .28) 45%, transparent 72%);
+  filter: drop-shadow(0 0 18px rgba(110, 240, 150, .8)); mix-blend-mode: screen;
+  animation: gravegust var(--gust-ms, 900ms) ease-in-out forwards;
+}
+@keyframes gravegust {
+  from { transform: translateX(-55%) scaleX(.7); opacity: 0; }
+  20% { opacity: 1; } 80% { opacity: .95; }
+  to { transform: translateX(55%) scaleX(1.15); opacity: 0; }
+}
+/* Mortessa's Coffin (coffinFly): the coffin lifts off her back and sails to the targeted ally. */
+.coffinfly { position: absolute; z-index: 260; pointer-events: none; font-size: 30px; line-height: 1; filter: drop-shadow(0 0 10px rgba(110, 240, 150, .8)); }
+/* Tharos's Riptide / Undertow (waterSweep): a blue wave rolls across the targets, left to right. */
+.watersweep {
+  position: absolute; z-index: 238; pointer-events: none; border-radius: 48%;
+  background: radial-gradient(closest-side, rgba(150, 220, 255, .5), rgba(70, 150, 230, .3) 46%, transparent 72%);
+  filter: drop-shadow(0 0 16px rgba(90, 170, 240, .8)); mix-blend-mode: screen;
+  animation: watersweep var(--sweep-ms, 820ms) ease-in-out forwards;
+}
+@keyframes watersweep {
+  from { transform: translateX(-55%) scaleX(.7); opacity: 0; }
+  20% { opacity: 1; } 80% { opacity: .95; }
+  to { transform: translateX(55%) scaleX(1.18); opacity: 0; }
+}
+/* Anchors / Jellies (settleAttachments) are carried onto their host's slot. */
+.unit.attached { transition: none; }
 /* Power Slash (skill option `slash`, slashFx): a great crescent carved across the struck
    target. The sweep animates `transform: rotate`; the mirror for enemy-side attackers is the
    `scale` property, so the two compose instead of fighting. */
@@ -1907,6 +1936,14 @@ const FX = {
   // held in rather than blows it has taken, so neither can be cleansed, stolen or resisted.
   undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: the next damage it takes is the end, and no mending can reach it' },
   coffin:   { icon: '⚰️', label: 'Coffined',  kind: 'good', verb: 'is sealed in a coffin: nothing can target it, area attacks wash over it, and no mending reaches in' },
+  // BASH and FEAR are counted on the field's global clock — in Tolls (any unit's turn-start, see
+  // THE TURN PULSE), not the owner's own turns. BASH holds the unit off the speed bar outright;
+  // FEAR only shoves it back a little, so it still acts, just later.
+  bash:     { icon: '🔨', label: 'Bashed',    kind: 'bad',  verb: 'is bashed off the speed bar' },
+  fear:     { icon: '😱', label: 'Afraid',    kind: 'bad',  verb: 'recoils in fear and loses ground on the speed bar' },
+  // Tharos's Anchor: the host is held off the bar for as long as the anchor stands (see ATTACHMENTS).
+  // Counted on neither clock — it lifts the moment the anchor is broken, not on any turn or Toll.
+  shackled: { icon: '⚓', label: 'Shackled',  kind: 'bad',  verb: 'is chained off the speed bar by an anchor' },
 };
 // Icon shown on floating damage numbers for magic / elemental hits.
 const ELEM_ICON = { lightning: '⚡', fire: '🔥', holy: '✨' };
@@ -2220,11 +2257,12 @@ const ROSTER = [
     mods: { atk: 1.05, agi: 1.05 },
     look: { body: 'tide', crest: 'shark', skin: '#6f8597', main: '#3b4f63', trim: '#d9c58a', weapon: 'trident' },
     nature: { name: 'Tide-Runner', desc: 'The flood carries him: +15% speed on the bar every High Tide.', tiderun: 1 },
-    skills: [D('Trident Lunge', '120% hit. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
+    skills: [D('Trident Lunge', '120% hit. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]], leap: true }),
              D('Blood in the Water', '150% hit, 60% stronger against bleeding targets.', 3, 1.5, { bonusVs: 'bleed' }),
-             D('Riptide', '120% hit. Drags the target back along the speed bar.', 3, 1.2, { knockback: 300 }),
+             D('Riptide', '120% hit. A wave washes the target back along the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
              D('Feeding Frenzy', 'Three bites of 55%, 60% stronger against Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
-             D('Undertow', '60% to all enemies. Drags them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200 })],
+             D('Undertow', '60% to all enemies. A great wave washes them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true }),
+             { name: 'Anchor Chain', desc: 'A great anchor crashes from above and chains an enemy off the speed bar: it cannot act until the anchor is broken. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
     passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }) },
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Small, frenzied Gurgling brawler.',
     mods: { hp: 0.85, agi: 1.35, atk: 1.05 },
@@ -2254,7 +2292,8 @@ const ROSTER = [
              D('Ink Cloud', '50% to all enemies. Blinds them all.', 5, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
              D('Tentacle Snare', '90% hit. Slows the target for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
              D('Ink Whip', '120% hit. Never misses. Blinds the target for 2 turns.', 3, 1.2, { magic: true, noDodge: true, fx: [['blind', 3]] }),
-             D('Crushing Grip', '160% hit. Silences the target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] })],
+             D('Crushing Grip', '160% hit. Silences the target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] }),
+             { name: 'Stinging Veil', desc: 'Octavia flings a pink jellyfish that clamps onto an enemy, shocking it for 15 magic at once and 15 more every 3 Tolls. The jelly stands as a unit of its own — targetable, untouched by area attacks, and burst only by 3 blows of any size.', cd: 4, kind: 'jelly', target: 'enemy', o: {} }],
     passive: P('Ink Sac', 'When hit, 25% chance to Blind the attacker.', { onHitTaken: { chance: 0.25, fx: [['blind', 2]] } }) },
   { id: 'maren', name: 'Maren Pearlheart', short: 'Maren', faction: 'tide', role: 'support', bio: 'Pearl priestess of the reef.',
     mods: {},
@@ -2274,6 +2313,7 @@ const ROSTER = [
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
+             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP, then hurls all of it at one enemy as a single Magic blow. No mana, no blood price beyond the warband\'s own.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
              D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
@@ -2300,9 +2340,10 @@ const ROSTER = [
              D('Wing Carve', 'Four cuts of 45%. Causes Bleed.', 4, 0.45, { hits: 4, fx: [['bleed', 3, 0.25]] }),
              B('Predator\'s Grace', 'Seraxa takes wing: she dodges every attack that can miss until her next turn and strikes 30% harder for 2 turns.', 4, 'self', [['evade', 1], ['empower', 3]])],
     passive: P('Flurry', 'Her multi-hit skills strike one extra time.', { extraHit: 1 }) },
-  { id: 'gorehound', name: 'Gorehound', faction: 'crimson', role: 'melee', bio: 'Hellhound of the Court\'s kennels.',
+  { id: 'gorehound', name: 'Gorehound', faction: 'crimson', role: 'melee', bio: 'Two-headed hellhound of the Court\'s kennels. Cut one down and it comes apart into two.',
     mods: { hp: 1.05, agi: 1.1 },
-    look: { body: 'beast', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
+    look: { body: 'direhound', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
+    splitOnDeath: 2,
     nature: { name: 'Slips the Line', desc: 'No line holds a hound: the front-line law never binds his bites. Taunts still do.', slipline: 1 },
     skills: [D('Rend', '120% bite. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
              D('Hellhound Howl', '50% to all enemies and slows them.', 4, 0.5, { aoe: true, fx: [['slow', 2]] }),
@@ -2328,7 +2369,7 @@ const ROSTER = [
     nature: { name: 'The Slow March', desc: 'Nothing hurries him, nothing holds him: Slow and speed-bar drags never touch his march.', march: 1 },
     skills: [D('Grave Cross', '130% swing of the iron marker.', 2, 1.3),
              D('Last Rites', 'Two giant iron crosses come down on the target one after the other: two 110% blows that ignore armor. They pin it where it stands, so it cannot act until Mordrek\'s next turn. If Mordrek falls first, the crosses crumble and it goes free.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
-             D('Graveside Chill', '85% to all enemies. Weakens them.', 4, 0.85, { aoe: true, fx: [['weaken', 3]] }),
+             D('Graveside Chill', '85% to all enemies on a green grave-wind. They recoil in Fear, losing ground on the speed bar.', 4, 0.85, { aoe: true, gust: true, fx: [['fear', 2]] }),
              D('Bonebreaker', 'Two blows of 75% that sunder armor.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
              S('Plant the Marker', 'Step forward and drive the cross into the ground. The Grave Cross stands as a unit of its own and Taunts every enemy until it has taken 6 blows, whatever their size; then it flies back to his hand. While it is planted, Mordrek cannot use his basic Attack.', 4, 'gravecross')],
     passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
@@ -2368,7 +2409,7 @@ const ROSTER = [
     nature: { name: 'The Dead Listen', desc: 'The grave knows her voice: her mending is never halved by grave-flesh.', gravetongue: 1 },
     skills: [H('Grave Mend', 'Mend an ally with grave-dust and a whispered name.', 2, 2.8),
              R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — the Undying pact holds anew when they next fall — and mending can reach them once more.', 6, 0.10),
-             C('Coffin', 'Shut an ally into the coffin until their next turn. Nothing can target them, area attacks wash over them for nothing, and no mending reaches inside. When the lid opens, everything laid on them — blessing and curse alike — stays behind in the box.', 4),
+             C('Coffin', 'Seal an ally in the coffin for 2 Tolls, held safe off the speed bar: nothing can target them and area attacks wash over them for nothing, but no mending reaches inside either. At hero level 5 the lid leaves their curses behind as it opens; at level 10 they step out shielded.', 4),
              B('Hex of Ruin', 'Hex an enemy for 3 turns: all healing they receive is halved.', 3, 'enemy', [['hex', 4]]),
              D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 })],
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
@@ -2386,6 +2427,35 @@ const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One
    copy: true → looks like its summoner (illusions).
    ================================================================== */
 const SUMMONS = {
+  // A single head torn free of a slain Gorehound (see splitGorehound). Mindless and uncontrollable:
+  // no mana, no skills but a bite, and it fights on its own until it is put down.
+  splithound: {
+    name: 'Hell Pup', plural: 'Hell Pups', role: 'melee', life: null,
+    desc: 'A single head torn loose from the Gorehound. Mindless, and fights on its own until it is put down.',
+    look: { body: 'beast', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
+    leave: (u) => `${u.name} is put down.`,
+    stats: (o) => ({ maxHp: 50, atk: o.atk, def: o.def, agi: o.agi, crit: o.crit || 0.06, dodge: o.dodge || 0 }),
+    skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' }],
+  },
+  // ATTACHMENTS — Tharos's Anchor and Octavia's Jellyfish (see spawnAttachment). Inert units that
+  // stand on the caster's side but clamp onto a chosen enemy: targetable and blow-counted like a
+  // Grave Cross, but area attacks wash past them. They take no turns, so they carry no skills.
+  anchor: {
+    name: 'Anchor', role: 'melee', life: null,
+    desc: 'A great anchor fallen from above, chaining an enemy off the speed bar. Takes 4 blows of any size to break.',
+    look: { body: 'anchor', main: '#53616b', trim: '#9fb0ba', eye: '#cfe0e8' },
+    leave: (u) => `${u.name} is broken.`,
+    stats: () => ({ maxHp: 4, atk: 0, def: 0, agi: 0, crit: 0, dodge: 0 }),
+    skills: [],
+  },
+  jellyfish: {
+    name: 'Stinging Jelly', role: 'ranged', life: null,
+    desc: 'A pink jelly clamped to an enemy, shocking it for 15 every 3 Tolls. Takes 3 blows of any size to burst.',
+    look: { body: 'jellyfish', main: '#e86fb0', trim: '#ffc0e0', eye: '#ffffff' },
+    leave: (u) => `${u.name} bursts.`,
+    stats: () => ({ maxHp: 3, atk: 0, def: 0, agi: 0, crit: 0, dodge: 0 }),
+    skills: [],
+  },
   scrapbot: {
     name: 'Scrapbot', role: 'ranged', life: 300,
     desc: 'Rivet-gun turret. Fights on its own and falls apart after 3 rounds.',
@@ -2605,6 +2675,25 @@ const BODIES = {
        <circle cx="75" cy="49" r="2.2" fill="${a.eye}"/><circle cx="75" cy="49" r="4.5" fill="${a.eye}" opacity=".25"/>
        <circle cx="89.5" cy="52" r="1.6" fill="${INK}"/>` };
   },
+  // Gorehound only: a two-headed hellhound. Same body as the beast, with a second neck and head
+  // rising up-and-back from the shoulders. The split hounds revert to the single-headed `beast`.
+  direhound(a) {
+    const head = `<circle cx="72" cy="52" r="10.5" fill="${a.main}"/>
+       <path d="M76 50 h14 q3 4 0 8 h-14 Z" fill="${a.main}"/>
+       <path d="M78 58 l2 3 l2 -3 l2 3 l2 -3" stroke="#f4f0f2" stroke-width="1.4" fill="none"/>
+       <path d="M64 44 L66 32 L72 42 Z M70 42 L76 31 L78 44 Z" fill="${a.main}"/>
+       <circle cx="75" cy="49" r="2.2" fill="${a.eye}"/><circle cx="75" cy="49" r="4.5" fill="${a.eye}" opacity=".25"/>
+       <circle cx="89.5" cy="52" r="1.6" fill="${INK}"/>`;
+    return { hand: [80, 62], shieldY: 0, svg:
+      `<path d="M26 62 Q14 56 16 44 Q20 52 28 56 Z" fill="${a.trim}"/>
+       <rect x="30" y="70" width="7" height="22" rx="3" fill="${a.main}"/><rect x="40" y="72" width="7" height="20" rx="3" fill="${DARK}"/>
+       <rect x="58" y="70" width="7" height="22" rx="3" fill="${a.main}"/><rect x="66" y="72" width="7" height="20" rx="3" fill="${DARK}"/>
+       <ellipse cx="50" cy="66" rx="25" ry="13" fill="${a.main}"/>
+       <path d="M40 54 l4 -9 l3 8 l4 -10 l3 9 l4 -9 l3 9 l4 -7 l2 9 Z" fill="${a.trim}"/>
+       <path d="M50 60 Q42 48 40 36" stroke="${a.main}" stroke-width="8" fill="none" stroke-linecap="round"/>
+       <g transform="translate(-30 -8) rotate(-16 72 52)">${head}</g>
+       ${head}` };
+  },
   bot(a) {
     return { hand: [66, 62], shieldY: 0, svg:
       `<rect x="28" y="80" width="44" height="13" rx="6.5" fill="#3a3f4f"/>
@@ -2629,6 +2718,24 @@ const BODIES = {
        <ellipse cx="85" cy="62" rx="5" ry="4.5" fill="#c99a8a"/><circle cx="84" cy="61" r=".9" fill="${INK}"/><circle cx="86.5" cy="61.5" r=".9" fill="${INK}"/>
        <path d="M77 66 q8 0 9.5 -8.5 q-3 5.5 -9.5 4.5 Z" fill="${a.trim}"/>
        <circle cx="73" cy="56" r="1.9" fill="#e0645a"/>` };
+  },
+  // Tharos's Anchor and Octavia's Jellyfish — small inert attachments (see ATTACHMENTS / spawnAttachment).
+  anchor(a) {
+    return { hand: [50, 50], shieldY: 0, svg:
+      `<circle cx="50" cy="19" r="7.5" fill="none" stroke="${a.main}" stroke-width="4.5"/>
+       <rect x="46.5" y="23" width="7" height="55" rx="2.5" fill="${a.main}"/>
+       <rect x="36" y="33" width="28" height="6" rx="3" fill="${a.trim}"/>
+       <path d="M50 72 Q28 72 24 50 L17 57 Q24 88 50 88 Q76 88 83 57 L76 50 Q72 72 50 72 Z" fill="${a.main}"/>
+       <path d="M17 57 l-5 -3 l2 8 Z M83 57 l5 -3 l-2 8 Z" fill="${a.trim}"/>
+       <circle cx="50" cy="19" r="2.6" fill="${a.eye}"/>` };
+  },
+  jellyfish(a) {
+    return { hand: [50, 50], shieldY: 0, svg:
+      `<path d="M24 52 Q24 24 50 24 Q76 24 76 52 Q76 56 71 56 L29 56 Q24 56 24 52 Z" fill="${a.main}"/>
+       <ellipse cx="50" cy="40" rx="17" ry="11" fill="${a.trim}" opacity=".55"/>
+       <circle cx="43" cy="42" r="2.6" fill="${a.eye}"/><circle cx="57" cy="42" r="2.6" fill="${a.eye}"/>
+       <circle cx="43" cy="42" r="1.1" fill="#3a2436"/><circle cx="57" cy="42" r="1.1" fill="#3a2436"/>
+       <path d="M31 56 q-3 15 -6 26 M41 57 q-2 17 -4 28 M50 57 q0 17 0 29 M59 57 q2 17 4 28 M69 56 q3 15 6 26" stroke="${a.trim}" stroke-width="2.6" fill="none" stroke-linecap="round"/>` };
   },
   // ---- Monsters (Emberhollow Cave) ----
   bat(a) {
@@ -3819,7 +3926,7 @@ function frontlineHit(t) {
    openFoes / openAllies. It still takes its own turn — stepping out of the box is what ends the
    effect — and it loses everything that was laid on it in the process (see beginTurn). */
 const inBox = (u) => !!has(u, 'coffin');
-const openFoes = (u) => foesOf(u).filter((f) => !inBox(f));
+const openFoes = (u) => foesOf(u).filter((f) => !inBox(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !inBox(a) && !a.inert);
 
@@ -3965,6 +4072,10 @@ function fell(v, by) {
   if (undyingCatch(v)) return;   // the Pale Host is owed one more round (see UNDYING)
   if (v.felled) return;   // one death, one payout, however many sources pile onto the corpse
   v.felled = true;
+  // An attachment (Anchor / Jelly) breaking is not a death: lift what it held and clear it away.
+  if (v.attach) { removeAttachment(v, 'broken'); return; }
+  // A felled unit drops whatever was clamped onto it — the chain goes slack, the jelly sloughs off.
+  for (const a of [...allUnits()]) if (a.attach && a.hostUid === v.uid) removeAttachment(a, 'host');
   // A Grave Cross is not a death: no feast, no kill XP. It is knocked loose and goes home.
   if (v.inert) { crossFliesHome(v); return; }
   releaseRites(v, `is freed: the Last Rites crumble with ${v.name}.`);
@@ -4318,6 +4429,31 @@ const doubleChance = (u) => ((u.role === 'melee' ? DOUBLE_ATTACK_CHANCE : 0) + (
   * (charNat(u).redmist && u.hp / u.maxHp < 0.5 ? 2 : 1);
 const rollsDouble = (u, sk) => sk.id === 'attack' && chance(doubleChance(u));
 
+// EXECUTE (Vesper's signature) — he bleeds himself and every living ally for half their CURRENT HP
+// and hurls the gathered blood at one enemy as a single Magic blow equal to all the HP taken. The
+// sealed (coffined) are spared, the blood never takes a last point, and it costs no mana or blood
+// beyond the warband's own. Routed straight through strikeOnce, so there is no Bloodthirst refund.
+async function executeSkill(u, t, sk) {
+  await castPose(u, true);
+  const donors = alliesOf(u).filter((a) => a.hp > 0 && !inBox(a) && !a.inert);
+  let pool = 0;
+  for (const a of donors) {
+    const take = Math.min(a.hp - 1, Math.floor(a.hp / 2));
+    if (take <= 0) continue;
+    a.hp -= take; pool += take;
+    burst(a, 'curse'); float(a, `${take}`, 'dot'); bump(a, 'hurt');
+  }
+  render();
+  await wait(360);
+  if (pool <= 0) { log(`${u.name}'s Execute finds no blood to spend.`, u.side); return; }
+  log(`${u.name} gathers ${pool} HP of blood from the warband and drives it into ${t.name}.`, u.side);
+  burst(t, 'curse');
+  await aimPose(u);
+  strikeOnce(u, t, pool / Math.max(1, u.atk), 'Execute', { magic: true, noDodge: true, pierce: true });
+  render();
+  await wait(260);
+}
+
 async function damageSkill(u, t, sk) {
   const o = sk.o || {};
   state.counters = [];
@@ -4342,12 +4478,15 @@ async function damageSkill(u, t, sk) {
   }
   // Melee champions (and melee summons) run in; everyone else shoots from where they stand.
   // Hurled skills (Last Rites) come down from the sky: no run-in, no shot, the caster stays put.
-  const melee = u.role === 'melee' && !o.hurl;
-  const proj = melee || o.hurl ? null : projectileFor(u, sk);
+  const melee = u.role === 'melee' && !o.hurl && !o.gust;   // a gust is cast where he stands, not charged in
+  const proj = melee || o.hurl || o.gust ? null : projectileFor(u, sk);
   let trip = melee ? await dashTo(u, targets) : null;   // reassigned if a Double Attack charges in again
-  if (!melee && !o.hurl) await aimPose(u);
+  if (o.gust) { await castPose(u, true); await graveGust(u, targets); }   // the green grave-wind sweeps across first
+  else if (!melee && !o.hurl) await aimPose(u);
+  if (o.watersweep) waterSweep(u, targets);   // Tharos: a wave rolls over the targets as the blow lands
+  if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
   // Area attacks from range: every projectile flies at once, then the hits resolve.
-  if (!melee && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
+  if (!melee && !o.gust && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills. Sawtooth's Flywheel adds one at 50+ Heat.
   const hits = (o.hits || 1) + (o.hits > 1 ? (pv(u).extraHit || 0) + (charNat(u).flywheel && u.heat >= 50 ? 1 : 0) : 0);
@@ -4606,6 +4745,11 @@ function gainStacks(u, n) {
 //   stun / overheat: the icon freezes for FREEZE_TIME.
 //   stagger: for STAGGER_TIME the icon moves in fits, stopping STAGGER_STOP out of every STAGGER_CYCLE.
 const TIMED_FX = { stun: 100, overheat: 100, stagger: 150 };
+// Toll-counted effects live on the field's GLOBAL clock (Tolls), ticked once per turn in turnPulse,
+// never on the owner's own turns. BASH and the coffin hold the unit off the speed bar while they
+// last; FEAR only shoves it back (FEAR_BACK of the 1000-long track, about two turns of ground).
+const TOLL_FX = { bash: true, fear: true, coffin: true };
+const FEAR_BACK = 500, FEAR_TOLLS = 2, COFFIN_TOLLS = 2;
 
 function addFx(u, id, turns, value = 0, quiet = false) {
   if (u.inert && id !== 'taunt') return;   // a planted Grave Cross takes nothing but its own Taunt
@@ -4647,12 +4791,17 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   }
   const ex = has(u, id);
   const until = TIMED_FX[id] ? state.time + TIMED_FX[id] : null;
+  const tollN = TOLL_FX[id] ? turns : null;   // bash/fear/coffin count Tolls, not the owner's turns
   if (ex) {
     ex.turns = Math.max(ex.turns, turns); ex.value = Math.max(ex.value, value);
     if (until != null) ex.until = Math.max(ex.until, until);
+    if (tollN != null) ex.tolls = Math.max(ex.tolls || 0, tollN);   // refresh to the longer count, never stack
     if (id === 'stagger') ex.start = state.time;   // a fresh hit restarts the stumble
   } else if (until != null) u.effects.push({ id, turns, value, until, start: state.time });
+  else if (tollN != null) u.effects.push({ id, turns: 99, value, tolls: tollN });   // turns is a no-op; tolls drives it
   else u.effects.push({ id, turns, value });
+  // FEAR shoves the unit back along the speed bar — a little, never past the start line.
+  if (id === 'fear') u.pos = Math.max(0, (u.pos || 0) - FEAR_BACK);
   if (id === 'soaked') douse(u, 'The soaking');
   u.chipsAt = Date.now();   // even a quiet status re-shows the chip text (float covers the rest)
   if (quiet) return;
@@ -4739,17 +4888,11 @@ async function beginTurn(u) {
   if (u.race === 'elf') { if (!u.hitSince) u.stacks = Math.min(stackCap(u), u.stacks + 1); u.hitSince = false; }
   if (u.faction === 'stone' && wx() === 'mist') u.stacks = Math.min(stackCap(u), u.stacks + 1);
 
-  /* The coffin opens at the start of the turn it was shut for, and everything laid on the unit
-     while it was in there — blessings and curses alike — stays behind in the box. The Undying
-     pact is not one of those things: the grave's claim goes into the coffin and comes back out. */
-  const box = has(u, 'coffin');
-  if (box && box.turns <= 1 && u.effects.length > 1) {
-    u.effects = u.effects.filter((e) => e.id === 'undying');
-    float(u, 'Unsealed', 'fx');
-    log(`${u.name} steps out of the coffin, stripped of everything laid on them.`, u.side);
-  }
-  u.effects.forEach((e) => { if (e.until == null) e.turns--; });
-  u.effects = u.effects.filter((e) => e.until != null || e.turns > 0);
+  /* Durations and cooldowns tick down at the owner's turn-start. Toll-counted effects (BASH, FEAR,
+     the coffin) are skipped here — they count the field's global clock in turnPulse instead, and
+     both BASH and the coffin hold the unit off the bar so it never reaches this point while sealed. */
+  u.effects.forEach((e) => { if (e.until == null && e.tolls == null) e.turns--; });
+  u.effects = u.effects.filter((e) => e.until != null || e.tolls != null || e.turns > 0);
   for (const k in u.cooldowns) if (u.cooldowns[k] > 0) u.cooldowns[k]--;
   return 'ok';
 }
@@ -4758,7 +4901,7 @@ async function beginTurn(u) {
 // A share of their CURRENT HP, so the toll shrinks as they are worn down, and never their last
 // point: a Courtier can always act, even on 1 HP. Attack and Guard are free.
 function bloodCost(u, sk) {
-  if (u.faction !== 'crimson' || sk.id === 'attack' || sk.id === 'guard') return;
+  if (u.faction !== 'crimson' || sk.id === 'attack' || sk.id === 'guard' || sk.o?.noBlood) return;
   // Vesper's Noble Blood: old blood spends slowly — a twentieth less of everything.
   const loss = Math.round(u.hp * ((sk.sig ? BLOOD_COST.sig : BLOOD_COST.skill) - (charNat(u).noble ? 0.05 : 0)));
   if (loss < 1) return;
@@ -4839,12 +4982,17 @@ async function doAction(u, sk, t) {
     if (SUMMONS[sk.summon].strikesOnSpawn) await strikeOnSpawn(s);
   }
   else if (sk.kind === 'coffin') {
-    await castPose(u, true);
-    burst(t, 'shield');
-    addFx(t, 'coffin', 1);
+    const lv = u.side === 'p' ? heroLevel() : 1;   // hero level sets the coffin's mercy: Lv1/5/10
+    await coffinFly(u, t);                          // the coffin leaves her back and flies to the ally
+    addFx(t, 'coffin', COFFIN_TOLLS);
+    const box = has(t, 'coffin');
+    if (box) { box.cleanse = lv >= 5; box.shield = lv >= 10; }   // read on the way out, see emergeToll
     render();
-    await wait(520);
+    await wait(360);
   }
+  else if (sk.kind === 'execute') await executeSkill(u, t, sk);
+  else if (sk.kind === 'anchor') await anchorSkill(u, t, sk);
+  else if (sk.kind === 'jelly') await jellySkill(u, t, sk);
   else if (sk.kind === 'revive') {
     // Walk to the body, chant, and the fallen rise slowly with green-lit eyes (raiseRitual).
     await raiseRitual(u, t, () => reviveUnit(u, t, sk.pct, sk.name));
@@ -4978,7 +5126,13 @@ function staggerPhase(u) {
 }
 const staggerStopped = (u) => { const ph = staggerPhase(u); return ph != null && ph < STAGGER_STOP - EPS; };
 const pinned = (u) => !!has(u, 'rites');   // Last Rites: held in place until Mordrek's next turn
-const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u);
+// BASH and the coffin hold a unit off the speed bar outright — counted in Tolls (see turnPulse),
+// so a held unit never reaches the Act gate until its Tolls run out. FEAR is NOT here: it only
+// shoves the unit back along the bar, so it still takes its turns, just later.
+const tollHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin'));
+// Shackled (Tharos's Anchor) holds the host off the bar too, but it ends on the anchor breaking,
+// not on a clock — so it sits here beside the Toll-held states rather than ticking anywhere.
+const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || tollHeld(u) || has(u, 'shackled');
 
 // Time until a staggered unit next switches between stopping and moving.
 function staggerSwitchIn(u) {
@@ -5440,6 +5594,136 @@ function removeUnit(u) {
 
 // A destroyed Ironclad champion leaves one Salvage Bot behind. Unlike a normal summon
 // it is `independent`: it keeps fighting even though its 'owner' (the fallen Mech) is gone.
+/* ==================================================================
+   ATTACHMENTS — Tharos's Anchor and Octavia's Jellyfish. A small inert
+   unit stands on the CASTER's side but clamps onto a chosen enemy
+   (hostUid). It is targetable and blow-counted like a Grave Cross — any
+   hit, whatever its size, takes exactly one off (countBlows) — but area
+   attacks wash past it (noAoe, filtered from openFoes). The host's own
+   team must break it to be free: the Anchor holds the host off the speed
+   bar (shackled) until it breaks; the Jelly shocks the host for 15 magic
+   every 3 Tolls (see turnPulse). independent:true so a fallen caster
+   does not drag it off the field, and it is intercepted in fell() before
+   the Grave-Cross "flies home" path.
+   ================================================================== */
+function spawnAttachment(caster, host, kind) {
+  const def = SUMMONS[kind], st = def.stats();
+  state.summonSeq = (state.summonSeq || 0) + 1;
+  const u = {
+    uid: `${caster.uid}${kind[0]}${state.summonSeq}`, id: kind, art: kind,
+    side: caster.side, summon: true, independent: true, inert: true, noAoe: true,
+    attach: kind, hostUid: host.uid, owner: caster.uid,
+    name: def.name, level: caster.level, faction: caster.faction, race: null, role: def.role, floats: false,
+    ...st, effects: [], cooldowns: {}, heat: 0, stacks: 0, mp: 0, maxMp: 0,
+    hitSince: false, lastAction: null, combo: false, shockN: 0,
+    pos: host.pos || 300, expires: null,
+  };
+  state.teams[caster.side].push(u);
+  addUnitDom(u);
+  countBlows(u);   // hp becomes the number of blows left; every hit of any size takes exactly one
+  return u;
+}
+const attachmentsOn = (host) => allUnits().filter((a) => a.attach && a.hostUid === host.uid && a.hp > 0);
+
+// An attachment is spent (blows gone) or its host has fallen: lift what it was holding, then clear it.
+function removeAttachment(a, why) {
+  const host = unitBy(a.hostUid);
+  if (a.attach === 'anchor' && host && !attachmentsOn(host).some((x) => x !== a && x.attach === 'anchor')) {
+    host.effects = host.effects.filter((e) => e.id !== 'shackled');
+    if (host.hp > 0 && why === 'broken') { float(host, 'Unshackled', 'fx'); log(`The anchor breaks — ${host.name} tears free.`, host.side); }
+  }
+  removeUnit(a);
+}
+
+// The Jelly's shock: 15 base magic, mitigated by the host's wards, shields, guard and magic block
+// (just as a magic hit is) and sharpened by Exposed. Never dodged — it is already clamped on.
+function jellyShock(jelly, host) {
+  if (!host || host.hp <= 0) return;
+  let d = 15;
+  if (has(host, 'exposed')) d *= 1.25;
+  d *= has(host, 'ward') ? 0.4 : has(host, 'shield') ? 0.5 : 1;
+  if (has(host, 'guard')) d *= 0.5;
+  const mw = Math.min(host.blockMagic || 0, 0.9);
+  if (mw) d *= 1 - mw;
+  d = Math.max(1, Math.round(d));
+  host.hp = Math.max(0, host.hp - d);
+  bump(host, 'hurt');
+  burst(host, 'splash');
+  float(host, `⚡ ${d}`, 'dot');
+  log(`${host.name} is shocked by the jelly for ${d}.`, jelly.side);
+  if (host.hp <= 0) fell(host, unitBy(jelly.owner) || jelly);
+}
+
+async function anchorSkill(u, t, sk) {
+  await castPose(u, true);
+  const a = spawnAttachment(u, t, 'anchor');
+  addFx(t, 'shackled', 99, 0, true);
+  await anchorDrop(t, a);
+  render();
+  log(`${u.name} drops a great anchor on ${t.name} — chained off the speed bar until the anchor breaks.`, u.side);
+  await wait(380);
+}
+
+async function jellySkill(u, t, sk) {
+  await castPose(u, true);
+  const a = spawnAttachment(u, t, 'jellyfish');
+  await jellyThrow(u, t, a);
+  jellyShock(a, t);   // the first shock lands at once
+  render();
+  await wait(340);
+}
+
+// The anchor plummets out of the top of the arena and slams down over the host. The element itself
+// is parked over the host by settleAttachments; only its body drops, so the parking stays intact.
+async function anchorDrop(host, a) {
+  render();
+  const b = bodyEl(a);
+  if (reduced || !b) { burst(host, 'smoke'); return; }
+  b.animate([{ transform: 'translateY(-340px)', opacity: 0 }, { transform: 'translateY(-36px)', opacity: 1, offset: 0.7 }, { transform: 'translateY(0)' }],
+    { duration: beat(460), easing: 'cubic-bezier(.5,0,.85,1)' });
+  await sleep(beat(460));
+  burst(host, 'smoke');
+  if (!reduced) $('#arena').animate([{ translate: '0 0' }, { translate: '0 5px' }, { translate: '0 -3px' }, { translate: '0 0' }], { duration: beat(260) });
+}
+
+// The jelly flies from Octavia and settles onto the host; its body starts back at her and glides in.
+async function jellyThrow(u, t, a) {
+  render();
+  const b = bodyEl(a), from = stageBox(u), to = stageBox(t);
+  if (reduced || !b || !from || !to) { burst(t, 'splash'); return; }
+  const dx = from.x - to.x, dy = from.top - to.top;
+  b.animate([{ transform: `translate(${dx.toFixed(0)}px, ${(dy - 40).toFixed(0)}px) scale(.5)`, opacity: 0.3 },
+             { transform: `translate(${(dx * 0.4).toFixed(0)}px, ${(dy * 0.4 - 50).toFixed(0)}px) scale(.85)`, opacity: 1, offset: 0.6 },
+             { transform: 'translate(0,0) scale(1)', opacity: 1 }],
+    { duration: beat(440), easing: 'cubic-bezier(.3,.7,.3,1)' });
+  await sleep(beat(440));
+  burst(t, 'splash');
+}
+
+// A felled Gorehound comes apart: each head tears loose as an uncontrollable Hell Pup — 50 HP,
+// no mana, no skills but a bite. independent:true so they outlive their (now dead) owner, exactly
+// as a Salvage Bot outlives its Mech.
+function splitGorehound(g) {
+  const def = SUMMONS.splithound;
+  for (let i = 0; i < (g.splitOnDeath || 2); i++) {
+    const st = def.stats(g);
+    state.summonSeq = (state.summonSeq || 0) + 1;
+    const u = {
+      uid: `${g.uid}h${state.summonSeq}`, id: 'splithound', art: 'splithound',
+      side: g.side, summon: true, independent: true, owner: g.uid,
+      name: def.name, level: g.level, faction: g.faction, race: null, role: def.role, floats: false,
+      ...st, hp: st.maxHp, mp: 0, maxMp: 0, effects: [], cooldowns: {}, heat: 0, stacks: 0,
+      hitSince: false, lastAction: null, combo: false,
+      pos: clamp((g.pos || 300) + (i === 0 ? -60 : 60), 0, 820), expires: null,
+    };
+    state.teams[g.side].push(u);
+    addUnitDom(u);
+    burst(u, 'hit');
+    float(u, 'Torn loose', 'fx');
+  }
+  log(`${g.name} is cut down — and both heads tear free as a pair of lesser hounds!`, g.side);
+}
+
 function spawnDeathBot(mech) {
   const def = SUMMONS.deathbot;
   const st = def.stats(mech);
@@ -5466,6 +5750,11 @@ function sweepDeathBots() {
     if (u.faction === 'mech' && !u.summon && u.hp <= 0 && !u.botSpawned) {
       u.botSpawned = true;
       spawnDeathBot(u);
+    }
+    // A slain Gorehound comes apart into its two heads (see splitGorehound).
+    if (u.splitOnDeath && !u.summon && u.hp <= 0 && !u.splitDone) {
+      u.splitDone = true;
+      splitGorehound(u);
     }
   }
 }
@@ -5515,6 +5804,22 @@ async function advanceClock(token) {
   while (token === state.token) {
     const living = allUnits().filter(alive);
     const movers = living.filter((u) => !frozen(u) && !u.inert);   // a planted cross never takes a turn
+    // Deadlock guard: if everyone left is held off the bar on the Toll clock (BASH / coffin) and
+    // nothing timed will free them, no turn will ever come up to tick a Toll — so pass one by hand.
+    if (!movers.length) {
+      const held = living.filter((u) => u.effects.some((e) => e.tolls != null));
+      const timed = living.some((u) => u.effects.some((e) => e.until != null) || staggerSwitchIn(u) !== Infinity || u.expires != null);
+      if (held.length && !timed) {
+        for (const u of held) {
+          for (const e of u.effects) if (e.tolls != null) e.tolls = Math.max(0, e.tolls - 1);
+          const done = u.effects.filter((e) => e.tolls != null && e.tolls <= 0);
+          if (done.length) { u.effects = u.effects.filter((e) => !done.includes(e)); for (const e of done) emergeToll(u, e); }
+        }
+        render();
+        await waitBar(beat(220));
+        continue;
+      }
+    }
     let next = null, dtActor = Infinity;
     for (const u of movers) {
       const dt = (TRACK - u.pos) / barAgi(u);
@@ -5606,6 +5911,50 @@ function settleLatch() {
       el.style.zIndex = '';
     }
   }
+  settleAttachments();
+}
+
+// Anchors and Jellies stand on the caster's side but are carried over to their host's slot, so they
+// read as clamped onto the enemy. offsetLeft/Top ignore transforms, so repeated calls never drift.
+function settleAttachments() {
+  for (const a of allUnits()) {
+    if (!a.attach) continue;
+    const el = document.getElementById(`u-${a.uid}`);
+    if (!el) continue;
+    const host = a.hp > 0 && unitBy(a.hostUid);
+    const hel = host ? document.getElementById(`u-${host.uid}`) : null;
+    if (hel) {
+      const over = a.attach === 'anchor' ? 0 : -hel.offsetHeight * 0.18;   // the jelly rides a little high
+      const dx = hel.offsetLeft + hel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2);
+      const dy = hel.offsetTop - el.offsetTop + over;
+      el.classList.add('attached');
+      el.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
+      el.style.zIndex = (parseInt(hel.style.zIndex, 10) || 10) + (a.attach === 'anchor' ? 1 : 2);
+    } else if (el.classList.contains('attached')) {
+      el.classList.remove('attached');
+      el.style.translate = '';
+      el.style.zIndex = '';
+    }
+  }
+}
+
+// A Toll-counted effect runs out as this turn comes up: the unit shakes off a BASH, steadies from
+// FEAR, or the coffin lid lifts. Hero level decides how much mercy the coffin folds in on the way
+// out (set at cast): Lv5+ leaves the curses behind, Lv10+ steps the ally out already warded.
+function emergeToll(u, e) {
+  if (e.id === 'bash') {
+    float(u, 'Comes to', 'fx');
+    log(`${u.name} shakes off the Bash and moves again.`, 'sys');
+  } else if (e.id === 'fear') {
+    float(u, 'Steadies', 'fx');
+    log(`${u.name} masters its fear.`, u.side);
+  } else if (e.id === 'coffin') {
+    if (e.cleanse) cleanse(u);                                     // Lv5+: ill things stay in the box
+    if (e.shield) { burst(u, 'shield'); addFx(u, 'shield', 2); }   // Lv10+: steps out shielded
+    burst(u, 'grave');
+    float(u, 'Unsealed', 'fx');
+    log(`${u.name} steps out of the coffin.`, u.side);
+  }
 }
 
 async function turnPulse() {
@@ -5629,7 +5978,7 @@ async function turnPulse() {
   for (const m of allUnits()) {
     if (!m.watch || m.hp <= 0) continue;
     m.watchN = (m.watchN || 0) + 1;
-    if (m.watchN < m.watch || hardFrozen(m) || inBox(m)) continue;
+    if (m.watchN < m.watch || hardFrozen(m) || inBox(m) || has(m, 'bash')) continue;
     const picks = validTargets(m, { target: 'enemy' });   // the law of the field: taunters first
     if (!picks.length) continue;
     m.watchN = 0;
@@ -5642,6 +5991,30 @@ async function turnPulse() {
     strikeOnce(m, tg, 1, 'Covering Fire', {});
     render();
     await wait(260);
+    if (checkEnd()) return true;
+  }
+  // THE TOLLS TICK — one turn has come up on the field, so every effect counted on the global clock
+  // loses a Toll. BASH and the coffin hold their owner off the speed bar until the count runs out
+  // (emergeToll frees them); FEAR simply fades. Everything expires here, never on the owner's turn.
+  for (const u of allUnits()) {
+    if (u.hp <= 0) continue;
+    for (const e of u.effects) if (e.tolls != null) e.tolls = Math.max(0, e.tolls - 1);
+    const done = u.effects.filter((e) => e.tolls != null && e.tolls <= 0);
+    if (!done.length) continue;
+    u.effects = u.effects.filter((e) => !done.includes(e));
+    for (const e of done) emergeToll(u, e);
+    render();
+  }
+  // Stinging Jelly (Octavia): every 3 Tolls it shocks its host for 15 magic, until it is burst.
+  for (const a of allUnits()) {
+    if (a.attach !== 'jellyfish' || a.hp <= 0) continue;
+    const host = unitBy(a.hostUid);
+    if (!host || host.hp <= 0) continue;
+    a.shockN = (a.shockN || 0) + 1;
+    if (a.shockN % 3 !== 0) continue;
+    jellyShock(a, host);
+    render();
+    await wait(240);
     if (checkEnd()) return true;
   }
   return false;
@@ -7701,7 +8074,7 @@ function loadoutCardHTML(c, kind, id, on) {
       // Same tiers skillsOf charges: a is the cheap opener, b the signature, c/d/e/f the rest.
       + (MANA.pool[c.faction] ? ` · ${spellCost(s, id === 'a' ? MANA.skillCost : id === 'b' ? MANA.ultCost : MANA.skill2Cost)} MP` : '')
       // The Court pay in blood instead, as a share of whatever they have left when they cast.
-      + (c.faction === 'crimson' ? ` · ${Math.round((id === 'b' ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}% HP` : '')
+      + (c.faction === 'crimson' && !s.o?.noBlood ? ` · ${Math.round((id === 'b' ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}% HP` : '')
       + (s.cd ? ` · cooldown ${s.cd}` : '')
       + (r ? ` · Rank ${r}/${RANK_CAP}` : '')
       // Worn kit wards physical and magic separately, so a damage skill says which it is.
@@ -11063,6 +11436,77 @@ function fireWave(u) {
   setTimeout(() => el.remove(), 1400);   // in case animations never run
 }
 
+// Graveside Chill: a green grave-wind sweeps across the enemy line, left to right. Each fighter it
+// passes chills with a grave-burst; the hits themselves land back in damageSkill as the wind clears.
+async function graveGust(u, targets) {
+  const arena = $('#arena'), boxes = targets.map(stageBox).filter(Boolean);
+  if (reduced || !arena || !boxes.length) { await sleep(reduced ? 0 : 240); return; }
+  const left = Math.min(...boxes.map((b) => b.x)), right = Math.max(...boxes.map((b) => b.x));
+  const top = Math.min(...boxes.map((b) => b.top)), bot = Math.max(...boxes.map((b) => b.feet));
+  const w = Math.max(160, right - left + 220), h = Math.max(120, bot - top + 64), ms = beat(900);
+  const el = document.createElement('div');
+  el.className = 'gravegust';
+  el.style.cssText = `left:${(left - 110).toFixed(0)}px; top:${(top - 32).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --gust-ms:${ms}ms;`;
+  arena.appendChild(el);
+  el.addEventListener('animationend', (e) => { if (!e.pseudoElement) el.remove(); });
+  setTimeout(() => el.remove(), ms + 400);
+  // The cold reaches each fighter in turn — nearest (leftmost) first — as the wind rolls past.
+  const order = targets.filter(stageBox).sort((a, b) => stageBox(a).x - stageBox(b).x);
+  const gap = ms * 0.55 / Math.max(order.length, 1);
+  for (const t of order) { burst(t, 'grave'); await sleep(gap); }
+  await sleep(beat(160));
+}
+
+// Mortessa's Coffin: the coffin lifts off her back and sails to the ally, who vanishes inside as
+// the lid comes down (the box itself is drawn by render once the Coffined status lands).
+async function coffinFly(u, t) {
+  await castPose(u, true);
+  const a = stageBox(u), b = stageBox(t), arena = $('#arena');
+  if (reduced || !a || !b || !arena) { burst(t, 'grave'); await sleep(reduced ? 0 : 200); return; }
+  const el = document.createElement('div');
+  el.className = 'coffinfly';
+  el.textContent = '⚰️';
+  el.style.cssText = `left:${a.x.toFixed(0)}px; top:${(a.top + 6).toFixed(0)}px;`;
+  arena.appendChild(el);
+  const dx = b.x - a.x, dy = (b.top + b.h * 0.4) - (a.top + 6), ms = beat(460);
+  const anim = el.animate([
+    { transform: 'translate(-50%,-50%) rotate(-8deg) scale(.9)' },
+    { transform: `translate(calc(-50% + ${(dx * 0.5).toFixed(0)}px), calc(-50% + ${(dy * 0.5 - 26).toFixed(0)}px)) rotate(6deg) scale(1.06)`, offset: 0.55 },
+    { transform: `translate(calc(-50% + ${dx.toFixed(0)}px), calc(-50% + ${dy.toFixed(0)}px)) rotate(0deg) scale(1)` },
+  ], { duration: ms, easing: 'cubic-bezier(.4,.9,.3,1)' });
+  await (anim.finished ? anim.finished.catch(() => {}) : sleep(ms));
+  burst(t, 'grave');
+  el.remove();
+}
+
+// Tharos's Riptide / Undertow: a blue wave rolls across the targets (the knockback itself is in the
+// skill's o.knockback). Fire-and-forget — the overlay removes itself; each target gets a splash.
+function waterSweep(u, targets) {
+  const arena = $('#arena'), boxes = targets.map(stageBox).filter(Boolean);
+  if (reduced || !arena || !boxes.length) return;
+  const left = Math.min(...boxes.map((b) => b.x)), right = Math.max(...boxes.map((b) => b.x));
+  const top = Math.min(...boxes.map((b) => b.top)), bot = Math.max(...boxes.map((b) => b.feet));
+  const w = Math.max(170, right - left + 240), h = Math.max(120, bot - top + 66), ms = beat(820);
+  const el = document.createElement('div');
+  el.className = 'watersweep';
+  el.style.cssText = `left:${(left - 120).toFixed(0)}px; top:${(top - 30).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --sweep-ms:${ms}ms;`;
+  arena.appendChild(el);
+  el.addEventListener('animationend', (e) => { if (!e.pseudoElement) el.remove(); });
+  setTimeout(() => el.remove(), ms + 400);
+  for (const t of targets) if (stageBox(t)) burst(t, 'splash');
+}
+
+// Trident Lunge: Tharos springs up and forward, hanging a beat at the top, then comes down overhead.
+async function leapPose(u) {
+  const d = facing(u);
+  if (!pose(u, [{ transform: 'none' },
+    { transform: `translate(${d * 24}px, -50px) rotate(${d * 7}deg)`, offset: 0.4 },
+    { transform: `translate(${d * 40}px, -34px) rotate(${d * 12}deg)`, offset: 0.62 },
+    { transform: `translate(${d * 44}px, 2px) rotate(${d * 16}deg)`, offset: 0.8 },
+    { transform: 'none' }], 520)) return;
+  await sleep(beat(340));
+}
+
 // One short tremor: the cave-quake judder and grit for two beats, and dust at every enemy's feet.
 function quakeFx(targets) {
   const arena = $('#arena');
@@ -11314,7 +11758,7 @@ function renderTrack(ms) {
     el.style.setProperty('--x', ((u.pos || 0) / TRACK * 100).toFixed(2));
     const isFrozen = hardFrozen(u), isSlow = !!has(u, 'slow');
     const isStagger = staggerPhase(u) != null, halted = staggerStopped(u);
-    el.classList.toggle('frozen', isFrozen || pinned(u));
+    el.classList.toggle('frozen', isFrozen || pinned(u) || has(u, 'bash') || has(u, 'shackled'));
     el.classList.toggle('stagger', isStagger && !isFrozen);
     el.classList.toggle('halt', halted && !isFrozen);
     el.classList.toggle('slow', isSlow && !isFrozen && !isStagger);
@@ -11322,7 +11766,7 @@ function renderTrack(ms) {
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     const st = el.querySelector('.st');
     const label = isFrozen ? (has(u, 'overheat') ? 'Overheated' : 'Stunned') : pinned(u) ? 'Pinned'
-      : isStagger ? (isSlow ? 'Staggered + Slow' : 'Staggered') : isSlow ? 'Slowed' : '';
+      : has(u, 'bash') ? 'Bashed' : has(u, 'shackled') ? 'Shackled' : isStagger ? (isSlow ? 'Staggered + Slow' : 'Staggered') : isSlow ? 'Slowed' : '';
     st.hidden = !label;
     st.textContent = label;
     el.setAttribute('aria-label', `${u.side === 'p' ? 'Your' : 'Enemy'} ${u.name}${label ? `, ${label.toLowerCase()}` : ''}`);
@@ -11511,7 +11955,7 @@ function renderBattle() {
     // Blue mana cost on the icon (red when you can't afford it); a cooldown or silence covers the icon.
     // The Court have no mana to spend, so their badge shows the share of current HP the cast
     // will cost instead. It is never unaffordable — bloodCost leaves them standing on 1 HP.
-    const blood = act.faction === 'crimson' && s.id !== 'attack' && s.id !== 'guard';
+    const blood = act.faction === 'crimson' && s.id !== 'attack' && s.id !== 'guard' && !s.o?.noBlood;
     const mpc = b.querySelector('.mpc');
     mpc.textContent = blood ? `${Math.round((s.sig ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}%` : s.mp ? s.mp : '';
     mpc.classList.toggle('short', !blood && broke);
