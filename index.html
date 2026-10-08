@@ -665,31 +665,48 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    clickable again — the fall normally dims it to scenery. */
 .unit.down.targetable .body { opacity: .85; filter: grayscale(.35) drop-shadow(0 0 12px rgba(126, 230, 150, .8)); }
 .unit.down.targetable { cursor: pointer; }
-/* THE COFFIN: shut away, so the figure goes dark and still and a lid closes over the spot. */
-.unit.boxed .body { animation: none; filter: brightness(.45) saturate(.5); opacity: .7; }
-.unit.boxed .body::after {
-  content: ''; position: absolute; left: 18%; right: 18%; top: 6%; bottom: 0;
-  background: linear-gradient(170deg, #6b4a2c, #2e1f12 60%, #1a110a);
-  border: 1px solid #0f0a06; border-radius: 10% 10% 4% 4%;
-  box-shadow: inset 0 0 0 2px rgba(159, 196, 162, .25);
+/* THE COFFIN: shut away means shut away. The champion is not dimmed, they are hidden outright
+   (visibility, so the card's layout holds), and the coffin stands on the spot they were holding.
+   Drawn in the body's own 100x100 space like the Last Rites crosses, on the same ground line. */
+.unit.boxed .body { animation: none; }
+.unit.boxed .upic { visibility: hidden; }
+.body > .box { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; display: none; z-index: 3; }
+.unit.boxed .body > .box {
+  display: block;
+  filter: drop-shadow(0 0 7px rgba(126, 230, 150, .45)) drop-shadow(0 3px 3px rgba(0, 0, 0, .55));
+  transform-origin: bottom center;
+  animation: coffinSeal .45s cubic-bezier(.2, .9, .3, 1.2) both;
 }
+@keyframes coffinSeal {
+  from { transform: translateY(-16%) scale(.84); opacity: 0; }
+  60% { opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+.unit.boxed .plate, .unit.boxed .chips { position: relative; z-index: 4; }   /* the name still reads over the lid */
 /* THE GRAVEYARD FENCE (Barrow's Obstacle): a row of iron railings with spear tops rises before
    the protected unit, on the side it faces its enemies, lit the Pale Host's grave-green. It is
    scenery, not a unit — pointer-events stay off so clicks fall through to the figure behind it. */
 .unit.fenced .upic::after {
   content: ''; position: absolute; z-index: 4; pointer-events: none;
-  bottom: 2%; right: -9%; width: 42%; height: 60%;
+  bottom: -5%; right: -15%; width: 68%; height: 98%;
   background:
     repeating-linear-gradient(90deg, transparent 0 6%, #0d1116 6% 8.5%, transparent 8.5% 14%) 0 0 / 100% 12% no-repeat,
     repeating-linear-gradient(90deg, transparent 0 6%, #222a33 6% 8.5%, transparent 8.5% 14%),
     linear-gradient(#39434f, #2a323b) 0 30% / 100% 5% no-repeat,
     linear-gradient(#39434f, #2a323b) 0 86% / 100% 5% no-repeat;
-  filter: drop-shadow(0 0 5px rgba(126, 230, 150, .55)) drop-shadow(0 2px 2px rgba(0, 0, 0, .65));
+  filter: drop-shadow(0 0 4px rgba(18, 92, 46, .95)) drop-shadow(0 0 14px rgba(24, 110, 56, .7));
   transform-origin: bottom center;
-  animation: fenceRise .5s cubic-bezier(.2, .9, .3, 1.35) both;
+  animation: fenceRise .8s cubic-bezier(.2, .9, .3, 1.3) both;
 }
 .unit.e.fenced .upic::after { right: auto; left: -9%; }   /* enemies face left, so the fence stands on their left */
-@keyframes fenceRise { from { transform: translateY(45%) scaleY(.08); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fenceRise {
+  from { transform: scaleY(0); opacity: 0; }
+  10% { opacity: 1; }
+  65% { transform: scaleY(1.08); }
+  82% { transform: scaleY(.96); }
+  93% { transform: scaleY(1.02); }
+  to { transform: none; opacity: 1; }
+}
 @keyframes idle { 50% { transform: translateY(-2px) scaleY(1.015); } }
 @keyframes ringPulse { 50% { opacity: .45; } }
 .upic { position: relative; width: 100%; height: 100%; }
@@ -847,7 +864,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @keyframes firewave { from { scale: .12; opacity: 1; } 70% { opacity: .95; } to { scale: 1; opacity: 0; } }
 @keyframes firewaveCore { to { opacity: 0; } }
 /* Graveside Chill (skill option `gust`, graveGust): a green grave-wind sweeps across the enemy
-   line from left to right, fluttering past each fighter before the cold settles into them. */
+   line, fluttering past each fighter before the cold settles into them. It blows the way its
+   caster faces (--gust-dir, set from facing()), so an enemy Mordrek's wind rolls right to left. */
 .gravegust {
   position: absolute; z-index: 240; pointer-events: none; border-radius: 50%;
   background: radial-gradient(closest-side, rgba(150, 250, 180, .5), rgba(90, 215, 130, .28) 45%, transparent 72%);
@@ -855,13 +873,14 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   animation: gravegust var(--gust-ms, 900ms) ease-in-out forwards;
 }
 @keyframes gravegust {
-  from { transform: translateX(-55%) scaleX(.7); opacity: 0; }
+  from { transform: translateX(calc(-55% * var(--gust-dir, 1))) scaleX(.7); opacity: 0; }
   20% { opacity: 1; } 80% { opacity: .95; }
-  to { transform: translateX(55%) scaleX(1.15); opacity: 0; }
+  to { transform: translateX(calc(55% * var(--gust-dir, 1))) scaleX(1.15); opacity: 0; }
 }
 /* Mortessa's Coffin (coffinFly): the coffin lifts off her back and sails to the targeted ally. */
 .coffinfly { position: absolute; z-index: 260; pointer-events: none; font-size: 30px; line-height: 1; filter: drop-shadow(0 0 10px rgba(110, 240, 150, .8)); }
-/* Tharos's Riptide / Undertow (waterSweep): a blue wave rolls across the targets, left to right. */
+/* Tharos's Riptide / Undertow (waterSweep): a blue wave rolls across the targets, the way its
+   caster faces (--sweep-dir, set from facing()) - an enemy Tharos washes them right to left. */
 .watersweep {
   position: absolute; z-index: 238; pointer-events: none; border-radius: 48%;
   background: radial-gradient(closest-side, rgba(150, 220, 255, .5), rgba(70, 150, 230, .3) 46%, transparent 72%);
@@ -869,9 +888,9 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   animation: watersweep var(--sweep-ms, 820ms) ease-in-out forwards;
 }
 @keyframes watersweep {
-  from { transform: translateX(-55%) scaleX(.7); opacity: 0; }
+  from { transform: translateX(calc(-55% * var(--sweep-dir, 1))) scaleX(.7); opacity: 0; }
   20% { opacity: 1; } 80% { opacity: .95; }
-  to { transform: translateX(55%) scaleX(1.18); opacity: 0; }
+  to { transform: translateX(calc(55% * var(--sweep-dir, 1))) scaleX(1.18); opacity: 0; }
 }
 /* Anchors / Jellies (settleAttachments) are carried onto their host's slot. */
 .unit.attached { transition: none; }
@@ -5528,6 +5547,23 @@ const ironCross = (cx, rot) => `<g transform="translate(${cx} 94) rotate(${rot})
   </g>`;
 const RITES_CROSSES = [ironCross(17, 15), ironCross(83, -15)];   // first in from the left, second from the right
 const RITES_ART = RITES_CROSSES.join('');
+
+/* THE COFFIN (Mortessa's Coffin): a toe-pincher box of grave-wood with two iron bands and the
+   Host's green cross on the lid, standing upright on the sprites' own ground line (y 94) so it
+   fills the spot its occupant was holding. Flat fills only — no gradient ids to collide
+   when several units are drawn at once. */
+const COFFIN_ART = `<ellipse cx="50" cy="94" rx="22" ry="4.2" fill="#000" opacity=".42"/>
+  <path d="M37 14 L63 14 L75 34 L59 94 L41 94 L25 34 Z" fill="#6b4a2c" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M37 14 L50 14 L50 94 L41 94 L25 34 Z" fill="#7a5434"/>
+  <path d="M50 14 L63 14 L75 34 L59 94 L50 94 Z" fill="#53371f"/>
+  <path d="M50 14 V94" stroke="#3a2718" stroke-width="1.3" opacity=".75"/>
+  <path d="M42 14 V94 M58 14 V94" stroke="#3a2718" stroke-width=".9" opacity=".4"/>
+  <path d="M28 30 H72" stroke="#39434f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M33 80 H67" stroke="#39434f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M28 29 H72" stroke="#5d6975" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+  <path d="M33 79 H67" stroke="#5d6975" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+  <path d="M50 40 V68 M40 50 H60" stroke="#7ee696" stroke-width="3.6" stroke-linecap="round" opacity=".92"/>
+  <path d="M37 14 L63 14 L75 34 L59 94 L41 94 L25 34 Z" fill="none" stroke="#7ee696" stroke-width="1" opacity=".3"/>`;
 
 async function hurlCross(u, t, i, sk) {
   await strikePose(u, false, sk);   // he lifts his cross to the sky and calls the next one down
@@ -10811,7 +10847,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${u.faction === 'mech' && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic">${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg></div>
+      <div class="body"><div class="upic">${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg></div>
     </div>`;
 }
 
@@ -11186,9 +11222,46 @@ const WEAPON_STRIKES = {
       { transform: `translateY(4px) rotate(${d * 9}deg)`, offset: 0.72 },
       { transform: 'none' }] },
 };
-// Mordrek's named cross swings share his basic-attack arc (strikePose looks skills up by name).
-WEAPON_STRIKES['mordrek:Grave Cross'] = WEAPON_STRIKES.mordrek;
+// Mordrek's other named cross swing shares his basic-attack arc (strikePose looks skills up by name).
 WEAPON_STRIKES['mordrek:Bonebreaker'] = WEAPON_STRIKES.mordrek;
+
+/* The grave-light climbing the iron: 0 = plain cold metal, 1 = full Pale Host green. The same
+   filter functions appear at every stop so the keyframes interpolate instead of snapping. */
+const GRAVE_IRON = (n) => `sepia(${n}) saturate(${(1 + 4 * n).toFixed(2)}) hue-rotate(${(62 * n).toFixed(0)}deg) `
+  + `brightness(${(1 + 0.1 * n).toFixed(2)}) drop-shadow(0 0 ${(10 * n).toFixed(1)}px rgba(126, 230, 150, ${(0.95 * n).toFixed(2)}))`;
+
+/* GRAVE CROSS: Mordrek plants a heel and turns a full circle, the iron marker swung out at the
+   end of his arms, and the grave-light climbs the shaft as he comes round - plain iron at the
+   wind-up, burning green by the time it comes out of the turn and into the enemy. The body does
+   the spinning; the cross only has to stay flung wide so the pair reads as one wheeling mass.
+   (wpn frames are in the sprite's own space - enemies are mirrored whole, so no `d` here.) */
+WEAPON_STRIKES['mordrek:Grave Cross'] = {
+  ms: 1250, hit: 0.74,
+  /* The cross is swung out at the end of his arms and carried right round with him - up and back
+     over the shoulder on the coil, overhead as his back comes round, then down and through on the
+     way out. The grave-light climbs the shaft as it goes: cold iron on the coil, burning green by
+     the time it lands. (Local to the sprite, which is mirrored whole for enemies, so no `d` here.) */
+  wpn: [{ transform: 'translate(0px, 0px) rotate(0deg)', filter: GRAVE_IRON(0) },
+    { transform: 'translate(-11px, -14px) rotate(-54deg)', filter: GRAVE_IRON(0.25), offset: 0.16, easing: 'ease-in-out' },
+    { transform: 'translate(-4px, -23px) rotate(-142deg)', filter: GRAVE_IRON(0.55), offset: 0.30 },
+    { transform: 'translate(8px, -21px) rotate(-230deg)', filter: GRAVE_IRON(0.8), offset: 0.44 },
+    { transform: 'translate(18px, -11px) rotate(-312deg)', filter: GRAVE_IRON(0.95), offset: 0.58 },
+    { transform: 'translate(21px, 4px) rotate(-374deg)', filter: GRAVE_IRON(1), offset: 0.74, easing: 'cubic-bezier(.6,0,1,.4)' },
+    { transform: 'translate(16px, 5px) rotate(-364deg)', filter: GRAVE_IRON(0.7), offset: 0.86 },
+    { transform: 'translate(0px, 0px) rotate(0deg)', filter: GRAVE_IRON(0) }],
+  /* He turns on the spot, not end over end: the sprite is a flat side view, so the turn is a
+     narrowing to edge-on and out to his back (scaleX 1 -> 0 -> -1 -> 0 -> 1), never an in-plane
+     rotate, which would tip him onto his back like a felled tree. Every frame carries the same
+     transform functions so they interpolate one at a time instead of through a matrix. */
+  body: (d) => [{ transform: `translate(0px, 0px) scaleX(1) rotate(0deg)` },
+    { transform: `translate(${-d * 9}px, -2px) scaleX(1) rotate(${-d * 8}deg)`, offset: 0.16, easing: 'ease-in-out' },
+    { transform: `translate(${-d * 4}px, -1px) scaleX(0.34) rotate(0deg)`, offset: 0.30 },
+    { transform: `translate(${d * 2}px, 0px) scaleX(-0.92) rotate(0deg)`, offset: 0.44 },
+    { transform: `translate(${d * 8}px, 0px) scaleX(-0.3) rotate(0deg)`, offset: 0.58 },
+    { transform: `translate(${d * 16}px, 2px) scaleX(1) rotate(${d * 9}deg)`, offset: 0.74 },
+    { transform: `translate(${d * 13}px, 2px) scaleX(1) rotate(${d * 7}deg)`, offset: 0.86 },
+    { transform: `translate(0px, 0px) scaleX(1) rotate(0deg)` }],
+};
 
 // Weapon swing: lean in and twist, or the champion's own attack clip. Resolves at the moment of impact.
 // sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
@@ -11513,15 +11586,17 @@ async function graveGust(u, targets) {
   if (reduced || !arena || !boxes.length) { await sleep(reduced ? 0 : 240); return; }
   const left = Math.min(...boxes.map((b) => b.x)), right = Math.max(...boxes.map((b) => b.x));
   const top = Math.min(...boxes.map((b) => b.top)), bot = Math.max(...boxes.map((b) => b.feet));
-  const w = Math.max(160, right - left + 220), h = Math.max(120, bot - top + 64), ms = beat(900);
+  const w = Math.max(160, right - left + 220), h = Math.max(120, bot - top + 64), ms = beat(1600);
+  const dir = facing(u);   // +1 blows to the right, -1 to the left: the wind follows its caster
   const el = document.createElement('div');
   el.className = 'gravegust';
-  el.style.cssText = `left:${(left - 110).toFixed(0)}px; top:${(top - 32).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --gust-ms:${ms}ms;`;
+  el.style.cssText = `left:${(left - 110).toFixed(0)}px; top:${(top - 32).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --gust-ms:${ms}ms; --gust-dir:${dir};`;
   arena.appendChild(el);
   el.addEventListener('animationend', (e) => { if (!e.pseudoElement) el.remove(); });
   setTimeout(() => el.remove(), ms + 400);
-  // The cold reaches each fighter in turn — nearest (leftmost) first — as the wind rolls past.
-  const order = targets.filter(stageBox).sort((a, b) => stageBox(a).x - stageBox(b).x);
+  // The cold reaches each fighter in turn as the wind rolls past: the one nearest the caster
+  // first, so the order reverses with the wind rather than always running left to right.
+  const order = targets.filter(stageBox).sort((a, b) => (stageBox(a).x - stageBox(b).x) * dir);
   const gap = ms * 0.55 / Math.max(order.length, 1);
   for (const t of order) { burst(t, 'grave'); await sleep(gap); }
   await sleep(beat(160));
@@ -11559,7 +11634,7 @@ function waterSweep(u, targets) {
   const w = Math.max(170, right - left + 240), h = Math.max(120, bot - top + 66), ms = beat(820);
   const el = document.createElement('div');
   el.className = 'watersweep';
-  el.style.cssText = `left:${(left - 120).toFixed(0)}px; top:${(top - 30).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --sweep-ms:${ms}ms;`;
+  el.style.cssText = `left:${(left - 120).toFixed(0)}px; top:${(top - 30).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --sweep-ms:${ms}ms; --sweep-dir:${facing(u)};`;
   arena.appendChild(el);
   el.addEventListener('animationend', (e) => { if (!e.pseudoElement) el.remove(); });
   setTimeout(() => el.remove(), ms + 400);
@@ -11828,7 +11903,7 @@ function renderTrack(ms) {
     el.style.setProperty('--x', ((u.pos || 0) / TRACK * 100).toFixed(2));
     const isFrozen = hardFrozen(u), isSlow = !!has(u, 'slow');
     const isStagger = staggerPhase(u) != null, halted = staggerStopped(u);
-    el.classList.toggle('frozen', isFrozen || pinned(u) || has(u, 'bash') || has(u, 'shackled'));
+    el.classList.toggle('frozen', isFrozen || pinned(u) || !!has(u, 'bash') || !!has(u, 'shackled'));
     el.classList.toggle('stagger', isStagger && !isFrozen);
     el.classList.toggle('halt', halted && !isFrozen);
     el.classList.toggle('slow', isSlow && !isFrozen && !isStagger);
@@ -11977,7 +12052,7 @@ function renderBattle() {
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
-    el.classList.toggle('fenced', u.hp > 0 && has(u, 'protected'));   // the graveyard fence stands before them
+    el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
     el.classList.toggle('planted', !!u.planted);
     el.classList.toggle('pinned', u.hp > 0 && pinned(u));   // Last Rites: the two iron crosses stand over it   // Mordrek with his cross in the ground: no weapon in hand
     const tgt = targets.includes(u);
