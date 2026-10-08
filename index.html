@@ -240,7 +240,9 @@ h1 {
   border-radius: 999px; background: var(--accent); color: #1a1407; white-space: nowrap;
 }
 
-.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+/* The thin divider between the faction chips and the role chips. */
+.filters .fsep { flex: none; width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
 .fbtn {
   font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
   padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line);
@@ -264,6 +266,7 @@ h1 {
 .pick.sel { border-color: var(--accent); background: var(--panel-hi); }
 .pick .pic { width: 64px; height: 64px; grid-row: span 3; }
 .pick .nm { font-weight: 800; font-size: 1.02rem; padding-right: 26px; }
+.pick .roles { display: flex; gap: 4px; align-items: center; }
 .pick .bio { margin: 0; font-size: .82rem; color: var(--muted); }
 .pick .sk { grid-column: 1 / -1; list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; font-size: .8rem; color: var(--muted); line-height: 1.3; }
 .pick .sk b { color: var(--fg); }
@@ -307,6 +310,12 @@ h1 {
 }
 .speedBtn:hover { border-color: var(--accent); }
 .speedBtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #1a1410; }
+/* Fast forward: appears beside the speed toggle only while your champion is down (see FFWD). */
+.ffwdBtn { order: 2; margin-left: auto; min-width: 40px; }
+.ffwdBtn + .speedBtn { margin-left: 0; }
+.ffwdBtn[aria-pressed="true"] { background: var(--melee); border-color: var(--melee); color: #1a1410; }
+/* Bolt-On: the bolted-on drone is carried to the host's slot (settleLatch sets the translate). */
+.latched { transition: translate .5s ease; }
 .track { position: relative; height: 104px; margin-inline: 22px 52px; }
 .rail {
   position: absolute; left: 0; right: 0; top: 50%; height: 6px; transform: translateY(-50%);
@@ -1635,6 +1644,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
         <section class="speed" aria-label="Speed bar">
           <div class="speedHead">
             <span class="round" id="roundTxt"></span>
+            <button type="button" class="speedBtn ffwdBtn" id="ffwdBtn" aria-pressed="false" title="Your champion is down — fast-forward the rest of the battle" hidden>⏩</button>
             <button type="button" class="speedBtn" id="speedBtn" aria-pressed="false" title="Battle speed">1.5×</button>
           </div>
           <div class="track" id="track">
@@ -1864,6 +1874,10 @@ const FX = {
   bloodpact: { icon: '🩸', label: 'Blood Pact', kind: 'good', verb: 'binds the warband in a blood pact: the next blows he takes are split evenly across every living ally' },
   bloodward: { icon: '🛡️', label: 'Blood Ward', kind: 'good', verb: 'spreads a blood ward over the warband: she takes half of the next blows any ally suffers' },
   leak:     { icon: '🪫', label: 'Mana Leak', kind: 'bad',  verb: 'is leaking mana: every action burns 12 MP' },
+  // Patchwork's Bolt-On. The weld is counted in the field's turns (any unit's turn-start is one of
+  // the four, see THE TURN PULSE), so both chips carry no meaningful turn count of their own.
+  bolted:   { icon: '🔩', label: 'Bolted On', kind: 'good', verb: 'is bolted onto an ally\'s back: no single blow can find him, though sweeps still can' },
+  patchrig: { icon: '🔧', label: 'Patch Rig', kind: 'good', verb: 'carries Patchwork bolted to their back, mending them as the turns pass' },
   toll:     { icon: '😈', label: 'Infernal Toll', kind: 'bad', verb: 'is marked by Infernal Toll: its next skill also costs 5% of its HP' },
   exposed:  { icon: '🎯', label: 'Exposed',   kind: 'bad',  verb: 'is exposed: takes 25% more damage' },
   shield:   { icon: '🛡️', label: 'Shielded',  kind: 'good', verb: 'is shielded' },
@@ -2014,7 +2028,11 @@ const ROSTER = [
              S('Assemble Scrapbot', 'Build a Scrapbot turret that fights on its own for 3 rounds.', 5, 'scrapbot'),
              B('Overclock', 'An ally deals 30% more damage for 2 turns and their cooldowns drop by 1.', 4, 'ally', [['empower', 3]], { reduceCd: true }),
              H('Jury Rig', 'Patch an ally with scrap: a heal, then they regenerate for 3 turns.', 3, 2.2, { fx: [['regen', 3, 0.7]] }),
-             B('Coolant Flush', 'Clear an ally\'s debuffs; they resist new ones for 2 turns. Vents 50 Heat.', 4, 'ally', [['immune', 3]], { cleanse: true, heat: -50, aiTarget: 'debuffed' })],
+             B('Coolant Flush', 'Clear an ally\'s debuffs; they resist new ones for 2 turns. Vents 50 Heat.', 4, 'ally', [['immune', 3]], { cleanse: true, heat: -50, aiTarget: 'debuffed' }),
+             // Bolt-On rides the field's clock, not his own: every turn ANY unit takes — friend or
+             // foe — is one of the weld's four (see THE TURN PULSE). While bolted on he still acts,
+             // keeps every blessing and curse ticking on him, and can still be broken by a sweep.
+             B('Bolt-On', 'Patchwork bolts himself to an ally\'s back. At each of the next 4 turns anyone takes, friend or foe, he mends them 15 HP. No single blow can find him while he rides — though area attacks still catch him, and everything on him keeps ticking. The weld gives after the 4th mend, or the moment either of them falls.', 5, 'ally', [['patchrig', 99]], { latch: true, notSelf: true, aiTarget: 'lowest' })],
     passive: P('Maintenance Drone', 'At the start of his turn, his most hurt ally recovers 5% of their max HP.', { mendPct: 0.05 }) },
 
   // ---- Bloodtusk Horde (Orc) ----
@@ -2086,6 +2104,10 @@ const ROSTER = [
     passiveAlt: P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }) },
   { id: 'mara', name: 'Mara Holt', short: 'Mara', faction: 'human', role: 'ranged', bio: 'Musketeer with a steady hand.',
     mods: { agi: 0.9, atk: 1.05 },
+    // Covering Fire, innate like Seraxa's wings: every `watch` turns taken on the field by anyone,
+    // she snaps off a free 100% shot at a random enemy the targeting law allows — taunters first
+    // (see THE TURN PULSE). No loadout swaps it away.
+    watch: 5,
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#c68f6a', hair: '#5a3520', weapon: 'gun' },
     skills: [D('Aimed Shot', '140% shot, +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
              D('Powder Shot', '220% shot, +50% crit chance.', 4, 2.2, { critBonus: 0.5 }),
@@ -3252,9 +3274,17 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const SPEEDS = [1.5, 2];
 const SPEED_KEY = 'burizza.speed';
 let SPEED = (() => { try { const v = +localStorage.getItem(SPEED_KEY); return SPEEDS.includes(v) ? v : 1.5; } catch { return 1.5; } })();
-const beat = (ms) => ms / SPEED;
-const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 150) : ms / SPEED));
-const waitBar = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 150) : ms));   // speed bar: always 1×
+/* Fast forward — once your own champion is down the fight is out of your hands, so a ⏩ appears
+   beside the speed toggle and hurries the AI through the rest (FFWD_MULT on top of SPEED).
+   It lets go on its own the moment the battle ends or something raises you back up. */
+const FFWD_MULT = 3;
+let FFWD = false;
+const youDown = () => { const y = state?.teams?.p?.find((x) => x.you); return !!y && y.hp <= 0; };
+const ffwdOn = () => FFWD && youDown() && !['won', 'lost', 'cleared'].includes(state.phase);
+const speedNow = () => SPEED * (ffwdOn() ? FFWD_MULT : 1);
+const beat = (ms) => ms / speedNow();
+const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 150) : ms / speedNow()));
+const waitBar = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 150) : ms / (ffwdOn() ? FFWD_MULT : 1)));   // speed bar: always 1×, except fast-forward
 const chance = (p) => Math.random() < p;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -3264,7 +3294,7 @@ const shortName = (c) => c.short || c.name;
 const has = (u, id) => u.effects.find((e) => e.id === id);
 
 let state = {
-  screen: 'village', team: ['wren', 'aelira', 'maren'], filter: 'all',
+  screen: 'village', team: ['wren', 'aelira', 'maren'], filter: 'all', roleFilter: 'all',
   level: 1, battle: 0, order: [], enemyIds: [], teams: { p: [], e: [] },
   round: 0, queue: [], qi: 0, active: null, phase: 'idle', pending: null, log: [], reward: null, token: 0,
   // Village: the open building, Elder's Hut tab, tavern rumor, Ironsmith's chosen champion,
@@ -3508,6 +3538,8 @@ function makeUnit(c, lv, side, slot, scale = 1) {
     // The ★ signature (ultimate) starts on cooldown so it first unlocks on the hero's 3rd turn
     // (cooldowns tick down at the start of each of the hero's turns: 3 → 2 → 1 → 0 on turn 3).
     effects: (ps.startFx || []).map(([id, turns]) => ({ id, turns, value: 0 })),
+    // Covering Fire's count of the field's turns, and Bolt-On's weld (see THE TURN PULSE).
+    watch: c.watch || 0, watchN: 0, attachedTo: null, latchLeft: 0, latchHeal: 0,
     cooldowns: { b: ULT_FIRST_TURN }, heat: 0, stacks: ps.startStacks || 0, hitSince: false, lastAction: null, combo: false,
   };
 }
@@ -3603,8 +3635,10 @@ const openFoes = (u) => foesOf(u).filter((f) => !inBox(f));
 const openAllies = (u) => alliesOf(u).filter((a) => !inBox(a) && !a.inert);
 
 function validTargets(u, sk) {
+  // Bolt-On: a bolted-on champion cannot be singled out by either side. He stays in openFoes /
+  // openAllies, so area attacks and mass blessings still reach him — only single targeting skips him.
   if (sk.target === 'enemy') {
-    const foes = openFoes(u);
+    const foes = openFoes(u).filter((f) => !f.attachedTo);
     const taunters = foes.filter((f) => has(f, 'taunt') || has(f, 'provoke'));
     if (taunters.length) return taunters;
     if (frontlineUp(foes[0]?.side)) {
@@ -3613,7 +3647,10 @@ function validTargets(u, sk) {
     }
     return foes;
   }
-  if (sk.target === 'ally') return openAllies(u);
+  if (sk.target === 'ally') {
+    const allies = openAllies(u).filter((a) => !a.attachedTo);
+    return sk.o?.notSelf ? allies.filter((a) => a !== u) : allies;
+  }
   // Second Burial alone looks past the living: its marks are this side's fallen champions. One
   // already standing Undying is not among them — it is still on its feet.
   if (sk.target === 'deadAlly') return state.teams[u.side].filter((a) => a.hp <= 0 && !a.summon && !undyingOn(a));
@@ -3741,6 +3778,9 @@ function fell(v, by) {
   // A Grave Cross is not a death: no feast, no kill XP. It is knocked loose and goes home.
   if (v.inert) { crossFliesHome(v); return; }
   releaseRites(v, `is freed: the Last Rites crumble with ${v.name}.`);
+  // Bolt-On: a death on either end of the weld breaks it on the spot.
+  if (v.attachedTo) detachLatch(v, 'fell');
+  for (const x of allUnits()) if (x.attachedTo === v.uid) detachLatch(x, 'host');
   log(`${v.name} is down.`, 'sys');
   feastOfTheFallen(v);
   const killer = by && by.summon ? unitBy(by.owner) : by;
@@ -4262,6 +4302,17 @@ async function buffSkill(u, t, sk) {
     if (o.reduceCd) for (const k in a.cooldowns) a.cooldowns[k] = Math.max(0, a.cooldowns[k] - 1);
     if (o.heal) healUnit(u, a, healPower(u, o.heal), sk.name);
   }
+  // Bolt-On: the caster welds himself to the target and rides along. The weld's four mends are
+  // counted in the field's turns, whoever takes them (see THE TURN PULSE). Ranks mend harder.
+  if (o.latch && t && t.hp > 0 && u.hp > 0) {
+    if (u.attachedTo) detachLatch(u, 'recast');
+    u.attachedTo = t.uid;
+    u.latchLeft = 4;
+    u.latchHeal = Math.round(15 * (1 + RANK_POWER * (sk.rank || 0)));
+    addFx(u, 'bolted', 99, 0, true);
+    log(`${u.name} bolts onto ${t.name}'s back: ${u.latchHeal} HP at each of the next 4 turns, and no single blow can find him.`, u.side);
+    settleLatch();
+  }
   if (o.selfStacks) gainStacks(u, o.selfStacks);
   render();
   await wait(450);
@@ -4561,6 +4612,8 @@ function aiChoose(u) {
     if (s.kind === 'heal') w = hurt.length ? 6 : 0;
     if (s.kind === 'buff') w = s.target === 'self' ? (u.hp / u.maxHp < 0.7 ? 3 : 0.5) : 2;
     if (s.kind === 'buff' && s.o?.cleanse) w = allies.some(debuffs) ? 4 : 0.3;
+    // Bolt-On: worth it when someone needs the mending (or Patchwork himself needs to vanish).
+    if (s.o?.latch) w = u.attachedTo ? 0.3 : hurt.length || u.hp / u.maxHp < 0.45 ? 4 : 1;
     // Provoke's charges are about drawing fire, so they are wasted on a band that already has a
     // taunt up. The Court's two blood buffs are counted in charges as well but play nothing like
     // it, so each is judged on its own below rather than by the charge rule.
@@ -5192,6 +5245,87 @@ async function advanceClock(token) {
   return null;
 }
 
+/* ==================================================================
+   THE TURN PULSE — what happens as ANY unit's turn comes up, before
+   the turn itself is taken. Two things ride the field's clock:
+   Bolt-On's weld (each turn-start, whoever's it is, is one of its
+   four mends) and Mara's Covering Fire (every 5th turn on the field
+   is a free shot). Returns true if a shot ended the battle.
+   ================================================================== */
+function detachLatch(p, why) {
+  const host = p.attachedTo && unitBy(p.attachedTo);
+  p.attachedTo = null;
+  p.latchLeft = 0;
+  p.effects = p.effects.filter((e) => e.id !== 'bolted');
+  if (host) host.effects = host.effects.filter((e) => e.id !== 'patchrig');
+  if (p.hp > 0 && why !== 'recast')
+    log(`${p.name} unbolts${why === 'spent' ? ': the weld is spent.' : why === 'host' ? ` — ${host ? host.name : 'his ally'} is down.` : '.'}`, p.side);
+  settleLatch();
+}
+
+// A bolted-on champion rides pick-a-back: his figure is carried to the host's slot (offsetLeft /
+// offsetTop ignore transforms, so repeated calls never drift). layoutSides and render both run
+// often; this is re-applied after them and simply clears itself once nobody is attached.
+function settleLatch() {
+  for (const p of allUnits()) {
+    const el = document.getElementById(`u-${p.uid}`);
+    if (!el) continue;
+    const host = p.attachedTo && unitBy(p.attachedTo);
+    const hel = host && p.hp > 0 ? document.getElementById(`u-${host.uid}`) : null;
+    if (hel) {
+      const back = (p.side === 'p' ? -1 : 1) * hel.offsetWidth * 0.34;   // behind the host, shoulder high
+      const dx = hel.offsetLeft + hel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2) + back;
+      const dy = hel.offsetTop - el.offsetTop - hel.offsetHeight * 0.16;
+      el.classList.add('latched');
+      el.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
+      el.style.zIndex = (parseInt(hel.style.zIndex, 10) || 10) - 1;
+    } else if (el.classList.contains('latched')) {
+      el.classList.remove('latched');
+      el.style.translate = '';
+      el.style.zIndex = '';
+    }
+  }
+}
+
+async function turnPulse() {
+  // Bolt-On: every turn anyone takes is one of the weld's four.
+  for (const p of allUnits()) {
+    if (!p.attachedTo) continue;
+    if (p.hp <= 0 || !has(p, 'bolted')) { detachLatch(p, 'broken'); continue; }   // e.g. stripped in a coffin
+    const host = unitBy(p.attachedTo);
+    if (!host || host.hp <= 0) { detachLatch(p, 'host'); continue; }
+    p.latchLeft--;
+    if (host.hp < host.maxHp) {
+      burst(host, 'heal');
+      healUnit(p, host, p.latchHeal, 'Bolt-On');
+      render();
+      await wait(300);
+    }
+    if (p.latchLeft <= 0) detachLatch(p, 'spent');
+  }
+  // Covering Fire: Mara counts every turn that passes, friend or foe, and the fifth is hers.
+  // Frozen, coffined (or dead) she holds the shot and lets it off at the next turn she's free.
+  for (const m of allUnits()) {
+    if (!m.watch || m.hp <= 0) continue;
+    m.watchN = (m.watchN || 0) + 1;
+    if (m.watchN < m.watch || hardFrozen(m) || inBox(m)) continue;
+    const picks = validTargets(m, { target: 'enemy' });   // the law of the field: taunters first
+    if (!picks.length) continue;
+    m.watchN = 0;
+    const tg = pick(picks);
+    float(m, 'Covering Fire', 'fx');
+    log(`${m.name}'s Covering Fire: a free shot, and ${tg.name} is in it.`, m.side);
+    markAttacked(tg);
+    await aimPose(m);
+    await shoot(m, tg, projectileFor(m, { id: 'attack', name: 'Covering Fire', kind: 'damage', o: {} }));
+    strikeOnce(m, tg, 1, 'Covering Fire', {});
+    render();
+    await wait(260);
+    if (checkEnd()) return true;
+  }
+  return false;
+}
+
 async function nextTurn() {
   const token = state.token;
   while (token === state.token) {
@@ -5214,6 +5348,8 @@ async function nextTurn() {
     state.active = u.uid;
     state.phase = u.side === 'p' ? 'busy' : 'enemy';
     render();
+    // One more turn passes on the field: Bolt-On's weld ticks, Covering Fire counts it.
+    if (await turnPulse() || token !== state.token || checkEnd()) return;
     const s = await beginTurn(u);
     if (token !== state.token || checkEnd()) return;
     if (s !== 'ok') { endTurn(u); continue; }
@@ -5350,7 +5486,7 @@ async function useItem(u, key, t) {
    { key, t } or null. Enemies never qualify — see the guard in the turn loop. */
 function aiItemPlan(u) {
   const have = (k) => (profile.items[k] || 0) > 0;
-  const allies = alliesOf(u);   // both already drop the fallen for us
+  const allies = alliesOf(u).filter((a) => !a.attachedTo);   // both already drop the fallen for us; a bolted-on drone can't be singled out either
   const foes = foesOf(u);
   // 1. Someone is a hit away from going down.
   if (have('draught')) {
@@ -5425,6 +5561,7 @@ function startHunt(depthId) {
 const huntDepth = () => (state.mode === 'hunt' ? depthById(state.hunt?.depth) : null);
 
 function startBattle(retry) {
+  FFWD = false;   // fast-forward never carries into a fresh fight
   const hunt = huntDepth(), dg = dungeonRun(), duel = state.mode === 'duel' ? state.duel : null;
   const fac = hunt || dg || duel ? null : state.order[state.battle];
   if (!retry && !hunt && !dg && !duel) state.enemyIds = pickEnemyTeam(fac);
@@ -7177,7 +7314,7 @@ function render() {
   if (state.screen === 'village') renderVillage();
   else if (state.screen === 'select') renderSelect();
   else if (state.screen === 'skills') renderSkills();
-  else { renderBattle(); syncBloodTethers(); }
+  else { renderBattle(); syncBloodTethers(); settleLatch(); renderFfwd(); }
 }
 
 /* ==================================================================
@@ -7349,29 +7486,38 @@ function renderPurse() {
 /* ==================================================================
    RENDERING — team select
    ================================================================== */
+// A tank, for the role filter: any champion whose own kit can Taunt (Bulwark-7, Mogra, Garrick,
+// Hilda, Malgrath, Barrow). Role is what they hit with; a taunt is what makes them a wall.
+const isTank = (c) => c.skills.some((s) => (s.fx || []).some(([id]) => id === 'taunt'));
+const ROLE_FILTERS = [['all', 'All roles'], ['melee', 'Melee'], ['ranged', 'Ranged'], ['support', 'Support'], ['tank', 'Tank']];
+
 function buildSelect() {
   $('#filters').innerHTML = [['all', 'All factions'], ...FACTION_KEYS.map((k) => [k, FACTIONS[k].name])]
-    .map(([k, n]) => `<button class="fbtn" type="button" data-f="${k}">${n}</button>`).join('');
+    .map(([k, n]) => `<button class="fbtn" type="button" data-f="${k}">${n}</button>`).join('')
+    + '<span class="fsep" aria-hidden="true"></span>'
+    + ROLE_FILTERS.map(([k, n]) => `<button class="fbtn rbtn" type="button" data-r="${k}"${k === 'tank' ? ' title="Champions with a taunt in their kit"' : ''}>${n}</button>`).join('');
   $('#filters').addEventListener('click', (ev) => {
     const b = ev.target.closest('.fbtn');
     if (!b) return;
-    state.filter = b.dataset.f;
+    if (b.dataset.r) state.roleFilter = b.dataset.r;
+    else state.filter = b.dataset.f;
     renderSelect();
   });
 
   $('#factionList').innerHTML = FACTION_KEYS.map((k) => {
     const f = FACTIONS[k];
     const cards = ROSTER.filter((c) => c.faction === k).map((c) => `
-      <button class="pick" type="button" data-id="${c.id}" id="pick-${c.id}">
+      <button class="pick" type="button" data-id="${c.id}" id="pick-${c.id}" data-role="${c.role}" data-tank="${isTank(c) ? 1 : 0}">
         <div class="pic">${spriteSVG(c.id)}</div>
         <span class="nm">${c.name}</span>
-        <span class="role ${c.role}">${ROLES[c.role].label}</span>
+        <span class="roles"><span class="role ${c.role}">${ROLES[c.role].label}</span>${isTank(c) ? '<span class="role melee" title="Has a taunt in their kit">Tank</span>' : ''}</span>
         <p class="bio">${c.bio}</p>
         <ul class="sk">
-          ${[0, 2, 3, 4].map((i) => `<li>${skillIcon(c.skills[i])}<span><b>${c.skills[i].name}.</b> ${c.skills[i].desc}</span></li>`).join('')}
+          ${[0, 2, 3, 4, ...(c.skills[5] ? [5] : [])].map((i) => `<li>${skillIcon(c.skills[i])}<span><b>${c.skills[i].name}.</b> ${c.skills[i].desc}</span></li>`).join('')}
           <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
           <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
           ${c.passiveAlt ? `<li class="pas">${skillIcon(c.passiveAlt)}<span><b>Or · ${c.passiveAlt.name}.</b> ${c.passiveAlt.desc}</span></li>` : ''}
+          ${c.watch ? `<li class="pas">${skillIcon({ name: 'Covering Fire' })}<span><b>Innate · Covering Fire.</b> Every ${numWord(c.watch)} turns taken on the field, friend or foe, she snaps off a free shot at a random enemy — taunters first.</span></li>` : ''}
         </ul>
         <span class="badge" hidden></span>
       </button>`).join('');
@@ -7455,8 +7601,18 @@ function renderSelect() {
   $('#tagline').textContent = creating
     ? `Season 1: Ashfall Road. Choose the champion you will be, give them a name, then recruit ${numWord(TEAM_SIZE - 1)} allies to fight beside you.`
     : `Season 1: Ashfall Road. You play ${heroName()}. Pick ${numWord(TEAM_SIZE - 1)} recruits; the AI fights for them.`;
-  document.querySelectorAll('.fbtn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === state.filter)));
-  document.querySelectorAll('.faction').forEach((s) => { s.hidden = state.filter !== 'all' && s.dataset.faction !== state.filter; });
+  const rf = state.roleFilter || 'all';
+  document.querySelectorAll('.fbtn').forEach((b) => b.setAttribute('aria-pressed',
+    String(b.dataset.r ? b.dataset.r === rf : b.dataset.f === state.filter)));
+  // Both filters bite at once: the faction chips hide sections, the role chips hide champions —
+  // and a section with nobody left standing steps aside too.
+  document.querySelectorAll('.pick').forEach((b) => {
+    b.hidden = rf !== 'all' && (rf === 'tank' ? b.dataset.tank !== '1' : b.dataset.role !== rf);
+  });
+  document.querySelectorAll('.faction').forEach((s) => {
+    const empty = ![...s.querySelectorAll('.pick')].some((b) => !b.hidden);
+    s.hidden = (state.filter !== 'all' && s.dataset.faction !== state.filter) || empty;
+  });
   document.querySelectorAll('.pick').forEach((b) => {
     const i = t.indexOf(b.dataset.id);
     b.classList.toggle('sel', i >= 0);
@@ -10184,16 +10340,20 @@ const WEAPON_STRIKES = {
       { transform: `translateX(${d * 10}px) translateY(4px) rotate(${d * 9}deg)`, offset: 0.78 },
       { transform: `translateX(${d * 9}px) translateY(4px) rotate(${d * 8}deg)`, offset: 0.9 },
       { transform: 'none' }] },
-  // Mordrek turns the cross over and drives its iron-shod foot into the enemy like a spear.
-  mordrek: { ms: 720, hit: 0.55,
+  // Mordrek hoists the grave cross up over his shoulder and swings it down across the enemy —
+  // a gravedigger's full-weight arc, not a thrust. It hangs a beat at the top, then carves through.
+  mordrek: { ms: 820, hit: 0.58,
     wpn: [{ transform: 'rotate(0deg)' },
-      { transform: 'translate(-6px, 0px) rotate(-100deg)', offset: 0.35, easing: 'ease-in' },
-      { transform: 'translate(16px, 2px) rotate(-100deg)', offset: 0.55 },
-      { transform: 'translate(14px, 2px) rotate(-100deg)', offset: 0.68 },
+      { transform: 'translate(-9px, -13px) rotate(-134deg)', offset: 0.36, easing: 'ease-in-out' },
+      { transform: 'translate(-11px, -15px) rotate(-142deg)', offset: 0.46, easing: 'cubic-bezier(.6,0,1,.4)' },
+      { transform: 'translate(17px, 3px) rotate(88deg)', offset: 0.58 },
+      { transform: 'translate(15px, 4px) rotate(82deg)', offset: 0.72 },
       { transform: 'rotate(0deg)' }],
     body: (d) => [{ transform: 'none' },
-      { transform: `translateX(${-d * 5}px) rotate(${-d * 4}deg)`, offset: 0.35 },
-      { transform: `translateX(${d * 12}px) rotate(${d * 6}deg)`, offset: 0.55 },
+      { transform: `translateX(${-d * 6}px) translateY(-2px) rotate(${-d * 8}deg)`, offset: 0.36 },
+      { transform: `translateX(${-d * 7}px) translateY(-3px) rotate(${-d * 9}deg)`, offset: 0.46 },
+      { transform: `translateX(${d * 14}px) translateY(2px) rotate(${d * 10}deg)`, offset: 0.58 },
+      { transform: `translateX(${d * 12}px) translateY(2px) rotate(${d * 9}deg)`, offset: 0.72 },
       { transform: 'none' }] },
   // Plant the Marker: stand the cross upright, heave it overhead, and drive it down into the earth.
   // (The planted Grave Cross takes over at the hit; his own .wpn is hidden from then on.)
@@ -10217,6 +10377,9 @@ const WEAPON_STRIKES = {
       { transform: `translateY(4px) rotate(${d * 9}deg)`, offset: 0.72 },
       { transform: 'none' }] },
 };
+// Mordrek's named cross swings share his basic-attack arc (strikePose looks skills up by name).
+WEAPON_STRIKES['mordrek:Grave Cross'] = WEAPON_STRIKES.mordrek;
+WEAPON_STRIKES['mordrek:Bonebreaker'] = WEAPON_STRIKES.mordrek;
 
 // Weapon swing: lean in and twist, or the champion's own attack clip. Resolves at the moment of impact.
 // sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
@@ -10811,7 +10974,9 @@ function passiveText(u) {
   const c = charById(u.id);
   const list = (u.passives || ['own']).map((id) => passiveById(c, id)).filter(Boolean);
   const own = list.map((ps) => `<span class="cpas">${skillIcon(ps)}<span><b>Passive · ${ps.name}:</b> ${ps.desc}</span></span>`).join('');
-  return factionPassive(u) + weather + own;
+  // Innate traits ride along whatever passive is equipped (Mara's Covering Fire).
+  const innate = u.watch ? `<span class="cpas">${skillIcon({ name: 'Covering Fire' })}<span><b>Innate · Covering Fire:</b> every ${numWord(u.watch)} turns taken on the field — friend or foe — she snaps off a free shot at a random enemy, taunters first. (${u.watchN || 0}/${u.watch})</span></span>` : '';
+  return factionPassive(u) + weather + own + innate;
 }
 
 function factionPassive(u) {
@@ -11186,6 +11351,14 @@ $('#speedBtn').addEventListener('click', () => {
   renderSpeedBtn();
 });
 renderSpeedBtn();
+// Fast forward: only offered while your champion is down and the fight is still going.
+function renderFfwd() {
+  const b = $('#ffwdBtn');
+  const show = state.screen === 'battle' && youDown() && !['won', 'lost', 'cleared'].includes(state.phase);
+  b.hidden = !show;
+  b.setAttribute('aria-pressed', String(FFWD && show));
+}
+$('#ffwdBtn').addEventListener('click', () => { FFWD = !FFWD; renderFfwd(); });
 document.addEventListener('keydown', (ev) => {
   if (!$('#overlay').hidden || ev.ctrlKey || ev.metaKey || ev.altKey) return;
   if (state.screen === 'village' && ev.key === 'Escape' && state.place) { state.place = null; render(); return; }

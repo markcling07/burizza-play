@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Burizza skill icon: Bolt-On. Hand-drawn to match make_icons.py's 64x64 set. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+<defs>
+<linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f7fc"/><stop offset=".5" stop-color="#aab4c7"/><stop offset="1" stop-color="#5d6780"/></linearGradient>
+<linearGradient id="iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa3b5"/><stop offset="1" stop-color="#454d61"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a8"/><stop offset=".55" stop-color="#e0a83c"/><stop offset="1" stop-color="#9c6b1e"/></linearGradient>
+<linearGradient id="green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8f5c0"/><stop offset="1" stop-color="#4f9e52"/></linearGradient>
+<radialGradient id="glow" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#8be28b" stop-opacity=".55"/><stop offset="1" stop-color="#8be28b" stop-opacity="0"/></radialGradient>
+</defs>
+<rect x="2" y="2" width="60" height="60" rx="14" fill="#232839"/>
+<rect x="2" y="2" width="60" height="60" rx="14" fill="url(#glow)"/>
+<!-- the ally's back plate -->
+<path d="M14 46 Q14 22 30 18 L30 52 Q20 52 14 46 Z" fill="url(#iron)" stroke="#161a26" stroke-width="2"/>
+<path d="M18 42 Q18 27 29 23" fill="none" stroke="#161a26" stroke-width="1.6" opacity=".5"/>
+<!-- the clamp arm reaching over, bolted down -->
+<path d="M28 20 Q44 12 52 26 L46 30 Q41 20 31 26 Z" fill="url(#steel)" stroke="#161a26" stroke-width="2"/>
+<path d="M28 50 Q44 56 52 44 L46 40 Q41 49 31 44 Z" fill="url(#steel)" stroke="#161a26" stroke-width="2"/>
+<!-- the big bolt head -->
+<g transform="translate(43 35)">
+<path d="M0 -11 L9.5 -5.5 L9.5 5.5 L0 11 L-9.5 5.5 L-9.5 -5.5 Z" fill="url(#gold)" stroke="#161a26" stroke-width="2"/>
+<circle cx="0" cy="0" r="4.2" fill="#6e4a14" stroke="#161a26" stroke-width="1.4"/>
+<path d="M-3 -8 L3 -8" stroke="#fff3cf" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>
+</g>
+<!-- welding sparks -->
+<path d="M24 14 l2.2 4.4 M20 18 l3.6 2.6 M28 11 l.8 4.6" stroke="#ffd166" stroke-width="2" stroke-linecap="round"/>
+<circle cx="24" cy="13" r="1.4" fill="#fff3cf"/>
+<!-- the mend -->
+<path d="M19 33 h5 m-2.5 -2.5 v5" stroke="url(#green)" stroke-width="2.6" stroke-linecap="round"/>
+</svg>
