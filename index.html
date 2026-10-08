@@ -376,6 +376,12 @@ h1 {
 .arena[data-dg="manor"]  { --cave-rock: #1a1424; --cave-rock-hi: #271d35; --cave-floor: #130f1a; --cave-glow: rgba(180, 120, 230, .16); }
 .arena[data-dg="castle"] { --cave-rock: #171b24; --cave-rock-hi: #232a38; --cave-floor: #0f1218; --cave-glow: rgba(120, 150, 210, .16); }
 .arena[data-dg="coven"]  { --cave-rock: #121d16; --cave-rock-hi: #1c2c20; --cave-floor: #0d140f; --cave-glow: rgba(120, 220, 140, .18); }
+/* Castle Harrowgate: one palette per battlefield — the fogged road, the grey ruin,
+   the candlelit hall, and the rose-lit ballroom (see roomLooks). */
+.arena[data-dg="hroad"] { --cave-rock: #1d1a16; --cave-rock-hi: #2b2620; --cave-floor: #16130e; --cave-glow: rgba(214, 80, 80, .13); }
+.arena[data-dg="hruin"] { --cave-rock: #1b1d22; --cave-rock-hi: #2a2d34; --cave-floor: #121419; --cave-glow: rgba(200, 190, 160, .12); }
+.arena[data-dg="hhall"] { --cave-rock: #221a12; --cave-rock-hi: #342818; --cave-floor: #181107; --cave-glow: rgba(240, 200, 120, .15); }
+.arena[data-dg="hball"] { --cave-rock: #241620; --cave-rock-hi: #372231; --cave-floor: #170e14; --cave-glow: rgba(240, 160, 200, .16); }
 /* Summons: smaller icons; illusions are see-through. */
 .tok.summon { width: 32px; height: 32px; margin-left: -16px; }
 .tok.p.summon { top: 4px; }
@@ -1922,7 +1928,7 @@ const WEATHER = {
   moon:  { name: 'Blood Moon',   favors: 'crimson', desc: 'The Crimson Court deal 20% more damage. All lifesteal is doubled.' },
   pall:  { name: 'Grave Pall',   favors: 'undead', desc: 'The Pale Host deal 20% more damage. A grey pall settles over the field and every mending anyone receives — spell, potion or regeneration — is a quarter weaker.' },
   // Emberhollow Cave only: no sky, but the rock moves. Rolled by tickQuake, never by rollWeather.
-  quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. The floor bucks and everyone on the field is Staggered, stopping and starting along the speed bar until the tremor passes.' },
+  quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. Again and again the floor bucks and everyone on the speed bar is thrown back a step — they catch their footing and press on toward their turn. Flyers feel nothing.' },
 };
 const WEATHER_EVERY = 3;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
@@ -3019,6 +3025,64 @@ const MONSTERS = {
   },
 
   // ---- Mournhollow Manor (a haunted house) ----
+  // ---- Castle Harrowgate — the household. Hostile humans, every one still drawing pay. ----
+  footman: {
+    name: 'Harrowgate Footman', plural: 'Harrowgate Footmen', role: 'melee', xp: 26,
+    lore: 'Livery over a brigandine. The house stopped paying in coin years ago; he stayed anyway.',
+    mods: { hp: 1.05, atk: 0.95, def: 1.1, agi: 0.95 },
+    look: { body: 'human', helm: true, main: '#4a2a3a', trim: '#d9b44a', skin: '#d9a87f', weapon: 'spear' },
+    skills: [{ ...ATTACK, name: 'Pike Thrust', desc: '100% thrust.' },
+             D('Drive Them Back', '110% shove of the pike haft. Drags the target back along the speed bar.', 3, 1.1, { knockback: 200 }),
+             B('Close Ranks', 'Sets the pike and braces: shielded for 2 turns.', 4, 'self', [['shield', 2]])],
+  },
+  poacher: {
+    name: 'Estate Poacher', plural: 'Estate Poachers', role: 'ranged', xp: 24,
+    lore: 'Kept on to thin the deer, and never fussy about what else wanders up the road.',
+    mods: { hp: 0.85, atk: 1.0, def: 0.8, agi: 1.15 },
+    look: { body: 'human', main: '#3a4431', trim: '#8a6a3a', skin: '#c99a72', hair: '#4a3520', weapon: 'crossbow' },
+    skills: [{ ...ATTACK, name: "Poacher's Bolt", desc: '100% bolt.' },
+             D('Leg Snare', '70% bolt trailing a wire. Slows the target and causes Bleed.', 3, 0.7, { fx: [['slow', 2], ['bleed', 3, 0.25]] }),
+             D('Lung Shot', '140% bolt, +25% crit chance.', 3, 1.4, { critBonus: 0.25 })],
+  },
+  duelist: {
+    name: 'Disgraced Duelist', plural: 'Disgraced Duelists', role: 'melee', xp: 28,
+    lore: 'Ran a man through over a card game and found every door shut but this one.',
+    mods: { hp: 0.9, atk: 1.1, def: 0.85, agi: 1.2 },
+    passive: P('Second Intention', 'When hit in melee, 20% chance to strike back for 60%.', { riposte: { chance: 0.2, mult: 0.6 } }),
+    look: { body: 'human', main: '#26303f', trim: '#c0303f', skin: '#e2b48f', hair: '#1d1d22', weapon: 'rapier' },
+    skills: [{ ...ATTACK, name: 'Point Work', desc: '100% thrust.' },
+             D('Flurry of Form', 'Three drilled thrusts of 45%.', 3, 0.45, { hits: 3 }),
+             D('Scarring Draw', '120% cut across the face. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] })],
+  },
+  marksman: {
+    name: 'Gallery Marksman', plural: 'Gallery Marksmen', role: 'ranged', xp: 30,
+    lore: 'Shoots from the long gallery, where the portraits watch the work and say nothing.',
+    mods: { hp: 0.8, atk: 1.15, def: 0.75, agi: 1.0 },
+    look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#caa07a', hair: '#6a5230', weapon: 'gun' },
+    skills: [{ ...ATTACK, name: 'Long Gun', desc: '100% shot.' },
+             D('Measured Volley', 'Two counted shots of 70%.', 3, 0.7, { hits: 2 }),
+             D('Gallery Shot', '150% shot that ignores armor.', 4, 1.5, { pierce: true })],
+  },
+  chaplain: {
+    name: 'House Chaplain', plural: 'House Chaplains', role: 'support', xp: 30,
+    lore: 'Still takes confession from the household. Absolution is whatever his lordship needs it to be.',
+    mods: { hp: 0.9, atk: 1.0, def: 0.85, agi: 0.95 },
+    look: { body: 'human', main: '#1f1a24', trim: '#d9b44a', skin: '#e0b28c', hair: '#cfc9bd', weapon: 'staff', orb: '#e8dcc0' },
+    skills: [{ ...ATTACK, name: 'Processional Staff', desc: '100% hit.' },
+             H('Litany of the House', 'Mends a member of the household.', 2, 2.6),
+             D('Anathema', '60% condemnation that never misses. Weakens the target.', 3, 0.6, { magic: true, noDodge: true, fx: [['weaken', 2]] })],
+  },
+  lordharrow: {
+    name: 'Lord Harrowgate', role: 'melee', xp: 290, boss: true,
+    lore: 'Master of the last lit house on the road. His invitations are not declined, and his guests are not missed.',
+    mods: { hp: 6.0, atk: 1.3, def: 1.2, agi: 1.0 },
+    look: { body: 'human', main: '#3a2a4a', trim: '#d9b44a', skin: '#e8d2ba', hair: '#d8d4cc', weapon: 'rapier' },
+    skills: [{ ...ATTACK, name: 'Cane-Sword', desc: '100% cut.' },
+             D('You Are Dismissed', '140% backhand cut. Drags the target back along the speed bar and Exposes them.', 3, 1.4, { knockback: 250, fx: [['exposed', 3]] }),
+             D("The Lord's Contempt", '80% to all enemies. Never misses. Weakens them all.', 4, 0.8, { aoe: true, magic: true, noDodge: true, fx: [['weaken', 2]] })],
+    telegraph: { every: 3, name: 'The Last Waltz', warn: 'raises one hand, and somewhere the dead orchestra strikes up…',
+                 skill: D('The Last Waltz', '125% to all enemies, with a 35% chance each to Stagger.', 0, 1.25, { aoe: true, noDodge: true, chanceFx: [['stagger', 1, 0.35]] }) },
+  },
   phantom: {
     name: 'Pale Phantom', plural: 'Pale Phantoms', role: 'ranged', xp: 28,
     lore: 'A house servant who never left their post. It still drifts the halls, dusting the dead.',
@@ -3186,6 +3250,61 @@ const DG_CONDS = {
           desc: 'The house takes an interest in its guests. At the start of every room one fighter on each side is Hexed: all healing they receive is halved until something cleanses it.' },
 };
 
+/* PER-ROOM HAZARDS — Castle Harrowgate's battlefields each keep their own trouble
+   (roomConds, one entry per room). Two are schedules rather than hazards:
+   'ruincycle' rotates round by round — Earthquake (the cave's bar-jolts), Falling
+   Rocks, Red Fog, repeat — and 'ballroom' runs Red Fog, a chandelier crash, Red Fog
+   over rounds 1–3, then falls calm for the kill. hazardRound applies each round's
+   hazard; hazardPace slows the bar under falling debris (allies 25%, enemies 15% —
+   the household knows where not to stand). */
+const DG_HAZARDS = {
+  redfog:      { icon: '🌫️', name: 'Red Fog', brief: 'The fog works on everyone: each round, 30% to be Poisoned and 20% to be Blinded.' },
+  rockfall:    { icon: '⛰️', name: 'Falling Rocks', brief: 'Debris rains: allies cross the bar 25% slower, the household 15%.' },
+  chandeliers: { icon: '🕯️', name: 'Falling Chandeliers', brief: 'The fittings are coming down: allies 25% slower, the household 15% — and some of them land.' },
+  quakephase:  { icon: '🪨', name: 'Earthquake', brief: 'The columns groan: the whole bar is thrown back a step, again and again.' },
+};
+const dgRoomCond = () => dungeonRun()?.roomConds?.[state.dg.room] || null;
+function dgHazard() {
+  const c = dgRoomCond();
+  if (!c) return null;
+  if (c === 'ruincycle') return ['quakephase', 'rockfall', 'redfog'][(state.round - 1) % 3];
+  if (c === 'ballroom') return state.round === 2 ? 'chandeliers' : state.round <= 3 ? 'redfog' : null;
+  return c;
+}
+const hazardIs = (id) => dgHazard() === id;
+const hazardPace = (u) => (hazardIs('rockfall') || hazardIs('chandeliers')) ? (u.side === 'p' ? 0.75 : 0.85) : 1;
+
+// A chandelier (or a slab of the ruin) comes down: n random fighters are Stunned for a round.
+// The hallway drops them on the warband alone; the Ballroom is impartial — but never the lord.
+function crashChandeliers(n, bothSides) {
+  const pool = shuffle(allUnits().filter((u) => alive(u) && !u.inert && !u.boss && (bothSides || u.side === 'p')));
+  for (const u of pool.slice(0, n)) {
+    burst(u, 'smoke');
+    float(u, '💥 Chandelier', 'fx');
+    addFx(u, 'stun', 1);
+    log(`A chandelier comes down on ${u.name}: stunned for a round.`, 'sys');
+  }
+}
+
+// Applies the room's hazard as each round opens (round 1 comes via applyDgCond).
+function hazardRound() {
+  const d = dungeonRun();
+  if (!d?.roomConds) return;
+  const hz = dgHazard();
+  // The Ruin Columns' quake round borrows the cave's machinery: state.quake drives the bar jolts.
+  state.quake = hz === 'quakephase' ? 1 : 0;
+  state.quakeJolt = hz === 'quakephase' ? state.time + QUAKE_EVERY : null;
+  if (!hz) return;
+  const H = DG_HAZARDS[hz];
+  log(`${H.name}: ${H.brief}`, 'wx');
+  if (hz === 'redfog') for (const u of allUnits()) {
+    if (!alive(u) || u.inert) continue;
+    if (chance(0.3)) addFx(u, 'poison', 3, Math.max(3, Math.round(u.maxHp * 0.035)));
+    if (chance(0.2)) addFx(u, 'blind', 2);
+  }
+  if (hz === 'chandeliers' && state.round === 2) crashChandeliers(dgRoomCond() === 'ballroom' ? 3 : 2, dgRoomCond() === 'ballroom');
+}
+
 const DUNGEONS = [
   { id: 'crypt', name: 'The Sunken Crypt', minLv: 5, look: 'crypt', boss: 'abbot', bossAdds: ['wraith'], scale: 0.85, cond: 'damp',
     blurb: 'A flooded abbey two days down the road. The monks who drowned there still keep their hours.',
@@ -3199,6 +3318,18 @@ const DUNGEONS = [
     blurb: 'A dwarf-dug mine where the machines kept working after the miners left.',
     rooms: [['clockspider', 'rustgolem', 'clockspider'], ['rustgolem', 'clockspider', 'ashcrawler'], ['rustgolem', 'rustgolem', 'clockspider', 'clockspider']],
     chest: { gold: 200, items: 2 }, firstClear: 'quicksilver' },
+  // Castle Harrowgate — a hostile HUMAN house. Seven battles over four battlefields
+  // (roomLooks), each with its own standing hazard (roomConds, see DG_HAZARDS), and the
+  // house's cowards don't rejoin the next room: they rally to the Ballroom and arrive in
+  // waves beside their lord (waves: true — see nextWave).
+  { id: 'harrow', name: 'Castle Harrowgate', minLv: 11, look: 'hroad', boss: 'lordharrow', bossAdds: ['duelist', 'marksman'], scale: 0.92, waves: true,
+    blurb: 'The last lit house on the road. The household is alive, armed, and under orders: no guests leave.',
+    rooms: [['footman', 'poacher', 'footman'], ['footman', 'duelist', 'poacher'], ['duelist', 'marksman', 'footman', 'chaplain']],
+    roomLooks: ['hroad', 'hroad', 'hruin', 'hruin', 'hhall', 'hhall', 'hball'],
+    roomNames: ['The Cobblestone Road', 'The Cobblestone Road', 'The Ruin Columns', 'The Ruin Columns', 'The Mansion Hallway', 'The Mansion Hallway', 'The Mansion Ballroom'],
+    roomConds: ['redfog', 'redfog', 'ruincycle', 'ruincycle', 'chandeliers', 'chandeliers', 'ballroom'],
+    hazardBrief: 'Red Fog on the road, the ruin coming down, chandeliers in the hall — and every coward in the house rallies to the Ballroom.',
+    chest: { gold: 240, items: 3 }, firstClear: 'signet' },
   { id: 'spire', name: 'The Ashen Spire', minLv: 13, look: 'spire', boss: 'ashmaw', bossAdds: ['emberimp', 'emberimp'], scale: 0.95,
     blurb: 'A black tower at the end of Ashfall Road. The ash that falls on everything comes from here.',
     rooms: [['emberimp', 'emberimp', 'magmaslime'], ['emberimp', 'ashdrake', 'emberimp'], ['ashdrake', 'emberimp', 'magmaslime', 'emberimp']],
@@ -3331,7 +3462,7 @@ const effAgi = (u) => u.agi * (has(u, 'slow') ? 0.6 : 1);
 // Speed along the bar: Agility, plus Elowen's Forest Stride for her whole warband (dodge still uses effAgi).
 // The Pale Host shamble: every one of them, summons included, crosses the bar 5% slower.
 const PALE_HOST_PACE = 0.95;
-const barAgi = (u) => effAgi(u) * (u.faction === 'undead' ? PALE_HOST_PACE : 1) * (1 + Math.max(0, ...alliesOf(u).map((a) => pv(a).haste || 0)));
+const barAgi = (u) => effAgi(u) * (u.faction === 'undead' ? PALE_HOST_PACE : 1) * hazardPace(u) * (1 + Math.max(0, ...alliesOf(u).map((a) => pv(a).haste || 0)));
 const wx = () => state.weather || 'clear';
 const favored = (u) => WEATHER[wx()].favors === u.faction;
 const disciplineBonus = () => (wx() === 'sun' ? 0.3 : 0.15);
@@ -4367,7 +4498,7 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   }
   // Stagger needs footing to take hold, and floating units — champion, monster or summon —
   // have none. Part of their Nature — unlike a passive immunity, no loadout swap turns it
-  // off — and it shrugs off earthquakes too (staggerAll).
+  // off — and the Earthquake's jolts pass under them too (see advanceClock).
   if (id === 'stagger' && u.floats) {
     if (!quiet) { float(u, 'Airborne', 'fx'); log(`${u.name} floats — the Stagger finds no footing.`, u.side); }
     return;
@@ -4739,23 +4870,21 @@ function douseMechs() {
 
 /* EARTHQUAKE — no weather reaches this deep, but in Emberhollow Cave the rock itself
    moves. On a cave hunt a tremor can strike on a weather round and shakes the place for
-   QUAKE_ROUNDS rounds. While the floor bucks, every unit on the field is Staggered, so
-   the whole speed bar stumbles along together. The dungeons off Ashfall Road are cut
+   QUAKE_ROUNDS rounds. It is not the Stagger effect: no status lands on anyone. Instead,
+   every QUAKE_EVERY ticks of the field's clock the floor bucks and every grounded unit
+   slides QUAKE_SLIP back along the speed bar, then presses on — everyone still reaches
+   the Act gate, just later and on unsteady legs (see advanceClock). Flyers hover over
+   it, and a planted cross has no feet to lose. The dungeons off Ashfall Road are cut
    stone, not live rock: they have no weather and no quakes. */
 const QUAKE_CHANCE = 0.4, QUAKE_ROUNDS = 2;
+const QUAKE_EVERY = 25, QUAKE_SLIP = 50;   // four jolts a round, each sliding units back 5% of the track
 const underground = () => state.mode === 'hunt' || state.mode === 'dungeon';
 const caveHunt = () => state.mode === 'hunt';
 const quaking = () => (state.quake || 0) > 0;
 
-// The shake staggers everyone standing. Thick Skull and the like shrug it off (addFx resists it quietly).
-function staggerAll(by) {
-  const hit = [];
-  for (const u of allUnits()) {
-    if (!alive(u)) continue;
-    addFx(u, 'stagger', 1, 0, true);
-    if (has(u, 'stagger')) { float(u, `${FX.stagger.icon} ${FX.stagger.label}`, 'fx'); hit.push(u.name); }
-  }
-  log(`${by}: ${hit.length ? `${hit.join(', ')} ${hit.length === 1 ? 'is' : 'are'} staggered and stumble along the speed bar.` : 'nobody loses their footing.'}`, 'sys');
+// The quake lays no status on anyone — the jolts themselves live in advanceClock. This just says so.
+function quakeRumbles(by) {
+  log(`${by}: the floor bucks, and the whole speed bar is thrown back a step, again and again. Everyone presses on.`, 'sys');
 }
 
 // Start of a cave-hunt round: run the tremor down, or roll a new one.
@@ -4763,27 +4892,30 @@ function tickQuake() {
   if (!caveHunt()) return false;
   if (quaking()) {
     state.quake--;
-    if (quaking()) { staggerAll('The aftershock'); return false; }
+    if (quaking()) { quakeRumbles('The aftershock'); return false; }
+    state.quakeJolt = null;
     log('The ground settles. The shaking stops.', 'wx');
     return false;
   }
   if (state.round === 1 || (state.round - 1) % WEATHER_EVERY !== 0) return false;
   if (Math.random() >= QUAKE_CHANCE) return false;
   state.quake = QUAKE_ROUNDS;
+  state.quakeJolt = state.time + QUAKE_EVERY;   // the first jolt lands a beat after the rumble starts
   const W = WEATHER.quake;
   log(`The rock groans and the floor heaves: ${W.name}. ${W.desc}`, 'wx');
   announce('The ground shakes', W.name);
   const bar = $('#weather');
   bar.classList.remove('changed'); void bar.offsetWidth; bar.classList.add('changed');
-  staggerAll('The quake');
+  quakeRumbles('The quake');
   return true;
 }
 
 function newRound() {
   state.round++;
   log(`Round ${state.round}${highTide() ? ' · High Tide' : ''}`, 'round');
-  // Underground there is no weather. Emberhollow Cave has the shifting rock instead; dungeons have nothing.
-  if (underground()) return tickQuake();
+  // Underground there is no weather. Emberhollow Cave has the shifting rock instead, and
+  // Castle Harrowgate's battlefields keep their own hazards (hazardRound; a no-op elsewhere).
+  if (underground()) { hazardRound(); return tickQuake(); }
   // A new sky is due when its round comes up. (Battles saved before skies had their own length
   // fall back to the old every-WEATHER_EVERY-rounds clock.)
   const due = state.wxNext != null ? state.round >= state.wxNext : (state.round - 1) % WEATHER_EVERY === 0;
@@ -4923,6 +5055,8 @@ const heroesUp = (side) => state.teams[side].some((u) => alive(u) && !u.summon);
 
 function checkEnd() {
   if (['won', 'lost', 'cleared'].includes(state.phase)) return true;
+  // The Ballroom rallies before it falls: a waiting coward steps in rather than let the fight end.
+  while (!heroesUp('e') && nextWave());
   if (!heroesUp('e')) { endBattle(true); return true; }
   if (!heroesUp('p')) { endBattle(false); return true; }
   return false;
@@ -5233,7 +5367,10 @@ async function advanceClock(token) {
       u.expires != null ? u.expires - state.time : Infinity,
     ]).filter((d) => d > EPS);
     const dtThaw = thaws.length ? Math.min(...thaws) : Infinity;
-    const dt = Math.max(0, Math.min(dtActor, dtRound, dtThaw));
+    // Earthquake: the next tremor on the field's clock (see QUAKE_EVERY). Never during the opening race.
+    const dtJolt = quaking() && !state.opening
+      ? Math.max(EPS, (state.quakeJolt ??= state.time + QUAKE_EVERY) - state.time) : Infinity;
+    const dt = Math.max(0, Math.min(dtActor, dtRound, dtThaw, dtJolt));
 
     for (const u of movers) u.pos = Math.min(TRACK, u.pos + barAgi(u) * dt);
     state.time += dt;
@@ -5245,6 +5382,16 @@ async function advanceClock(token) {
 
     expireTimed();
     cleanupSummons();
+    // The jolt lands: everyone grounded slides back a step, catches their footing, and presses on.
+    // No status, no lost turn — flyers hover over it, and a planted cross has no feet to lose.
+    if (quaking() && state.quakeJolt != null && state.quakeJolt - state.time <= EPS) {
+      for (const u of allUnits()) if (alive(u) && !frozen(u) && !u.inert && !u.floats) u.pos = Math.max(0, u.pos - QUAKE_SLIP);
+      state.quakeJolt = state.time + QUAKE_EVERY;
+      renderTrack(300);
+      if (!reduced) $('#arena').animate([{ translate: '0 0' }, { translate: '0 5px' }, { translate: '0 -3px' }, { translate: '0 0' }], { duration: beat(280) });
+      await waitBar(320);
+      if (token !== state.token) return null;
+    }
     if (dtRound <= dt + 1e-9) {
       const changed = newRound();
       render();
@@ -5345,6 +5492,7 @@ async function nextTurn() {
   while (token === state.token) {
     if (checkEnd()) return;
     cleanupSummons();
+    nextWave();   // the Ballroom fills its empty slots between turns
     state.phase = 'busy';
     state.moving = true;
     render();
@@ -5621,7 +5769,7 @@ function startBattle(retry) {
   state.opening = true;
   state.phase = 'busy'; state.pending = null; state.reward = null; state.log = [];
   state.killXp = 0; state.kills = 0;   // what your champion's killing blows earn here, paid out at the end
-  state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0;
+  state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0; state.quakeJolt = null;
   state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;   // battles open under Clear Skies; the first change is at round 4
   state.screen = 'battle';
   state.token++;
@@ -5641,6 +5789,14 @@ function startBattle(retry) {
 /* The dungeon's standing condition, applied at the top of every room. Grave Damp and Firedamp
    are read where they apply (soaked(), the Burn tick); the Haunting has to pick its marks. */
 function applyDgCond() {
+  // Castle Harrowgate: name the battlefield and let round 1's hazard open with the room.
+  const d = dungeonRun();
+  if (d?.roomConds) {
+    const where = d.roomNames?.[state.dg.room];
+    if (where) log(`${where}.`, 'wx');
+    hazardRound();
+    return;
+  }
   const c = dgCond();
   if (!c) return;
   log(`${c.name}: ${c.desc}`, 'wx');
@@ -5773,7 +5929,7 @@ function startDungeon(id) {
   if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (!d || heroLevel() < d.minLv || state.runPending) return;
   state.mode = 'dungeon';
-  state.dg = { id, room: 0, gold: 0, xp: 0, carry: {}, done: false, plan: dgPlan(d), fled: [] };
+  state.dg = { id, room: 0, gold: 0, xp: 0, carry: {}, done: false, plan: dgPlan(d), fled: [], held: [], waveSeq: 0 };
   enterRoom();
 }
 
@@ -5788,6 +5944,26 @@ function enterRoom() {
   startBattle(true);
 }
 
+/* THE BALLROOM RALLIES — Castle Harrowgate only (waves: true). Every coward who fled the
+   run waits in the Ballroom and steps back in whenever a field slot opens, still carrying
+   the wounds they ran with. checkEnd calls this too, so the fight cannot end while anyone
+   is still hiding behind the curtains: the boss AND the whole household must fall. */
+function nextWave() {
+  const d = dungeonRun();
+  if (!d?.waves || !dgIsBossRoom() || !state.dg.held?.length) return false;
+  if (state.teams.e.filter(alive).length >= DG_MAX_FOES) return false;
+  const f = state.dg.held.shift();
+  state.dg.waveSeq = (state.dg.waveSeq || 0) + 1;
+  const u = makeMonster(f.id, Math.max(d.minLv, state.level), 20 + state.dg.waveSeq, d.scale);
+  u.hp = Math.max(1, Math.round(u.maxHp * f.hp));
+  u.fledOnce = true;
+  state.teams.e.push(u);
+  burst(u, 'smoke');
+  log(`The household rallies: ${u.name} steps into the Ballroom, still wounded.`, 'sys');
+  render();
+  return true;
+}
+
 // A wounded minion takes its turn to run for it (see DUNGEONS above): the first DG_FLEE_CAP
 // whose HP has fallen to DG_FLEE_AT or less break and run; after that the rest stand and die.
 function shouldFlee(u) {
@@ -5796,9 +5972,12 @@ function shouldFlee(u) {
 }
 
 async function flee(u) {
+  const d = dungeonRun();
   state.dg.fledNow = (state.dg.fledNow || 0) + 1;
-  state.dg.fled.push({ id: u.id, hp: u.hp / u.maxHp });
-  log(`${u.name} is badly hurt and flees deeper into ${dungeonRun().name}!`, 'sys');
+  // Castle Harrowgate (waves): cowards don't wait in the next room — they run all the way
+  // home to the Ballroom, and step in beside their lord as the boss fight thins (nextWave).
+  (d.waves ? (state.dg.held ||= []) : state.dg.fled).push({ id: u.id, hp: u.hp / u.maxHp });
+  log(`${u.name} is badly hurt and ${d.waves ? 'runs for the great house!' : `flees deeper into ${d.name}!`}`, 'sys');
   float(u, 'Flees!', 'fx');
   const el = document.getElementById(`u-${u.uid}`);
   if (el) { el.classList.add('fleeing'); el.style.setProperty('--x', 115); }
@@ -6470,9 +6649,11 @@ const TRINKETS = {
   phantomlocket:{ name: 'Phantom Locket', price: 240, mana: true, bonus: { mpRegen: 3, hpRegen: 3 }, desc: '+3 MP and +3 HP at the start of every turn.' },
   crownshard:  { name: 'Crown Shard', price: 300, bonus: { atkPct: 0.08 }, desc: '+8% Attack.' },
   hagthorn:    { name: "Hag's Thorn", price: 340, bonus: { hpPct: 0.1 }, desc: '+10% max HP.' },
+  signet:      { name: 'Harrowgate Signet', price: 260, bonus: { atkPct: 0.05, crit: 0.04 }, desc: '+5% Attack and +4% crit. The house seal still opens doors.' },
 };
 const TRINKET_KEYS = Object.keys(TRINKETS);
 const TRINKET_ICON = {
+  signet: '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="19" r="8.5" fill="none" stroke="#d9b44a" stroke-width="3"/><rect x="10.5" y="5" width="11" height="9" rx="2" fill="#b0892f" stroke="#6e4a14" stroke-width="1.2"/><path d="M13 9.5h6M16 7v5" stroke="#5a3a10" stroke-width="1.4"/><path d="M12 6l2 1.6M20 6l-2 1.6" stroke="#ffe9a8" stroke-width="1" opacity=".8"/></svg>',
   sapphire: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4Q16 17 25 4" stroke="#d9b44a" stroke-width="1.6" fill="none"/><path d="M16 13l6 7-6 9-6-9z" fill="#5b97e6" stroke="#e9f8ff" stroke-width="1.2" stroke-linejoin="round"/><path d="M12.5 19.5l3.5-3.5 3.5 3.5" stroke="#bfe0ff" stroke-width="1" fill="none"/></svg>',
   moonstone: '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="11" r="8" fill="#bfefff" opacity=".25"/><circle cx="16" cy="21" r="7.5" fill="none" stroke="#c9d1de" stroke-width="3"/><ellipse cx="16" cy="11" rx="5" ry="4.5" fill="#eef3ff" stroke="#9aa3b5" stroke-width="1.2"/><ellipse cx="14.5" cy="10" rx="1.6" ry="1.2" fill="#fff"/></svg>',
   fang: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 7Q12 2 17 4" stroke="#8a6a3a" stroke-width="1.4" fill="none"/><path d="M12 4Q20 4 21 10Q20 20 14 28Q15 18 11 10Q10 6 12 4Z" fill="#efe6d2" stroke="#9a8a70" stroke-width="1.2" stroke-linejoin="round"/><path d="M14.5 27Q16.5 22 16 18" stroke="#c0303f" stroke-width="1.6" fill="none"/><circle cx="14" cy="29" r="1.5" fill="#c0303f"/></svg>',
@@ -8531,6 +8712,7 @@ const PLACE_BODY = {
         <h3>${d.name}</h3><p>${d.blurb}</p>
         <small>Level ${d.minLv}+ · ${DG_ROOM_COUNT} rooms, then <b>${boss.name}</b></small>
         ${c ? `<small class="cond" title="${c.desc}">${c.icon} <b>${c.name}</b> — ${c.brief}</small>` : ''}
+        ${d.hazardBrief ? `<small class="cond">🕯️ <b>The house fights dirty</b> — ${d.hazardBrief}</small>` : ''}
         <small class="reward">Chest: ${d.chest.gold} gold and ${d.chest.items} items${rec?.clears ? ` · cleared ${rec.clears}×` : ` · first clear: a ${TRINKETS[d.firstClear].name}`}</small>
         <button class="btn${open ? ' primary' : ''}" type="button" data-k="dungeon:${d.id}"${open ? '' : ' disabled'}>${open ? 'Set out' : `Unlocks at level ${d.minLv}`}</button>
       </div>`;
@@ -11055,7 +11237,7 @@ function renderBattle() {
   $('#ladder').innerHTML = dg ? Array.from({ length: dgRooms() }, (_, i) => {
     const done = i < state.dg.room || (i === state.dg.room && state.phase === 'won');
     const cls = done ? 'done' : i === state.dg.room ? 'now' : '';
-    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${i === DG_ROOM_COUNT ? MONSTERS[dg.boss].name : `Room ${i + 1}`}</span></li>`;
+    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${i === DG_ROOM_COUNT ? MONSTERS[dg.boss].name : (dg.roomNames?.[i] || `Room ${i + 1}`)}</span></li>`;
   }).join('') : hunt ? '' : state.order.map((k, i) => {
     const done = i < state.battle || (i === state.battle && (state.phase === 'won' || state.phase === 'cleared'));
     const cls = done ? 'done' : i === state.battle ? 'now' : '';
@@ -11068,14 +11250,15 @@ function renderBattle() {
   const under = hunt || dg;   // caves and dungeons have no weather; the cave has the odd earthquake
   const quake = !!hunt && quaking();
   const cond = dg ? dgCond() : null;   // the dungeon's standing condition, where it has one
+  const hz = dg ? DG_HAZARDS[dgHazard()] : null;   // Castle Harrowgate: the room's hazard this round
   $('#arena').dataset.wx = under ? 'cave' : wx();
   // Brimstone Fall's warning sky: '2' two rounds out, '1' the round before (see brimstoneOmen).
   $('#arena').dataset.omen = !under && state.nextWeather === 'brim' && left <= 2 ? left : '';
-  $('#arena').dataset.dg = dg ? dg.look : '';
-  $('#arena').classList.toggle('quake', !!quake);
-  const wxName = quake ? WEATHER.quake.name : cond ? cond.name : under ? (dg ? dg.name : 'Underground') : W.name;
+  $('#arena').dataset.dg = dg ? (dg.roomLooks?.[state.dg.room] || dg.look) : '';
+  $('#arena').classList.toggle('quake', quaking());
+  const wxName = quake ? WEATHER.quake.name : hz ? hz.name : cond ? cond.name : under ? (dg ? dg.name : 'Underground') : W.name;
   const wxLeft = quake ? (state.quake === 1 ? 'Last round' : `${state.quake} rounds`) : under ? '' : left === 1 ? 'Last round' : `${left} rounds`;
-  $('#wxIcon').textContent = quake ? WX_ICON.quake : cond ? cond.icon : under ? '🕯️' : WX_ICON[wx()] || '';
+  $('#wxIcon').textContent = quake ? WX_ICON.quake : hz ? hz.icon : cond ? cond.icon : under ? '🕯️' : WX_ICON[wx()] || '';
   $('#wxName').textContent = $('#wxPopName').textContent = wxName;
   $('#wxLeft').textContent = wxLeft;
   $('#weather').setAttribute('aria-label', `${quake || cond ? 'Condition' : 'Weather'}: ${wxName}${wxLeft ? `, ${wxLeft.toLowerCase().includes('last') ? 'last round' : `${wxLeft} left`}` : ''}. Tap for its effect.`);
