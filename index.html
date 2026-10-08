@@ -2001,6 +2001,7 @@ const ROSTER = [
   { id: 'bulwark', name: 'Bulwark-7', faction: 'mech', role: 'melee', bio: 'Hulking frontline war machine.',
     mods: { hp: 1.2, def: 1.3, atk: 0.9, agi: 0.8 },
     look: { body: 'mech', main: '#7d8aa3', trim: '#f0a73a', weapon: 'fist' },
+    nature: { name: 'Built to Hold', desc: 'While he stands, his warband\'s front line takes three blows to break instead of two.', front: 1 },
     skills: [D('Piston Punch', '130% hit.', 2, 1.3),
              D('Hydraulic Slam', '160% hit with a 50% chance to stun.', 4, 1.6, { stun: 0.5 }),
              D('Steam Vent', '70% scalding steam to all enemies. Vents 40 Heat instead of building it.', 3, 0.7, { aoe: true, heat: -40 }),
@@ -2010,6 +2011,7 @@ const ROSTER = [
   { id: 'sawtooth', name: 'Sawtooth', faction: 'mech', role: 'melee', bio: 'Scrapper with buzzsaw arms.',
     mods: { atk: 1.1, hp: 0.95, agi: 1.1 },
     look: { body: 'mech', main: '#9b5d3c', trim: '#ffd166', weapon: 'saw' },
+    nature: { name: 'Flywheel', desc: 'At 50 Heat or more his many-cut skills cut once more — the blades are already spinning.', flywheel: 1 },
     skills: [D('Rip Saw', 'Two cuts of 70%.', 2, 0.7, { hits: 2 }),
              D('Grinder', 'Three cuts of 55%. Causes Bleed.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
              D('Shrapnel Spin', 'Two cuts of 45% to all enemies.', 4, 0.45, { aoe: true, hits: 2 }),
@@ -2019,6 +2021,7 @@ const ROSTER = [
   { id: 'arclight', name: 'Arclight', faction: 'mech', role: 'ranged', bio: 'Tesla-coil sniper unit.',
     mods: {},
     look: { body: 'mech', main: '#4d6a8f', trim: '#7fe3ff', weapon: 'gun', orb: '#7fe3ff' },
+    nature: { name: 'Arc Transfer', desc: 'When her lightning strikes a Soaked enemy, a spark leaps to a second enemy for 30%.', arc: 1 },
     skills: [D('Arc Bolt', '130% lightning. Never misses. Causes Mana Leak: every action the target takes burns 12 MP.', 2, 1.3, { element: 'lightning', noDodge: true, fx: [['leak', 3]] }),
              D('Chain Surge', '75% lightning to all enemies. Ignores shields.', 4, 0.75, { aoe: true, element: 'lightning', noDodge: true, ignoreShield: true }),
              D('Discharge', '100% lightning. Never misses. Burns 25 of the target\'s mana as extra damage.', 3, 1.0, { element: 'lightning', noDodge: true, manaBurn: 25 }),
@@ -2028,6 +2031,7 @@ const ROSTER = [
   { id: 'howitzer', name: 'Howitzer', faction: 'mech', role: 'ranged', bio: 'Walking artillery platform.',
     mods: { hp: 1.1, agi: 0.75, atk: 1.05 },
     look: { body: 'mech', main: '#5f6b52', trim: '#ff7a45', weapon: 'cannon' },
+    nature: { name: 'Dug In', desc: 'Planted like a gun carriage: nothing drags him back along the speed bar — not a blow, not the bucking earth.', anchor: 1 },
     skills: [D('Flak Burst', '60% to all enemies.', 3, 0.6, { aoe: true }),
              D('Siege Shell', 'Massive 230% shell. Builds 50 Heat.', 5, 2.3, { heat: 50 }),
              D('AP Round', '150% shell that ignores armor.', 3, 1.5, { pierce: true }),
@@ -2037,6 +2041,7 @@ const ROSTER = [
   { id: 'patchwork', name: 'Patchwork', faction: 'mech', role: 'support', bio: 'Repair drone with welding arms.',
     mods: { def: 1.2 },
     look: { body: 'mech', main: '#a39a86', trim: '#8be28b', weapon: 'wrench' },
+    nature: { name: 'Oil Can', desc: 'Every mend he gives also vents 15 Heat from an Ironclad ally — or drips 5 MP into anyone else.', oilcan: 1 },
     skills: [H('Field Weld', 'Heal an ally and shield them until their next turn.', 2, 3.0, { fx: [['shield', 1]] }),
              S('Assemble Scrapbot', 'Build a Scrapbot turret that fights on its own for 3 rounds.', 5, 'scrapbot'),
              B('Overclock', 'An ally deals 30% more damage for 2 turns and their cooldowns drop by 1.', 4, 'ally', [['empower', 3]], { reduceCd: true }),
@@ -2052,6 +2057,7 @@ const ROSTER = [
   { id: 'krug', name: 'Krug Skullsplitter', short: 'Krug', faction: 'orc', role: 'melee', bio: 'Two-axe berserker.',
     mods: { atk: 1.15, def: 0.85 },
     look: { body: 'orc', main: '#5a3a2a', trim: '#9aa3b5', skin: '#6b8f56', hair: '#1d1d1d', weapon: 'axe' },
+    nature: { name: 'Red Mist', desc: 'Below half HP his Double Attack chance is doubled — the redder the mist, the faster the axes.', redmist: 1 },
     skills: [D('Cleave', '65% to all enemies.', 3, 0.65, { aoe: true }),
              D('Blood Frenzy', '200% hit. Costs 10% of his own HP.', 4, 2.0, { selfCost: 0.1 }),
              D('Reckless Swing', '170% hit. Krug is Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { selfFx: [['exposed', 1]] }),
@@ -2061,6 +2067,7 @@ const ROSTER = [
   { id: 'mogra', name: 'Mogra Ironhide', short: 'Mogra', faction: 'orc', role: 'melee', bio: 'Shield-and-mace bruiser.',
     mods: { hp: 1.15, def: 1.25, atk: 0.9 },
     look: { body: 'orc', main: '#4a4e5c', trim: '#b07d3e', skin: '#7a9a5e', weapon: 'hammer', shield: '#6b4f32' },
+    nature: { name: 'Tusk and Board', desc: 'Guarding is not hiding: the first melee blow to land on her Guard is answered with a free swing.', board: 1 },
     skills: [D('Skull Rattler', '120% hit. Staggers the target: it keeps stopping on the speed bar for about 1.5 rounds.', 2, 1.2, { fx: [['stagger', 1]] }),
              B('Iron Hide', 'Taunt all enemies, shield herself and reflect 40% of damage taken for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2], ['thorns', 2]]),
              D('Ground Pound', '55% to all enemies with a 40% chance each to Stagger.', 4, 0.55, { aoe: true, quake: true, chanceFx: [['stagger', 1, 0.4]] }),
@@ -2070,6 +2077,7 @@ const ROSTER = [
   { id: 'vashka', name: 'Vashka Spearthrower', short: 'Vashka', faction: 'orc', role: 'ranged', bio: 'Javelin hunter of the steppe.',
     mods: { agi: 1.1 },
     look: { body: 'orc', main: '#6b4f32', trim: '#c9b28a', skin: '#5f8a62', hair: '#2b1b12', weapon: 'spear' },
+    nature: { name: 'Two on the Trail', desc: 'While a beast she called fights beside her, both of them deal 10% more.', pair: 1 },
     skills: [S('Call the War Boar', 'Summon a war boar that fights on its own for 4 rounds.', 4, 'warboar'),
              D('Gutpiercer', '160% hit that ignores armor. Causes Bleed.', 4, 1.6, { pierce: true, fx: [['bleed', 3, 0.3]] }),
              D('Hunter\'s Mark', '60% hit. Marks the target: it takes 25% more damage for 2 turns.', 3, 0.6, { fx: [['exposed', 3]] }),
@@ -2079,6 +2087,7 @@ const ROSTER = [
   { id: 'drekka', name: 'Drekka Firegut', short: 'Drekka', faction: 'orc', role: 'ranged', bio: 'Bomb and firepot thrower.',
     mods: {},
     look: { body: 'orc', main: '#7a3b2e', trim: '#e8a548', skin: '#7d9a4f', weapon: 'pot' },
+    nature: { name: 'Long Fuse', desc: 'Her Burns burn a turn longer.', longfuse: 1 },
     skills: [D('Firepot', '100% hit. Burns for 3 turns.', 2, 1.0, { magic: true, fx: [['burn', 3, 0.35]] }),
              D('Powder Keg', '75% to all enemies. Burns them all.', 5, 0.75, { magic: true, aoe: true, fx: [['burn', 3, 0.3]] }),
              D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2]] }),
@@ -2088,6 +2097,7 @@ const ROSTER = [
   { id: 'hesk', name: 'Old Mother Hesk', short: 'Hesk', faction: 'orc', role: 'support', bio: 'Shaman who keeps the war drums.',
     mods: { hp: 1.05 },
     look: { body: 'orc', main: '#4b3d5e', trim: '#d8c8a8', skin: '#8a9d6a', hair: '#d8d8d8', weapon: 'staff', orb: '#e0645a' },
+    nature: { name: 'Ancestors\' Whisper', desc: 'When an ally falls, the ancestors lean close: all her cooldowns drop by 1.', whisper: 1 },
     skills: [B('Spirit Ward', 'An ally takes 60% less damage for 2 turns.', 2, 'ally', [['ward', 2]], { aiTarget: 'lowest' }),
              B('Drums of the Horde', 'All allies deal 30% more damage for 2 turns, plus a small heal.', 5, 'allAllies', [['empower', 3]], { heal: 1.0 }),
              B('Bone Charm', 'Clear an ally\'s debuffs. They resist new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { cleanse: true, aiTarget: 'debuffed' }),
@@ -2099,6 +2109,7 @@ const ROSTER = [
   { id: 'wren', name: 'Wren', faction: 'human', role: 'melee', bio: 'Spellblade of the Aldmere guard.',
     mods: {},
     look: { body: 'human', helm: true, main: '#a9b3c6', trim: '#e8a548', skin: '#e2b48f', weapon: 'sword' },
+    nature: { name: 'Spellblade\'s Rhythm', desc: 'Discipline comes easier to her: +20% rather than +15% when she varies her actions.', rhythm: 1 },
     skills: [D('Power Slash', '160% cut.', 2, 1.6, { slash: true }),
              D('Thunderclap', '130% lightning with a 45% chance to stun.', 4, 1.3, { element: 'lightning', noDodge: true, stun: 0.45 }),
              D('Arcane Edge', '100% cut plus 20% of her current mana as extra damage.', 3, 1.0, { manaDamage: 0.2 }),
@@ -2108,6 +2119,7 @@ const ROSTER = [
   { id: 'garrick', name: 'Sir Garrick Vane', short: 'Garrick', faction: 'human', role: 'melee', bio: 'Heavily armored paladin.',
     mods: { hp: 1.1, def: 1.25, atk: 0.9, agi: 0.85 },
     look: { body: 'human', helm: true, main: '#d7dbe4', trim: '#d9b44a', skin: '#c68f6a', weapon: 'hammer', shield: '#3e5a8c' },
+    nature: { name: 'Sworn Shield', desc: 'Once per battle, the blow that would fell an ally finds his shield instead — he takes it, whatever it is.', sworn: 1 },
     skills: [D('Smite', '130% hit. Heals him for 35% of the damage.', 2, 1.3, { lifesteal: 0.35 }),
              B('Oathguard', 'Shield an ally for 2 turns and reflect 40% of the damage they take.', 4, 'ally', [['shield', 2], ['thorns', 2]], { aiTarget: 'lowest' }),
              D('Consecrate', '45% holy damage to all enemies. Never misses. Heals all allies a little.', 4, 0.45, { magic: true, aoe: true, noDodge: true, allyHeal: 0.8 }),
@@ -2132,6 +2144,7 @@ const ROSTER = [
   { id: 'aldous', name: 'Aldous Emberfall', short: 'Aldous', faction: 'human', role: 'ranged', bio: 'Pyromancer of the royal college.',
     mods: { hp: 0.95 },
     look: { body: 'human', main: '#7a2e3a', trim: '#e8a548', skin: '#e2b48f', hair: '#d9d4c7', weapon: 'staff', orb: '#ff8a3d' },
+    nature: { name: 'Ember-Warm', desc: 'While anything on the field burns, the fire feeds him: +5 MP a turn.', emberwarm: 1 },
     skills: [D('Fireball', '120% fire. Never misses. Burns for 3 turns.', 2, 1.2, { magic: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
              D('Inferno', '60% fire to all enemies, plus 15% of his current mana as extra damage. Burns them all.', 5, 0.6, { magic: true, aoe: true, noDodge: true, manaDamage: 0.15, fx: [['burn', 3, 0.3]] }),
              D('Ignite', '100% fire. Never misses. 60% stronger against Burning targets.', 3, 1.0, { magic: true, noDodge: true, bonusVs: 'burn' }),
@@ -2141,6 +2154,7 @@ const ROSTER = [
   { id: 'liesl', name: 'Sister Liesl', short: 'Liesl', faction: 'human', role: 'support', bio: 'Cleric of the dawn chapel.',
     mods: {},
     look: { body: 'human', main: '#e9e4d8', trim: '#d9b44a', skin: '#f0c9a6', hair: '#c9a25e', weapon: 'staff', orb: '#fff1b8' },
+    nature: { name: 'Undimmed', desc: 'No pall and no hex dims her light: her mending ignores both.', undimmed: 1 },
     skills: [H('Sacred Light', 'Heal an ally and clear all their debuffs.', 2, 3.2, { cleanse: true, lightbeam: true }),
              H('Prayer of Dawn', 'Heal all allies and restore 25 mana to each.', 5, 2.0, { all: true, manaRestore: 25 }),
              B('Guardian Angel', 'Shield an ally for 2 turns and give them Regen.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
@@ -2152,6 +2166,7 @@ const ROSTER = [
   { id: 'durgan', name: 'Durgan Anvilbeard', short: 'Durgan', faction: 'stone', race: 'dwarf', role: 'melee', bio: 'Dwarf hammer warrior.',
     mods: { hp: 1.05, def: 1.1 },
     look: { body: 'dwarf', main: '#6b4f32', trim: '#9aa3b5', skin: '#e0ae86', hair: '#b5562b', weapon: 'hammer' },
+    nature: { name: 'Anvil-Patient', desc: 'He arrives already braced: one Fortify stack from the first bell.', brace: 1 },
     skills: [D('Hammerfall', '135% smash.', 2, 1.35),
              D('Mountain Breaker', '150% hit. Sunders armor (−40% defense).', 4, 1.5, { fx: [['sunder', 3]] }),
              D('Anvil Strike', '120% smash. Durgan gains a Fortify stack.', 3, 1.2, { selfStacks: 1 }),
@@ -2161,6 +2176,7 @@ const ROSTER = [
   { id: 'hilda', name: 'Hilda Stonewall', short: 'Hilda', faction: 'stone', race: 'dwarf', role: 'melee', bio: 'Dwarf shieldmaiden.',
     mods: { hp: 1.15, def: 1.3, atk: 0.85, agi: 0.8 },
     look: { body: 'dwarf', main: '#40597a', trim: '#c9a25e', skin: '#ecbfa0', hair: '#e8c872', weapon: 'axe', shield: '#8a5a32' },
+    nature: { name: 'Deep Foundation', desc: 'Dwarf-work holds: her Fortify stacks to four where others stop at three.', stackcap: 4 },
     skills: [D('Shield Bash', '100% hit with a 35% chance to stun.', 3, 1.0, { stun: 0.35 }),
              B('Stand Firm', 'Taunt all enemies and shield herself for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]]),
              B('Shieldwall', 'Shield an ally for 2 turns. Hilda gains 2 Fortify stacks.', 4, 'ally', [['shield', 2]], { selfStacks: 2, aiTarget: 'lowest' }),
@@ -2170,6 +2186,7 @@ const ROSTER = [
   { id: 'aelira', name: 'Aelira Swiftwind', short: 'Aelira', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf longbow archer.',
     mods: { agi: 1.2, crit: 0.15 },
     look: { body: 'elf', main: '#3f7a4f', trim: '#d9c58a', skin: '#f0d2b4', hair: '#e8d9a0', weapon: 'bow' },
+    nature: { name: 'Fletcher\'s Line', desc: 'A hit costs her one Precision stack — never the whole draw.', line: 1 },
     skills: [D('Swift Arrows', 'Two arrows of 70%.', 2, 0.7, { hits: 2 }),
              D('Hawkeye', '160% shot that always crits.', 4, 1.6, { alwaysCrit: true }),
              D('Arrow Rain', '50% to all enemies.', 3, 0.5, { aoe: true }),
@@ -2179,6 +2196,7 @@ const ROSTER = [
   { id: 'faelan', name: 'Faelan Thornshot', short: 'Faelan', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf who tips his crossbow bolts with venom.',
     mods: {},
     look: { body: 'elf', main: '#2f4f3a', trim: '#9ac46b', skin: '#d9b08c', hair: '#2b2b2b', weapon: 'crossbow' },
+    nature: { name: 'Crawling Venom', desc: 'When a poisoned thing dies, the venom crawls on: it hops to another enemy for the turns it had left.', crawl: 1 },
     skills: [D('Venom Bolt', '100% shot. Poisons for 3 turns.', 2, 1.0, { fx: [['poison', 3, 0.3]] }),
              D('Thornvolley', '60% to all enemies. Poisons and slows them.', 5, 0.6, { aoe: true, fx: [['poison', 3, 0.25], ['slow', 2]] }),
              D('Envenom', '100% shot, 60% stronger against Poisoned targets.', 3, 1.0, { bonusVs: 'poison' }),
@@ -2188,6 +2206,7 @@ const ROSTER = [
   { id: 'elowen', name: 'Elowen Greenmantle', short: 'Elowen', faction: 'stone', race: 'elf', role: 'support', bio: 'Elf druid of the deep wood.',
     mods: { agi: 1.1 },
     look: { body: 'elf', main: '#5e8a4a', trim: '#e3d27a', skin: '#f0d2b4', hair: '#c96a3c', weapon: 'staff', orb: '#9fe08a' },
+    nature: { name: 'Evergreen', desc: 'Each of her turns, the oldest curse on her falls away like a dead leaf.', evergreen: 1 },
     skills: [H('Regrowth', 'Heal an ally, then they regenerate for 3 turns.', 2, 2.2, { fx: [['regen', 3, 0.8]] }),
              H('Bloom of Spring', 'Heal all allies a little, clear their debuffs and give them Regen.', 5, 1.0, { all: true, cleanse: true, fx: [['regen', 3, 0.6]] }),
              D('Entangle', '70% hit. Roots Slow and Stagger the target.', 3, 0.7, { magic: true, fx: [['slow', 2], ['stagger', 1]], roots: true }),
@@ -2200,6 +2219,7 @@ const ROSTER = [
   { id: 'tharos', name: 'Tharos Razorfin', short: 'Tharos', faction: 'tide', role: 'melee', bio: 'Shark-folk trident warrior.',
     mods: { atk: 1.05, agi: 1.05 },
     look: { body: 'tide', crest: 'shark', skin: '#6f8597', main: '#3b4f63', trim: '#d9c58a', weapon: 'trident' },
+    nature: { name: 'Tide-Runner', desc: 'The flood carries him: +15% speed on the bar every High Tide.', tiderun: 1 },
     skills: [D('Trident Lunge', '120% hit. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
              D('Blood in the Water', '150% hit, 60% stronger against bleeding targets.', 3, 1.5, { bonusVs: 'bleed' }),
              D('Riptide', '120% hit. Drags the target back along the speed bar.', 3, 1.2, { knockback: 300 }),
@@ -2209,6 +2229,7 @@ const ROSTER = [
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Small, frenzied Gurgling brawler.',
     mods: { hp: 0.85, agi: 1.35, atk: 1.05 },
     look: { body: 'tide', crest: 'fish', skin: '#5fa38a', main: '#2f6f8f', trim: '#e8a548', weapon: 'spear', scale: 0.8 },
+    nature: { name: 'Snapback', desc: 'Miss him and he\'s already biting: when an attack misses him, he snaps back for 50%.', snap: 1 },
     skills: [D('Nibble Flurry', 'Three bites of 45%.', 2, 0.45, { hits: 3 }),
              D('Gurgle Frenzy', 'Six bites of 35%.', 4, 0.35, { hits: 6 }),
              B('Slippery Scales', 'Dodge every attack that can miss until his next turn.', 4, 'self', [['evade', 1]]),
@@ -2218,6 +2239,7 @@ const ROSTER = [
   { id: 'seraphine', name: 'Seraphine Wavecaller', short: 'Seraphine', faction: 'tide', role: 'ranged', bio: 'Siren whose song drowns sailors.',
     mods: { agi: 1.05 },
     look: { body: 'elf', fin: true, skin: '#9fd0c8', hair: '#3d6fb0', main: '#2a7f8f', trim: '#e9e4d8', weapon: 'orb', orb: '#f2c6d8' },
+    nature: { name: 'Sea-Sung', desc: 'At High Tide the sea carries the song: her skills cost half their mana.', seasung: 1 },
     skills: [D('Siren\'s Hush', '100% hit that never misses. Silences the target for 2 turns: Attack and Guard only.', 3, 1.0, { magic: true, noDodge: true, fx: [['silence', 3]] }),
              D('Lure Song', '70% hit with a 70% chance to charm (stun) the target.', 4, 0.7, { magic: true, noDodge: true, stun: 0.7 }),
              D('Dirge of the Deep', '50% to all enemies. Never misses. Weakens them.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
@@ -2227,6 +2249,7 @@ const ROSTER = [
   { id: 'octavia', name: 'Octavia Inkveil', short: 'Octavia', faction: 'tide', role: 'ranged', bio: 'Octopus-folk ink caster.',
     mods: {},
     look: { body: 'tide', crest: 'octo', skin: '#9b6aa8', main: '#4b3d6e', trim: '#e3d27a', weapon: 'orb', orb: '#5a4a8a' },
+    nature: { name: 'Vanish in Ink', desc: 'Once per battle, the first blow that drops her below 30% leaves the attacker Blinded and her untouchable until her next turn.', inkvanish: 1 },
     skills: [S('Ink Double', 'Conjure an ink illusion of herself. It taunts enemies, hits for half and fades after 2 rounds.', 4, 'illusion'),
              D('Ink Cloud', '50% to all enemies. Blinds them all.', 5, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
              D('Tentacle Snare', '90% hit. Slows the target for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
@@ -2236,6 +2259,7 @@ const ROSTER = [
   { id: 'maren', name: 'Maren Pearlheart', short: 'Maren', faction: 'tide', role: 'support', bio: 'Pearl priestess of the reef.',
     mods: {},
     look: { body: 'tide', crest: 'fish', skin: '#7fb3a8', main: '#e9e4d8', trim: '#f2c6d8', weapon: 'staff', orb: '#fff7e6' },
+    nature: { name: 'Gift of the Reef', desc: 'Water carries her gift: her mending is 20% stronger on a Soaked ally.', reefgift: 1 },
     skills: [H('Healing Tide', 'Heal an ally. 30% stronger at High Tide.', 2, 3.0, { tideBonus: 1.3 }),
              B('Pearl Barrier', 'Shield all allies until their next turn and heal them a little.', 5, 'allAllies', [['shield', 1]], { heal: 1.0 }),
              B('Tide Pool', 'All allies regenerate for 3 turns.', 4, 'allAllies', [['regen', 3, 0.5]]),
@@ -2248,6 +2272,7 @@ const ROSTER = [
   { id: 'vesper', name: 'Vesper Nightshade', short: 'Vesper', faction: 'crimson', role: 'melee', bio: 'Vampire lord and duelist.',
     mods: { def: 0.9, agi: 1.15 },
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
+    nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
@@ -2257,6 +2282,7 @@ const ROSTER = [
   { id: 'malgrath', name: 'Malgrath the Unbound', short: 'Malgrath', faction: 'crimson', role: 'melee', bio: 'Demon brute freed from the pit.',
     mods: { hp: 1.15, atk: 1.05, def: 0.9, agi: 0.85 },
     look: { body: 'demon', main: '#2d2230', trim: '#e8a548', skin: '#a8323a', horn: '#1f1a1f', eye: '#ffd166', weapon: 'axe' },
+    nature: { name: 'Pit-Forged', desc: 'Hellfire knows its own: Burn never takes from him.', fireproof: 1 },
     skills: [D('Hellfire Slam', '60% to all enemies. Burns them all and marks them with Infernal Toll: for 2 turns, their next skill also costs 5% of their current HP, on top of mana.', 3, 0.6, { magic: true, aoe: true, wave: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
              D('Infernal Wrath', '230% hit. Costs 15% of his own HP.', 4, 2.3, { selfCost: 0.15 }),
              B('Demonic Roar', 'Taunt all enemies and deal 30% more damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
@@ -2277,6 +2303,7 @@ const ROSTER = [
   { id: 'gorehound', name: 'Gorehound', faction: 'crimson', role: 'melee', bio: 'Hellhound of the Court\'s kennels.',
     mods: { hp: 1.05, agi: 1.1 },
     look: { body: 'beast', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
+    nature: { name: 'Slips the Line', desc: 'No line holds a hound: the front-line law never binds his bites. Taunts still do.', slipline: 1 },
     skills: [D('Rend', '120% bite. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
              D('Hellhound Howl', '50% to all enemies and slows them.', 4, 0.5, { aoe: true, fx: [['slow', 2]] }),
              D('Savage Maul', '110% bite. Exposes the target: it takes 25% more damage for 2 turns.', 3, 1.1, { fx: [['exposed', 3]] }),
@@ -2286,6 +2313,7 @@ const ROSTER = [
   { id: 'morwenna', name: 'Morwenna Bloodweaver', short: 'Morwenna', faction: 'crimson', role: 'support', bio: 'Blood witch of the Court.',
     mods: {},
     look: { body: 'vampire', main: '#5a1f2e', cape: '#2a1018', trim: '#d9b44a', skin: '#efe4ea', hair: '#c9c2d6', weapon: 'staff', orb: '#c0303f' },
+    nature: { name: 'Overflowing Cup', desc: 'Lifesteal past her full health doesn\'t spill — it pours into her most hurt ally.', overflow: 1 },
     skills: [D('Blight Hex', '60% hit that never misses. Burns 20 of the target\'s mana as extra damage, then Hexes them for 3 turns: healing received is halved.', 2, 0.6, { magic: true, noDodge: true, manaBurn: 20, fx: [['hex', 4]] }),
              H('Blood Communion', 'Heal all allies and Hex all enemies for 2 turns.', 5, 1.8, { all: true, enemyFx: [['hex', 3]] }),
              D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { magic: true, noDodge: true, allySteal: 1 }),
@@ -2297,6 +2325,7 @@ const ROSTER = [
   { id: 'mordrek', name: 'Mordrek the Interred', short: 'Mordrek', faction: 'undead', role: 'melee', bio: 'Dug himself out, and brought his own marker with him.',
     mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
     look: { body: 'zombie', main: '#5a5c4a', trim: '#47564a', skin: '#97a884', weapon: 'cross' },
+    nature: { name: 'The Slow March', desc: 'Nothing hurries him, nothing holds him: Slow and speed-bar drags never touch his march.', march: 1 },
     skills: [D('Grave Cross', '130% swing of the iron marker.', 2, 1.3),
              D('Last Rites', 'Two giant iron crosses come down on the target one after the other: two 110% blows that ignore armor. They pin it where it stands, so it cannot act until Mordrek\'s next turn. If Mordrek falls first, the crosses crumble and it goes free.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
              D('Graveside Chill', '85% to all enemies. Weakens them.', 4, 0.85, { aoe: true, fx: [['weaken', 3]] }),
@@ -2306,6 +2335,7 @@ const ROSTER = [
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
     look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'headstone', offhand: 'headstone' },
+    nature: { name: 'Lord of the Mound', desc: 'While any body lies on the field, the dead crowd round their lord: he takes 8% less.', mound: 1 },
     skills: [D('Tomb Slab', '120% slam with the grave slab.', 2, 1.2),
              B('Barrow Wall', 'Taunt every enemy and raise the grave-plate: shielded for 3 turns, and every ill thing on him is left in the dirt.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
              D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
@@ -2315,6 +2345,7 @@ const ROSTER = [
   { id: 'cadris', name: 'Cadris Gravecall', short: 'Cadris', faction: 'undead', role: 'ranged', bio: 'Raises what the road leaves behind, and spends it freely.',
     mods: {},
     look: { body: 'revenant', main: '#d6cfb6', trim: '#3f5244', weapon: 'staff', orb: '#8ee6a0' },
+    nature: { name: 'Bone-Thrift', desc: 'Nothing he raises is wasted: a Shambler coming apart flings its bones — 30% to a random enemy.', thrift: 1 },
     skills: [D('Bone Dart', '120% splinter of bone.', 2, 1.2),
              D('Charnel Volley', '85% to all enemies, twice.', 5, 0.85, { aoe: true, hits: 2 }),
              S('Shambling Rise', 'Claw up a 1-HP Shambler. It swings the moment it stands, swings once more if it is somehow still standing, then falls apart. It answers to nobody, and the Undying pact does not cover it.', 3, 'zombie'),
@@ -2324,6 +2355,7 @@ const ROSTER = [
   { id: 'vaun', name: 'Vaun Shroudfletch', short: 'Vaun', faction: 'undead', role: 'ranged', bio: 'Fletches with its own ribs. Never needs to breathe to steady a shot.',
     mods: { atk: 1.1, agi: 1.05, hp: 0.95 },
     look: { body: 'skeleton', main: '#e2dcc4', trim: '#44523f', weapon: 'sling' },
+    nature: { name: 'Breathless', desc: 'No breath to hold, no waver in the string: his basic Attack cannot be dodged.', breathless: 1 },
     skills: [D('Shroud Arrow', '125% arrow.', 2, 1.25),
              D('Pall of Arrows', '70% to all enemies, twice. Blinds them all.', 5, 0.7, { aoe: true, hits: 2, fx: [['blind', 2]] }),
              D('Withering Shot', '110% arrow. Weakens the target and sunders its armor.', 3, 1.1, { fx: [['weaken', 3], ['sunder', 3]] }),
@@ -2333,6 +2365,7 @@ const ROSTER = [
   { id: 'mortessa', name: 'Mortessa', faction: 'undead', role: 'support', bio: 'Necromancer of the Pale Host. Brings the coffin everywhere, for anyone.',
     mods: { def: 1.1 },
     look: { body: 'haunted', main: '#3c4a42', trim: '#9fc4a2', skin: '#ddd8cb', hair: '#f1efe6', eye: '#8ee6a0', weapon: 'coffin', orb: '#8ee6a0' },
+    nature: { name: 'The Dead Listen', desc: 'The grave knows her voice: her mending is never halved by grave-flesh.', gravetongue: 1 },
     skills: [H('Grave Mend', 'Mend an ally with grave-dust and a whispered name.', 2, 2.8),
              R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — the Undying pact holds anew when they next fall — and mending can reach them once more.', 6, 0.10),
              C('Coffin', 'Shut an ally into the coffin until their next turn. Nothing can target them, area attacks wash over them for nothing, and no mending reaches inside. When the lid opens, everything laid on them — blessing and curse alike — stays behind in the box.', 4),
@@ -3458,11 +3491,13 @@ const alive = (u) => u.hp > 0;
 const alliesOf = (u) => state.teams[u.side].filter(alive);
 const foesOf = (u) => state.teams[u.side === 'p' ? 'e' : 'p'].filter(alive);
 const highTide = () => state.round > 0 && state.round % 2 === 0;
-const effAgi = (u) => u.agi * (has(u, 'slow') ? 0.6 : 1);
+const effAgi = (u) => u.agi * (has(u, 'slow') && !charNat(u).march ? 0.6 : 1);   // Mordrek: nothing holds his march
 // Speed along the bar: Agility, plus Elowen's Forest Stride for her whole warband (dodge still uses effAgi).
 // The Pale Host shamble: every one of them, summons included, crosses the bar 5% slower.
 const PALE_HOST_PACE = 0.95;
-const barAgi = (u) => effAgi(u) * (u.faction === 'undead' ? PALE_HOST_PACE : 1) * hazardPace(u) * (1 + Math.max(0, ...alliesOf(u).map((a) => pv(a).haste || 0)));
+const barAgi = (u) => effAgi(u) * (u.faction === 'undead' ? PALE_HOST_PACE : 1) * hazardPace(u)
+  * (charNat(u).tiderun && highTide() ? 1.15 : 1)   // Tharos: the flood carries him
+  * (1 + Math.max(0, ...alliesOf(u).map((a) => pv(a).haste || 0)));
 const wx = () => state.weather || 'clear';
 const favored = (u) => WEATHER[wx()].favors === u.faction;
 const disciplineBonus = () => (wx() === 'sun' ? 0.3 : 0.15);
@@ -3471,6 +3506,11 @@ const ULT_FIRST_TURN = 3;   // the ★ signature can't be used before the hero's
 
 // The champion's passive (P options), or {} for summons and champions without one.
 const pv = (u) => u.pv || {};
+// The champion's Nature flags (makeUnit copies them from ROSTER's nature entry).
+// Monsters and summons have no Nature, so this is {} for them — every check stays cheap.
+const charNat = (u) => (u && u.nat) || {};
+// Hilda's Deep Foundation raises her Fortify ceiling; everyone else stops at 3.
+const stackCap = (u) => charNat(u).stackcap || 3;
 // Is a living ally (or enemy) of u carrying passive option key? Used by aura passives.
 const allyHas = (u, key, notSelf = false) => alliesOf(u).some((a) => pv(a)[key] && !(notSelf && a === u));
 const foeHas = (u, key) => foesOf(u).some((f) => pv(f)[key]);
@@ -3685,7 +3725,9 @@ function makeUnit(c, lv, side, slot, scale = 1) {
     effects: (ps.startFx || []).map(([id, turns]) => ({ id, turns, value: 0 })),
     // Covering Fire's count of the field's turns, and Bolt-On's weld (see THE TURN PULSE).
     watch: c.watch || 0, watchN: 0, attachedTo: null, latchLeft: 0, latchHeal: 0,
-    cooldowns: { b: ULT_FIRST_TURN }, heat: 0, stacks: ps.startStacks || 0, hitSince: false, lastAction: null, combo: false,
+    // The champion's Nature (always on, see ROSTER): the engine reads its flags via charNat(u).
+    nat: c.nature || {},
+    cooldowns: { b: ULT_FIRST_TURN }, heat: 0, stacks: (ps.startStacks || 0) + (c.nature?.brace || 0), hitSince: false, lastAction: null, combo: false,
   };
 }
 
@@ -3750,7 +3792,9 @@ function skillsOf(u) {
    attacks can't single anyone out (each melee they go for counts toward the two), and a
    warband with no melee standing was never shielded to begin with. */
 const FRONTLINE_HITS = 2;
-const frontlineUp = (side) => (state.frontline?.[side] ?? FRONTLINE_HITS) < FRONTLINE_HITS
+// Bulwark-7's Nature (Built to Hold): while he stands, his side's line takes one blow more.
+const frontCap = (side) => FRONTLINE_HITS + (state.teams[side]?.some((x) => x.hp > 0 && !x.summon && charNat(x).front) ? 1 : 0);
+const frontlineUp = (side) => (state.frontline?.[side] ?? FRONTLINE_HITS) < frontCap(side)
   && state.teams[side].some((x) => x.hp > 0 && x.role === 'melee');
 // Every attack that goes for a unit, hit or miss, single-target or area, counts here once:
 // the front line's two blows, and the charges of a Provoke.
@@ -3763,8 +3807,8 @@ function markAttacked(t) {
   }
 }
 function frontlineHit(t) {
-  if (!t || t.role !== 'melee' || !state.frontline || state.frontline[t.side] >= FRONTLINE_HITS) return;
-  if (++state.frontline[t.side] === FRONTLINE_HITS)
+  if (!t || t.role !== 'melee' || !state.frontline || state.frontline[t.side] >= frontCap(t.side)) return;
+  if (++state.frontline[t.side] === frontCap(t.side))
     log(t.side === 'p' ? 'Your front line has taken its two blows — your back line is exposed.'
       : 'The enemy front line has taken its two blows — their back line is open.', 'sys');
 }
@@ -3786,7 +3830,7 @@ function validTargets(u, sk) {
     const foes = openFoes(u).filter((f) => !f.attachedTo);
     const taunters = foes.filter((f) => has(f, 'taunt') || has(f, 'provoke'));
     if (taunters.length) return taunters;
-    if (frontlineUp(foes[0]?.side)) {
+    if (frontlineUp(foes[0]?.side) && !charNat(u).slipline) {   // no line holds a hound (Gorehound)
       const front = foes.filter((f) => f.role === 'melee');
       if (front.length) return front;
     }
@@ -3809,7 +3853,8 @@ function usable(u, sk) {
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
   if (u.cooldowns[sk.id] > 0) return false;
-  if ((sk.mp || 0) > (u.mp || 0)) return false;
+  // Sea-Sung (Seraphine's Nature): at High Tide her songs cost half their mana.
+  if ((charNat(u).seasung && highTide() ? Math.ceil((sk.mp || 0) / 2) : (sk.mp || 0)) > (u.mp || 0)) return false;
   if (['enemy', 'ally', 'deadAlly'].includes(sk.target) && !validTargets(u, sk).length) return false;
   return true;
 }
@@ -3926,6 +3971,23 @@ function fell(v, by) {
   // Bolt-On: a death on either end of the weld breaks it on the spot.
   if (v.attachedTo) detachLatch(v, 'fell');
   for (const x of allUnits()) if (x.attachedTo === v.uid) detachLatch(x, 'host');
+  // Ancestors' Whisper (Hesk's Nature): when one of hers falls, the spirits hurry her hands.
+  if (!v.summon) for (const a of state.teams[v.side]) if (a !== v && a.hp > 0 && charNat(a).whisper) {
+    for (const k in a.cooldowns) if (a.cooldowns[k] > 0) a.cooldowns[k]--;
+    float(a, 'The ancestors lean close', 'fx');
+  }
+  if (v.summon && v.id === 'zombie') boneThrift(v);   // Bone-Thrift: fired at death too (flag-guarded)
+  // Crawling Venom (Faelan's Nature): the poison in a dying thing crawls to the next.
+  const venom = has(v, 'poison');
+  if (venom && foesOf(v).some((f) => charNat(f).crawl)) {
+    const tgt = pick(alliesOf(v).filter((a) => a !== v && !has(a, 'poison')) || []);
+    if (tgt) {
+      addFx(tgt, 'poison', venom.turns, venom.value);
+      const e2 = has(tgt, 'poison');
+      if (e2) e2.by = venom.by;
+      log(`The venom crawls out of ${v.name} and into ${tgt.name}.`, 'sys');
+    }
+  }
   log(`${v.name} is down.`, 'sys');
   feastOfTheFallen(v);
   const killer = by && by.summon ? unitBy(by.owner) : by;
@@ -3953,9 +4015,12 @@ function powerMult(u) {
   let m = 1;
   if (u.faction === 'orc') m *= 1 + 0.5 * (1 - u.hp / u.maxHp);
   if (u.faction === 'mech') m *= 1 + u.heat / 250;
-  if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus();
+  if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus() + (charNat(u).rhythm ? 0.05 : 0);   // Wren: Spellblade's Rhythm
   if (u.faction === 'tide' && highTide()) m *= 1.25;
   if (pv(u).deadScale) m *= 1 + pv(u).deadScale * deadCount();   // Cadris: Toll of the Dead
+  // Two on the Trail (Vashka's Nature): hunter and called beast strike harder side by side.
+  if (charNat(u).pair && summonOf(u)) m *= 1.1;
+  if (u.summon) { const ow = unitBy(u.owner); if (ow && ow.hp > 0 && charNat(ow).pair) m *= 1.1; }
   if (favored(u)) m *= wx() === 'sun' ? 1.15 : 1.2;
   if (has(u, 'weaken')) m *= 0.7;
   if (has(u, 'empower')) m *= 1.3;
@@ -3987,12 +4052,18 @@ function searContact(mech, foe) {
 // One hit: dodge → damage = ATK × mult × (±10%) × 50/(50+DEF) → crit, status and faction modifiers.
 function strikeOnce(u, t, mult, label, o) {
   if (t.hp <= 0) return { miss: true };
-  const dodge = o.noDodge || t.inert ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
+  // Vaun's Breathless: no breath to hold, no waver — his basic Attack cannot be dodged.
+  const dodge = o.noDodge || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
   const miss = dodge + (has(u, 'blind') ? 0.35 : 0);
   if (miss > 0 && chance(miss)) {
     float(t, 'Miss', 'miss');
     dodgeHop(t);
     log(`${t.name} avoids ${u.name}'s ${label}.`, u.side);
+    // Snapback (Grubblefin's Nature): miss him and he's already biting.
+    if (charNat(t).snap && !o.counter && !o.hurl && t.hp > 0 && u.hp > 0
+        && !(state.counters ||= []).some((c) => c.by === t)) {
+      state.counters.push({ by: t, at: u, mult: 0.5, label: 'Snapback', o: { counter: true } });
+    }
     return { miss: true };
   }
   const def = o.pierce ? 0 : t.def * (has(t, 'sunder') ? 0.6 : 1);
@@ -4023,6 +4094,7 @@ function strikeOnce(u, t, mult, label, o) {
   if (!o.ignoreShield) dmg *= has(t, 'ward') ? 0.4 : has(t, 'shield') ? 0.5 : 1;
   if (has(t, 'guard')) dmg *= 0.5;
   if (t.race === 'dwarf') dmg *= 1 - 0.08 * t.stacks;
+  if (charNat(t).mound && deadCount() > 0) dmg *= 0.92;   // Barrow: the dead crowd round their lord
   // Worn kit: a ward turns aside its share of the blow, physical or magic, whichever this was.
   const ward = Math.min(magic ? t.blockMagic || 0 : t.blockPhys || 0, 0.9);
   if (ward) dmg *= 1 - ward;
@@ -4068,11 +4140,33 @@ function strikeOnce(u, t, mult, label, o) {
     log(`${warden.name}'s Blood Ward takes ${soak} of the blow meant for ${t.name}.`, warden.side);
     spendCharge(warden, has(warden, 'bloodward'), `${warden.name}'s Blood Ward is spent.`);
   }
+  // Sworn Shield (Garrick's Nature): once per battle, the blow that would fell an ally finds
+  // his shield instead — he takes it whole, whatever it is, and the ally takes nothing.
+  if (taken >= t.hp && t.hp > 0 && !t.summon && !o.counter) {
+    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && charNat(a).sworn && !a.swornUsed);
+    if (g) {
+      g.swornUsed = true;
+      float(g, '🛡️ Sworn Shield', 'fx');
+      log(`${g.name}'s Sworn Shield: he steps into the blow meant for ${t.name} — all ${taken} of it.`, g.side);
+      g.hp = Math.max(0, g.hp - taken);
+      bump(g, 'hurt');
+      if (g.hp <= 0) fell(g, u);
+      taken = 0;
+    }
+  }
   t.hp = Math.max(0, t.hp - taken);
   if (t.hp <= 0 && TP.lastStand && !t.lastStandUsed) {
     t.hp = 1; t.lastStandUsed = true;
     float(t, 'Unbreakable', 'fx');
     log(`${t.name} refuses to fall!`, t.side);
+  }
+  // Vanish in Ink (Octavia's Nature): the first blow to drop her below 30% meets a burst of ink.
+  if (charNat(t).inkvanish && !t.inkUsed && t.hp > 0 && t.hp / t.maxHp < 0.3) {
+    t.inkUsed = true;
+    addFx(u, 'blind', 2);
+    addFx(t, 'evade', 1);
+    float(t, '🖤 Vanish in Ink', 'fx');
+    log(`${t.name} vanishes in a burst of ink: ${u.name} is blinded, and anything that can miss her will, until her next turn.`, t.side);
   }
   t.lastHitBy = u.uid;
   // Garrick: Retribution sends a share of every hit he takes to all of his enemies.
@@ -4086,8 +4180,9 @@ function strikeOnce(u, t, mult, label, o) {
     }
   }
 
-  if (t.race === 'elf') { t.stacks = 0; t.hitSince = true; }
-  if (t.race === 'dwarf') t.stacks = Math.min(3, t.stacks + 1);
+  // Fletcher's Line (Aelira's Nature): a hit costs her one Precision stack, never the whole draw.
+  if (t.race === 'elf') { t.stacks = charNat(t).line ? Math.max(0, t.stacks - 1) : 0; t.hitSince = true; }
+  if (t.race === 'dwarf') t.stacks = Math.min(stackCap(t), t.stacks + 1);
 
   knock(t, crit);
   if (crit && u.side === 'p' && !o.counter) questEvent('crit');   // bounties count your crits (not riposte counters)
@@ -4113,6 +4208,12 @@ function strikeOnce(u, t, mult, label, o) {
   const queued = (state.counters ||= []).some((c) => c.by === t);
   if (TP.riposte && !queued && !o.counter && !o.hurl && t.hp > 0 && u.hp > 0 && u.role === 'melee' && chance(TP.riposte.chance)) {
     state.counters.push({ by: t, at: u, mult: TP.riposte.mult, label: 'Riposte', o: { noDodge: true, counter: true } });
+  }
+  // Tusk and Board (Mogra's Nature): the first melee blow to land on her Guard is answered, every time.
+  if (charNat(t).board && has(t, 'guard') && !t.boardSwung && !queued && !o.counter && !o.hurl
+      && t.hp > 0 && u.hp > 0 && u.role === 'melee') {
+    t.boardSwung = true;
+    state.counters.push({ by: t, at: u, mult: 1, label: 'Tusk and Board', o: { counter: true } });
   }
   // Counterattack: any melee unit struck by another melee unit has a 10% chance to strike back.
   // The counter is a normal hit the original attacker can still dodge (per their stats) and never
@@ -4161,17 +4262,24 @@ function applyHitEffects(u, t, o) {
   const P = pv(u);
   for (const [id, turns, val] of o.fx || []) {
     const boost = P.dotBoost?.[id] || 1;
-    addFx(t, id, turns + (P.fxLonger && FX[id].kind === 'bad' ? P.fxLonger : 0), val ? Math.round(u.atk * val * boost) : 0);
+    const fuse = id === 'burn' && charNat(u).longfuse ? 1 : 0;   // Drekka's Nature: her Burns burn a turn longer
+    addFx(t, id, turns + fuse + (P.fxLonger && FX[id].kind === 'bad' ? P.fxLonger : 0), val ? Math.round(u.atk * val * boost) : 0);
     ownFx(u, t, id);
   }
   // Entangle: mark the Slow it landed as rooted, so thorny roots grow at the target's feet (syncStatusFx).
   if (o.roots && has(t, 'slow')) has(t, 'slow').roots = true;
   for (const [id, turns, p] of o.chanceFx || []) if (chance(p)) { addFx(t, id, turns); ownFx(u, t, id); }
   if (o.knockback && t.hp > 0) {
-    t.pos = Math.max(0, (t.pos || 0) - o.knockback);
-    float(t, 'Dragged back', 'fx');
-    log(`${t.name} is dragged back along the speed bar.`, u.side);
-    renderTrack(300);
+    // Dug In (Howitzer) and The Slow March (Mordrek): some things refuse to be moved.
+    if (charNat(t).anchor || charNat(t).march) {
+      float(t, 'Unmoved', 'fx');
+      log(`${t.name} does not give an inch.`, t.side);
+    } else {
+      t.pos = Math.max(0, (t.pos || 0) - o.knockback);
+      float(t, 'Dragged back', 'fx');
+      log(`${t.name} is dragged back along the speed bar.`, u.side);
+      renderTrack(300);
+    }
   }
   if (o.stun) {
     if (chance(o.stun)) addFx(t, 'stun', 1);
@@ -4205,7 +4313,9 @@ async function resolveCounters() {
    A weapon's own `double` affix is not about reach — a repeater fires twice where a sledge swings
    twice — so it stacks on top for the melee and gives ranged champions a second shot. */
 const DOUBLE_ATTACK_CHANCE = 0.15;
-const doubleChance = (u) => (u.role === 'melee' ? DOUBLE_ATTACK_CHANCE : 0) + (u.double || 0);
+// Krug's Red Mist: below half HP the whole chance doubles — the axes only get faster.
+const doubleChance = (u) => ((u.role === 'melee' ? DOUBLE_ATTACK_CHANCE : 0) + (u.double || 0))
+  * (charNat(u).redmist && u.hp / u.maxHp < 0.5 ? 2 : 1);
 const rollsDouble = (u, sk) => sk.id === 'attack' && chance(doubleChance(u));
 
 async function damageSkill(u, t, sk) {
@@ -4239,8 +4349,8 @@ async function damageSkill(u, t, sk) {
   // Area attacks from range: every projectile flies at once, then the hits resolve.
   if (!melee && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
-  // Seraxa: Flurry adds a hit to multi-hit skills.
-  const hits = (o.hits || 1) + (o.hits > 1 ? pv(u).extraHit || 0 : 0);
+  // Seraxa: Flurry adds a hit to multi-hit skills. Sawtooth's Flywheel adds one at 50+ Heat.
+  const hits = (o.hits || 1) + (o.hits > 1 ? (pv(u).extraHit || 0) + (charNat(u).flywheel && u.heat >= 50 ? 1 : 0) : 0);
   const struck = new Set();   // everyone a blow of this skill actually landed on (Last Rites pins only what it hit)
   const hitOnce = async (tg, mult) => {
     const r = strikeOnce(u, tg, mult, sk.name, o);
@@ -4286,6 +4396,16 @@ async function damageSkill(u, t, sk) {
       markAttacked(tg);
       if (melee) await strikePose(u); else await shoot(u, tg, proj);
       await hitOnce(tg, sk.mult * o.bounce);
+    }
+  }
+  // Arc Transfer (Arclight's Nature): lightning into a Soaked body finds a second path to ground.
+  if (charNat(u).arc && o.element === 'lightning' && u.hp > 0 && lastHit && soaked(lastHit) && !o.counter) {
+    const next = foesOf(u).filter((f) => f !== lastHit);
+    if (next.length) {
+      const tg = pick(next);
+      markAttacked(tg);
+      float(tg, '⚡ Arc Transfer', 'fx');
+      await hitOnce(tg, 0.3);
     }
   }
   if (o.hurl) settleCrosses(u, t, o.pin && struck.has(t));
@@ -4373,7 +4493,7 @@ async function damageSkill(u, t, sk) {
 function healPower(u, mult, o = {}) {
   let m = u.atk * mult * (0.95 + Math.random() * 0.1);
   if (u.faction === 'tide' && highTide()) m *= 1.25 * (o.tideBonus || 1);
-  if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus();
+  if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus() + (charNat(u).rhythm ? 0.05 : 0);
   if (wx() === 'sun') m *= 1.2;
   if (wx() === 'rain' && u.faction === 'tide') m *= 1.2;
   return Math.round(m);
@@ -4391,15 +4511,27 @@ function healUnit(src, t, amount, label, o = {}) {
   if (P.lowHeal && t.hp / t.maxHp < P.lowHeal.below) amount = Math.round(amount * (1 + P.lowHeal.bonus));   // Liesl: Mercy
   if (P.healMp) gainMp(t, P.healMp);   // Maren: Tidecaller
   if (t.healTaken) amount = Math.round(amount * (1 + t.healTaken));   // worn kit: healing received
-  if (has(t, 'hex')) amount = Math.round(amount * 0.5);
+  if (charNat(src).reefgift && soaked(t)) amount = Math.round(amount * 1.2);   // Maren's Nature: water carries her gift
+  if (has(t, 'hex') && !charNat(src).undimmed) amount = Math.round(amount * 0.5);   // Liesl's light goes where it will
   // Grave-flesh mends poorly: the Pale Host takes half of every spell and potion. Their own innate
   // feeding (Feast of the Fallen) comes straight out of the grave and passes `innate` to skip this.
-  if (t.faction === 'undead' && !o.innate) amount = Math.round(amount * 0.5);
-  if (wx() === 'pall') amount = Math.round(amount * 0.75);   // Grave Pall dulls every mending
+  if (t.faction === 'undead' && !o.innate && !charNat(src).gravetongue) amount = Math.round(amount * 0.5);   // Mortessa speaks the grave's tongue
+  if (wx() === 'pall' && !charNat(src).undimmed) amount = Math.round(amount * 0.75);   // Grave Pall dulls every mending but hers
   const got = Math.min(amount, t.maxHp - t.hp);
   t.hp += got;
   float(t, `+${got}`, 'heal');
   log(src === t ? `${t.name} recovers ${got} HP from ${label}.` : `${src.name}'s ${label} heals ${t.name} for ${got}.`, src.side);
+  // Oil Can (Patchwork's Nature): every mend he gives carries a little maintenance with it.
+  if (charNat(src).oilcan && src !== t) {
+    if (t.faction === 'mech' && t.heat > 0) { t.heat = Math.max(0, t.heat - 15); float(t, 'Vented', 'fx'); }
+    else if (t.maxMp) gainMp(t, 5);
+  }
+  // Overflowing Cup (Morwenna's Nature): what she cannot hold pours into her most hurt ally.
+  if (charNat(src).overflow && src === t && !o.spill) {
+    const spill = Math.round(amount - got);
+    const a = spill > 0 && [...alliesOf(t)].filter((x) => x !== t && x.hp < x.maxHp).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
+    if (a) healUnit(src, a, spill, 'Overflowing Cup', { spill: true });
+  }
 }
 
 function cleanse(u) {
@@ -4466,7 +4598,7 @@ async function buffSkill(u, t, sk) {
 // Dwarves' Fortify (and elves' Precision) stacks, capped at 3.
 function gainStacks(u, n) {
   if (u.hp <= 0) return;
-  u.stacks = Math.min(3, u.stacks + n);
+  u.stacks = Math.min(stackCap(u), u.stacks + n);
   float(u, u.race === 'elf' ? 'Precision' : 'Fortify', 'fx');
 }
 
@@ -4503,6 +4635,11 @@ function addFx(u, id, turns, value = 0, quiet = false) {
     if (!quiet) { float(u, 'Airborne', 'fx'); log(`${u.name} floats — the Stagger finds no footing.`, u.side); }
     return;
   }
+  // Hellfire knows its own: Malgrath's Pit-Forged Nature shrugs every Burn.
+  if (id === 'burn' && charNat(u).fireproof) {
+    if (!quiet) { float(u, 'Pit-forged', 'fx'); log(`${u.name} is pit-forged — the fire finds nothing left to take.`, u.side); }
+    return;
+  }
   // Machines don't bleed: every Ironclad unit (champions and their Salvage Bots) is immune to Bleed.
   if (id === 'bleed' && u.faction === 'mech') {
     if (!quiet) { float(u, 'No blood', 'fx'); log(`${u.name} is a machine — the Bleed finds no blood.`, u.side); }
@@ -4527,6 +4664,12 @@ function addFx(u, id, turns, value = 0, quiet = false) {
 // (Stun is handled on the speed bar: a stunned unit never reaches the end while frozen.)
 async function beginTurn(u) {
   releaseRites(u, `is released from ${u.name}'s Last Rites.`);   // his turn has come round: the crosses lift
+  // Evergreen (Elowen's Nature): each of her turns, the oldest curse falls away like a dead leaf —
+  // before it can tick, the wood has already shed it.
+  if (charNat(u).evergreen) {
+    const leaf = u.effects.find((e) => FX[e.id].kind === 'bad' && e.id !== 'overheat');
+    if (leaf) { u.effects = u.effects.filter((e) => e !== leaf); float(u, `${FX[leaf.id].icon} Shed`, 'fx'); }
+  }
   let ticked = false;
   for (const id of DOT_IDS) {
     const e = has(u, id);
@@ -4591,9 +4734,10 @@ async function beginTurn(u) {
   u.plated = false;   // Bulwark: Reactive Plating is ready again
   if (ticked) { render(); await wait(450); }
 
-  if (u.maxMp) gainMp(u, Math.round(MANA.regen + u.maxMp * MANA.regenPct + (u.mpRegen || 0)), true);
-  if (u.race === 'elf') { if (!u.hitSince) u.stacks = Math.min(3, u.stacks + 1); u.hitSince = false; }
-  if (u.faction === 'stone' && wx() === 'mist') u.stacks = Math.min(3, u.stacks + 1);
+  if (u.maxMp) gainMp(u, Math.round(MANA.regen + u.maxMp * MANA.regenPct + (u.mpRegen || 0)
+    + (charNat(u).emberwarm && allUnits().some((x) => x.hp > 0 && has(x, 'burn')) ? 5 : 0)), true);   // Aldous: Ember-Warm
+  if (u.race === 'elf') { if (!u.hitSince) u.stacks = Math.min(stackCap(u), u.stacks + 1); u.hitSince = false; }
+  if (u.faction === 'stone' && wx() === 'mist') u.stacks = Math.min(stackCap(u), u.stacks + 1);
 
   /* The coffin opens at the start of the turn it was shut for, and everything laid on the unit
      while it was in there — blessings and curses alike — stays behind in the box. The Undying
@@ -4615,7 +4759,8 @@ async function beginTurn(u) {
 // point: a Courtier can always act, even on 1 HP. Attack and Guard are free.
 function bloodCost(u, sk) {
   if (u.faction !== 'crimson' || sk.id === 'attack' || sk.id === 'guard') return;
-  const loss = Math.round(u.hp * (sk.sig ? BLOOD_COST.sig : BLOOD_COST.skill));
+  // Vesper's Noble Blood: old blood spends slowly — a twentieth less of everything.
+  const loss = Math.round(u.hp * ((sk.sig ? BLOOD_COST.sig : BLOOD_COST.skill) - (charNat(u).noble ? 0.05 : 0)));
   if (loss < 1) return;
   u.hp = Math.max(1, u.hp - loss);
   bump(u, 'hurt');
@@ -4660,7 +4805,7 @@ async function doAction(u, sk, t) {
   if (sk.cd) u.cooldowns[sk.id] = sk.cd;
   // Mana: remember the pool before paying (mana-scaling damage uses it), pay the cost, then any leak.
   u.castMp = u.mp || 0;
-  if (sk.mp) u.mp -= sk.mp;
+  if (sk.mp) u.mp -= charNat(u).seasung && highTide() ? Math.ceil(sk.mp / 2) : sk.mp;   // Seraphine: the sea carries the song
   // The Crimson Court pay in blood instead of mana — their own price comes off first, before any
   // toll an enemy has laid on them, so a Courtier is never taxed on blood they have already spent.
   bloodCost(u, sk);
@@ -4720,6 +4865,7 @@ async function doAction(u, sk, t) {
     await castPose(u);
     burst(u, 'shield');
     addFx(u, 'guard', 1);
+    u.boardSwung = false;   // Tusk and Board: each fresh Guard answers one more blow
     if (u.faction === 'mech' && u.heat > 0) log(`${u.name} vents Heat.`, u.side);
     render();
     await wait(380);
@@ -5270,7 +5416,21 @@ function reviveUnit(src, t, pct, label) {
   log(`${src.name}'s ${label} calls ${t.name} back onto their feet.`, src.side);
 }
 
+// Bone-Thrift (Cadris's Nature): nothing he raises is wasted — a Shambler coming apart
+// flings its bones at the living. Fires once per Shambler, whether it dies or collapses.
+function boneThrift(z) {
+  if (z.bonesFlung) return;
+  z.bonesFlung = true;
+  const ow = unitBy(z.owner);
+  if (!ow || ow.hp <= 0 || !charNat(ow).thrift) return;
+  const tg = pick(openFoes(ow));
+  if (!tg) return;
+  float(tg, '🦴 Bone-Thrift', 'fx');
+  strikeOnce(ow, tg, 0.3, 'Bone-Thrift', {});
+}
+
 function removeUnit(u) {
+  if (u.summon && u.id === 'zombie') boneThrift(u);   // the Shambler's last gift, however it goes
   if (u.inert) { const o = unitBy(u.owner); if (o) o.planted = false; }   // the cross is back in Mordrek's hand
   state.teams[u.side] = state.teams[u.side].filter((x) => x !== u);
   document.getElementById(`u-${u.uid}`)?.remove();
@@ -5385,7 +5545,7 @@ async function advanceClock(token) {
     // The jolt lands: everyone grounded slides back a step, catches their footing, and presses on.
     // No status, no lost turn — flyers hover over it, and a planted cross has no feet to lose.
     if (quaking() && state.quakeJolt != null && state.quakeJolt - state.time <= EPS) {
-      for (const u of allUnits()) if (alive(u) && !frozen(u) && !u.inert && !u.floats) u.pos = Math.max(0, u.pos - QUAKE_SLIP);
+      for (const u of allUnits()) if (alive(u) && !frozen(u) && !u.inert && !u.floats && !charNat(u).anchor) u.pos = Math.max(0, u.pos - QUAKE_SLIP);
       state.quakeJolt = state.time + QUAKE_EVERY;
       renderTrack(300);
       if (!reduced) $('#arena').animate([{ translate: '0 0' }, { translate: '0 5px' }, { translate: '0 -3px' }, { translate: '0 0' }], { duration: beat(280) });
@@ -11198,8 +11358,8 @@ function factionPassive(u) {
     const last = u.lastAction ? skillsOf(u).find((s) => s.id === u.lastAction).name : null;
     return `<b>Discipline:</b> +${Math.round(disciplineBonus() * 100)}% if you don't repeat your last action${last ? ` (${last})` : ''}.`;
   }
-  if (u.race === 'elf') return `<b>Precision ${u.stacks}/3:</b> +${u.stacks * 10}% crit. Resets when hit.`;
-  if (u.race === 'dwarf') return `<b>Fortify ${u.stacks}/3:</b> −${u.stacks * 8}% damage taken.`;
+  if (u.race === 'elf') return `<b>Precision ${u.stacks}/${stackCap(u)}:</b> +${u.stacks * 10}% crit. ${charNat(u).line ? 'A hit costs one stack.' : 'Resets when hit.'}`;
+  if (u.race === 'dwarf') return `<b>Fortify ${u.stacks}/${stackCap(u)}:</b> −${u.stacks * 8}% damage taken.`;
   if (u.faction === 'tide') return highTide() ? '<b>High Tide:</b> +25% damage and healing this round.' : '<b>Low Tide.</b> High Tide arrives next round.';
   if (u.faction === 'crimson') return `<b>Bloodthirst:</b> every hit drains ${wx() === 'moon' ? 40 : 20}% of the damage dealt as HP.`;
   if (u.faction === 'undead') {
