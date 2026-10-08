@@ -109,31 +109,77 @@ h1 {
 .trayRow { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
 .trayRow p { margin: 0; color: var(--muted); font-size: .88rem; }
 .trayBtns { display: flex; flex-wrap: wrap; gap: 8px; }
-.slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+/* Your warband: four places, no boxes - each champion's model standing free with their name under it.
+   An empty place is a faint dashed ring (the spot waiting to be filled) with its label. */
+.slots { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 520px; }
 .slot {
-  font: inherit; color: inherit; text-align: left; cursor: pointer;
-  display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 58px;
-  padding: 6px 8px; border-radius: 10px; border: 1px dashed var(--line); background: var(--panel-2);
+  font: inherit; color: inherit; text-align: center; cursor: pointer; min-width: 0;
+  display: grid; grid-template-rows: 64px auto; justify-items: center; align-items: center; gap: 3px;
+  padding: 0; border: 0; background: none;
 }
-.slot.filled { border-style: solid; }
-.slot.filled:hover { border-color: var(--bad); }
-.slot .mini { width: 42px; height: 42px; flex: none; }
-.slot .t { min-width: 0; display: grid; }
-.slot strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .92rem; }
-.slot small { color: var(--muted); font-size: .74rem; }
-.slot.empty small { font-size: .82rem; }
+.slot.empty { cursor: default; }
+.slot .mini { width: 64px; height: 64px; }
+.slot .mini img, .slot .mini svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.slot.filled:hover .mini { opacity: .7; }
+.slot.filled:hover strong { color: var(--bad); }
+.slot .ph { width: 52px; height: 52px; border-radius: 50%; border: 2px dashed var(--line); }
+.slot strong { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .8rem; }
+.slot small { color: var(--muted); font-size: .72rem; font-weight: 700; }
+/* The select screen's Back button floats at the top right; the warband tray's header row leaves room for it
+   when the tray sticks to the top. Lined up with the page's right edge on wide screens. */
+.topBack {
+  position: fixed; z-index: 20; top: calc(env(safe-area-inset-top, 0px) + 10px); right: max(12px, calc((100vw - 1320px) / 2 + 16px));
+  display: inline-flex; align-items: center; gap: 3px; padding-left: 7px;
+  background: rgba(22, 25, 37, .9); backdrop-filter: blur(3px); box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
+}
+.topBack svg { width: 16px; height: 16px; }
+/* On the select screen the page header is gone and the warband sits on the page itself, no panel around it.
+   It still sticks to the top while you scroll the roster, so it carries the page's own backdrop (the same fixed
+   gradient as the body) edge to edge, with only a soft shadow where the roster slides under it. */
+body[data-screen="select"] .top { display: none; }
+#selectScreen .tray {
+  --gut: 16px; margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut); border: 0; border-radius: 0;
+  background: radial-gradient(120% 70% at 50% 0%, var(--bg-2), var(--bg) 65%) fixed, var(--bg);
+  box-shadow: 0 10px 12px -10px rgba(0, 0, 0, .7);
+}
+.trayHead { min-height: 30px; display: flex; align-items: center; padding-right: 90px; font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .trayNote { color: var(--bad); font-size: .85rem; font-weight: 700; min-height: 1.2em; }
 /* Champion creation and progression */
-.slot.you { border-color: var(--accent); }
-.slot.you.empty small { color: var(--accent); }
+.slot.you strong, .slot.you.empty small { color: var(--accent); }
+.slot.you .ph { border-color: var(--accent); }
 .pick.me { box-shadow: 0 0 0 2px var(--accent) inset; }
+/* Roster tiles: portrait and name; your picks keep their badge and gold frame. */
+#factionList.noHeads .faction header { display: none; }
+.faction .fmeta { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.faction .fmeta span { padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); font-size: .76rem; font-weight: 700; }
+.faction .fmeta span:first-child { color: var(--accent); border-color: var(--accent); }
+.roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+.roster .pick { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: start; gap: 4px; padding: 8px 4px 7px; text-align: center; }
+.roster .pick .badge { top: 5px; right: 5px; width: 20px; height: 20px; font-size: .72rem; }
+.roster .pick .pic { width: 60px; height: 60px; grid-row: auto; }
+.roster .pick .nm { padding: 0; font-size: .76rem; line-height: 1.15; }
+.roster .pick[aria-expanded="true"] { border-color: var(--accent); background: var(--panel-hi); }
+/* The drop-down under the roster. */
+.rdetail { display: grid; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: var(--panel); }
+.rdetail .rdhead { display: flex; gap: 10px; align-items: flex-start; }
+.rdetail .rdhead > div:first-child { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.rdetail .rdhead b { font-family: var(--font-display); font-size: 1.2rem; }
+.rdetail .rdhead .roles { display: flex; gap: 4px; }
+.rdetail .rdhead .bio { margin: 0; font-size: .82rem; color: var(--muted); }
+.rdetail .rdhead .btn { flex: none; }
+.rdetail .sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: .82rem; color: var(--muted); line-height: 1.3; }
+.rdetail .sk li { display: flex; gap: 8px; align-items: flex-start; }
+.rdetail .sk .sic { flex: none; width: 28px; height: 28px; }
+.rdetail .sk b { color: var(--fg); }
+.rdetail .sk .pas b { color: var(--accent); }
+.rdetail .sk li.nat b { color: #8fd6a0; }
 .nameRow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
 .nameRow label { font-size: .85rem; font-weight: 800; color: var(--accent); }
 .nameRow input {
-  font: inherit; font-weight: 700; color: var(--fg); background: var(--panel-2); border: 1px solid var(--line);
-  border-radius: 8px; padding: 6px 10px; width: min(260px, 100%);
+  font: inherit; font-weight: 700; color: var(--fg); background: none; border: 0; border-bottom: 2px solid var(--line);
+  border-radius: 0; padding: 4px 2px; width: min(260px, 100%);
 }
-.nameRow input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.nameRow input:focus-visible { outline: none; border-bottom-color: var(--accent); }
 .xpbar { position: relative; height: 7px; border-radius: 4px; background: var(--panel-2); overflow: hidden; min-width: 90px; }
 .xpbar > div { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--accent), #f2c46d); }
 .xpnum { font-size: .7rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -241,8 +287,11 @@ h1 {
 }
 
 .filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-/* The thin divider between the faction chips and the role chips. */
-.filters .fsep { flex: none; width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
+/* The filters as an even grid: the eight faction buttons in two rows of four, the five roles in one row. */
+#filters { display: grid; gap: 6px; max-width: 640px; }
+#filters .fgroup { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+#filters .fgroup.roles { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+#filters .fbtn { min-width: 0; padding: 5px 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fbtn {
   font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
   padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line);
@@ -311,6 +360,12 @@ h1 {
   min-width: 46px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg);
 }
 .speedBtn:hover { border-color: var(--accent); }
+/* The round counter takes the free space, so the header's buttons sit together on the right. */
+.speedHead .round { margin-right: auto; }
+.speedHead .speedBtn { margin-left: 0; }
+/* Battle log hidden (the Hide log button, remembered per browser): the field takes the full width. */
+body.logHidden .chron { display: none; }
+body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .speedBtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #1a1410; }
 /* Fast forward: appears beside the speed toggle only while your champion is down (see FFWD). */
 .ffwdBtn { order: 2; margin-left: auto; min-width: 40px; }
@@ -863,6 +918,34 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 @keyframes firewave { from { scale: .12; opacity: 1; } 70% { opacity: .95; } to { scale: 1; opacity: 0; } }
 @keyframes firewaveCore { to { opacity: 0; } }
+/* Blood Frenzy: what comes off an enemy each time an axe lands - a spray and the flecks that
+   fling out of it. Same layered-dot build as the flak and splash bursts above. */
+.burst-blood {
+  width: 108%;
+  background:
+    radial-gradient(circle at 28% 30%, #ff5a66 0 3.6%, transparent 4.6%),
+    radial-gradient(circle at 71% 25%, #c0303f 0 3%, transparent 4%),
+    radial-gradient(circle at 18% 60%, #9c1f2c 0 2.6%, transparent 3.6%),
+    radial-gradient(circle at 80% 64%, #e04455 0 3.2%, transparent 4.2%),
+    radial-gradient(circle at 47% 82%, #8e1a26 0 2.4%, transparent 3.4%),
+    radial-gradient(circle at 60% 50%, #ff7a84 0 2.2%, transparent 3.2%),
+    radial-gradient(circle, rgba(196, 36, 52, .85) 0 20%, rgba(126, 18, 30, .5) 42%, transparent 64%);
+  animation-duration: .55s;
+}
+/* ...and the red his axes run while the frenzy is on him. His art is one loaded image with no
+   separate weapon group, so the light is laid over the spot the axes ride and the figure takes
+   the spill. It pulses for as long as he is in it, rather than flashing once per blow. */
+.unit.frenzied .upic::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 4;
+  background:
+    radial-gradient(closest-side, rgba(255, 92, 102, .95), rgba(192, 32, 48, .6) 42%, transparent 72%) 64% 50% / 44% 32% no-repeat,
+    radial-gradient(closest-side, rgba(255, 72, 88, .85), rgba(154, 20, 34, .5) 44%, transparent 74%) 34% 58% / 36% 26% no-repeat;
+  mix-blend-mode: screen;
+  animation: frenzyGlow .34s ease-in-out infinite alternate;
+}
+.unit.e.frenzied .upic::after { transform: scaleX(-1); }
+.unit.frenzied .body { filter: drop-shadow(0 0 11px rgba(204, 28, 46, .85)) saturate(1.2); }
+@keyframes frenzyGlow { from { opacity: .5; } to { opacity: 1; } }
 /* Graveside Chill (skill option `gust`, graveGust): a green grave-wind sweeps across the enemy
    line, fluttering past each fighter before the cold settles into them. It blows the way its
    caster faces (--gust-dir, set from facing()), so an enemy Mordrek's wind rolls right to left. */
@@ -882,9 +965,16 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 /* Tharos's Riptide / Undertow (waterSweep): a blue wave rolls across the targets, the way its
    caster faces (--sweep-dir, set from facing()) - an enemy Tharos washes them right to left. */
 .watersweep {
-  position: absolute; z-index: 238; pointer-events: none; border-radius: 48%;
-  background: radial-gradient(closest-side, rgba(150, 220, 255, .5), rgba(70, 150, 230, .3) 46%, transparent 72%);
-  filter: drop-shadow(0 0 16px rgba(90, 170, 240, .8)); mix-blend-mode: screen;
+  position: absolute; z-index: 238; pointer-events: none;
+  /* A swell rather than a blob: a curling crest up front, white foam along the top, and the
+     body of the water falling away darker underneath it. */
+  border-radius: 58% 42% 24% 16% / 78% 72% 28% 22%;
+  background:
+    radial-gradient(120% 44% at 44% 2%, rgba(255, 255, 255, .95) 0 6%, rgba(220, 246, 255, .5) 16%, transparent 46%),
+    radial-gradient(44% 80% at 90% 26%, rgba(240, 252, 255, .5), transparent 64%),
+    linear-gradient(to bottom, rgba(186, 232, 255, .62) 0 14%, rgba(84, 166, 238, .5) 46%,
+      rgba(26, 88, 166, .34) 80%, rgba(12, 50, 100, .08) 100%);
+  filter: drop-shadow(0 1px 10px rgba(70, 150, 225, .6)); mix-blend-mode: screen;
   animation: watersweep var(--sweep-ms, 820ms) ease-in-out forwards;
 }
 @keyframes watersweep {
@@ -1077,6 +1167,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    (buttons in one sideways-scrolling row) and a sideways-scrolling faction filter. */
 @media (orientation: portrait) and (max-width: 700px) {
   body[data-screen="select"] .wrap, body[data-screen="skills"] .wrap { padding: 10px 10px 24px; gap: 10px; }
+  #selectScreen .tray { --gut: 10px; }
   body[data-screen="select"] h1, body[data-screen="skills"] h1 { font-size: 1.7rem; }
   body[data-screen="select"] .tag, body[data-screen="skills"] .tag { font-size: .82rem; }
   body[data-screen="select"] .topR, body[data-screen="skills"] .topR { display: none; }
@@ -1084,13 +1175,9 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   .trayRow p { font-size: .78rem; }
   .trayBtns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; }
   .trayBtns .btn { padding: 7px 8px; font-size: .84rem; }
-  .slot { min-height: 48px; padding: 4px 6px; gap: 5px; }
-  .slot .mini { width: 32px; height: 32px; }
-  .slot strong { font-size: .8rem; }
-  .slot small { font-size: .66rem; }
+  .slot strong { font-size: .74rem; }
   #selectScreen .trayRow p { display: none; }
-  #filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  #filters > * { flex: none; }
+  #filters .fbtn { font-size: .76rem; }
 }
 
 /* End-of-battle panel */
@@ -1537,6 +1624,16 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .inv .t small { font-size: .76rem; color: var(--muted); }
 .inv .mv { display: flex; flex-wrap: wrap; gap: 6px; }
 .trinkets { display: grid; gap: 8px; }
+/* Sparring setup at the Training Yard */
+.spar { display: grid; gap: 12px; }
+.sparSides { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.sside { display: grid; gap: 6px; align-content: start; }
+.sside h4 { margin: 0; font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.sside.e h4 { color: var(--bad); }
+.sside.e .hbtn[aria-pressed="true"] { border-color: var(--bad); }
+.sparRow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.lvstep { display: inline-flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.lvstep b { min-width: 2ch; text-align: center; font-size: 1.1rem; }
 .mats { display: flex; flex-wrap: wrap; gap: 6px; }
 .mat { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px 2px 3px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-weight: 800; font-size: .84rem; font-variant-numeric: tabular-nums; }
 .mat .ico { width: 22px; height: 22px; }
@@ -1581,8 +1678,11 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .codex { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
 .entry { padding: 10px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); }
 .entry h4 { margin: 0 0 2px; font-size: 1rem; }
+.entry h4 .wxIco { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 7px; vertical-align: -6px;
+  border-radius: 50%; background: var(--panel); border: 1px solid var(--line); font-size: .95rem; line-height: 1; }
 .entry p { margin: 0; font-size: .86rem; color: var(--muted); }
 .entry p b { color: var(--accent); }
+.entry h4 .fxChips { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 4px; vertical-align: 2px; }
 .rumor { margin: 0; padding: 14px 16px; border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; background: var(--panel-2); font-size: 1.05rem; font-style: italic; }
 .loot { color: var(--accent); font-weight: 800; }
 
@@ -1593,7 +1693,6 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   .unit { --size: clamp(46px, 15cqw, 80px); }
   .unit .lvl { display: none; }
   .unit .chip { font-size: .5rem; }
-  .slot .mini { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .upic.lunge, .upic.hurt, .upic.cast, .wxPill.changed, .unit .body, .unit .body::before, .unit .body::after, .burst { animation: none !important; }
@@ -1675,7 +1774,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 
   <!-- ===== Warband select ===== -->
   <section class="screen" id="selectScreen" hidden>
+    <!-- Pinned to the top right: it stays put however far down the roster you scroll. -->
+    <button class="btn small topBack" type="button" id="villageBtn" aria-label="Back to the village" title="Back to the village"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
     <div class="tray">
+      <div class="trayHead">Your warband</div>
       <div class="slots" id="slots"></div>
       <div class="nameRow" id="nameRow" hidden>
         <label for="heroName">Name your champion</label>
@@ -1684,7 +1786,6 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
       <div class="trayRow">
         <p id="trayInfo"></p>
         <div class="trayBtns">
-          <button class="btn ghost" type="button" id="villageBtn">Back to the village</button>
           <button class="btn ghost" type="button" id="retireBtn" hidden>New champion</button>
           <button class="btn" type="button" id="randomBtn">Random recruits</button>
           <button class="btn primary" type="button" id="beginBtn">Save warband</button>
@@ -1718,6 +1819,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           <div class="speedHead">
             <span class="round" id="roundTxt"></span>
             <button type="button" class="speedBtn ffwdBtn" id="ffwdBtn" aria-pressed="false" title="Your champion is down — fast-forward the rest of the battle" hidden>⏩</button>
+            <button type="button" class="speedBtn logBtn" id="logBtn" aria-controls="battleLog">Hide log</button>
             <button type="button" class="speedBtn" id="speedBtn" aria-pressed="false" title="Battle speed">1.5×</button>
           </div>
           <div class="track" id="track">
@@ -1741,7 +1843,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           </div>
         </section>
       </div>
-      <aside class="chron" aria-label="Battle log">
+      <aside class="chron" id="battleLog" aria-label="Battle log">
         <p class="label">Battle log</p>
         <ol class="log" id="log"></ol>
       </aside>
@@ -2040,6 +2142,10 @@ function rollWeather(except) {
      heal: all, cleanse, tideBonus, fx     buff: heal, reduceCd, cleanse, selfStacks, aiTarget
      wave / quake (melee AoE: one slam, then a fire ring / short tremor rolls out and the
      hits land nearest-first), slash (a great crescent arc carved across the struck target),
+     rampage:<n> (melee: the opener lands on the target, then n-1 more leaps at enemies drawn
+     at random, repeats and all),
+     watersweep (Tharos calls the water from where he stands: no run-in, no shot, a wave does
+     the traveling) with slam for the ground-smash version instead of the trident raise,
      selfFx:[[status, turns]] (on the caster), chanceFx:[[status, turns, chance]], selfStacks:<n>,
      allyHeal:<mult> (heals all allies after hitting), allySteal:<share> (heals the most hurt ally),
      bounce:<mult> (ricochets into a second enemy), knockback:<bar distance>
@@ -2137,8 +2243,8 @@ const ROSTER = [
     look: { body: 'orc', main: '#5a3a2a', trim: '#9aa3b5', skin: '#6b8f56', hair: '#1d1d1d', weapon: 'axe' },
     nature: { name: 'Red Mist', desc: 'Below half HP his Double Attack chance is doubled — the redder the mist, the faster the axes.', redmist: 1 },
     skills: [D('Cleave', '65% to all enemies.', 3, 0.65, { aoe: true }),
-             D('Blood Frenzy', '200% hit. Costs 10% of his own HP.', 4, 2.0, { selfCost: 0.1 }),
-             D('Reckless Swing', '170% hit. Krug is Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { selfFx: [['exposed', 1]] }),
+             D('Blood Frenzy', 'Krug launches himself at the target and tears through the warband: six leaping blows of 38%, each landing on whoever the frenzy throws him at next. The same enemy can take two in a row. Costs 10% of his own HP.', 4, 0.38, { selfCost: 0.1, rampage: 6 }),
+             D('Reckless Swing', 'Krug swings both axes for 170%, then careens into another enemy at random and swings again for 100%. All that momentum leaves him Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { bounce: 0.6, selfFx: [['exposed', 1]] }),
              D('Twin Axes', 'Two chops of 85%. Causes Bleed.', 3, 0.85, { hits: 2, fx: [['bleed', 3, 0.3]] }),
              B('Warchief\'s Fury', 'Krug works himself into a rage: Enraged for 2 turns, dealing 35% more damage.', 4, 'self', [['enraged', 3]])],
     passive: P('Bloodlust', 'Defeating an enemy heals him for 20% of his max HP.', { killHeal: 0.2 }) },
@@ -2302,9 +2408,9 @@ const ROSTER = [
     nature: { name: 'Tide-Runner', desc: 'The flood carries him: +15% speed on the bar every High Tide.', tiderun: 1 },
     skills: [D('Trident Lunge', '120% hit. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]], leap: true }),
              D('Blood in the Water', '150% hit, 60% stronger against bleeding targets.', 3, 1.5, { bonusVs: 'bleed' }),
-             D('Riptide', '120% hit. A wave washes the target back along the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
+             D('Riptide', '120% hit. He lifts the trident and a wave washes the target back along the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
              D('Feeding Frenzy', 'Three bites of 55%, 60% stronger against Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
-             D('Undertow', '60% to all enemies. A great wave washes them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true }),
+             D('Undertow', '60% to all enemies. He drives the trident into the ground and a great wave washes them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true, slam: true }),
              { name: 'Anchor Chain', desc: 'A great anchor crashes from above and chains an enemy off the speed bar: it cannot act until the anchor is broken. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
     passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }) },
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Small, frenzied Gurgling brawler.',
@@ -3979,12 +4085,17 @@ const inBox = (u) => !!has(u, 'coffin');
 const openFoes = (u) => foesOf(u).filter((f) => !inBox(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !inBox(a) && !a.inert);
+/* Who a SINGLE blow can be aimed at. Deliberately NOT the list an area attack catches. An Anchor
+   or a Jelly carries noAoe precisely so sweeps wash past it, but singling it out is the only way
+   its host's team gets free of it — so it belongs here even though it is out of openFoes. A
+   bolted-on rider is the mirror: area attacks still find him, no single blow can. */
+const singleFoes = (u) => foesOf(u).filter((f) => !inBox(f) && !f.attachedTo);
 
 function validTargets(u, sk) {
   // Bolt-On: a bolted-on champion cannot be singled out by either side. He stays in openFoes /
   // openAllies, so area attacks and mass blessings still reach him — only single targeting skips him.
   if (sk.target === 'enemy') {
-    const foes = openFoes(u).filter((f) => !f.attachedTo);
+    const foes = singleFoes(u);
     // Graveyard Fence: an iron fence only turns aside a MELEE attacker closing in (not a hurled
     // or gust skill, which come over the top). A ranged attacker shoots clean over it, so it is
     // no wall to them. Whenever every option is walled, a cornered attacker breaks through rather
@@ -4001,8 +4112,11 @@ function validTargets(u, sk) {
     const openTaunters = meleeAtk ? taunters.filter((f) => !has(f, 'protected')) : taunters;
     if (openTaunters.length) return openTaunters;
     if (taunters.length && !meleeAtk) return taunters;
+    // An Anchor or a Jelly is clamped onto a body, not standing in a rank behind one, so no front
+    // line shields it whatever role the attachment happens to carry - otherwise the side it is
+    // stuck to cannot break it off until their enemy's line has already fallen.
     if (frontlineUp(foes[0]?.side) && !charNat(u).slipline) {   // no line holds a hound (Gorehound)
-      const front = reachable(foes.filter((f) => f.role === 'melee'));
+      const front = reachable(foes.filter((f) => f.role === 'melee' || f.attach));
       if (front.length) return front;
     }
     return reachable(foes);
@@ -4512,6 +4626,11 @@ async function resolveCounters() {
    property of fighting in reach, so melee summons and monsters get it too.
    A weapon's own `double` affix is not about reach — a repeater fires twice where a sledge swings
    twice — so it stacks on top for the melee and gives ranged champions a second shot. */
+/* A rampage is a blur, not six separate attacks queued up: the leaps are short, the swings are
+   driven through well before the clip would have finished, and barely a breath sits between one
+   blow and the next. Six at full length ran about five seconds; this brings it under two. */
+const RAMPAGE_DASH = 0.45, RAMPAGE_SWING = 0.38, RAMPAGE_GAP = 60;
+
 const DOUBLE_ATTACK_CHANCE = 0.15;
 // Krug's Red Mist: below half HP the whole chance doubles — the axes only get faster.
 const doubleChance = (u) => ((u.role === 'melee' ? DOUBLE_ATTACK_CHANCE : 0) + (u.double || 0))
@@ -4567,15 +4686,19 @@ async function damageSkill(u, t, sk) {
   }
   // Melee champions (and melee summons) run in; everyone else shoots from where they stand.
   // Hurled skills (Last Rites) come down from the sky: no run-in, no shot, the caster stays put.
-  const melee = u.role === 'melee' && !o.hurl && !o.gust;   // a gust is cast where he stands, not charged in
-  const proj = melee || o.hurl || o.gust ? null : projectileFor(u, sk);
+  // A gust or a wave is called up from where the caster stands: no run-in and no shot, whatever
+  // their role - the water and the grave-wind do the traveling for them.
+  const melee = u.role === 'melee' && !o.hurl && !o.gust && !o.watersweep;
+  const proj = melee || o.hurl || o.gust || o.watersweep ? null : projectileFor(u, sk);
   let trip = melee ? await dashTo(u, targets) : null;   // reassigned if a Double Attack charges in again
   if (o.gust) { await castPose(u, true); await graveGust(u, targets); }   // the green grave-wind sweeps across first
+  // Tharos holds his ground: the trident goes up for a Riptide and down into the floor for an
+  // Undertow, and the wave rolls out to the targets either way.
+  else if (o.watersweep) { await (o.slam ? tridentSlam(u) : tridentRaise(u)); waterSweep(u, targets); }
   else if (!melee && !o.hurl) await aimPose(u);
-  if (o.watersweep) waterSweep(u, targets);   // Tharos: a wave rolls over the targets as the blow lands
   if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
   // Area attacks from range: every projectile flies at once, then the hits resolve.
-  if (!melee && !o.gust && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
+  if (!melee && !o.gust && !o.watersweep && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills. Sawtooth's Flywheel adds one at 50+ Heat.
   const hits = (o.hits || 1) + (o.hits > 1 ? (pv(u).extraHit || 0) + (charNat(u).flywheel && u.heat >= 50 ? 1 : 0) : 0);
@@ -4590,11 +4713,33 @@ async function damageSkill(u, t, sk) {
       if (tg.hp <= 0 && pv(u).killHeal && u.hp > 0) healUnit(u, u, Math.round(u.maxHp * pv(u).killHeal), 'Bloodlust');
     }
     render();
-    await wait(hits > 1 ? 130 : 160);
+    await wait(o.rampage ? RAMPAGE_GAP : hits > 1 ? 130 : 160);
   };
+  /* RAMPAGE (Blood Frenzy): he throws himself at the one he was sent at, then tears through the
+     warband at random for a fixed number of blows, jumping to whoever comes next. He is past
+     choosing by then, so the draw is wholly random each time: the same enemy can take two in a
+     row, and someone else may be missed entirely. The count is what he commits to - he lands all
+     of them as long as anything is still standing and he is still on his feet. */
+  if (melee && o.rampage) {
+    u.frenzy = true;   // the axes run red for the whole of it (see .unit.frenzied)
+    render();
+    for (let i = 0; i < o.rampage; i++) {
+      const live = foesOf(u);
+      if (!live.length || u.hp <= 0) break;
+      // The opener lands on his mark; every blow after it falls where the frenzy takes him.
+      const at = i === 0 && t.hp > 0 ? t : pick(live);
+      markAttacked(at);
+      if (i > 0) trip = (await dashTo(u, [at], RAMPAGE_DASH)) || trip;   // the next leap, even back onto the same one
+      await strikePose(u, true, sk, RAMPAGE_SWING);
+      burst(at, 'blood');   // it comes off them as the axe goes through
+      await hitOnce(at, sk.mult);
+    }
+    u.frenzy = false;
+    render();
+  }
   // Slam skills (wave / quake): the blow lands ONCE, and the rolling fire ring or tremor does
   // the traveling — hits land nearest-first, trailing the front as it rolls out from the slam.
-  if (melee && (o.wave || o.quake)) {
+  else if (melee && (o.wave || o.quake)) {
     await strikePose(u);
     if (o.wave) fireWave(u);
     if (o.quake) quakeFx(targets);
@@ -4611,18 +4756,25 @@ async function damageSkill(u, t, sk) {
       if (tg.hp <= 0 || u.hp <= 0) break;
       if (melee) await strikePose(u, false, sk);
       else if (o.hurl) await hurlCross(u, tg, i, sk);
-      else if (targets.length === 1) await shoot(u, tg, proj);
+      else if (!o.watersweep && targets.length === 1) await shoot(u, tg, proj);
       if (o.slash && melee) slashFx(tg, facing(u));
       await hitOnce(tg, sk.mult);
     }
   }
-  // Ricochet: one more, weaker hit on a different enemy.
+  /* A second swing or shot at another enemy, picked at random (Mara's Ricochet, Krug's Reckless
+     Swing). A shot ricochets from where the attacker stands; a melee attacker carries himself
+     over and swings there, so the blow lands where the enemy actually is. The run home at the
+     end of the action picks up the new spot, and counters from it resolve with the rest. */
   if (o.bounce && u.hp > 0) {
     const next = foesOf(u).filter((f) => !targets.includes(f));
     if (next.length) {
       const tg = pick(next);
       markAttacked(tg);
-      if (melee) await strikePose(u); else await shoot(u, tg, proj);
+      if (melee) {
+        log(`${u.name} wheels on ${tg.name} and swings again!`, u.side);
+        trip = (await dashTo(u, [tg])) || trip;
+        await strikePose(u, true, sk);   // fresh: the attack clip restarts for the second swing
+      } else await shoot(u, tg, proj);
       await hitOnce(tg, sk.mult * o.bounce);
     }
   }
@@ -6157,7 +6309,7 @@ async function nextTurn() {
     if (shouldFlee(u)) { await flee(u); continue; }
     // Your heroes wait for you; summons (on either side) act on their own.
     // Only your champion waits for your orders; recruits and summons act on their own.
-    if (u.you) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
+    if (commandable(u)) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
     await wait(450);
     // A recruit may spend one satchel item before acting, just as you can on your turn.
     if (usesSatchel(u)) {
@@ -6229,7 +6381,7 @@ function onUnit(uid) {
 }
 
 function onItem(key) {
-  if (state.phase !== 'choose' || state.itemUsed || !(profile.items[key] > 0)) return;
+  if (state.phase !== 'choose' || state.itemUsed || !(profile.items[key] > 0) || sparring()) return;
   const u = unitBy(state.active);
   if (ITEMS[key].target !== 'ally') return useItem(u, key, null);
   const opts = alliesOf(u);
@@ -6319,7 +6471,7 @@ function aiItemPlan(u) {
 }
 
 // Your recruits may use the satchel; summons, monsters and every enemy never touch it.
-const usesSatchel = (u) => u.side === 'p' && !u.you && !u.summon && !u.monster;
+const usesSatchel = (u) => u.side === 'p' && !u.you && !u.summon && !u.monster && !sparring();   // a spar never touches your satchel
 
 /* ==================================================================
    GAUNTLET FLOW
@@ -6363,13 +6515,17 @@ const huntDepth = () => (state.mode === 'hunt' ? depthById(state.hunt?.depth) : 
 
 function startBattle(retry) {
   FFWD = false;   // fast-forward never carries into a fresh fight
-  const hunt = huntDepth(), dg = dungeonRun(), duel = state.mode === 'duel' ? state.duel : null;
-  const fac = hunt || dg || duel ? null : state.order[state.battle];
-  if (!retry && !hunt && !dg && !duel) state.enemyIds = pickEnemyTeam(fac);
+  const hunt = huntDepth(), dg = dungeonRun(), duel = state.mode === 'duel' ? state.duel : null, spar = sparring() ? state.spar : null;
+  const fac = hunt || dg || duel || spar ? null : state.order[state.battle];
+  if (!retry && !hunt && !dg && !duel && !spar) state.enemyIds = pickEnemyTeam(fac);
   // Your warband fights at your champion's level. Slot 0 is you: the only unit that takes your orders.
-  state.level = heroLevel();
-  state.teams.p = state.team.map((id, i) => makeUnit(charById(id), state.level, 'p', i));
-  if (profile.hero && state.teams.p[0]) { state.teams.p[0].you = true; state.teams.p[0].name = heroName(); }
+  state.level = spar ? spar.lv : heroLevel();
+  state.teams.p = (spar ? spar.p : state.team).map((id, i) => makeUnit(charById(id), state.level, 'p', i));
+  if (spar && state.teams.p[0]) {
+    // Sparring: slot 0 is still 'you', but it only carries your name when it is your own champion.
+    state.teams.p[0].you = true;
+    if (profile.hero && spar.p[0] === profile.hero.id) state.teams.p[0].name = heroName();
+  } else if (profile.hero && state.teams.p[0]) { state.teams.p[0].you = true; state.teams.p[0].name = heroName(); }
   // Enemies: one level below you at first, rising every two battles, and 85% → 105% strength across the run.
   if (hunt || dg) {
     // Monsters fight at your level, never below the depth's or dungeon's minimum.
@@ -6391,6 +6547,10 @@ function startBattle(retry) {
       state.dg.fled = [];
       state.dg.fledNow = 0;
     }
+  } else if (spar) {
+    // Sparring: the other side at the same level, full strength.
+    state.teams.e = spar.e.map((id, i) => makeUnit(charById(id), spar.lv, 'e', i));
+    for (const u of state.teams.e) if (spar.p.includes(u.id)) u.name = `Rival ${u.name}`;
   } else if (duel) {
     // Proving Grounds: a rival warband at the tier's level and strength.
     state.teams.e = state.enemyIds.map((id, i) => makeUnit(charById(id), duel.lv, 'e', i, duel.scale));
@@ -6415,6 +6575,7 @@ function startBattle(retry) {
   $('#overlay').hidden = true;
   if (dg) log(`${dg.name}, ${dgIsBossRoom() ? 'the boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}: ${state.teams.e.map((u) => `${u.name}${u.fledOnce ? ' (wounded)' : ''}`).join(', ')}.`, 'sys');
   else if (hunt) log(`${CAVE.name}, ${hunt.name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
+  else if (spar) log(`Sparring at the Training Yard, level ${spar.lv}: ${state.teams.p.map((u) => u.name).join(', ')} against ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (duel) log(`The Proving Grounds, ${duel.name} for ${duel.pay} gold: ${duel.band} — ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else log(`Battle ${state.battle + 1} of ${state.order.length} against ${theFaction(FACTIONS[fac])}.`, 'sys');
   log('Round 1', 'round');
@@ -6474,6 +6635,72 @@ function endHunt(won) {
   fillNewSlots(state.level);
   saveProfile();
   state.questNews = news;
+}
+
+/* ---------- Sparring: the Training Yard's practice ring ----------
+   Pick any champions for both sides at any level and, by default, give every one of them their
+   orders yourself, enemies included. Nothing is won or lost: no gold, XP, items, quests, bounties
+   or materials (questEvent is silent during a spar), and the satchel stays shut.
+     state.sparSel  the matchup being set up in the yard: { p: [ids], e: [ids], slot: [side, i], lv, ctl }
+     state.spar     the matchup being fought (a copy taken when it starts)
+   ctl: 'all' everyone takes your orders · 'side' your side only · 'you' only slot 0, like a real battle. */
+const SPAR_CTL = [['all', 'Everyone'], ['side', 'My side only'], ['you', 'Only my champion']];
+const sparring = () => state.mode === 'spar';
+// Does this unit wait for your orders? Your champion always; in a spar, whoever the matchup says.
+const commandable = (u) => !!u && !u.summon && (!!u.you || (sparring() && !u.monster
+  && (state.spar.ctl === 'all' || (state.spar.ctl === 'side' && u.side === 'p'))));
+const randomBand = () => shuffle(ROSTER.map((c) => c.id)).slice(0, TEAM_SIZE);
+
+// The matchup on the yard's board, set up the first time you look: your warband against a random band.
+function sparSetup() {
+  if (!state.sparSel) {
+    const mine = state.team.length === TEAM_SIZE ? [...state.team] : randomBand();
+    state.sparSel = { p: mine, e: randomBand(), slot: ['p', 0], lv: heroLevel(), ctl: 'all' };
+  }
+  return state.sparSel;
+}
+
+function startSpar() {
+  const m = sparSetup();
+  if (state.runPending) return;   // a paused gauntlet run keeps the field until it's finished or abandoned
+  state.mode = 'spar';
+  state.spar = { p: [...m.p], e: [...m.e], lv: m.lv, ctl: m.ctl };
+  state.enemyIds = state.spar.e;
+  startBattle(true);
+}
+
+// The Sparring tab: two sides of slots, the roster to fill the picked slot, level and who you command.
+function sparHTML() {
+  const m = sparSetup(), [ss, si] = m.slot;
+  const slot = (side, i) => {
+    const id = m[side][i], c = charById(id), on = ss === side && si === i;
+    const tag = side === 'p' && i === 0 ? '★ ' : '';
+    return `<button class="hbtn" type="button" data-k="sslot:${side}:${i}" aria-pressed="${on}" title="Pick a champion for this slot">
+      <div class="mini">${spriteSVG(id)}</div>
+      <div class="t"><strong>${tag}${shortName(c)}</strong><small>${ROLES[c.role].label} · ${FACTIONS[c.faction].name}</small></div></button>`;
+  };
+  const side = (k, title) => `<div class="sside ${k}"><h4>${title}</h4>${m[k].map((_, i) => slot(k, i)).join('')}</div>`;
+  const roster = ROSTER.map((c) => `<button class="hbtn" type="button" data-k="spick:${c.id}" aria-pressed="${m[ss][si] === c.id}">
+      <div class="mini">${spriteSVG(c.id)}</div><div class="t"><strong>${shortName(c)}</strong><small>${ROLES[c.role].label}</small></div></button>`).join('');
+  const ctl = SPAR_CTL.map(([k, n]) => `<button class="fbtn" type="button" data-k="sctl:${k}" aria-pressed="${m.ctl === k}">${n}</button>`).join('');
+  const paused = state.runPending;
+  return `<div class="spar">
+    <p class="note">Set up any fight you like and play it out. <b>Nothing is won or lost</b> here: no gold, XP or items change hands,
+      and quests and bounties don't count. Pick a slot, then a champion from the roster below.</p>
+    <div class="sparSides">${side('p', 'Your side')}${side('e', 'The other side')}</div>
+    <div class="sparRow"><span class="label">Level</span>
+      <span class="lvstep"><button class="btn small" type="button" data-k="sparlv:-1"${m.lv <= 1 ? ' disabled' : ''} aria-label="Lower level">−</button>
+        <b>${m.lv}</b><button class="btn small" type="button" data-k="sparlv:1"${m.lv >= LEVEL_CAP ? ' disabled' : ''} aria-label="Higher level">+</button></span></div>
+    <div class="sparRow"><span class="label">You command</span><div class="filters" role="group" aria-label="Who takes your orders">${ctl}</div></div>
+    <div class="btns">
+      <button class="btn primary" type="button" data-k="sgo"${paused ? ' disabled' : ''}>Start sparring</button>
+      <button class="btn small" type="button" data-k="srand">Random other side</button>
+      <button class="btn small" type="button" data-k="sswap">Swap sides</button>
+    </div>
+    ${paused ? '<p class="note">Your gauntlet run is paused. Finish or abandon it at the Arena before sparring.</p>' : ''}
+    <p class="label">Roster · filling ${ss === 'p' ? (si === 0 ? 'your champion' : `your slot ${si + 1}`) : `their slot ${si + 1}`}</p>
+    <div class="heroList">${roster}</div>
+  </div>`;
 }
 
 /* ---------- The Proving Grounds: duels against rival warbands ----------
@@ -6749,6 +6976,14 @@ function retreatDungeon() {
 
 async function endBattle(won) {
   state.active = null; state.pending = null;
+  if (sparring()) {   // practice: nothing is won or lost
+    state.phase = won ? 'won' : 'lost';
+    state.reward = null; state.goldWon = 0; state.questNews = [];
+    log(won ? 'The spar is over: your side wins.' : 'The spar is over: the other side wins.', 'sys');
+    render();
+    await wait(700);
+    return showEndOverlay();
+  }
   if (dungeonRun()) endDungeonRoom(won);
   else if (huntDepth()) endHunt(won);
   else if (state.mode === 'duel') endDuel(won);
@@ -8336,10 +8571,13 @@ const isTank = (c) => c.skills.some((s) => (s.fx || []).some(([id]) => id === 't
 const ROLE_FILTERS = [['all', 'All roles'], ['melee', 'Melee'], ['ranged', 'Ranged'], ['support', 'Support'], ['tank', 'Tank']];
 
 function buildSelect() {
-  $('#filters').innerHTML = [['all', 'All factions'], ...FACTION_KEYS.map((k) => [k, FACTIONS[k].name])]
-    .map(([k, n]) => `<button class="fbtn" type="button" data-f="${k}">${n}</button>`).join('')
-    + '<span class="fsep" aria-hidden="true"></span>'
-    + ROLE_FILTERS.map(([k, n]) => `<button class="fbtn rbtn" type="button" data-r="${k}"${k === 'tank' ? ' title="Champions with a taunt in their kit"' : ''}>${n}</button>`).join('');
+  // Every filter in view at once, as an even grid: factions by their short names (Ironclad, Pale Host...)
+  // in two rows of four, then the roles in one row. The full faction name is on the button's title.
+  const fshort = (n) => n.replace(/^(The|Kingdom of) /, '').replace(/ (Union|Horde|Accord|Court)$/, '');
+  $('#filters').innerHTML = `<div class="fgroup" role="group" aria-label="Faction">${[['all', 'All', 'All factions'], ...FACTION_KEYS.map((k) => [k, fshort(FACTIONS[k].name), FACTIONS[k].name])]
+    .map(([k, n, full]) => `<button class="fbtn" type="button" data-f="${k}" title="${full}" aria-label="${full}">${n}</button>`).join('')}</div>
+    <div class="fgroup roles" role="group" aria-label="Role">${ROLE_FILTERS.map(([k, n]) =>
+      `<button class="fbtn rbtn" type="button" data-r="${k}"${k === 'tank' ? ' title="Champions with a taunt in their kit"' : ''}>${n}</button>`).join('')}</div>`;
   $('#filters').addEventListener('click', (ev) => {
     const b = ev.target.closest('.fbtn');
     if (!b) return;
@@ -8348,33 +8586,30 @@ function buildSelect() {
     renderSelect();
   });
 
+  // Each faction: its name and a short line (mechanic, favoring weather, mana), then its champions as a
+  // roster of tiles. Tapping a tile drops that champion's skills down beneath the roster (pickDetailHTML),
+  // with the button that picks them; the faction's full rules live in the mechanics window (the gear).
   $('#factionList').innerHTML = FACTION_KEYS.map((k) => {
     const f = FACTIONS[k];
-    const cards = ROSTER.filter((c) => c.faction === k).map((c) => `
-      <button class="pick" type="button" data-id="${c.id}" id="pick-${c.id}" data-role="${c.role}" data-tank="${isTank(c) ? 1 : 0}">
+    const tiles = ROSTER.filter((c) => c.faction === k).map((c) => `
+      <button class="pick" type="button" data-id="${c.id}" id="pick-${c.id}" data-role="${c.role}" data-tank="${isTank(c) ? 1 : 0}" aria-expanded="false">
         <div class="pic">${spriteSVG(c.id)}</div>
         <span class="nm">${c.name}</span>
-        <span class="roles"><span class="role ${c.role}">${ROLES[c.role].label}</span>${isTank(c) ? '<span class="role melee" title="Has a taunt in their kit">Tank</span>' : ''}</span>
-        <p class="bio">${c.bio}</p>
-        <ul class="sk">
-          ${[0, 2, 3, 4, ...(c.skills[5] ? [5] : [])].map((i) => `<li>${skillIcon(c.skills[i])}<span><b>${c.skills[i].name}.</b> ${c.skills[i].desc}</span></li>`).join('')}
-          <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
-          <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
-          ${altList(c).map((p) => `<li class="pas">${skillIcon(p)}<span><b>Or · ${p.name}.</b> ${p.desc}</span></li>`).join('')}
-          ${c.nature ? `<li class="pas nat">${skillIcon(c.nature)}<span><b>Nature · ${c.nature.name}.</b> ${c.nature.desc}</span></li>` : ''}
-        </ul>
         <span class="badge" hidden></span>
       </button>`).join('');
     return `<section class="faction" data-faction="${k}">
-      <header><h2>${f.name}</h2><p class="rule"><b>${f.mechanic}.</b> ${f.rule}</p>
-        <p class="rule"><b>Weather.</b> Favored by ${Object.values(WEATHER).find((w) => w.favors === k).name}. <b>Mana pool.</b> ${poolLabel(k)}.</p></header>
-      <div class="grid">${cards}</div>
+      <header><h2>${f.name}</h2>
+        <p class="fmeta"><span>${f.mechanic}</span><span>Favored by ${Object.values(WEATHER).find((w) => w.favors === k).name}</span><span>Mana: ${poolLabel(k)}</span></p></header>
+      <div class="roster">${tiles}</div>
+      <div class="rdetail" hidden></div>
     </section>`;
   }).join('');
 
   $('#factionList').addEventListener('click', (ev) => {
+    const act = ev.target.closest('[data-pickact]');
+    if (act) { togglePick(act.dataset.pickact); return; }
     const b = ev.target.closest('.pick');
-    if (b) togglePick(b.dataset.id);
+    if (b) { state.openPick = state.openPick === b.dataset.id ? null : b.dataset.id; renderSelect(); }
   });
   $('#slots').addEventListener('click', (ev) => {
     const b = ev.target.closest('.slot.filled');
@@ -8423,6 +8658,27 @@ function buildSelect() {
 }
 
 // Slot 0 is your champion; the rest are recruits. Your champion can only be swapped while creating.
+// The drop-down under a faction's roster (the tile above already shows the model): roles, bio, every skill, passive and nature, and the pick button.
+function pickDetailHTML(c) {
+  const creating = !profile.hero, t = state.team, i = t.indexOf(c.id);
+  const label = i === 0 ? (creating ? 'Choose someone else' : 'This is you')
+    : i > 0 ? 'Send home'
+    : creating && !t[0] ? 'Choose as your champion'
+    : 'Recruit';
+  const locked = i === 0 && !creating;
+  return `<div class="rdhead">
+      <div><b>${c.name}</b><span class="roles"><span class="role ${c.role}">${ROLES[c.role].label}</span>${isTank(c) ? '<span class="role melee" title="Has a taunt in their kit">Tank</span>' : ''}</span>
+        <p class="bio">${c.bio}</p></div>
+      <button class="btn small${i < 0 ? ' primary' : ''}" type="button" data-pickact="${c.id}"${locked ? ' disabled' : ''}>${label}</button></div>
+    <ul class="sk">
+      ${[0, 2, 3, 4, ...(c.skills[5] ? [5] : [])].map((n) => `<li>${skillIcon(c.skills[n])}<span><b>${c.skills[n].name}.</b> ${c.skills[n].desc}</span></li>`).join('')}
+      <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
+      <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
+      ${altList(c).map((pa) => `<li class="pas">${skillIcon(pa)}<span><b>Or · ${pa.name}.</b> ${pa.desc}</span></li>`).join('')}
+      ${c.nature ? `<li class="pas nat">${skillIcon(c.nature)}<span><b>Nature · ${c.nature.name}.</b> ${c.nature.desc}</span></li>` : ''}
+    </ul>`;
+}
+
 function togglePick(id) {
   const creating = !profile.hero, t = state.team;
   $('#trayNote').textContent = '';
@@ -8453,9 +8709,18 @@ function renderSelect() {
   document.querySelectorAll('.pick').forEach((b) => {
     b.hidden = rf !== 'all' && (rf === 'tank' ? b.dataset.tank !== '1' : b.dataset.role !== rf);
   });
+  // With All roles picked, the roster runs without the faction headings (name, mechanic, weather, mana);
+  // narrowing to one role brings them back to tell the groups apart.
+  $('#factionList').classList.toggle('noHeads', rf === 'all');
   document.querySelectorAll('.faction').forEach((s) => {
     const empty = ![...s.querySelectorAll('.pick')].some((b) => !b.hidden);
     s.hidden = (state.filter !== 'all' && s.dataset.faction !== state.filter) || empty;
+    // The open champion's skills drop down under this faction's roster.
+    const open = state.openPick && s.querySelector(`.pick[data-id="${state.openPick}"]:not([hidden])`);
+    const d = s.querySelector('.rdetail');
+    d.hidden = !open;
+    d.innerHTML = open ? pickDetailHTML(charById(state.openPick)) : '';
+    s.querySelectorAll('.pick').forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.id === state.openPick && !!open)));
   });
   document.querySelectorAll('.pick').forEach((b) => {
     const i = t.indexOf(b.dataset.id);
@@ -8470,14 +8735,13 @@ function renderSelect() {
 
   $('#slots').innerHTML = Array.from({ length: TEAM_SIZE }, (_, i) => {
     const id = t[i];
-    if (!id) return `<div class="slot empty${i === 0 ? ' you' : ''}"><small>${i === 0 ? 'You: pick your champion below' : `Recruit ${i}: pick below`}</small></div>`;
+    if (!id) return `<div class="slot empty${i === 0 ? ' you' : ''}"><span class="ph" aria-hidden="true"></span><small>${i === 0 ? 'You' : `Recruit ${i}`}</small></div>`;
     const c = charById(id);
-    const label = i === 0 ? (creating ? 'You' : heroName()) : `Recruit · ${shortName(c)}`;
-    const sub = i === 0 ? `${c.name} · Lv ${creating ? 1 : heroLevel()}` : `${ROLES[c.role].label} · ${FACTIONS[c.faction].name}`;
     const fixed = i === 0 && !creating;
-    return `<button class="slot filled${i === 0 ? ' you' : ''}" type="button" data-id="${id}" title="${fixed ? 'This is you' : `Remove ${c.name}`}">
+    const name = fixed ? heroName() : shortName(c);
+    return `<button class="slot filled${i === 0 ? ' you' : ''}" type="button" data-id="${id}" title="${fixed ? 'This is you' : `Remove ${c.name}`}" aria-label="${i === 0 ? 'You' : `Recruit ${i}`}: ${name}">
       <div class="mini">${spriteSVG(id)}</div>
-      <div class="t"><strong>${label}</strong><small>${sub}</small></div>
+      <strong>${name}</strong>
     </button>`;
   }).join('');
 
@@ -8919,6 +9183,7 @@ const rewardText = (q) => [q.gold ? `${q.gold} gold` : '', q.item ? `a ${ITEMS[q
 
 // Something happened that quests might care about. Returns news lines for the battle log / victory card.
 function questEvent(t, info = {}) {
+  if (sparring() && state.screen === 'battle') return [];   // practice doesn't count for anything
   const bountyNews = bountyEvent(t, info);   // the Bounty Board listens to the same events
   const matNews = craftEvent(t, info);        // ...and so does the Workshop (material drops)
   const news = [];
@@ -9170,11 +9435,17 @@ const SPEED_LORE = [
   ['Racing to Act', 'Every fighter runs along the speed bar at their Agility. Whoever reaches Act first takes a turn, then starts again from the beginning.'],
   ['Agility', 'A champion with 15 Agility acts half again as often as one with 10, and dodges a little more often too.'],
   ['Rounds', 'An Agility-10 champion acts about once per round. Rounds drive High Tide, and the weather changes every 3 of them.'],
-  ['Stun and Overheat', 'The icon freezes in place for about one round.'],
-  ['Slow', 'The icon crawls along at 60% speed.'],
-  ['Stagger', 'The icon keeps stopping and starting for about a round and a half.'],
+  ['Stun and Overheat', 'The icon freezes in place for about one round.', ['stun', 'overheat']],
+  ['Slow', 'The icon crawls along at 60% speed.', ['slow']],
+  ['Stagger', 'The icon keeps stopping and starting for about a round and a half.', ['stagger']],
+  ['Tolls', `The field keeps one clock for everyone: a Toll passes each time any fighter's turn comes up, whoever's turn it is. Bash and Fear count down in Tolls, not in their owner's own turns.`],
+  ['Bash', 'Knocked clean off the speed bar. The icon stays put and the fighter takes no turn at all until the Bash wears off, counted in Tolls.', ['bash']],
+  ['Fear', `The icon is shoved back ${Math.round(FEAR_BACK / 10)}% of the way down the speed bar, never past the start. An Afraid fighter still acts, just later, and the Fear fades after ${FEAR_TOLLS} Tolls.`, ['fear']],
+  ['Infernal Toll', `Malgrath's Hellfire Slam marks every enemy it hits. The marked fighter's next skill also costs ${Math.round(TOLL_PCT * 100)}% of their current HP, on top of its usual price, and that spends the mark. Attack and Guard are free, and it never takes the last point of HP.`, ['toll']],
   ['★ Signature skills', `Each champion's signature skill unlocks on their ${ULT_FIRST_TURN}rd turn.`],
 ];
+// A status as it shows on a fighter in battle: the same chip, icon and name, for the mechanics window.
+const fxChip = (id) => `<span class="chip ${FX[id].kind}"><span class="ico">${FX[id].icon}</span>${FX[id].label}</span>`;
 
 const entryHTML = (h, p) => `<div class="entry"><h4>${h}</h4><p>${p}</p></div>`;
 const statHTML = (v, label) => `<div class="stat"><b>${v}</b><span>${label}</span></div>`;
@@ -9239,8 +9510,12 @@ const PLACE_BODY = {
   /* Training Yard: drill techniques into your champion. Each one mastered unlocks it for the Skills
      screen and pays a skill point, so a morning in the dirt is worth a rank somewhere else. */
   train() {
+    const tab = state.trainTab || 'drills';
+    const tabs = `<div class="filters" role="group" aria-label="The Training Yard">${[['drills', 'Drills'], ['spar', 'Sparring']]
+      .map(([k, n]) => `<button class="fbtn" type="button" data-k="ttab:${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>`;
+    if (tab === 'spar') return `${tabs}${sparHTML()}`;
     if (!profile.hero) {
-      return `<p class="note">Serel drills champions, not onlookers. Create your champion first.</p>
+      return `${tabs}<p class="note">Serel drills champions, not onlookers. Create your champion first.</p>
         <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
     }
     const c = charById(profile.hero.id), pts = skillPoints(c.id);
@@ -9262,7 +9537,7 @@ const PLACE_BODY = {
       </div>`;
     };
     const left = TRAINABLE.filter((id) => !isTrained(c.id, id)).length;
-    return `${state.trainNews ? `<p class="loot">${state.trainNews}</p>` : ''}
+    return `${tabs}${state.trainNews ? `<p class="loot">${state.trainNews}</p>` : ''}
       <p class="note">Techniques take a few mornings of drill apiece. Master one and ${heroName()} can carry it into battle —
         and earns a <b>skill point</b> for the bruises. ${left ? `<b>${left}</b> still to learn.` : 'Nothing left to learn here.'}
         Unspent skill points: <b>${pts}</b>.</p>
@@ -9691,9 +9966,11 @@ function codexHTML() {
     .map(([k, n]) => `<button class="fbtn" type="button" data-k="codex:${k}" aria-pressed="${k === tab}">${n}</button>`).join('');
   let body;
   // The weather tab also covers what stands in for weather underground: the cave's quakes and the dungeon conditions.
-  if (tab === 'weather') body = [...Object.values(WEATHER).map((w) => entryHTML(w.name, w.desc)),
-    ...DUNGEONS.filter((d) => d.cond).map((d) => entryHTML(`${DG_CONDS[d.cond].name} · ${d.name}`, DG_CONDS[d.cond].desc))].join('');
-  else if (tab === 'speed') body = SPEED_LORE.map(([h, p]) => entryHTML(h, p)).join('');
+  // Each sky carries the small icon it shows in the battle's weather pill; dungeon conditions their own.
+  const wxIco = (i) => `<span class="wxIco" aria-hidden="true">${i}</span>`;
+  if (tab === 'weather') body = [...Object.entries(WEATHER).map(([k, w]) => entryHTML(`${wxIco(WX_ICON[k])}${w.name}`, w.desc)),
+    ...DUNGEONS.filter((d) => d.cond).map((d) => entryHTML(`${wxIco(DG_CONDS[d.cond].icon)}${DG_CONDS[d.cond].name} · ${d.name}`, DG_CONDS[d.cond].desc))].join('');
+  else if (tab === 'speed') body = SPEED_LORE.map(([h, p, fx = []]) => entryHTML(`${h}${fx.length ? ` <span class="fxChips">${fx.map(fxChip).join('')}</span>` : ''}`, p)).join('');
   else if (tab === 'gear') body = GEAR_LORE.map(([h, t]) => entryHTML(h, t)).join('');
   else body = FACTION_KEYS.map((k) => {
     const f = FACTIONS[k], w = Object.values(WEATHER).find((x) => x.favors === k);
@@ -10760,6 +11037,15 @@ function villageAction(k) {
   else if (verb === 'prise') { if (priseStone(arg, arg2, Number(arg3))) keeperReact(gearShop()); }
   else if (verb === 'buy') { if (buyItem(arg)) { keeperReact('market'); questEvent('buy'); } }
   else if (verb === 'ctab') state.craftTab = arg;
+  // Sparring at the Training Yard.
+  else if (verb === 'ttab') state.trainTab = arg;
+  else if (verb === 'sslot') sparSetup().slot = [arg, Number(arg2)];
+  else if (verb === 'spick') { const m = sparSetup(), [sd, i] = m.slot; if (charById(arg)) m[sd][i] = arg; }
+  else if (verb === 'sparlv') { const m = sparSetup(); m.lv = clamp(m.lv + Number(arg), 1, LEVEL_CAP); }
+  else if (verb === 'sctl') sparSetup().ctl = arg;
+  else if (verb === 'srand') sparSetup().e = randomBand();
+  else if (verb === 'sswap') { const m = sparSetup(); [m.p, m.e] = [m.e, m.p]; }
+  else if (verb === 'sgo') return startSpar();
   else if (verb === 'craft') { const line = craft(arg); if (line) { state.craftNews = line; if (line.startsWith('Crafted')) keeperReact('workshop'); } }
   else if (verb === 'salv') { const line = salvage(arg, arg2); if (line) { state.craftNews = line; keeperReact('workshop'); } }
   else if (verb === 'tbuy') { if (buyTome()) { keeperReact('market'); questEvent('buy'); state.tomeNews = 'Bought. It waits for you at home, or read it right here.'; } }
@@ -11078,7 +11364,8 @@ function stageBox(u) {
 // Melee: run up to the target (or the front of a group) and stop just in front of it.
 // Floating champions don't run: they take wing, climb high and dive onto the target,
 // leaning into the dive, then glide home along the same arc (dashBack reads it from trip).
-async function dashTo(u, targets) {
+// pace < 1 shortens the run, for a flurry that leaps between enemies rather than charging once.
+async function dashTo(u, targets, pace = 1) {
   const el = actorEl(u), me = stageBox(u);
   const boxes = targets.map(stageBox).filter(Boolean);
   if (reduced || !el || !me || !boxes.length) return null;
@@ -11086,18 +11373,30 @@ async function dashTo(u, targets) {
   const front = dir > 0 ? Math.min(...boxes.map((b) => b.x)) : Math.max(...boxes.map((b) => b.x));
   const tx = targets.length > 1 ? front : boxes[0].x;
   const ty = boxes.reduce((s, b) => s + b.feet, 0) / boxes.length;
-  const dx = tx - dir * (boxes[0].w * 0.45 + me.w * 0.3) - me.x;
-  const dy = ty + 2 - me.feet;
+  /* The dash is written as an absolute `translate` from the unit's HOME spot, but stageBox reads
+     where it is standing right now - already carried off by an earlier dash in the same action
+     (Krug's Reckless Swing wheels onto a second enemy). Fold that displacement back in, or the
+     second dash measures from one origin and is applied from another and the unit lands off its
+     feet. With nothing to fold in these are the plain home-relative numbers they always were. */
+  const cur = String(getComputedStyle(el).translate || '').split(/\s+/).map(parseFloat);
+  const curX = Number.isFinite(cur[0]) ? cur[0] : 0, curY = Number.isFinite(cur[1]) ? cur[1] : 0;
+  const dx = tx - dir * (boxes[0].w * 0.45 + me.w * 0.3) - me.x + curX;
+  const dy = ty + 2 - me.feet + curY;
   const end = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`;
-  const fly = u.floats, ms = beat(fly ? 400 : 320);
+  const fly = u.floats, ms = beat((fly ? 400 : 320) * pace);
   // Runners hop a little over the ground; flyers climb over half their own height and swoop.
-  const mid = fly ? `${(dx * 0.5).toFixed(1)}px ${(dy * 0.5 - me.h * 0.6).toFixed(1)}px`
-                  : `${(dx * 0.55).toFixed(1)}px ${(dy * 0.55 - 26).toFixed(1)}px`;
+  // The arc runs from wherever it starts to wherever it ends, not from home every time.
+  const mx = curX + (dx - curX) * (fly ? 0.5 : 0.55), my = curY + (dy - curY) * (fly ? 0.5 : 0.55);
+  const mid = fly ? `${mx.toFixed(1)}px ${(my - me.h * 0.6).toFixed(1)}px`
+                  : `${mx.toFixed(1)}px ${(my - 26).toFixed(1)}px`;
   el.style.zIndex = 200;
   // The dive lean rotates the body around its feet, so the plate stays level.
   if (fly) pose(u, [{ transform: 'none' }, { transform: `rotate(${dir * 14}deg)`, offset: 0.5 }, { transform: 'none' }], 400);
+  // Start from where it actually stands, so a second dash runs on from there instead of
+  // snapping home first and setting off again.
+  const from = `${curX.toFixed(1)}px ${curY.toFixed(1)}px`;
   const anim = el.animate(
-    [{ translate: '0 0' }, { translate: mid, offset: 0.5 }, { translate: end }],
+    [{ translate: from }, { translate: mid, offset: 0.5 }, { translate: end }],
     { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
   await done(anim, ms);
   return { anim, end, mid, fly };
@@ -11265,18 +11564,19 @@ WEAPON_STRIKES['mordrek:Grave Cross'] = {
 
 // Weapon swing: lean in and twist, or the champion's own attack clip. Resolves at the moment of impact.
 // sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
-async function strikePose(u, fresh = false, sk = null) {
+// pace < 1 runs the same swing through quicker, for flurries that would drag at full length.
+async function strikePose(u, fresh = false, sk = null, pace = 1) {
   const hit = playAttack(u, fresh);
-  if (hit != null) return sleep(hit);
+  if (hit != null) return sleep(hit * pace);
   const d = facing(u);
   // A skill's own move ('barrow:Tomb Slab') first, then the champion's basic-Attack move.
   const ws = sk && (WEAPON_STRIKES[`${u.id}:${sk.name}`] || (sk.id === 'attack' && WEAPON_STRIKES[u.id]));
   const wpn = ws && !reduced && u.hp > 0 && bodyEl(u)?.querySelector('.wpn');
   if (wpn) {
-    const ms = beat(ws.ms);
+    const ms = beat(ws.ms * pace);
     wpn.animate(ws.wpn, { duration: ms });
     if (ws.off) bodyEl(u).querySelector('.wpn2')?.animate(ws.off, { duration: ms });
-    pose(u, ws.body(d), ws.ms);
+    pose(u, ws.body(d), ws.ms * pace);
     await sleep(ms * ws.hit);
     return;
   }
@@ -11631,10 +11931,13 @@ function waterSweep(u, targets) {
   if (reduced || !arena || !boxes.length) return;
   const left = Math.min(...boxes.map((b) => b.x)), right = Math.max(...boxes.map((b) => b.x));
   const top = Math.min(...boxes.map((b) => b.top)), bot = Math.max(...boxes.map((b) => b.feet));
-  const w = Math.max(170, right - left + 240), h = Math.max(120, bot - top + 66), ms = beat(820);
+  const w = Math.max(170, right - left + 240);
+  const h = Math.max(74, Math.round((bot - top) * 0.62) + 26);   // chest-high, not head-high
+  const ms = beat(820);
   const el = document.createElement('div');
   el.className = 'watersweep';
-  el.style.cssText = `left:${(left - 120).toFixed(0)}px; top:${(top - 30).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --sweep-ms:${ms}ms; --sweep-dir:${facing(u)};`;
+  // Seated on the ground line the targets stand on, so the water rolls along the floor.
+  el.style.cssText = `left:${(left - 120).toFixed(0)}px; top:${(bot - h + 10).toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; --sweep-ms:${ms}ms; --sweep-dir:${facing(u)};`;
   arena.appendChild(el);
   el.addEventListener('animationend', (e) => { if (!e.pseudoElement) el.remove(); });
   setTimeout(() => el.remove(), ms + 400);
@@ -11652,15 +11955,48 @@ async function leapPose(u) {
   await sleep(beat(340));
 }
 
+/* Riptide: Tharos plants his feet and hauls the trident overhead, holding it up while the water
+   answers him. He never leaves his place - the wave does the traveling. */
+async function tridentRaise(u) {
+  const d = facing(u);
+  if (!pose(u, [{ transform: 'none' },
+    { transform: `translateY(-7px) scaleY(1.06) rotate(${-d * 6}deg)`, offset: 0.34, easing: 'ease-out' },
+    { transform: `translateY(-10px) scaleY(1.08) rotate(${-d * 8}deg)`, offset: 0.58 },
+    { transform: `translateY(-4px) scaleY(1.03) rotate(${-d * 3}deg)`, offset: 0.82 },
+    { transform: 'none' }], 640)) return;
+  await sleep(beat(430));
+}
+
+/* Undertow: he hoists the trident high and drives it butt-first into the floor. The ground answers
+   with a shudder and the water comes up out of it. */
+async function tridentSlam(u) {
+  const d = facing(u);
+  const ok = pose(u, [{ transform: 'none' },
+    { transform: `translateY(-12px) scaleY(1.09) rotate(${-d * 9}deg)`, offset: 0.32, easing: 'ease-out' },
+    { transform: `translateY(-13px) scaleY(1.09) rotate(${-d * 10}deg)`, offset: 0.44 },
+    { transform: `translateY(6px) scaleY(.9) rotate(${d * 6}deg)`, offset: 0.6, easing: 'cubic-bezier(.6,0,1,.4)' },
+    { transform: `translateY(3px) scaleY(.96) rotate(${d * 3}deg)`, offset: 0.74 },
+    { transform: 'none' }], 780);
+  if (!ok) return;
+  await sleep(beat(468));   // the shudder lands with the trident, not with the wind-up
+  tremorFx(700);
+  burst(u, 'splash');
+  await sleep(beat(170));
+}
+
+// The floor shudders: the cave-quake judder, reused by anything that drives into the ground.
+function tremorFx(ms = 900) {
+  const arena = $('#arena');
+  if (reduced || !arena) return;
+  arena.classList.remove('tremor');
+  void arena.offsetWidth;   // restart the shake if two pounds land back to back
+  arena.classList.add('tremor');
+  setTimeout(() => arena.classList.remove('tremor'), ms);
+}
+
 // One short tremor: the cave-quake judder and grit for two beats, and dust at every enemy's feet.
 function quakeFx(targets) {
-  const arena = $('#arena');
-  if (!reduced && arena) {
-    arena.classList.remove('tremor');
-    void arena.offsetWidth;   // restart the shake if two pounds land back to back
-    arena.classList.add('tremor');
-    setTimeout(() => arena.classList.remove('tremor'), 900);
-  }
+  tremorFx(900);
   for (const t of targets) if (t.hp > 0) burst(t, 'smoke');
 }
 
@@ -12047,6 +12383,7 @@ function renderBattle() {
       `<li class="chip ${FX[e.id].kind}"><span class="ico">${FX[e.id].icon}</span><span class="txt">${FX[e.id].label}${e.charges != null ? ` ×${e.charges}` : e.until != null || e.turns >= 99 ? '' : ` ${e.turns}`}</span></li>`).join('');
     syncStatusFx(el, u);
     el.classList.toggle('winding', !!u.windup);
+    el.classList.toggle('frenzied', !!u.frenzy);   // Blood Frenzy: his axes run red while it lasts
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
@@ -12085,7 +12422,7 @@ function renderBattle() {
     // Keys 1–5 still follow the loadout order (skillsOf), wherever the button sits.
     const btn = (s, i) => `
       <button class="act" type="button" data-id="${s.id}" title="${escHTML(`${s.name}: ${s.desc}`)}" aria-label="${escHTML(`${s.name}. ${s.desc}`)}">
-        <span class="aico">${skillIcon(s)}${s.sig ? '<span class="star" aria-hidden="true">★</span>' : ''}${s.rank ? `<span class="rkb" title="Rank ${s.rank}: ${rankBonusText(s, s.rank)}">R${s.rank}</span>` : ''}${act.you ? `<kbd>${i + 1}</kbd>` : ''}<span class="cdn"></span><span class="mpc"></span></span>
+        <span class="aico">${skillIcon(s)}${s.sig ? '<span class="star" aria-hidden="true">★</span>' : ''}${s.rank ? `<span class="rkb" title="Rank ${s.rank}: ${rankBonusText(s, s.rank)}">R${s.rank}</span>` : ''}${commandable(act) ? `<kbd>${i + 1}</kbd>` : ''}<span class="cdn"></span><span class="mpc"></span></span>
         <span class="nm">${s.name}</span>
         <span class="combo" hidden>Discipline +15%</span>
       </button>`;
@@ -12107,10 +12444,10 @@ function renderBattle() {
     mpc.classList.toggle('short', !blood && broke);
     mpc.classList.toggle('blood', blood);
     b.querySelector('.cdn').textContent = hushed ? '🔇' : cd ? cd : '';
-    b.disabled = !(state.phase === 'choose' && act.side === 'p' && usable(act, s));
+    b.disabled = !(state.phase === 'choose' && commandable(act) && usable(act, s));
     b.classList.toggle('armed', state.pending === s.id);
     const combo = b.querySelector('.combo');
-    combo.hidden = !(act.faction === 'human' && act.side === 'p' && act.lastAction && act.lastAction !== s.id && !cd);
+    combo.hidden = !(act.faction === 'human' && commandable(act) && act.lastAction && act.lastAction !== s.id && !cd);
     combo.textContent = `Discipline +${Math.round(disciplineBonus() * 100)}%`;
   });
   $('#prompt').hidden = !pending;
@@ -12119,7 +12456,7 @@ function renderBattle() {
 
 // Satchel row under the actions: only on your own champion's turn. Keys 6–9 then 0 follow ITEM_KEYS order.
 function renderSatchel(act) {
-  const mine = !!act && act.you && !['won', 'lost', 'cleared'].includes(state.phase);   // only your champion uses the satchel
+  const mine = !!act && act.you && !sparring() && !['won', 'lost', 'cleared'].includes(state.phase);   // only your champion uses the satchel, and never in a spar
   $('#satchel').hidden = !mine;
   if (!mine) return;
   const owned = ITEM_KEYS.filter((k) => profile.items[k] > 0);
@@ -12162,7 +12499,16 @@ function showEndOverlay() {
     const pct = c && u ? Math.round((c.hp / u.maxHp) * 100) : 100;
     return `<li><span class="mini">${spriteSVG(id)}</span><b>${i === 0 ? heroName() : shortName(charById(id))}</b><span class="hpbar"><span style="width:${pct}%"></span></span><small>${pct}% HP</small></li>`;
   }).join('')}</ul>`;
-  if (dg && phase === 'won' && state.dg.done) {
+  if (sparring() && (phase === 'won' || phase === 'lost')) {
+    kick = 'Sparring · Training Yard';
+    title = phase === 'won' ? 'Your side wins the spar' : 'The other side wins the spar';
+    body = `<p>${state.round} round${state.round === 1 ? '' : 's'} on the practice ground. Nothing was won or lost, and everyone walks away healed.</p>`;
+    buttons = [
+      { label: 'Spar again', primary: true, fn: startSpar },
+      { label: 'Change the matchup', fn: () => { toVillage(); state.trainTab = 'spar'; openPlace('train'); } },
+      { label: 'Return to the village', fn: toVillage },
+    ];
+  } else if (dg && phase === 'won' && state.dg.done) {
     const ch = state.dg.chest;
     kick = `Dungeon cleared · ${dg.name}`;
     title = `${MONSTERS[dg.boss].name} falls`;
@@ -12309,6 +12655,18 @@ $('#speedBtn').addEventListener('click', () => {
   renderSpeedBtn();
 });
 renderSpeedBtn();
+// Battle log: hide or show it, remembered in this browser.
+const LOG_KEY = 'burizza.logHidden';
+function setLogHidden(hide) {
+  document.body.classList.toggle('logHidden', hide);
+  const b = $('#logBtn');
+  b.textContent = hide ? 'Show log' : 'Hide log';
+  b.setAttribute('aria-expanded', String(!hide));
+  b.title = hide ? 'Show the battle log' : 'Hide the battle log';
+  try { localStorage.setItem(LOG_KEY, hide ? '1' : '0'); } catch {}
+}
+$('#logBtn').addEventListener('click', () => setLogHidden(!document.body.classList.contains('logHidden')));
+setLogHidden((() => { try { return localStorage.getItem(LOG_KEY) === '1'; } catch { return false; } })());
 // Fast forward: only offered while your champion is down and the fight is still going.
 function renderFfwd() {
   const b = $('#ffwdBtn');
