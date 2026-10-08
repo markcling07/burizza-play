@@ -59,6 +59,8 @@ ul.sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .sk li.pas { padding-top: 8px; border-top: 1px dashed var(--line); }
 .sk li.pas .nm { color: var(--acc); }
 .sk li.pas.alt { border-top: 0; padding-top: 0; opacity: .8; }
+/* A champion's Nature: always on, no slot, nothing swaps it away. */
+.sk li.nat .nm { color: var(--support); }
 .generic { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
 .generic .sk li { background: var(--panel); border: 1px dashed var(--line); border-radius: 12px; padding: 10px; }
 .err { padding: 14px; border: 1px solid #e0455a; border-radius: 10px; color: #ffb3bd; }
@@ -73,6 +75,7 @@ ul.sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
       <li><b>CD</b> = cooldown in turns</li>
       <li><b>★</b> = signature, unlocks on the 3rd turn</li>
       <li>Round icon = passive (some champions have two to choose from)</li>
+      <li><b>Nature</b> = what no training changes: always on, takes no slot, nothing swaps it away</li>
       <li>Loadout: equip 2 actives + 1 passive (more slots at Lv 5, 10, 15)</li>
     </ul>
   </header>
@@ -91,7 +94,8 @@ const between = (src, from, to) => { const a = src.indexOf(from), b = src.indexO
 
 fetch('index.html').then((r) => r.text()).then((src) => {
   const data = new Function(
-    `${between(src, 'const D = (', 'const ATTACK =')}
+    `${between(src, 'const CRIMSON_MEND_PCT', 'const BLOOD_COST')}
+     ${between(src, 'const D = (', 'const ATTACK =')}
      ${between(src, 'const FACTIONS = {', 'const FACTION_KEYS')}
      ${between(src, 'const NEUTRAL_SKILLS = {', 'const NEUTRAL_KEYS')}
      ${between(src, 'const GENERIC_PASSIVES = {', 'const GENERIC_KEYS')}
@@ -114,6 +118,7 @@ fetch('index.html').then((r) => r.text()).then((src) => {
           ${row(b, 'sig', `Signature · CD ${b.cd}`)}
           ${c.passive ? row(c.passive, 'pas', c.passiveAlt ? 'Passive · default' : 'Passive') : ''}
           ${c.passiveAlt ? row(c.passiveAlt, 'pas alt', 'Other passive · equip instead') : ''}
+          ${c.nature ? row(c.nature, 'pas nat', 'Nature · always on') : ''}
         </ul></article>`;
     }).join('');
     return `<section id="f-${k}" style="--acc:${ACC[k]};--acc-dim:${ACC[k]}33"><header><h2>${esc(f.name)}</h2>

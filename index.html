@@ -270,6 +270,8 @@ h1 {
 .pick .bio { margin: 0; font-size: .82rem; color: var(--muted); }
 .pick .sk { grid-column: 1 / -1; list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; font-size: .8rem; color: var(--muted); line-height: 1.3; }
 .pick .sk b { color: var(--fg); }
+/* A champion's Nature: the always-on trait no loadout swaps away. Soft green wherever it shows. */
+.pick .sk li.nat b, .cpas.nat b { color: #8fd6a0; }
 .pick .sk li { display: flex; gap: 8px; align-items: flex-start; }
 .pick .sk .sic { flex: none; width: 28px; height: 28px; }
 .pick .sk .pas b { color: var(--accent); }
@@ -1980,8 +1982,13 @@ const R = (name, desc, cd, pct, o = {}) => ({ name, desc, cd, pct, o, kind: 'rev
    skills = [skill, ★ signature, then three more]; passive = always-on trait (P), the default;
    passiveAlt = an optional second own passive the player can equip instead (loadout id 'alt')
    look = placeholder sprite recipe (see SPRITES below)
+   nature = { name, desc }: the champion's NATURE — the thing about them no training changes.
+   Always on, takes no slot, and no loadout swaps it away. The nature field is the display;
+   the mechanic itself rides its own flag (watch = Covering Fire, floats = flight), so a new
+   Nature is: add the flag's machinery, then name it here. Shown on the pick card, the
+   champions page and the battle panel ("Nature · <name>").
    floats = hovers above the battlefield: melee runs become flights (dashTo) and Stagger,
-   a footing effect, can never take hold (addFx) — innate, so no loadout swaps it away
+   a footing effect, can never take hold (addFx) — part of her Nature, so no loadout swaps it away
    ================================================================== */
 const ROSTER = [
   // ---- Ironclad Union (Mech) ----
@@ -2104,10 +2111,11 @@ const ROSTER = [
     passiveAlt: P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }) },
   { id: 'mara', name: 'Mara Holt', short: 'Mara', faction: 'human', role: 'ranged', bio: 'Musketeer with a steady hand.',
     mods: { agi: 0.9, atk: 1.05 },
-    // Covering Fire, innate like Seraxa's wings: every `watch` turns taken on the field by anyone,
-    // she snaps off a free 100% shot at a random enemy the targeting law allows — taunters first
-    // (see THE TURN PULSE). No loadout swaps it away.
+    // Covering Fire is her Nature: every `watch` turns taken on the field by anyone, she snaps
+    // off a free 100% shot at a random enemy the targeting law allows — taunters first
+    // (see THE TURN PULSE). Always on; no loadout swaps it away.
     watch: 5,
+    nature: { name: 'Covering Fire', desc: 'Every five turns taken on the field — friend or foe — she snaps off a free shot at a random enemy, taunters first.' },
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#c68f6a', hair: '#5a3520', weapon: 'gun' },
     skills: [D('Aimed Shot', '140% shot, +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
              D('Powder Shot', '220% shot, +50% crit chance.', 4, 2.2, { critBonus: 0.5 }),
@@ -2252,6 +2260,7 @@ const ROSTER = [
     passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }) },
   { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer — her feet never touch the ash.',
     mods: { hp: 0.9, agi: 1.3 }, floats: true,
+    nature: { name: 'On the Wing', desc: 'Her feet never touch the ash: she flies to her marks, and nothing that needs footing — Stagger, the quaking earth — can take hold of her.' },
     look: { body: 'demon', wings: '#3d1f4a', main: '#1f1626', trim: '#e05a9a', skin: '#7a3d8f', horn: '#2a1830', eye: '#ff6bb5', weapon: 'dagger' },
     skills: [D('Kiss of Ruin', '110% hit. Weakens the target.', 2, 1.1, { fx: [['weaken', 2]] }),
              D('Dance of Knives', 'Five cuts of 40%.', 4, 0.4, { hits: 5 }),
@@ -3153,10 +3162,14 @@ function rollPack(d) {
    rooms: fallen champions get back up at 30%, and everyone catches their
    breath a little. Each room pays XP and gold; the boss guards a chest,
    and the first clear of each dungeon also gives a trinket.
-   Wounded minions flee: on its turn, a monster at 10–40% HP runs deeper
-   into the dungeon (at most DG_FLEE_CAP per room, never in the boss room,
-   and each monster only once). The warband chases straight into the next
-   room, where the runaways rejoin the new pack still wounded.
+   Every room fields a full war party of DG_PACK_MIN–DG_PACK_MAX monsters:
+   the authored packs are grown to size with extra bodies from the same
+   dungeon, never stacking a second healer on a pack that already has one.
+   Wounded minions flee: on its turn, a monster whose HP has fallen to a
+   fifth (DG_FLEE_AT) runs deeper into the dungeon — the first DG_FLEE_CAP
+   to break are the only ones who go, never in the boss room, and each
+   monster only once. The warband chases straight into the next room,
+   where the runaways rejoin the new pack still wounded.
    Abandoning the run keeps everything earned so far.
    Monsters fight at your level, never below the dungeon's minimum.
    ================================================================== */
@@ -3204,9 +3217,10 @@ const DG_REVIVE = 0.3, DG_REST_HP = 0.12, DG_REST_MP = 0.15;  // between rooms (
 const BOSS_ENRAGE_AT = 0.5;                                    // bosses enrage below this share of HP
 const DG_XP_MULT = 0.35;                                       // a full 7-battle run is worth about a level and a bit
 const DG_ROOM_COUNT = 6;                                       // rooms before the boss room
-const DG_MAX_FOES = 4;                                         // a pack plus its runaways never tops this
-const DG_FLEE_MIN = 0.10, DG_FLEE_MAX = 0.40;                  // a minion flees with HP in (10%, 40%]
-const DG_FLEE_CAP = 2;                                         // at most this many flee from one room
+const DG_PACK_MIN = 4, DG_PACK_MAX = 5;                        // monsters in every normal room
+const DG_MAX_FOES = 5;                                         // a pack plus its runaways never tops this
+const DG_FLEE_AT = 0.20;                                       // a minion runs once its HP falls to this share or less
+const DG_FLEE_CAP = 2;                                         // the first 2 to break and run; nobody else flees that room
 
 // Heroes live in their faction folder; summons in characters/summons/; monsters in characters/monsters/.
 function spriteSVG(id) {
@@ -4352,8 +4366,8 @@ function addFx(u, id, turns, value = 0, quiet = false) {
     float(u, 'Blessed +1', 'fx');
   }
   // Stagger needs footing to take hold, and floating units — champion, monster or summon —
-  // have none. Innate — unlike a passive immunity, no loadout swap turns it off — and it
-  // shrugs off earthquakes too (staggerAll).
+  // have none. Part of their Nature — unlike a passive immunity, no loadout swap turns it
+  // off — and it shrugs off earthquakes too (staggerAll).
   if (id === 'stagger' && u.floats) {
     if (!quiet) { float(u, 'Airborne', 'fx'); log(`${u.name} floats — the Stagger finds no footing.`, u.side); }
     return;
@@ -5733,14 +5747,24 @@ const dgCondIs = (id) => dungeonRun()?.cond === id;
 const dgRooms = () => DG_ROOM_COUNT + 1;                   // normal rooms + the boss room
 const dgIsBossRoom = () => !!dungeonRun() && state.dg.room === DG_ROOM_COUNT;
 
-// The run's rooms: the dungeon's own packs first, then fresh packs rolled from the same monsters.
+// The run's rooms: the dungeon's own packs first — each grown to a full war party — then fresh
+// packs rolled from the same monsters. Every room fields DG_PACK_MIN–DG_PACK_MAX, and the grow
+// never stacks a second healer onto a pack that already has one (the cave's old shaman rule).
 function dgPlan(d) {
   const kinds = [...new Set(d.rooms.flat())];
-  const plan = d.rooms.slice(0, DG_ROOM_COUNT);
-  while (plan.length < DG_ROOM_COUNT) {
-    const size = plan.length === d.rooms.length ? 3 : 4;
-    plan.push(Array.from({ length: size }, () => pick(kinds)));
-  }
+  const healer = (id) => MONSTERS[id].role === 'support';
+  const grow = (pack, size) => {
+    const out = [...pack];
+    while (out.length < size) {
+      const id = pick(kinds);
+      if (healer(id) && out.some(healer)) continue;
+      out.push(id);
+    }
+    return out;
+  };
+  const roomSize = () => DG_PACK_MIN + Math.floor(Math.random() * (DG_PACK_MAX - DG_PACK_MIN + 1));
+  const plan = d.rooms.slice(0, DG_ROOM_COUNT).map((r) => grow(r, roomSize()));
+  while (plan.length < DG_ROOM_COUNT) plan.push(grow([], roomSize()));
   return plan;
 }
 
@@ -5764,11 +5788,11 @@ function enterRoom() {
   startBattle(true);
 }
 
-// A wounded minion takes its turn to run for it (see DUNGEONS above).
+// A wounded minion takes its turn to run for it (see DUNGEONS above): the first DG_FLEE_CAP
+// whose HP has fallen to DG_FLEE_AT or less break and run; after that the rest stand and die.
 function shouldFlee(u) {
   if (!dungeonRun() || dgIsBossRoom() || u.side !== 'e' || !u.monster || u.boss || u.fledOnce || !alive(u)) return false;
-  const left = u.hp / u.maxHp;
-  return left > DG_FLEE_MIN && left <= DG_FLEE_MAX && (state.dg.fledNow || 0) < DG_FLEE_CAP;
+  return u.hp / u.maxHp <= DG_FLEE_AT && (state.dg.fledNow || 0) < DG_FLEE_CAP;
 }
 
 async function flee(u) {
@@ -7517,7 +7541,7 @@ function buildSelect() {
           <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
           <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
           ${c.passiveAlt ? `<li class="pas">${skillIcon(c.passiveAlt)}<span><b>Or · ${c.passiveAlt.name}.</b> ${c.passiveAlt.desc}</span></li>` : ''}
-          ${c.watch ? `<li class="pas">${skillIcon({ name: 'Covering Fire' })}<span><b>Innate · Covering Fire.</b> Every ${numWord(c.watch)} turns taken on the field, friend or foe, she snaps off a free shot at a random enemy — taunters first.</span></li>` : ''}
+          ${c.nature ? `<li class="pas nat">${skillIcon(c.nature)}<span><b>Nature · ${c.nature.name}.</b> ${c.nature.desc}</span></li>` : ''}
         </ul>
         <span class="badge" hidden></span>
       </button>`).join('');
@@ -10974,9 +10998,10 @@ function passiveText(u) {
   const c = charById(u.id);
   const list = (u.passives || ['own']).map((id) => passiveById(c, id)).filter(Boolean);
   const own = list.map((ps) => `<span class="cpas">${skillIcon(ps)}<span><b>Passive · ${ps.name}:</b> ${ps.desc}</span></span>`).join('');
-  // Innate traits ride along whatever passive is equipped (Mara's Covering Fire).
-  const innate = u.watch ? `<span class="cpas">${skillIcon({ name: 'Covering Fire' })}<span><b>Innate · Covering Fire:</b> every ${numWord(u.watch)} turns taken on the field — friend or foe — she snaps off a free shot at a random enemy, taunters first. (${u.watchN || 0}/${u.watch})</span></span>` : '';
-  return factionPassive(u) + weather + own + innate;
+  // A champion's Nature rides along whatever passive is equipped — nothing swaps it away.
+  // Covering Fire shows its live count of the field's turns beside the text.
+  const nature = c.nature ? `<span class="cpas nat">${skillIcon(c.nature)}<span><b>Nature · ${c.nature.name}:</b> ${c.nature.desc}${u.watch ? ` (${u.watchN || 0}/${u.watch})` : ''}</span></span>` : '';
+  return factionPassive(u) + weather + own + nature;
 }
 
 function factionPassive(u) {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Burizza skill icon: On the Wing (Seraxa's Nature). Hand-drawn to match the 64x64 set. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+<defs>
+<linearGradient id="wing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b3d82"/><stop offset="1" stop-color="#2a1830"/></linearGradient>
+<linearGradient id="membrane" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b06ad0"/><stop offset="1" stop-color="#4a2458"/></linearGradient>
+<radialGradient id="glow" cx=".5" cy=".42" r=".7"><stop offset="0" stop-color="#e05a9a" stop-opacity=".35"/><stop offset="1" stop-color="#e05a9a" stop-opacity="0"/></radialGradient>
+</defs>
+<rect x="2" y="2" width="60" height="60" rx="14" fill="#232839"/>
+<rect x="2" y="2" width="60" height="60" rx="14" fill="url(#glow)"/>
+<!-- the ash below, untouched -->
+<path d="M10 52 Q20 49.5 32 52 Q44 54.5 54 52" fill="none" stroke="#5d6780" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>
+<path d="M16 56 h5 M28 57 h4 M41 56 h5" stroke="#454d61" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+<!-- the demon wing, spread mid-beat, clear of the ground -->
+<path d="M14 30 Q20 12 40 10 Q35 15 34 20 Q44 16 52 19 Q45 23 43 27 Q50 27 55 32 Q46 32 41 36 Q33 42 24 40 Q17 37 14 30 Z"
+  fill="url(#wing)" stroke="#15121d" stroke-width="2" stroke-linejoin="round"/>
+<path d="M22 36 Q28 24 40 13 M27 38 Q35 28 47 21 M32 39 Q39 32 52 30" fill="none" stroke="url(#membrane)" stroke-width="2" stroke-linecap="round" opacity=".85"/>
+<!-- wing claw -->
+<path d="M14 30 q-3 -3 -2 -7 q3 2 4 5 z" fill="#e05a9a" stroke="#15121d" stroke-width="1.6"/>
+<!-- the lift: air curling under the beat -->
+<path d="M18 45 q6 -3 12 0 M34 46 q5 -2.5 10 0" fill="none" stroke="#f2c6d8" stroke-width="1.8" stroke-linecap="round" opacity=".65"/>
+</svg>
