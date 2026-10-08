@@ -673,6 +673,23 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   border: 1px solid #0f0a06; border-radius: 10% 10% 4% 4%;
   box-shadow: inset 0 0 0 2px rgba(159, 196, 162, .25);
 }
+/* THE GRAVEYARD FENCE (Barrow's Obstacle): a row of iron railings with spear tops rises before
+   the protected unit, on the side it faces its enemies, lit the Pale Host's grave-green. It is
+   scenery, not a unit — pointer-events stay off so clicks fall through to the figure behind it. */
+.unit.fenced .upic::after {
+  content: ''; position: absolute; z-index: 4; pointer-events: none;
+  bottom: 2%; right: -9%; width: 42%; height: 60%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 6%, #0d1116 6% 8.5%, transparent 8.5% 14%) 0 0 / 100% 12% no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 6%, #222a33 6% 8.5%, transparent 8.5% 14%),
+    linear-gradient(#39434f, #2a323b) 0 30% / 100% 5% no-repeat,
+    linear-gradient(#39434f, #2a323b) 0 86% / 100% 5% no-repeat;
+  filter: drop-shadow(0 0 5px rgba(126, 230, 150, .55)) drop-shadow(0 2px 2px rgba(0, 0, 0, .65));
+  transform-origin: bottom center;
+  animation: fenceRise .5s cubic-bezier(.2, .9, .3, 1.35) both;
+}
+.unit.e.fenced .upic::after { right: auto; left: -9%; }   /* enemies face left, so the fence stands on their left */
+@keyframes fenceRise { from { transform: translateY(45%) scaleY(.08); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes idle { 50% { transform: translateY(-2px) scaleY(1.015); } }
 @keyframes ringPulse { 50% { opacity: .45; } }
 .upic { position: relative; width: 100%; height: 100%; }
@@ -1936,6 +1953,11 @@ const FX = {
   // held in rather than blows it has taken, so neither can be cleansed, stolen or resisted.
   undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: the next damage it takes is the end, and no mending can reach it' },
   coffin:   { icon: '⚰️', label: 'Coffined',  kind: 'good', verb: 'is sealed in a coffin: nothing can target it, area attacks wash over it, and no mending reaches in' },
+  // Barrow's Graveyard Fence: an iron fence stands before the protected ally. No melee blow can
+  // reach them, though area attacks and ranged shots still find them. The wall holds both ways —
+  // a melee ally so fenced cannot swing out past it, while a ranged ally fires over it freely.
+  // Counted in the owner's own turns like any ward (see validTargets and usable).
+  protected: { icon: '🪦', label: 'Protected', kind: 'good', verb: 'stands behind a graveyard fence: no melee blow reaches them, though area attacks and ranged shots still do' },
   // BASH and FEAR are counted on the field's global clock — in Tolls (any unit's turn-start, see
   // THE TURN PULSE), not the owner's own turns. BASH holds the unit off the speed bar outright;
   // FEAR only shoves it back a little, so it still acts, just later.
@@ -2152,7 +2174,8 @@ const ROSTER = [
              D('Arcane Edge', '100% cut plus 20% of her current mana as extra damage.', 3, 1.0, { manaDamage: 0.2 }),
              D('Mageslayer', '110% cut. Burns 30 of the target\'s mana as extra damage and Silences them for 2 turns.', 4, 1.1, { manaBurn: 30, fx: [['silence', 3]] }),
              D('Runed Thrust', '140% cut plus 15% of her current mana as extra damage. Sunders the target\'s armor.', 3, 1.4, { manaDamage: 0.15, fx: [['sunder', 3]] })],
-    passive: P('Arcane Ward', 'Starts every battle Shielded for her first 2 turns.', { startFx: [['shield', 3]] }) },
+    passive: P('Arcane Ward', 'Starts every battle Shielded for her first 2 turns.', { startFx: [['shield', 3]] }),
+    passiveAlt: P('Heroic', 'When a melee attacker strikes at one of her allies, 15% chance Wren throws herself into its path — she takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.15 }) },
   { id: 'garrick', name: 'Sir Garrick Vane', short: 'Garrick', faction: 'human', role: 'melee', bio: 'Heavily armored paladin.',
     mods: { hp: 1.1, def: 1.25, atk: 0.9, agi: 0.85 },
     look: { body: 'human', helm: true, main: '#d7dbe4', trim: '#d9b44a', skin: '#c68f6a', weapon: 'hammer', shield: '#3e5a8c' },
@@ -2163,7 +2186,8 @@ const ROSTER = [
              D('Hammer of Judgement', '150% holy smash. Never misses, with a 40% chance to stun.', 4, 1.5, { magic: true, noDodge: true, stun: 0.4 }),
              B('Lionheart', 'Taunt all enemies and take 60% less damage for 2 turns.', 5, 'self', [['taunt', 3], ['ward', 2]])],
     passive: P('Retribution', 'When he takes a hit, every enemy takes 20% of that damage.', { retribution: 0.2 }),
-    passiveAlt: P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }) },
+    passiveAlt: [P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }),
+                 P('Heroic', 'When a melee attacker strikes at one of his allies, 25% chance Sir Garrick throws himself into its path — he takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.25 })] },
   { id: 'mara', name: 'Mara Holt', short: 'Mara', faction: 'human', role: 'ranged', bio: 'Musketeer with a steady hand.',
     mods: { agi: 0.9, atk: 1.05 },
     // Covering Fire is her Nature: every `watch` turns taken on the field by anyone, she snaps
@@ -2381,7 +2405,8 @@ const ROSTER = [
              B('Barrow Wall', 'Taunt every enemy and raise the grave-plate: shielded for 3 turns, and every ill thing on him is left in the dirt.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
              D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
              D('Crypt Breaker', '155% blow that ignores armor.', 3, 1.55, { pierce: true }),
-             B('Hold the Grave', 'Set his feet: thorns and a shield for 2 turns.', 4, 'self', [['thorns', 3], ['shield', 2]])],
+             B('Hold the Grave', 'Set his feet: thorns and a shield for 2 turns.', 4, 'self', [['thorns', 3], ['shield', 2]]),
+             B('Graveyard Fence', 'Raise an iron graveyard fence before an ally champion: they are Protected for 2 turns. No melee blow can reach them — though area attacks and ranged shots still do. The wall holds both ways: a melee ally fenced in cannot swing out past it, while a ranged ally fires over it freely, and any ally can still cast and Guard. The fence is no unit of its own.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' })],
     passive: P('Feast of the Fallen', 'Whenever anything on the field dies, friend or foe, he drinks 15% of his current HP. The grave feeds him directly, so the Pale Host\'s halved mending does not touch it.', { deathHeal: 0.15 }) },
   { id: 'cadris', name: 'Cadris Gravecall', short: 'Cadris', faction: 'undead', role: 'ranged', bio: 'Raises what the road leaves behind, and spends it freely.',
     mods: {},
@@ -3676,8 +3701,14 @@ const GENERIC_PASSIVES = {
   spikedcloak: P('Spiked Cloak', 'When hit, 20% chance the attacker starts Bleeding.', { onHitTaken: { chance: 0.2, fx: [['bleed', 3, 0.2]] } }),
 };
 const GENERIC_KEYS = Object.keys(GENERIC_PASSIVES);
-const passiveById = (c, id) => (id === 'own' ? c.passive : id === 'alt' ? c.passiveAlt : GENERIC_PASSIVES[id]);
-const passivePool = (c) => ['own', ...(c.passiveAlt ? ['alt'] : []), ...GENERIC_KEYS];
+// A champion may offer more than one alternative own passive: passiveAlt can be a single P or an
+// array of them. They take loadout ids 'alt', 'alt2', 'alt3'… — 'alt' stays index 0 so older
+// saves keep the choice they made.
+const altList = (c) => (c && c.passiveAlt ? (Array.isArray(c.passiveAlt) ? c.passiveAlt : [c.passiveAlt]) : []);
+const altId = (i) => (i === 0 ? 'alt' : `alt${i + 1}`);
+const altIndex = (id) => (id === 'alt' ? 0 : /^alt\d+$/.test(id) ? +id.slice(3) - 1 : -1);
+const passiveById = (c, id) => (id === 'own' ? c.passive : altIndex(id) >= 0 ? altList(c)[altIndex(id)] : GENERIC_PASSIVES[id]);
+const passivePool = (c) => ['own', ...altList(c).map((_, i) => altId(i)), ...GENERIC_KEYS];
 const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5 }[id]];
 
 /* THE TRAINING YARD — a neutral skill or a learned passive is a technique, and a champion has to
@@ -3935,16 +3966,31 @@ function validTargets(u, sk) {
   // openAllies, so area attacks and mass blessings still reach him — only single targeting skips him.
   if (sk.target === 'enemy') {
     const foes = openFoes(u).filter((f) => !f.attachedTo);
+    // Graveyard Fence: an iron fence only turns aside a MELEE attacker closing in (not a hurled
+    // or gust skill, which come over the top). A ranged attacker shoots clean over it, so it is
+    // no wall to them. Whenever every option is walled, a cornered attacker breaks through rather
+    // than deadlock — the same soft fallback the front line uses.
+    const meleeAtk = u.role === 'melee' && !sk.o?.hurl && !sk.o?.gust;
+    const reachable = (list) => {
+      if (!meleeAtk) return list;
+      const open = list.filter((f) => !has(f, 'protected'));
+      return open.length ? open : list;
+    };
     const taunters = foes.filter((f) => has(f, 'taunt') || has(f, 'provoke'));
-    if (taunters.length) return taunters;
+    // A taunter the fence keeps the melee out of reach of cannot hold it — it looks past the
+    // taunt to whoever it can actually reach. A ranged attacker is bound by the taunt as ever.
+    const openTaunters = meleeAtk ? taunters.filter((f) => !has(f, 'protected')) : taunters;
+    if (openTaunters.length) return openTaunters;
+    if (taunters.length && !meleeAtk) return taunters;
     if (frontlineUp(foes[0]?.side) && !charNat(u).slipline) {   // no line holds a hound (Gorehound)
-      const front = foes.filter((f) => f.role === 'melee');
+      const front = reachable(foes.filter((f) => f.role === 'melee'));
       if (front.length) return front;
     }
-    return foes;
+    return reachable(foes);
   }
   if (sk.target === 'ally') {
-    const allies = openAllies(u).filter((a) => !a.attachedTo);
+    let allies = openAllies(u).filter((a) => !a.attachedTo);
+    if (sk.o?.championsOnly) allies = allies.filter((a) => !a.summon);   // the fence is for a champion, not a raised servant
     return sk.o?.notSelf ? allies.filter((a) => a !== u) : allies;
   }
   // Second Burial alone looks past the living: its marks are this side's fallen champions. One
@@ -3960,6 +4006,11 @@ function usable(u, sk) {
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
   if (u.cooldowns[sk.id] > 0) return false;
+  // Fenced in (Graveyard Fence): the wall holds both ways. A MELEE unit behind it cannot swing
+  // out past its own fence — its basic Attack and every melee damage skill are shut off (a hurled
+  // or gust skill still goes over the top). A ranged unit fires clean over it, and anyone fenced
+  // can still cast a non-attack skill or Guard.
+  if (has(u, 'protected') && u.role === 'melee' && sk.kind === 'damage' && !sk.o?.hurl && !sk.o?.gust) return false;
   // Sea-Sung (Seraphine's Nature): at High Tide her songs cost half their mana.
   if ((charNat(u).seasung && highTide() ? Math.ceil((sk.mp || 0) / 2) : (sk.mp || 0)) > (u.mp || 0)) return false;
   if (['enemy', 'ally', 'deadAlly'].includes(sk.target) && !validTargets(u, sk).length) return false;
@@ -4163,8 +4214,22 @@ function searContact(mech, foe) {
 // One hit: dodge → damage = ATK × mult × (±10%) × 50/(50+DEF) → crit, status and faction modifiers.
 function strikeOnce(u, t, mult, label, o) {
   if (t.hp <= 0) return { miss: true };
+  // Heroic (Wren, Garrick — their opt-in passive): a melee blow swung at an ally may be met by a
+  // sworn guardian who throws themselves into its path, taking it in the ally's place and then
+  // answering with a full counter (queued below). Single-target melee only, never off another
+  // counter, and the guardian takes the blow deliberately — no stepping in only to dodge it.
+  let heroicHit = false;
+  if (!o.counter && !o.aoe && u.role === 'melee' && !o.hurl && !o.gust) {
+    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && pv(a).heroic && chance(pv(a).heroic));
+    if (g) {
+      float(g, '🛡️ Heroic', 'fx');
+      log(`${g.name} throws into the path of the blow meant for ${t.name}, taking it in their place.`, g.side);
+      t = g;
+      heroicHit = true;
+    }
+  }
   // Vaun's Breathless: no breath to hold, no waver — his basic Attack cannot be dodged.
-  const dodge = o.noDodge || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
+  const dodge = heroicHit || o.noDodge || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
   const miss = dodge + (has(u, 'blind') ? 0.35 : 0);
   if (miss > 0 && chance(miss)) {
     float(t, 'Miss', 'miss');
@@ -4313,6 +4378,11 @@ function strikeOnce(u, t, mult, label, o) {
   const oh = TP.onHitTaken;
   if (oh && !o.counter && t.hp > 0 && u.hp > 0 && (!oh.melee || u.role === 'melee') && chance(oh.chance)) {
     for (const [id, turns, val] of oh.fx) addFx(u, id, turns, val ? Math.round(t.atk * val) : 0);
+  }
+  // Heroic's answer: the guardian who stepped in lands a guaranteed full counter on the attacker.
+  // Queued before the tally below, so it stands in for (not on top of) the generic counterattack.
+  if (heroicHit && !o.counter && u.hp > 0 && t.hp > 0) {
+    (state.counters ||= []).push({ by: t, at: u, mult: 1, label: 'Heroic', o: { counter: true, noDodge: true } });
   }
   // Ripostes and counterattacks are queued and played out once the attacker's blows have landed
   // (resolveCounters), so the defender visibly swings back. One per defender per action.
@@ -8079,7 +8149,7 @@ function loadoutCardHTML(c, kind, id, on) {
       + (r ? ` · Rank ${r}/${RANK_CAP}` : '')
       // Worn kit wards physical and magic separately, so a damage skill says which it is.
       + (s.kind === 'damage' && isMagic(s.o) ? ` · Magic` : '')
-    : id === 'own' ? `${shortName(c)}'s passive` : id === 'alt' ? `${shortName(c)}'s other passive` : isHeroId(c.id) ? 'Learned passive' : 'General passive';
+    : id === 'own' ? `${shortName(c)}'s passive` : altIndex(id) >= 0 ? `${shortName(c)}'s other passive` : isHeroId(c.id) ? 'Learned passive' : 'General passive';
   const rkrow = r || canUp ? `<span class="rkrow">
       ${r ? `<span class="rkd">Rank ${r}: ${rankBonusText(s, r)}</span>` : ''}
       ${canUp ? `<span class="rkup" role="button" tabindex="0" data-rank="${id}" aria-label="Spend a skill point: raise ${s.name} to rank ${r + 1}">+1 Rank</span>` : ''}
@@ -8254,7 +8324,7 @@ function buildSelect() {
           ${[0, 2, 3, 4, ...(c.skills[5] ? [5] : [])].map((i) => `<li>${skillIcon(c.skills[i])}<span><b>${c.skills[i].name}.</b> ${c.skills[i].desc}</span></li>`).join('')}
           <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
           <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
-          ${c.passiveAlt ? `<li class="pas">${skillIcon(c.passiveAlt)}<span><b>Or · ${c.passiveAlt.name}.</b> ${c.passiveAlt.desc}</span></li>` : ''}
+          ${altList(c).map((p) => `<li class="pas">${skillIcon(p)}<span><b>Or · ${p.name}.</b> ${p.desc}</span></li>`).join('')}
           ${c.nature ? `<li class="pas nat">${skillIcon(c.nature)}<span><b>Nature · ${c.nature.name}.</b> ${c.nature.desc}</span></li>` : ''}
         </ul>
         <span class="badge" hidden></span>
@@ -11907,6 +11977,7 @@ function renderBattle() {
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
+    el.classList.toggle('fenced', u.hp > 0 && has(u, 'protected'));   // the graveyard fence stands before them
     el.classList.toggle('planted', !!u.planted);
     el.classList.toggle('pinned', u.hp > 0 && pinned(u));   // Last Rites: the two iron crosses stand over it   // Mordrek with his cross in the ground: no weapon in hand
     const tgt = targets.includes(u);
