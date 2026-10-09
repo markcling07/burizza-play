@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ilse Varrow (NPC) - Cinderhold villager art. Headmistress; keeper of the Academy.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="ilse-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a4a6a"/><stop offset=".55" stop-color="#2c2c46"/><stop offset="1" stop-color="#1a1a2c"/></linearGradient>
+    <linearGradient id="ilse-sash" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5b8ad0"/><stop offset="1" stop-color="#2e4f86"/></linearGradient>
+    <linearGradient id="ilse-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecc8a8"/><stop offset="1" stop-color="#c49274"/></linearGradient>
+    <linearGradient id="ilse-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f0ea"/><stop offset="1" stop-color="#b4aea2"/></linearGradient>
+    <linearGradient id="ilse-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc8a"/><stop offset="1" stop-color="#b08a2e"/></linearGradient>
+    <linearGradient id="ilse-page" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf6e8"/><stop offset="1" stop-color="#e2d6b8"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="22" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- shoes -->
+    <path d="M43 88.5 h8 v5 h-9.5 z" fill="#2a1f2e"/>
+    <path d="M53.5 88.5 h8 l2.5 5 h-10.5 z" fill="#3a2a40"/>
+    <!-- long academic robe -->
+    <path d="M44 41 Q37 48 36.5 64 Q35 80 33.5 90.5 Q50 94 66.5 90.5 Q64.5 78 63 63 Q62 48 56.5 41 Z" fill="url(#ilse-robe)"/>
+    <path d="M34.3 86.5 Q50 90 66 86.5 L66.5 90.5 Q50 94 33.5 90.5 Z" fill="url(#ilse-gold)" stroke-width="1.1"/>
+    <!-- blue sash across the chest -->
+    <path d="M44.5 43 L60 62 L56.5 64 L42 46 Z" fill="url(#ilse-sash)" stroke-width="1.2"/>
+    <!-- white collar -->
+    <path d="M45.5 40.5 Q50.5 45.5 56 40.5 L55 38.6 Q50.5 42 46.5 38.6 Z" fill="#f2f0ea" stroke-width="1.1"/>
+    <!-- neck, head, hair in a neat bun -->
+    <circle cx="45.8" cy="22.6" r="5.2" fill="url(#ilse-hair)"/>
+    <path d="M50 34.5 h5 v5 h-5 z" fill="url(#ilse-skin)" stroke-width="1.1"/>
+    <circle cx="53.5" cy="28" r="8" fill="url(#ilse-skin)"/>
+    <path d="M45.6 30.5 Q44.2 19.4 53 18.6 Q61.6 18.4 62 25 Q57.6 21.6 53 23 Q49.6 24.4 49.4 33 Z" fill="url(#ilse-hair)"/>
+    <!-- quill tucked behind the ear -->
+    <path d="M47 27 Q42 18 41 11 Q46 17 48.6 25.5 Z" fill="#e9e4d8" stroke-width="1"/>
+    <!-- spectacles -->
+    <circle cx="57" cy="27.6" r="2.6" fill="#dfeefa" fill-opacity=".45" stroke="url(#ilse-gold)" stroke-width="1.3"/>
+    <path d="M54.4 27.4 l-2.8 -.6" stroke="url(#ilse-gold)" stroke-width="1.1"/>
+    <!-- forward arm holding an open book -->
+    <path d="M56 43 Q63.5 44 66 50 L67.4 55 L63.6 56.6 Q60.5 52 57.5 51 Z" fill="url(#ilse-robe)"/>
+    <path d="M60.5 52.5 Q66.5 48.5 72.5 51.5 L72.5 63 Q66.5 60 60.5 64 Z" fill="url(#ilse-page)" stroke-width="1.2"/>
+    <path d="M72.5 51.5 Q78.5 48.5 84.5 52.5 L84.5 64 Q78.5 60 72.5 63 Z" fill="url(#ilse-page)" stroke-width="1.2"/>
+    <path d="M60.5 64 Q66.5 60.5 72.5 63.6 Q78.5 60.5 84.5 64 L84.5 65.6 Q78.5 62.4 72.5 65.4 Q66.5 62.4 60.5 65.8 Z" fill="#2e4f86" stroke-width="1"/>
+    <circle cx="63.6" cy="57.2" r="2.7" fill="url(#ilse-skin)"/>
+  </g>
+  <!-- face -->
+  <circle cx="57" cy="27.8" r="1.1" fill="#1d2130"/>
+  <path d="M55 24.6 q2 -1 3.8 0" stroke="#8a8478" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M56 33 q2 1.3 3.8 0" stroke="#7a3a30" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M60.6 28.4 Q63.2 30.2 61.2 31.8" stroke="#a0705a" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <path d="M51.6 30.6 l1.6 .8 M52 32.4 l1.4 .4" stroke="#b07a60" stroke-width=".6" stroke-linecap="round"/>
+  <!-- lines of writing on the pages -->
+  <path d="M63 55 q4 -2 8 -.6 M63 57.6 q4 -2 8 -.6 M74.5 54.4 q4 -1.4 8 .6 M74.5 57 q4 -1.4 8 .6" stroke="#8a7a5a" stroke-width=".7" fill="none" stroke-linecap="round"/>
+</svg>

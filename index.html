@@ -752,28 +752,55 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   to { transform: none; opacity: 1; }
 }
 .unit.boxed .plate, .unit.boxed .chips { position: relative; z-index: 4; }   /* the name still reads over the lid */
+/* BURROW: Barrow sinks below the ground line - the figure slides down while a matching clip keeps
+   everything under the ground hidden, so he goes INTO the earth, not through it - and a fresh mound
+   rises where he stood. Coming back up runs the same in reverse. Uses the separate translate
+   property, so it never fights the transform-based lunges and hurt shakes. */
+.unit .upic { transition: translate .6s ease-in, clip-path .6s ease-in; }
+.unit.buried .upic { translate: 0 100%; clip-path: inset(0 0 100% 0); }
+.body > .mound { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3;
+  transform-origin: bottom center; transform: scaleY(0); opacity: 0; transition: transform .45s ease-out .25s, opacity .3s ease .25s; }
+.unit.buried .body > .mound { transform: none; opacity: 1; filter: drop-shadow(0 0 6px rgba(126, 230, 150, .3)) drop-shadow(0 3px 3px rgba(0, 0, 0, .5)); }
+.unit.buried .plate, .unit.buried .chips { position: relative; z-index: 4; opacity: .8; }
 /* THE GRAVEYARD FENCE (Barrow's Obstacle): a row of iron railings with spear tops rises before
    the protected unit, on the side it faces its enemies, lit the Pale Host's grave-green. It is
    scenery, not a unit — pointer-events stay off so clicks fall through to the figure behind it. */
 .unit.fenced .upic::after {
   content: ''; position: absolute; z-index: 4; pointer-events: none;
-  bottom: -5%; right: -15%; width: 68%; height: 98%;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 6%, #0d1116 6% 8.5%, transparent 8.5% 14%) 0 0 / 100% 12% no-repeat,
-    repeating-linear-gradient(90deg, transparent 0 6%, #222a33 6% 8.5%, transparent 8.5% 14%),
-    linear-gradient(#39434f, #2a323b) 0 30% / 100% 5% no-repeat,
-    linear-gradient(#39434f, #2a323b) 0 86% / 100% 5% no-repeat;
-  filter: drop-shadow(0 0 4px rgba(18, 92, 46, .95)) drop-shadow(0 0 14px rgba(24, 110, 56, .7));
+  bottom: 0; right: -15%; width: 68%; height: 92%;   /* the box's bottom edge is the ground it is planted in */
+  /* FENCE_ART (the same railing Barrow carries): lit iron, inked edges, grave-green spear tips, and a
+     faint green rim so it stands out against the dark field instead of melting into it. */
+  background: var(--fence-art) center bottom / 100% 100% no-repeat;
+  filter: drop-shadow(0 0 1px rgba(184, 255, 200, .55)) drop-shadow(0 0 4px rgba(126, 230, 150, .3)) drop-shadow(0 4px 4px rgba(0, 0, 0, .6));
   transform-origin: bottom center;
-  animation: fenceRise .8s cubic-bezier(.2, .9, .3, 1.3) both;
+  animation: fenceRise .75s cubic-bezier(.25, .8, .35, 1) both;
 }
 .unit.e.fenced .upic::after { right: auto; left: -9%; }   /* enemies face left, so the fence stands on their left */
+/* ...planted in a churned mound of grave-dirt (FENCE_DIRT), drawn in front of the fence's foot so the
+   bars go down into the ground. It is thrown up first, as the fence starts to come through. */
+.unit.fenced .upic::before {
+  content: ''; position: absolute; z-index: 5; pointer-events: none;
+  bottom: -4%; right: -19%; width: 76%; height: 15%;
+  background: var(--fence-dirt) center bottom / 100% 100% no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .5));
+  transform-origin: bottom center;
+  animation: dirtThrow .45s ease-out both;
+}
+.unit.e.fenced .upic::before { right: auto; left: -13%; }
+/* ...and the barrow-wight who planted it no longer has it in hand (see fenceOut in renderBattle). */
+.unit .wpn2 { transition: opacity .35s ease; }
+.unit.fenceOut .wpn2 { opacity: 0; }
+/* The fence comes UP through the ground: it slides up from below while a matching clip hides
+   whatever is still under the ground line, then settles with a small jolt. */
 @keyframes fenceRise {
-  from { transform: scaleY(0); opacity: 0; }
-  10% { opacity: 1; }
-  65% { transform: scaleY(1.08); }
-  82% { transform: scaleY(.96); }
-  93% { transform: scaleY(1.02); }
+  from { translate: 0 100%; clip-path: inset(0 0 100% 0); }
+  78% { translate: 0 0; clip-path: inset(0 0 0 0); rotate: 0deg; }
+  88% { rotate: -1.5deg; }
+  to { translate: 0 0; clip-path: inset(0 0 0 0); rotate: 0deg; }
+}
+@keyframes dirtThrow {
+  from { transform: scale(.3, .1); opacity: 0; }
+  50% { transform: scale(1.08, 1.3); opacity: 1; }
   to { transform: none; opacity: 1; }
 }
 @keyframes idle { 50% { transform: translateY(-2px) scaleY(1.015); } }
@@ -884,6 +911,38 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .bolt.sacredlight .sl-pool { fill: rgba(255, 224, 138, .55); filter: blur(3px); }
 .bolt.sacredlight circle { fill: #fffbe6; filter: drop-shadow(0 0 4px #ffd166); }
 .bolt.sacredlight circle, .bolt.sacredlight .sl-pool { transform-box: fill-box; transform-origin: center; }
+/* Execute's blood rite (bloodGather / bloodPillar / bloodTorrent): thick red streams, a red pillar to the
+   sky and a torrent of blood light back down. Same three-layer build as the beams above. */
+/* The streams are stroked curves; the pillar and torrent are filled shapes. */
+.bolt.rite path { fill: none; stroke-linecap: round; }
+.bolt.rite path.rt-glow { stroke: #8a0c20; stroke-width: 30; opacity: .6; filter: blur(5px); }
+.bolt.rite path.rt-body { stroke: #b8142a; stroke-width: 15; }
+.bolt.rite path.rt-core { stroke: #ff7a88; stroke-width: 4.5; filter: drop-shadow(0 0 6px #ff2a3e); }
+.bolt.rite polygon { stroke: none; }
+.bolt.rite polygon.rt-glow { fill: rgba(150, 12, 34, .35); filter: blur(5px); }
+.bolt.rite polygon.rt-body { fill: rgba(196, 20, 40, .72); }
+.bolt.rite polygon.rt-core { fill: rgba(255, 176, 186, .92); filter: drop-shadow(0 0 10px #ff2a3e); }
+.bolt.rite .rt-drop { fill: #d0182c; stroke: #4a0a14; stroke-width: 1; }
+.bolt.rite.gather .rt-drop { transform-box: view-box; }
+.bolt.rite.torrent .rt-drop, .bolt.rite .rt-pool, .bolt.rite .rt-orb, .bolt.rite .rt-orbcore { transform-box: fill-box; transform-origin: center; }
+.bolt.rite .rt-orb { fill: rgba(208, 24, 44, .55); filter: blur(2px) drop-shadow(0 0 12px #ff2a3e); }
+.bolt.rite .rt-orbcore { fill: #ff9aa6; }
+.bolt.rite .rt-pool { fill: rgba(176, 16, 36, .7); filter: blur(3px); }
+/* bleedBar: the HP a donor gives up to Execute, lit on their bar while it streams away. */
+/* White-hot stripes, so it never reads as ordinary HP fill, sliding the way the blood is leaving. */
+.bar .drain {
+  position: absolute; top: 0; bottom: 0;
+  background: repeating-linear-gradient(-45deg, #fff2f4 0 4px, #ff5a6c 4px 8px);
+  background-size: 11.3px 100%; box-shadow: inset 0 0 0 1px #fff, 0 0 10px #ff2a3e;
+  animation: drainSlide .4s linear infinite;
+}
+@keyframes drainSlide { to { background-position: 11.3px 0; } }
+.bar.hp.bleeding span { text-shadow: 0 0 3px #000, 0 1px 2px #000, 0 0 1px #000; }
+.bar.hp.bleeding { overflow: visible; transform-origin: 50% 50%; animation: bleedPulse .26s ease-in-out 6 alternate; }
+@keyframes bleedPulse {
+  from { transform: scaleY(1); box-shadow: 0 0 0 1.5px #ff3a4a, 0 0 10px rgba(255, 42, 62, .7); }
+  to { transform: scaleY(1.3); box-shadow: 0 0 0 2px #ffe0e4, 0 0 22px rgba(255, 42, 62, 1); }
+}
 /* ...and for her whole turn while the channel is open, a standing vein to every ally: blood flows
    along it and a heartbeat pulses where it takes hold (syncBloodTethers). */
 .tethers { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 245; pointer-events: none; overflow: visible; animation: tvIn .35s ease-out; }
@@ -1627,6 +1686,31 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 /* Your own champion: always framed in gold. */
 .tmini.you { border-color: var(--accent); background: radial-gradient(closest-side, rgba(232, 165, 72, .26), transparent 90%), var(--panel-2); box-shadow: 0 0 12px rgba(232, 165, 72, .3); }
 .tmini.you figcaption, .tmini.you small { color: var(--accent); }
+/* Shops: your champion's tile, with every slot they carry beside it (shopHeroHTML). */
+.shopHero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.shopHero .tmini { width: 92px; }
+.shopHero .tmini .mini { width: 74px; height: 74px; }
+.shopHero .tmini .lv { margin-top: 2px; font-size: .66rem; font-weight: 800; color: var(--fg); }
+.shopHero .kit { display: grid; gap: 7px; min-width: 0; }
+.shopHero .note { margin: 0; }
+.hslots { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 6px; }
+.hslot { display: flex; gap: 8px; align-items: center; min-width: 0; padding: 6px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+.hslot .ico { width: 34px; height: 34px; flex: none; }
+.hslot svg, .satch svg { display: block; width: 100%; height: 100%; }
+.hslot .t { display: grid; min-width: 0; }
+.hslot small { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hslot strong { font-size: .84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hslot em { font-style: normal; font-size: .72rem; color: var(--muted); }
+.hslot.open { border-style: dashed; background: transparent; }
+.hslot.open strong { color: var(--muted); }
+.hslot.focus, .satch.focus span:not(.none) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.hslot .gems { display: flex; gap: 3px; margin-top: 2px; }
+.hslot .gems i { display: block; width: 16px; height: 16px; }
+.satch { display: flex; flex-wrap: wrap; gap: 8px; }
+.satch span { position: relative; width: 36px; height: 36px; padding: 3px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); }
+.satch span.none { opacity: .4; border-style: dashed; background: transparent; }
+.satch b { position: absolute; right: -6px; bottom: -6px; padding: 0 4px; border-radius: 6px; font-size: .62rem; background: var(--panel-hi); border: 1px solid var(--line); }
+@media (max-width: 520px) { .shopHero .tmini { width: 80px; } .shopHero .tmini .mini { width: 62px; height: 62px; } }
 /* Ironsmith */
 .forge { display: grid; gap: 14px; min-width: 0; }
 @media (min-width: 860px) { .forge { grid-template-columns: minmax(0, 1fr) minmax(300px, 370px); align-items: start; } }
@@ -1643,9 +1727,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .hbtn small { font-size: .7rem; color: var(--muted); }
 .hbtn small.forged { color: var(--accent); }
 .anvil { display: grid; gap: 12px; padding: 14px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
-.anvil .who2 { display: flex; gap: 12px; align-items: center; }
 .anvil .pic { width: 84px; height: 84px; flex: none; }
-.anvil .who2 p { margin: 2px 0 0; }
 .gear { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
 .gear .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .pips { display: flex; gap: 4px; }
@@ -1674,6 +1756,35 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .inv .t small { font-size: .76rem; color: var(--muted); }
 .inv .mv { display: flex; flex-wrap: wrap; gap: 6px; }
 .trinkets { display: grid; gap: 8px; }
+/* The Academy: a strip of faces, the lesson card, the stat chart and the library page */
+.pickStrip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.pickStrip button { flex: none; width: 46px; height: 46px; padding: 2px; border-radius: 10px; cursor: pointer; background: var(--panel-2); border: 1px solid var(--line); }
+.pickStrip button[aria-pressed="true"] { border-color: var(--accent); background: var(--panel-hi); box-shadow: 0 0 0 1px var(--accent); }
+.pickStrip .mini { display: block; width: 100%; height: 100%; }
+.lesson { display: grid; gap: 8px; padding: 12px 14px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
+.lesson .lhead { display: flex; gap: 12px; align-items: center; }
+.lesson .lhead .pic { width: 72px; height: 72px; flex: none; }
+.lesson .lhead p { margin: 2px 0 0; }
+.lesson h4 { margin: 6px 0 0; font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.lesson ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: .9rem; line-height: 1.35; }
+.fchip { display: inline-block; padding: 0 8px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); font-size: .74rem; font-weight: 800; margin-right: 4px; }
+.libskills { list-style: none; padding: 0 !important; }
+.libskills li { display: flex; gap: 10px; align-items: flex-start; }
+.libskills .lsic { width: 34px; height: 34px; flex: none; }
+.libskills .lsic img { width: 100%; height: 100%; }
+.libskills p { margin: 2px 0 0; font-size: .84rem; color: var(--muted); }
+.tableWrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--line); }
+.chart { width: 100%; border-collapse: collapse; font-size: .84rem; font-variant-numeric: tabular-nums; }
+.chart th { position: sticky; top: 0; background: var(--panel-2); text-align: left; padding: 0; }
+.chart th button { font: inherit; font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: none; border: 0; padding: 8px 6px; cursor: pointer; white-space: nowrap; }
+.chart th button[aria-pressed="true"] { color: var(--accent); }
+.chart td { padding: 3px 6px; border-top: 1px solid var(--line); white-space: nowrap; }
+.chart tr.you td { background: rgba(232, 165, 72, .08); }
+.chart .cname { display: flex; align-items: center; gap: 6px; font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.chart .cname .mini { width: 30px; height: 30px; flex: none; }
+.chart .cname span:last-child { display: grid; line-height: 1.15; }
+.chart .cname small { color: var(--muted); font-size: .68rem; }
+.cbar { display: inline-block; min-width: 46px; padding: 1px 6px; border-radius: 4px; background: linear-gradient(90deg, rgba(232, 165, 72, .35) var(--p), transparent var(--p)); }
 /* Sparring setup at the Training Yard */
 .spar { display: grid; gap: 12px; }
 .sparSides { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
@@ -2153,6 +2264,8 @@ const FX = {
   // held in rather than blows it has taken, so neither can be cleansed, stolen or resisted.
   undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: the next damage it takes is the end, and no mending can reach it' },
   coffin:   { icon: '⚰️', label: 'Coffined',  kind: 'good', verb: 'is sealed in a coffin: nothing can target it, area attacks wash over it, and no mending reaches in' },
+  // Barrow's Burrow: under the grave-dirt for one round of the field's clock (TIMED_FX).
+  burrowed: { icon: '🕳️', label: 'Burrowed',  kind: 'good', verb: 'burrows into the grave-dirt for a round: nothing can target him, and area attacks pass over him' },
   // Barrow's Graveyard Fence: an iron fence stands before the protected ally. No melee blow can
   // reach them, though area attacks and ranged shots still find them. The wall holds both ways —
   // a melee ally so fenced cannot swing out past it, while a ranged ally fires over it freely.
@@ -2606,14 +2719,15 @@ const ROSTER = [
     passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
-    look: { body: 'ghoul', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', weapon: 'headstone', offhand: 'headstone' },
+    look: { body: 'wight', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', cape: '#2b302a', weapon: 'headstone', weaponScale: 1.3, offhand: 'gravefence', offhandScale: 1.45 },
     nature: { name: 'Lord of the Mound', desc: 'While any body lies on the field, the dead crowd round their lord: he takes 8% less.', mound: 1 },
     skills: [D('Tomb Slab', '120% slam with the grave slab.', 2, 1.2),
              B('Barrow Wall', 'Taunt every enemy and raise the grave-plate: shielded for 3 turns, and every ill thing on him is left in the dirt.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
              D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
              D('Crypt Breaker', '155% blow that ignores armor.', 3, 1.55, { pierce: true }),
              B('Hold the Grave', 'Set his feet: thorns and a shield for 2 turns.', 4, 'self', [['thorns', 3], ['shield', 2]]),
-             B('Graveyard Fence', 'Raise an iron graveyard fence before an ally champion: they are Protected for 2 turns. No melee blow can reach them — though area attacks and ranged shots still do. The wall holds both ways: a melee ally fenced in cannot swing out past it, while a ranged ally fires over it freely, and any ally can still cast and Guard. The fence is no unit of its own.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' })],
+             B('Graveyard Fence', 'Raise an iron graveyard fence before an ally champion: they are Protected for 2 turns. No melee blow can reach them — though area attacks and ranged shots still do. The wall holds both ways: a melee ally fenced in cannot swing out past it, while a ranged ally fires over it freely, and any ally can still cast and Guard. The fence is no unit of its own.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' }),
+             { name: 'Burrow', desc: 'Barrow buries himself in the grave-dirt for 1 round, holding his place on the speed bar: nothing can target him, and area attacks pass over him. He climbs back out when the round is up.', cd: 5, kind: 'burrow', target: 'self', o: {} }],
     passive: P('Feast of the Fallen', 'Whenever anything on the field dies, friend or foe, he drinks 15% of his current HP. The grave feeds him directly, so the Pale Host\'s halved mending does not touch it.', { deathHeal: 0.15 }) },
   { id: 'cadris', name: 'Cadris Gravecall', short: 'Cadris', faction: 'undead', role: 'ranged', bio: 'Raises what the road leaves behind, and spends it freely.',
     mods: {},
@@ -3137,6 +3251,60 @@ const BODIES = {
        <ellipse cx="93" cy="35" rx="8" ry="11" fill="#5a3d24"/>
        <path d="M86 30 l-4 -2 M99 33 l4 -2 M93 24 v-4 M88 42 l-4 2 M99 41 l4 2" stroke="${STEEL}" stroke-width="2" stroke-linecap="round"/>` };
   },
+  // Barrow only: a barrow-wight in the grave-plate of a lord nobody remembers. Tall and broad (the
+  // Pale Host's wall), corroded plate gone green with age and moss, a faded crown on the breastplate,
+  // a burial shroud trailing behind, and under the cowl a skull wearing the tarnished circlet, eyes
+  // lit grave-green. The hands stay where the ghoul's were — main hand [82, 62] carries the headstone
+  // over his shoulder, the off hand at (37, 72) holds a torn-off section of graveyard fence — so his WEAPON_STRIKES
+  // moves line up unchanged.
+  wight(a) {
+    const iron = a.main, dark = '#3d4337', mid = '#4b5243', lite = '#7b8270', shroud = a.cape || '#2b302a';
+    const eye = a.eye || '#8ee696', moss = '#7f9a55', bone = a.skin;
+    const rivet = (x, y) => `<circle cx="${x}" cy="${y}" r="1.1" fill="${lite}"/>`;
+    return { hand: [82, 62], shieldY: 0, svg:
+      `<ellipse cx="52" cy="56" rx="32" ry="38" fill="${eye}" opacity=".07"/>
+       <path d="M42 40 Q24 50 20 90 L25 86 L29 93 L34 86 L39 92 L43 85 L47 90 L48 60 Z" fill="${shroud}"/>
+       <path d="M40 44 Q28 56 25 84" stroke="#3b4339" stroke-width="2.4" fill="none" opacity=".8"/>
+       <path d="M37 74 h11 l-1 15 h-9 Z" fill="${dark}"/><path d="M34 89 h15 v4 h-16 Z" fill="#2a2f27"/>
+       <path d="M54 74 h11 l1 15 h-11 Z" fill="${iron}"/><path d="M53 89 h15 l4 4 h-19 Z" fill="${dark}"/>
+       <circle cx="59.5" cy="79" r="4" fill="${lite}" stroke="${INK}" stroke-width="1.2"/>
+       <path d="M33 69 L69 69 L71 81 L65 77 L59 82 L53 77 L47 82 L41 77 L35 81 Z" fill="${mid}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>
+       <path d="M35 46 Q29 58 35 70" stroke="${mid}" stroke-width="8.5" fill="none" stroke-linecap="round"/>
+       <circle cx="37" cy="71" r="4.6" fill="${lite}" stroke="${INK}" stroke-width="1.2"/>
+       <path d="M31 46 Q33 39 45 37 L60 37 Q71 39 73 46 L71 71 Q52 76 33 71 Z" fill="${iron}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>
+       <path d="M31 46 Q33 39 45 37 L52 37 L52 74 Q42 74 33 71 Z" fill="#000" opacity=".14"/>
+       <path d="M52 39 V73" stroke="${INK}" stroke-width="1.2" opacity=".55"/>
+       <path d="M36 50 Q52 46 68 50" stroke="${lite}" stroke-width="1.4" fill="none" opacity=".55"/>
+       <path d="M45 58 l2.2 -7 l4.8 4.6 l4.8 -4.6 l2.2 7 Z" fill="${a.trim}" opacity=".75" stroke="${INK}" stroke-width=".9"/>
+       <path d="M58 60 l-3 4 l2 3" stroke="${INK}" stroke-width="1" fill="none" opacity=".6"/>
+       <path d="M38 44 Q52 58 68 64" stroke="#8b9284" stroke-width="2.2" fill="none" stroke-dasharray="2.4 1.6" opacity=".85"/>
+       <ellipse cx="38" cy="62" rx="3.4" ry="2.2" fill="${moss}" opacity=".75"/><ellipse cx="66" cy="49" rx="2.6" ry="1.8" fill="${moss}" opacity=".7"/>
+       <ellipse cx="62" cy="80" rx="2.2" ry="1.4" fill="${moss}" opacity=".7"/>
+       <rect x="34" y="65" width="36" height="5" rx="1.5" fill="#3a2f22" stroke="${INK}" stroke-width="1"/>
+       <circle cx="52" cy="67.5" r="3" fill="${a.trim}" stroke="${INK}" stroke-width="1"/>
+       <circle cx="51" cy="67" r=".7" fill="${INK}"/><circle cx="53" cy="67" r=".7" fill="${INK}"/>
+       <path d="M27 47 Q29 36 42 36 Q45 43 41 50 Q33 52 27 47 Z" fill="${mid}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+       ${rivet(32, 44)}${rivet(37, 41)}
+       <path d="M45 39 Q54 33 64 38 L62 42 Q54 39 47 42 Z" fill="${mid}" stroke="${INK}" stroke-width="1.2"/>
+       <path d="M47 34 Q45 15 60 13 Q75 14 74 32 Q71 41 60 42 Q50 41 47 34 Z" fill="${shroud}" stroke="${INK}" stroke-width="1.4"/>
+       <path d="M53 31 Q52 19 61 18 Q70 19 70 29 Q70 35 66 38 L57 38 Q53 36 53 31 Z" fill="${bone}"/>
+       <path d="M53 31 Q52 19 61 18 Q56 22 56 30 Q56 35 58 38 L57 38 Q53 36 53 31 Z" fill="#000" opacity=".15"/>
+       <path d="M52 22 Q61 17 71 21 L71 24.5 Q61 20.5 52 25.5 Z" fill="${a.trim}" stroke="${INK}" stroke-width=".9"/>
+       <path d="M54 22.4 l1.6 -5 l2 4.2 Z M60 20.6 l2 -6 l2 5.6 Z M66.4 20.4 l2 -5 l1.6 5 Z" fill="${a.trim}" stroke="${INK}" stroke-width=".8" stroke-linejoin="round"/>
+       <circle cx="62" cy="19.6" r="1" fill="${eye}"/>
+       <ellipse cx="60.2" cy="28" rx="2.8" ry="2.5" fill="#12161a"/><ellipse cx="66.8" cy="28" rx="2.5" ry="2.4" fill="#12161a"/>
+       <circle cx="60.2" cy="28" r="4.4" fill="${eye}" opacity=".3"/><circle cx="66.8" cy="28" r="4" fill="${eye}" opacity=".3"/>
+       <circle cx="60.4" cy="28" r="1.4" fill="${eye}"/><circle cx="67" cy="28" r="1.3" fill="${eye}"/>
+       <path d="M65 31.5 l-1.4 2.6 h2.8 Z" fill="#12161a"/>
+       <path d="M57.5 35.5 h10 M59.5 34.2 v2.6 M62 34.2 v2.6 M64.5 34.2 v2.6 M67 34.2 v2.4" stroke="${INK}" stroke-width=".9" opacity=".8"/>
+       <path d="M58 38 q-1 6 2 10 M61.5 38.5 q0 7 3 9 M65.5 38 q2 5 4.5 7" stroke="#9fb08a" stroke-width="1.4" fill="none" opacity=".75" stroke-linecap="round"/>
+       <path d="M74 50 Q80 55 82 62" stroke="${mid}" stroke-width="8.5" fill="none" stroke-linecap="round"/>
+       <circle cx="82" cy="62" r="5" fill="${lite}" stroke="${INK}" stroke-width="1.2"/>
+       <path d="M61 41 Q73 34 82 42 Q85 50 78 55 Q70 53 63 48 Z" fill="${iron}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>
+       <path d="M64 44 Q73 39 80 45" stroke="${a.trim}" stroke-width="1.6" fill="none" opacity=".7"/>
+       ${rivet(70, 47)}${rivet(76, 47)}${rivet(79, 51)}
+       <ellipse cx="74" cy="51" rx="2.4" ry="1.5" fill="${moss}" opacity=".75"/>` };
+  },
   // ---- Dungeon monsters ----
   ghoul(a) {
     return { hand: [82, 62], shieldY: 0, svg:
@@ -3231,6 +3399,26 @@ const WEAPONS = {
     <path d="M${x + 4} ${y + 6} l-2.5 -5 l3 -3.5" stroke="${INK}" stroke-width="1.1" fill="none" opacity=".5"/>
     <path d="M${x - 9} ${y - 4} q3 3 0 7" stroke="${a.trim}" stroke-width="2" fill="none" opacity=".7"/>
   </g>`,
+  // Barrow's off hand: a torn-off section of graveyard railing, carried like a shield. Four iron bars
+  // with spear tops (lit grave-green) on two rails and an iron scroll, held by the lower rail at (x, y).
+  gravefence: (a, x, y, rot = 4) => {
+    const iron = '#3b414b', hi = '#6d7684', tip = '#8ee696';
+    const bars = [-9, -3, 3, 9].map((dx) => {
+      const bx = x + dx, top = y - 34 + (Math.abs(dx) > 5 ? 3 : 0);
+      return `<rect x="${bx - 1.6}" y="${top}" width="3.2" height="${y + 8 - top}" fill="${iron}" stroke="${INK}" stroke-width="1"/>
+        <path d="M${bx - 1.2} ${top + 1} V${y + 6}" stroke="${hi}" stroke-width=".9" opacity=".7"/>
+        <path d="M${bx} ${top - 7} l3.2 6 h-6.4 Z" fill="${iron}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>
+        <path d="M${bx} ${top - 5.5} l1.4 3.4 h-2.8 Z" fill="${tip}" opacity=".85"/>`;
+    }).join('');
+    return `<g transform="rotate(${rot} ${x} ${y})">${bars}
+      <rect x="${x - 13}" y="${y - 26}" width="26" height="3.6" rx="1" fill="${iron}" stroke="${INK}" stroke-width="1"/>
+      <rect x="${x - 13}" y="${y - 3}" width="26" height="3.6" rx="1" fill="${iron}" stroke="${INK}" stroke-width="1"/>
+      <path d="M${x - 13} ${y - 25} h26 M${x - 13} ${y - 2} h26" stroke="${hi}" stroke-width=".8" opacity=".7"/>
+      <path d="M${x - 6} ${y - 12} q6 -7 12 0 q-6 7 -12 0 Z" fill="none" stroke="${iron}" stroke-width="2.2"/>
+      <path d="M${x - 6} ${y - 12} q6 -7 12 0 q-6 7 -12 0 Z" fill="none" stroke="${INK}" stroke-width=".6" opacity=".6"/>
+      <path d="M${x + 9} ${y + 2} l-2 6 M${x - 9} ${y - 22} q2 -3 0 -6" stroke="#7f9a55" stroke-width="1.6" fill="none" opacity=".8" stroke-linecap="round"/>
+    </g>`;
+  },
   // Vaun's sling: two cords off the draw hand and a skull seated in the leather pouch,
   // the next shot already loaded.
   sling: (a, x, y) => `
@@ -3778,13 +3966,15 @@ function builtinSprite(id) {
   const b = BODIES[a.body](a);
   const [x, y] = b.hand;
   // The weapon is its own group, pivoting on the hand, so an attack pose can swing it (WEAPON_STRIKES).
-  let g = b.svg + (a.weapon ? `<g class="wpn" style="transform-origin:${x}px ${y}px">${WEAPONS[a.weapon](a, x, y)}</g>` : '');
+  // look.weaponScale grows the weapon about the hand (Barrow's oversized headstone); the outer group still pivots there.
+  const wpn = a.weapon && WEAPONS[a.weapon](a, x, y);
+  let g = b.svg + (a.weapon ? `<g class="wpn" style="transform-origin:${x}px ${y}px">${a.weaponScale ? `<g transform="translate(${x} ${y}) scale(${a.weaponScale}) translate(${-x} ${-y})">${wpn}</g>` : wpn}</g>` : '');
   if (a.shield) g += `<path d="M29 ${50 + b.shieldY} h17 v14 q0 10 -8.5 13 q-8.5 -3 -8.5 -13 z" fill="${a.shield}" stroke="${a.trim}" stroke-width="2"/>`;
   // An off-hand weapon held where a shield would be (Barrow's second headstone), a little smaller.
   if (a.offhand) {
     const oy = 72 + b.shieldY;
     // Outer group = the animatable one (WEAPON_STRIKES .off), pivoting on the off hand; inner = the fixed scale.
-    g += `<g class="wpn2" style="transform-origin:37px ${oy}px"><g transform="translate(37 ${oy}) scale(.82) translate(-37 ${-oy})">${WEAPONS[a.offhand](a, 37, oy, 6)}</g></g>`;
+    g += `<g class="wpn2" style="transform-origin:37px ${oy}px"><g transform="translate(37 ${oy}) scale(${a.offhandScale || 0.82}) translate(-37 ${-oy})">${WEAPONS[a.offhand](a, 37, oy, a.offhand === 'headstone' ? 6 : undefined)}</g></g>`;
   }
   if (a.scale) g = `<g transform="translate(50 94) scale(${a.scale}) translate(-50 -94)">${g}</g>`;
   const rx = a.body === 'dwarf' || a.scale ? 18 : 23;
@@ -3888,7 +4078,10 @@ const passiveSlots = (lv) => 1 + SLOT_UNLOCKS.filter((s) => s.kind === 'pas' && 
 // use it rather than ACTIVE_IDS wherever the champion is known.
 const ACTIVE_IDS = ['a', 'b', 'c', 'd', 'e'];
 const SIXTH_ID = 'f';
-const activeIdsOf = (c) => (c && c.skills.length > 5 ? [...ACTIVE_IDS, SIXTH_ID] : ACTIVE_IDS);
+// Beyond the five: 'f' for a sixth skill, 'g' for a seventh (Barrow's Burrow). Same rule — they widen
+// the pool to choose from, never the slots.
+const EXTRA_IDS = [SIXTH_ID, 'g'];
+const activeIdsOf = (c) => (c && c.skills.length > 5 ? [...ACTIVE_IDS, ...EXTRA_IDS.slice(0, c.skills.length - 5)] : ACTIVE_IDS);
 // Neutral skills: class-free actives any champion can equip in an active slot.
 // Kept modest on purpose — utility that rounds out a kit, never outshines one.
 const NEUTRAL_SKILLS = {
@@ -3929,7 +4122,7 @@ const altId = (i) => (i === 0 ? 'alt' : `alt${i + 1}`);
 const altIndex = (id) => (id === 'alt' ? 0 : /^alt\d+$/.test(id) ? +id.slice(3) - 1 : -1);
 const passiveById = (c, id) => (id === 'own' ? c.passive : altIndex(id) >= 0 ? altList(c)[altIndex(id)] : GENERIC_PASSIVES[id]);
 const passivePool = (c) => ['own', ...altList(c).map((_, i) => altId(i)), ...GENERIC_KEYS];
-const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5 }[id]];
+const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6 }[id]];
 
 /* THE TRAINING YARD — a neutral skill or a learned passive is a technique, and a champion has to
    drill at the yard before they can carry one into battle. Each technique takes a few drills; the
@@ -3981,6 +4174,8 @@ function autoLoadout(c, lv) {
   // carry one it takes the last slot. Otherwise only your own hero would ever bring it to a fight.
   const act = ACTIVE_IDS.slice(0, activeSlots(lv));
   if (c.skills[5] && act.length > 2) act[act.length - 1] = SIXTH_ID;
+  // ...and a seventh (Barrow's Burrow) takes the slot before it once a fourth slot opens.
+  if (c.skills[6] && act.length > 3) act[act.length - 2] = EXTRA_IDS[1];
   return { act, pas };
 }
 
@@ -4122,8 +4317,9 @@ function skillsOf(u) {
     { ...c.skills[4], id: 'e', mp: cost(c.skills[4], MANA.skill2Cost), o: { heat: 30, ...c.skills[4].o } },
     { ...c.skills[1], id: 'b', sig: true, mp: cost(c.skills[1], MANA.ultCost), o: { heat: 40, ...c.skills[1].o } },
   ];
-  // A sixth skill, for the few champions who carry one, at the second-tier cost.
-  if (c.skills[5]) actives.push({ ...c.skills[5], id: SIXTH_ID, mp: cost(c.skills[5], MANA.skill2Cost), o: { heat: 30, ...c.skills[5].o } });
+  // A sixth (and seventh) skill, for the few champions who carry one, at the second-tier cost.
+  c.skills.slice(5, 5 + EXTRA_IDS.length).forEach((sk, i) =>
+    actives.push({ ...sk, id: EXTRA_IDS[i], mp: cost(sk, MANA.skill2Cost), o: { heat: 30, ...sk.o } }));
   // Only the skills in this champion's loadout come into battle; Attack and Guard always do.
   const eq = u.loadout || activeIdsOf(c);
   // Equipped neutral skills come in after the champion's own, at the cheap-skill mana tier.
@@ -4177,14 +4373,17 @@ function frontlineHit(t) {
    openFoes / openAllies. It still takes its own turn — stepping out of the box is what ends the
    effect — and it loses everything that was laid on it in the process (see beginTurn). */
 const inBox = (u) => !!has(u, 'coffin');
-const openFoes = (u) => foesOf(u).filter((f) => !inBox(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
+// Burrowed (Barrow's Burrow) is out of reach the way the coffin is: no single blow, no area attack.
+const buried = (u) => !!has(u, 'burrowed');
+const outOfReach = (u) => inBox(u) || buried(u);
+const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
-const openAllies = (u) => alliesOf(u).filter((a) => !inBox(a) && !a.inert);
+const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
 /* Who a SINGLE blow can be aimed at. Deliberately NOT the list an area attack catches. An Anchor
    or a Jelly carries noAoe precisely so sweeps wash past it, but singling it out is the only way
    its host's team gets free of it — so it belongs here even though it is out of openFoes. A
    bolted-on rider is the mirror: area attacks still find him, no single blow can. */
-const singleFoes = (u) => foesOf(u).filter((f) => !inBox(f) && !f.attachedTo);
+const singleFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.attachedTo);
 
 function validTargets(u, sk) {
   // Bolt-On: a bolted-on champion cannot be singled out by either side. He stays in openFoes /
@@ -4256,6 +4455,7 @@ function usable(u, sk) {
   // Sea-Sung (Seraphine's Nature): at High Tide her songs cost half their mana.
   if ((charNat(u).seasung && highTide() ? Math.ceil((sk.mp || 0) / 2) : (sk.mp || 0)) > (u.mp || 0)) return false;
   if (['enemy', 'ally', 'deadAlly'].includes(sk.target) && !validTargets(u, sk).length) return false;
+  if (sk.target === 'allEnemies' && !openFoes(u).length) return false;
   return true;
 }
 
@@ -4600,7 +4800,7 @@ function strikeOnce(u, t, mult, label, o) {
   if (TP.retribution) {
     const back = Math.max(1, Math.round(dmg * TP.retribution));
     log(`${t.name}'s Retribution strikes every enemy for ${back}.`, t.side);
-    for (const f of foesOf(t)) {
+    for (const f of openFoes(t)) {   // an area strike: the coffined and burrowed are out of reach
       f.hp = Math.max(0, f.hp - back);
       float(f, `${back}`, 'dot');
       if (f.hp <= 0) fell(f, t);
@@ -4772,25 +4972,49 @@ const rollsDouble = (u, sk) => sk.id === 'attack' && chance(doubleChance(u));
 // and hurls the gathered blood at one enemy as a single Magic blow equal to all the HP taken. The
 // sealed (coffined) are spared, the blood never takes a last point, and it costs no mana or blood
 // beyond the warband's own. Routed straight through strikeOnce, so there is no Bloodthirst refund.
+/* BURROW (Barrow) — he digs down into the grave-dirt for one round of the field's clock (TIMED_FX):
+   no blow can be aimed at him and area attacks pass over him (outOfReach), and he holds his place on
+   the speed bar meanwhile (frozen), so the whole round passes before he can act again. The figure
+   sinks below the ground line and a fresh mound marks the spot (.unit.buried). He climbs back out
+   when the round is up (expireTimed); unburrow in beginTurn is only a safety net. */
+async function burrowSkill(u) {
+  burst(u, 'smoke');
+  tremorFx(380);
+  addFx(u, 'burrowed', 1);
+  render();
+  await wait(750);
+}
+function unburrow(u) {
+  if (!buried(u)) return;
+  u.effects = u.effects.filter((e) => e.id !== 'burrowed');
+  log(`${u.name} claws his way back up out of the grave.`, u.side);
+  burst(u, 'smoke');
+}
+
+// Shown in three beats (see EXECUTE'S BLOOD RITE below): the blood streams out of every donor into
+// Vesper, he throws it at the sky as a red pillar, and it comes back down as a torrent on the target.
 async function executeSkill(u, t, sk) {
-  await castPose(u, true);
-  const donors = alliesOf(u).filter((a) => a.hp > 0 && !inBox(a) && !a.inert);
-  let pool = 0;
-  for (const a of donors) {
-    const take = Math.min(a.hp - 1, Math.floor(a.hp / 2));
-    if (take <= 0) continue;
-    a.hp -= take; pool += take;
-    burst(a, 'curse'); float(a, `${take}`, 'dot'); bump(a, 'hurt');
+  const donors = alliesOf(u).filter((a) => a.hp > 0 && !outOfReach(a) && !a.inert);
+  const takes = donors.map((a) => [a, Math.min(a.hp - 1, Math.floor(a.hp / 2))]).filter(([, n]) => n > 0);
+  const pool = takes.reduce((n, [, take]) => n + take, 0);
+  if (pool <= 0) { await castPose(u, true); log(`${u.name}'s Execute finds no blood to spend.`, u.side); return; }
+  // The blood leaves each of them as their stream sets out for him, and their HP bars show it going.
+  const gatherMs = beat(1300);
+  for (const [a, take] of takes) {
+    const was = a.hp;
+    a.hp -= take;
+    bleedBar(a, was, a.hp, gatherMs);
+    burst(a, 'blood'); float(a, `${take}`, 'dot'); bump(a, 'hurt');
   }
   render();
-  await wait(360);
-  if (pool <= 0) { log(`${u.name}'s Execute finds no blood to spend.`, u.side); return; }
+  await bloodGather(u, takes.map(([a]) => a));
   log(`${u.name} gathers ${pool} HP of blood from the warband and drives it into ${t.name}.`, u.side);
-  burst(t, 'curse');
-  await aimPose(u);
+  await bloodPillar(u);
+  await bloodTorrent(t);   // returns as the torrent strikes; the blow lands with it
   strikeOnce(u, t, pool / Math.max(1, u.atk), 'Execute', { magic: true, noDodge: true, pierce: true });
+  burst(t, 'blood');
   render();
-  await wait(260);
+  await wait(420);
 }
 
 async function damageSkill(u, t, sk) {
@@ -4799,7 +5023,7 @@ async function damageSkill(u, t, sk) {
   // Hallucinate: whoever singles out this target may swing at someone else entirely —
   // any other combatant, including the attacker's own allies. Area attacks are immune.
   if (sk.target === 'enemy' && t && pv(t).hallucinate && chance(pv(t).hallucinate)) {
-    const others = [...foesOf(u), ...alliesOf(u)].filter((x) => x.uid !== t.uid && x.uid !== u.uid);
+    const others = [...foesOf(u), ...alliesOf(u)].filter((x) => x.uid !== t.uid && x.uid !== u.uid && !outOfReach(x));
     if (others.length) {
       const nt = pick(others);
       float(u, '🌀 Hallucinating', 'fx');
@@ -4871,7 +5095,7 @@ async function damageSkill(u, t, sk) {
     u.frenzy = true;   // the axes run red for the whole of it (see .unit.frenzied)
     render();
     for (let i = 0; i < o.rampage; i++) {
-      const live = foesOf(u);
+      const live = singleFoes(u);   // the frenzy can only throw him at someone a blow can reach
       if (!live.length || u.hp <= 0) break;
       // The opener lands on his mark; every blow after it falls where the frenzy takes him.
       const at = i === 0 && t.hp > 0 ? t : pick(live);
@@ -4913,7 +5137,7 @@ async function damageSkill(u, t, sk) {
      over and swings there, so the blow lands where the enemy actually is. The run home at the
      end of the action picks up the new spot, and counters from it resolve with the rest. */
   if (o.bounce && u.hp > 0) {
-    const next = foesOf(u).filter((f) => !targets.includes(f));
+    const next = singleFoes(u).filter((f) => !targets.includes(f));
     if (next.length) {
       const tg = pick(next);
       markAttacked(tg);
@@ -4927,7 +5151,7 @@ async function damageSkill(u, t, sk) {
   }
   // Arc Transfer (Arclight's Nature): lightning into a Soaked body finds a second path to ground.
   if (charNat(u).arc && o.element === 'lightning' && u.hp > 0 && lastHit && soaked(lastHit) && !o.counter) {
-    const next = foesOf(u).filter((f) => f !== lastHit);
+    const next = singleFoes(u).filter((f) => f !== lastHit);
     if (next.length) {
       const tg = pick(next);
       markAttacked(tg);
@@ -5135,7 +5359,7 @@ function gainStacks(u, n) {
 // Timed effects live on the speed bar's clock instead of counting the unit's turns:
 //   stun / overheat: the icon freezes for FREEZE_TIME.
 //   stagger: for STAGGER_TIME the icon moves in fits, stopping STAGGER_STOP out of every STAGGER_CYCLE.
-const TIMED_FX = { stun: 100, overheat: 100, stagger: 150 };
+const TIMED_FX = { stun: 100, overheat: 100, stagger: 150, burrowed: 100 };   // 100 = one round (ROUND_TIME)
 // Toll-counted effects live on the field's GLOBAL clock (Tolls), ticked once per turn in turnPulse,
 // never on the owner's own turns. BASH and the coffin hold the unit off the speed bar while they
 // last; FEAR only shoves it back (FEAR_BACK of the 1000-long track, about two turns of ground).
@@ -5209,6 +5433,7 @@ function addFx(u, id, turns, value = 0, quiet = false) {
 // (Stun is handled on the speed bar: a stunned unit never reaches the end while frozen.)
 async function beginTurn(u) {
   releaseRites(u, `is released from ${u.name}'s Last Rites.`);   // his turn has come round: the crosses lift
+  unburrow(u);   // Burrow: if his turn comes before the round is out, he comes up to take it
   // Evergreen (Elowen's Nature): each of her turns, the oldest curse falls away like a dead leaf —
   // before it can tick, the wood has already shed it.
   if (charNat(u).evergreen) {
@@ -5387,6 +5612,7 @@ async function doAction(u, sk, t) {
     await wait(360);
   }
   else if (sk.kind === 'execute') await executeSkill(u, t, sk);
+  else if (sk.kind === 'burrow') await burrowSkill(u);
   else if (sk.kind === 'anchor') await anchorSkill(u, t, sk);
   else if (sk.kind === 'jelly') await jellySkill(u, t, sk);
   else if (sk.kind === 'revive') {
@@ -5475,6 +5701,8 @@ function aiChoose(u) {
     if (s.kind === 'revive') w = 9;
     // The coffin is for an ally about to be killed, not a routine play.
     if (s.kind === 'coffin') w = allies.some((a) => a.hp / a.maxHp < 0.3) ? 5 : 0.4;
+    // Burrow is a way out from under a beating, not an opener.
+    if (s.kind === 'burrow') w = u.hp / u.maxHp < 0.4 ? 4 : 0.25;
     return { s, w };
   }).filter((x) => x.w > 0);
   if (!scored.length) return { sk: guard, t: u };   // e.g. Mordrek with his cross planted and every skill cooling down
@@ -5528,7 +5756,7 @@ const pinned = (u) => !!has(u, 'rites');   // Last Rites: held in place until Mo
 const tollHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin'));
 // Rooted (Tharos's Anchor) is NOT here on purpose: a rooted unit keeps reaching the Act gate and
 // taking its turns — it just can't cross the field once it acts (see requiresMove / usable).
-const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || tollHeld(u);
+const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || tollHeld(u) || buried(u);   // Burrow: held for its round
 
 // Time until a staggered unit next switches between stopping and moving.
 function staggerSwitchIn(u) {
@@ -5859,6 +6087,47 @@ const RITES_ART = RITES_CROSSES.join('');
    Host's green cross on the lid, standing upright on the sprites' own ground line (y 94) so it
    fills the spot its occupant was holding. Flat fills only — no gradient ids to collide
    when several units are drawn at once. */
+// Graveyard Fence, planted: a wider stretch of the railing Barrow carries (WEAPONS.gravefence),
+// drawn once and handed to the CSS as --fence-art for .unit.fenced.
+const FENCE_ART = (() => {
+  const iron = '#5d6776', hi = '#a9b4c2', ink = '#11151b', tip = '#8ee696';
+  const bars = [7, 19, 31, 43, 55].map((x, i) => {
+    const top = i % 2 ? 14 : 20;
+    return `<rect x="${x - 2.6}" y="${top}" width="5.2" height="${96 - top}" fill="${iron}" stroke="${ink}" stroke-width="1.6"/>`
+      + `<path d="M${x - 1.2} ${top + 2} V94" stroke="${hi}" stroke-width="1.3" opacity=".8"/>`
+      + `<path d="M${x} ${top - 11} l5 10 h-10 Z" fill="${iron}" stroke="${ink}" stroke-width="1.6" stroke-linejoin="round"/>`
+      + `<path d="M${x} ${top - 8.5} l2.4 5.4 h-4.8 Z" fill="${tip}"/>`;
+  }).join('');
+  const rail = (y) => `<rect x="2" y="${y}" width="58" height="6" rx="1.5" fill="${iron}" stroke="${ink}" stroke-width="1.6"/>`
+    + `<path d="M4 ${y + 1.6} h54" stroke="${hi}" stroke-width="1.2" opacity=".8"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 100">${bars}${rail(32)}${rail(82)}`
+    + `<path d="M22 57 q9 -11 18 0 q-9 11 -18 0 Z" fill="none" stroke="${ink}" stroke-width="4.6"/>`
+    + `<path d="M22 57 q9 -11 18 0 q-9 11 -18 0 Z" fill="none" stroke="${iron}" stroke-width="2.6"/>`
+    + `<path d="M50 88 l-3 7 M10 40 q3 -4 0 -8" stroke="#7f9a55" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+})();
+document.documentElement.style.setProperty('--fence-art', FENCE_ART);
+// ...and the grave-dirt it stands in: a low churned mound with clods and a contact shadow.
+const FENCE_DIRT = (() => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 20">`
+    + `<ellipse cx="40" cy="17" rx="38" ry="3" fill="#000" opacity=".4"/>`
+    + `<path d="M3 17 Q8 8 18 8 Q24 4 32 7 Q40 3 48 7 Q56 4 63 8 Q73 8 77 17 Z" fill="#5a3e25" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/>`
+    + `<path d="M10 14 Q18 10 26 11 M34 9 Q42 7 50 10 M56 12 Q64 10 70 14" stroke="#7d5a38" stroke-width="1.6" fill="none" stroke-linecap="round"/>`
+    + `<circle cx="6" cy="15" r="2" fill="#4a321d"/><circle cx="75" cy="15.5" r="1.8" fill="#4a321d"/><circle cx="44" cy="5.5" r="1.5" fill="#4a321d"/><circle cx="22" cy="6.5" r="1.3" fill="#4a321d"/>`
+    + `</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+})();
+document.documentElement.style.setProperty('--fence-dirt', FENCE_DIRT);
+
+// Burrow: the fresh grave-mound Barrow leaves over himself, on the same ground line as the coffin.
+// He goes under; his headstone doesn't. It stays planted on top as his grave marker, base in the dirt.
+const MOUND_ART = `<ellipse cx="50" cy="95" rx="42" ry="5.5" fill="#000" opacity=".42"/>
+  <g transform="translate(57 78) scale(1.55) translate(-57 -78)">${WEAPONS.headstone({ trim: '#c7b98a' }, 57, 72, 7)}</g>
+  <path d="M8 95 Q13 64 50 61 Q87 64 92 95 Z" fill="#6b4a2c" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M18 91 Q24 70 50 68 Q64 68 74 73" fill="none" stroke="#8a6440" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  <path d="M24 86 l5 -3 M40 78 l6 -1 M60 82 l6 1 M74 88 l4 -3 M32 92 l5 -1 M54 90 l5 0" stroke="#3a2718" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="14" cy="89" r="2.8" fill="#53371f"/><circle cx="88" cy="90" r="2.4" fill="#53371f"/><circle cx="70" cy="67" r="2.2" fill="#53371f"/><circle cx="28" cy="70" r="1.8" fill="#53371f"/>
+  <path d="M36 66 q2 -6 0 -11 M40 65 q3 -5 2 -10 M61 66 q-2 -6 1 -11 M65 67 q-1 -5 2 -9" stroke="#8ee696" stroke-width="1.6" fill="none" opacity=".75" stroke-linecap="round"/>`;
 const COFFIN_ART = `<ellipse cx="50" cy="94" rx="22" ry="4.2" fill="#000" opacity=".42"/>
   <path d="M37 14 L63 14 L75 34 L59 94 L41 94 L25 34 Z" fill="#6b4a2c" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
   <path d="M37 14 L50 14 L50 94 L41 94 L25 34 Z" fill="#7a5434"/>
@@ -6251,6 +6520,7 @@ function expireTimed() {
     if (u.hp <= 0) continue;
     for (const e of done) {
       if (e.id === 'overheat') { u.heat = 0; log(`${u.name} has cooled down and moves again.`, 'sys'); }
+      else if (e.id === 'burrowed') { log(`${u.name} claws his way back up out of the grave.`, u.side); burst(u, 'smoke'); }
       else if (e.id === 'stagger') log(`${u.name} regains their footing.`, 'sys');
       else log(`${u.name} shakes off the stun and moves again.`, 'sys');
     }
@@ -6932,6 +7202,181 @@ function sparHTML() {
   </div>`;
 }
 
+/* ---------- The Academy: Headmistress Ilse's lessons, the champion chart and the library ----------
+   Lessons are read off each champion's own kit (champTags), so a new champion gets a lesson for free.
+   They stay basic on purpose: at most two allies, two threats and two combos, and the rest is left
+   for players to find out at the sparring ring.
+     ALLY_RULES / THREAT_RULES  { f: faction key, when(tags, champion), why } — first matches win
+     champCombos(c)             one or two openers built from the champion's own skills */
+function champTags(c) {
+  const t = new Set(), m = c.mods || {};
+  for (const sk of c.skills || []) {
+    const o = sk.o || {};
+    if (o.element === 'lightning') t.add('lightning');
+    if (o.aoe) t.add('aoe');
+    if ((o.hits || 1) >= 3) t.add('multihit');
+    if (o.stun) t.add('stun');
+    for (const [id] of [...(o.fx || []), ...(sk.fx || []), ...(o.enemyFx || [])]) t.add(`fx:${id}`);
+    if (o.bonusVs) t.add(`vs:${o.bonusVs}`);
+    if (sk.kind === 'heal' || o.heal) t.add('heal');
+    if (o.lifesteal) t.add('lifesteal');
+    if (o.cleanse) t.add('cleanse');
+    if (sk.kind === 'summon') t.add('summon');
+    if (isMagic(o)) t.add('magic');
+  }
+  if (c.faction === 'crimson') t.add('lifesteal');
+  if ((m.agi || 1) <= .85) t.add('slow');
+  if ((m.agi || 1) >= 1.2) t.add('fast');
+  if (t.has('fx:taunt') || ((m.hp || 1) >= 1.15 && (m.def || 1) >= 1.2)) t.add('tank');
+  if (['fx:burn', 'fx:bleed', 'fx:poison'].some((k) => t.has(k))) t.add('dot');
+  if (t.has('fx:shield') || t.has('fx:ward')) t.add('protect');
+  return t;
+}
+
+const ALLY_RULES = [
+  { f: 'tide', when: (t, c) => t.has('lightning') && c.faction !== 'tide', why: 'The Tideborn Soak everything they hit, and a Soaked foe takes 30% more from your lightning.' },
+  { f: 'mech', when: (t, c) => c.faction === 'tide', why: 'Your hits Soak the enemy, and Ironclad lightning hits a Soaked foe 30% harder.' },
+  { f: 'crimson', when: (t) => t.has('vs:bleed'), why: 'You hit Bleeding foes much harder, and the Court opens wounds on almost every blow.' },
+  { f: 'human', when: (t, c) => c.faction === 'undead', why: 'Once a Pale Host champion is dying no heal can reach it, but Aldmere shields still catch that last blow.' },
+  { f: 'stone', when: (t) => t.has('tank'), why: 'You draw the blows. Stoneleaf elves sharpen their aim every turn nobody hits them: +10% crit each, up to three.' },
+  { f: 'orc', when: (t, c) => t.has('heal') && c.faction !== 'orc', why: 'The Horde hit hardest when hurt. A healer lets them ride that edge without falling off it.' },
+  { f: 'orc', when: (t, c) => t.has('fx:burn') && c.faction !== 'orc', why: 'Ash Storms favour the Horde and make every Burn 50% stronger. You both want the same weather.' },
+  { f: 'undead', when: (t) => t.has('protect'), why: 'A fallen Pale Host fights on until one more blow lands. Your shields and wards can keep that blow from landing.' },
+  { f: 'crimson', when: (t) => t.has('fx:empower') || t.has('fx:ward'), why: 'Your buffs make every hit land harder, and the Court turns every hit into healing.' },
+  { f: 'human', when: (t, c) => c.role === 'ranged' && !t.has('tank'), why: "Aldmere's armoured line holds the front, so you can keep firing from behind it." },
+  { f: 'tide', when: (t, c) => c.role === 'melee' && !t.has('heal'), why: 'Tideborn healers mend hardest on High Tide, the even rounds when you are trading blows up front.' },
+  { f: 'stone', when: () => true, why: 'A steady pick: dwarves to hold the line, elves to finish what you start.' },
+];
+const THREAT_RULES = [
+  { f: 'crimson', when: (t) => t.has('heal') || t.has('lifesteal'), why: "The Court's Hex halves every heal you give or take, lifesteal included." },
+  { f: 'orc', when: (t, c) => t.has('protect') || c.race === 'dwarf' || t.has('tank'), why: 'Horde fire and blades leave Burn and Bleed, which tick right past shields, wards and Fortify.' },
+  { f: 'tide', when: (t, c) => c.race === 'elf', why: 'An elf loses its Precision the moment it is hit, and the Tideborn hit many times a turn.' },
+  { f: 'crimson', when: (t) => t.has('slow'), why: 'Court duellists are quick. Expect them to act twice before you act once.' },
+  { f: 'mech', when: (t) => t.has('summon'), why: 'Ironclad splash damage cuts through your summons and you at the same time.' },
+  { f: 'human', when: (t, c) => c.faction === 'orc', why: 'Rage builds as you bleed. Aldmere marksmen hit hard enough to finish you before it does.' },
+  { f: 'human', when: (t, c) => c.faction === 'mech', why: 'A stun freezes you while your Heat stays high, and Aldmere carry plenty of stuns.' },
+  { f: 'tide', when: (t) => t.has('magic'), why: "A Tideborn siren's song silences: a silenced champion can only Attack or Guard." },
+  { f: 'stone', when: (t, c) => c.role !== 'melee', why: 'Stoneleaf archers pick off whoever stands furthest back, and crit hardest when nobody touches them.' },
+  { f: 'stone', when: (t, c) => c.role === 'melee', why: 'You have to reach them first. Stoneleaf archers wear you down while you close the distance.' },
+  { f: 'mech', when: (t) => t.has('lifesteal'), why: 'Ironclad plating and shields shrink every blow you land, and a smaller blow drains less.' },
+  { f: 'crimson', when: () => true, why: 'The Court drains what it hits: a long fight against them only gets longer.' },
+  { f: 'orc', when: () => true, why: 'The Horde only get angrier as you hurt them. Finish one quickly or not at all.' },
+];
+function pickRules(rules, t, c, skipOwn) {
+  const out = [];
+  for (const r of rules) {
+    if (out.length >= 2) break;
+    if (skipOwn && r.f === c.faction) continue;
+    if (!out.some((x) => x.f === r.f) && r.when(t, c)) out.push(r);
+  }
+  return out;
+}
+// One or two openers from the champion's own skills; the faction's habit if nothing pairs up.
+function champCombos(c, t) {
+  const sk = c.skills || [], out = [], dmg = sk.filter((x) => x.kind === 'damage').sort((a, b) => (b.mult || 0) * ((b.o?.hits) || 1) - (a.mult || 0) * ((a.o?.hits) || 1));
+  const hasFx = (x, id) => [...(x.o?.fx || []), ...(x.fx || [])].some(([k]) => k === id);
+  const pays = {};
+  for (const pay of sk.filter((x) => x.o?.bonusVs)) {
+    const app = sk.find((x) => x !== pay && hasFx(x, pay.o.bonusVs));
+    if (app) (pays[app.name] ||= { fx: pay.o.bonusVs, list: [] }).list.push(pay.name);
+  }
+  for (const [app, { fx, list }] of Object.entries(pays)) {
+    out.push(`Open with <b>${app}</b> to leave the foe ${FX[fx]?.label || fx}, then <b>${list.join('</b> or <b>')}</b> hits it 60% harder.`);
+  }
+  const sunder = sk.find((x) => hasFx(x, 'sunder')), big = dmg.find((x) => x !== sunder);
+  if (sunder && big) out.push(`<b>${sunder.name}</b> cracks their armour first; <b>${big.name}</b> lands much harder on what's left.`);
+  const stun = sk.find((x) => x.o?.stun || hasFx(x, 'stun')), big2 = dmg.find((x) => x !== stun);
+  if (stun && big2) out.push(`Land <b>${stun.name}</b> and, while they're stunned, follow with <b>${big2.name}</b>: they can't answer.`);
+  const buff = sk.find((x) => x.kind === 'buff' && x.target === 'self' && (hasFx(x, 'empower') || x.o?.reduceCd)), hit = dmg[0];
+  if (buff && hit) out.push(`Cast <b>${buff.name}</b> on yourself first, then spend it on <b>${hit.name}</b>.`);
+  const taunt = sk.find((x) => hasFx(x, 'taunt'));
+  if (taunt) out.push(`Call them in with <b>${taunt.name}</b>, then Guard: every enemy swings at you, for half.`);
+  const cl = sk.find((x) => x.o?.cleanse);
+  if (cl) out.push(`Keep <b>${cl.name}</b> for when an ally is Burning, Poisoned or stunned: it clears them as it heals.`);
+  const sum = sk.find((x) => x.kind === 'summon');
+  if (sum) out.push(`Bring out <b>${sum.name.replace(/^Call the |^Assemble |^Summon /, '')}</b> early. It fights on its own and draws blows away from you.`);
+  const HABIT = {
+    human: 'Never use the same action twice in a row: Discipline adds 15% every time you switch.',
+    mech: 'Spend Heat on your big hits, then Guard to vent before you overheat and lose a turn.',
+    orc: 'Save your hardest hit for when you are hurt: Rage peaks near death.',
+    stone: c.race === 'elf' ? 'Stay out of reach: every turn nobody hits you adds crit.' : 'Let them come. Every hit you take makes the next one hurt less.',
+    tide: 'Hold your strongest skill for an even round: High Tide adds 25%.',
+    crimson: 'Keep swinging. Every hit you land heals you, so a long fight favours you.',
+    undead: 'Fall last. When you go down you keep fighting until one more blow lands, so spend those turns on your biggest skills.',
+  };
+  const seen = new Set(), kept = out.filter((line) => {
+    const names = [...line.matchAll(/<b>([^<]+)<\/b>/g)].map((m) => m[1]);
+    if (names.some((n) => seen.has(n))) return false;
+    names.forEach((n) => seen.add(n));
+    return true;
+  });
+  if (!kept.length) kept.push(HABIT[c.faction] || 'Mix your skills and watch the speed bar.');
+  return kept.slice(0, 2);
+}
+
+const acadPick = () => (state.acadPick && charById(state.acadPick) ? state.acadPick : profile.hero?.id || state.team[0] || ROSTER[0].id);
+// A scrolling strip of every champion's face, your warband first: tap one to study it.
+function pickStripHTML() {
+  const sel = acadPick(), order = [...new Set([...state.team, ...ROSTER.map((c) => c.id)])].filter((id) => charById(id));
+  return `<div class="pickStrip" role="group" aria-label="Choose a champion">${order.map((id) => `<button type="button" data-k="ypick:${id}"
+    aria-pressed="${id === sel}" title="${charById(id).name}"><span class="mini">${spriteSVG(id)}</span></button>`).join('')}</div>`;
+}
+const factionChip = (f) => `<span class="fchip">${FACTIONS[f].name}</span>`;
+
+function lessonHTML() {
+  const id = acadPick(), c = charById(id), t = champTags(c);
+  const allies = pickRules(ALLY_RULES, t, c, false), threats = pickRules(THREAT_RULES, t, c, true);
+  return `${pickStripHTML()}
+    <div class="lesson">
+      <div class="lhead"><div class="pic">${spriteSVG(id)}</div>
+        <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${FACTIONS[c.faction].name} · ${FACTIONS[c.faction].mechanic}</p></div></div>
+      <h4>Fights well beside</h4><ul>${allies.map((r) => `<li>${factionChip(r.f)} ${r.why}</li>`).join('')}</ul>
+      <h4>Watch out for</h4><ul>${threats.map((r) => `<li>${factionChip(r.f)} ${r.why}</li>`).join('')}</ul>
+      <h4>A combo to try</h4><ul>${champCombos(c, t).map((x) => `<li>${x}</li>`).join('')}</ul>
+      <p class="flavor">“That is the basics. The rest you learn with a weapon in your hand. Try it at the sparring ring next door.”</p>
+    </div>`;
+}
+
+const CHART_COLS = [['hp', 'HP', (u) => u.maxHp], ['atk', 'Attack', (u) => u.atk], ['def', 'Defense', (u) => u.def],
+  ['agi', 'Agility', (u) => u.agi], ['mp', 'Mana', (u) => u.maxMp || 0], ['crit', 'Crit %', (u) => Math.round((u.crit || 0) * 100)]];
+function chartHTML() {
+  const lv = state.chartLv || heroLevel(), fac = state.chartFac || 'all', sort = state.chartSort || { k: 'hp', dir: -1 };
+  const all = ROSTER.map((c) => ({ c, u: makeUnit(c, lv, 'e', 0) }));
+  const max = Object.fromEntries(CHART_COLS.map(([k, , f]) => [k, Math.max(1, ...all.map((r) => f(r.u)))]));
+  const val = (r, k) => (k === 'name' ? r.c.name : CHART_COLS.find((x) => x[0] === k)[2](r.u));
+  const rows = all.filter((r) => fac === 'all' || r.c.faction === fac)
+    .sort((a, b) => (sort.k === 'name' ? a.c.name.localeCompare(b.c.name) * sort.dir : (val(a, sort.k) - val(b, sort.k)) * sort.dir));
+  const head = (k, n) => `<th><button type="button" data-k="ysort:${k}" aria-pressed="${sort.k === k}">${n}${sort.k === k ? (sort.dir < 0 ? ' ▾' : ' ▴') : ''}</button></th>`;
+  const mine = profile.hero?.id;
+  const body = rows.map((r) => `<tr class="${r.c.id === mine ? 'you' : ''}">
+      <td><button type="button" class="cname" data-k="ypick:${r.c.id}" title="Open in the library"><span class="mini">${spriteSVG(r.c.id)}</span><span><b>${shortName(r.c)}</b><small>${ROLES[r.c.role].label}</small></span></button></td>
+      ${CHART_COLS.map(([k, , f]) => { const v = f(r.u); return `<td><span class="cbar" style="--p:${Math.round((v / max[k]) * 100)}%">${v || '—'}</span></td>`; }).join('')}
+    </tr>`).join('');
+  const facs = [['all', 'All'], ...FACTION_KEYS.map((k) => [k, FACTIONS[k].name.replace(/^The /, '')])]
+    .map(([k, n]) => `<button class="fbtn" type="button" data-k="yfac:${k}" aria-pressed="${fac === k}">${n}</button>`).join('');
+  return `<div class="sparRow"><span class="label">Level</span><span class="lvstep">
+      <button class="btn small" type="button" data-k="ylv:-1"${lv <= 1 ? ' disabled' : ''} aria-label="Lower level">−</button><b>${lv}</b>
+      <button class="btn small" type="button" data-k="ylv:1"${lv >= LEVEL_CAP ? ' disabled' : ''} aria-label="Higher level">+</button></span></div>
+    <div class="filters" role="group" aria-label="Filter by faction">${facs}</div>
+    <div class="tableWrap"><table class="chart"><thead><tr>${head('name', 'Champion')}${CHART_COLS.map(([k, n]) => head(k, n)).join('')}</tr></thead><tbody>${body}</tbody></table></div>
+    <p class="note">Base stats at level ${lv}, before forging, weapons, kit, trinkets or furniture. A dash means no mana pool. Tap a header to sort, or a champion to read about them in the library.</p>`;
+}
+
+function libraryHTML() {
+  const id = acadPick(), c = charById(id), f = FACTIONS[c.faction];
+  const skills = (c.skills || []).map((sk) => `<li><span class="lsic">${skillIcon(sk)}</span><div><b>${sk.name}</b>${sk.cd ? ` <small>· cooldown ${sk.cd}</small>` : ''}<p>${sk.desc}</p></div></li>`).join('');
+  return `${pickStripHTML()}
+    <div class="lesson">
+      <div class="lhead"><div class="pic">${spriteSVG(id)}</div>
+        <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${f.name}</p><p class="flavor">${c.bio}</p></div></div>
+      <p class="note"><b>${f.mechanic}.</b> ${f.rule}</p>
+      ${c.nature ? `<p class="note"><b>Nature: ${c.nature.name}.</b> ${c.nature.desc}</p>` : ''}
+      ${c.passive ? `<p class="note"><b>Passive: ${c.passive.name}.</b> ${c.passive.desc}</p>` : ''}
+      <h4>Skills</h4><ul class="libskills">${skills}</ul>
+      <div class="btns"><button class="btn small" type="button" data-k="ytab:lessons">Ask Ilse about ${shortName(c)}</button></div>
+    </div>`;
+}
+
 /* ---------- The Proving Grounds: duels against rival warbands ----------
    Three challengers wait whenever you visit: mixed-faction champion bands at
    rising stakes. You pay the stake to step in; a win pays it back with profit.
@@ -7305,7 +7750,10 @@ const ITEM_ICON = {
 };
 const COIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#e8a548"/><circle cx="12" cy="12" r="7" fill="none" stroke="#2a1a05" stroke-width="1.2" opacity=".45"/><path d="M12 7.5v9M9.5 10h5" stroke="#2a1a05" stroke-width="1.6" stroke-linecap="round" opacity=".6"/></svg>';
 
-const forgeHero = () => (state.forgeHero && charById(state.forgeHero) ? state.forgeHero : state.team[0] || ROSTER[0].id);
+// Who the shops serve: always your own champion (the Ironsmith, the Armory and the Jeweler sell to nobody else).
+const forgeHero = () => profile.hero?.id || state.team[0] || ROSTER[0].id;
+const shopNeedsHero = () => (profile.hero ? '' : `<p class="note">The shopkeepers here only serve a champion of your own. Create yours first.</p>
+  <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`);
 
 function forgeUp(slot) {
   const id = forgeHero(), g = { ...gearRaw(id) }, t = g[slot] || 0, cost = FORGE_COST[t];
@@ -8162,12 +8610,7 @@ function rackHTML(id) {
   const group = (label, f, own) =>
     `<h4 class="rackHead${own ? ' own' : ''}">${label}</h4>
      <div class="trinkets">${ARMORY_KEYS.filter((k) => ARMORY[k].faction === f).map(row).join('')}</div>`;
-  const w = wepOf(id), u = makeUnit(c, 1, 'p', 0);
   return `<div class="anvil">
-    <div class="who2"><div class="pic">${spriteSVG(id)}</div>
-      <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${FACTIONS[c.faction].name}</p>
-        <p class="note">Holding: <b>${w ? w.name : 'nothing but their fists'}</b></p>
-        <p class="note">At level 1: ${u.maxHp} HP · ${u.atk} Attack · ${Math.round(u.crit * 100)}% crit</p></div></div>
     ${socketsHTML(id, 'wp')}
     ${group('Free Company · anyone may wield it', 'all', false)}
     ${group(`${FACTIONS[c.faction].name} · cut for ${shortName(c)}`, c.faction, true)}
@@ -8560,12 +9003,7 @@ function kitHTML(id) {
   const group = (label, f, own) =>
     `<h4 class="rackHead${own ? ' own' : ''}">${label}</h4>
      <div class="trinkets">${EQUIP_KEYS.filter((k) => EQUIPMENT[k].faction === f).map(row).join('')}</div>`;
-  const e = kitOf(id), u = makeUnit(c, 1, 'p', 0);
   return `<div class="anvil">
-    <div class="who2"><div class="pic">${spriteSVG(id)}</div>
-      <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} &middot; ${FACTIONS[c.faction].name}</p>
-        <p class="note">Wearing: <b>${e ? e.name : 'nothing off the stand'}</b></p>
-        <p class="note">At level 1: ${u.maxHp} HP &middot; ${u.def} Defense &middot; turns aside ${Math.round(u.blockPhys * 100)}% physical, ${Math.round(u.blockMagic * 100)}% magic</p></div></div>
     ${socketsHTML(id, 'eq')}
     ${group('Free Company &middot; anyone may wear it', 'all', false)}
     ${group(`${FACTIONS[c.faction].name} &middot; cut for ${shortName(c)}`, c.faction, true)}
@@ -8903,7 +9341,7 @@ function pickDetailHTML(c) {
         <p class="bio">${c.bio}</p></div>
       <button class="btn small${i < 0 ? ' primary' : ''}" type="button" data-pickact="${c.id}"${locked ? ' disabled' : ''}>${label}</button></div>
     <ul class="sk">
-      ${[0, 2, 3, 4, ...(c.skills[5] ? [5] : [])].map((n) => `<li>${skillIcon(c.skills[n])}<span><b>${c.skills[n].name}.</b> ${c.skills[n].desc}</span></li>`).join('')}
+      ${[0, 2, 3, 4, ...c.skills.slice(5).map((_, i) => 5 + i)].map((n) => `<li>${skillIcon(c.skills[n])}<span><b>${c.skills[n].name}.</b> ${c.skills[n].desc}</span></li>`).join('')}
       <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
       <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
       ${altList(c).map((pa) => `<li class="pas">${skillIcon(pa)}<span><b>Or · ${pa.name}.</b> ${pa.desc}</span></li>`).join('')}
@@ -9017,6 +9455,8 @@ const PLACES = {
             flavor: 'Sergeant Holt pins up fresh jobs every morning by the east road. The ink is barely dry, but the pay is real.' },
   gate:   { name: 'Expedition Gate', kick: 'Explore', blurb: 'Dungeons along Ashfall Road: rooms, bosses and loot chests.',
             flavor: 'The east gate, where Ashfall Road leaves Cinderhold. Past it lie the crypt and the mine, a haunted manor, a frost-locked castle, a witches\' hollow, and the Spire at the very end.' },
+  academy: { name: 'The Academy', kick: 'Study', blurb: 'Compare champions, read the library, and learn the basics of allies, threats and combos.',
+            flavor: 'Headmistress Ilse Varrow has studied every warband that ever marched down Ashfall Road. She teaches the basics, and leaves the rest for you to find out.' },
   train:  { name: 'Training Yard', kick: 'Train', blurb: 'Drill new techniques and earn skill points.',
             flavor: 'A fenced stretch of packed dirt outside the west wall, full of straw dummies and old scars. Serel Vance drills anyone who pays and most who do not.' },
   cave:   { name: 'Emberhollow Cave', kick: 'Hunt', blurb: 'Hunt monster packs for XP and gold.',
@@ -9034,7 +9474,7 @@ const PLACES = {
   tavern: { name: 'The Smoldering Mug', kick: 'Rest', blurb: 'Rumors, tips and the tales told of you.',
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'workshop', 'carnival', 'elder', 'tavern'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'workshop', 'carnival', 'elder', 'tavern'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 
 /* ------------------------------------------------------------------
@@ -9135,6 +9575,14 @@ const KEEPERS = {
     ],
     react: ['There. Still warm.', 'Mind your fingers. Mine are all accounted for, mostly.',
       'Good as anything Odo sells. Better, if you ask me.', 'Another one for the road. Use it well.'] },
+  academy: { id: 'ilse', name: 'Ilse Varrow', title: 'Headmistress', at: [450, 859], flip: false,
+    greet: [
+      'Sit. Every champion has friends and enemies on the field. I will show you a few of each.',
+      'I teach the basics. The clever part, you discover yourself.',
+      'Read the chart before you pick a fight. Numbers do not lie, though they do leave things out.',
+      () => (profile.hero ? `Ah, ${heroName()}. Shall we study ${shortName(charById(profile.hero.id))} today, or someone you mean to fight?` : null),
+    ],
+    react: [] },
   arena: { id: 'roska', name: 'Roska', title: 'Pit Master', at: [1256, 725], flip: true,
     greet: [
       'The crowd wants blood and the purse wants winners. Give them both!',
@@ -9874,45 +10322,54 @@ const PLACE_BODY = {
 
   // The Ironsmith: Brann's anvil, which forges a champion's weapon edge and armor tier by tier.
   forge() {
+    if (!profile.hero) return shopNeedsHero();
     const sel = forgeHero();
     const list = heroListHTML(sel, (id) => { const g = gearRaw(id); return [`Weapon ${g.w || 0} · Armor ${g.a || 0}`, (g.w || 0) + (g.a || 0) > 0]; });
-    return `<div class="forge">${list}${anvilHTML(sel)}</div>
-      <p class="note">★ marks your warband. Upgrades are permanent and count in every battle, for this champion only.
+    return `${shopHeroHTML('forge')}<div class="forge">${list}${anvilHTML(sel)}</div>
+      <p class="note">Upgrades are permanent and count in every battle, for this champion only.
         Named weapons and worn kit hang next door at <b>the Armory</b>; the anvil's Weapon tier sharpens whichever weapon a champion holds.</p>
       <div class="btns"><button class="btn small" type="button" data-k="open:armory">Visit the Armory</button></div>`;
   },
 
   // The Armory: named weapons on the rack (THE ARMORY data) and worn kit on the stand (THE ARMOR STAND).
-  // It shares state.forgeHero with the Ironsmith and the Jeweler, so the champion you picked stays picked.
   armory() {
+    if (!profile.hero) return shopNeedsHero();
     const sel = forgeHero(), tab = state.armoryTab || 'rack';
     const tabs = `<div class="filters" role="group" aria-label="The Armory">${[['rack', 'Weapon rack'], ['kit', 'Armor stand']]
       .map(([k, n]) => `<button class="fbtn" type="button" data-k="atab:${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>`;
     if (tab === 'kit') {
       const held = heroListHTML(sel, (id) => { const e = kitOf(id); return [e ? e.name : 'No kit', !!e]; });
-      return `${tabs}<div class="forge">${held}${kitHTML(sel)}</div>
-        <p class="note">★ marks your warband. Each champion wears <b>one piece of kit</b>, and it stacks with the anvil,
+      return `${shopHeroHTML('eq')}${tabs}<div class="forge">${held}${kitHTML(sel)}</div>
+        <p class="note">Your champion wears <b>one piece of kit</b>, and it stacks with the anvil,
           the weapon rack and the Jeweler. <b>Free Company</b> kit fits anyone; a faction's own kit is cut for its
-          champions alone, so pick one of theirs to see it. Buying another sends the old piece home to your stash.
+          champions alone. Buying another sends the old piece home to your stash.
           Wards cut a share off every blow of their kind: <b>physical</b> is steel, shot, tusk and fist, while
           <b>magic</b> is spellfire, lightning, holy light, song, ink and curses.</p>`;
     }
     {
       const held = heroListHTML(sel, (id) => { const w = wepOf(id); return [w ? w.name : 'Bare-handed', !!w]; });
-      return `${tabs}<div class="forge">${held}${rackHTML(sel)}</div>
-        <p class="note">★ marks your warband. Each champion carries <b>one weapon</b>. <b>Free Company</b> steel is wielded
-          by anyone; a faction's own three are cut for its champions alone and carry that faction's edge built in, so
-          pick one of theirs to see it. Buying another sends the old one home to your stash, and the anvil's Weapon
+      return `${shopHeroHTML('wp')}${tabs}<div class="forge">${held}${rackHTML(sel)}</div>
+        <p class="note">Your champion carries <b>one weapon</b>. <b>Free Company</b> steel is wielded
+          by anyone; a faction's own three are cut for its champions alone and carry that faction's edge built in.
+          Buying another sends the old one home to your stash, and the anvil's Weapon
           tier sharpens whichever one they are holding.</p>`;
     }
   },
 
   jeweler() {
+    if (!profile.hero) return shopNeedsHero();
     const sel = forgeHero();
     const list = heroListHTML(sel, (id) => { const t = TRINKETS[gearRaw(id).t]; return [t ? t.name : 'No trinket', !!t]; });
-    return `<div class="forge">${list}${trinketCaseHTML(sel)}</div>
-      <p class="note">★ marks your warband. Each champion wears one trinket. Buying another sends the old one home to your stash.</p>
+    return `${shopHeroHTML('t')}<div class="forge">${list}${trinketCaseHTML(sel)}</div>
+      <p class="note">Your champion wears one trinket. Buying another sends the old one home to your stash.</p>
       ${stoneShopHTML()}`;
+  },
+
+  academy() {
+    const tab = state.acadTab || 'lessons';
+    const tabs = `<div class="filters" role="group" aria-label="The Academy">${[['lessons', 'Lessons'], ['chart', 'Champion chart'], ['library', 'Library']]
+      .map(([k, n]) => `<button class="fbtn" type="button" data-k="ytab:${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>`;
+    return tabs + (tab === 'chart' ? chartHTML() : tab === 'library' ? libraryHTML() : lessonHTML());
   },
 
   workshop() {
@@ -9947,7 +10404,7 @@ const PLACE_BODY = {
   market() {
     const tab = state.marketTab || 'supplies';
     const tabs = `<div class="filters" role="group" aria-label="Market stalls">${[['supplies', 'Supplies'], ['home', 'Home goods']]
-      .map(([k, n]) => `<button class="fbtn" type="button" data-k="mtab:${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>`;
+      .map(([k, n]) => `<button class="fbtn" type="button" data-k="mtab:${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>${profile.hero ? shopHeroHTML('items') : ''}`;
     if (tab === 'home') {
       return `${tabs}<div class="wares">${DECOR_KEYS.map((k) => {
         const d = DECOR[k], own = ownsDecor(k), ok = !own && profile.gold >= d.price;
@@ -10088,9 +10545,51 @@ const PLACE_BODY = {
   },
 };
 
-// Champion picker shared by the Ironsmith and the Jeweler (both use state.forgeHero).
-// sub(id) → [small text, highlight?]. Your warband is listed first.
+// The shops used to list every champion to shop for; now they serve only your own (forgeHero),
+// so this draws nothing. Kept so the store panels read the same.
+// The shops' champion card: your champion in the Arena's gold frame, and beside it every slot
+// they carry, filled or still open: weapon, worn kit and trinket (with forge tiers and sockets),
+// then the satchel. focus outlines what the shop you're standing in sells: 'wp', 'eq', 't' or 'items'.
+const emptySlotSVG = () => '<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="4" width="24" height="24" rx="6" fill="none" stroke="#4a4458" stroke-width="2" stroke-dasharray="4 3"/><path d="M16 11v10M11 16h10" stroke="#4a4458" stroke-width="2" stroke-linecap="round"/></svg>';
+function shopHeroHTML(focus) {
+  const id = forgeHero(), c = charById(id), lv = heroLevel(), g = gearRaw(id), u = makeUnit(c, lv, 'p', 0);
+  const w = wepOf(id), e = kitOf(id), t = TRINKETS[g.t];
+  const gems = (slot, item) => (item && socketsOf(item)
+    ? `<span class="gems">${stonesIn(id, slot).map((sid) => `<i title="${sid ? stoneName(sid) : 'Empty socket'}">${sid ? stoneIcon(sid) : emptySocketSVG()}</i>`).join('')}</span>` : '');
+  const slot = (k, label, icon, name, sub, extra = '') => `<div class="hslot${icon ? '' : ' open'}${focus === k ? ' focus' : ''}">
+      <span class="ico">${icon || emptySlotSVG()}</span>
+      <div class="t"><small>${label}</small><strong>${name}</strong>${sub ? `<em>${sub}</em>` : ''}${extra}</div></div>`;
+  const satchel = ITEM_KEYS.map((k) => { const n = profile.items[k] || 0;
+    return `<span class="${n ? '' : 'none'}" title="${ITEMS[k].name}: ${n} of ${SATCHEL_MAX}">${ITEM_ICON[k]}${n ? `<b>${n}/${SATCHEL_MAX}</b>` : ''}</span>`; }).join('');
+  const sum = (o) => Object.values(o || {}).reduce((a, b) => a + (b || 0), 0), st = profile.stash;
+  const stash = [[sum(st.weapons), 'weapon'], [sum(st.equipment), 'kit'], [sum(st.trinkets), 'trinket'], [sum(st.stones), 'stone'], [sum(st.items), 'item']]
+    .filter(([n]) => n).map(([n, k]) => `${n} ${k}${n === 1 || k === 'kit' ? '' : 's'}`).join(' · ');
+  // Each shop keeps the numbers it sells, live with everything worn: wards are only ever totalled here.
+  const pct = (x) => `${Math.round(x * 100)}%`;
+  const statLine = {
+    wp: `${u.maxHp} HP · ${u.atk} Attack · ${pct(u.crit)} crit`,
+    eq: `${u.maxHp} HP · ${u.def} Defense · turns aside ${pct(u.blockPhys)} physical, ${pct(u.blockMagic)} magic`,
+    t: `${hasMana(id) ? `${u.maxMp} MP` : 'No mana'} · ${u.agi} Agility · ${u.maxHp} HP`,
+    forge: `${u.maxHp} HP · ${u.atk} Attack · ${u.def} Defense`,
+  }[focus] || `${u.maxHp} HP · ${u.atk} Attack · ${u.def} Defense · ${u.agi} Agility`;
+  return `<div class="shopHero">
+    <figure class="tmini you"><div class="mini">${spriteSVG(id)}</div>
+      <figcaption>${heroName()}<small>You</small><span class="lv">Level ${lv}</span></figcaption></figure>
+    <div class="kit">
+      <p class="label">Equipped</p>
+      <div class="hslots">
+        ${slot('wp', 'Weapon', w && wepIcon(g.wp), w ? w.name : 'Open: bare-handed', `Forge: ${TIER[g.w || 0]}`, gems('wp', w))}
+        ${slot('eq', 'Worn kit', e && kitIcon(g.eq), e ? e.name : 'Open: nothing worn', `Forge: ${TIER[g.a || 0]} armor`, gems('eq', e))}
+        ${slot('t', 'Trinket', t && TRINKET_ICON[g.t], t ? t.name : 'Open: no trinket', '')}
+      </div>
+      <p class="label">Satchel</p>
+      <div class="satch${focus === 'items' ? ' focus' : ''}">${satchel}</div>
+      <p class="note">At level ${lv}: ${statLine}${stash ? `<br>At home in your stash: ${stash}` : ''}</p>
+    </div>
+  </div>`;
+}
 function heroListHTML(sel, sub) {
+  return '';
   const order = [...state.team, ...ROSTER.map((c) => c.id).filter((id) => !state.team.includes(id))];
   return `<div class="heroList">${order.map((id) => {
     const [text, hi] = sub(id);
@@ -10103,7 +10602,7 @@ function heroListHTML(sel, sub) {
 }
 
 function trinketCaseHTML(id) {
-  const c = charById(id), worn = gearRaw(id).t, u = makeUnit(c, 1, 'p', 0), mana = hasMana(id);
+  const c = charById(id), worn = gearRaw(id).t, mana = hasMana(id);
   const rows = TRINKET_KEYS.map((k) => {
     const tr = TRINKETS[k], on = worn === k, ok = profile.gold >= tr.price, spare = profile.stash.trinkets[k] || 0;
     const btn = on ? `<button class="btn small" type="button" data-k="sell">Sell back for ${trinketRefund(k)} gold</button>`
@@ -10115,9 +10614,6 @@ function trinketCaseHTML(id) {
       <div class="buy"><span class="note">${tr.price} gold${spare ? ` · ${spare} in your stash` : ''}</span>${btn}</div></div>`;
   }).join('');
   return `<div class="anvil">
-    <div class="who2"><div class="pic">${spriteSVG(id)}</div>
-      <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${FACTIONS[c.faction].name}</p>
-        <p class="note">At level 1: ${mana ? `${u.maxMp} MP · ` : 'No mana · '}${u.agi} Agility · ${u.maxHp} HP</p></div></div>
     <div class="trinkets">${rows}</div>
   </div>`;
 }
@@ -10171,7 +10667,7 @@ function roomSVG() {
 }
 
 function anvilHTML(id) {
-  const c = charById(id), g = gearOf(id), u = makeUnit(c, 1, 'p', 0);
+  const g = gearOf(id);
   const row = (slot) => {
     const f = FORGE[slot], t = g[slot] || 0, cost = FORGE_COST[t], ok = profile.gold >= cost;
     const bonus = (n) => `+${Math.round(f.per * n * 100)}% ${f.stat}`;
@@ -10183,10 +10679,6 @@ function anvilHTML(id) {
     </div>`;
   };
   return `<div class="anvil">
-    <div class="who2"><div class="pic">${spriteSVG(id)}</div>
-      <div><strong>${c.name}</strong><p class="note">${ROLES[c.role].label} · ${FACTIONS[c.faction].name}</p>
-        <p class="note">Holding: <b>${wepOf(id)?.name || 'nothing but their fists'}</b> — see the <b>Weapon rack</b>.</p>
-        <p class="note">At level 1: ${u.maxHp} HP · ${u.atk} Attack · ${u.def} Defense</p></div></div>
     ${row('w')}${row('a')}
   </div>`;
 }
@@ -10887,6 +11379,32 @@ function townPlaces() {
     const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 30);
     out.workshop = [1072.6, s, [sx, sy - 46], 'The Workshop'];   // outside the wall: drawn among the outer forest
   }
+
+  // THE ACADEMY: a stone schoolhouse beside the Training Yard, a bell cupola on its roof and a
+  // slate board out front. Its door faces the yard.
+  {
+    const [gx, gy, w, d, h] = [4, 30.2, 3.6, 3.4, 50], wall = '#9a8f80', fx = gx + w;
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+    s += line3([gx, gy + d, 16], [gx + w, gy + d, 16], '#7a7064', 3) + line3([fx, gy, 16], [fx, gy + d, 16], '#7a7064', 3);
+    for (const u of [4.5, 5.6, 6.7]) s += onLeft(gy + d, u, u + .55, 22, 42, '#ffd28a', ' class="lit"');
+    s += onRight(fx, 31.4, 32.4, 0, 30, '#2a1d16') + onRight(fx, 30.5, 31, 22, 40, '#e8b060', ' class="lit"') + onRight(fx, 32.8, 33.3, 22, 40, '#e8b060', ' class="lit"');
+    // A banner by the door: an open book on blue.
+    s += onRight(fx + .02, 30.9, 31.25, 30, 48, '#3e5a8c');
+    s += hip(gx, gy, w, d, h, 30, '#34465e');
+    // The bell cupola.
+    const [bx, by] = [gx + w / 2 - .45, gy + d / 2 - .45];
+    s += box(bx, by, .9, .9, 22, '#c9b48f', h + 18) + hip(bx, by, .9, .9, h + 40, 16, '#34465e', .15);
+    const [cx, cy] = P2(bx + .45, by + .9, h + 30);
+    s += `<path d="M${n1(cx - 5)} ${n1(cy + 4)} q5 -10 10 0z" fill="#e8a548"/>`;
+    // The slate board on an easel, and a stack of books.
+    const [ex, ey] = P2(8.2, 31, 0);
+    s += `<path d="M${n1(ex - 12)} ${n1(ey)} L${n1(ex - 4)} ${n1(ey - 40)} M${n1(ex + 12)} ${n1(ey)} L${n1(ex + 4)} ${n1(ey - 40)}" stroke="#6b4f32" stroke-width="3"/>`
+      + `<rect x="${n1(ex - 15)}" y="${n1(ey - 44)}" width="30" height="22" rx="2" fill="#2a3a34" stroke="#6b4f32" stroke-width="2"/>`
+      + `<path d="M${n1(ex - 10)} ${n1(ey - 38)} h12 M${n1(ex - 10)} ${n1(ey - 33)} h18 M${n1(ex - 10)} ${n1(ey - 28)} h8" stroke="#e9e4d8" stroke-width="1.5"/>`;
+    s += box(7.9, 33.9, .55, .4, 4, '#3e5a8c') + box(7.95, 33.95, .45, .35, 4, '#c0303f', 4) + box(7.9, 33.9, .5, .4, 4, '#e8a548', 8);
+    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 56);
+    out.academy = [41.2, s, [sx, sy - 40], 'The Academy'];
+  }
   return out;
 }
 
@@ -10972,8 +11490,8 @@ function buildTownMap() {
     [28.5, 4.2, 3, 2.5, 34, '#8a6a4a', '#4f6a4a', 'x', true], [32.5, 6, 2.5, 2.5, 30, '#7a6a5a', '#7a3a2e', 'y'],
     [33.5, 10.5, 2.5, 2.5, 32, '#8a7a64', '#3e5a8c', 'x'], [34, 14.5, 2.2, 2.2, 28, '#7a6a5a', '#a8483a', 'y'],
     [33, 28.5, 2.6, 2.4, 32, '#8a6a4a', '#3e5a8c', 'x', true], [33.5, 32.5, 2.4, 2.4, 30, '#7a6a5a', '#7a3a2e', 'y'],
-    [22.8, 33.6, 2.4, 2.2, 30, '#8a7a64', '#4f6a4a', 'x'],  [4, 30.5, 2.6, 2.4, 30, '#7a6a5a', '#4f6a4a', 'y'],
-    [4, 14, 2.6, 2.4, 32, '#8a7a64', '#7a3a2e', 'x', true], [4.2, 34.2, 2.2, 2.2, 28, '#8a6a4a', '#a8483a', 'x'],
+    [22.8, 33.6, 2.4, 2.2, 30, '#8a7a64', '#4f6a4a', 'x'],
+    [4, 14, 2.6, 2.4, 32, '#8a7a64', '#7a3a2e', 'x', true],
   ];
   for (const [gx, gy, w, d, h, wall, roof, axis, ch] of HOUSES) add(gx + w + gy + d, house(gx, gy, w, d, h, wall, roof, axis, ch));
   {
@@ -11039,7 +11557,7 @@ const TOWN_LABELS = {
   guild: 'Guild House: join a sellsword guild', jeweler: 'Jeweler: trinkets for your champions',
   tavern: 'The Smoldering Mug tavern: rumors and records', home: 'Your House: your stash and belongings',
   market: 'Market: buy supplies for battle', bounty: 'Bounty Board: daily jobs that pay gold',
-  pvp: 'Proving Grounds: duel rival warbands for gold', workshop: 'The Workshop: craft supplies, tomes and trinkets from materials', gate: 'Expedition Gate: dungeons along Ashfall Road',
+  pvp: 'Proving Grounds: duel rival warbands for gold', academy: 'The Academy: champion chart, library and lessons', workshop: 'The Workshop: craft supplies, tomes and trinkets from materials', gate: 'Expedition Gate: dungeons along Ashfall Road',
   cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
 };
 
@@ -11271,6 +11789,12 @@ function villageAction(k) {
   else if (verb === 'ctab') state.craftTab = arg;
   // Sparring at the Training Yard.
   else if (verb === 'ttab') state.trainTab = arg;
+  // The Academy.
+  else if (verb === 'ytab') state.acadTab = arg;
+  else if (verb === 'ypick') { if (charById(arg)) { state.acadPick = arg; if ((state.acadTab || 'lessons') === 'chart') state.acadTab = 'library'; } }
+  else if (verb === 'ysort') { const cur = state.chartSort || { k: 'hp', dir: -1 }; state.chartSort = { k: arg, dir: cur.k === arg ? -cur.dir : (arg === 'name' ? 1 : -1) }; }
+  else if (verb === 'yfac') state.chartFac = arg;
+  else if (verb === 'ylv') state.chartLv = clamp((state.chartLv || heroLevel()) + Number(arg), 1, LEVEL_CAP);
   else if (verb === 'sslot') sparSetup().slot = [arg, Number(arg2)];
   else if (verb === 'spick') { const m = sparSetup(), [sd, i] = m.slot; if (charById(arg)) m[sd][i] = arg; }
   else if (verb === 'sparlv') { const m = sparSetup(); m.lv = clamp(m.lv + Number(arg), 1, LEVEL_CAP); }
@@ -11365,7 +11889,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${u.faction === 'mech' && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic">${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg></div>
+      <div class="body"><div class="upic">${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
     </div>`;
 }
 
@@ -12476,6 +13000,137 @@ async function backwash(src, u, style = 'water') {
   svg.remove();
 }
 
+/* EXECUTE'S BLOOD RITE — Vesper's signature in three beats. Purely visual: executeSkill moves the HP.
+   bloodGather   thick blood streams arc out of every donor into Vesper, who glows red as a blood orb
+                 swells in front of him (his own share pulses straight into it).
+   bloodPillar   he throws it all at the sky: a red pillar shoots up from him and off the top of the field.
+   bloodTorrent  it pours back down on the target as a torrent of blood light, drops raining down it,
+                 and pools at their feet. Resolves as it strikes, so the blow lands under it. */
+// A donor's HP bar during the rite: the share they give up stays lit as a bright red chunk where it
+// used to be, flashes, then drains away toward the bar's new end as their blood streams over to
+// Vesper, and the whole bar pulses red meanwhile. (The fill itself has already dropped.)
+function bleedBar(u, from, to, ms) {
+  const bar = actorEl(u)?.querySelector('.bar.hp');
+  if (!bar || reduced || from <= to) return;
+  const chunk = document.createElement('div');
+  chunk.className = 'drain';
+  const w = `${((from - to) / u.maxHp) * 100}%`;
+  chunk.style.left = `${(to / u.maxHp) * 100}%`;
+  chunk.style.width = w;
+  bar.insertBefore(chunk, bar.querySelector('span'));
+  bar.classList.add('bleeding');
+  chunk.animate([
+    { width: w, opacity: 1, filter: 'brightness(2.2)' },
+    { width: w, opacity: 1, filter: 'brightness(1)', offset: 0.12 },
+    { width: w, opacity: 0.6, filter: 'brightness(1.8)', offset: 0.24 },
+    { width: w, opacity: 1, filter: 'brightness(1)', offset: 0.36 },
+    { width: w, opacity: 1, offset: 0.62, easing: 'ease-in' },
+    { width: '0%', opacity: 0.5 }], { duration: ms, fill: 'forwards' });
+  setTimeout(() => { chunk.remove(); bar.classList.remove('bleeding'); }, ms + 80);
+}
+
+function riteSvg(cls, html) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', `bolt rite ${cls}`);
+  svg.innerHTML = html;
+  $('#arena').appendChild(svg);
+  return svg;
+}
+// A point on a quadratic curve, for drops that ride the streams.
+const quadAt = (a, c, b, k) => ({ x: (1 - k) ** 2 * a.x + 2 * (1 - k) * k * c.x + k * k * b.x, y: (1 - k) ** 2 * a.y + 2 * (1 - k) * k * c.y + k * k * b.y });
+
+async function bloodGather(u, donors) {
+  const me = stageBox(u);
+  if (reduced || !me) { await castPose(u, true); return; }
+  const to = { x: me.x + facing(u) * me.w * 0.18, y: me.top + me.h * 0.4 };
+  const streams = donors.filter((a) => a !== u).map(stageBox).filter(Boolean).map((b) => {
+    const from = { x: b.x, y: b.top + b.h * 0.45 };
+    // Each stream bows up over the line between them, higher the farther it has to travel.
+    const c = { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - 34 - Math.abs(from.x - to.x) * 0.18 };
+    return { from, c, d: `M${from.x.toFixed(1)} ${from.y.toFixed(1)} Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${to.x.toFixed(1)} ${to.y.toFixed(1)}` };
+  });
+  const svg = riteSvg('gather', streams.map((st) => ['rt-glow', 'rt-body', 'rt-core']
+      .map((k) => `<path class="${k}" d="${st.d}" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>`).join('')).join('')
+    + streams.map(() => '<circle class="rt-drop" r="3.4"/><circle class="rt-drop" r="2.6"/>').join('')
+    + `<circle class="rt-orb" cx="${to.x.toFixed(1)}" cy="${to.y.toFixed(1)}" r="13"/>`
+    + `<circle class="rt-orbcore" cx="${to.x.toFixed(1)}" cy="${to.y.toFixed(1)}" r="6"/>`);
+  const ms = beat(1300);
+  // He rises a little and runs red for the whole rite.
+  pose(u, [{ transform: 'none', filter: 'none' },
+    { transform: 'translateY(-6px)', filter: 'brightness(1.15) drop-shadow(0 0 10px #d0182c)', offset: 0.2 },
+    { transform: 'translateY(-8px)', filter: 'brightness(1.25) drop-shadow(0 0 16px #ff2a3e)', offset: 0.85 },
+    { transform: 'translateY(-6px)', filter: 'brightness(1.15) drop-shadow(0 0 12px #d0182c)' }], 1300 + 520);
+  // Each stream pours in from its donor, then its tail is drawn into him after it.
+  svg.querySelectorAll('path').forEach((pth) => pth.animate([
+    { strokeDashoffset: 1 }, { strokeDashoffset: 0, offset: 0.45 }, { strokeDashoffset: 0, offset: 0.62 }, { strokeDashoffset: -1 }],
+    { duration: ms, easing: 'ease-in-out', fill: 'forwards' }));
+  // Drops ride every stream into him.
+  const drops = svg.querySelectorAll('.rt-drop');
+  streams.forEach((st, i) => [0, 1].forEach((j) => {
+    const frames = Array.from({ length: 11 }, (_, n) => {
+      const pt = quadAt(st.from, st.c, to, n / 10);
+      return { transform: `translate(${pt.x.toFixed(1)}px, ${pt.y.toFixed(1)}px)`, opacity: n === 0 || n === 10 ? 0 : 1 };
+    });
+    drops[i * 2 + j].animate(frames, { duration: ms * 0.5, delay: ms * (0.12 + j * 0.2), easing: 'ease-in', fill: 'both' });
+  }));
+  // The orb swells as the blood arrives.
+  for (const o of svg.querySelectorAll('.rt-orb, .rt-orbcore')) o.animate(
+    [{ transform: 'scale(.2)', opacity: 0 }, { transform: 'scale(.6)', opacity: 1, offset: 0.4 }, { transform: 'scale(1.25)', opacity: 1 }],
+    { duration: ms, easing: 'ease-in', fill: 'forwards' });
+  await sleep(ms);
+  svg.remove();
+}
+
+async function bloodPillar(u) {
+  const me = stageBox(u);
+  if (reduced || !me) return;
+  const x = me.x + facing(u) * me.w * 0.18, y = me.top + me.h * 0.4;
+  const col = (w0, w1) => `${(x - w0).toFixed(1)},${y.toFixed(1)} ${(x + w0).toFixed(1)},${y.toFixed(1)} ${(x + w1).toFixed(1)},-40 ${(x - w1).toFixed(1)},-40`;
+  const svg = riteSvg('pillar', `<polygon class="rt-glow" points="${col(16, 24)}"/><polygon class="rt-body" points="${col(8, 12)}"/>`
+    + `<polygon class="rt-core" points="${col(2.5, 4)}"/>`
+    + `<circle class="rt-orb" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="16"/>`);
+  const ms = beat(560);
+  // It shoots up out of him and off the top of the field, then thins away as it goes.
+  svg.animate([
+    { clipPath: `inset(0 0 ${(svg.clientHeight - y).toFixed(0)}px 0)`, opacity: 1 },
+    { clipPath: 'inset(0 0 0 0)', opacity: 1, offset: 0.45 },
+    { clipPath: 'inset(0 0 0 0)', opacity: 0 }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  svg.querySelector('.rt-orb').animate([{ transform: 'scale(1.25)' }, { transform: 'scale(.3)', opacity: 0 }], { duration: ms * 0.5, fill: 'forwards' });
+  tremorFx(320);
+  await sleep(ms);
+  svg.remove();
+}
+
+async function bloodTorrent(t) {
+  const e = stageBox(t);
+  if (reduced || !e) return;
+  const topW = e.w * 0.55, botW = e.w * 0.78, y0 = -10, y1 = e.feet + 2;
+  const shaft = (k) => `${(e.x - topW * k).toFixed(1)},${y0} ${(e.x + topW * k).toFixed(1)},${y0} `
+    + `${(e.x + botW * k).toFixed(1)},${y1.toFixed(1)} ${(e.x - botW * k).toFixed(1)},${y1.toFixed(1)}`;
+  const drops = Array.from({ length: 9 }, (_, i) =>
+    `<circle class="rt-drop" cx="${(e.x + (i / 8 - 0.5) * botW * 1.3).toFixed(1)}" cy="${(y1 * (0.15 + (i % 3) * 0.22)).toFixed(1)}" r="${(2.2 + (i % 3) * 0.7).toFixed(1)}"/>`).join('');
+  const svg = riteSvg('torrent', `<polygon class="rt-glow" points="${shaft(1.5)}"/><polygon class="rt-body" points="${shaft(1)}"/>`
+    + `<polygon class="rt-core" points="${shaft(0.38)}"/>`
+    + `<ellipse class="rt-pool" cx="${e.x.toFixed(1)}" cy="${y1.toFixed(1)}" rx="${(botW * 1.7).toFixed(1)}" ry="8"/>` + drops);
+  const ms = beat(1100), LAND = 0.26;
+  // The torrent pours down out of the sky, holds over them, then drains away.
+  svg.animate([
+    { clipPath: 'inset(0 0 100% 0)', opacity: 0.95, easing: 'ease-in' },
+    { clipPath: 'inset(0 0 0% 0)', opacity: 1, offset: LAND },
+    { clipPath: 'inset(0 0 0% 0)', opacity: 1, offset: 0.7 },
+    { clipPath: 'inset(0 0 0% 0)', opacity: 0 }], { duration: ms, fill: 'forwards' });
+  svg.querySelectorAll('.rt-drop').forEach((c, i) => c.animate(
+    [{ opacity: 0, transform: 'translateY(-30px)' }, { opacity: 1, offset: 0.3 }, { opacity: 0, transform: `translateY(${(e.h * 0.5).toFixed(0)}px)` }],
+    { duration: ms * 0.6, delay: ms * (0.08 + (i % 4) * 0.07), fill: 'both', easing: 'ease-in' }));
+  svg.querySelector('.rt-pool').animate(
+    [{ transform: 'scaleX(.2)', opacity: 0 }, { transform: 'scaleX(.2)', opacity: 0, offset: 0.24 }, { opacity: 1, offset: 0.4 }, { transform: 'scaleX(1)', opacity: 0 }],
+    { duration: ms, fill: 'forwards' });
+  setTimeout(() => svg.remove(), ms + 60);
+  // Only once the torrent has reached the ground under them (plus a breath) does the blow land.
+  await sleep(ms * (LAND + 0.06));
+  tremorFx(420);
+}
+
 /* SACRED LIGHT — Sister Liesl's mend: a shaft of dawn opens high over the ally and pours straight
    down onto them, pooling where they stand. Purely visual — healSkill moves the HP. The await
    returns once the light has landed, so the heal number pops while the shaft still stands. */
@@ -12522,7 +13177,7 @@ function renderTrack(ms) {
     el.style.setProperty('--x', ((u.pos || 0) / TRACK * 100).toFixed(2));
     const isFrozen = hardFrozen(u), isSlow = !!has(u, 'slow');
     const isStagger = staggerPhase(u) != null, halted = staggerStopped(u);
-    el.classList.toggle('frozen', isFrozen || pinned(u) || !!has(u, 'bash'));
+    el.classList.toggle('frozen', isFrozen || pinned(u) || !!has(u, 'bash') || buried(u));
     el.classList.toggle('stagger', isStagger && !isFrozen);
     el.classList.toggle('halt', halted && !isFrozen);
     el.classList.toggle('slow', isSlow && !isFrozen && !isStagger);
@@ -12532,7 +13187,7 @@ function renderTrack(ms) {
     // Rooted shows no speed-bar label: the token still races to the gate, so it isn't "held" like a
     // Bash or a Stun — the 🌿 Rooted chip above the unit says why it can only act in place.
     const label = isFrozen ? (has(u, 'overheat') ? 'Overheated' : 'Stunned') : pinned(u) ? 'Pinned'
-      : has(u, 'bash') ? 'Bashed' : isStagger ? (isSlow ? 'Staggered + Slow' : 'Staggered') : isSlow ? 'Slowed' : '';
+      : has(u, 'bash') ? 'Bashed' : buried(u) ? 'Burrowed' : isStagger ? (isSlow ? 'Staggered + Slow' : 'Staggered') : isSlow ? 'Slowed' : '';
     st.hidden = !label;
     st.textContent = label;
     el.setAttribute('aria-label', `${u.side === 'p' ? 'Your' : 'Enemy'} ${u.name}${label ? `, ${label.toLowerCase()}` : ''}`);
@@ -12674,7 +13329,11 @@ function renderBattle() {
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
+    el.classList.toggle('buried', buried(u));
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
+    // Barrow's Graveyard Fence is the very railing he carries: while it stands before anyone on his
+    // side (only that skill gives Protected), his off hand is empty; it comes back when the fence falls.
+    el.classList.toggle('fenceOut', lookOf(artOf(u))?.offhand === 'gravefence' && state.teams[u.side].some((a) => a.hp > 0 && has(a, 'protected')));
     el.classList.toggle('planted', !!u.planted);
     el.classList.toggle('pinned', u.hp > 0 && pinned(u));   // Last Rites: the two iron crosses stand over it   // Mordrek with his cross in the ground: no weapon in hand
     const tgt = targets.includes(u);

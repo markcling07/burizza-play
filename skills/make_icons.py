@@ -785,6 +785,21 @@ def _():
             + g(drop(), 50, 15, 0, .6) + g(drop(), 51, 31, 0, .45) + g(drop(), 41, 45, 0, .4))
 
 
+@icon('Execute')
+def _():
+    # The warband's blood, gathered into one beam that pours down from the sky onto the doomed:
+    # drops streaming in from both sides at the top, the torrent, and a skull splashed under it.
+    beam = '<path d="M27 5 H37 L43 40 H21 Z" fill="#ff2a3e"/>'
+    return (glow(beam, .75)
+            + '<path d="M27.5 5 H36.5 L41 40 H23 Z" fill="url(#blood)" stroke-width="1.2"/>'
+            + '<path d="M31 5 H33 L34.5 40 H29.5 Z" fill="#ffc0c8" stroke="none"/>'
+            + g(skull(), 32, 47, 0, .82)
+            + burst(32, 36.5, 3, 9.5, 8, '#ff3a4a', extra=' stroke-width="1"')
+            + burst(32, 36.5, 1.5, 4.8, 8, '#ffe0e4', extra=' stroke="none"')
+            + g(drop(), 13, 14, 55, .62) + g(drop(), 51, 14, -55, .62)
+            + g(drop(), 18, 24, 40, .45) + g(drop(), 46, 24, -40, .45))
+
+
 @icon('Exsanguinate')
 def _():
     return ('<path d="M9 22 Q32 12 55 22 Q48 34 32 34 Q16 34 9 22 Z" fill="#7a1424"/>'
@@ -1630,7 +1645,7 @@ CATALOG = {
         ('Ink Lash', 'Ink Illusion (summon)', 'skill'),
     ]),
     'crimson': ('The Crimson Court', [
-        ('Crimson Lunge', 'Vesper Nightshade', 'skill'), ('Night Waltz', 'Vesper Nightshade', 'skill'), ('Exsanguinate', 'Vesper Nightshade', 'sig'), ('Throat Tear', 'Vesper Nightshade', 'skill'), ('Mist Form', 'Vesper Nightshade', 'skill'), ('Riposte', 'Vesper Nightshade', 'passive'),
+        ('Crimson Lunge', 'Vesper Nightshade', 'skill'), ('Night Waltz', 'Vesper Nightshade', 'skill'), ('Execute', 'Vesper Nightshade', 'sig'), ('Exsanguinate', 'Vesper Nightshade', 'skill'), ('Throat Tear', 'Vesper Nightshade', 'skill'), ('Mist Form', 'Vesper Nightshade', 'skill'), ('Riposte', 'Vesper Nightshade', 'passive'),
         ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Blood Pact', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'),
         ('Kiss of Ruin', 'Seraxa Thornwing', 'skill'), ('Shadowstep', 'Seraxa Thornwing', 'skill'), ('Dance of Knives', 'Seraxa Thornwing', 'sig'), ('Wing Carve', 'Seraxa Thornwing', 'skill'), ("Predator's Grace", 'Seraxa Thornwing', 'skill'), ('Flurry', 'Seraxa Thornwing', 'passive'),
         ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Bloodhound', 'Gorehound', 'passive'),
@@ -1638,7 +1653,7 @@ CATALOG = {
     ]),
     'undead': ('The Pale Host', [
         ('Grave Cross', 'Mordrek the Interred', 'skill'), ('Graveside Chill', 'Mordrek the Interred', 'skill'), ('Last Rites', 'Mordrek the Interred', 'sig'), ('Plant the Marker', 'Mordrek the Interred', 'skill'), ('Second Grave', 'Mordrek the Interred', 'passive'),
-        ('Tomb Slab', 'Barrow', 'skill'), ('Grasping Hands', 'Barrow', 'skill'), ('Barrow Wall', 'Barrow', 'sig'), ('Crypt Breaker', 'Barrow', 'skill'), ('Hold the Grave', 'Barrow', 'skill'), ('Feast of the Fallen', 'Barrow', 'passive'),
+        ('Tomb Slab', 'Barrow', 'skill'), ('Grasping Hands', 'Barrow', 'skill'), ('Barrow Wall', 'Barrow', 'sig'), ('Crypt Breaker', 'Barrow', 'skill'), ('Hold the Grave', 'Barrow', 'skill'), ('Graveyard Fence', 'Barrow', 'skill'), ('Burrow', 'Barrow', 'skill'), ('Feast of the Fallen', 'Barrow', 'passive'),
         ('Bone Dart', 'Cadris Gravecall', 'skill'), ('Shambling Rise', 'Cadris Gravecall', 'skill'), ('Charnel Volley', 'Cadris Gravecall', 'sig'), ('Rot Shot', 'Cadris Gravecall', 'skill'), ('Marrow Pierce', 'Cadris Gravecall', 'skill'), ('Toll of the Dead', 'Cadris Gravecall', 'passive'),
         ('Shroud Arrow', 'Vaun Shroudfletch', 'skill'), ('Withering Shot', 'Vaun Shroudfletch', 'skill'), ('Pall of Arrows', 'Vaun Shroudfletch', 'sig'), ('Graveshot', 'Vaun Shroudfletch', 'skill'), ('Scatter of Bones', 'Vaun Shroudfletch', 'skill'), ('Deathmark', 'Vaun Shroudfletch', 'passive'),
         ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
@@ -2239,6 +2254,36 @@ def _():
             + g('<rect x="-13" y="-19" width="26" height="38" rx="3" fill="url(#iron)"/>'
                 '<path d="M-6 -12 H6 M-8 -6 H8 M-8 0 H8" stroke-width="1.3"/>'
                 '<path d="M0 -12 V-4 M-4 -8 H4" stroke="#c9ccd8" stroke-width="2"/>', 30, 29, -34))
+
+
+@icon('Graveyard Fence')
+def _():
+    # A stretch of iron graveyard railing raised before an ally: spear-topped bars lit grave-green,
+    # two rails and an iron scroll, standing on fresh dirt.
+    bars = ''.join(
+        f'<rect x="{x - 2}" y="{top}" width="4" height="{50 - top}" fill="#3b414b"/>'
+        f'<path d="M{x} {top - 8} l4 7 h-8 Z" fill="#3b414b"/>'
+        f'<path d="M{x} {top - 6} l1.8 4 h-3.6 Z" fill="#8ee696" stroke="none"/>'
+        for x, top in ((14, 22), (25, 18), (36, 18), (47, 18), (54, 22)))
+    return ('<circle cx="32" cy="30" r="20" fill="url(#graveR)" stroke="none" opacity=".7"/>'
+            + '<path d="M6 52 Q32 44 58 52 L58 56 H6 Z" fill="url(#clay)"/>'
+            + bars
+            + '<rect x="9" y="26" width="49" height="4" rx="1" fill="#3b414b"/>'
+            + '<rect x="9" y="42" width="49" height="4" rx="1" fill="#3b414b"/>'
+            + '<path d="M26 36 q5 -6 10 0 q-5 6 -10 0 Z" fill="none" stroke="#6d7684" stroke-width="2.2"/>')
+
+
+@icon('Burrow')
+def _():
+    # Barrow goes under: his grave slab half sunk in a fresh mound, clods thrown up, the way down.
+    slab = ('<rect x="-11" y="-17" width="22" height="34" rx="9" fill="url(#iron)"/>'
+            '<path d="M0 -10 V-2 M-4 -6 H4" stroke="#8ee696" stroke-width="2"/>')
+    clod = '<circle r="2.6" fill="url(#clay)" stroke-width="1"/>'
+    return (g(slab, 33, 38, 10)
+            + '<path d="M6 54 Q12 38 32 37 Q52 38 58 54 Z" fill="url(#clay)"/>'
+            + '<path d="M14 46 Q22 41 30 44 M36 43 Q44 41 50 47" stroke="#4a2410" stroke-width="1.4" fill="none"/>'
+            + g(clod, 13, 33) + g(clod, 51, 31, 0, .9) + g(clod, 18, 25, 0, .7) + g(clod, 46, 23, 0, .65)
+            + '<path d="M24 9 L32 16 L40 9 M24 16 L32 23 L40 16" fill="none" stroke="#8ee696" stroke-width="2.6"/>')
 
 
 @icon('Barrow Wall')
