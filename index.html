@@ -1461,7 +1461,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 /* The sticky bar the header buttons ride (pinSheetButtons): zero height, so it takes no room in the
    sheet; its buttons hang from it at the top right and stay there as the sheet scrolls. The negative
    margin cancels the panel's row gap for it. */
-#placePanel .pstick { position: sticky; top: 0; z-index: 6; height: 0; margin-bottom: -14px; display: flex; justify-content: flex-end; gap: 6px; pointer-events: none; }
+#placePanel .pstick { position: sticky; top: 0; z-index: 6; height: 0; margin-bottom: -14px; display: flex; align-items: flex-start; justify-content: flex-end; gap: 6px; pointer-events: none; }
+/* A building's way out: a boxed back arrow. */
+#placePanel .iconBack { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border-radius: 10px; }
+#placePanel .iconBack svg { width: 20px; height: 20px; }
 #placePanel .pstick .btn { pointer-events: auto; background: var(--panel-2); box-shadow: 0 4px 12px rgba(0, 0, 0, .45); }
 #placePanel .forge, #placePanel .homeGrid { grid-template-columns: minmax(0, 1fr); }
 @media (min-aspect-ratio: 1/1) {
@@ -11061,7 +11064,7 @@ function placeHTML(k) {
   return `<section class="panel" id="panel" aria-label="${p.name}">
     <div class="phead">
       <div><p class="label">${p.kick}</p><h2>${p.name}</h2>${p.flavor ? `<p class="flavor">${p.flavor}</p>` : ''}</div>
-      <button class="btn small" type="button" data-k="back">Back to the square</button>
+      <button class="btn small iconBack" type="button" data-k="back" aria-label="Back to the square" title="Back to the square"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
     ${keeperHTML(k)}
     ${PLACE_BODY[k]()}
