@@ -153,12 +153,22 @@ body[data-screen="select"] .top { display: none; }
 .faction .fmeta { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 6px; }
 .faction .fmeta span { padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); font-size: .76rem; font-weight: 700; }
 .faction .fmeta span:first-child { color: var(--accent); border-color: var(--accent); }
-.roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
-.roster .pick { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: start; gap: 4px; padding: 8px 4px 7px; text-align: center; }
-.roster .pick .badge { top: 5px; right: 5px; width: 20px; height: 20px; font-size: .72rem; }
-.roster .pick .pic { width: 60px; height: 60px; grid-row: auto; }
-.roster .pick .nm { padding: 0; font-size: .76rem; line-height: 1.15; }
-.roster .pick[aria-expanded="true"] { border-color: var(--accent); background: var(--panel-hi); }
+/* The roster: five to a row, no box round each one - just the champion and their name. Your picks
+   glow gold (yours brightest) and the one whose skills are dropped down has its name underlined. */
+.roster { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 4px; }
+#factionList .roster .pick {
+  display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: start; gap: 3px;
+  padding: 2px 1px 4px; text-align: center; background: none; border: 0; box-shadow: none;
+}
+#factionList .roster .pick .badge { top: -2px; right: 2px; width: 18px; height: 18px; font-size: .66rem; }
+#factionList .roster .pick .pic { width: 100%; max-width: 62px; height: auto; aspect-ratio: 1; grid-row: auto; transition: filter .15s, transform .15s; }
+#factionList .roster .pick .pic img, #factionList .roster .pick .pic svg { width: 100%; height: 100%; display: block; }
+#factionList .roster .pick .nm { padding: 0; font-size: .68rem; line-height: 1.12; overflow-wrap: anywhere; }
+#factionList .roster .pick:hover .pic { transform: translateY(-2px); filter: brightness(1.15); }
+#factionList .roster .pick.sel .pic { filter: drop-shadow(0 0 5px rgba(232, 165, 72, .7)); }
+#factionList .roster .pick.me .pic { filter: drop-shadow(0 0 3px #e8a548) drop-shadow(0 0 9px rgba(232, 165, 72, .8)); }
+#factionList .roster .pick.sel .nm { color: var(--accent); }
+#factionList .roster .pick[aria-expanded="true"] .nm { text-decoration: underline 2px var(--accent); text-underline-offset: 3px; }
 /* The drop-down under the roster. */
 .rdetail { display: grid; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: var(--panel); }
 .rdetail .rdhead { display: flex; gap: 10px; align-items: flex-start; }
@@ -167,12 +177,21 @@ body[data-screen="select"] .top { display: none; }
 .rdetail .rdhead .roles { display: flex; gap: 4px; }
 .rdetail .rdhead .bio { margin: 0; font-size: .82rem; color: var(--muted); }
 .rdetail .rdhead .btn { flex: none; }
-.rdetail .sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: .82rem; color: var(--muted); line-height: 1.3; }
-.rdetail .sk li { display: flex; gap: 8px; align-items: flex-start; }
-.rdetail .sk .sic { flex: none; width: 28px; height: 28px; }
-.rdetail .sk b { color: var(--fg); }
-.rdetail .sk .pas b { color: var(--accent); }
-.rdetail .sk li.nat b { color: #8fd6a0; }
+/* The kit as one row of icons; the picked one is ringed and its details sit underneath. */
+.rdetail .skrow { display: flex; flex-wrap: wrap; gap: 6px; }
+.rdetail .skb { position: relative; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 9px; background: none; cursor: pointer; opacity: .7; transition: opacity .15s, box-shadow .15s; }
+.rdetail .skb .sic { width: 100%; height: 100%; display: block; }
+.rdetail .skb.pas, .rdetail .skb.nat { border-radius: 50%; }
+.rdetail .skb:hover { opacity: 1; }
+.rdetail .skb[aria-pressed="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--accent), 0 0 10px rgba(232, 165, 72, .45); }
+.rdetail .skb.nat[aria-pressed="true"] { box-shadow: 0 0 0 2px #8fd6a0, 0 0 10px rgba(143, 214, 160, .45); }
+.rdetail .skb .star { position: absolute; left: -4px; top: -6px; color: var(--accent); font-size: .8rem; text-shadow: 0 1px 2px #000; }
+.rdetail .skinfo { display: grid; gap: 2px; min-height: 3.6em; font-size: .82rem; line-height: 1.3; color: var(--muted); }
+.rdetail .skinfo b { color: var(--fg); }
+.rdetail .skinfo b small { display: block; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.rdetail .skinfo.pas b { color: var(--accent); }
+.rdetail .skinfo.nat b { color: #8fd6a0; }
+.rdetail .skinfo p { margin: 0; }
 .nameRow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
 .nameRow label { font-size: .85rem; font-weight: 800; color: var(--accent); }
 .nameRow input {
@@ -352,19 +371,19 @@ body[data-screen="select"] .top { display: none; }
 
 /* Speed bar: allies ride above the rail, enemies below; the Act gate is on the right. */
 .speed { display: grid; gap: 6px; padding: 10px 14px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
-/* Round counter floats on the top-left corner of the battlefield (High Tide shows beside it on even
-   rounds); the fast-forward / log / speed buttons group on the bottom-right. Both ride over the arena
-   as translucent pills, like the weather pill. */
-.arena > .round {
-  position: absolute; z-index: 250; top: 8px; left: 8px;
-  padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line);
+/* The battle toolbar above the field: the round counter (High Tide beside it on even rounds) on the
+   left; Hide log, fast-forward and the speed toggle on the right. */
+.fieldBar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 26px; }
+.fieldBar > .round {
+  padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line);
   background: rgba(22, 25, 37, .82); backdrop-filter: blur(3px);
-  color: var(--muted); font-size: .78rem; font-weight: 800; letter-spacing: .06em;
+  color: var(--muted); font-size: .64rem; font-weight: 800; letter-spacing: .05em;
   text-transform: uppercase; font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.arena > .round:empty { display: none; }   /* nothing before the first round starts */
-.arena > .round b { color: var(--ranged); }
-.fieldCtrls { position: absolute; z-index: 250; right: 8px; bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.fieldBar > .round:empty { visibility: hidden; }   /* nothing before the first round starts; the bar keeps its place */
+.fieldBar > .round b { color: var(--ranged); }
+.fieldBar > .round .tideIco, .fieldBar > .round .rdShort { display: none; }   /* room for the full words up here */
+.fieldCtrls { display: flex; align-items: center; gap: 6px; margin-left: auto; }
 /* Battle controls: speed toggle (1.5× ⇄ 2×, gold when doubled), Hide log, and the fast-forward. */
 .speedBtn {
   align-self: center; flex: none; font: inherit; font-size: .74rem; font-weight: 800; font-variant-numeric: tabular-nums; cursor: pointer;
@@ -600,15 +619,15 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 /* Weather bar */
 /* Weather pill: top centre of the battlefield. Icon, name and rounds left; tap for the full effect. */
 .wxPill {
-  position: absolute; z-index: 250; top: 8px; left: 50%; transform: translateX(-50%);
-  display: inline-flex; align-items: center; gap: 6px; max-width: calc(100% - 16px); padding: 4px 12px 4px 8px; cursor: pointer;
+  position: absolute; z-index: 250; top: 6px; left: 50%; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 4px; max-width: calc(100% - 16px); padding: 2px 9px 2px 6px; cursor: pointer;
   border-radius: 999px; border: 1px solid var(--line); background: rgba(22, 25, 37, .82); backdrop-filter: blur(3px);
-  color: var(--fg); font: inherit; font-size: .85rem; white-space: nowrap;
+  color: var(--fg); font: inherit; font-size: .72rem; white-space: nowrap;
 }
 .wxPill:hover, .wxPill[aria-expanded="true"] { border-color: var(--accent); }
-.wxPill .wxi { font-size: 1.05rem; line-height: 1; }
+.wxPill .wxi { font-size: .88rem; line-height: 1; }
 .wxPill .wxn { font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
-.wxPill .wxl { padding: 1px 7px; border-radius: 999px; background: var(--panel-2); color: var(--muted); font-size: .72rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.wxPill .wxl { padding: 0 6px; border-radius: 999px; background: var(--panel-2); color: var(--muted); font-size: .62rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .wxPill .wxl:empty { display: none; }
 .wxPill.changed { animation: wxPulse 1.4s ease; }
 .wxPop {
@@ -1211,6 +1230,30 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   display: grid; gap: 10px; align-content: start; min-width: 0;
   padding: 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line);
 }
+/* The command deck keeps one size whoever it shows; anything longer scrolls inside it. */
+.deck { position: relative; min-height: 7.5rem; }
+/* (i) at the top left of every skill opens its details card (renderSkillTip). */
+.actw { position: relative; display: inline-flex; }
+.ainfo {
+  position: absolute; z-index: 2; left: -6px; top: -6px; width: 17px; height: 17px; padding: 0; cursor: pointer;
+  border-radius: 50%; border: 1px solid var(--line); background: #2b3046; color: var(--fg);
+  font: italic 800 .66rem/15px Georgia, serif; text-align: center;
+}
+.ainfo:hover, .ainfo[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.skillTip {
+  /* Opens upward over the name (and the foot of the speed bar), its bottom edge just above the
+     skill icons' (i) badges - the space under the icons is kept for the items. */
+  position: absolute; z-index: 30; left: 10px; right: 10px; top: 30px; translate: 0 -100%;
+  display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px;
+  background: var(--panel-2); border: 1px solid var(--accent); box-shadow: 0 10px 24px rgba(0, 0, 0, .55);
+  font-size: .84rem; line-height: 1.3; color: var(--muted);
+}
+.skillTip b { color: var(--fg); font-size: .95rem; }
+.skillTip small { font-size: .7rem; font-weight: 800; letter-spacing: .05em; color: var(--accent); }
+.skillTip p { margin: 2px 0 0; }
+/* Tap a fighter to read their deck; the one being looked at gets a soft ring. */
+#arena .unit:not(.down) { cursor: pointer; }
+.unit.viewing .plate { box-shadow: 0 0 0 2px rgba(127, 227, 216, .85); }
 /* Your turn: the command deck lights up gold so it's plain the game is waiting on you. */
 .deck.your-turn {
   border-color: var(--accent);
@@ -1236,13 +1279,14 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   .deckTop .satchel { padding: 10px 0 0; border-left: 0; border-top: 1px solid var(--line); }
 }
 .acts { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.agroup { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.agroup { display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
 .agroup.basic { flex: none; padding-left: 10px; border-left: 1px solid var(--line); }
 .act {
   font: inherit; color: inherit; background: none; border: 0; padding: 2px 0 0; cursor: pointer;
-  display: grid; justify-items: center; align-content: start; gap: 5px; width: 70px; text-align: center;
+  display: grid; justify-items: center; align-content: start; gap: 3px; text-align: center;
 }
-.act .aico { position: relative; width: 52px; height: 52px; border-radius: 12px; background: var(--panel-2); transition: transform .12s, box-shadow .15s, opacity .15s; }
+/* Just the icon: the name lives in the button's tooltip and aria-label, not under it. */
+.act .aico { position: relative; width: 42px; height: 42px; border-radius: 10px; background: var(--panel-2); transition: transform .12s, box-shadow .15s, opacity .15s; }
 .act .aico .sic { width: 100%; height: 100%; display: block; }
 .act:hover:not(:disabled) .aico, .act:focus-visible .aico { transform: translateY(-2px); box-shadow: 0 0 0 2px rgba(232, 165, 72, .5); }
 .act:focus-visible { outline: none; }
@@ -1251,21 +1295,21 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .act:disabled .aico { opacity: .4; filter: grayscale(.6); }
 .act .mpc {
   position: absolute; right: -5px; bottom: -5px; min-width: 20px; padding: 0 4px; border-radius: 8px;
-  background: rgba(12, 14, 22, .92); color: var(--mp); font-size: .8rem; font-weight: 800; line-height: 18px; font-variant-numeric: tabular-nums;
+  background: rgba(12, 14, 22, .92); color: var(--mp); font-size: .7rem; font-weight: 800; line-height: 16px; font-variant-numeric: tabular-nums;
 }
 .act .mpc.short { color: var(--bad); }
 /* The Crimson Court pay in blood, not mana, so their badge reads as a wound rather than a pool. */
 .act .mpc.blood { color: var(--hp); }
 .act .mpc:empty, .act .cdn:empty { display: none; }
-.act .cdn { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 0 1px 4px #000; }
-.act .star { position: absolute; left: -6px; top: -7px; color: var(--accent); font-size: .95rem; text-shadow: 0 1px 2px #000; }
+.act .cdn { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.25rem; font-weight: 800; color: #fff; text-shadow: 0 1px 4px #000; }
+.act .star { position: absolute; left: 50%; translate: -50% 0; top: -9px; color: var(--accent); font-size: .95rem; text-shadow: 0 1px 2px #000; }
 .act .rkb { position: absolute; right: -6px; top: -6px; margin: 0; }
 .act kbd {
   position: absolute; left: -5px; bottom: -5px; font: 700 .62rem/1 var(--font-body); color: var(--muted);
   padding: 2px 4px; border: 1px solid var(--line); border-radius: 4px; background: rgba(12, 14, 22, .92);
 }
 @media (pointer: coarse) { .act kbd { display: none; } }
-.act .nm { font-size: .78rem; font-weight: 800; line-height: 1.15; }
+.act .nm { display: none; }
 .act .combo { font-size: .64rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
 .prompt {
   display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
@@ -1280,6 +1324,18 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .log li.round { border: 0; padding: 6px 0 0; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .foot { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
 .foot p { margin: 0; font-size: .8rem; color: var(--muted); }
+/* Run: the withdraw button, a running figure. It turns red on hover since it ends the fight. */
+.runBtn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; cursor: pointer; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); transition: color .15s, border-color .15s; }
+.runBtn svg { width: 22px; height: 22px; }
+.runBtn:hover, .runBtn:focus-visible { color: var(--bad); border-color: var(--bad); }
+/* Are you sure? Small and centred, Keep fighting first. */
+.confirmDlg { width: min(360px, calc(100vw - 32px)); padding: 18px 18px 16px; border-radius: 14px; border: 1px solid var(--accent); background: var(--panel); color: var(--fg); }
+.confirmDlg::backdrop { background: rgba(8, 8, 14, .65); }
+.confirmDlg h2 { margin: 0 0 6px; font-family: var(--font-display); font-size: 1.45rem; line-height: 1.1; }
+.confirmDlg p { margin: 0 0 14px; font-size: .9rem; color: var(--muted); }
+.confirmDlg .btns { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.btn.danger { background: var(--bad); border-color: var(--bad); color: #1a0f10; }
 
 /* Portrait phones: the battle fits one screen. Ladder on top, the arena,
    a slim speed bar, your actions as a grid of icon buttons, then the latest log lines. */
@@ -1298,8 +1354,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   .deck { padding: 10px; gap: 8px; }
   .dhead h3 { font-size: 1.15rem; }
   .passive { font-size: .76rem; }
-  .act { width: 62px; }
-  .act .aico { width: 46px; height: 46px; }
+  .act .aico { width: 38px; height: 38px; }
   .chron { padding: 8px 10px; gap: 4px; }
   .chron > .label { display: none; }
   .log { max-height: 72px; font-size: .78rem; }
@@ -1403,6 +1458,11 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 #placePanel > .panel > .phead > div { flex: 1 1 auto; min-width: 0; }
 #placePanel > .panel > .phead > .btn { flex: none; margin-left: auto; }
 #placePanel .phead h2 { font-size: 1.6rem; }
+/* The sticky bar the header buttons ride (pinSheetButtons): zero height, so it takes no room in the
+   sheet; its buttons hang from it at the top right and stay there as the sheet scrolls. The negative
+   margin cancels the panel's row gap for it. */
+#placePanel .pstick { position: sticky; top: 0; z-index: 6; height: 0; margin-bottom: -14px; display: flex; justify-content: flex-end; gap: 6px; pointer-events: none; }
+#placePanel .pstick .btn { pointer-events: auto; background: var(--panel-2); box-shadow: 0 4px 12px rgba(0, 0, 0, .45); }
 #placePanel .forge, #placePanel .homeGrid { grid-template-columns: minmax(0, 1fr); }
 @media (min-aspect-ratio: 1/1) {
   #placePanel {
@@ -1995,10 +2055,17 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   <section class="screen" id="battleScreen" hidden>
     <div class="battleGrid">
       <div class="field">
+        <!-- The battle's toolbar sits above the field: the round on the left, the controls on the right. -->
+        <div class="fieldBar">
+          <span class="round" id="roundTxt"></span>
+          <div class="fieldCtrls">
+            <button type="button" class="speedBtn logBtn" id="logBtn" aria-controls="battleLog">Hide log</button>
+            <button type="button" class="speedBtn ffwdBtn" id="ffwdBtn" aria-pressed="false" title="Your champion is down — fast-forward the rest of the battle" hidden>⏩</button>
+            <button type="button" class="speedBtn" id="speedBtn" aria-pressed="false" title="Battle speed">1.5×</button>
+          </div>
+        </div>
         <main class="arena" id="arena">
           <div class="wxAnnounce" id="wxAnnounce" aria-hidden="true"></div>
-          <!-- Round counter floats on the top-left of the field; the battle controls on the bottom-right. -->
-          <span class="round" id="roundTxt"></span>
           <button type="button" class="wxPill" id="weather" aria-expanded="false" aria-controls="wxPop" aria-live="polite">
             <span class="wxi" id="wxIcon" aria-hidden="true"></span><span class="wxn" id="wxName"></span><span class="wxl" id="wxLeft"></span>
           </button>
@@ -2010,11 +2077,6 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           </div>
           <div class="side" id="side-p" aria-label="Your warband"></div>
           <div class="side" id="side-e" aria-label="Enemy warband"></div>
-          <div class="fieldCtrls">
-            <button type="button" class="speedBtn ffwdBtn" id="ffwdBtn" aria-pressed="false" title="Your champion is down — fast-forward the rest of the battle" hidden>⏩</button>
-            <button type="button" class="speedBtn logBtn" id="logBtn" aria-controls="battleLog">Hide log</button>
-            <button type="button" class="speedBtn" id="speedBtn" aria-pressed="false" title="Battle speed">1.5×</button>
-          </div>
         </main>
         <section class="speed" aria-label="Speed bar">
           <div class="track" id="track">
@@ -2049,7 +2111,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
               <div class="items" id="items"></div>
             </div>
           </div>
-          <p class="passive" id="dPassive"></p>
+          <p class="passive" id="dPassive" hidden></p>
+          <div class="skillTip" id="skillTip" role="dialog" aria-live="polite" hidden></div>
           <div class="prompt" id="prompt" hidden>
             <span id="promptTxt"></span>
             <button class="btn small" type="button" id="cancelBtn">Cancel</button>
@@ -2064,8 +2127,20 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
     <ol class="ladder" id="ladder" aria-label="Gauntlet battles" hidden></ol>
     <div class="foot">
       <p>Prototype build. Keys 1–5 pick actions, 6–0 use satchel items, Esc cancels targeting.</p>
-      <button class="btn small ghost" type="button" id="abandonBtn">Abandon run and return to the village</button>
+      <!-- Run: withdraw from the fight. It asks first (withdrawDlg); nothing happens on the tap itself. -->
+      <button class="runBtn" type="button" id="abandonBtn" aria-label="Withdraw from the battle" title="Withdraw from the battle"><svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="15.2" cy="4.2" r="2.3" fill="currentColor"/>
+        <path d="M13.6 7.6 L11 13 M13.2 8.6 L16.6 11.2 L19.4 9.6 M12.6 8.6 L9.2 10 L7.4 13.2 M11 13 L14.6 16 L13.4 21.2 M11 13 L8 17.2 L4.4 17.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2.5 8.5 h3 M1.5 11.5 h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".55"/></svg></button>
     </div>
+    <dialog class="confirmDlg" id="withdrawDlg" aria-labelledby="withdrawTitle">
+      <h2 id="withdrawTitle">Withdraw from the battle?</h2>
+      <p id="withdrawBody"></p>
+      <div class="btns">
+        <button class="btn" type="button" id="withdrawStay" autofocus>Keep fighting</button>
+        <button class="btn danger" type="button" id="withdrawGo">Withdraw</button>
+      </div>
+    </dialog>
   </section>
 </div>
 
@@ -2186,11 +2261,10 @@ const xpToNext = (lv) => 60 + 40 * lv;               // Lv 1→2: 100 XP, 2→3:
 const XP_WIN_BASE = 35, XP_WIN_STEP = 10, XP_CLEAR_BONUS = 120, XP_LOSS = 15;
 const battleXp = (i) => XP_WIN_BASE + XP_WIN_STEP * i;   // i = battle index in the gauntlet, 0-based
 const heroLevel = () => profile.level || 1;
-// The public play build (the GitHub Pages mirror friends play on) starts every champion at Lv 10, so a
-// first visit already has a full kit to try; a local copy starts at Lv 1 as normal. A save on the
-// mirror that is still below it is lifted to it.
-const PLAY_MIRROR = /(^|\.)github\.io$/.test(location.hostname);
-const START_LEVEL = PLAY_MIRROR ? 10 : 1;
+// Every champion starts at Lv 5 - here and on the public play build (the GitHub Pages mirror) alike -
+// so a new warband already has some of its kit to try. A save still below it is lifted to it; a save
+// already past it keeps its level.
+const START_LEVEL = 5;
 if (profile.hero && heroLevel() < START_LEVEL) { profile.level = START_LEVEL; profile.xp = 0; }
 // Champion names show up inside HTML, so markup characters are never allowed in them.
 const cleanName = (s) => String(s || '').replace(/[<>&"'`]/g, '').trim().slice(0, 16);
@@ -2700,7 +2774,7 @@ const ROSTER = [
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
-             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP, then hurls all of it at one enemy as a single Magic blow. No mana, no blood price beyond the warband\'s own.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
+             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP, then hurls all of it at one enemy as a single Magic blow. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
              D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
@@ -4485,8 +4559,13 @@ function requiresMove(u, sk) {
   return u.role === 'melee' && sk.kind === 'damage' && !o.hurl && !o.gust;   // runs in
 }
 
+// Every champion of a warband still standing (summons come and go, so they never count).
+const warbandWhole = (u) => !state.teams[u.side].some((a) => !a.summon && !a.inert && a.hp <= 0);
+
 function usable(u, sk) {
   if (silenced(u, sk)) return false;
+  // Vesper's Execute is a rite of the whole warband: one fallen ally and it cannot be performed.
+  if (sk.kind === 'execute' && !warbandWhole(u)) return false;
   // Rooted: held in place — anything that would carry the unit across the field is shut off (melee
   // run-ins, Second Burial, Bolt-On). Ranged attacks, in-place casts, self-buffs and Guard still work.
   if (has(u, 'rooted') && requiresMove(u, sk)) return false;
@@ -6933,7 +7012,14 @@ function pendingAction(u) {
 }
 
 function onUnit(uid) {
-  if (state.phase !== 'choose' || !state.pending) return;
+  // Not picking a target: the tap shows that fighter in the deck (your own champion brings yours back).
+  if (state.phase !== 'choose' || !state.pending) {
+    const t = unitBy(uid);
+    if (!t || ['won', 'lost', 'cleared'].includes(state.phase)) return;
+    state.inspect = t.you ? null : uid;
+    renderBattle();
+    return;
+  }
   const u = unitBy(state.active);
   const sk = pendingAction(u);
   const t = unitBy(uid);
@@ -7129,6 +7215,7 @@ function startBattle(retry) {
     for (const u of state.teams.e) if (state.team.includes(u.id)) u.name = `Rival ${u.name}`;
   }
   state.round = 1; state.time = 0; state.moving = false; state.active = null;
+  state.inspect = null; state.inspectTurn = null;   // the deck starts on your own champion
   state.frontline = { p: 0, e: 0 };   // the front-line rule starts fresh every battle
   // Everyone lines up at the start of the speed bar and races to Act together.
   for (const u of allUnits()) u.pos = 0;
@@ -9344,10 +9431,12 @@ function buildSelect() {
   }).join('');
 
   $('#factionList').addEventListener('click', (ev) => {
+    const sk = ev.target.closest('[data-pskill]');
+    if (sk) { state.pickSkill = sk.dataset.pskill; renderSelect(); return; }
     const act = ev.target.closest('[data-pickact]');
     if (act) { togglePick(act.dataset.pickact); return; }
     const b = ev.target.closest('.pick');
-    if (b) { state.openPick = state.openPick === b.dataset.id ? null : b.dataset.id; renderSelect(); }
+    if (b) { state.openPick = state.openPick === b.dataset.id ? null : b.dataset.id; state.pickSkill = null; renderSelect(); }
   });
   $('#slots').addEventListener('click', (ev) => {
     const b = ev.target.closest('.slot.filled');
@@ -9408,13 +9497,28 @@ function pickDetailHTML(c) {
       <div><b>${c.name}</b><span class="roles"><span class="role ${c.role}">${ROLES[c.role].label}</span>${isTank(c) ? '<span class="role melee" title="Has a taunt in their kit">Tank</span>' : ''}</span>
         <p class="bio">${c.bio}</p></div>
       <button class="btn small${i < 0 ? ' primary' : ''}" type="button" data-pickact="${c.id}"${locked ? ' disabled' : ''}>${label}</button></div>
-    <ul class="sk">
-      ${[0, 2, 3, 4, ...c.skills.slice(5).map((_, i) => 5 + i)].map((n) => `<li>${skillIcon(c.skills[n])}<span><b>${c.skills[n].name}.</b> ${c.skills[n].desc}</span></li>`).join('')}
-      <li>${skillIcon(c.skills[1])}<span><b>★ ${c.skills[1].name}.</b> ${c.skills[1].desc} <i>From turn ${ULT_FIRST_TURN}.</i></span></li>
-      <li class="pas">${skillIcon(c.passive)}<span><b>Passive · ${c.passive.name}.</b> ${c.passive.desc}</span></li>
-      ${altList(c).map((pa) => `<li class="pas">${skillIcon(pa)}<span><b>Or · ${pa.name}.</b> ${pa.desc}</span></li>`).join('')}
-      ${c.nature ? `<li class="pas nat">${skillIcon(c.nature)}<span><b>Nature · ${c.nature.name}.</b> ${c.nature.desc}</span></li>` : ''}
-    </ul>`;
+    ${pickSkillsHTML(c)}`;
+}
+
+// A Nature has no icon file of its own (it is a trait, not a skill), so it wears this: a leaf medallion.
+const NATURE_ICON = '<svg class="sic" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#1d3324" stroke="#8fd6a0" stroke-width="1.6"/>'
+  + '<path d="M9 22 C9 12 15 8 24 8 C24 17 19 23 10 23 Z" fill="#8fd6a0"/><path d="M9.5 22.5 L19 13" stroke="#1d3324" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+// The drop-down's kit: every skill as one row of icons (skills, the ★ signature, the passive, its
+// alternatives, the Nature), and under it the details of the one picked. The passive is picked first;
+// tapping another icon (data-pskill) shows that one instead (state.pickSkill).
+function pickSkillsHTML(c) {
+  const kit = [
+    ...[0, 2, 3, 4, ...c.skills.slice(5).map((_, i) => 5 + i)].map((n) => ({ key: `s${n}`, s: c.skills[n], tag: 'Skill' })),
+    { key: 's1', s: c.skills[1], tag: '★ Signature', note: `From turn ${ULT_FIRST_TURN}.` },
+    { key: 'pas', s: c.passive, tag: 'Passive', cls: 'pas' },
+    ...altList(c).map((pa, i) => ({ key: `alt${i}`, s: pa, tag: 'Or, as passive', cls: 'pas' })),
+    ...(c.nature ? [{ key: 'nat', s: c.nature, tag: 'Nature', cls: 'nat' }] : []),
+  ];
+  const on = kit.find((k) => k.key === state.pickSkill) || kit.find((k) => k.key === 'pas');
+  return `<div class="skrow" role="group" aria-label="${escHTML(c.name)}'s skills">${kit.map((k) =>
+      `<button type="button" class="skb${k.cls ? ` ${k.cls}` : ''}" data-pskill="${k.key}" aria-pressed="${k === on}" title="${escHTML(k.s.name)}" aria-label="${escHTML(`${k.tag}: ${k.s.name}`)}">${k.key === 'nat' ? NATURE_ICON : skillIcon(k.s)}${k.key === 's1' ? '<span class="star" aria-hidden="true">★</span>' : ''}</button>`).join('')}</div>
+    <div class="skinfo ${on.cls || ''}"><b><small>${on.tag}</small>${on.s.name}</b><p>${on.s.desc}${on.note ? ` <i>${on.note}</i>` : ''}</p></div>`;
 }
 
 function togglePick(id) {
@@ -10993,10 +11097,25 @@ function renderVillage() {
   const html = state.place ? placeHTML(state.place) : state.sheet ? sheetHTML(state.sheet) : '';
   host.hidden = !html;
   host.innerHTML = html;
+  pinSheetButtons(host);
   if (focusKey) host.querySelector(`[data-k="${focusKey}"]`)?.focus();
   $('#dock').innerHTML = dockHTML();
   $('#battleDock').hidden = !profile.hero;
   zoomTown();
+}
+
+// A sheet's header buttons (Back to the square, Close, Back, Inventory) are lifted into a sticky,
+// zero-height bar at the top of the sheet, so they stay at its top right however far it scrolls.
+// The header keeps room on its right for them, so the title never runs underneath.
+function pinSheetButtons(host) {
+  const panel = host.querySelector(':scope > .panel'), head = panel?.querySelector(':scope > .phead');
+  const btns = head ? [...head.children].filter((c) => c.matches('.btn')) : [];
+  if (!btns.length) return;
+  const bar = document.createElement('div');
+  bar.className = 'pstick';
+  bar.append(...btns);
+  panel.prepend(bar);
+  head.style.paddingRight = `${btns.reduce((w, b) => w + b.offsetWidth, 0) + 6 * (btns.length - 1) + 10}px`;
 }
 
 /* ==================================================================
@@ -13400,7 +13519,9 @@ function renderBattle() {
     return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${FACTIONS[k].name}</span></li>`;
   }).join('');
 
-  $('#roundTxt').innerHTML = `Round ${state.round}${highTide() ? ' · <b>High Tide</b>' : ''}`;
+  // On narrow screens "Round" shortens to "Rd" and High Tide to a wave, so it never runs into the weather pill.
+  $('#roundTxt').innerHTML = `<span class="rdFull">Round</span><span class="rdShort">Rd</span> ${state.round}${highTide() ? ' · <b><span class="tideIco" aria-hidden="true">🌊</span><span class="tideTxt">High Tide</span></b>' : ''}`;
+  $('#roundTxt').title = highTide() ? 'High Tide' : '';
 
   const W = WEATHER[wx()], left = roundsUntilWeather();
   const under = hunt || dg;   // caves and dungeons have no weather; the cave has the odd earthquake
@@ -13485,12 +13606,21 @@ function renderBattle() {
     el.setAttribute('aria-label', `${u.side === 'p' ? 'Your' : 'Enemy'} ${u.name}, ${u.hp} of ${u.maxHp} HP`);
   }
 
-  // Command deck
+  // Command deck. It shows YOUR champion and stays on them through everyone else's turns, so it
+  // never jumps about. Tap another fighter to look at theirs (onUnit -> state.inspect); tap your own
+  // to come back. When a turn that takes your orders comes up, it goes back on its own (and in a
+  // spar where you command someone else, it shows whoever is waiting on you).
+  if (state.phase === 'choose') {
+    if (state.inspectTurn !== state.active) { state.inspect = null; state.inspectTurn = state.active; }
+  } else state.inspectTurn = null;
+  const mine = state.teams.p.find((x) => x.you);
+  const d = (state.inspect && unitBy(state.inspect)) || (state.phase === 'choose' ? act : mine) || act;
   const acts = $('#acts');
   // Light the deck up whenever the game is waiting on you ('choose' only ever means your champion).
-  $('.deck').classList.toggle('your-turn', state.phase === 'choose');
-  renderSatchel(act);
-  if (!act) {
+  $('.deck').classList.toggle('your-turn', state.phase === 'choose' && d === act);
+  for (const u of allUnits()) $(`#u-${u.uid}`)?.classList.toggle('viewing', !!state.inspect && u === d);
+  renderSatchel(d);
+  if (!d || ['won', 'lost', 'cleared'].includes(state.phase) && !act) {
     const over = ['won', 'lost', 'cleared'].includes(state.phase);
     $('#dName').textContent = !over ? 'Get ready' : state.phase === 'lost' ? 'Defeated' : 'Victory';
     $('#dPassive').innerHTML = over ? '' : 'Everyone is racing to the <b>Act</b> gate. The first to reach it takes the first turn.';
@@ -13499,52 +13629,69 @@ function renderBattle() {
     $('#prompt').hidden = true;
     return;
   }
-  $('#dName').textContent = act.summon || act.monster ? act.name : act.you ? `${act.name} · ${charById(act.id).name}` : charById(act.id).name;
-  $('#dPassive').innerHTML = passiveText(act);
+  $('#dName').textContent = d.summon || d.monster ? d.name : d.you ? `${d.name} · ${charById(d.id).name}` : charById(d.id).name;
+  $('#dPassive').innerHTML = passiveText(d);
 
-  const skills = skillsOf(act);
-  if (acts.dataset.uid !== act.uid) {
+  // Only the fighter whose turn it is can be ordered; anyone else's deck is there to read.
+  const orders = d === act && commandable(act);
+  const skills = skillsOf(d);
+  if (acts.dataset.uid !== d.uid) {
     // Keys 1–5 still follow the loadout order (skillsOf), wherever the button sits.
-    const btn = (s, i) => `
+    const btn = (s, i) => `<span class="actw">
       <button class="act" type="button" data-id="${s.id}" title="${escHTML(`${s.name}: ${s.desc}`)}" aria-label="${escHTML(`${s.name}. ${s.desc}`)}">
-        <span class="aico">${skillIcon(s)}${s.sig ? '<span class="star" aria-hidden="true">★</span>' : ''}${s.rank ? `<span class="rkb" title="Rank ${s.rank}: ${rankBonusText(s, s.rank)}">R${s.rank}</span>` : ''}${commandable(act) ? `<kbd>${i + 1}</kbd>` : ''}<span class="cdn"></span><span class="mpc"></span></span>
+        <span class="aico">${skillIcon(s)}${s.sig ? '<span class="star" aria-hidden="true">★</span>' : ''}${s.rank ? `<span class="rkb" title="Rank ${s.rank}: ${rankBonusText(s, s.rank)}">R${s.rank}</span>` : ''}${orders ? `<kbd>${i + 1}</kbd>` : ''}<span class="cdn"></span><span class="mpc"></span></span>
         <span class="nm">${s.name}</span>
         <span class="combo" hidden>Discipline +15%</span>
-      </button>`;
+      </button><button type="button" class="ainfo" data-info="${s.id}" aria-label="${escHTML(`About ${s.name}`)}" aria-expanded="false">i</button></span>`;
     const basic = (s) => s.id === 'attack' || s.id === 'guard';
     acts.innerHTML = `<div class="agroup">${skills.map((s, i) => (basic(s) ? '' : btn(s, i))).join('')}</div>
       <div class="agroup basic">${skills.map((s, i) => (basic(s) ? btn(s, i) : '')).join('')}</div>`;
-    acts.dataset.uid = act.uid;
+    acts.dataset.uid = d.uid;
   }
+  renderSkillTip(d);
   acts.querySelectorAll('.act').forEach((b) => {
     const s = skills.find((x) => x.id === b.dataset.id);
-    const cd = act.cooldowns[s.id] || 0;
-    const hushed = silenced(act, s), broke = (s.mp || 0) > (act.mp || 0);
+    const cd = d.cooldowns[s.id] || 0;
+    const hushed = silenced(d, s), broke = (s.mp || 0) > (d.mp || 0);
     // Blue mana cost on the icon (red when you can't afford it); a cooldown or silence covers the icon.
     // The Court have no mana to spend, so their badge shows the share of current HP the cast
     // will cost instead. It is never unaffordable — bloodCost leaves them standing on 1 HP.
-    const blood = act.faction === 'crimson' && s.id !== 'attack' && s.id !== 'guard' && !s.o?.noBlood;
+    const blood = d.faction === 'crimson' && s.id !== 'attack' && s.id !== 'guard' && !s.o?.noBlood;
     const mpc = b.querySelector('.mpc');
     mpc.textContent = blood ? `${Math.round((s.sig ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}%` : s.mp ? s.mp : '';
     mpc.classList.toggle('short', !blood && broke);
     mpc.classList.toggle('blood', blood);
-    b.querySelector('.cdn').textContent = hushed ? '🔇' : cd ? cd : '';
-    b.disabled = !(state.phase === 'choose' && commandable(act) && usable(act, s));
+    b.querySelector('.cdn').textContent = hushed ? '🔇' : cd ? cd : s.kind === 'execute' && !warbandWhole(d) ? '💀' : '';
+    b.disabled = !(state.phase === 'choose' && orders && usable(act, s));
     b.classList.toggle('armed', state.pending === s.id);
     const combo = b.querySelector('.combo');
-    combo.hidden = !(act.faction === 'human' && commandable(act) && act.lastAction && act.lastAction !== s.id && !cd);
+    combo.hidden = !(d.faction === 'human' && orders && d.lastAction && d.lastAction !== s.id && !cd);
     combo.textContent = `Discipline +${Math.round(disciplineBonus() * 100)}%`;
   });
   $('#prompt').hidden = !pending;
   if (pending) $('#promptTxt').textContent = `${pending.name}: click a highlighted ${pending.target === 'ally' ? 'ally' : pending.target === 'deadAlly' ? 'fallen ally' : 'enemy'}.`;
 }
 
+// A skill's details, opened by its (i): name, what kind it is, cooldown and cost, and what it does.
+// It belongs to whoever the deck is showing, and closes when the deck moves on to someone else.
+function renderSkillTip(d) {
+  const tip = $('#skillTip');
+  if (state.tipFor !== d?.uid) { state.tipSkill = null; state.tipFor = d?.uid; }
+  const s = d && state.tipSkill ? skillsOf(d).find((x) => x.id === state.tipSkill) : null;
+  tip.hidden = !s;
+  $('#acts').querySelectorAll('.ainfo').forEach((b) => b.setAttribute('aria-expanded', String(!!s && b.dataset.info === s.id)));
+  if (!s) return;
+  const meta = [s.sig ? '★ Signature' : s.id === 'attack' || s.id === 'guard' ? 'Basic' : 'Skill',
+    s.cd ? `Cooldown ${s.cd}` : '', s.mp ? `${s.mp} MP` : ''].filter(Boolean).join(' · ');
+  tip.innerHTML = `<b>${s.name}</b><small>${meta}</small><p>${s.desc}</p>`;
+}
+
 // Satchel row under the actions: only on your own champion's turn. Keys 6–9 then 0 follow ITEM_KEYS order.
 function renderSatchel(act) {
   const mine = !!act && act.you && !sparring() && !['won', 'lost', 'cleared'].includes(state.phase);   // only your champion uses the satchel, and never in a spar
-  $('#satchel').hidden = !mine;
-  if (!mine) return;
-  const owned = ITEM_KEYS.filter((k) => profile.items[k] > 0);
+  const owned = mine ? ITEM_KEYS.filter((k) => profile.items[k] > 0) : [];
+  $('#satchel').hidden = !owned.length;   // nothing carried, nothing shown
+  if (!owned.length) return;
   const ready = state.phase === 'choose' && !state.itemUsed;
   $('#satchelHint').textContent = !owned.length ? '' : state.itemUsed ? 'Item used this turn.' : 'One item per turn. Using it does not end your turn.';
   $('#items').innerHTML = owned.length ? owned.map((k) => `
@@ -13703,8 +13850,20 @@ function showEndOverlay() {
    INPUT
    ================================================================== */
 $('#acts').addEventListener('click', (ev) => {
+  const info = ev.target.closest('.ainfo');
+  if (info) {   // (i): open this skill's details, or close them if they are already open
+    state.tipSkill = state.tipSkill === info.dataset.info ? null : info.dataset.info;
+    renderSkillTip(unitBy(state.tipFor));
+    return;
+  }
   const b = ev.target.closest('.act');
   if (b && !b.disabled) onSkill(b.dataset.id);
+});
+// A tap anywhere else closes an open skill card.
+document.addEventListener('click', (ev) => {
+  if (!state.tipSkill || ev.target.closest('.ainfo, #skillTip')) return;
+  state.tipSkill = null;
+  renderSkillTip(unitBy(state.tipFor));
 });
 for (const side of ['p', 'e']) {
   const el = $(`#side-${side}`);
@@ -13726,7 +13885,25 @@ function setWxPop(open) {
 $('#weather').addEventListener('click', (ev) => { ev.stopPropagation(); setWxPop($('#wxPop').hidden); });
 document.addEventListener('click', (ev) => { if (!$('#wxPop').hidden && !ev.target.closest('#wxPop')) setWxPop(false); });
 document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') setWxPop(false); });
-$('#abandonBtn').addEventListener('click', () => { state.runPending = false; if (dungeonRun()) retreatDungeon(); else toVillage(); });
+// Run: ask before leaving the fight. Withdrawing ends a gauntlet run (the fight counts for nothing),
+// leaves a dungeon with what was earned so far, and closes a spar with nothing won or lost.
+$('#abandonBtn').addEventListener('click', () => {
+  const dg = dungeonRun();
+  const [title, body] = sparring() ? ['Leave the practice ring?', 'The spar ends here. Nothing is won or lost either way.']
+    : dg ? ['Withdraw from the dungeon?', `Your warband falls back to the village. Everything earned in ${dg.name} so far is kept, but the run ends here.`]
+    : huntDepth() ? ['Withdraw from the hunt?', 'Your warband falls back to the village, and this fight counts for nothing.']
+    : state.mode === 'duel' ? ['Withdraw from the duel?', 'You yield the Proving Grounds bout. Your warband returns to the village, and this fight counts for nothing.']
+    : ['Withdraw from the battle?', 'Your gauntlet run ends here and your warband returns to the village. This fight counts for nothing.'];
+  $('#withdrawTitle').textContent = title;
+  $('#withdrawBody').textContent = body;
+  $('#withdrawDlg').showModal();
+});
+$('#withdrawStay').addEventListener('click', () => $('#withdrawDlg').close());
+$('#withdrawGo').addEventListener('click', () => {
+  $('#withdrawDlg').close();
+  state.runPending = false;
+  if (dungeonRun()) retreatDungeon(); else toVillage();
+});
 // Battle speed toggle on the speed bar: 1.5× ⇄ 2×, remembered in this browser. Takes effect from the next motion.
 function renderSpeedBtn() {
   const b = $('#speedBtn');
