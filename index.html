@@ -402,6 +402,12 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 }
 .tok.p { top: 0; }
 .tok.e { bottom: 0; }
+/* Knocked back (renderTrack, FLEE_MS): faces the other way, bobs as it runs, and shows its fright. */
+.tok.flee .face { animation: tokFlee .9s ease-out; }
+.tok.flee::after { content: '😱'; position: absolute; left: 50%; top: -15px; translate: -50% 0; font-size: 15px; line-height: 1; pointer-events: none; animation: tokFright .9s ease-out forwards; }
+.tok.e.flee::after { top: auto; bottom: -15px; }
+@keyframes tokFlee { 0%, 100% { transform: none; } 12%, 88% { transform: scaleX(-1); } 30%, 62% { transform: scaleX(-1) translateY(-3px); } 46%, 78% { transform: scaleX(-1) translateY(0); } }
+@keyframes tokFright { 0% { opacity: 0; scale: .5; } 15% { opacity: 1; scale: 1.15; } 75% { opacity: 1; scale: 1; } 100% { opacity: 0; } }
 .tok .face {
   position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
   background: var(--panel-2); border: 2px solid var(--accent);
@@ -999,6 +1005,12 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 .burst-roar { border: 3px solid rgba(240, 100, 90, .85); animation-name: ring; }
 /* Second Burial: grave-light pulsing over the body, and the risen's green-lit eyes (raiseRitual). */
+/* Grave Cross: the cone of green light from Mordrek's lifted cross onto the enemy (graveShine). */
+.graveshine { position: absolute; z-index: 240; pointer-events: none; transform-origin: 0 50%; mix-blend-mode: screen; opacity: 0; }
+.graveshine::before { content: ''; position: absolute; inset: 0; clip-path: polygon(0 44%, 100% 0, 100% 100%, 0 56%); filter: blur(1.5px);
+  background: linear-gradient(90deg, rgba(225, 255, 230, .95), rgba(126, 230, 150, .7) 35%, rgba(90, 210, 125, .35) 75%, rgba(90, 210, 125, 0)); }
+.graveshine i { position: absolute; left: -9px; top: 50%; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 18%, rgba(150, 255, 180, .9) 40%, transparent 70%); box-shadow: 0 0 18px 6px rgba(126, 230, 150, .8); }
 .burst-grave { width: 120%; border: 2.5px solid rgba(170, 255, 195, .9); background: radial-gradient(circle, rgba(120, 245, 160, .45) 0 22%, rgba(80, 210, 125, .2) 48%, transparent 66%); box-shadow: 0 0 16px rgba(110, 240, 150, .7), inset 0 0 14px rgba(110, 240, 150, .6); animation-name: rise; animation-duration: .9s; }
 .upic .eyeglow { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
 .upic .eyeglow i { position: absolute; width: 10%; height: 10%; margin: -5% 0 0 -5%; border-radius: 50%;
@@ -2224,6 +2236,7 @@ const FX = {
   soaked:   { icon: '💧', label: 'Soaked',    kind: 'bad',  verb: 'is soaked' },
   overheat: { icon: '🌡️', label: 'Overheated',kind: 'bad',  verb: 'overheats' },
   silence:  { icon: '🔇', label: 'Silenced',  kind: 'bad',  verb: 'is silenced: only Attack and Guard until it wears off' },
+  choke:    { icon: '🫧', label: 'Choking',   kind: 'bad',  verb: 'is choking: if it uses a skill, it is silenced on its next turn' },
   stagger:  { icon: '🥴', label: 'Staggered', kind: 'bad',  verb: 'is staggered and stumbles along the speed bar' },
   hex:      { icon: '🧿', label: 'Hexed',     kind: 'bad',  verb: 'is hexed: all healing received is halved' },
   link:     { icon: '🔗', label: 'Linked',    kind: 'good', verb: 'is linked: a third of any hit they take is divided among their teammates' },
@@ -2276,6 +2289,7 @@ const FX = {
   // FEAR only shoves it back a little, so it still acts, just later.
   bash:     { icon: '🔨', label: 'Bashed',    kind: 'bad',  verb: 'is bashed off the speed bar' },
   fear:     { icon: '😱', label: 'Afraid',    kind: 'bad',  verb: 'recoils in fear and loses ground on the speed bar' },
+  flee:     { icon: '😱', label: 'Afraid',    kind: 'bad',  verb: 'is gripped by fear: it turns and runs back down the speed bar' },
   // Rooted (Tharos's Anchor, and anything else that pins a unit): it still takes its turns, but it
   // cannot cross the field — melee run-in attacks and spells are shut off (a hurled or gust skill is
   // still loosed where it stands), and it cannot walk to a target (Second Burial, Bolt-On). Ranged
@@ -2616,7 +2630,8 @@ const ROSTER = [
              D('Gurgle Frenzy', 'Six bites of 35%.', 4, 0.35, { hits: 6 }),
              B('Slippery Scales', 'Dodge every attack that can miss until his next turn.', 4, 'self', [['evade', 1]]),
              D('Barnacle Bite', '100% bite. Causes Bleed and Slows the target.', 2, 1.0, { fx: [['bleed', 3, 0.25], ['slow', 2]] }),
-             D('Tail Whip', '60% to all enemies with a 35% chance each to Stagger.', 4, 0.6, { aoe: true, chanceFx: [['stagger', 1, 0.35]] })],
+             D('Tail Whip', '60% to all enemies with a 35% chance each to Stagger.', 4, 0.6, { aoe: true, chanceFx: [['stagger', 1, 0.35]] }),
+             D('Choking Bite', '90% bite. The target is Choking for 2 turns: if it uses a skill, it is Silenced on its next turn.', 3, 0.9, { fx: [['choke', 3]] })],
     passive: P('Tiny Target', 'Dodges 10% more often.', { dodge: 0.1 }) },
   { id: 'seraphine', name: 'Seraphine Wavecaller', short: 'Seraphine', faction: 'tide', role: 'ranged', bio: 'Siren whose song drowns sailors.',
     mods: { agi: 1.05 },
@@ -2711,7 +2726,7 @@ const ROSTER = [
     mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
     look: { body: 'zombie', main: '#5a5c4a', trim: '#47564a', skin: '#97a884', weapon: 'cross' },
     nature: { name: 'The Slow March', desc: 'Nothing hurries him, nothing holds him: Slow and speed-bar drags never touch his march.', march: 1 },
-    skills: [D('Grave Cross', '130% swing of the iron marker.', 2, 1.3),
+    skills: [D('Grave Cross', '130% swing of the iron marker. The target is gripped by Fear: over the next 3 Tolls it runs back to the start of the speed bar, and cannot act until it gets there.', 2, 1.3, { fx: [['flee', 3]] }),
              D('Last Rites', 'Two giant iron crosses come down on the target one after the other: two 110% blows that ignore armor. They pin it where it stands, so it cannot act until Mordrek\'s next turn. If Mordrek falls first, the crosses crumble and it goes free.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
              D('Graveside Chill', '85% to all enemies on a green grave-wind. They recoil in Fear, losing ground on the speed bar.', 4, 0.85, { aoe: true, gust: true, fx: [['fear', 2]] }),
              D('Bonebreaker', 'Two blows of 75% that sunder armor.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
@@ -4428,7 +4443,8 @@ function validTargets(u, sk) {
   return [];
 }
 
-const silenced = (u, sk) => !!has(u, 'silence') && (['a', 'b', 'c'].includes(sk.id) || !!NEUTRAL_SKILLS[sk.id]);
+// Silenced: Attack and Guard only — every other skill (all slots, neutral skills, a summon's special) is sealed.
+const silenced = (u, sk) => !!has(u, 'silence') && sk.id !== 'attack' && sk.id !== 'guard';
 
 // Does taking this skill carry the unit across the field? A melee fighter runs in for a damage skill
 // (a hurled or gust skill is loosed where they stand); Second Burial walks to the body it raises;
@@ -4923,6 +4939,7 @@ function applyHitEffects(u, t, o) {
       log(`${t.name} does not give an inch.`, t.side);
     } else {
       t.pos = Math.max(0, (t.pos || 0) - o.knockback);
+      t.recoil = true;   // renderTrack runs the icon back instead of snapping it
       float(t, 'Dragged back', 'fx');
       log(`${t.name} is dragged back along the speed bar.`, u.side);
       renderTrack(300);
@@ -5127,9 +5144,10 @@ async function damageSkill(u, t, sk) {
   } else for (const tg of targets) {
     for (let i = 0; i < hits; i++) {
       if (tg.hp <= 0 || u.hp <= 0) break;
-      if (melee) await strikePose(u, false, sk);
+      if (melee) await strikePose(u, false, sk, 1, tg);
       else if (o.hurl) await hurlCross(u, tg, i, sk);
-      else if (!o.watersweep && targets.length === 1) await shoot(u, tg, proj);
+      // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
+      else if (!o.watersweep && !o.gust && targets.length === 1) await shoot(u, tg, proj);
       if (o.slash && melee) slashFx(tg, facing(u));
       await hitOnce(tg, sk.mult);
     }
@@ -5365,7 +5383,9 @@ const TIMED_FX = { stun: 100, overheat: 100, stagger: 150, burrowed: 100 };   //
 // Toll-counted effects live on the field's GLOBAL clock (Tolls), ticked once per turn in turnPulse,
 // never on the owner's own turns. BASH and the coffin hold the unit off the speed bar while they
 // last; FEAR only shoves it back (FEAR_BACK of the 1000-long track, about two turns of ground).
-const TOLL_FX = { bash: true, fear: true, coffin: true };
+// FLEE (Grave Cross) is the slow fear: no shove, but each Toll the unit runs a step back, reaching
+// the start line on the last one, and it is held off the bar until then (tollHeld).
+const TOLL_FX = { bash: true, fear: true, coffin: true, flee: true };
 const FEAR_BACK = 500, FEAR_TOLLS = 2, COFFIN_TOLLS = 2;
 
 function addFx(u, id, turns, value = 0, quiet = false) {
@@ -5411,6 +5431,10 @@ function addFx(u, id, turns, value = 0, quiet = false) {
     }
     return;
   }
+  if (id === 'flee' && (charNat(u).anchor || charNat(u).march)) {
+    if (!quiet) { float(u, 'Unmoved', 'fx'); log(`${u.name} does not give an inch.`, u.side); }
+    return;
+  }
   const ex = has(u, id);
   const until = TIMED_FX[id] ? state.time + TIMED_FX[id] : null;
   const tollN = TOLL_FX[id] ? turns : null;   // bash/fear/coffin count Tolls, not the owner's turns
@@ -5423,8 +5447,11 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   else if (tollN != null) u.effects.push({ id, turns: 99, value, tolls: tollN });   // turns is a no-op; tolls drives it
   else u.effects.push({ id, turns, value });
   // FEAR shoves the unit back along the speed bar — a little, never past the start line.
-  if (id === 'fear') u.pos = Math.max(0, (u.pos || 0) - FEAR_BACK);
+  // Dug In and The Slow March refuse it like any drag: the fear takes hold, the ground isn't lost.
+  if (id === 'fear' && !charNat(u).anchor && !charNat(u).march) { u.pos = Math.max(0, (u.pos || 0) - FEAR_BACK); u.recoil = true; }
   if (id === 'soaked') douse(u, 'The soaking');
+  // Flee: a step per remaining Toll, so the last Toll puts it exactly on the start line.
+  if (id === 'flee') { const e = has(u, 'flee'); e.step = Math.ceil((u.pos || 0) / Math.max(1, e.tolls)); }
   u.chipsAt = Date.now();   // even a quiet status re-shows the chip text (float covers the rest)
   if (quiet) return;
   float(u, `${FX[id].icon} ${FX[id].label}`, 'fx');
@@ -5579,6 +5606,13 @@ async function doAction(u, sk, t) {
   if (sk.id !== 'attack' && sk.id !== 'guard') {
     infernalToll(u);
     spellToll(u, 'spellBacklash', 'Backwash');
+    // Grubblefin's Choking Bite: a skill forced out through a choked throat seals the next turn.
+    // Silence ticks down at the start of the owner's turn, so 2 = through its whole next turn.
+    if (has(u, 'choke')) {
+      u.effects = u.effects.filter((e) => e.id !== 'choke');
+      log(`${u.name} chokes on the effort.`, 'sys');
+      addFx(u, 'silence', 2);
+    }
   }
   if (has(u, 'leak') && u.mp > 0) {
     const lost = Math.min(u.mp, MANA.leakPerAction);
@@ -5755,7 +5789,7 @@ const pinned = (u) => !!has(u, 'rites');   // Last Rites: held in place until Mo
 // BASH and the coffin hold a unit off the speed bar outright — counted in Tolls (see turnPulse),
 // so a held unit never reaches the Act gate until its Tolls run out. FEAR is NOT here: it only
 // shoves the unit back along the bar, so it still takes its turns, just later.
-const tollHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin'));
+const tollHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin') || has(u, 'flee'));
 // Rooted (Tharos's Anchor) is NOT here on purpose: a rooted unit keeps reaching the Act gate and
 // taking its turns — it just can't cross the field once it acts (see requiresMove / usable).
 const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || tollHeld(u) || buried(u);   // Burrow: held for its round
@@ -6681,7 +6715,7 @@ function emergeToll(u, e) {
   if (e.id === 'bash') {
     float(u, 'Comes to', 'fx');
     log(`${u.name} shakes off the Bash and moves again.`, 'sys');
-  } else if (e.id === 'fear') {
+  } else if (e.id === 'fear' || e.id === 'flee') {
     float(u, 'Steadies', 'fx');
     log(`${u.name} masters its fear.`, u.side);
   } else if (e.id === 'coffin') {
@@ -6732,8 +6766,11 @@ async function turnPulse() {
   // THE TOLLS TICK — one turn has come up on the field, so every effect counted on the global clock
   // loses a Toll. BASH and the coffin hold their owner off the speed bar until the count runs out
   // (emergeToll frees them); FEAR simply fades. Everything expires here, never on the owner's turn.
+  let fled = false;
   for (const u of allUnits()) {
     if (u.hp <= 0) continue;
+    const fl = has(u, 'flee');
+    if (fl && u.pos > 0) { u.pos = Math.max(0, u.pos - fl.step); u.recoil = true; fled = true; }
     for (const e of u.effects) if (e.tolls != null) e.tolls = Math.max(0, e.tolls - 1);
     const done = u.effects.filter((e) => e.tolls != null && e.tolls <= 0);
     if (!done.length) continue;
@@ -6741,6 +6778,7 @@ async function turnPulse() {
     for (const e of done) emergeToll(u, e);
     render();
   }
+  if (fled) { renderTrack(300); await wait(FLEE_MS * 0.6); }   // let the frightened run their step back
   // Stinging Jelly (Octavia): every 3 Tolls it shocks its host for 15 magic, until it is burst.
   for (const a of allUnits()) {
     if (a.attach !== 'jellyfish' || a.hp <= 0) continue;
@@ -12338,43 +12376,59 @@ WEAPON_STRIKES['mordrek:Bonebreaker'] = WEAPON_STRIKES.mordrek;
 const GRAVE_IRON = (n) => `sepia(${n}) saturate(${(1 + 4 * n).toFixed(2)}) hue-rotate(${(62 * n).toFixed(0)}deg) `
   + `brightness(${(1 + 0.1 * n).toFixed(2)}) drop-shadow(0 0 ${(10 * n).toFixed(1)}px rgba(126, 230, 150, ${(0.95 * n).toFixed(2)}))`;
 
-/* GRAVE CROSS: Mordrek plants a heel and turns a full circle, the iron marker swung out at the
-   end of his arms, and the grave-light climbs the shaft as he comes round - plain iron at the
-   wind-up, burning green by the time it comes out of the turn and into the enemy. The body does
-   the spinning; the cross only has to stay flung wide so the pair reads as one wheeling mass.
-   (wpn frames are in the sprite's own space - enemies are mirrored whole, so no `d` here.) */
+/* GRAVE CROSS: no swing at all. Mordrek walks up and lifts the cross upright in front of the
+   enemy's face, holding it out like a warding sign, and the grave-light climbs the iron until it
+   burns Pale Host green and pours onto them (graveShine) - the light is the blow. Then he lowers it.
+   (wpn frames are in the sprite's own space - enemies are mirrored whole, so no `d` there. The cross
+   is drawn tilted 18deg in his hand, so rotate(-18deg) stands it straight up.) */
 WEAPON_STRIKES['mordrek:Grave Cross'] = {
-  ms: 1250, hit: 0.74,
-  /* The cross is swung out at the end of his arms and carried right round with him - up and back
-     over the shoulder on the coil, overhead as his back comes round, then down and through on the
-     way out. The grave-light climbs the shaft as it goes: cold iron on the coil, burning green by
-     the time it lands. (Local to the sprite, which is mirrored whole for enemies, so no `d` here.) */
+  ms: 1300, hit: 0.7, shine: true,
   wpn: [{ transform: 'translate(0px, 0px) rotate(0deg)', filter: GRAVE_IRON(0) },
-    { transform: 'translate(-11px, -14px) rotate(-54deg)', filter: GRAVE_IRON(0.25), offset: 0.16, easing: 'ease-in-out' },
-    { transform: 'translate(-4px, -23px) rotate(-142deg)', filter: GRAVE_IRON(0.55), offset: 0.30 },
-    { transform: 'translate(8px, -21px) rotate(-230deg)', filter: GRAVE_IRON(0.8), offset: 0.44 },
-    { transform: 'translate(18px, -11px) rotate(-312deg)', filter: GRAVE_IRON(0.95), offset: 0.58 },
-    { transform: 'translate(21px, 4px) rotate(-374deg)', filter: GRAVE_IRON(1), offset: 0.74, easing: 'cubic-bezier(.6,0,1,.4)' },
-    { transform: 'translate(16px, 5px) rotate(-364deg)', filter: GRAVE_IRON(0.7), offset: 0.86 },
+    { transform: 'translate(7px, -15px) rotate(-18deg)', filter: GRAVE_IRON(0.1), offset: 0.26, easing: 'ease-out' },
+    { transform: 'translate(8px, -16px) rotate(-18deg)', filter: GRAVE_IRON(0.55), offset: 0.48 },
+    { transform: 'translate(10px, -17px) rotate(-18deg)', filter: GRAVE_IRON(1), offset: 0.7 },
+    { transform: 'translate(10px, -17px) rotate(-18deg)', filter: GRAVE_IRON(0.9), offset: 0.86, easing: 'ease-in' },
     { transform: 'translate(0px, 0px) rotate(0deg)', filter: GRAVE_IRON(0) }],
-  /* He turns on the spot, not end over end: the sprite is a flat side view, so the turn is a
-     narrowing to edge-on and out to his back (scaleX 1 -> 0 -> -1 -> 0 -> 1), never an in-plane
-     rotate, which would tip him onto his back like a felled tree. Every frame carries the same
-     transform functions so they interpolate one at a time instead of through a matrix. */
-  body: (d) => [{ transform: `translate(0px, 0px) scaleX(1) rotate(0deg)` },
-    { transform: `translate(${-d * 9}px, -2px) scaleX(1) rotate(${-d * 8}deg)`, offset: 0.16, easing: 'ease-in-out' },
-    { transform: `translate(${-d * 4}px, -1px) scaleX(0.34) rotate(0deg)`, offset: 0.30 },
-    { transform: `translate(${d * 2}px, 0px) scaleX(-0.92) rotate(0deg)`, offset: 0.44 },
-    { transform: `translate(${d * 8}px, 0px) scaleX(-0.3) rotate(0deg)`, offset: 0.58 },
-    { transform: `translate(${d * 16}px, 2px) scaleX(1) rotate(${d * 9}deg)`, offset: 0.74 },
-    { transform: `translate(${d * 13}px, 2px) scaleX(1) rotate(${d * 7}deg)`, offset: 0.86 },
-    { transform: `translate(0px, 0px) scaleX(1) rotate(0deg)` }],
+  // He plants his feet and leans into the hold, arm out, as if pressing the light onto them.
+  body: (d) => [{ transform: 'none' },
+    { transform: `translateX(${d * 3}px) translateY(-2px) rotate(${d * 2}deg)`, offset: 0.26 },
+    { transform: `translateX(${d * 5}px) translateY(-2px) rotate(${d * 4}deg)`, offset: 0.7 },
+    { transform: `translateX(${d * 4}px) translateY(-1px) rotate(${d * 3}deg)`, offset: 0.86 },
+    { transform: 'none' }],
 };
+
+/* The light of the lifted cross: a cone of grave-green poured from the head of the cross onto the
+   target, swelling as the iron heats (0.36 -> hit) and lingering a moment after, with the target
+   lit green at the moment it lands. ms = the whole move's length, hit = its impact fraction. */
+function graveShine(u, t, ms, hit) {
+  const a = stageBox(u), b = stageBox(t);
+  if (reduced || !a || !b) return;
+  const d = facing(u);
+  const from = { x: a.x + d * a.w * 0.42, y: a.top + a.h * 0.16 };   // the crossing of the lifted cross
+  const to = { x: b.x, y: b.top + b.h * 0.5 };
+  const len = Math.hypot(to.x - from.x, to.y - from.y) + b.w * 0.25;
+  const ang = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
+  const el = document.createElement('div');
+  el.className = 'graveshine';
+  Object.assign(el.style, { left: `${from.x}px`, top: `${from.y}px`, width: `${len}px`, height: `${Math.max(b.h * 0.9, 50)}px`,
+    transform: `translateY(-50%) rotate(${ang}deg)` });
+  el.innerHTML = '<i></i>';
+  $('#arena').appendChild(el);
+  const life = ms * 1.25;
+  el.animate([{ opacity: 0 }, { opacity: 0, offset: 0.36 / 1.25 }, { opacity: 1, offset: hit / 1.25 }, { opacity: 0.85, offset: 0.86 / 1.25 }, { opacity: 0 }],
+    { duration: life, fill: 'forwards' });
+  setTimeout(() => el.remove(), life + 60);
+  setTimeout(() => {
+    burst(t, 'grave');
+    bodyEl(t)?.animate([{ filter: 'none' }, { filter: 'brightness(1.35) drop-shadow(0 0 12px rgba(126, 230, 150, .95))', offset: 0.3 }, { filter: 'none' }],
+      { duration: beat(700) });
+  }, ms * hit);
+}
 
 // Weapon swing: lean in and twist, or the champion's own attack clip. Resolves at the moment of impact.
 // sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
 // pace < 1 runs the same swing through quicker, for flurries that would drag at full length.
-async function strikePose(u, fresh = false, sk = null, pace = 1) {
+async function strikePose(u, fresh = false, sk = null, pace = 1, tg = null) {
   const hit = playAttack(u, fresh);
   if (hit != null) return sleep(hit * pace);
   const d = facing(u);
@@ -12386,6 +12440,7 @@ async function strikePose(u, fresh = false, sk = null, pace = 1) {
     wpn.animate(ws.wpn, { duration: ms });
     if (ws.off) bodyEl(u).querySelector('.wpn2')?.animate(ws.off, { duration: ms });
     pose(u, ws.body(d), ws.ms * pace);
+    if (ws.shine && tg) graveShine(u, tg, ms, ws.hit);   // Grave Cross: the lifted cross pours green light onto them
     await sleep(ms * ws.hit);
     return;
   }
@@ -13171,11 +13226,21 @@ async function sacredLight(t) {
 }
 
 // Positions every icon on the speed bar. ms = glide time for this move.
+// Losing ground (Fear, a drag): the icon turns tail and runs back down the bar at a readable pace,
+// rather than snapping. Only knock-backs set u.recoil — the trip home after acting is not a flight.
+const FLEE_MS = 900;
 function renderTrack(ms) {
   for (const u of allUnits()) {
     const el = $(`#tok-${u.uid}`);
     if (!el) continue;
-    el.style.setProperty('--dur', `${Math.round(ms)}ms`);
+    const flee = u.recoil && u.hp > 0;
+    if (u.recoil) u.recoil = false;
+    el.style.setProperty('--dur', `${Math.round(flee ? FLEE_MS : ms)}ms`);
+    if (flee && !reduced) {
+      el.classList.remove('flee'); void el.offsetWidth; el.classList.add('flee');
+      clearTimeout(el.fleeT);
+      el.fleeT = setTimeout(() => el.classList.remove('flee'), FLEE_MS);
+    }
     el.style.setProperty('--x', ((u.pos || 0) / TRACK * 100).toFixed(2));
     const isFrozen = hardFrozen(u), isSlow = !!has(u, 'slow');
     const isStagger = staggerPhase(u) != null, halted = staggerStopped(u);

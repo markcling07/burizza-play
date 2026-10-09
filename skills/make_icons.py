@@ -1638,7 +1638,7 @@ CATALOG = {
     ]),
     'tide': ('The Tideborn', [
         ('Trident Lunge', 'Tharos Razorfin', 'skill'), ('Riptide', 'Tharos Razorfin', 'skill'), ('Blood in the Water', 'Tharos Razorfin', 'sig'), ('Feeding Frenzy', 'Tharos Razorfin', 'skill'), ('Undertow', 'Tharos Razorfin', 'skill'), ('Blood Scent', 'Tharos Razorfin', 'passive'),
-        ('Nibble Flurry', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Gurgle Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Tiny Target', 'Grubblefin', 'passive'),
+        ('Nibble Flurry', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Gurgle Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Choking Bite', 'Grubblefin', 'skill'), ('Tiny Target', 'Grubblefin', 'passive'),
         ("Siren's Hush", 'Seraphine Wavecaller', 'skill'), ('Dirge of the Deep', 'Seraphine Wavecaller', 'skill'), ('Lure Song', 'Seraphine Wavecaller', 'sig'), ('Drowning Chorus', 'Seraphine Wavecaller', 'skill'), ('Song of the Depths', 'Seraphine Wavecaller', 'skill'), ('Echo', 'Seraphine Wavecaller', 'passive'),
         ('Ink Double', 'Octavia Inkveil', 'skill'), ('Tentacle Snare', 'Octavia Inkveil', 'skill'), ('Ink Cloud', 'Octavia Inkveil', 'sig'), ('Ink Whip', 'Octavia Inkveil', 'skill'), ('Crushing Grip', 'Octavia Inkveil', 'skill'), ('Ink Sac', 'Octavia Inkveil', 'passive'),
         ('Healing Tide', 'Maren Pearlheart', 'skill'), ('Tide Pool', 'Maren Pearlheart', 'skill'), ('Pearl Barrier', 'Maren Pearlheart', 'sig'), ('Reef Bloom', 'Maren Pearlheart', 'skill'), ('Riptide Crash', 'Maren Pearlheart', 'skill'), ('Backwash', 'Maren Pearlheart', 'passive'), ('Tidecaller', 'Maren Pearlheart', 'passive'),
@@ -2019,6 +2019,17 @@ def _():
     return (poly('M8 20 Q30 26 24 42 Q20 52 40 52', '#2f6f8f', 3.2)
             + '<path d="M40 52 L56 44 L52 54 L58 60 Z" fill="#5fa38a"/>'
             + speed_lines(10, 34, 3, 12, 6, '#b4f4ff', 20))
+
+
+@icon('Choking Bite')
+def _():
+    bubbles = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#bff3ff" fill-opacity=".3" stroke="#bff3ff" stroke-width="1.3"/>'
+                      for x, y, r in ((44, 30, 4.2), (50, 20, 3), (42, 13, 2.2)))
+    return (g(jaws(), 24, 38, -12, 1.0) + bubbles
+            + '<circle cx="48" cy="44" r="8" fill="none" stroke="#15121d" stroke-width="4.4"/>'
+            + '<circle cx="48" cy="44" r="8" fill="none" stroke="#e0455a" stroke-width="2.4"/>'
+            + '<line x1="42.3" y1="38.3" x2="53.7" y2="49.7" stroke="#15121d" stroke-width="4.4"/>'
+            + '<line x1="42.3" y1="38.3" x2="53.7" y2="49.7" stroke="#e0455a" stroke-width="2.4"/>')
 
 
 @icon('Drowning Chorus')
