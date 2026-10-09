@@ -4047,7 +4047,9 @@ const disciplineBonus = () => (wx() === 'sun' ? 0.3 : 0.15);
 const ULT_FIRST_TURN = 3;   // the ★ signature can't be used before the hero's 3rd turn
 
 // The champion's passive (P options), or {} for summons and champions without one.
-const pv = (u) => u.pv || {};
+// Sealed in Mortessa's coffin, a unit has no passives at all: nothing it carries can trigger from
+// inside the box (Heroic, Riposte, auras like Forest Stride), until the lid opens again.
+const pv = (u) => (has(u, 'coffin') ? {} : u.pv || {});
 // The champion's Nature flags (makeUnit copies them from ROSTER's nature entry).
 // Monsters and summons have no Nature, so this is {} for them — every check stays cheap.
 const charNat = (u) => (u && u.nat) || {};
