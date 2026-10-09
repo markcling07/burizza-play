@@ -1044,6 +1044,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .chip .ico { margin-right: 2px; font-weight: 400; }
 .chip.good { color: var(--good); }
 .chip.bad { color: var(--bad); }
+.chip.neutral { color: #9fb4cf; }   /* the generic Attached marker: neither buff nor debuff on its own */
 .chip.pass { color: var(--accent); }
 
 /* Floating champions (ROSTER `floats: true`, e.g. Seraxa): wings hold them a hand above the
@@ -2106,6 +2107,12 @@ const FX = {
   bloodpact: { icon: '🩸', label: 'Blood Pact', kind: 'good', verb: 'binds the warband in a blood pact: the next blows he takes are split evenly across every living ally' },
   bloodward: { icon: '🛡️', label: 'Blood Ward', kind: 'good', verb: 'spreads a blood ward over the warband: she takes half of the next blows any ally suffers' },
   leak:     { icon: '🪫', label: 'Mana Leak', kind: 'bad',  verb: 'is leaking mana: every action burns 12 MP' },
+  // ATTACHED — the general marker for any device fixed onto a unit (Anchor, Stinging Jelly, and
+  // future attach-skills). Neutral: it is neither a buff nor a debuff on its own — the thing it
+  // carries is (Rooted, the jelly's shock, a mending or shield rig…). It rides the unit wherever it
+  // goes, and lifts the moment the last attachment on them breaks, runs out, or they fall. A pure
+  // marker: nothing cleanses it, wards it off, or counts it among a unit's debuffs. See spawnAttachment.
+  attached: { icon: '🪝', label: 'Attached',  kind: 'neutral', verb: 'has something fixed onto it' },
   // Patchwork's Bolt-On. The weld is counted in the field's turns (any unit's turn-start is one of
   // the four, see THE TURN PULSE), so both chips carry no meaningful turn count of their own.
   bolted:   { icon: '🔩', label: 'Bolted On', kind: 'good', verb: 'is bolted onto an ally\'s back: no single blow can find him, though sweeps still can' },
@@ -2141,9 +2148,12 @@ const FX = {
   // FEAR only shoves it back a little, so it still acts, just later.
   bash:     { icon: '🔨', label: 'Bashed',    kind: 'bad',  verb: 'is bashed off the speed bar' },
   fear:     { icon: '😱', label: 'Afraid',    kind: 'bad',  verb: 'recoils in fear and loses ground on the speed bar' },
-  // Tharos's Anchor: the host is held off the bar for as long as the anchor stands (see ATTACHMENTS).
-  // Counted on neither clock — it lifts the moment the anchor is broken, not on any turn or Toll.
-  shackled: { icon: '⚓', label: 'Shackled',  kind: 'bad',  verb: 'is chained off the speed bar by an anchor' },
+  // Rooted (Tharos's Anchor, and anything else that pins a unit): it still takes its turns, but it
+  // cannot cross the field — melee run-in attacks and spells are shut off (a hurled or gust skill is
+  // still loosed where it stands), and it cannot walk to a target (Second Burial, Bolt-On). Ranged
+  // attacks, in-place casts, self-buffs and Guard still work. See requiresMove() / usable().
+  // Counted on neither clock when the Anchor sets it — it lifts the moment the anchor is broken.
+  rooted:   { icon: '🌿', label: 'Rooted',    kind: 'bad',  verb: 'is rooted in place' },
 };
 // Icon shown on floating damage numbers for magic / elemental hits.
 const ELEM_ICON = { lightning: '⚡', fire: '🔥', holy: '✨' };
@@ -2468,7 +2478,7 @@ const ROSTER = [
              D('Riptide', '120% hit. He lifts the trident and a wave washes the target back along the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
              D('Feeding Frenzy', 'Three bites of 55%, 60% stronger against Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
              D('Undertow', '60% to all enemies. He drives the trident into the ground and a great wave washes them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true, slam: true }),
-             { name: 'Anchor Chain', desc: 'A great anchor crashes from above and chains an enemy off the speed bar: it cannot act until the anchor is broken. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
+             { name: 'Anchor Chain', desc: 'A great anchor crashes from above and roots an enemy in place until the anchor is broken: it still takes its turns, but it cannot cross the field — no melee attacks or run-in spells, and it cannot move to an ally. Ranged attacks and in-place casts still land. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
     passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }) },
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Small, frenzied Gurgling brawler.',
     mods: { hp: 0.85, agi: 1.35, atk: 1.05 },
@@ -2649,7 +2659,7 @@ const SUMMONS = {
   // Grave Cross, but area attacks wash past them. They take no turns, so they carry no skills.
   anchor: {
     name: 'Anchor', role: 'melee', life: null,
-    desc: 'A great anchor fallen from above, chaining an enemy off the speed bar. Takes 4 blows of any size to break.',
+    desc: 'A great anchor fallen from above, rooting an enemy in place. Takes 4 blows of any size to break.',
     look: { body: 'anchor', main: '#53616b', trim: '#9fb0ba', eye: '#cfe0e8' },
     leave: (u) => `${u.name} is broken.`,
     stats: () => ({ maxHp: 4, atk: 0, def: 0, agi: 0, crit: 0, dodge: 0 }),
@@ -4204,8 +4214,22 @@ function validTargets(u, sk) {
 
 const silenced = (u, sk) => !!has(u, 'silence') && (['a', 'b', 'c'].includes(sk.id) || !!NEUTRAL_SKILLS[sk.id]);
 
+// Does taking this skill carry the unit across the field? A melee fighter runs in for a damage skill
+// (a hurled or gust skill is loosed where they stand); Second Burial walks to the body it raises;
+// Bolt-On walks to the ally it welds to. Everything else is done from the spot. A skill can force the
+// answer either way with o.move (true/false) when the default guess is wrong.
+function requiresMove(u, sk) {
+  const o = sk.o || {};
+  if (o.move != null) return o.move;
+  if (sk.kind === 'revive' || o.latch) return true;   // walks to a corpse / an ally
+  return u.role === 'melee' && sk.kind === 'damage' && !o.hurl && !o.gust;   // runs in
+}
+
 function usable(u, sk) {
   if (silenced(u, sk)) return false;
+  // Rooted: held in place — anything that would carry the unit across the field is shut off (melee
+  // run-ins, Second Burial, Bolt-On). Ranged attacks, in-place casts, self-buffs and Guard still work.
+  if (has(u, 'rooted') && requiresMove(u, sk)) return false;
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
   if (u.cooldowns[sk.id] > 0) return false;
@@ -4428,7 +4452,7 @@ function strikeOnce(u, t, mult, label, o) {
   if (o.heroic) {
     heroicHit = true;
   } else if (!o.counter && !o.aoe && u.role === 'melee' && !o.hurl && !o.gust) {
-    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && pv(a).heroic && chance(pv(a).heroic));
+    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && !has(a, 'rooted') && pv(a).heroic && chance(pv(a).heroic));
     if (g) {
       float(g, '🛡️ Heroic', 'fx');
       log(`${g.name} throws into the path of the blow meant for ${t.name}, taking it in their place.`, g.side);
@@ -4775,7 +4799,7 @@ async function damageSkill(u, t, sk) {
   // Single-target melee only, never off a counter; interposeTo also handles the leap home afterwards.
   let heroicGuard = null, heroicTrip = null;
   if (u.role === 'melee' && !o.hurl && !o.gust && sk.target !== 'allEnemies' && t && !o.counter) {
-    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && pv(a).heroic && chance(pv(a).heroic));
+    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && !has(a, 'rooted') && pv(a).heroic && chance(pv(a).heroic));
     if (g) {
       heroicGuard = g;
       float(g, '🛡️ Heroic', 'fx');
@@ -5487,9 +5511,9 @@ const pinned = (u) => !!has(u, 'rites');   // Last Rites: held in place until Mo
 // so a held unit never reaches the Act gate until its Tolls run out. FEAR is NOT here: it only
 // shoves the unit back along the bar, so it still takes its turns, just later.
 const tollHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin'));
-// Shackled (Tharos's Anchor) holds the host off the bar too, but it ends on the anchor breaking,
-// not on a clock — so it sits here beside the Toll-held states rather than ticking anywhere.
-const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || tollHeld(u) || has(u, 'shackled');
+// Rooted (Tharos's Anchor) is NOT here on purpose: a rooted unit keeps reaching the Act gate and
+// taking its turns — it just can't cross the field once it acts (see requiresMove / usable).
+const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || tollHeld(u);
 
 // Time until a staggered unit next switches between stopping and moving.
 function staggerSwitchIn(u) {
@@ -5974,13 +5998,15 @@ function removeUnit(u) {
    (hostUid). It is targetable and blow-counted like a Grave Cross — any
    hit, whatever its size, takes exactly one off (countBlows) — but area
    attacks wash past it (noAoe, filtered from openFoes). The host's own
-   team must break it to be free: the Anchor holds the host off the speed
-   bar (shackled) until it breaks; the Jelly shocks the host for 15 magic
+   team must break it to be free: the Anchor roots the host in place
+   (rooted) until it breaks; the Jelly shocks the host for 15 magic
    every 3 Tolls (see turnPulse). independent:true so a fallen caster
    does not drag it off the field, and it is intercepted in fell() before
    the Grave-Cross "flies home" path.
    ================================================================== */
-function spawnAttachment(caster, host, kind) {
+// opts.life (Tolls) makes an attachment fall off on its own after a set time, on top of — or instead
+// of — being broken by blows (stats().maxHp). Omit it for a blows-only attachment like today's.
+function spawnAttachment(caster, host, kind, opts = {}) {
   const def = SUMMONS[kind], st = def.stats();
   state.summonSeq = (state.summonSeq || 0) + 1;
   const u = {
@@ -5995,6 +6021,8 @@ function spawnAttachment(caster, host, kind) {
   state.teams[caster.side].push(u);
   addUnitDom(u);
   countBlows(u);   // hp becomes the number of blows left; every hit of any size takes exactly one
+  if (opts.life != null) u.tollLife = opts.life;   // falls off on its own after this many Tolls (see turnPulse)
+  addFx(host, 'attached', 99, 0, true);            // the generic marker: something is fixed onto this unit
   return u;
 }
 const attachmentsOn = (host) => allUnits().filter((a) => a.attach && a.hostUid === host.uid && a.hp > 0);
@@ -6003,10 +6031,12 @@ const attachmentsOn = (host) => allUnits().filter((a) => a.attach && a.hostUid =
 function removeAttachment(a, why) {
   const host = unitBy(a.hostUid);
   if (a.attach === 'anchor' && host && !attachmentsOn(host).some((x) => x !== a && x.attach === 'anchor')) {
-    host.effects = host.effects.filter((e) => e.id !== 'shackled');
-    if (host.hp > 0 && why === 'broken') { float(host, 'Unshackled', 'fx'); log(`The anchor breaks — ${host.name} tears free.`, host.side); }
+    host.effects = host.effects.filter((e) => e.id !== 'rooted');
+    if (host.hp > 0 && why === 'broken') { float(host, 'Uprooted', 'fx'); log(`The anchor breaks — ${host.name} tears free.`, host.side); }
   }
   removeUnit(a);
+  // The generic Attached marker lifts once nothing is fixed onto the host anymore.
+  if (host && !attachmentsOn(host).length) host.effects = host.effects.filter((e) => e.id !== 'attached');
 }
 
 // The Jelly's shock: 15 base magic, mitigated by the host's wards, shields, guard and magic block
@@ -6031,10 +6061,10 @@ function jellyShock(jelly, host) {
 async function anchorSkill(u, t, sk) {
   await castPose(u, true);
   const a = spawnAttachment(u, t, 'anchor');
-  addFx(t, 'shackled', 99, 0, true);
+  addFx(t, 'rooted', 99, 0, true);
   await anchorDrop(t, a);
   render();
-  log(`${u.name} drops a great anchor on ${t.name} — chained off the speed bar until the anchor breaks.`, u.side);
+  log(`${u.name} drops a great anchor on ${t.name} — rooted in place until the anchor breaks.`, u.side);
   await wait(380);
 }
 
@@ -6427,6 +6457,13 @@ async function turnPulse() {
     await wait(240);
     if (checkEnd()) return true;
   }
+  // Timed attachments (spawned with opts.life): count down one Toll each, and fall away when spent.
+  for (const a of allUnits().filter((x) => x.attach && x.hp > 0 && x.tollLife != null)) {
+    if (--a.tollLife > 0) continue;
+    const host = unitBy(a.hostUid);
+    if (host && host.hp > 0) { float(host, 'Freed', 'fx'); log(`The ${a.name} falls away from ${host.name}.`, host.side); }
+    removeAttachment(a, 'expired');
+  }
   return false;
 }
 
@@ -6474,7 +6511,7 @@ async function nextTurn() {
     }
     // A Salvage Bot on its last sparks gives the rest of itself away instead of swinging: it mends
     // the ally most in need and comes apart (see salvageLastRites). Only if there is someone to save.
-    if (u.id === 'deathbot' && u.hp <= u.maxHp * 0.25 && salvageMendTarget(u)) {
+    if (u.id === 'deathbot' && u.hp <= u.maxHp * 0.25 && !has(u, 'rooted') && salvageMendTarget(u)) {
       await salvageLastRites(u);
       if (token !== state.token) return;
       endTurn(u);
@@ -12430,15 +12467,17 @@ function renderTrack(ms) {
     el.style.setProperty('--x', ((u.pos || 0) / TRACK * 100).toFixed(2));
     const isFrozen = hardFrozen(u), isSlow = !!has(u, 'slow');
     const isStagger = staggerPhase(u) != null, halted = staggerStopped(u);
-    el.classList.toggle('frozen', isFrozen || pinned(u) || !!has(u, 'bash') || !!has(u, 'shackled'));
+    el.classList.toggle('frozen', isFrozen || pinned(u) || !!has(u, 'bash'));
     el.classList.toggle('stagger', isStagger && !isFrozen);
     el.classList.toggle('halt', halted && !isFrozen);
     el.classList.toggle('slow', isSlow && !isFrozen && !isStagger);
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     const st = el.querySelector('.st');
+    // Rooted shows no speed-bar label: the token still races to the gate, so it isn't "held" like a
+    // Bash or a Stun — the 🌿 Rooted chip above the unit says why it can only act in place.
     const label = isFrozen ? (has(u, 'overheat') ? 'Overheated' : 'Stunned') : pinned(u) ? 'Pinned'
-      : has(u, 'bash') ? 'Bashed' : has(u, 'shackled') ? 'Shackled' : isStagger ? (isSlow ? 'Staggered + Slow' : 'Staggered') : isSlow ? 'Slowed' : '';
+      : has(u, 'bash') ? 'Bashed' : isStagger ? (isSlow ? 'Staggered + Slow' : 'Staggered') : isSlow ? 'Slowed' : '';
     st.hidden = !label;
     st.textContent = label;
     el.setAttribute('aria-label', `${u.side === 'p' ? 'Your' : 'Enemy'} ${u.name}${label ? `, ${label.toLowerCase()}` : ''}`);
