@@ -338,6 +338,8 @@ body[data-screen="select"] .top { display: none; }
 
 /* ---------- Battle ---------- */
 .ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+/* The gauntlet ladder now rides at the foot of the battle screen, centred under the field and log. */
+#battleScreen > .ladder { justify-content: center; margin: 2px 0; }
 .ladder li {
   display: flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px;
   border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted); font-size: .82rem;
@@ -350,26 +352,32 @@ body[data-screen="select"] .top { display: none; }
 
 /* Speed bar: allies ride above the rail, enemies below; the Act gate is on the right. */
 .speed { display: grid; gap: 6px; padding: 10px 14px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
-.speedHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-/* Round counter, top-left of the speed bar (High Tide shows beside it on even rounds). */
-.speedHead .round { color: var(--muted); font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.speedHead .round b { color: var(--ranged); }
-/* Battle speed toggle: 1.5× (default) ⇄ 2×. Gold when doubled. */
+/* Round counter floats on the top-left corner of the battlefield (High Tide shows beside it on even
+   rounds); the fast-forward / log / speed buttons group on the bottom-right. Both ride over the arena
+   as translucent pills, like the weather pill. */
+.arena > .round {
+  position: absolute; z-index: 250; top: 8px; left: 8px;
+  padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line);
+  background: rgba(22, 25, 37, .82); backdrop-filter: blur(3px);
+  color: var(--muted); font-size: .78rem; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.arena > .round:empty { display: none; }   /* nothing before the first round starts */
+.arena > .round b { color: var(--ranged); }
+.fieldCtrls { position: absolute; z-index: 250; right: 8px; bottom: 8px; display: flex; align-items: center; gap: 6px; }
+/* Battle controls: speed toggle (1.5× ⇄ 2×, gold when doubled), Hide log, and the fast-forward. */
 .speedBtn {
-  order: 3; margin-left: auto; align-self: center; flex: none; font: inherit; font-size: .74rem; font-weight: 800; font-variant-numeric: tabular-nums; cursor: pointer;
-  min-width: 46px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg);
+  align-self: center; flex: none; font: inherit; font-size: .74rem; font-weight: 800; font-variant-numeric: tabular-nums; cursor: pointer;
+  min-width: 46px; padding: 3px 11px; border-radius: 999px; border: 1px solid var(--line);
+  background: rgba(22, 25, 37, .82); backdrop-filter: blur(3px); color: var(--fg);
 }
 .speedBtn:hover { border-color: var(--accent); }
-/* The round counter takes the free space, so the header's buttons sit together on the right. */
-.speedHead .round { margin-right: auto; }
-.speedHead .speedBtn { margin-left: 0; }
 /* Battle log hidden (the Hide log button, remembered per browser): the field takes the full width. */
 body.logHidden .chron { display: none; }
 body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .speedBtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #1a1410; }
 /* Fast forward: appears beside the speed toggle only while your champion is down (see FFWD). */
-.ffwdBtn { order: 2; margin-left: auto; min-width: 40px; }
-.ffwdBtn + .speedBtn { margin-left: 0; }
+.ffwdBtn { min-width: 40px; }
 .ffwdBtn[aria-pressed="true"] { background: var(--melee); border-color: var(--melee); color: #1a1410; }
 /* Bolt-On: the bolted-on drone is carried to the host's slot (settleLatch sets the translate). */
 .latched { transition: translate .5s ease; }
@@ -382,11 +390,12 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .lane.p { bottom: 8px; }
 .lane.e { top: 8px; }
 .goal {
-  position: absolute; right: -46px; top: 4px; bottom: 4px; width: 34px; border-radius: 8px;
-  display: grid; place-items: center; writing-mode: vertical-rl; text-orientation: mixed;
-  font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  position: absolute; right: -46px; top: 50%; transform: translateY(-50%);
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center;
   background: var(--accent); color: var(--accent-ink);
 }
+.goal svg { width: 22px; height: auto; }
 .tok {
   position: absolute; left: calc(var(--x, 0) * 1%); width: 40px; height: 40px; margin-left: -20px;
   transition: left var(--dur, 400ms) linear, transform .2s; z-index: 1;
@@ -458,7 +467,12 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 @keyframes wobble { 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
 .tok.slow .face { box-shadow: 0 0 0 3px rgba(111, 181, 230, .5); }
 .tok.slow .st { color: var(--ranged); }
-.tok.acting { z-index: 3; transform: scale(1.2); }
+/* On their turn, the champion's token leaves its lane and drops into the circular Act gate, filling
+   it: left:100% + the token's own -margin pins its centre to the gate's, top:50% with margin-top
+   = -half its height centres it vertically (independent of track height), and translateX nudges it
+   onto the gate centre. The sword & shield behind is covered by the portrait. */
+.tok.acting { left: 100%; top: 50%; bottom: auto; margin-top: -20px; z-index: 4; transform: translateX(23px) scale(1.05); }
+.tok.summon.acting { margin-top: -16px; }
 .tok.acting .face { box-shadow: 0 0 0 3px var(--accent), 0 0 14px var(--accent); }
 .tok.down { display: none; }
 
@@ -894,6 +908,21 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .burst-shield { border: 3px solid rgba(160, 210, 255, .9); box-shadow: inset 0 0 16px rgba(140, 200, 255, .7), 0 0 14px rgba(140, 200, 255, .55); animation-name: bubble; animation-duration: .85s; }
 .burst-buff { background: radial-gradient(circle, rgba(232, 165, 72, .6), transparent 65%); animation-name: rise; }
 .burst-curse { background: radial-gradient(circle, rgba(196, 139, 224, .65), transparent 65%); }
+/* Mana Burn (manaBurn / manaBurnPct): the struck body secretes its mana — blue droplets well up and
+   ooze downward before fading. Played on any hit that burns an enemy's MP (see applyHitEffects). */
+.burst-mana { width: 92%;
+  background: radial-gradient(circle at 38% 30%, #dff1ff 0 4%, transparent 5%),
+              radial-gradient(circle at 62% 40%, #a7d6ff 0 3.5%, transparent 4.5%),
+              radial-gradient(circle at 48% 62%, #6fb8ff 0 5%, transparent 6%),
+              radial-gradient(circle, rgba(92, 168, 255, .72) 0 24%, rgba(58, 118, 230, .4) 46%, transparent 66%);
+  filter: drop-shadow(0 0 5px rgba(96, 170, 255, .7));
+  animation-name: manadrip; animation-duration: .85s;
+}
+@keyframes manadrip {
+  0%   { transform: translate(-50%, -64%) scale(.5); opacity: 0; }
+  25%  { opacity: 1; }
+  100% { transform: translate(-50%, -10%) scale(1.06); opacity: 0; }
+}
 .burst-roar { border: 3px solid rgba(240, 100, 90, .85); animation-name: ring; }
 /* Second Burial: grave-light pulsing over the body, and the risen's green-lit eyes (raiseRitual). */
 .burst-grave { width: 120%; border: 2.5px solid rgba(170, 255, 195, .9); background: radial-gradient(circle, rgba(120, 245, 160, .45) 0 22%, rgba(80, 210, 125, .2) 48%, transparent 66%); box-shadow: 0 0 16px rgba(110, 240, 150, .7), inset 0 0 14px rgba(110, 240, 150, .6); animation-name: rise; animation-duration: .9s; }
@@ -1089,6 +1118,14 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .passive b { color: var(--accent); }
 /* Actions: your skills on the left, Attack and Guard apart on the right. Each is a bare icon with its
    name underneath; the mana cost is a blue number on the icon, a cooldown a big number over it. */
+/* Skills kept at the top of the deck, the satchel beside them on the right (stacks underneath on
+   narrow screens). When the satchel is hidden its auto column collapses and the skills fill the row. */
+.deckTop { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+.deckTop .satchel { padding: 0 0 0 16px; border-top: 0; border-left: 1px solid var(--line); min-width: 130px; }
+@media (max-width: 620px) {
+  .deckTop { grid-template-columns: minmax(0, 1fr); }
+  .deckTop .satchel { padding: 10px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+}
 .acts { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .agroup { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .agroup.basic { flex: none; padding-left: 10px; border-left: 1px solid var(--line); }
@@ -1139,11 +1176,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    a slim speed bar, your actions as a grid of icon buttons, then the latest log lines. */
 @media (orientation: portrait) and (max-width: 700px) {
   body[data-screen="battle"] .wrap { padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); gap: 8px; }
-  body[data-screen="battle"] .top { gap: 6px; }
-  body[data-screen="battle"] .top > div:first-child,
-  body[data-screen="battle"] .herotag, body[data-screen="battle"] .purse { display: none; }
-  body[data-screen="battle"] .topR { width: 100%; justify-content: flex-start; flex-wrap: nowrap; }
-  .ladder { flex-wrap: nowrap; overflow-x: auto; gap: 4px; scrollbar-width: none; }
+  body[data-screen="battle"] .top { display: none; }   /* the ladder moved to the foot; nothing else sits here on phones */
+  #battleScreen > .ladder { flex-wrap: nowrap; overflow-x: auto; gap: 4px; scrollbar-width: none; justify-content: flex-start; }
   .ladder li { flex: none; padding: 2px 8px 2px 2px; font-size: .74rem; }
   .ladder li:not(.now) { padding-right: 2px; }
   .ladder li:not(.now) .nm { display: none; }
@@ -1719,7 +1753,6 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
       <p class="tag" id="tagline">Season 1: Ashfall Road. Pick your warband from seven factions and fight the gauntlet.</p>
     </div>
     <div class="topR">
-      <ol class="ladder" id="ladder" aria-label="Gauntlet battles" hidden></ol>
       <span class="herotag" id="herotag" hidden></span>
       <span class="purse" id="purse" role="status"></span>
     </div>
@@ -1803,6 +1836,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
       <div class="field">
         <main class="arena" id="arena">
           <div class="wxAnnounce" id="wxAnnounce" aria-hidden="true"></div>
+          <!-- Round counter floats on the top-left of the field; the battle controls on the bottom-right. -->
+          <span class="round" id="roundTxt"></span>
           <button type="button" class="wxPill" id="weather" aria-expanded="false" aria-controls="wxPop" aria-live="polite">
             <span class="wxi" id="wxIcon" aria-hidden="true"></span><span class="wxn" id="wxName"></span><span class="wxl" id="wxLeft"></span>
           </button>
@@ -1814,29 +1849,46 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           </div>
           <div class="side" id="side-p" aria-label="Your warband"></div>
           <div class="side" id="side-e" aria-label="Enemy warband"></div>
-        </main>
-        <section class="speed" aria-label="Speed bar">
-          <div class="speedHead">
-            <span class="round" id="roundTxt"></span>
+          <div class="fieldCtrls">
             <button type="button" class="speedBtn ffwdBtn" id="ffwdBtn" aria-pressed="false" title="Your champion is down — fast-forward the rest of the battle" hidden>⏩</button>
             <button type="button" class="speedBtn logBtn" id="logBtn" aria-controls="battleLog">Hide log</button>
             <button type="button" class="speedBtn" id="speedBtn" aria-pressed="false" title="Battle speed">1.5×</button>
           </div>
+        </main>
+        <section class="speed" aria-label="Speed bar">
           <div class="track" id="track">
             <div class="rail"><span class="lane p">Your warband</span><span class="lane e">Enemies</span></div>
-            <div class="goal" aria-hidden="true">Act</div>
+            <div class="goal" role="img" aria-label="Act">
+              <svg viewBox="0 0 24 44" aria-hidden="true">
+                <!-- shield behind -->
+                <path d="M12 18 L20.5 20.5 V28 C20.5 34.5 16.8 38.8 12 41 C7.2 38.8 3.5 34.5 3.5 28 V20.5 Z"
+                      fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <!-- sword in front: tapered blade, crossguard, grip, pommel -->
+                <g fill="currentColor">
+                  <path d="M12 2 L13.7 20 H10.3 Z"/>
+                  <rect x="6.5" y="19.6" width="11" height="2.8" rx="1.2"/>
+                  <rect x="10.9" y="22.4" width="2.2" height="7.2"/>
+                  <circle cx="12" cy="30.6" r="1.9"/>
+                </g>
+              </svg>
+            </div>
           </div>
         </section>
         <section class="deck" aria-label="Actions">
           <div class="dhead">
             <h3 id="dName"></h3>
           </div>
-          <p class="passive" id="dPassive"></p>
-          <div class="acts" id="acts"></div>
-          <div class="satchel" id="satchel" hidden>
-            <div class="dhead"><p class="label">Satchel</p><span class="note" id="satchelHint"></span></div>
-            <div class="items" id="items"></div>
+          <!-- Skills sit right under the one-line name so they never jump as the passive/nature text
+               below changes length from champion to champion; the satchel rides on the right of them
+               instead of being stacked underneath and shoving everything down. -->
+          <div class="deckTop">
+            <div class="acts" id="acts"></div>
+            <div class="satchel" id="satchel" hidden>
+              <div class="dhead"><p class="label">Satchel</p><span class="note" id="satchelHint"></span></div>
+              <div class="items" id="items"></div>
+            </div>
           </div>
+          <p class="passive" id="dPassive"></p>
           <div class="prompt" id="prompt" hidden>
             <span id="promptTxt"></span>
             <button class="btn small" type="button" id="cancelBtn">Cancel</button>
@@ -1848,6 +1900,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
         <ol class="log" id="log"></ol>
       </aside>
     </div>
+    <ol class="ladder" id="ladder" aria-label="Gauntlet battles" hidden></ol>
     <div class="foot">
       <p>Prototype build. Keys 1–5 pick actions, 6–0 use satchel items, Esc cancels targeting.</p>
       <button class="btn small ghost" type="button" id="abandonBtn">Abandon run and return to the village</button>
@@ -1882,7 +1935,7 @@ const FACTIONS = {
   crimson: { name: 'The Crimson Court', mechanic: 'Bloodthirst',
            rule: 'The Court keeps no mana — it pays in blood. A skill costs 15% of the caster\'s current HP and a ★ signature 20%, and no toll can take their last point: they are left standing on 1 HP at worst. Attack and Guard are free. Every hit drains 20% of the damage dealt as HP, and every attack drinks a further 5% of the victim\'s maximum HP on top of whatever the skill itself steals. The Court has no ranged fighters: four melee and a support who Hexes enemies so they heal for half.' },
   undead: { name: 'The Pale Host',     mechanic: 'Undying',
-           rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet, lit by a pale green light and already dead: nothing can heal it, and it stands and fights until one more instance of damage lands — a blow, a tick, anything — and that one is the end. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will stand past its death a second time. The dead are in no hurry: the whole Host crosses the speed bar 5% slower.' },
+           rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet, lit by a pale green light and already dead: nothing can heal it, and it stands and fights until one more instance of damage lands — a blow, a tick, anything — and that one is the end. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will stand past its death a second time. The dead are in no hurry: the whole Host crosses the speed bar 5% slower. And the dead have no blood to spill: nothing can make the Pale Host Bleed.' },
 };
 const FACTION_KEYS = Object.keys(FACTIONS);
 // "the Bloodtusk Horde", "the Tideborn": names that already start with "The" don't get a second one.
@@ -1955,7 +2008,11 @@ function loadProfile() {
   return p;
 }
 let profile = loadProfile();
+// TEST_MODE: the auto-battle harness (index.html?battle) fights on a throwaway in-memory
+// profile. It must never write over the player's real save, so saving is a no-op here.
+let TEST_MODE = false;
 function saveProfile() {
+  if (TEST_MODE) { renderPurse(); return; }
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(profile)); } catch (err) { /* progress just won't persist */ }
   renderPurse();
 }
@@ -2294,7 +2351,7 @@ const ROSTER = [
     mods: {},
     look: { body: 'human', helm: true, main: '#a9b3c6', trim: '#e8a548', skin: '#e2b48f', weapon: 'sword' },
     nature: { name: 'Spellblade\'s Rhythm', desc: 'Discipline comes easier to her: +20% rather than +15% when she varies her actions.', rhythm: 1 },
-    skills: [D('Power Slash', '160% cut.', 2, 1.6, { slash: true }),
+    skills: [D('Power Slash', '160% cut. Burns away 60% of the target\'s current mana.', 2, 1.6, { slash: true, manaBurnPct: 0.6 }),
              D('Thunderclap', '130% lightning with a 45% chance to stun.', 4, 1.3, { element: 'lightning', noDodge: true, stun: 0.45 }),
              D('Arcane Edge', '100% cut plus 20% of her current mana as extra damage.', 3, 1.0, { manaDamage: 0.2 }),
              D('Mageslayer', '110% cut. Burns 30 of the target\'s mana as extra damage and Silences them for 2 turns.', 4, 1.1, { manaBurn: 30, fx: [['silence', 3]] }),
@@ -2622,6 +2679,19 @@ const SUMMONS = {
     onSpawn: (s) => addFx(s, 'taunt', 3),
     leave: (u) => `${u.name} fades away.`,
     skills: [{ ...ATTACK, name: 'Ink Lash', desc: '100% hit that blinds.', o: { fx: [['blind', 2]] } }],
+  },
+  // Mirror Dust (satchel item): an uncontrolled double of whoever used it. It fights for 25% less
+  // than the caster with the same reach they have, counts as a unit (its own HP bar, can be cut
+  // down), and otherwise frays on its own — after three of its own turns, or after eight blows have
+  // landed on it, whichever comes first. The turn count lives in nextTurn, the blow count in
+  // strikeOnce, and cleanupSummons sweeps it once either runs out (see useItem for the spawn).
+  mirage: {
+    name: 'Double', copy: true, copyName: (o) => `${o.name}'s Double`, role: 'melee', life: null,
+    desc: 'An uncontrolled double of its caster. Fights for 75% of their damage, then fades after 3 of its turns or 8 blows.',
+    stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.5), atk: Math.round(o.atk * 0.75), def: Math.round(o.def * 0.5), agi: o.agi, crit: 0.05, dodge: 0.08 }),
+    onSpawn: (s) => { const o = unitBy(s.owner); if (o) s.role = o.role; s.actsLeft = 3; s.hitsLeft = 8; },
+    leave: (u) => `${u.name} ripples and fades.`,
+    skills: [{ ...ATTACK, name: 'Phantom Strike', desc: '100% hit.' }],
   },
   warboar: {
     name: 'War Boar', role: 'melee', life: 400,
@@ -4351,8 +4421,13 @@ function strikeOnce(u, t, mult, label, o) {
   // sworn guardian who throws themselves into its path, taking it in the ally's place and then
   // answering with a full counter (queued below). Single-target melee only, never off another
   // counter, and the guardian takes the blow deliberately — no stepping in only to dodge it.
+  // The usual path decides this up in damageSkill (so the guardian can physically leap in front of
+  // the ally before the attacker arrives) and passes o.heroic; this blow is already theirs to take.
+  // The search below still covers the odd blow that reaches strikeOnce another way (e.g. Execute).
   let heroicHit = false;
-  if (!o.counter && !o.aoe && u.role === 'melee' && !o.hurl && !o.gust) {
+  if (o.heroic) {
+    heroicHit = true;
+  } else if (!o.counter && !o.aoe && u.role === 'melee' && !o.hurl && !o.gust) {
     const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && pv(a).heroic && chance(pv(a).heroic));
     if (g) {
       float(g, '🛡️ Heroic', 'fx');
@@ -4478,6 +4553,10 @@ function strikeOnce(u, t, mult, label, o) {
     log(`${t.name} vanishes in a burst of ink: ${u.name} is blinded, and anything that can miss her will, until her next turn.`, t.side);
   }
   t.lastHitBy = u.uid;
+  // Mirror Dust double: a conjured copy can only soak so much. Every blow that lands spends one of
+  // its eight; the eighth shatters it (swept by cleanupSummons on the next pass). Its own HP can drop
+  // it sooner, and three of its turns fade it — whichever comes first. Only if it survived this hit.
+  if (t.id === 'mirage' && taken > 0 && t.hp > 0 && (t.hitsLeft = (t.hitsLeft ?? 8) - 1) <= 0) t.spent = 'shattered';
   // Garrick: Retribution sends a share of every hit he takes to all of his enemies.
   if (TP.retribution) {
     const back = Math.max(1, Math.round(dmg * TP.retribution));
@@ -4563,14 +4642,27 @@ function gainMp(u, amount, quiet = false) {
 
 function applyHitEffects(u, t, o) {
   if (t.hp <= 0) return;
-  // Mana Burn: destroy some of the target's mana and deal that much as extra damage.
+  // Mana Burn: destroy some of the target's mana and deal that much as extra damage. Any mana burned
+  // from a body makes it secrete it — blue liquid mana wells up and oozes out (burst 'mana').
   if (o.manaBurn && t.mp > 0) {
     const burned = Math.min(t.mp, o.manaBurn);
     t.mp -= burned;
     t.hp = Math.max(0, t.hp - burned);
     float(t, `-${burned} MP`, 'mpf');
+    burst(t, 'mana');
     log(`${u.name} burns ${burned} of ${t.name}'s mana, dealing ${burned} extra damage.`, u.side);
     if (t.hp <= 0) { fell(t, u); return; }
+  }
+  // Mana Scorch (Wren's Power Slash): burn a share of the target's CURRENT mana — pure denial, no
+  // extra damage — and make them bleed it just the same.
+  if (o.manaBurnPct && t.mp > 0) {
+    const burned = Math.round(t.mp * o.manaBurnPct);
+    if (burned > 0) {
+      t.mp = Math.max(0, t.mp - burned);
+      float(t, `-${burned} MP`, 'mpf');
+      burst(t, 'mana');
+      log(`${u.name} burns away ${burned} of ${t.name}'s mana.`, u.side);
+    }
   }
   // Seraphine: Echo makes her debuffs last longer; Aldous: Kindling makes his Burns hotter.
   const P = pv(u);
@@ -4676,6 +4768,22 @@ async function damageSkill(u, t, sk) {
       t = nt;
     }
   }
+  // Heroic (Wren, Garrick): a melee blow aimed at one of their allies may be intercepted by a sworn
+  // guardian who leaps in front of that ally — planting themselves between it and the attacker — so
+  // the charge below lands on them instead, and they answer with a full counter (queued in strikeOnce
+  // off o.heroic). Decided here, before the dash, so they are already in the way when the blow falls.
+  // Single-target melee only, never off a counter; interposeTo also handles the leap home afterwards.
+  let heroicGuard = null, heroicTrip = null;
+  if (u.role === 'melee' && !o.hurl && !o.gust && sk.target !== 'allEnemies' && t && !o.counter) {
+    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && pv(a).heroic && chance(pv(a).heroic));
+    if (g) {
+      heroicGuard = g;
+      float(g, '🛡️ Heroic', 'fx');
+      log(`${g.name} throws into the path of the blow meant for ${t.name}, taking it in their place.`, g.side);
+      heroicTrip = await interposeTo(g, t);
+      t = g;
+    }
+  }
   const targets = sk.target === 'allEnemies' ? openFoes(u) : [t];
   // Front line: every melee this attack goes for counts toward their side's two, hit or miss.
   for (const tg of targets) markAttacked(tg);
@@ -4704,7 +4812,7 @@ async function damageSkill(u, t, sk) {
   const hits = (o.hits || 1) + (o.hits > 1 ? (pv(u).extraHit || 0) + (charNat(u).flywheel && u.heat >= 50 ? 1 : 0) : 0);
   const struck = new Set();   // everyone a blow of this skill actually landed on (Last Rites pins only what it hit)
   const hitOnce = async (tg, mult) => {
-    const r = strikeOnce(u, tg, mult, sk.name, o);
+    const r = strikeOnce(u, tg, mult, sk.name, tg === heroicGuard ? { ...o, heroic: true } : o);
     if (!r.miss) {
       struck.add(tg);
       total += r.dmg;
@@ -4867,6 +4975,9 @@ async function damageSkill(u, t, sk) {
   // home: its corpse stays where it dropped, lying at the enemy's feet until it crumbles.
   if (trip && u.id === 'zombie' && u.hp <= 0) layoutSides();
   else if (trip) await dashBack(u, trip);
+  // The guardian who threw themselves in front of an ally leaps back to their own place.
+  if (heroicTrip && heroicGuard?.hp > 0) await dashBack(heroicGuard, heroicTrip);
+  else if (heroicTrip) layoutSides();   // if they fell taking the blow, just restore the ranks
   await wait(120);
 }
 
@@ -5025,9 +5136,14 @@ function addFx(u, id, turns, value = 0, quiet = false) {
     if (!quiet) { float(u, 'Pit-forged', 'fx'); log(`${u.name} is pit-forged — the fire finds nothing left to take.`, u.side); }
     return;
   }
-  // Machines don't bleed: every Ironclad unit (champions and their Salvage Bots) is immune to Bleed.
-  if (id === 'bleed' && u.faction === 'mech') {
-    if (!quiet) { float(u, 'No blood', 'fx'); log(`${u.name} is a machine — the Bleed finds no blood.`, u.side); }
+  // Machines don't bleed, and the dead have no blood to spill: every Ironclad unit (champions and
+  // their Salvage Bots) and the whole Pale Host are immune to Bleed.
+  if (id === 'bleed' && (u.faction === 'mech' || u.faction === 'undead')) {
+    if (!quiet) {
+      float(u, 'No blood', 'fx');
+      log(u.faction === 'mech' ? `${u.name} is a machine — the Bleed finds no blood.`
+                               : `${u.name} is long dead — the Bleed finds no blood to spill.`, u.side);
+    }
     return;
   }
   const ex = has(u, id);
@@ -5626,7 +5742,7 @@ function summonUnit(owner, kind) {
   const u = {
     uid: `${owner.uid}s${state.summonSeq}`, id: kind, art: def.copy ? owner.id : kind,
     side: owner.side, summon: true, owner: owner.uid,
-    name: def.copy ? `Ink ${owner.name}` : def.name,
+    name: def.copyName ? def.copyName(owner) : def.copy ? `Ink ${owner.name}` : def.name,
     level: owner.level, faction: owner.faction, race: null, role: def.role, floats: !!def.floats, inert: !!def.inert,
     ...st, hp: st.maxHp, effects: [], cooldowns: {}, heat: 0, stacks: 0, hitSince: false, lastAction: null, combo: false,
     pos: 300 + Math.random() * 200, expires: def.life ? state.time + def.life : null,
@@ -6018,6 +6134,37 @@ function sweepDeathBots() {
 }
 
 // Summons leave when their time runs out or their summoner falls; the fallen lie there a while first.
+// A Salvage Bot's last act. Down to its final sparks (≤25% HP), on its turn it stops fighting:
+// it drags itself to the ally in the most need — the one lowest on health, and never another
+// Salvage Bot (scrap mending scrap saves no one) — and empties whatever charge it has left into
+// them as a mend, then comes apart. salvageMendTarget picks who; nextTurn calls salvageLastRites
+// in place of the bot's normal action.
+function salvageMendTarget(u) {
+  return alliesOf(u)
+    .filter((a) => a !== u && a.id !== 'deathbot' && !a.inert && !has(a, 'coffin') && !undyingOn(a))
+    .sort((a, b) => a.hp - b.hp)[0] || null;   // lowest HP = closest to falling, the one worth saving
+}
+async function salvageLastRites(u) {
+  const t = salvageMendTarget(u);
+  if (!t) return false;
+  const mend = u.hp;   // everything it has left to give
+  float(u, '🔧 Salvage', 'fx');
+  log(`${u.name} sputters to its last — it drags itself to ${t.name} and empties its core into them.`, u.side);
+  await dashTo(u, [t]);   // crawl over to the wounded ally; it won't be going home again
+  await wait(120);
+  burst(t, 'heal');
+  healUnit(u, t, mend, 'Salvage');
+  render();
+  await wait(240);
+  u.hp = 0;               // the core is spent: the bot falls apart where it stands
+  float(u, 'Scrapped', 'dot');
+  burst(u, 'smoke');
+  fell(u, null);
+  render();
+  await wait(200);
+  return true;
+}
+
 function cleanupSummons() {
   sweepDeathBots();
   for (const u of allUnits().filter((x) => x.summon)) {
@@ -6032,6 +6179,11 @@ function cleanupSummons() {
       else if (u.expires <= state.time + EPS) removeUnit(u);
       // A corpse stays put even if its summoner falls too: it is already dead, so nothing more can
       // happen to it. Taking the hp <= 0 branch first is what keeps the two rules below off it.
+    }
+    else if (u.spent) {   // a Mirror Dust double that has given its three turns or soaked its eight blows
+      log(`${u.name} ${u.spent === 'shattered' ? 'shatters under the blows' : 'ripples and fades'}.`, u.side);
+      burst(u, 'smoke');
+      removeUnit(u);
     }
     else if (!u.independent && (!owner || owner.hp <= 0)) { log(`${u.name} vanishes with its summoner.`, 'sys'); removeUnit(u); }
     else if (u.expires != null && u.expires <= state.time + EPS) {
@@ -6320,8 +6472,19 @@ async function nextTurn() {
         await wait(200);
       }
     }
+    // A Salvage Bot on its last sparks gives the rest of itself away instead of swinging: it mends
+    // the ally most in need and comes apart (see salvageLastRites). Only if there is someone to save.
+    if (u.id === 'deathbot' && u.hp <= u.maxHp * 0.25 && salvageMendTarget(u)) {
+      await salvageLastRites(u);
+      if (token !== state.token) return;
+      endTurn(u);
+      await wait(250);
+      continue;
+    }
     const { sk, t } = bossPlan(u) || aiChoose(u);   // bosses enrage and telegraph their big attacks
     await doAction(u, sk, t);
+    // A Mirror Dust double is good for three of its own turns; the third spent, it frays away.
+    if (u.id === 'mirage' && --u.actsLeft <= 0 && u.hp > 0) u.spent = u.spent || 'faded';
     endTurn(u);
     await wait(250);
   }
@@ -6424,6 +6587,11 @@ async function useItem(u, key, t) {
   } else if (key === 'horn') {
     for (const a of alliesOf(u)) if (a !== u) { a.pos = Math.min(TRACK, (a.pos || 0) + 300); burst(a, 'roar'); float(a, 'Surge', 'fx'); }
     log('The War Horn sounds. Your warband surges forward.', u.side);
+  } else if (key === 'mirage') {
+    // The dust throws off an uncontrolled copy of the user (stats, reach and fade set in SUMMONS.mirage).
+    const s = summonUnit(u, 'mirage');
+    burst(s, 'smoke');
+    float(s, 'Conjured', 'fx');
   }
   render();
   await wait(450);
@@ -7061,6 +7229,7 @@ const ITEMS = {
   salts:    { name: 'Purifying Salts', price: 25, target: 'ally', desc: 'Clear every debuff from an ally, even a stun.' },
   firebomb: { name: 'Firebomb', price: 50, target: 'allEnemies', desc: 'Scorch every enemy for 10% of their max HP and set them Burning.' },
   horn:     { name: 'War Horn', price: 40, target: 'allAllies', desc: 'Every other ally surges 30% along the speed bar.' },
+  mirage:   { name: 'Mirror Dust', price: 55, target: 'self', desc: 'Conjure an uncontrolled double of yourself. It fights for 75% of your damage, then fades after 3 of its turns or 8 blows.' },
 };
 const ITEM_KEYS = Object.keys(ITEMS);
 
@@ -7071,6 +7240,7 @@ const ITEM_ICON = {
   salts: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 9h10l-1.5 2.5C24 13 26 17 26 21a7 7 0 0 1-7 7h-6a7 7 0 0 1-7-7c0-4 2-8 6.5-9.5z" fill="#8a6a3a"/><path d="M10 9.5q6 -3 12 0" stroke="#d8c8a8" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M16 15l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2z" fill="#9fe08a"/><circle cx="24" cy="7" r="1.4" fill="#9fe08a"/><circle cx="8" cy="12" r="1" fill="#9fe08a"/></svg>`,
   firebomb: `<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="19" r="9" fill="#2a2f3f" stroke="#7a8296" stroke-width="1.2"/><rect x="11.5" y="8" width="5" height="4" rx="1" fill="#4a5164"/><path d="M14 8q2-4 6-4" stroke="#c9b28a" stroke-width="1.6" fill="none"/><path d="M21 4.5q-1.5-3.5 1.5-3.5q-.5 2 2 2.5q-1 2.5-3.5 1z" fill="#ff8a3d"/><circle cx="11" cy="16" r="2.2" fill="#fff" opacity=".18"/></svg>`,
   horn: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 22Q8 10 22 7L27 4V15L23 13Q12 14 9 24Z" fill="#d8c8a8"/><path d="M18 8.5L19.5 13.8M13 11L15 16" stroke="#b07d3e" stroke-width="2.2"/><ellipse cx="27" cy="9.5" rx="2" ry="5.5" fill="#6b4f32"/><path d="M4 22L9 24L6 27Z" fill="#b07d3e"/></svg>`,
+  mirage: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 27V9a5 5 0 0 1 5-5h1v23z" fill="#8a6fd0"/><path d="M24 27V9a5 5 0 0 0-5-5h-1v23z" fill="#5a4698" opacity=".85"/><path d="M11 8v16" stroke="#e9e0ff" stroke-width="1.3" stroke-linecap="round" opacity=".7"/><path d="M26 6l.9 2.1 2.1.9-2.1.9L26 12l-.9-2.1L23 9l2.1-.9z" fill="#e9e0ff"/><circle cx="6" cy="20" r="1.2" fill="#e9e0ff"/></svg>`,
 };
 const COIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#e8a548"/><circle cx="12" cy="12" r="7" fill="none" stroke="#2a1a05" stroke-width="1.2" opacity=".45"/><path d="M12 7.5v9M9.5 10h5" stroke="#2a1a05" stroke-width="1.6" stroke-linecap="round" opacity=".6"/></svg>';
 
@@ -7135,6 +7305,7 @@ const RECIPES = [
   { id: 'salts', out: { item: 'salts' }, cost: { bone: 2 } },
   { id: 'firebomb', out: { item: 'firebomb' }, cost: { ember: 2, ore: 1 } },
   { id: 'horn', out: { item: 'horn' }, cost: { hide: 2, bone: 1 } },
+  { id: 'mirage', out: { item: 'mirage' }, cost: { spore: 1, bone: 1, ore: 1 } },
   { id: 'tome', out: { tome: 1 }, cost: { bone: 4, spore: 3, ember: 2 } },
   { id: 'trollblood', out: { trinket: 'trollblood' }, cost: { hide: 5, bone: 3, spore: 2 } },
   { id: 'quicksilver', out: { trinket: 'quicksilver' }, cost: { ore: 6, ember: 4, hide: 2 } },
@@ -11416,6 +11587,26 @@ async function dashBack(u, trip) {
   layoutSides();   // restores normal depth order
 }
 
+// Heroic: the guardian leaps from their place to stand just in front of the ally the blow is meant
+// for — planting themselves between that ally and the incoming attacker. Returns a trip dashBack can
+// read to send them home afterwards, mirroring dashTo/dashBack so the melee charge lands on them here.
+async function interposeTo(g, ally) {
+  const el = actorEl(g), me = stageBox(g), a = stageBox(ally);
+  if (reduced || !el || !me || !a) return null;
+  const dir = facing(g);                         // the way the guardian faces the enemy
+  const dx = a.x + dir * (a.w * 0.55) - me.x;     // a half-step in front of the ally, toward the foe
+  const dy = a.feet - me.feet;
+  const end = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`;
+  const mid = `${(dx * 0.5).toFixed(1)}px ${(dy * 0.5 - 30).toFixed(1)}px`;   // a quick arcing leap
+  const ms = beat(300);
+  el.style.zIndex = 210;                          // over the ally they throw themselves in front of
+  const anim = el.animate(
+    [{ translate: '0 0' }, { translate: mid, offset: 0.5 }, { translate: end }],
+    { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  await done(anim, ms);
+  return { anim, end, mid, fly: false };
+}
+
 function pose(u, frames, ms) {
   const b = bodyEl(u);
   if (!b || reduced || u.hp <= 0) return null;   // the fallen don't flinch, hop or swing
@@ -12690,9 +12881,57 @@ document.addEventListener('keydown', (ev) => {
 });
 
 /* ==================================================================
+   AUTO-BATTLE HARNESS — index.html?battle drops you straight into a
+   fight, skipping the village, so a mechanic can be watched the moment
+   the page loads. It fights on a throwaway profile (TEST_MODE) and never
+   touches the real save. All configuration rides in the query string:
+
+     ?battle                 a quick gauntlet with the default warband
+     ?battle&team=wren,garrick,aelira,maren   who stands in the band (slot 0 = you)
+     ?battle&foe=tunnels     a cave hunt at that depth instead (tunnels|grotto|den)
+     ?battle&lv=10           your champion's level (skills unlock with it; default 8)
+     ?battle&pas=heroic      force the hero's passive loadout (comma-separated ids)
+
+   Unknown champion ids are dropped; an empty team falls back to the default.
+   ================================================================== */
+function bootTest(params) {
+  TEST_MODE = true;
+  profile = blankProfile();   // a clean slate — the real save on disk is left alone
+  profile.level = Math.max(1, Math.min(30, parseInt(params.get('lv'), 10) || 8));
+
+  // The warband: first id is your champion, the rest are recruits. Keep only real ids,
+  // then pad up to a full band — the battle launchers bounce to champion-select if the
+  // team isn't TEAM_SIZE, which would defeat the whole point of skipping the village.
+  const asked = (params.get('team') || '').split(',').map((s) => s.trim()).filter(Boolean).filter((id) => charById(id));
+  const band = (asked.length ? asked : ['wren', 'garrick', 'aelira', 'maren']).slice(0, TEAM_SIZE);
+  for (const id of ['wren', 'garrick', 'aelira', 'maren']) { if (band.length >= TEAM_SIZE) break; if (!band.includes(id)) band.push(id); }
+  for (const c of ROSTER) { if (band.length >= TEAM_SIZE) break; if (!band.includes(c.id)) band.push(c.id); }
+  profile.hero = { id: band[0], name: shortName(charById(band[0])) };
+  profile.recruits = band.slice(1);
+
+  // Optional: pin the hero's passive loadout (e.g. pas=heroic to watch Heroic fire).
+  const pas = (params.get('pas') || '').split(',').map((s) => s.trim()).filter(Boolean);
+  if (pas.length) profile.loadout = { act: autoLoadout(charById(band[0]), profile.level).act, pas };
+
+  buildSelect();
+  buildSkills();
+  buildVillage();
+  syncTeam();
+
+  // A cave hunt against a named depth, or the faction gauntlet by default.
+  const foe = params.get('foe');
+  if (foe && depthById(foe)) startHunt(foe);
+  else startGauntlet();
+}
+
+/* ==================================================================
    BOOT (keeps the current screen if the page is live-updated)
    ================================================================== */
 function start(data) {
+  // The harness short-circuits a normal boot. Live-update snapshots (data.state)
+  // still win, so hot-reloading mid-fight keeps the battle you're watching.
+  const qs = (() => { try { return new URLSearchParams(location.search); } catch (err) { return null; } })();
+  if (qs && (qs.has('battle') || qs.has('test')) && !(data && data.state)) { bootTest(qs); return; }
   buildSelect();
   buildSkills();
   buildVillage();
