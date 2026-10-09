@@ -2186,6 +2186,12 @@ const xpToNext = (lv) => 60 + 40 * lv;               // Lv 1→2: 100 XP, 2→3:
 const XP_WIN_BASE = 35, XP_WIN_STEP = 10, XP_CLEAR_BONUS = 120, XP_LOSS = 15;
 const battleXp = (i) => XP_WIN_BASE + XP_WIN_STEP * i;   // i = battle index in the gauntlet, 0-based
 const heroLevel = () => profile.level || 1;
+// The public play build (the GitHub Pages mirror friends play on) starts every champion at Lv 10, so a
+// first visit already has a full kit to try; a local copy starts at Lv 1 as normal. A save on the
+// mirror that is still below it is lifted to it.
+const PLAY_MIRROR = /(^|\.)github\.io$/.test(location.hostname);
+const START_LEVEL = PLAY_MIRROR ? 10 : 1;
+if (profile.hero && heroLevel() < START_LEVEL) { profile.level = START_LEVEL; profile.xp = 0; }
 // Champion names show up inside HTML, so markup characters are never allowed in them.
 const cleanName = (s) => String(s || '').replace(/[<>&"'`]/g, '').trim().slice(0, 16);
 const heroName = () => (profile.hero ? cleanName(profile.hero.name) || shortName(charById(profile.hero.id)) : '');
@@ -9365,7 +9371,7 @@ function buildSelect() {
     if (!profile.hero) {
       const name = cleanName($('#heroName').value) || shortName(charById(t[0]));
       profile.hero = { id: t[0], name };
-      profile.level = 1;
+      profile.level = START_LEVEL;
       profile.xp = 0;
     }
     profile.recruits = t.slice(1);
@@ -9380,7 +9386,7 @@ function buildSelect() {
     state.retireArmed = false;
     state.runPending = false;
     profile.hero = null;
-    profile.level = 1;
+    profile.level = START_LEVEL;
     profile.xp = 0;
     saveProfile();
     state.team = [];
