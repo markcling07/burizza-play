@@ -662,6 +662,17 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   border-radius: 7px; background: var(--plate); border: 1px solid var(--line); transition: border-color .15s;
 }
 .unit.summon .plate { border-style: dashed; }
+/* Covering Fire countdown: a round dial hung off the left of the plate. The gold ring fills as the
+   field's turns tick by; the number is the turns left until her free shot, and it glows on the last. */
+.unit .plate:has(.watchdial) { position: relative; }
+.watchdial { position: absolute; right: calc(100% + 3px); top: 0; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--accent) var(--fill, 0deg), rgba(255, 255, 255, .14) 0); box-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.watchdial b { width: 14px; height: 14px; border-radius: 50%; display: grid; place-items: center; background: var(--plate);
+  font: 700 .58rem/1 var(--font-body); color: var(--accent); }
+.watchdial.ready { animation: watchReady 1s ease-in-out infinite; }
+.watchdial.ready b { color: #fff3c4; }
+@keyframes watchReady { 50% { box-shadow: 0 0 0 2px rgba(232, 165, 72, .35), 0 0 10px rgba(255, 200, 90, .9); } }
+.unit.down .watchdial { display: none; }
 .unit.acting .plate { border-color: var(--accent); }
 /* Your own champion on the field: a gold star and a gold name on the plate, every turn. */
 .unit.you .who strong { color: var(--accent); }
@@ -846,6 +857,17 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .proj { position: absolute; left: 0; top: 0; z-index: 250; pointer-events: none; will-change: transform; }
 .proj-arrow { width: 30px; height: 3px; margin: -1.5px 0 0 -15px; border-radius: 2px; background: linear-gradient(90deg, #d9c58a 0 18%, #8a5a32 18% 84%, #e6e1d3 84%); }
 .proj-spear { width: 42px; height: 3px; margin: -1.5px 0 0 -21px; border-radius: 2px; background: linear-gradient(90deg, #7a5434 0 80%, #c9d1de 80%); }
+/* Mara's round: a thin silver slug with a short bright streak behind it (it flies nose-first). */
+.proj-silver { width: 15px; height: 2.6px; margin: -1.3px 0 0 -7px; border-radius: 0 2px 2px 0;
+  background: linear-gradient(180deg, #ffffff, #c9d0dc 55%, #8d97a8); box-shadow: 0 0 4px rgba(235, 242, 255, .95), 0 0 9px rgba(190, 205, 230, .55); }
+.proj-silver::before { content: ''; position: absolute; right: 100%; top: 50%; width: 26px; height: 1.6px; margin-top: -.8px;
+  background: linear-gradient(90deg, rgba(220, 228, 242, 0), rgba(235, 240, 250, .75)); }
+/* Muzzle fire and smoke at the barrel of a gun (muzzleFlash): a wrapper flipped to face the shot, the
+   flame inside it, and loose puffs of powder smoke. */
+.muzzle-fire { position: absolute; z-index: 252; width: 34px; height: 22px; margin-top: -11px; transform-origin: 0 50%; pointer-events: none; }
+.muzzle-fire svg { width: 100%; height: 100%; display: block; overflow: visible; transform-origin: 0 50%; filter: drop-shadow(0 0 6px rgba(255, 170, 60, .9)); }
+.muzzle-smoke { position: absolute; z-index: 251; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(225, 222, 215, .85), rgba(170, 168, 162, .55) 55%, rgba(150, 148, 142, 0) 72%); }
 .proj-bullet { width: 11px; height: 4px; margin: -2px 0 0 -5px; border-radius: 2px; background: #ffe9a8; box-shadow: 0 0 8px #ffd166; }
 .proj-orb { width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: radial-gradient(circle, #fff 0 18%, var(--c, #9fe08a) 45%, transparent 72%); box-shadow: 0 0 14px var(--c, #9fe08a); }
 .proj-fire { width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: radial-gradient(circle, #fff6c2 0 16%, #ffb347 40%, #ff5a1f 62%, transparent 74%); box-shadow: 0 0 18px #ff7a2f; }
@@ -11924,6 +11946,7 @@ function unitCardHTML(u) {
     <div class="unit ${unitClasses(u)}" id="u-${u.uid}" data-uid="${u.uid}" style="--d:${(-Math.random() * 2.6).toFixed(2)}s">
       <ul class="chips"></ul>
       <div class="plate">
+        ${u.watch ? '<div class="watchdial" aria-hidden="true"><b></b></div>' : ''}
         <div class="who"><strong>${u.name}</strong><span class="lvl"></span></div>
         <div class="bar hp"><div class="fill"></div><span></span></div>
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
@@ -12576,6 +12599,7 @@ const PROJ_ATTACK = {
   aldous: { kind: 'ember', impact: 'fire' }, seraphine: { kind: 'bubble' }, octavia: { kind: 'inkball' },
   patchwork: { kind: 'rivet' }, elowen: { kind: 'leaf' }, maren: { kind: 'pearl' }, faelan: { kind: 'xbolt' },
   scrapbot: { kind: 'rivet' }, illusion: { kind: 'inkball' },
+  mara: { kind: 'silver' },   // a thin silver round, out of a barrel that flashes fire and smoke (MUZZLE)
   cadris: { kind: 'firefly', wander: true },   // his basic attack sends a small green grave-firefly, drifting every which way before it strikes
 };
 const PROJ_SKILL = {
@@ -12876,11 +12900,45 @@ function slashFx(t, dir) {
   setTimeout(() => el.remove(), 800);
 }
 
+/* Where a champion's gun barrel is at the moment the shot leaves it (on their attack clip), as a
+   share of the body box: [ahead of centre toward the target, down from the top]. Every shot they
+   fire starts there, with fire and smoke at the muzzle (muzzleFlash). */
+const MUZZLE = { mara: [0.295, 0.317] };
+
+function muzzleFlash(at, d) {
+  if (reduced) return;
+  const arena = $('#arena');
+  const fire = document.createElement('div');
+  fire.className = 'muzzle-fire';
+  Object.assign(fire.style, { left: `${at.x}px`, top: `${at.y}px`, transform: `scaleX(${d})` });
+  fire.innerHTML = `<svg viewBox="0 0 34 22" aria-hidden="true">
+    <path d="M0 11 Q9 1 21 5 Q29 7 34 11 Q29 15 21 17 Q9 21 0 11 Z" fill="#ff7a22"/>
+    <path d="M0 11 Q7 5 16 7.5 Q22 9.5 25 11 Q22 12.5 16 14.5 Q7 17 0 11 Z" fill="#ffc24a"/>
+    <ellipse cx="5" cy="11" rx="6" ry="4.2" fill="#fff4cf"/></svg>`;
+  arena.appendChild(fire);
+  const ms = beat(260);
+  done(fire.firstElementChild.animate([{ transform: 'scale(.25)', opacity: 1 }, { transform: 'scale(1.15)', opacity: 1, offset: 0.3 },
+    { transform: 'scale(.85)', opacity: 0 }], { duration: ms, easing: 'ease-out', fill: 'forwards' }), ms).then(() => fire.remove());
+  // Powder smoke: a few puffs that roll out ahead of the barrel, swell, climb and thin away.
+  for (let i = 0; i < 4; i++) {
+    const puff = document.createElement('div');
+    puff.className = 'muzzle-smoke';
+    Object.assign(puff.style, { left: `${at.x + d * (4 + i * 3)}px`, top: `${at.y + (i % 2 ? 2 : -2)}px` });
+    arena.appendChild(puff);
+    const life = beat(1000 + i * 180);
+    done(puff.animate([{ transform: 'translate(0, 0) scale(.35)', opacity: 0.9 },
+      { transform: `translate(${d * (14 + i * 9)}px, ${-(8 + i * 7)}px) scale(${1.5 + i * 0.35})`, opacity: 0 }],
+      { duration: life, delay: beat(30 + i * 45), easing: 'ease-out', fill: 'both' }), life + beat(30 + i * 45)).then(() => puff.remove());
+  }
+}
+
 async function shoot(u, t, p) {
   const s = stageBox(u), e = stageBox(t);
   if (reduced || !s || !e) return;
   const d = facing(u);
-  const from = { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.45 };
+  const mz = MUZZLE[u.id];
+  const from = mz ? { x: s.x + d * s.w * mz[0], y: s.top + s.h * mz[1] } : { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.45 };
+  if (mz) muzzleFlash(from, d);
   const to = { x: e.x, y: e.top + e.h * 0.45 };
   if (p.kind === 'bolt') return zap(from, to);
   const el = document.createElement('div');
@@ -13368,6 +13426,16 @@ function renderBattle() {
     el.querySelector('.bar.hp .fill').style.width = `${(u.hp / u.maxHp) * 100}%`;
     el.querySelector('.bar.hp span').textContent = u.inert ? `${u.hp} / ${u.maxHp} blows` : `${u.hp} / ${u.maxHp}`;
     el.querySelector('.lvl').textContent = unitLevelText(u);
+    // Covering Fire countdown (Mara): turns left on the field until her free shot. 0 = it's owed, and
+    // goes off the moment she is free to take it (not frozen, coffined or bashed).
+    const dial = u.watch && el.querySelector('.watchdial');
+    if (dial) {
+      const left = Math.max(0, u.watch - (u.watchN || 0));
+      dial.querySelector('b').textContent = left;
+      dial.style.setProperty('--fill', `${Math.min(1, (u.watchN || 0) / u.watch) * 360}deg`);
+      dial.classList.toggle('ready', left <= 1);
+      dial.title = left ? `Covering Fire in ${left} turn${left === 1 ? '' : 's'}` : 'Covering Fire is owed: it fires as soon as she is free';
+    }
     el.classList.toggle('frozen', hardFrozen(u) || staggerStopped(u));
     const heat = el.querySelector('.bar.heat');
     if (heat) {
