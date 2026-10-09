@@ -897,6 +897,21 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @keyframes tvBeat { 15% { transform: scale(1.5); } 30% { transform: scale(1); } 45% { transform: scale(1.3); } 60% { transform: scale(1); } }
 @keyframes tvIn { from { opacity: 0; } }
 .burst-splash { width: 115%; background: radial-gradient(circle at 35% 35%, #fff 0 4%, transparent 5%), radial-gradient(circle at 66% 42%, #dff7ff 0 3%, transparent 4%), radial-gradient(circle, rgba(170, 235, 250, .85) 0 22%, rgba(63, 182, 216, .55) 44%, transparent 66%); animation-duration: .6s; }
+/* Stinging Jelly's shock (jellyShock): a quick blue-white electric crackle with a jagged bolt. */
+.burst-shock { width: 108%;
+  background: radial-gradient(circle at 42% 30%, #fff 0 3%, transparent 4%),
+              radial-gradient(circle at 62% 56%, #cdf3ff 0 3%, transparent 4%),
+              radial-gradient(circle at 30% 60%, #9fe3ff 0 2.5%, transparent 3.5%),
+              radial-gradient(circle, rgba(127, 227, 255, .8) 0 20%, rgba(74, 168, 255, .45) 42%, transparent 64%);
+  filter: drop-shadow(0 0 6px #7fe3ff); animation-duration: .42s;
+}
+.burst-shock::before {
+  content: ''; position: absolute; inset: 0; margin: auto; width: 34%; height: 86%;
+  background: linear-gradient(#ffffff, #7fe3ff);
+  clip-path: polygon(56% 0, 30% 46%, 49% 46%, 26% 100%, 70% 42%, 50% 42%, 70% 0);
+  filter: drop-shadow(0 0 4px #bfefff); animation: shockbolt .42s ease-out forwards;
+}
+@keyframes shockbolt { 0% { opacity: 0; transform: scaleY(.3); } 22% { opacity: 1; } 100% { opacity: 0; transform: scaleY(1.12); } }
 .burst {
   position: absolute; left: 50%; top: 50%; width: 110%; aspect-ratio: 1; border-radius: 50%;
   transform: translate(-50%, -50%); pointer-events: none; z-index: 3; animation: burst .7s ease-out forwards;
@@ -6051,8 +6066,12 @@ function jellyShock(jelly, host) {
   if (mw) d *= 1 - mw;
   d = Math.max(1, Math.round(d));
   host.hp = Math.max(0, host.hp - d);
+  // The jelly flares as it discharges, and a blue-white electric crackle snaps over its host.
+  pose(jelly, [{ filter: 'none', transform: 'scale(1)' },
+    { filter: 'brightness(1.9) drop-shadow(0 0 9px #7fe3ff)', transform: 'scale(1.14)', offset: 0.3 },
+    { filter: 'none', transform: 'scale(1)' }], 420);
   bump(host, 'hurt');
-  burst(host, 'splash');
+  burst(host, 'shock');
   float(host, `⚡ ${d}`, 'dot');
   log(`${host.name} is shocked by the jelly for ${d}.`, jelly.side);
   if (host.hp <= 0) fell(host, unitBy(jelly.owner) || jelly);
@@ -6364,12 +6383,17 @@ function settleAttachments() {
     const host = a.hp > 0 && unitBy(a.hostUid);
     const hel = host ? document.getElementById(`u-${host.uid}`) : null;
     if (hel) {
-      const over = a.attach === 'anchor' ? 0 : -hel.offsetHeight * 0.18;   // the jelly rides a little high
-      const dx = hel.offsetLeft + hel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2);
+      const anchor = a.attach === 'anchor';
+      // The Anchor is planted BEHIND the champion — shifted to their back (away from the way they face)
+      // and raised a little, so it reads as standing behind them rather than covering them. The Jelly
+      // rides high on the front. zIndex puts the anchor behind the host and the jelly in front.
+      const over = anchor ? 0 : -hel.offsetHeight * 0.18;
+      const back = anchor ? -facing(host) * hel.offsetWidth * 0.15 : 0;
+      const dx = hel.offsetLeft + hel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2) + back;
       const dy = hel.offsetTop - el.offsetTop + over;
       el.classList.add('attached');
       el.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
-      el.style.zIndex = (parseInt(hel.style.zIndex, 10) || 10) + (a.attach === 'anchor' ? 1 : 2);
+      el.style.zIndex = (parseInt(hel.style.zIndex, 10) || 10) + (anchor ? -1 : 2);
     } else if (el.classList.contains('attached')) {
       el.classList.remove('attached');
       el.style.translate = '';
@@ -11573,6 +11597,9 @@ function stageBox(u) {
 // Floating champions don't run: they take wing, climb high and dive onto the target,
 // leaning into the dive, then glide home along the same arc (dashBack reads it from trip).
 // pace < 1 shortens the run, for a flurry that leaps between enemies rather than charging once.
+// "123.4px -56.7px" → [123.4, -56.7]; "none"/empty → [0, 0]. For folding a dash into an attachment.
+const dashXY = (s) => { const p = String(s || '').split(/\s+/).map(parseFloat); return [Number.isFinite(p[0]) ? p[0] : 0, Number.isFinite(p[1]) ? p[1] : 0]; };
+
 async function dashTo(u, targets, pace = 1) {
   const el = actorEl(u), me = stageBox(u);
   const boxes = targets.map(stageBox).filter(Boolean);
@@ -11606,8 +11633,26 @@ async function dashTo(u, targets, pace = 1) {
   const anim = el.animate(
     [{ translate: from }, { translate: mid, offset: 0.5 }, { translate: end }],
     { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+  // Anything clamped onto this unit rides along with the dash — the same path, offset by the
+  // attachment's own resting position, so a Jelly or Anchor stays stuck to it as it runs in.
+  // (settleAttachments reads offsetLeft/Top, which ignore transforms, so it can't track a dash itself.)
+  const [fX, fY] = dashXY(from), [mX, mY] = dashXY(mid), [eX, eY] = dashXY(end);
+  const atts = [];
+  for (const a of allUnits()) {
+    if (!a.attach || a.hostUid !== u.uid || a.hp <= 0) continue;
+    const ael = actorEl(a);
+    if (!ael) continue;
+    const [rx, ry] = dashXY(getComputedStyle(ael).translate);
+    ael.style.zIndex = 201;
+    const fwd = ael.animate([
+      { translate: `${(rx + fX).toFixed(1)}px ${(ry + fY).toFixed(1)}px` },
+      { translate: `${(rx + mX).toFixed(1)}px ${(ry + mY).toFixed(1)}px`, offset: 0.5 },
+      { translate: `${(rx + eX).toFixed(1)}px ${(ry + eY).toFixed(1)}px` },
+    ], { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+    atts.push({ el: ael, rx, ry, fwd });
+  }
   await done(anim, ms);
-  return { anim, end, mid, fly };
+  return { anim, end, mid, fly, atts };
 }
 
 async function dashBack(u, trip) {
@@ -11619,9 +11664,19 @@ async function dashBack(u, trip) {
       ? [{ translate: trip.end }, { translate: trip.mid, offset: 0.5 }, { translate: '0 0' }]
       : [{ translate: trip.end }, { translate: '0 0' }], { duration: ms, easing: 'ease-out' });
     trip.anim.cancel();
+    // Bring the attachments home with the unit, then hand them back to settleAttachments.
+    const [eX, eY] = dashXY(trip.end), [mX, mY] = dashXY(trip.mid);
+    for (const { el: ael, rx, ry, fwd } of trip.atts || []) {
+      const b = ael.animate(trip.fly
+        ? [{ translate: `${(rx + eX).toFixed(1)}px ${(ry + eY).toFixed(1)}px` }, { translate: `${(rx + mX).toFixed(1)}px ${(ry + mY).toFixed(1)}px`, offset: 0.5 }, { translate: `${rx.toFixed(1)}px ${ry.toFixed(1)}px` }]
+        : [{ translate: `${(rx + eX).toFixed(1)}px ${(ry + eY).toFixed(1)}px` }, { translate: `${rx.toFixed(1)}px ${ry.toFixed(1)}px` }],
+        { duration: ms, easing: 'ease-out', fill: 'forwards' });
+      if (fwd) fwd.cancel();
+      b.finished.catch(() => {}).then(() => { b.cancel(); ael.style.zIndex = ''; });
+    }
     await done(back, ms);
   }
-  layoutSides();   // restores normal depth order
+  layoutSides();   // restores normal depth order; settleAttachments re-clamps the attachments
 }
 
 // Heroic: the guardian leaps from their place to stand just in front of the ally the blow is meant
