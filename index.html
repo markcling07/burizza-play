@@ -7353,6 +7353,10 @@ async function nextTurn() {
     if (await turnPulse() || token !== state.token || checkEnd()) return;
     await fleeWounded();   // a Covering Fire shot (or the like) may have left a minion ready to run
     if (token !== state.token || checkEnd()) return;
+    // Whatever came down at this Toll (Execute's torrent on its mark's turn, a Covering Fire shot,
+    // a Grudge Axe) may have killed - or sent running - the very unit whose turn it is. Then there is
+    // no turn: never start one for a corpse, whose turn-start regen would stand it back up.
+    if (u.hp <= 0 || !allUnits().includes(u)) { endTurn(u); continue; }
     const s = await beginTurn(u);
     if (token !== state.token || checkEnd()) return;
     await scrapBotRites();   // a burn or a toll may have left a bot on its last sparks
