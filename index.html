@@ -2302,10 +2302,10 @@ const xpToNext = (lv) => 60 + 40 * lv;               // Lv 1→2: 100 XP, 2→3:
 const XP_WIN_BASE = 35, XP_WIN_STEP = 10, XP_CLEAR_BONUS = 120, XP_LOSS = 15;
 const battleXp = (i) => XP_WIN_BASE + XP_WIN_STEP * i;   // i = battle index in the gauntlet, 0-based
 const heroLevel = () => profile.level || 1;
-// Every champion starts at Lv 5 - here and on the public play build (the GitHub Pages mirror) alike -
-// so a new warband already has some of its kit to try. A save still below it is lifted to it; a save
-// already past it keeps its level.
-const START_LEVEL = 5;
+// Every champion starts at Lv 15 - here and on the public play build (the GitHub Pages mirror) alike -
+// so a new warband has its whole kit from the first fight. A save still below it is lifted to it; a
+// save already past it keeps its level.
+const START_LEVEL = 15;
 if (profile.hero && heroLevel() < START_LEVEL) { profile.level = START_LEVEL; profile.xp = 0; }
 // Champion names show up inside HTML, so markup characters are never allowed in them.
 const cleanName = (s) => String(s || '').replace(/[<>&"'`]/g, '').trim().slice(0, 16);
@@ -4242,11 +4242,15 @@ const foeHas = (u, key) => foesOf(u).some((f) => pv(f)[key]);
    their own passive ('own'), their alternative own passive if they have one ('alt'), and the generic passives below.
    You pick your champion's loadout; recruits and enemies auto-pick.
    ================================================================== */
-const SLOT_UNLOCKS = [{ lv: 5, kind: 'act' }, { lv: 10, kind: 'pas' }, { lv: 15, kind: 'act' }];
-const activeSlots = (lv) => 2 + SLOT_UNLOCKS.filter((s) => s.kind === 'act' && lv >= s.lv).length;
-const passiveSlots = (lv) => 1 + SLOT_UNLOCKS.filter((s) => s.kind === 'pas' && lv >= s.lv).length;
-// a = first skill, b = ★ signature, c/d/e = the rest. Five to pick from, four slots at most,
-// so from Lv 15 the last one is a real choice rather than a formality.
+// Six active slots and two passive slots, for every champion at every level - nothing unlocks later.
+// (SLOT_UNLOCKS stays as the hook for slots that open with level; it is empty now. The lv argument is
+// kept so callers needn't change if levels ever gate slots again.)
+const ACTIVE_SLOTS = 6, PASSIVE_SLOTS = 2;
+const SLOT_UNLOCKS = [];
+const activeSlots = (lv) => ACTIVE_SLOTS + SLOT_UNLOCKS.filter((s) => s.kind === 'act' && lv >= s.lv).length;
+const passiveSlots = (lv) => PASSIVE_SLOTS + SLOT_UNLOCKS.filter((s) => s.kind === 'pas' && lv >= s.lv).length;
+// a = first skill, b = ★ signature, c/d/e = the rest. With six slots a champion's five all fit, with
+// room for a sixth skill or a neutral technique.
 // A champion may carry a sixth, 'f' (Malgrath's Blood Pact, Morwenna's Blood Ward); it widens the
 // pool to choose from without widening the slots. activeIdsOf is the pool for a given champion —
 // use it rather than ACTIVE_IDS wherever the champion is known.
@@ -4339,17 +4343,16 @@ function grandfatherTraining() {
   saveProfile();
 }
 
-// Recruits and enemies: skill, ★ signature, then second skill as slots allow; their own passive,
-// plus a role-fitting generic once a second passive slot opens.
+// Recruits and enemies: their skills in pool order as the slots allow; their own passive, plus a
+// role-fitting generic once a second passive slot opens.
 function autoLoadout(c, lv) {
   const pas = ['own'];
   if (passiveSlots(lv) > 1) pas.push(c.role === 'melee' ? 'toughness' : c.role === 'ranged' ? 'keenedge' : MANA.pool[c.faction] ? 'deepwell' : 'secondwind');
-  // A sixth skill would never be reached by taking the pool in order, so for the champions who
-  // carry one it takes the last slot. Otherwise only your own hero would ever bring it to a fight.
-  const act = ACTIVE_IDS.slice(0, activeSlots(lv));
-  if (c.skills[5] && act.length > 2) act[act.length - 1] = SIXTH_ID;
-  // ...and a seventh (Barrow's Burrow) takes the slot before it once a fourth slot opens.
-  if (c.skills[6] && act.length > 3) act[act.length - 2] = EXTRA_IDS[1];
+  // More skills than slots (Barrow's seven): the extras still come, in place of the last basics,
+  // so an AI-run champion brings every kind of skill it has to a fight.
+  const n = activeSlots(lv), pool = activeIdsOf(c);
+  const act = pool.slice(0, n);
+  pool.slice(n).forEach((id, i) => { if (n - 2 - i > 1) act[n - 2 - i] = id; });
   return { act, pas };
 }
 
@@ -9751,7 +9754,7 @@ function renderSkills() {
       <span>${i === 0 ? heroName() : shortName(charById(id))}</span></button>`).join('')}</div>`;
   $('#skillsBody').innerHTML = `${whoRow}
     <section class="lsec">
-      <header><h2>Active skills</h2><p class="rule">Click a skill to equip or unequip it. More slots open at levels ${SLOT_UNLOCKS.filter((s) => s.kind === 'act').map((s) => s.lv).join(' and ')}.</p></header>
+      <header><h2>Active skills</h2><p class="rule">Click a skill to equip or unequip it. ${activeSlots(heroLevel())} slots.${SLOT_UNLOCKS.some((s) => s.kind === 'act') ? ` More open at levels ${SLOT_UNLOCKS.filter((s) => s.kind === 'act').map((s) => s.lv).join(' and ')}.` : ''}</p></header>
       ${slotRowHTML(c, 'act', lo.act)}
       <div class="lpool">${activeIdsOf(c).map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
     </section>
@@ -9760,7 +9763,7 @@ function renderSkills() {
       <div class="lpool">${NEUTRAL_KEYS.map((id) => loadoutCardHTML(c, 'act', id, lo.act.includes(id))).join('')}</div>
     </section>` : ''}
     <section class="lsec">
-      <header><h2>Passives</h2><p class="rule">${mine ? "Your champion's own passive, or a learned one from the Training Yard." : `${shortName(c)}'s own passive, or one of the general passives.`} A second passive slot opens at level ${SLOT_UNLOCKS.find((s) => s.kind === 'pas').lv}.</p></header>
+      <header><h2>Passives</h2><p class="rule">${mine ? "Your champion's own passive, or a learned one from the Training Yard." : `${shortName(c)}'s own passive, or one of the general passives.`} ${passiveSlots(heroLevel())} slots.${SLOT_UNLOCKS.some((s) => s.kind === 'pas') ? ` Another opens at level ${SLOT_UNLOCKS.find((s) => s.kind === 'pas').lv}.` : ''}</p></header>
       ${slotRowHTML(c, 'pas', lo.pas)}
       <div class="lpool">${passivePool(c).map((id) => loadoutCardHTML(c, 'pas', id, lo.pas.includes(id))).join('')}</div>
     </section>`;
@@ -14566,6 +14569,7 @@ function start(data) {
   syncTeam();
   grandfatherTraining();   // saves from before the yard opened keep the techniques they already carry
   rackIllegalWeapons();    // saves from before weapons were faction-cut hand back what no longer fits
+  fillNewSlots(heroLevel());   // saves from before six-and-two slots fill the ones that are now open
   if (!profile.hero) { state.team = []; state.screen = 'select'; }
   render();
 }
