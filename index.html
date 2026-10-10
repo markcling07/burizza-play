@@ -497,7 +497,9 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
    = -half its height centres it vertically (independent of track height), and translateX nudges it
    onto the gate centre. The sword & shield behind is covered by the portrait. */
 .tok.acting { left: 100%; top: 50%; bottom: auto; margin-top: -20px; z-index: 4; transform: translateX(23px) scale(1.05); }
+.tok.e.acting { top: auto; bottom: 10px; margin-top: 0; }
 .tok.summon.acting { margin-top: -16px; }
+.tok.e.summon.acting { margin-top: 0; bottom: 8px; }
 .tok.acting .face { box-shadow: 0 0 0 3px var(--accent), 0 0 14px var(--accent); }
 .tok.down { display: none; }
 
@@ -647,9 +649,17 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
   position: absolute; left: calc(var(--x, 50) * 1%); top: calc(var(--y, 90) * 1%);
   transform: translate(-50%, -100%);
   width: calc(var(--size) * 1.2); display: flex; flex-direction: column; align-items: center; gap: 2px;
-  pointer-events: auto; transition: left .5s ease, top .5s ease;
+  pointer-events: none; transition: left .5s ease, top .5s ease;   /* only what is drawn is hit (see HIT BOXES) */
 }
 .unit.summon { --size: clamp(44px, 9.5cqw, 110px); }
+/* HIT BOXES. A unit's own box is wider than anything drawn in it (1.2 x --size, with gaps around the
+   plate and the figure), and with eight fighters plus summons on the field those boxes overlap. So the
+   box itself lets clicks through and only what is drawn catches them: the status chips, the plate and
+   the figure. While you pick a target (body.picking), anyone who is not a valid target lets clicks
+   through entirely - an Anchor or Jelly clamped onto your ally sits under that ally's figure, and it
+   must be the Anchor the tap finds. */
+.unit:not(.fleeing):not(.running) > :is(.chips, .plate, .body) { pointer-events: auto; }
+body.picking .unit:not(.targetable) > :is(.chips, .plate, .body) { pointer-events: none; }
 /* Dungeon chase: a wounded monster turns tail and runs off the right edge; then the warband runs after it. */
 .unit.fleeing { transition: left 1s ease-in, opacity .7s ease-in .3s; opacity: 0; pointer-events: none; }
 .unit.e.fleeing .upic svg, .unit.e.fleeing .upic img { transform: none; }
@@ -883,6 +893,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   background: linear-gradient(90deg, rgba(220, 228, 242, 0), rgba(235, 240, 250, .75)); }
 /* Muzzle fire and smoke at the barrel of a gun (muzzleFlash): a wrapper flipped to face the shot, the
    flame inside it, and loose puffs of powder smoke. */
+.ricospark { position: absolute; z-index: 252; width: 40px; height: 40px; margin: -20px 0 0 -20px; pointer-events: none; }
+.ricospark svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 0 4px rgba(255, 230, 160, .9)); }
 .muzzle-fire { position: absolute; z-index: 252; width: 34px; height: 22px; margin-top: -11px; transform-origin: 0 50%; pointer-events: none; }
 .muzzle-fire svg { width: 100%; height: 100%; display: block; overflow: visible; transform-origin: 0 50%; filter: drop-shadow(0 0 6px rgba(255, 170, 60, .9)); }
 .muzzle-smoke { position: absolute; z-index: 251; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; pointer-events: none;
@@ -967,6 +979,17 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .bolt.rite path.rt-core { stroke: #ff7a88; stroke-width: 4.5; filter: drop-shadow(0 0 6px #ff2a3e); }
 .bolt.rite polygon { stroke: none; }
 .bolt.rite polygon.rt-glow { fill: rgba(150, 12, 34, .35); filter: blur(5px); }
+/* Execute's blood, hanging over the mark until it comes down, two Tolls on (bloodCloud). */
+.bloodcloud { position: absolute; z-index: 238; aspect-ratio: 2.4; transform: translate(-50%, 0); pointer-events: none;
+  border-radius: 50%; background: radial-gradient(closest-side, rgba(150, 10, 28, .95), rgba(110, 8, 22, .8) 55%, rgba(90, 6, 18, 0));
+  filter: drop-shadow(0 0 10px rgba(220, 30, 50, .65)); animation: cloudChurn 1.6s ease-in-out infinite; }
+@keyframes cloudChurn { 50% { filter: drop-shadow(0 0 16px rgba(240, 40, 60, .85)) brightness(1.15); scale: 1.06 .94; } }
+.bloodcloud i { position: absolute; top: 62%; width: 4px; height: 6px; border-radius: 50% 50% 50% 50% / 35% 35% 65% 65%;
+  background: #b8142a; animation: cloudDrip 1.1s ease-in infinite; }
+.bloodcloud i:nth-child(1) { left: 30%; }
+.bloodcloud i:nth-child(2) { left: 52%; animation-delay: .4s; }
+.bloodcloud i:nth-child(3) { left: 70%; animation-delay: .75s; }
+@keyframes cloudDrip { from { transform: translateY(0); opacity: 1; } to { transform: translateY(26px); opacity: 0; } }
 .bolt.rite polygon.rt-body { fill: rgba(196, 20, 40, .72); }
 .bolt.rite polygon.rt-core { fill: rgba(255, 176, 186, .92); filter: drop-shadow(0 0 10px #ff2a3e); }
 .bolt.rite .rt-drop { fill: #d0182c; stroke: #4a0a14; stroke-width: 1; }
@@ -1047,6 +1070,13 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .burst-roar { border: 3px solid rgba(240, 100, 90, .85); animation-name: ring; }
 /* Second Burial: grave-light pulsing over the body, and the risen's green-lit eyes (raiseRitual). */
 /* Grave Cross: the cone of green light from Mordrek's lifted cross onto the enemy (graveShine). */
+/* Mara's laser sight (laserSight): a red hairline from the muzzle to her mark's head, with a dot where it lands. */
+.lasersight { position: absolute; z-index: 245; height: 1px; margin-top: -.5px; transform-origin: 0 50%; pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 70, 70, .15), rgba(255, 70, 70, .85) 12%, rgba(255, 95, 95, .95));
+  box-shadow: 0 0 3px rgba(255, 40, 40, .75); animation: laserHum 1.4s ease-in-out infinite; }
+.lasersight i { position: absolute; right: -2.5px; top: -2px; width: 5px; height: 5px; border-radius: 50%;
+  background: #ff6a6a; box-shadow: 0 0 5px 2px rgba(255, 50, 50, .8); }
+@keyframes laserHum { 50% { opacity: .7; } }
 .graveshine { position: absolute; z-index: 240; pointer-events: none; transform-origin: 0 50%; mix-blend-mode: screen; opacity: 0; }
 .graveshine::before { content: ''; position: absolute; inset: 0; clip-path: polygon(0 44%, 100% 0, 100% 100%, 0 56%); filter: blur(1.5px);
   background: linear-gradient(90deg, rgba(225, 255, 230, .95), rgba(126, 230, 150, .7) 35%, rgba(90, 210, 125, .35) 75%, rgba(90, 210, 125, 0)); }
@@ -1140,6 +1170,10 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 /* Anchors / Jellies (settleAttachments) are carried onto their host's slot. */
 .unit.attached { transition: none; }
+/* The Anchor's chain (syncAnchorChains): dark-edged iron links, behind every figure on the field. */
+.chains { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
+.chains .cl-face { fill: none; stroke: #9fb0ba; stroke-width: 1.5; paint-order: stroke; filter: drop-shadow(0 0 1px #1d2130) drop-shadow(0 1px 0 #1d2130); }
+.chains .cl-edge { fill: #7d8c96; stroke: #1d2130; stroke-width: .8; }
 /* Power Slash (skill option `slash`, slashFx): a great crescent carved across the struck
    target. The sweep animates `transform: rotate`; the mirror for enemy-side attackers is the
    `scale` property, so the two compose instead of fighting. */
@@ -2363,6 +2397,7 @@ const FX = {
   patchrig: { icon: '🔧', label: 'Patch Rig', kind: 'good', verb: 'carries Patchwork bolted to their back, mending them as the turns pass' },
   toll:     { icon: '😈', label: 'Infernal Toll', kind: 'bad', verb: 'is marked by Infernal Toll: its next skill also costs 5% of its HP' },
   exposed:  { icon: '🎯', label: 'Exposed',   kind: 'bad',  verb: 'is exposed: takes 25% more damage' },
+  aiming:   { icon: '🔭', label: 'Taking aim', kind: 'good', verb: 'takes aim' },
   shield:   { icon: '🛡️', label: 'Shielded',  kind: 'good', verb: 'is shielded' },
   ward:     { icon: '🔰', label: 'Spirit Ward', kind: 'good', verb: 'is wrapped in a Spirit Ward' },
   guard:    { icon: '🪖', label: 'Guarding',  kind: 'good', verb: 'braces for impact' },
@@ -2388,7 +2423,7 @@ const FX = {
   // reach them, though area attacks and ranged shots still find them. The wall holds both ways —
   // a melee ally so fenced cannot swing out past it, while a ranged ally fires over it freely.
   // Counted in the owner's own turns like any ward (see validTargets and usable).
-  protected: { icon: '🪦', label: 'Protected', kind: 'good', verb: 'stands behind a graveyard fence: no melee blow reaches them, though area attacks and ranged shots still do' },
+  protected: { icon: '🪦', label: 'Protected', kind: 'good', verb: 'stands behind a graveyard fence: no melee blow reaches them and straight shots glance off, though area attacks and anything lobbed from above still land' },
   // BASH and FEAR are counted on the field's global clock — in Tolls (any unit's turn-start, see
   // THE TURN PULSE), not the owner's own turns. BASH holds the unit off the speed bar outright;
   // FEAR only shoves it back a little, so it still acts, just later.
@@ -2541,7 +2576,7 @@ const ROSTER = [
     look: { body: 'mech', main: '#a39a86', trim: '#8be28b', weapon: 'wrench' },
     nature: { name: 'Oil Can', desc: 'Every mend he gives also vents 15 Heat from an Ironclad ally — or drips 5 MP into anyone else.', oilcan: 1 },
     skills: [H('Field Weld', 'Heal an ally and shield them until their next turn.', 2, 3.0, { fx: [['shield', 1]] }),
-             S('Assemble Scrapbot', 'Build a Scrapbot turret that fights on its own for 3 rounds.', 5, 'scrapbot'),
+             S('Assemble Scrapbot', 'Build a Scrapbot turret that fights on its own for 3 rounds. If it is brought to 25% HP, it gives the rest of itself to your most wounded ally.', 5, 'scrapbot'),
              B('Overclock', 'An ally deals 30% more damage for 2 turns and their cooldowns drop by 1.', 4, 'ally', [['empower', 3]], { reduceCd: true }),
              H('Jury Rig', 'Patch an ally with scrap: a heal, then they regenerate for 3 turns.', 3, 2.2, { fx: [['regen', 3, 0.7]] }),
              B('Coolant Flush', 'Clear an ally\'s debuffs; they resist new ones for 2 turns. Vents 50 Heat.', 4, 'ally', [['immune', 3]], { cleanse: true, heat: -50, aiTarget: 'debuffed' }),
@@ -2636,7 +2671,7 @@ const ROSTER = [
     nature: { name: 'Covering Fire', desc: 'Every five turns taken on the field — friend or foe — she snaps off a free shot at a random enemy, taunters first.' },
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#c68f6a', hair: '#5a3520', weapon: 'gun' },
     skills: [D('Aimed Shot', '140% shot, +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
-             D('Powder Shot', '220% shot, +50% crit chance.', 4, 2.2, { critBonus: 0.5 }),
+             D('Powder Shot', 'Mara takes aim: 2 Tolls later the shot goes off on its own, whoever\'s turn it is — 220%, +70% crit chance. While she aims she is Exposed, and her Covering Fire holds. A Silence, stun or bash breaks her aim and the shot is lost. A mark that has gone to ground or into a coffin is simply not there, and a graveyard fence turns the round aside.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
              D('Ricochet', '90% shot that ricochets into another enemy for 60%.', 3, 0.9, { bounce: 0.6 }),
              D('Pistol Whip', '100% hit with a 40% chance to Stagger.', 2, 1.0, { chanceFx: [['stagger', 1, 0.4]] }),
              D('Volley Fire', '55% to all enemies, +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 })],
@@ -2777,7 +2812,7 @@ const ROSTER = [
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
-             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP, then hurls all of it at one enemy as a single Magic blow. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
+             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two Tolls later it comes down on them as a single Magic blow that cannot miss and ignores armor - sooner if their own turn comes first, before they can act. Only a mark that has gone to ground or into a coffin escapes it - a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
              D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
@@ -2846,7 +2881,7 @@ const ROSTER = [
              D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
              D('Crypt Breaker', '155% blow that ignores armor.', 3, 1.55, { pierce: true }),
              B('Hold the Grave', 'Set his feet: thorns and a shield for 2 turns.', 4, 'self', [['thorns', 3], ['shield', 2]]),
-             B('Graveyard Fence', 'Raise an iron graveyard fence before an ally champion: they are Protected for 2 turns. No melee blow can reach them — though area attacks and ranged shots still do. The wall holds both ways: a melee ally fenced in cannot swing out past it, while a ranged ally fires over it freely, and any ally can still cast and Guard. The fence is no unit of its own.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' }),
+             B('Graveyard Fence', 'Raise an iron graveyard fence before an ally champion: they are Protected for 2 turns. No melee blow can reach them, and every shot fired straight at them — arrows, bullets, bolts, thrown blades, spell-bolts — glances off the iron. Area attacks still land, and so does anything that comes down from above: a lobbed shell or pot, an arching skull, a cross from the sky. The wall holds both ways: a melee ally fenced in cannot swing out past it, while a ranged ally fires over it freely, and any ally can still cast and Guard. The fence is no unit of its own.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' }),
              { name: 'Burrow', desc: 'Barrow buries himself in the grave-dirt for 1 round, holding his place on the speed bar: nothing can target him, and area attacks pass over him. He climbs back out when the round is up.', cd: 5, kind: 'burrow', target: 'self', o: {} }],
     passive: P('Feast of the Fallen', 'Whenever anything on the field dies, friend or foe, he drinks 15% of his current HP. The grave feeds him directly, so the Pale Host\'s halved mending does not touch it.', { deathHeal: 0.15 }) },
   { id: 'cadris', name: 'Cadris Gravecall', short: 'Cadris', faction: 'undead', role: 'ranged', bio: 'Raises what the road leaves behind, and spends it freely.',
@@ -2924,7 +2959,7 @@ const SUMMONS = {
   },
   scrapbot: {
     name: 'Scrapbot', role: 'ranged', life: 300,
-    desc: 'Rivet-gun turret. Fights on its own and falls apart after 3 rounds.',
+    desc: 'Rivet-gun turret. Fights on its own and falls apart after 3 rounds. Brought to 25% HP or less, it drags itself to the lowest-HP ally at once and gives them the rest of its HP.',
     look: { body: 'bot', main: '#a39a86', trim: '#8be28b' },
     leave: (u) => `${u.name} falls apart.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.55), atk: Math.round(o.atk * 1.3), def: o.def, agi: 12, crit: 0.08, dodge: 0 }),
@@ -2964,7 +2999,7 @@ const SUMMONS = {
   // Left behind when an Ironclad champion is destroyed (see spawnDeathBot / sweepDeathBots).
   deathbot: {
     name: 'Salvage Bot', role: 'melee', life: null,
-    desc: 'Scrap that crawls out of a fallen Mech. Fights on its own until it is destroyed.',
+    desc: 'Scrap that crawls out of a fallen Mech. Fights on its own until it is destroyed. Brought to 25% HP or less, it drags itself to the lowest-HP ally at once and gives them the rest of its HP.',
     look: { body: 'bot', main: '#8a8172', trim: '#ff8a3d' },
     leave: (u) => `${u.name} finally falls apart.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.5), atk: Math.round(o.atk * 1.1), def: o.def, agi: 11, crit: 0.08, dodge: 0 }),
@@ -4512,11 +4547,13 @@ function validTargets(u, sk) {
   // openAllies, so area attacks and mass blessings still reach him — only single targeting skips him.
   if (sk.target === 'enemy') {
     const foes = singleFoes(u);
-    // Graveyard Fence: an iron fence only turns aside a MELEE attacker closing in (not a hurled
-    // or gust skill, which come over the top). A ranged attacker shoots clean over it, so it is
-    // no wall to them. Whenever every option is walled, a cornered attacker breaks through rather
-    // than deadlock — the same soft fallback the front line uses.
-    const meleeAtk = u.role === 'melee' && !sk.o?.hurl && !sk.o?.gust;
+    // Graveyard Fence: an iron fence turns aside a MELEE attacker closing in (not a hurled or gust
+    // skill, which come over the top). A ranged attacker may still aim at whoever stands behind it,
+    // but a straight shot glances off the iron (fenceStops, in damageSkill) - so the AI looks for an
+    // open mark first (aiChoose). Whenever every option is walled, a cornered melee attacker breaks
+    // through rather than deadlock — the same soft fallback the front line uses.
+    // Vesper's Execute is no run-in either: the blood comes down on them as a torrent from above.
+    const meleeAtk = u.role === 'melee' && !sk.o?.hurl && !sk.o?.gust && sk.kind !== 'execute';
     const reachable = (list) => {
       if (!meleeAtk) return list;
       const open = list.filter((f) => !has(f, 'protected'));
@@ -5137,13 +5174,191 @@ async function executeSkill(u, t, sk) {
   }
   render();
   await bloodGather(u, takes.map(([a]) => a));
-  log(`${u.name} gathers ${pool} HP of blood from the warband and drives it into ${t.name}.`, u.side);
   await bloodPillar(u);
-  await bloodTorrent(t);   // returns as the torrent strikes; the blow lands with it
-  strikeOnce(u, t, pool / Math.max(1, u.atk), 'Execute', { magic: true, noDodge: true, pierce: true });
-  burst(t, 'blood');
+  // The blood is in the sky now. It gathers over the mark and comes down two Tolls later (executeFalls).
+  u.bloodRite = { tolls: 2, target: t.uid, pool };
+  bloodCloud(u);
+  float(t, '🩸 Marked', 'fx');
+  log(`${u.name} throws ${pool} HP of the warband's blood into the sky over ${t.name}. It comes down in 2 Tolls, or as their turn comes.`, u.side);
   render();
   await wait(420);
+}
+
+/* Two Tolls on: the blood comes down. It cannot miss (no dodge, armor ignored) and a graveyard fence
+   is no roof - but a mark that has gone to ground or into a coffin is not there to be hit, and the
+   torrent pours onto the mound or the lid. If the mark has fallen meanwhile it finds another enemy
+   (taunters first); the blood is already in the sky, so it falls even if Vesper has fallen too. */
+async function executeFalls(u) {
+  const { target, pool } = u.bloodRite;
+  u.bloodRite = null;   // the cloud lifts off with it (bloodCloud watches for this)
+  let t = unitBy(target);
+  if (!t || t.hp <= 0) {
+    const opts = validTargets(u, { target: 'enemy', kind: 'execute' });
+    t = opts.length ? pick(opts) : null;
+    if (!t) { log(`${u.name}'s blood comes down on an empty field.`, u.side); render(); return; }
+  }
+  await bloodTorrent(t);   // the blow lands only once the torrent has reached them
+  if (outOfReach(t)) {
+    float(t, 'Hidden', 'miss');
+    log(`${u.name}'s Execute pours down on ${buried(t) ? 'the grave mound' : 'the coffin lid'} — ${t.name} is out of its reach.`, u.side);
+  } else {
+    log(`${u.name}'s blood comes down on ${t.name}!`, u.side);
+    strikeOnce(u, t, pool / Math.max(1, u.atk), 'Execute', { magic: true, noDodge: true, pierce: true });
+    burst(t, 'blood');
+  }
+  render();
+  await wait(420);
+}
+
+/* The thrown blood, waiting: a churning red cloud up in the sky at the top of the field, dripping,
+   kept right above the mark (it follows them round the field) until it comes down as the torrent,
+   which pours from that same top edge (bloodTorrent) - or until the battle is gone. */
+function bloodCloud(u) {
+  if (reduced) return;
+  const el = document.createElement('div');
+  el.className = 'bloodcloud';
+  el.innerHTML = '<i></i><i></i><i></i>';
+  $('#arena').appendChild(el);
+  el.animate([{ opacity: 0, transform: 'translate(-50%, -30%) scale(.5)' }, { opacity: 1, transform: 'translate(-50%, 0) scale(1)' }],
+    { duration: beat(500), easing: 'ease-out' });
+  const tick = () => {
+    if (!u.bloodRite || !state.teams[u.side].includes(u)) { el.remove(); return; }
+    const t = unitBy(u.bloodRite.target), b = t && t.hp > 0 && stageBox(t);
+    if (b) Object.assign(el.style, { visibility: 'visible', left: `${b.x}px`, top: '-8px', width: `${b.w * 1.5}px` });   // hanging from the top of the sky, over them
+    else el.style.visibility = 'hidden';
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// POWDER SHOT — Mara shoulders the musket and waits for the moment. takeAim is the cast: no shot yet,
+// just the aim (u.aimShot, counted down in turnPulse) and the price of standing still to take it:
+// Exposed, and Covering Fire held, until it goes off. fireAim lets it off at whoever it was aimed at,
+// or, if they have fallen, at whoever the targeting law now allows.
+async function takeAim(u, t, sk) {
+  // The cast is the loading: musket up, charge rammed home. No shot yet (mara-load).
+  const load = playClip(u, 'load');
+  if (load) await sleep(load.ms * 0.95); else await castPose(u);
+  u.aimShot = { tolls: sk.o.aim, target: t?.uid, sk };
+  addFx(u, 'aiming', 99, 0, true);
+  addFx(u, 'exposed', 99);
+  float(u, '🔭 Taking aim', 'fx');
+  log(`${u.name} takes aim at ${t ? t.name : 'the enemy'} — the ${sk.name} goes off in ${sk.o.aim} Tolls.`, u.side);
+  render();
+  await wait(300);
+}
+// The first Toll: she shoulders the musket and holds it on her mark (mara-aim, looping) until it goes off.
+async function raiseAim(u) {
+  u.aimShot.raised = true;
+  holdClip(u, 'aim');
+  laserSight(u);
+  const tg = unitBy(u.aimShot.target);
+  float(u, '🔭 Aiming', 'fx');
+  log(`${u.name} shoulders the musket and draws a bead on ${tg && tg.hp > 0 ? tg.name : 'the enemy'}.`, u.side);
+  render();
+  await wait(450);
+}
+/* The laser sight: a hairline from the muzzle of the shouldered musket to the target's head, from the
+   first Toll until the shot (or the aim is dropped). Redrawn every frame, so it stays on them when
+   either of them is knocked about or runs. AIM_MUZZLE = the barrel tip in her held aim pose (the
+   mara-aim clip), as a share of the body box: [ahead of centre, down from the top]. */
+const AIM_MUZZLE = { mara: [0.437, 0.528] };
+function laserSight(u) {
+  u.laserEl?.remove();
+  if (reduced || !AIM_MUZZLE[u.id]) return;
+  const el = document.createElement('div');
+  el.className = 'lasersight';
+  el.innerHTML = '<i></i>';
+  $('#arena').appendChild(el);
+  u.laserEl = el;
+  el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: beat(300) });
+  const [mx, my] = AIM_MUZZLE[u.id], d = facing(u);
+  const tick = () => {
+    if (u.laserEl !== el || !u.aimShot || u.hp <= 0 || !state.teams[u.side].includes(u)) { el.remove(); return; }
+    const t = unitBy(u.aimShot.target), a = stageBox(u), b = t && t.hp > 0 && stageBox(t);
+    if (a && b) {
+      const from = { x: a.x + d * a.w * mx, y: a.top + a.h * my }, to = { x: b.x, y: b.top + b.h * 0.3 };   // the head
+      Object.assign(el.style, { visibility: 'visible', left: `${from.x}px`, top: `${from.y}px`,
+        width: `${Math.hypot(to.x - from.x, to.y - from.y)}px`, transform: `rotate(${Math.atan2(to.y - from.y, to.x - from.x)}rad)` });
+    } else el.style.visibility = 'hidden';   // her mark is down: the shot will find whoever the law allows
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+function clearAim(u) {
+  u.laserEl?.remove();
+  u.laserEl = null;
+  holdClip(u, null);   // back to her idle loop (the shot clip, if one plays, hands back to it too)
+  u.aimShot = null;
+  u.effects = u.effects.filter((e) => e.id !== 'aiming' && !(e.id === 'exposed' && e.turns >= 99));
+}
+async function fireAim(u) {
+  const { target, sk } = u.aimShot;
+  clearAim(u);
+  const first = unitBy(target);
+  // Her mark is still standing but out of sight: under the earth (Burrow) or shut in Mortessa's
+  // coffin. The shot goes off at where they were and finds nothing - it flies on over the spot.
+  // It does not go looking for someone else: she was aiming at them.
+  if (first && first.hp > 0 && outOfReach(first)) {
+    float(u, `${sk.name}!`, 'fx');
+    await powderShotFires(u, first, sk, { endAt: (e, to, from) => ({ x: from.x + (to.x - from.x) * 1.7, y: from.y + (to.y - from.y) * 1.7 }) });
+    float(first, 'Hidden', 'miss');
+    log(`${u.name}'s ${sk.name} goes off — but ${first.name} is ${buried(first) ? 'under the earth' : 'sealed in the coffin'}, and the shot finds nothing.`, u.side);
+    render();
+    await wait(320);
+    return;
+  }
+  // Behind Barrow's Graveyard Fence: the iron railing takes the round, and it sparks off and whines away.
+  if (first && first.hp > 0 && has(first, 'protected')) {
+    float(u, `${sk.name}!`, 'fx');
+    await powderShotWindup(u);
+    await fenceDeflect(u, first, sk.name, projectileFor(u, sk));
+    render();
+    await wait(320);
+    return;
+  }
+  const opts = validTargets(u, { target: 'enemy' });
+  const tg = first && first.hp > 0 && opts.includes(first) ? first : opts.length ? pick(opts) : null;
+  if (!tg) { log(`${u.name} lowers the musket — nothing left to shoot.`, u.side); render(); return; }
+  float(u, `${sk.name}!`, 'fx');
+  log(`${u.name}'s ${sk.name} goes off at ${tg.name}!`, u.side);
+  markAttacked(tg);
+  await powderShotFires(u, tg, sk);
+  strikeOnce(u, tg, sk.mult, sk.name, sk.o || {});
+  render();
+  await wait(320);
+}
+
+/* GRAVEYARD FENCE vs. RANGED: a shot fired straight at a fenced champion strikes the iron and glances
+   off - arrows, bullets, bolts, thrown blades and spell-bolts alike, a basic Attack or a skill. Area
+   attacks still land, and so does anything that comes down from above: a lobbed or arching round
+   (proj.arc), a hurled skill (Last Rites), a gust or a wave. A melee attacker never gets this far
+   (validTargets keeps it off a fenced mark). p = the projectile the shot would fly as. */
+const fenceStops = (u, sk, p, t) => !!t && t.hp > 0 && has(t, 'protected') && u.role !== 'melee' && sk.target === 'enemy'
+  && !sk.o?.hurl && !sk.o?.gust && !sk.o?.watersweep && !p?.arc;
+// Where the fence stands: on the side of the target facing the shooter, just short of them.
+const FENCE_STOP = (e, to, from) => ({ x: e.x - Math.sign(e.x - from.x) * e.w * 0.42 });
+async function fenceDeflect(u, t, label, p) {
+  await shoot(u, t, { ...p, endAt: FENCE_STOP, impact: null });
+  const b = stageBox(t), a = stageBox(p.bounceFrom || u);
+  if (b && a) {
+    const dir = Math.sign(b.x - a.x) || 1;
+    ricochetSpark({ x: b.x - dir * b.w * 0.42, y: b.top + b.h * 0.45 }, Math.atan2(-0.9, -dir));
+  }
+  float(t, 'Deflected', 'miss');
+  log(`${u.name}'s ${label} glances off the graveyard fence before ${t.name}.`, u.side);
+}
+
+// The second Toll: fired from the held aim (mara-shot starts on the aim pose), not a fresh raise.
+async function powderShotWindup(u) {
+  const shot = playClip(u, 'shot');
+  if (shot) await sleep(shot.hitMs ?? 0); else await aimPose(u);
+}
+// extra = shoot() options for a shot that cannot land (endAt); such a round leaves no impact burst.
+async function powderShotFires(u, t, sk, extra = null) {
+  await powderShotWindup(u);
+  const p = projectileFor(u, sk);
+  await shoot(u, t, extra ? { ...p, ...extra, impact: null } : p);
 }
 
 async function damageSkill(u, t, sk) {
@@ -5257,7 +5472,10 @@ async function damageSkill(u, t, sk) {
       if (melee) await strikePose(u, false, sk, 1, tg);
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
-      else if (!o.watersweep && !o.gust && targets.length === 1) await shoot(u, tg, proj);
+      else if (!o.watersweep && !o.gust && targets.length === 1) {
+        if (fenceStops(u, sk, proj, tg)) { await fenceDeflect(u, tg, sk.name, proj); continue; }   // the iron takes it
+        await shoot(u, tg, proj);
+      }
       if (o.slash && melee) slashFx(tg, facing(u));
       await hitOnce(tg, sk.mult);
     }
@@ -5275,8 +5493,10 @@ async function damageSkill(u, t, sk) {
         log(`${u.name} wheels on ${tg.name} and swings again!`, u.side);
         trip = (await dashTo(u, [tg])) || trip;
         await strikePose(u, true, sk);   // fresh: the attack clip restarts for the second swing
-      } else await shoot(u, tg, proj);
-      await hitOnce(tg, sk.mult * o.bounce);
+      } else if (fenceStops(u, sk, proj, tg)) {
+        await fenceDeflect(u, tg, sk.name, { ...proj, bounceFrom: targets[0] });   // it glances on, and off the fence
+      } else await shoot(u, tg, { ...proj, bounceFrom: targets[0] });   // the same round, glancing on: not a second shot
+      if (melee || !fenceStops(u, sk, proj, tg)) await hitOnce(tg, sk.mult * o.bounce);
     }
   }
   // Arc Transfer (Arclight's Nature): lightning into a Soaked body finds a second path to ground.
@@ -5349,8 +5569,8 @@ async function damageSkill(u, t, sk) {
       log(melee ? `${u.name} keeps swinging: a second strike!` : `${u.name} looses a second shot!`, u.side);
       await wait(200);
       if (melee) await strikePose(u, true, sk);
-      else { await aimPose(u); await shoot(u, t, proj); }
-      await hitOnce(t, sk.mult);
+      else { await aimPose(u); if (fenceStops(u, sk, proj, t)) await fenceDeflect(u, t, sk.name, proj); else await shoot(u, t, proj); }
+      if (melee || !fenceStops(u, sk, proj, t)) await hitOnce(t, sk.mult);
     } else {
       // Run back to their place, wheel round, and charge in again.
       log(`${u.name} wheels around and comes back for a second swing!`, u.side);
@@ -5732,7 +5952,8 @@ async function doAction(u, sk, t) {
   }
   render();
 
-  if (sk.kind === 'damage') await damageSkill(u, t, sk);
+  if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Tolls later (fireAim)
+  else if (sk.kind === 'damage') await damageSkill(u, t, sk);
   else if (sk.kind === 'heal') await healSkill(u, t, sk);
   else if (sk.kind === 'buff') await buffSkill(u, t, sk);
   else if (sk.kind === 'summon' && SUMMONS[sk.summon].plant) await plantMarker(u, sk);
@@ -5787,6 +6008,7 @@ async function doAction(u, sk, t) {
     await wait(380);
   }
 
+  await scrapBotRites();   // a bot this action left on its last sparks gives itself away now
   if (sk.id === 'attack') gainMp(u, MANA.attackGain, true);
   if (sk.id === 'guard') gainMp(u, MANA.guardGain);
   u.lastAction = sk.id;
@@ -5860,7 +6082,11 @@ function aiChoose(u) {
   if (sk.target === 'enemy') {
     // validTargets already applies both targeting laws — Taunt first, then the front line
     // (melee only until this warband's melee have been attacked twice) — for AI and player alike.
-    const opts = validTargets(u, sk);
+    let opts = validTargets(u, sk);
+    // A straight shot at a fenced mark only rings off the iron: look for an open one first.
+    const pr = u.role !== 'melee' ? projectileFor(u, sk) : null;
+    const open = opts.filter((f) => !fenceStops(u, sk, pr, f));
+    if (open.length) opts = open;
     t = chance(0.6) ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0] : pick(opts);
   } else if (sk.target === 'ally') {
     const opts = validTargets(u, sk);
@@ -6598,15 +6824,25 @@ function sweepDeathBots() {
 }
 
 // Summons leave when their time runs out or their summoner falls; the fallen lie there a while first.
-// A Salvage Bot's last act. Down to its final sparks (≤25% HP), on its turn it stops fighting:
-// it drags itself to the ally in the most need — the one lowest on health, and never another
-// Salvage Bot (scrap mending scrap saves no one) — and empties whatever charge it has left into
-// them as a mend, then comes apart. salvageMendTarget picks who; nextTurn calls salvageLastRites
-// in place of the bot's normal action.
+// An Ironclad bot's last act — the Salvage Bot a fallen Mech leaves, and Patchwork's Scrapbot.
+// Down to its final sparks (≤25% HP) it stops fighting at once, whoever's turn it is: it drags
+// itself to the ally in the most need — the one lowest on health, and never another bot (scrap
+// mending scrap saves no one) — and empties whatever charge it has left into them as a mend, then
+// comes apart. salvageMendTarget picks who; scrapBotRites runs it the moment a bot is that low
+// (after every action and every turn's ticks), and nextTurn still tries on the bot's own turn
+// if there was nobody to save when it dropped.
+const SCRAP_BOTS = new Set(['deathbot', 'scrapbot']);
+const isScrapBot = (u) => !!u.summon && SCRAP_BOTS.has(u.id);
 function salvageMendTarget(u) {
   return alliesOf(u)
-    .filter((a) => a !== u && a.id !== 'deathbot' && !a.inert && !has(a, 'coffin') && !undyingOn(a))
+    .filter((a) => a !== u && !isScrapBot(a) && !a.inert && !has(a, 'coffin') && !undyingOn(a))
     .sort((a, b) => a.hp - b.hp)[0] || null;   // lowest HP = closest to falling, the one worth saving
+}
+const scrapBotDue = (u) => isScrapBot(u) && u.hp > 0 && u.hp <= u.maxHp * 0.25 && !has(u, 'rooted') && !!salvageMendTarget(u);
+async function scrapBotRites() {
+  for (let b = allUnits().find(scrapBotDue); b; b = allUnits().find(scrapBotDue)) {
+    if (!(await salvageLastRites(b))) break;
+  }
 }
 async function salvageLastRites(u) {
   const t = salvageMendTarget(u);
@@ -6791,7 +7027,55 @@ function settleLatch() {
 
 // Anchors and Jellies stand on the caster's side but are carried over to their host's slot, so they
 // read as clamped onto the enemy. offsetLeft/Top ignore transforms, so repeated calls never drift.
+/* THE ANCHOR CHAIN: iron links from the ring at the top of Tharos's Anchor to the back of the champion
+   it pins, sagging between them. One svg over the field (behind every figure, so it runs in behind the
+   host and out from under the ring), redrawn every frame while any anchor holds someone - so it follows
+   a dash, a knockback or a stagger - and gone once none does. */
+let chainLoop = 0;
+function syncAnchorChains() {
+  if (chainLoop || reduced) return;
+  const tick = () => {
+    const pairs = allUnits().filter((a) => a.attach === 'anchor' && a.hp > 0)
+      .map((a) => [a, unitBy(a.hostUid)]).filter(([, h]) => h && h.hp > 0);
+    let svg = document.getElementById('anchorChains');
+    if (!pairs.length || state.screen !== 'battle') { svg?.remove(); chainLoop = 0; return; }
+    if (!svg) {
+      svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.id = 'anchorChains';
+      svg.setAttribute('class', 'chains');
+      svg.setAttribute('aria-hidden', 'true');
+      $('#arena').appendChild(svg);
+    }
+    svg.innerHTML = pairs.map(([a, h]) => chainLinks(a, h)).join('');
+    chainLoop = requestAnimationFrame(tick);
+  };
+  chainLoop = requestAnimationFrame(tick);
+}
+// The links along a sagging curve from the anchor's ring to the host's back, at the waist. Links
+// alternate face-on (an open oval) and edge-on (a short bar), the way a real chain lies.
+function chainLinks(a, h) {
+  const A = stageBox(a), H = stageBox(h);
+  if (!A || !H) return '';
+  const p0 = { x: A.x, y: A.top + A.h * 0.13 };
+  const p1 = { x: H.x - facing(h) * H.w * 0.14, y: H.top + H.h * 0.62 };
+  const len = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+  const c = { x: (p0.x + p1.x) / 2, y: Math.max(p0.y, p1.y) + len * 0.25 };   // the sag
+  const at = (t) => ({ x: (1 - t) ** 2 * p0.x + 2 * (1 - t) * t * c.x + t * t * p1.x, y: (1 - t) ** 2 * p0.y + 2 * (1 - t) * t * c.y + t * t * p1.y });
+  const n = Math.max(4, Math.round(len / 6.5));
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) / n, q = at(t), q2 = at(Math.min(1, t + 0.01)), q1 = at(Math.max(0, t - 0.01));
+    const ang = (Math.atan2(q2.y - q1.y, q2.x - q1.x) * 180 / Math.PI).toFixed(1);
+    const tr = `rotate(${ang} ${q.x.toFixed(1)} ${q.y.toFixed(1)})`;
+    out += i % 2
+      ? `<rect class="cl-edge" x="${(q.x - 4).toFixed(1)}" y="${(q.y - 1).toFixed(1)}" width="8" height="2" rx="1" transform="${tr}"/>`
+      : `<ellipse class="cl-face" cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" rx="4.2" ry="2.6" transform="${tr}"/>`;
+  }
+  return `<g>${out}</g>`;
+}
+
 function settleAttachments() {
+  if (allUnits().some((a) => a.attach === 'anchor' && a.hp > 0)) syncAnchorChains();
   for (const a of allUnits()) {
     if (!a.attach) continue;
     const el = document.getElementById(`u-${a.uid}`);
@@ -6800,12 +7084,20 @@ function settleAttachments() {
     const hel = host ? document.getElementById(`u-${host.uid}`) : null;
     if (hel) {
       const anchor = a.attach === 'anchor';
-      // The Anchor is planted BEHIND the champion — shifted to their back (away from the way they face)
-      // and raised a little, so it reads as standing behind them rather than covering them. The Jelly
-      // rides high on the front. zIndex puts the anchor behind the host and the jelly in front.
-      const over = anchor ? 0 : -hel.offsetHeight * 0.18;
-      const back = anchor ? -facing(host) * hel.offsetWidth * 0.15 : 0;
-      const dx = hel.offsetLeft + hel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2) + back;
+      // The Anchor comes down BEHIND the champion: a full figure's width to their back (away from the
+      // way they face), standing a touch lower, so it is plainly its own thing on the field - visible,
+      // with its own plate - and still reads as pinning them. The Jelly rides high on the front.
+      // zIndex keeps the anchor under the host and the jelly in front.
+      const over = anchor ? hel.offsetHeight * 0.04 : -hel.offsetHeight * 0.18;
+      const back = anchor ? -facing(host) * hel.offsetWidth * 0.62 : 0;
+      let dx = hel.offsetLeft + hel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2) + back;
+      // A host on the back line stands near the field's edge: keep the Anchor on the field rather than
+      // let it slide out past the edge (the arena clips), even if that tucks it in closer to them.
+      const fieldW = el.offsetParent?.clientWidth || 0, half = el.offsetWidth * 0.4;
+      if (anchor && fieldW) {
+        const cx = el.offsetLeft + el.offsetWidth / 2 + dx;
+        dx += clamp(cx, half, fieldW - half) - cx;
+      }
       const dy = hel.offsetTop - el.offsetTop + over;
       el.classList.add('attached');
       el.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
@@ -6856,7 +7148,7 @@ async function turnPulse() {
   // Covering Fire: Mara counts every turn that passes, friend or foe, and the fifth is hers.
   // Frozen, coffined (or dead) she holds the shot and lets it off at the next turn she's free.
   for (const m of allUnits()) {
-    if (!m.watch || m.hp <= 0) continue;
+    if (!m.watch || m.hp <= 0 || m.aimShot) continue;   // her eye is on the Powder Shot: Covering Fire holds
     m.watchN = (m.watchN || 0) + 1;
     if (m.watchN < m.watch || hardFrozen(m) || inBox(m) || has(m, 'bash')) continue;
     const picks = validTargets(m, { target: 'enemy' });   // the law of the field: taunters first
@@ -6867,10 +7159,44 @@ async function turnPulse() {
     log(`${m.name}'s Covering Fire: a free shot, and ${tg.name} is in it.`, m.side);
     markAttacked(tg);
     await aimPose(m);
-    await shoot(m, tg, projectileFor(m, { id: 'attack', name: 'Covering Fire', kind: 'damage', o: {} }));
-    strikeOnce(m, tg, 1, 'Covering Fire', {});
+    const cfSk = { id: 'attack', name: 'Covering Fire', kind: 'damage', target: 'enemy', o: {} }, cfP = projectileFor(m, cfSk);
+    if (fenceStops(m, cfSk, cfP, tg)) await fenceDeflect(m, tg, 'Covering Fire', cfP);   // a fenced mark: the iron takes it
+    else {
+      await shoot(m, tg, cfP);
+      strikeOnce(m, tg, 1, 'Covering Fire', {});
+    }
     render();
     await wait(260);
+    if (checkEnd()) return true;
+  }
+  // Powder Shot: each Toll brings an aimed shot closer; on its last it goes off, whoever's turn this is.
+  // Silenced, stunned, bashed or coffined while she aims, the shot is lost — she can't hold the musket.
+  for (const m of allUnits()) {
+    if (!m.aimShot) continue;
+    if (m.hp <= 0) { clearAim(m); continue; }
+    const lost = has(m, 'silence') || hardFrozen(m) || has(m, 'bash') || inBox(m);
+    if (lost) {
+      const why = has(m, 'silence') ? 'silenced' : hardFrozen(m) ? 'stunned' : has(m, 'bash') ? 'bashed' : 'sealed in the coffin';
+      log(`${m.name} is ${why} — the Powder Shot is lost.`, m.side);
+      float(m, 'Shot lost', 'miss');
+      clearAim(m);
+      render();
+      await wait(400);
+      continue;
+    }
+    m.aimShot.tolls = Math.max(0, m.aimShot.tolls - 1);
+    if (m.aimShot.tolls === 1 && !m.aimShot.raised) await raiseAim(m);
+    if (m.aimShot.tolls > 0) continue;
+    await fireAim(m);
+    if (checkEnd()) return true;
+  }
+  // Execute: the blood thrown into the sky comes down two Tolls later, whoever's turn it is - or the
+  // moment the mark's own turn comes up, if that is sooner: it lands before they can act.
+  for (const v of allUnits()) {
+    if (!v.bloodRite) continue;
+    const marksTurn = state.active === v.bloodRite.target;
+    if (--v.bloodRite.tolls > 0 && !marksTurn) continue;
+    await executeFalls(v);
     if (checkEnd()) return true;
   }
   // THE TOLLS TICK — one turn has come up on the field, so every effect counted on the global clock
@@ -6938,7 +7264,9 @@ async function nextTurn() {
     if (await turnPulse() || token !== state.token || checkEnd()) return;
     const s = await beginTurn(u);
     if (token !== state.token || checkEnd()) return;
-    if (s !== 'ok') { endTurn(u); continue; }
+    await scrapBotRites();   // a burn or a toll may have left a bot on its last sparks
+    if (token !== state.token || checkEnd()) return;
+    if (s !== 'ok' || u.hp <= 0) { endTurn(u); continue; }
     if (shouldFlee(u)) { await flee(u); continue; }
     // Your heroes wait for you; summons (on either side) act on their own.
     // Only your champion waits for your orders; recruits and summons act on their own.
@@ -6953,9 +7281,9 @@ async function nextTurn() {
         await wait(200);
       }
     }
-    // A Salvage Bot on its last sparks gives the rest of itself away instead of swinging: it mends
+    // An Ironclad bot on its last sparks gives the rest of itself away instead of swinging: it mends
     // the ally most in need and comes apart (see salvageLastRites). Only if there is someone to save.
-    if (u.id === 'deathbot' && u.hp <= u.maxHp * 0.25 && !has(u, 'rooted') && salvageMendTarget(u)) {
+    if (scrapBotDue(u)) {
       await salvageLastRites(u);
       if (token !== state.token) return;
       endTurn(u);
@@ -12075,7 +12403,7 @@ function unitCardHTML(u) {
       <ul class="chips"></ul>
       <div class="plate">
         ${u.watch ? '<div class="watchdial" aria-hidden="true"><b></b></div>' : ''}
-        <div class="who"><strong>${u.name}</strong><span class="lvl"></span></div>
+        <div class="who"><strong>${u.attach === 'anchor' ? '' : u.name}</strong><span class="lvl"></span></div>
         <div class="bar hp"><div class="fill"></div><span></span></div>
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${u.faction === 'mech' && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
@@ -12257,7 +12585,10 @@ function fetchClip(src) {
 }
 // Warms the attack clips of everyone on the field, so the first swing of a battle doesn't stall on a fetch.
 function prefetchClips() {
-  for (const u of allUnits()) { const a = animOf(u); if (a) fetchClip(a.attack.src); }
+  for (const u of allUnits()) {
+    const a = animOf(u);
+    if (a) for (const k of ['attack', 'load', 'shot']) if (a[k]) fetchClip(a[k].src);
+  }
 }
 
 /* Starts a champion's attack clip, and returns how long to wait for the blow to land —
@@ -12281,10 +12612,42 @@ function playAttack(u, fresh = false) {
   setTimeout(() => {
     URL.revokeObjectURL(url);
     if (img.src !== url) return;   // a later swing already took the clip over
-    sizeClip(img, a.idle, u.side);
-    img.src = ANIM_DIR + a.idle.src;
+    const rest = restClip(u, a);
+    sizeClip(img, rest, u.side);
+    img.src = ANIM_DIR + rest.src;
   }, a.attack.ms);
   return a.attack.hitMs;
+}
+
+/* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).
+   restClip is the loop they fall back to between moves: idle, unless holdClip has set another
+   (her aim, held from the first Toll until the shot). playClip plays a one-shot clip and hands
+   back to that resting loop; it returns the clip's manifest entry, or null when there is none. */
+const restClip = (u, a) => (u.restClip && a[u.restClip]) || a.idle;
+function playClip(u, name) {
+  const a = animOf(u), img = animImg(u), e = a?.[name];
+  const blob = e && clipBlobs.get(e.src);
+  if (!e || !img || !blob) return null;
+  const url = URL.createObjectURL(blob);
+  img.clipUntil = performance.now() + e.ms;
+  sizeClip(img, e, u.side);
+  img.src = url;
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    if (img.src !== url) return;
+    const rest = restClip(u, a);
+    sizeClip(img, rest, u.side);
+    img.src = ANIM_DIR + rest.src;
+  }, e.ms);
+  return e;
+}
+function holdClip(u, name) {
+  u.restClip = name;
+  const a = animOf(u), img = animImg(u);
+  if (!a || !img || img.clipUntil > performance.now()) return;   // a one-shot is running: it hands back to this when done
+  const rest = restClip(u, a);
+  sizeClip(img, rest, u.side);
+  img.src = ANIM_DIR + rest.src;
 }
 
 /* ==================================================================
@@ -12348,26 +12711,34 @@ async function dashTo(u, targets, pace = 1) {
   const anim = el.animate(
     [{ translate: from }, { translate: mid, offset: 0.5 }, { translate: end }],
     { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
-  // Anything clamped onto this unit rides along with the dash — the same path, offset by the
-  // attachment's own resting position, so a Jelly or Anchor stays stuck to it as it runs in.
-  // (settleAttachments reads offsetLeft/Top, which ignore transforms, so it can't track a dash itself.)
+  const atts = carryRiders(u, from, mid, end, ms, 'ease-in-out', 200);
+  await done(anim, ms);
+  return { anim, end, mid, fly, atts };
+}
+
+// Anything riding this unit goes where it goes — a Jelly or Anchor clamped on (attach/hostUid), and
+// Patchwork bolted to its back (Bolt-On, attachedTo). Each follows the same path, offset by its own
+// resting position. settleLatch/settleAttachments read offsetLeft/Top, which ignore transforms, so
+// they can't track a move themselves. hostZ = the mover's zIndex for the trip: the bolted-on drone
+// stays tucked behind its host, a clamped-on Jelly or Anchor rides in front. dashBack brings them home.
+function carryRiders(u, from, mid, end, ms, easing, hostZ) {
   const [fX, fY] = dashXY(from), [mX, mY] = dashXY(mid), [eX, eY] = dashXY(end);
   const atts = [];
   for (const a of allUnits()) {
-    if (!a.attach || a.hostUid !== u.uid || a.hp <= 0) continue;
+    const rides = (a.attach && a.hostUid === u.uid) || a.attachedTo === u.uid;
+    if (!rides || a.hp <= 0) continue;
     const ael = actorEl(a);
     if (!ael) continue;
     const [rx, ry] = dashXY(getComputedStyle(ael).translate);
-    ael.style.zIndex = 201;
+    ael.style.zIndex = a.attachedTo ? hostZ - 1 : hostZ + 1;
     const fwd = ael.animate([
       { translate: `${(rx + fX).toFixed(1)}px ${(ry + fY).toFixed(1)}px` },
       { translate: `${(rx + mX).toFixed(1)}px ${(ry + mY).toFixed(1)}px`, offset: 0.5 },
       { translate: `${(rx + eX).toFixed(1)}px ${(ry + eY).toFixed(1)}px` },
-    ], { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+    ], { duration: ms, easing, fill: 'forwards' });
     atts.push({ el: ael, rx, ry, fwd });
   }
-  await done(anim, ms);
-  return { anim, end, mid, fly, atts };
+  return atts;
 }
 
 async function dashBack(u, trip) {
@@ -12387,7 +12758,7 @@ async function dashBack(u, trip) {
         : [{ translate: `${(rx + eX).toFixed(1)}px ${(ry + eY).toFixed(1)}px` }, { translate: `${rx.toFixed(1)}px ${ry.toFixed(1)}px` }],
         { duration: ms, easing: 'ease-out', fill: 'forwards' });
       if (fwd) fwd.cancel();
-      b.finished.catch(() => {}).then(() => { b.cancel(); ael.style.zIndex = ''; });
+      b.finished.catch(() => {}).then(() => { b.cancel(); ael.style.zIndex = ''; settleLatch(); });
     }
     await done(back, ms);
   }
@@ -12410,8 +12781,9 @@ async function interposeTo(g, ally) {
   const anim = el.animate(
     [{ translate: '0 0' }, { translate: mid, offset: 0.5 }, { translate: end }],
     { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  const atts = carryRiders(g, '0 0', mid, end, ms, 'ease-out', 210);
   await done(anim, ms);
-  return { anim, end, mid, fly: false };
+  return { anim, end, mid, fly: false, atts };
 }
 
 function pose(u, frames, ms) {
@@ -13033,6 +13405,24 @@ function slashFx(t, dir) {
    fire starts there, with fire and smoke at the muzzle (muzzleFlash). */
 const MUZZLE = { mara: [0.295, 0.317] };
 
+/* Ricochet: the round skips off its first mark in a spray of sparks, thrown out along its new line. */
+function ricochetSpark(at, ang) {
+  if (reduced) return;
+  const el = document.createElement('div');
+  el.className = 'ricospark';
+  Object.assign(el.style, { left: `${at.x}px`, top: `${at.y}px`, transform: `rotate(${ang}rad)` });
+  // sparks fanned around the outgoing direction (0 rad = along it), plus a white flash at the point
+  el.innerHTML = `<svg viewBox="-20 -20 40 40" aria-hidden="true"><circle r="4" fill="#fff" opacity=".95"/>`
+    + [-0.9, -0.45, -0.15, 0.2, 0.5, 0.95].map((a, i) => {
+      const r0 = 3, r1 = 9 + (i % 3) * 3;
+      return `<line x1="${(r0 * Math.cos(a)).toFixed(1)}" y1="${(r0 * Math.sin(a)).toFixed(1)}" x2="${(r1 * Math.cos(a)).toFixed(1)}" y2="${(r1 * Math.sin(a)).toFixed(1)}" stroke="${i % 2 ? '#ffe9a8' : '#ffffff'}" stroke-width="1.4" stroke-linecap="round"/>`;
+    }).join('') + '</svg>';
+  $('#arena').appendChild(el);
+  const ms = beat(280);
+  done(el.firstElementChild.animate([{ transform: 'scale(.3)', opacity: 1 }, { transform: 'scale(1.25)', opacity: 0 }],
+    { duration: ms, easing: 'ease-out', fill: 'forwards' }), ms).then(() => el.remove());
+}
+
 function muzzleFlash(at, d) {
   if (reduced) return;
   const arena = $('#arena');
@@ -13060,14 +13450,19 @@ function muzzleFlash(at, d) {
   }
 }
 
+// p.bounceFrom (a unit): the round is already in flight - it glances off that unit, where the last
+// shot struck, and carries on to t (Ricochet). No muzzle, no second shot: a spark where it bounced.
 async function shoot(u, t, p) {
-  const s = stageBox(u), e = stageBox(t);
+  const s = stageBox(p.bounceFrom || u), e = stageBox(t);
   if (reduced || !s || !e) return;
   const d = facing(u);
-  const mz = MUZZLE[u.id];
-  const from = mz ? { x: s.x + d * s.w * mz[0], y: s.top + s.h * mz[1] } : { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.45 };
+  const mz = !p.bounceFrom && MUZZLE[u.id];
+  const from = p.bounceFrom ? { x: s.x, y: s.top + s.h * 0.45 }
+    : mz ? { x: s.x + d * s.w * mz[0], y: s.top + s.h * mz[1] } : { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.45 };
   if (mz) muzzleFlash(from, d);
+  if (p.bounceFrom) ricochetSpark(from, Math.atan2(e.top + e.h * 0.45 - from.y, e.x - from.x));
   const to = { x: e.x, y: e.top + e.h * 0.45 };
+  if (p.endAt) Object.assign(to, p.endAt(e, to, from));   // the round stops short of them, or flies on past
   if (p.kind === 'bolt') return zap(from, to);
   const el = document.createElement('div');
   el.className = `proj proj-${p.kind}`;
@@ -13473,7 +13868,7 @@ function factionPassive(u) {
   }
   if (u.faction === 'orc') return `<b>Rage:</b> +${Math.round(50 * (1 - u.hp / u.maxHp))}% damage from missing HP.`;
   if (u.faction === 'human') {
-    const last = u.lastAction ? skillsOf(u).find((s) => s.id === u.lastAction).name : null;
+    const last = u.lastAction ? skillsOf(u).find((s) => s.id === u.lastAction)?.name : null;
     return `<b>Discipline:</b> +${Math.round(disciplineBonus() * 100)}% if you don't repeat your last action${last ? ` (${last})` : ''}.`;
   }
   if (u.race === 'elf') return `<b>Precision ${u.stacks}/${stackCap(u)}:</b> +${u.stacks * 10}% crit. ${charNat(u).line ? 'A hit costs one stack.' : 'Resets when hit.'}`;
@@ -13554,7 +13949,7 @@ function renderBattle() {
     const el = $(`#u-${u.uid}`);
     if (!el) continue;
     el.querySelector('.bar.hp .fill').style.width = `${(u.hp / u.maxHp) * 100}%`;
-    el.querySelector('.bar.hp span').textContent = u.inert ? `${u.hp} / ${u.maxHp} blows` : `${u.hp} / ${u.maxHp}`;
+    el.querySelector('.bar.hp span').textContent = u.inert && u.attach !== 'anchor' ? `${u.hp} / ${u.maxHp} blows` : `${u.hp} / ${u.maxHp}`;
     el.querySelector('.lvl').textContent = unitLevelText(u);
     // Covering Fire countdown (Mara): turns left on the field until her free shot. 0 = it's owed, and
     // goes off the moment she is free to take it (not frozen, coffined or bashed).
@@ -13603,6 +13998,7 @@ function renderBattle() {
     el.classList.toggle('pinned', u.hp > 0 && pinned(u));   // Last Rites: the two iron crosses stand over it   // Mordrek with his cross in the ground: no weapon in hand
     const tgt = targets.includes(u);
     el.classList.toggle('targetable', tgt);
+    document.body.classList.toggle('picking', targets.length > 0);   // non-targets let the tap through (see HIT BOXES)
     el.classList.toggle('ally', tgt && (pending.target === 'ally' || pending.target === 'deadAlly'));
     el.tabIndex = tgt ? 0 : -1;
     el.setAttribute('role', tgt ? 'button' : 'group');

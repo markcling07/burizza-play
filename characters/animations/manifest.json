@@ -66,6 +66,37 @@
       "frameMs": 40,
       "ms": 1200,
       "hitMs": 520
+    },
+    "load": {
+      "src": "mara-load.webp",
+      "w": 350,
+      "h": 270,
+      "footX": 150,
+      "footY": 255,
+      "frames": 32,
+      "frameMs": 40,
+      "ms": 1280
+    },
+    "aim": {
+      "src": "mara-aim.webp",
+      "w": 350,
+      "h": 270,
+      "footX": 150,
+      "footY": 255,
+      "frames": 16,
+      "frameMs": 75,
+      "ms": 1200
+    },
+    "shot": {
+      "src": "mara-shot.webp",
+      "w": 350,
+      "h": 270,
+      "footX": 150,
+      "footY": 255,
+      "frames": 19,
+      "frameMs": 40,
+      "ms": 760,
+      "hitMs": 80
     }
   },
   "aldous": {
