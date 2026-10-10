@@ -7097,7 +7097,11 @@ function settleLatch() {
     if (hel) {
       const back = (p.side === 'p' ? -1 : 1) * hel.offsetWidth * 0.34;   // behind the host, shoulder high
       const dx = hel.offsetLeft + hel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2) + back;
-      const dy = hel.offsetTop - el.offsetTop - hel.offsetHeight * 0.16;
+      // Measured from below each card's status-chip row: a card grows upward as chips are added (Rage,
+      // Exposed...) while the figure stays put, so measuring from the card's very top lifted the rider
+      // off its host's shoulder every time either of them picked up a status.
+      const hc = hel.querySelector('.chips')?.offsetHeight || 0, pc = el.querySelector('.chips')?.offsetHeight || 0;
+      const dy = (hel.offsetTop + hc) - (el.offsetTop + pc) - (hel.offsetHeight - hc) * 0.16;
       el.classList.add('latched');
       el.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
       el.style.zIndex = (parseInt(hel.style.zIndex, 10) || 10) - 1;
@@ -12848,6 +12852,11 @@ async function dashTo(u, targets, pace = 1) {
   const anim = el.animate(
     [{ translate: from }, { translate: mid, offset: 0.5 }, { translate: end }],
     { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+  // A chain of dashes (Blood Frenzy's leaps, Reckless Swing's wheel, a Double Attack that runs back in)
+  // stacks one held animation per leg. Drop the previous leg once this one has taken over, or it
+  // would resurface - and leave the unit stranded mid-field - when dashBack cancels the last one.
+  el._dash?.cancel();
+  el._dash = anim;
   const atts = carryRiders(u, from, mid, end, ms, 'ease-in-out', 200);
   await done(anim, ms);
   return { anim, end, mid, fly, atts };
@@ -12866,13 +12875,18 @@ function carryRiders(u, from, mid, end, ms, easing, hostZ) {
     if (!rides || a.hp <= 0) continue;
     const ael = actorEl(a);
     if (!ael) continue;
-    const [rx, ry] = dashXY(getComputedStyle(ael).translate);
+    // Its seat on the host is the offset settleLatch / settleAttachments wrote inline. Not the computed
+    // translate: mid-chain that already includes the last leg's carry, and adding the host's move on
+    // top of it again is what flung a bolted-on Patchwork across the field during Blood Frenzy.
+    const [rx, ry] = dashXY(ael.style.translate);
     ael.style.zIndex = a.attachedTo ? hostZ - 1 : hostZ + 1;
     const fwd = ael.animate([
       { translate: `${(rx + fX).toFixed(1)}px ${(ry + fY).toFixed(1)}px` },
       { translate: `${(rx + mX).toFixed(1)}px ${(ry + mY).toFixed(1)}px`, offset: 0.5 },
       { translate: `${(rx + eX).toFixed(1)}px ${(ry + eY).toFixed(1)}px` },
     ], { duration: ms, easing, fill: 'forwards' });
+    ael._ride?.cancel();   // this leg replaces the rider's last one, as dashTo does for the host
+    ael._ride = fwd;
     atts.push({ el: ael, rx, ry, fwd });
   }
   return atts;
@@ -12887,6 +12901,8 @@ async function dashBack(u, trip) {
       ? [{ translate: trip.end }, { translate: trip.mid, offset: 0.5 }, { translate: '0 0' }]
       : [{ translate: trip.end }, { translate: '0 0' }], { duration: ms, easing: 'ease-out' });
     trip.anim.cancel();
+    if (el._dash && el._dash !== trip.anim) el._dash.cancel();
+    el._dash = null;
     // Bring the attachments home with the unit, then hand them back to settleAttachments.
     const [eX, eY] = dashXY(trip.end), [mX, mY] = dashXY(trip.mid);
     for (const { el: ael, rx, ry, fwd } of trip.atts || []) {
@@ -12895,7 +12911,9 @@ async function dashBack(u, trip) {
         : [{ translate: `${(rx + eX).toFixed(1)}px ${(ry + eY).toFixed(1)}px` }, { translate: `${rx.toFixed(1)}px ${ry.toFixed(1)}px` }],
         { duration: ms, easing: 'ease-out', fill: 'forwards' });
       if (fwd) fwd.cancel();
-      b.finished.catch(() => {}).then(() => { b.cancel(); ael.style.zIndex = ''; settleLatch(); });
+      if (ael._ride && ael._ride !== fwd) ael._ride.cancel();
+      ael._ride = b;
+      b.finished.catch(() => {}).then(() => { b.cancel(); if (ael._ride === b) ael._ride = null; ael.style.zIndex = ''; settleLatch(); });
     }
     await done(back, ms);
   }
@@ -12918,6 +12936,8 @@ async function interposeTo(g, ally) {
   const anim = el.animate(
     [{ translate: '0 0' }, { translate: mid, offset: 0.5 }, { translate: end }],
     { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  el._dash?.cancel();
+  el._dash = anim;
   const atts = carryRiders(g, '0 0', mid, end, ms, 'ease-out', 210);
   await done(anim, ms);
   return { anim, end, mid, fly: false, atts };
