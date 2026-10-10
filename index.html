@@ -3951,15 +3951,16 @@ function rollPack(d) {
    DUNGEONS — expeditions from the Expedition Gate. A run is DG_ROOM_COUNT
    rooms (monster packs) and then a boss room: 7 battles in all. The first
    rooms are the dungeon's own `rooms`; the rest are rolled from the same
-   monsters when you set out (state.dg.plan). HP and MP carry over between
-   rooms: fallen champions get back up at 30%, and everyone catches their
+   monsters when you set out (state.dg.plan). HP, MP and skill cooldowns carry
+   over between rooms: fallen champions get back up at 30%, and everyone catches their
    breath a little. Each room pays XP and gold; the boss guards a chest,
    and the first clear of each dungeon also gives a trinket.
    Every room fields a full war party of DG_PACK_MIN–DG_PACK_MAX monsters:
    the authored packs are grown to size with extra bodies from the same
    dungeon, never stacking a second healer on a pack that already has one.
-   Wounded minions flee: on its turn, a monster whose HP has fallen to a
-   fifth (DG_FLEE_AT) runs deeper into the dungeon — the first DG_FLEE_CAP
+   Wounded minions flee: the moment a monster's HP falls to a quarter
+   (DG_FLEE_AT) it runs deeper into the dungeon, without waiting for its own
+   turn (fleeWounded, after every action and turn-start) — the first DG_FLEE_CAP
    to break are the only ones who go, never in the boss room, and each
    monster only once. The warband chases straight into the next room,
    where the runaways rejoin the new pack still wounded.
@@ -4079,8 +4080,17 @@ const DG_XP_MULT = 0.35;                                       // a full 7-battl
 const DG_ROOM_COUNT = 6;                                       // rooms before the boss room
 const DG_PACK_MIN = 4, DG_PACK_MAX = 5;                        // monsters in every normal room
 const DG_MAX_FOES = 5;                                         // a pack plus its runaways never tops this
-const DG_FLEE_AT = 0.20;                                       // a minion runs once its HP falls to this share or less
+const DG_FLEE_AT = 0.25;                                       // a minion runs the moment its HP falls to this share or less
 const DG_FLEE_CAP = 2;                                         // the first 2 to break and run; nobody else flees that room
+// Bosses fight more violently than their stat block: harder blows, and faster on the speed bar, so
+// their turns (each one a Toll) come round more often.
+const BOSS_ATK_MULT = 1.2, BOSS_AGI_MULT = 1.35;
+// The pack guards its master: every minion has its own 30-40% Heroic chance (it throws itself in
+// front of a melee blow and answers it), but only for blows aimed at a boss.
+const BOSS_GUARD_MIN = 0.30, BOSS_GUARD_MAX = 0.40;
+// Mini bosses: every pair of rooms has at least one (the other room of the pair gets one too on
+// MINI_EXTRA_CHANCE): one of the room's fresh monsters, promoted (promoteMini). Never in the boss room.
+const MINI_HP_MULT = 1.8, MINI_ATK_MULT = 1.3, MINI_EXTRA_CHANCE = 0.35;
 
 // Heroes live in their faction folder; summons in characters/summons/; monsters in characters/monsters/.
 function spriteSVG(id) {
@@ -4442,6 +4452,11 @@ function makeUnit(c, lv, side, slot, scale = 1) {
   };
 }
 
+// Who throws themselves in front of a melee blow meant for t: a champion with Heroic (Wren, Garrick)
+// for any ally, or a minion guarding its boss (guardBoss, 30-40%) when t is the boss.
+const heroicGuardFor = (t) => (a) => a !== t && a.hp > 0 && !has(a, 'rooted')
+  && ((pv(a).heroic && chance(pv(a).heroic)) || (t.boss && a.guardBoss > 0 && chance(a.guardBoss)));
+
 // A monster unit (always on the enemy side). Same stat formula as champions, no mana, fixed skills.
 function makeMonster(id, lv, slot, scale = 1) {
   const m = MONSTERS[id], r = ROLES[m.role], g = 1 + 0.12 * (lv - 1), ps = m.passive || {}, st = ps.stat || {};
@@ -4450,9 +4465,10 @@ function makeMonster(id, lv, slot, scale = 1) {
     uid: `e${slot}`, id, art: id, side: 'e', monster: true, elite: !!m.elite, boss: !!m.boss, name: m.name, level: lv,
     faction: 'wild', race: null, role: m.role, floats: !!m.floats,
     maxHp, hp: maxHp, maxMp: 0, mp: 0, mpRegen: 0, manaSteal: 0, hpRegen: Math.round(maxHp * (st.hpRegenPct || 0)),
-    atk: Math.round(r.atk * (m.mods.atk || 1) * g * scale), def: Math.round(r.def * (m.mods.def || 1) * g),
-    agi: Math.round(r.agi * (m.mods.agi || 1)) + (lv - 1), crit: 0.05, dodge: r.dodge,
+    atk: Math.round(r.atk * (m.mods.atk || 1) * g * scale * (m.boss ? BOSS_ATK_MULT : 1)), def: Math.round(r.def * (m.mods.def || 1) * g),
+    agi: Math.round((Math.round(r.agi * (m.mods.agi || 1)) + (lv - 1)) * (m.boss ? BOSS_AGI_MULT : 1)), crit: 0.05, dodge: r.dodge,
     pv: ps, passives: [],
+    guardBoss: m.boss ? 0 : BOSS_GUARD_MIN + Math.random() * (BOSS_GUARD_MAX - BOSS_GUARD_MIN),   // Heroic, for the boss only
     effects: (ps.startFx || []).map(([fx, turns]) => ({ id: fx, turns, value: 0 })),
     cooldowns: {}, heat: 0, stacks: 0, hitSince: false, lastAction: null, combo: false,
   };
@@ -4833,7 +4849,7 @@ function strikeOnce(u, t, mult, label, o) {
   if (o.heroic) {
     heroicHit = true;
   } else if (!o.counter && !o.aoe && u.role === 'melee' && !o.hurl && !o.gust) {
-    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && !has(a, 'rooted') && pv(a).heroic && chance(pv(a).heroic));
+    const g = alliesOf(t).find(heroicGuardFor(t));
     if (g) {
       float(g, '🛡️ Heroic', 'fx');
       log(`${g.name} throws into the path of the blow meant for ${t.name}, taking it in their place.`, g.side);
@@ -5383,7 +5399,7 @@ async function damageSkill(u, t, sk) {
   // Single-target melee only, never off a counter; interposeTo also handles the leap home afterwards.
   let heroicGuard = null, heroicTrip = null;
   if (u.role === 'melee' && !o.hurl && !o.gust && sk.target !== 'allEnemies' && t && !o.counter) {
-    const g = alliesOf(t).find((a) => a !== t && a.hp > 0 && !has(a, 'rooted') && pv(a).heroic && chance(pv(a).heroic));
+    const g = alliesOf(t).find(heroicGuardFor(t));
     if (g) {
       heroicGuard = g;
       float(g, '🛡️ Heroic', 'fx');
@@ -7263,6 +7279,8 @@ async function nextTurn() {
     render();
     // One more turn passes on the field: Bolt-On's weld ticks, Covering Fire counts it.
     if (await turnPulse() || token !== state.token || checkEnd()) return;
+    await fleeWounded();   // a Covering Fire shot (or the like) may have left a minion ready to run
+    if (token !== state.token || checkEnd()) return;
     const s = await beginTurn(u);
     if (token !== state.token || checkEnd()) return;
     await scrapBotRites();   // a burn or a toll may have left a bot on its last sparks
@@ -7293,6 +7311,8 @@ async function nextTurn() {
     }
     const { sk, t } = bossPlan(u) || aiChoose(u);   // bosses enrage and telegraph their big attacks
     await doAction(u, sk, t);
+    await fleeWounded();   // a minion knocked to a quarter runs at once, not on its own turn
+    if (token !== state.token || checkEnd()) return;
     // A Mirror Dust double is good for three of its own turns; the third spent, it frays away.
     if (u.id === 'mirage' && --u.actsLeft <= 0 && u.hp > 0) u.spent = u.spent || 'faded';
     endTurn(u);
@@ -7311,6 +7331,8 @@ async function commit(u, sk, t) {
   const token = state.token;
   await doAction(u, sk, t);
   if (token !== state.token) return;
+  await fleeWounded();   // a minion knocked to a quarter runs at once, not on its own turn
+  if (token !== state.token || checkEnd()) return;
   endTurn(u);
   await wait(250);
   if (token === state.token) nextTurn();
@@ -7516,11 +7538,12 @@ function startBattle(retry) {
     // Monsters fight at your level, never below the depth's or dungeon's minimum.
     const src = hunt || dg;
     state.teams.e = state.enemyIds.map((id, i) => makeMonster(id, Math.max(src.minLv, state.level), i, src.scale));
-    // Dungeons: HP and MP carry over from the previous room.
+    // Dungeons: HP, MP and skill cooldowns carry over from the previous room.
     if (dg) {
       for (const u of state.teams.p) {
         const c = state.dg.carry[u.id];
         if (c) { u.hp = Math.max(1, Math.min(u.maxHp, c.hp)); u.mp = Math.max(0, Math.min(u.maxMp, c.mp)); }
+        if (c?.cd) u.cooldowns = { ...c.cd };
       }
       // Monsters that fled the last room are here, still wounded, and won't run a second time.
       for (const f of state.dg.fled || []) {
@@ -7531,6 +7554,13 @@ function startBattle(retry) {
       }
       state.dg.fled = [];
       state.dg.fledNow = 0;
+      // A mini boss room: one fresh, non-healer monster is promoted (a healer only if that is all there is).
+      if (!dgIsBossRoom() && state.dg.minis?.includes(state.dg.room)) {
+        const fresh = state.teams.e.filter((x) => !x.fledOnce && !x.boss && !x.elite);
+        const fighters = fresh.filter((x) => x.role !== 'support');
+        const mu = pick(fighters.length ? fighters : fresh);
+        if (mu) promoteMini(mu);
+      }
     }
   } else if (spar) {
     // Sparring: the other side at the same level, full strength.
@@ -7951,12 +7981,31 @@ function dgPlan(d) {
   return plan;
 }
 
+// Which rooms field a mini boss: one of each pair (rooms 1-2, 3-4, 5-6), and sometimes the other too.
+function dgMinis() {
+  const minis = [];
+  for (let i = 0; i < DG_ROOM_COUNT; i += 2) {
+    const a = Math.min(DG_ROOM_COUNT - 1, i + (chance(0.5) ? 0 : 1)), b = a === i ? i + 1 : i;
+    minis.push(a);
+    if (b < DG_ROOM_COUNT && chance(MINI_EXTRA_CHANCE)) minis.push(b);
+  }
+  return minis;
+}
+// A mini boss: a fresh monster of the room, grown into a Dread one - bigger (drawn as an elite),
+// much tougher and harder-hitting, worth twice the XP, and it never flees.
+function promoteMini(u) {
+  u.mini = true; u.elite = true;
+  u.name = `Dread ${u.name}`;
+  u.maxHp = Math.round(u.maxHp * MINI_HP_MULT); u.hp = u.maxHp;
+  u.atk = Math.round(u.atk * MINI_ATK_MULT);
+}
+
 function startDungeon(id) {
   const d = dungeonById(id);
   if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (!d || heroLevel() < d.minLv || state.runPending) return;
   state.mode = 'dungeon';
-  state.dg = { id, room: 0, gold: 0, xp: 0, carry: {}, done: false, plan: dgPlan(d), fled: [], held: [], waveSeq: 0 };
+  state.dg = { id, room: 0, gold: 0, xp: 0, carry: {}, done: false, plan: dgPlan(d), minis: dgMinis(), fled: [], held: [], waveSeq: 0 };
   enterRoom();
 }
 
@@ -7991,11 +8040,17 @@ function nextWave() {
   return true;
 }
 
-// A wounded minion takes its turn to run for it (see DUNGEONS above): the first DG_FLEE_CAP
-// whose HP has fallen to DG_FLEE_AT or less break and run; after that the rest stand and die.
+// A wounded minion runs for it (see DUNGEONS above): the first DG_FLEE_CAP whose HP has fallen
+// to DG_FLEE_AT or less break and run; after that the rest stand and die.
 function shouldFlee(u) {
-  if (!dungeonRun() || dgIsBossRoom() || u.side !== 'e' || !u.monster || u.boss || u.fledOnce || !alive(u)) return false;
+  if (!dungeonRun() || dgIsBossRoom() || u.side !== 'e' || !u.monster || u.boss || u.mini || u.fledOnce || !alive(u)) return false;
   return u.hp / u.maxHp <= DG_FLEE_AT && (state.dg.fledNow || 0) < DG_FLEE_CAP;
+}
+
+// They don't wait for their own turn: right after any action (or the turn-start ticks) leaves a
+// minion that low, it breaks and runs on the spot.
+async function fleeWounded() {
+  for (const u of [...state.teams.e]) if (shouldFlee(u)) await flee(u);
 }
 
 async function flee(u) {
@@ -8088,16 +8143,18 @@ function endDungeonRoom(won) {
   if (won) {
     state.phase = 'won';
     state.goldWon = guildGold(HUNT_GOLD_BASE + HUNT_GOLD_PER * state.teams.e.filter((u) => u.monster).length);
-    const xp = Math.round(state.teams.e.filter((u) => u.monster).reduce((s, u) => s + MONSTERS[u.id].xp, 0) * (1 + 0.1 * (lv - 1)) * DG_XP_MULT);
+    const xp = Math.round(state.teams.e.filter((u) => u.monster).reduce((s, u) => s + MONSTERS[u.id].xp * (u.mini ? 2 : 1), 0) * (1 + 0.1 * (lv - 1)) * DG_XP_MULT);
     state.reward = payXp(xp);
     const flawless = state.teams.p.filter((u) => !u.summon).every(alive);
     news.push(...questEvent('win', { vs: null, flawless, rounds: state.round, kills: 0 }), ...guildWin(boss));
-    // Carry HP and MP to the next room: the fallen get up at 20%, then everyone rests a little.
+    // Carry HP, MP and skill cooldowns to the next room: the fallen get up at 20%, then everyone
+    // rests a little. Cooldowns pick up where they left off (the signature too, once unlocked).
     for (const u of state.teams.p.filter((x) => !x.summon)) {
       const hp = u.hp > 0 ? u.hp : Math.round(u.maxHp * DG_REVIVE);
       state.dg.carry[u.id] = {
         hp: Math.min(u.maxHp, hp + Math.round(u.maxHp * DG_REST_HP)),
         mp: Math.min(u.maxMp, (u.mp || 0) + Math.round(u.maxMp * DG_REST_MP)),
+        cd: { ...u.cooldowns },
       };
     }
     if (boss) {
