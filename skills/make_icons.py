@@ -1275,6 +1275,16 @@ def _():
 
 
 # ---- Bloodtusk Horde
+@icon('Grudge Axe')
+def _():
+    # Krug's last throw: a spinning axe outlined in blood-red, with the arc of its bounce behind it.
+    return (glow('<circle cx="34" cy="28" r="15" fill="#e0242f"/>', .55)
+            + '<path d="M8 50 Q20 30 34 34 Q44 37 52 22" fill="none" stroke="#e0242f" stroke-width="2.4" stroke-dasharray="3 3" opacity=".85"/>'
+            + g(axe('url(#steel)'), 34, 28, 35, 1.05)
+            + '<path d="M22 14 A14 14 0 0 1 46 16 M46 42 A14 14 0 0 1 24 42" fill="none" stroke="#ff6a6a" stroke-width="2" opacity=".8"/>'
+            + g(drop(), 12, 50, 0, .45))
+
+
 @icon('Bloodlust')
 def _():
     return (glow('<circle cx="32" cy="32" r="16" fill="#e0242f"/>', .6)
@@ -1614,7 +1624,7 @@ CATALOG = {
         ('Rivet Burst', 'Scrapbot (summon)', 'skill'),
     ]),
     'orc': ('Bloodtusk Horde', [
-        ('Cleave', 'Krug Skullsplitter', 'skill'), ('Reckless Swing', 'Krug Skullsplitter', 'skill'), ('Blood Frenzy', 'Krug Skullsplitter', 'sig'), ('Twin Axes', 'Krug Skullsplitter', 'skill'), ("Warchief's Fury", 'Krug Skullsplitter', 'skill'), ('Bloodlust', 'Krug Skullsplitter', 'passive'),
+        ('Cleave', 'Krug Skullsplitter', 'skill'), ('Reckless Swing', 'Krug Skullsplitter', 'skill'), ('Blood Frenzy', 'Krug Skullsplitter', 'sig'), ('Twin Axes', 'Krug Skullsplitter', 'skill'), ("Warchief's Fury", 'Krug Skullsplitter', 'skill'), ('Bloodlust', 'Krug Skullsplitter', 'passive'), ('Grudge Axe', 'Krug Skullsplitter', 'passive'),
         ('Skull Rattler', 'Mogra Ironhide', 'skill'), ('Ground Pound', 'Mogra Ironhide', 'skill'), ('Iron Hide', 'Mogra Ironhide', 'sig'), ('Bonebreaker', 'Mogra Ironhide', 'skill'), ('Hold the Line', 'Mogra Ironhide', 'skill'), ('Thick Skull', 'Mogra Ironhide', 'passive'),
         ('Call the War Boar', 'Vashka Spearthrower', 'skill'), ("Hunter's Mark", 'Vashka Spearthrower', 'skill'), ('Gutpiercer', 'Vashka Spearthrower', 'sig'), ('Pinning Throw', 'Vashka Spearthrower', 'skill'), ('Volley of Spears', 'Vashka Spearthrower', 'skill'), ('Steppe Hunter', 'Vashka Spearthrower', 'passive'),
         ('Firepot', 'Drekka Firegut', 'skill'), ('Napalm Jar', 'Drekka Firegut', 'skill'), ('Powder Keg', 'Drekka Firegut', 'sig'), ('Cinder Spray', 'Drekka Firegut', 'skill'), ('Sticky Tar', 'Drekka Firegut', 'skill'), ('Pyromaniac', 'Drekka Firegut', 'passive'),

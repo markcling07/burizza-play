@@ -822,7 +822,10 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   transform-origin: bottom center;
   animation: fenceRise .75s cubic-bezier(.25, .8, .35, 1) both;
 }
-.unit.e.fenced .upic::after { right: auto; left: -9%; }   /* enemies face left, so the fence stands on their left */
+.unit.e.fenced .upic::after { right: auto; left: -9%; }
+/* Grudge Axe: Krug on 0 HP, outlined in red until his axe flies at the next Toll. */
+.unit.grudge .upic { filter: drop-shadow(1.5px 0 0 #ff2a3e) drop-shadow(-1.5px 0 0 #ff2a3e) drop-shadow(0 1.5px 0 #ff2a3e) drop-shadow(0 -1.5px 0 #ff2a3e) drop-shadow(0 0 9px rgba(255, 42, 62, .85)); }
+.unit.grudge .plate { border-color: #ff2a3e; box-shadow: 0 0 0 1px rgba(255, 42, 62, .6); }   /* enemies face left, so the fence stands on their left */
 /* ...planted in a churned mound of grave-dirt (FENCE_DIRT), drawn in front of the fence's foot so the
    bars go down into the ground. It is thrown up first, as the fence starts to come through. */
 .unit.fenced .upic::before {
@@ -2418,6 +2421,8 @@ const FX = {
   // held in rather than blows it has taken, so neither can be cleansed, stolen or resisted.
   undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: the next damage it takes is the end, and no mending can reach it' },
   coffin:   { icon: '⚰️', label: 'Coffined',  kind: 'good', verb: 'is sealed in a coffin: nothing can target it, area attacks wash over it, and no mending reaches in' },
+  // Krug's Grudge Axe: standing on 0 HP until the next Toll, when the axe flies and he falls.
+  grudge:   { icon: '🪓', label: 'Grudge',    kind: 'good', verb: 'should be down, and holds on for one last axe' },
   // Barrow's Burrow: under the grave-dirt for one round of the field's clock (TIMED_FX).
   burrowed: { icon: '🕳️', label: 'Burrowed',  kind: 'good', verb: 'burrows into the grave-dirt for a round: nothing can target him, and area attacks pass over him' },
   // Barrow's Graveyard Fence: an iron fence stands before the protected ally. No melee blow can
@@ -2597,7 +2602,8 @@ const ROSTER = [
              D('Reckless Swing', 'Krug swings both axes for 170%, then careens into another enemy at random and swings again for 100%. All that momentum leaves him Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { bounce: 0.6, selfFx: [['exposed', 1]] }),
              D('Twin Axes', 'Two chops of 85%. Causes Bleed.', 3, 0.85, { hits: 2, fx: [['bleed', 3, 0.3]] }),
              B('Warchief\'s Fury', 'Krug works himself into a rage: Enraged for 2 turns, dealing 35% more damage.', 4, 'self', [['enraged', 3]])],
-    passive: P('Bloodlust', 'Defeating an enemy heals him for 20% of his max HP.', { killHeal: 0.2 }) },
+    passive: P('Bloodlust', 'Defeating an enemy heals him for 20% of his max HP.', { killHeal: 0.2 }),
+    passiveAlt: P('Grudge Axe', 'The blow that would kill him leaves him standing on 0 HP, outlined in red. At the next Toll he hurls his axe at his killer, and it bounces on until every enemy in reach has been hit once - each hit for 100% of his attack, never dodged. Then he falls. Once per battle.', { grudge: 1 }) },
   { id: 'mogra', name: 'Mogra Ironhide', short: 'Mogra', faction: 'orc', role: 'melee', bio: 'Shield-and-mace bruiser.',
     mods: { hp: 1.15, def: 1.25, atk: 0.9 },
     look: { body: 'orc', main: '#4a4e5c', trim: '#b07d3e', skin: '#7a9a5e', weapon: 'hammer', shield: '#6b4f32' },
@@ -4709,6 +4715,63 @@ const deadCount = () => allUnits().filter((x) => x.hp <= 0 && !x.inert).length; 
 
 // Absorbs the death of a Pale Host champion that is still owed the pact.
 // Returns true when the death was absorbed, so fell() knows to stop short.
+/* GRUDGE AXE (Krug's alternative passive). The blow that would kill him leaves him standing - shown on
+   0 HP and outlined in red (u.grudge), held on 1 underneath so nothing treats him as gone - and nothing
+   else can drop him before the next Toll. At that Toll (grudgeFalls, from turnPulse) he hurls his axe at
+   whoever killed him; it bounces on to the nearest enemy not yet hit until every enemy in reach has
+   taken one (straight past a killer who has died or hidden), each hit 100% of his attack, never dodged
+   and never countered (a thrown axe). Then he falls for real. Once per battle. */
+function grudgeCatch(v, by) {
+  if (v.grudge) { v.hp = 1; return true; }   // already holding on: nothing ends it before the Toll
+  if (!pv(v).grudge || v.grudgeSpent || v.summon) return false;
+  v.grudgeSpent = true;
+  v.grudge = { by: by?.uid || null, pulse: state.pulseN || 0 };
+  v.hp = 1;
+  addFx(v, 'grudge', 99, 0, true);
+  float(v, '🪓 Grudge!', 'fx');
+  log(`${v.name} should be down, and is not. He has one more axe in him${by ? `, and ${by.name}'s name is on it` : ''}.`, v.side);
+  return true;
+}
+
+async function grudgeFalls(v) {
+  const killer = unitBy(v.grudge.by);
+  const pool = singleFoes(v).filter(alive);
+  // The killer first if it is still there to hit; then always the nearest enemy not yet struck.
+  const order = [];
+  const left = new Set(pool);
+  if (killer && left.has(killer)) { order.push(killer); left.delete(killer); }
+  while (left.size) {
+    const ref = stageBox(order[order.length - 1] || v);
+    let best = null, bestD = Infinity;
+    for (const f of left) {
+      const b = stageBox(f);
+      const d = b && ref ? Math.hypot(b.x - ref.x, b.feet - ref.feet) : 0;
+      if (d < bestD) { bestD = d; best = f; }
+    }
+    order.push(best); left.delete(best);
+  }
+  if (order.length) {
+    log(`${v.name} hurls his axe at ${order[0].name}${order.length > 1 ? ', and it does not stop there' : ''}!`, v.side);
+    const proj = { kind: 'axe', arc: true };
+    let prev = null;
+    for (const t of order) {
+      if (t.hp <= 0) continue;
+      await shoot(v, t, prev ? { ...proj, bounceFrom: prev } : proj);
+      strikeOnce(v, t, 1, 'Grudge Axe', { hurl: true, noDodge: true });
+      render();
+      await wait(160);
+      prev = t;
+    }
+  } else log(`${v.name} has no one left to throw at.`, v.side);
+  // Then he goes down.
+  v.grudge = null;
+  v.effects = v.effects.filter((e) => e.id !== 'grudge');
+  v.hp = 0;
+  fell(v, killer || null);
+  render();
+  await wait(300);
+}
+
 function undyingCatch(v) {
   if (v.faction !== 'undead' || v.summon || v.undyingSpent) return false;
   if (undyingOn(v)) {
@@ -4744,6 +4807,7 @@ function feastOfTheFallen(dead) {
 }
 
 function fell(v, by) {
+  if (grudgeCatch(v, by)) return;   // Krug's Grudge Axe: one last throw first (see GRUDGE AXE)
   if (undyingCatch(v)) return;   // the Pale Host is owed one more round (see UNDYING)
   if (v.felled) return;   // one death, one payout, however many sources pile onto the corpse
   v.felled = true;
@@ -5830,7 +5894,8 @@ async function beginTurn(u) {
     log(`${u.name} takes ${dmg} from ${FX[id].label}.`, 'sys');
     ticked = true;
     // Undying can catch this: fell() puts a Pale Host champion back on 1 HP, and the turn goes on.
-    if (u.hp <= 0) { fell(u, unitBy(e.by)); render(); await wait(450); if (u.hp <= 0) return 'dead'; }
+    // Grudge Axe can too, but a grudge does not take turns: it waits for the next Toll to throw.
+    if (u.hp <= 0) { fell(u, unitBy(e.by)); render(); await wait(450); if (u.hp <= 0 || u.grudge) return 'dead'; }
   }
   // Nothing mends what is sealed in a coffin or already standing Undying.
   const sealed = has(u, 'coffin') || undyingOn(u);
@@ -7147,6 +7212,7 @@ function emergeToll(u, e) {
 }
 
 async function turnPulse() {
+  state.pulseN = (state.pulseN || 0) + 1;   // which Toll this is (Grudge Axe waits for the next one)
   // Bolt-On: every turn anyone takes is one of the weld's four.
   for (const p of allUnits()) {
     if (!p.attachedTo) continue;
@@ -7214,6 +7280,12 @@ async function turnPulse() {
     const marksTurn = state.active === v.bloodRite.target;
     if (--v.bloodRite.tolls > 0 && !marksTurn) continue;
     await executeFalls(v);
+    if (checkEnd()) return true;
+  }
+  // Grudge Axe: Krug, held up by his grudge, throws on the Toll after the one he was struck down in.
+  for (const v of allUnits()) {
+    if (!v.grudge || v.grudge.pulse >= state.pulseN) continue;
+    await grudgeFalls(v);
     if (checkEnd()) return true;
   }
   // THE TOLLS TICK — one turn has come up on the field, so every effect counted on the global clock
@@ -14006,8 +14078,9 @@ function renderBattle() {
   for (const u of allUnits()) {
     const el = $(`#u-${u.uid}`);
     if (!el) continue;
-    el.querySelector('.bar.hp .fill').style.width = `${(u.hp / u.maxHp) * 100}%`;
-    el.querySelector('.bar.hp span').textContent = u.inert && u.attach !== 'anchor' ? `${u.hp} / ${u.maxHp} blows` : `${u.hp} / ${u.maxHp}`;
+    const hpShown = u.grudge ? 0 : u.hp;   // Grudge Axe: held on 1, shown as the 0 it really is
+    el.querySelector('.bar.hp .fill').style.width = `${(hpShown / u.maxHp) * 100}%`;
+    el.querySelector('.bar.hp span').textContent = u.inert && u.attach !== 'anchor' ? `${hpShown} / ${u.maxHp} blows` : `${hpShown} / ${u.maxHp}`;
     el.querySelector('.lvl').textContent = unitLevelText(u);
     // Covering Fire countdown (Mara): turns left on the field until her free shot. 0 = it's owed, and
     // goes off the moment she is free to take it (not frozen, coffined or bashed).
@@ -14049,6 +14122,7 @@ function renderBattle() {
     el.classList.toggle('boxed', inBox(u));
     el.classList.toggle('buried', buried(u));
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
+    el.classList.toggle('grudge', !!u.grudge);   // Grudge Axe: on 0 HP, outlined in red, one throw left
     // Barrow's Graveyard Fence is the very railing he carries: while it stands before anyone on his
     // side (only that skill gives Protected), his off hand is empty; it comes back when the fence falls.
     el.classList.toggle('fenceOut', lookOf(artOf(u))?.offhand === 'gravefence' && state.teams[u.side].some((a) => a.hp > 0 && has(a, 'protected')));
