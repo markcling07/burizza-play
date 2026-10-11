@@ -61,6 +61,7 @@ ul.sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .sk li.pas.alt { border-top: 0; padding-top: 0; opacity: .8; }
 /* A champion's Nature: always on, no slot, nothing swaps it away. */
 .sk li.nat .nm { color: var(--support); }
+.champ .pic svg { width: 92%; height: 92%; overflow: visible; }
 .generic { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
 .generic .sk li { background: var(--panel); border: 1px dashed var(--line); border-radius: 12px; padding: 10px; }
 .err { padding: 14px; border: 1px solid #e0455a; border-radius: 10px; color: #ffb3bd; }
@@ -70,13 +71,13 @@ ul.sk { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 <main class="wrap">
   <header>
     <h1>Champions</h1>
-    <p class="tag">Every champion in Burizza with their three active skills and their own passive. Every champion also has <b>Attack</b> and <b>Guard</b>.</p>
+    <p class="tag">Every champion in Burizza with all of their skills, their own passive (and any alternatives), and their Nature. Every champion also has <b>Attack</b> and <b>Guard</b>.</p>
     <ul class="legend">
       <li><b>CD</b> = cooldown in turns</li>
       <li><b>★</b> = signature, unlocks on the 3rd turn</li>
-      <li>Round icon = passive (some champions have two to choose from)</li>
+      <li>Round icon = passive (some champions have alternatives to equip instead)</li>
       <li><b>Nature</b> = what no training changes: always on, takes no slot, nothing swaps it away</li>
-      <li>Loadout: equip 2 actives + 1 passive (more slots at Lv 5, 10, 15)</li>
+      <li>Loadout: <b>6 active slots + 2 passive slots</b> at every level; champions start at level 15</li>
     </ul>
   </header>
   <nav id="nav"></nav>
@@ -89,36 +90,59 @@ const slug = (n) => n.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-'
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const icon = (n) => `<img src="skills/${slug(n)}.svg" alt="" onerror="this.style.visibility='hidden'">`;
 
+// A Nature has no icon file of its own (a trait, not a skill); the game shows this leaf medallion.
+const NATURE_ICON = '<svg viewBox="0 0 32 32" width="40" height="40" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#1d3324" stroke="#8fd6a0" stroke-width="1.6"/>'
+  + '<path d="M9 22 C9 12 15 8 24 8 C24 17 19 23 10 23 Z" fill="#8fd6a0"/><path d="M9.5 22.5 L19 13" stroke="#1d3324" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
 // Pull a top-level `const NAME = ...;` block out of the game source by its start and the next marker.
 const between = (src, from, to) => { const a = src.indexOf(from), b = src.indexOf(to, a); if (a < 0 || b < 0) throw new Error(`missing ${from}`); return src.slice(a, b); };
+// ...and a block that runs up to a section banner: cut back to the banner's opening comment.
+const upToBanner = (src, from, banner) => { const t = between(src, from, banner); return t.slice(0, t.lastIndexOf('/*')); };
 
 fetch('index.html').then((r) => r.text()).then((src) => {
+  src = src.replace(/\r\n/g, '\n');
   const data = new Function(
     `${between(src, 'const CRIMSON_MEND_PCT', 'const BLOOD_COST')}
      ${between(src, 'const D = (', 'const ATTACK =')}
      ${between(src, 'const FACTIONS = {', 'const FACTION_KEYS')}
      ${between(src, 'const NEUTRAL_SKILLS = {', 'const NEUTRAL_KEYS')}
      ${between(src, 'const GENERIC_PASSIVES = {', 'const GENERIC_KEYS')}
-     return { ROSTER, FACTIONS, NEUTRAL_SKILLS, GENERIC_PASSIVES };`)();
-  const { ROSTER, FACTIONS, NEUTRAL_SKILLS, GENERIC_PASSIVES } = data;
-  const row = (s, cls, meta) => `<li class="${cls}">${icon(s.name)}<div><span class="nm">${cls === 'sig' ? '★ ' : ''}${esc(s.name)}</span>
+     ${between(src, 'const STEEL =', 'const ART_EXT')}
+     const charById = (id) => ROSTER.find((c) => c.id === id);
+     const lookOf = (id) => charById(id)?.look;
+     ${upToBanner(src, 'const spriteCache = {};', 'HELPERS & STATE')}
+     return { ROSTER, FACTIONS, NEUTRAL_SKILLS, GENERIC_PASSIVES, builtinSprite };`)();
+  const { ROSTER, FACTIONS, NEUTRAL_SKILLS, GENERIC_PASSIVES, builtinSprite } = data;
+  // The champion's art file if their faction has one; otherwise (and if the file is missing) the same
+  // built-in drawing the game falls back to - the Pale Host are drawn this way.
+  const pic = (c) => {
+    let drawn = '';
+    try { drawn = builtinSprite(c.id); } catch (e) { /* no built-in look: leave it to the file */ }
+    const folder = FOLDER[c.faction];
+    if (!folder) return drawn;
+    const fallback = drawn ? ` onerror="this.outerHTML=this.dataset.fb" data-fb="${esc(drawn)}"` : '';
+    return `<img src="characters/${folder}/${c.id}.svg" alt=""${fallback}>`;
+  };
+  const row = (s, cls, meta, ico) => `<li class="${cls}">${ico || icon(s.name)}<div><span class="nm">${cls === 'sig' ? '★ ' : ''}${esc(s.name)}</span>
       <span class="meta">${meta}</span><span class="ds">${esc(s.desc)}</span></div></li>`;
+  const alts = (c) => (c.passiveAlt ? (Array.isArray(c.passiveAlt) ? c.passiveAlt : [c.passiveAlt]) : []);
   document.getElementById('nav').innerHTML = Object.keys(FACTIONS).map((k) => `<a href="#f-${k}" style="--acc:${ACC[k]}">${esc(FACTIONS[k].name)}</a>`).join('')
     + '<a href="#f-neutral">Neutral skills</a><a href="#f-generic">General passives</a>';
   const sections = Object.keys(FACTIONS).map((k) => {
     const f = FACTIONS[k];
     const cards = ROSTER.filter((c) => c.faction === k).map((c) => {
-      const [a, b, c2] = c.skills;
+      // Every skill: the first, then the rest in order, with the ★ signature (skills[1]) last.
+      const [first, sig, ...rest] = c.skills;
       return `<article class="champ">
-        <div class="top"><div class="pic"><img src="characters/${FOLDER[k]}/${c.id}.svg" alt=""></div>
+        <div class="top"><div class="pic">${pic(c)}</div>
           <div><h3>${esc(c.name)}</h3><p class="bio">${esc(c.bio)}</p><span class="role ${c.role}">${c.role}</span></div></div>
         <ul class="sk">
-          ${row(a, '', `Skill · CD ${a.cd}`)}
-          ${c2 ? row(c2, '', `Second skill · CD ${c2.cd}`) : ''}
-          ${row(b, 'sig', `Signature · CD ${b.cd}`)}
-          ${c.passive ? row(c.passive, 'pas', c.passiveAlt ? 'Passive · default' : 'Passive') : ''}
-          ${c.passiveAlt ? row(c.passiveAlt, 'pas alt', 'Other passive · equip instead') : ''}
-          ${c.nature ? row(c.nature, 'pas nat', 'Nature · always on') : ''}
+          ${row(first, '', `Skill · CD ${first.cd}`)}
+          ${rest.map((s) => row(s, '', `Skill · CD ${s.cd}`)).join('')}
+          ${row(sig, 'sig', `Signature · CD ${sig.cd}`)}
+          ${c.passive ? row(c.passive, 'pas', alts(c).length ? 'Passive · default' : 'Passive') : ''}
+          ${alts(c).map((p) => row(p, 'pas alt', 'Other passive · equip instead')).join('')}
+          ${c.nature ? row(c.nature, 'pas nat', 'Nature · always on', NATURE_ICON) : ''}
         </ul></article>`;
     }).join('');
     return `<section id="f-${k}" style="--acc:${ACC[k]};--acc-dim:${ACC[k]}33"><header><h2>${esc(f.name)}</h2>
