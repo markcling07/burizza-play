@@ -251,6 +251,21 @@ body[data-screen="select"] .top { display: none; }
 .dmini { display: flex; gap: 4px; }
 .dmini .mini, .beast .mini { width: 40px; height: 40px; flex: none; }
 .dmini .mini svg, .dmini .mini img, .beast .mini svg, .beast .mini img { width: 100%; height: 100%; display: block; }
+/* EXPEDITION (foundation slice): the Post-Chamber decision phase — a 45s timer, the chamber map,
+   and the roads out. One authored, branching dungeon; see EXPEDITIONS and the expedition run logic. */
+.expTimer { height: 10px; border-radius: 6px; background: #0003; overflow: hidden; margin: 2px 0 10px; }
+.expTimer > span { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--good), var(--accent)); transition: width .25s linear; }
+.expTimer.low > span { background: linear-gradient(90deg, var(--heat), #e4453a); }
+.expTimerTxt { font-size: .78rem; color: var(--muted); font-weight: 700; }
+.expExits { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.expExits button { width: 100%; text-align: left; display: flex; align-items: center; gap: 10px; }
+.expExits .etype { font-size: .72rem; color: var(--accent); font-weight: 700; margin-left: auto; }
+.expExits button:disabled .etype { color: var(--muted); }
+.expMap { margin: 10px 0 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #0002; }
+.expMap h4 { margin: 0 0 6px; font-size: .8rem; color: var(--muted); font-weight: 700; }
+.expMap ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: .78rem; }
+.expMap li.here { color: var(--accent); font-weight: 700; }
+.expMap li.done { color: var(--muted); text-decoration: line-through; }
 .bhead { margin: 6px 0 0; font-family: var(--font-display); font-size: 1.3rem; }
 .bestiary { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
 .beast { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); }
@@ -2856,7 +2871,7 @@ const ROSTER = [
              D('Savage Maul', '110% bite. Exposes the target: it takes 25% more damage for 2 turns.', 3, 1.1, { fx: [['exposed', 3]] }),
              D('Hamstring', '100% bite. Slows the target and causes Bleed.', 2, 1.0, { fx: [['slow', 2], ['bleed', 3, 0.3]] }),
              D('Feral Lunge', '190% bite. Gorehound is Exposed until its next turn.', 4, 1.9, { selfFx: [['exposed', 1]] })],
-    passive: P('Bloodhound', 'Deals 25% more damage to Bleeding enemies.', { vs: { fx: 'bleed', bonus: 0.25 } }) },
+    passive: P('Tear Apart', 'When Gorehound falls, both heads tear free as a pair of Hell Pups — 100 HP each, 1.5× faster on the speed bar, still yours to command, and each has a 40% chance to throw itself in front of a melee blow meant for an ally.', {}) },
   { id: 'morwenna', name: 'Morwenna Bloodweaver', short: 'Morwenna', faction: 'crimson', role: 'support', bio: 'Blood witch of the Court.',
     mods: {},
     look: { body: 'vampire', main: '#5a1f2e', cape: '#2a1018', trim: '#d9b44a', skin: '#efe4ea', hair: '#c9c2d6', weapon: 'staff', orb: '#c0303f' },
@@ -2935,14 +2950,14 @@ const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One
    copy: true → looks like its summoner (illusions).
    ================================================================== */
 const SUMMONS = {
-  // A single head torn free of a slain Gorehound (see splitGorehound). Mindless and uncontrollable:
-  // no mana, no skills but a bite, and it fights on its own until it is put down.
+  // A single head torn free of a slain Gorehound (see splitGorehound). 100 HP, 1.5× speed,
+  // and on the player's side still yours to command. No mana, just a bite and Guard.
   splithound: {
     name: 'Hell Pup', plural: 'Hell Pups', role: 'melee', life: null,
-    desc: 'A single head torn loose from the Gorehound. Mindless, and fights on its own until it is put down.',
+    desc: 'A single head torn loose from the Gorehound. Smaller and faster, still yours to command, and 40% chance to throw itself in front of a melee blow meant for an ally.',
     look: { body: 'beast', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
     leave: (u) => `${u.name} is put down.`,
-    stats: (o) => ({ maxHp: 50, atk: o.atk, def: o.def, agi: o.agi, crit: o.crit || 0.06, dodge: o.dodge || 0 }),
+    stats: (o) => ({ maxHp: 100, atk: o.atk, def: o.def, agi: o.agi, crit: o.crit || 0.06, dodge: o.dodge || 0 }),
     skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' }],
   },
   // ATTACHMENTS — Tharos's Anchor and Octavia's Jellyfish (see spawnAttachment). Inert units that
@@ -3198,22 +3213,38 @@ const BODIES = {
   },
   // Gorehound only: a two-headed hellhound. Same body as the beast, with a second neck and head
   // rising up-and-back from the shoulders. The split hounds revert to the single-headed `beast`.
+  /* Gorehound: a two-headed hellhound, not the plain beast with a head pasted on twice. Both
+     heads come forward off one set of shoulders - the far one smaller, turned out and sunk in
+     shadow, the near one full size and snarling - so the pair still reads as two at battle size,
+     which is the only thing that has to survive the shrink. Grave-fire runs the spine and tail. */
   direhound(a) {
-    const head = `<circle cx="72" cy="52" r="10.5" fill="${a.main}"/>
-       <path d="M76 50 h14 q3 4 0 8 h-14 Z" fill="${a.main}"/>
-       <path d="M78 58 l2 3 l2 -3 l2 3 l2 -3" stroke="#f4f0f2" stroke-width="1.4" fill="none"/>
-       <path d="M64 44 L66 32 L72 42 Z M70 42 L76 31 L78 44 Z" fill="${a.main}"/>
-       <circle cx="75" cy="49" r="2.2" fill="${a.eye}"/><circle cx="75" cy="49" r="4.5" fill="${a.eye}" opacity=".25"/>
-       <circle cx="89.5" cy="52" r="1.6" fill="${INK}"/>`;
+    const shade = '#3b171c', hot = '#ffd166';
+    // one flame tongue, drawn at the origin and pointing up
+    const fl = (x, y, k, c) => `<path transform="translate(${x} ${y}) scale(${k})" d="M0 0 q-4 -6 -1 -12 q1 5 4 6 q1 -4 -1 -8 q7 6 5 14 q-2 3 -7 0 Z" fill="${c}"/>`;
+    // one head: muzzle out to the right, ears back, the far ear darkened so the skull reads round
+    const head = (x, y, k, fill, rot) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${k})">
+      <path d="M-15 1 Q-18 -10 -8 -14 L3 -15 Q14 -14 17 -6 Q18 2 11 5 L0 8 Q-11 9 -15 1 Z" fill="${fill}"/>
+      <path d="M7 -8 L29 -5 Q34 0 29 6 L7 8 Z" fill="${fill}"/>
+      <path d="M12 8 l2.6 4 l2.6 -4 l2.6 4 l2.6 -4 l2.6 4 l2 -4" stroke="#f6f2f4" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+      <path d="M-10 -12 L-13 -27 L2 -15 Z" fill="${fill}"/><path d="M-10 -12 L-13 -27 L2 -15 Z" fill="${INK}" opacity=".38"/>
+      <path d="M3 -14 L11 -28 L15 -11 Z" fill="${fill}"/>
+      <circle cx="8" cy="-5" r="2.8" fill="${a.eye}"/><circle cx="8" cy="-5" r="7" fill="${a.eye}" opacity=".3"/>
+      <circle cx="29" cy="1" r="1.9" fill="${INK}"/></g>`;
     return { hand: [80, 62], shieldY: 0, svg:
-      `<path d="M26 62 Q14 56 16 44 Q20 52 28 56 Z" fill="${a.trim}"/>
-       <rect x="30" y="70" width="7" height="22" rx="3" fill="${a.main}"/><rect x="40" y="72" width="7" height="20" rx="3" fill="${DARK}"/>
-       <rect x="58" y="70" width="7" height="22" rx="3" fill="${a.main}"/><rect x="66" y="72" width="7" height="20" rx="3" fill="${DARK}"/>
-       <ellipse cx="50" cy="66" rx="25" ry="13" fill="${a.main}"/>
-       <path d="M40 54 l4 -9 l3 8 l4 -10 l3 9 l4 -9 l3 9 l4 -7 l2 9 Z" fill="${a.trim}"/>
-       <path d="M50 60 Q42 48 40 36" stroke="${a.main}" stroke-width="8" fill="none" stroke-linecap="round"/>
-       <g transform="translate(-30 -8) rotate(-16 72 52)">${head}</g>
-       ${head}` };
+      `<path d="M21 62 Q7 54 9 42" stroke="${a.main}" stroke-width="6" fill="none" stroke-linecap="round"/>
+       ${fl(9, 45, 0.7, a.trim)}${fl(13, 53, 0.45, hot)}
+       <path d="M32 70 q-5 11 -1 20 M44 72 q4 10 0 18" stroke="${shade}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+       <path d="M58 70 q-4 11 0 20 M68 70 q4 10 0 18" stroke="${shade}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+       <path d="M23 62 Q28 50 40 52 Q52 46 64 51 Q74 55 74 63 Q68 74 48 75 Q28 76 23 62 Z" fill="${a.main}"/>
+       <path d="M27 69 Q48 80 72 65 Q68 76 48 78 Q31 79 27 69 Z" fill="${shade}"/>
+       <path d="M29 72 q-5 10 -1 19 M41 74 q4 9 0 17" stroke="${a.main}" stroke-width="7" fill="none" stroke-linecap="round"/>
+       <path d="M55 72 q-4 10 0 19 M67 72 q4 9 0 17" stroke="${a.main}" stroke-width="7" fill="none" stroke-linecap="round"/>
+       <path d="M25 90 h8 M38 90 h7 M52 90 h8 M64 90 h7" stroke="#f6f2f4" stroke-width="3" stroke-linecap="round"/>
+       ${fl(31, 53, 0.6, a.trim)}${fl(38, 51, 0.72, a.trim)}${fl(45, 50, 0.6, a.trim)}
+       <path d="M58 56 Q59 44 65 38" stroke="${shade}" stroke-width="9.5" fill="none" stroke-linecap="round"/>
+       <path d="M63 58 Q72 51 79 49" stroke="${a.main}" stroke-width="11" fill="none" stroke-linecap="round"/>
+       ${head(67, 31, 0.88, shade, -13)}
+       ${head(82, 50, 1.02, a.main, 7)}` };
   },
   bot(a) {
     return { hand: [66, 62], shieldY: 0, svg:
@@ -4098,6 +4129,78 @@ const BOSS_GUARD_MIN = 0.30, BOSS_GUARD_MAX = 0.40;
 // MINI_EXTRA_CHANCE): one of the room's fresh monsters, promoted (promoteMini). Never in the boss room.
 const MINI_HP_MULT = 1.8, MINI_ATK_MULT = 1.3, MINI_EXTRA_CHANCE = 0.35;
 
+/* ==================================================================
+   EXPEDITIONS — FOUNDATION SLICE (chamber graph, decision timer, re-entry).
+   A new mode that runs ALONGSIDE the linear `dungeon` mode (which is untouched).
+   Instead of a fixed line of rooms, an expedition is an authored graph of
+   chambers joined by directed connections (exits point "forward", toward the
+   boss). After every chamber the party enters the Post-Chamber Battle Phase:
+   a 45-second window to choose a connected chamber or retreat. If the timer
+   runs out, the system auto-moves FORWARD at random (seeded). Chambers may be
+   re-entered only once, and the layout is manually authored — never generated.
+   NOT YET BUILT (later slices, seams left open): Preparation Turns, runes,
+   minor-boss / final-boss escape arcs, boss intrusion, contribution scoring,
+   battle inventory & resurrection items. See the design spec.
+   ================================================================== */
+const EXP_DECISION_SECS   = 45;    // §5.1 chamber decision window
+const EXP_REENTRY_HEAL    = 0.10;  // §14.3 surviving monsters recover this much max HP on re-entry
+const EXP_REENTRY_CAP     = 1;     // §14.2 a chamber may be re-entered only this many times
+const EXP_PACK_MIN        = 3, EXP_PACK_MAX = 5;   // §3.1 monsters per standard combat chamber
+// PLACEHOLDER until Preparation Turns (§4) and resurrection items (§12) land: between chambers the
+// fallen get back up at this share of HP so a run stays playable. Configurable; not a finalized rule.
+const EXP_REVIVE          = 0.3;
+
+/* SLICE 2 — boss arcs & intrusion (§6, §8, §9). */
+const EXP_MINOR_FLEE_AT   = 0.10;  // §6.2 a minor boss flees its fight at 10% HP
+const EXP_MINOR_RETURN_HP = 0.20;  // §6.2 and returns in the next combat chamber at 20% HP, unable to flee again
+const EXP_MINOR_HP_MULT   = 2.2, EXP_MINOR_ATK_MULT = 1.35;   // a monster promoted into a minor boss
+const EXP_BOSS_SPEED_MULT = 2.0;   // §8.1 the final boss crosses the bar at twice speed in its initial phase
+const EXP_BOSS_FLEE_1     = 0.40;  // §8.2 first escape threshold
+const EXP_BOSS_FLEE_2     = 0.15;  // §8.3 second escape threshold
+const EXP_FOLLOW_CHANCE   = 0.5;   // §8.2.2 each surviving follower's chance to flee with the boss
+const EXP_BOSS_DEVOUR     = 0.25;  // §8.5.2 final phase: HP the boss restores per ally it consumes (share of its max)
+const EXP_INTRUDE_CHANCE  = 0.15;  // §9.1 chance per eligible trigger check
+const EXP_AMBUSH_LEAVE    = 0.15;  // §9.2 the ambush leaves its target at exactly this share of max HP
+const EXP_SMASH_TARGETS   = 2;     // §9.3 war-band members struck by the minion-smash
+const EXP_SMASH_STUN      = 1;     // §9.3 stun duration (turns)
+// UNRESOLVED — do not finalize (spec §17). Implemented as configurable knobs / stubs:
+const EXP_AMBUSH_TARGET   = 'hpPct';       // #5: 'hpPct' (highest HP%) or 'hp' (highest current HP)
+const EXP_INTRUDE_CADENCE = 'roundStart';  // #7: one eligible intrusion check at each round start
+
+/* One authored proving-ground expedition. `env` is one of the spec's 8 environments;
+   `look` reuses an existing arena palette. `chambers` is the graph: each entry has a
+   type, a name, and `exits` (forward connections by chamber id). The first chamber is
+   an empty preparation area (§3.2) and never counts as a combat encounter. */
+const EXPEDITIONS = [
+  { id: 'proving', name: 'The Proving Vault', env: 'dungeon', look: 'crypt', minLv: 5, scale: 0.85,
+    freeMap: true,   // the guild provides this training vault's map (§3.3)
+    blurb: 'A test crypt the guild keeps for green warbands. Its passages fork — the road you pick is on you.',
+    entry: 'start',
+    // The final boss (§8): starts in bossStart, flees to bossDest[1] at 40% HP, then bossDest[2] at 15%,
+    // and makes its last stand there. bossAdds are the followers that fight (and may flee) beside it.
+    boss: 'abbot', bossAdds: ['wraith', 'cryptghoul'], bossStart: 'lair1', bossDest: { 1: 'lair2', 2: 'lair3' },
+    chambers: {
+      start: { type: 'start',    name: 'The Entrance Hall', exits: ['c1'] },
+      c1:    { type: 'combat',   name: 'The Cloister',      pack: ['cryptghoul', 'bonerattler', 'wraith'], minorBoss: { id: 'bonerattler', name: 'The Bonelord' }, exits: ['c2', 'c3'] },
+      c2:    { type: 'treasure', name: 'The Reliquary',     chest: { gold: 60, items: 1 }, exits: ['c4'] },
+      c3:    { type: 'combat',   name: 'The Ossuary',       pack: ['bonerattler', 'cryptghoul', 'wraith', 'cryptghoul'], minorBoss: { id: 'cryptghoul', name: 'The Pale Deacon' }, exits: ['c4'] },
+      c4:    { type: 'combat',   name: 'The Flooded Nave',  pack: ['wraith', 'cryptghoul', 'bonerattler'], exits: ['dead1', 'lair1'] },
+      dead1: { type: 'deadend',  name: 'A Collapsed Stair', exits: [] },
+      // The boss arc: the Abbot is met in lair1, flees deeper twice, and dies in lair3. The side
+      // vault lets the party explore (and loot) before pressing on (§8.4).
+      lair1:  { type: 'boss',     name: "The Abbot's Nave",     exits: ['vault', 'lair2'] },
+      vault:  { type: 'treasure', name: 'The Flooded Vault',    chest: { gold: 120, items: 2 }, exits: ['ambush', 'lair2'] },
+      // The exploration road: while the Abbot is loose, this fight is where it can intrude (§9).
+      ambush: { type: 'combat',   name: 'The Side Crypt',       pack: ['cryptghoul', 'wraith', 'bonerattler'], exits: ['lair2'] },
+      lair2:  { type: 'boss',     name: 'The Drowned Transept', exits: ['lair3'] },
+      lair3:  { type: 'boss',     name: 'The Sunken Choir',     exits: [] },
+    },
+  },
+];
+const expeditionById = (id) => EXPEDITIONS.find((e) => e.id === id);
+// Environment labels for the 8 spec environments (§1); the proving ground is a dungeon.
+const EXP_ENVIRONMENTS = { dungeon: 'Dungeon', cave: 'Cave', castle: 'Castle', graveyard: 'Graveyard', forest: 'Forest', tundra: 'Tundra', desert: 'Desert', city: 'City' };
+
 // Heroes live in their faction folder; summons in characters/summons/; monsters in characters/monsters/.
 function spriteSVG(id) {
   const c = charById(id);
@@ -4209,7 +4312,7 @@ const effAgi = (u) => u.agi * (has(u, 'slow') && !charNat(u).march ? 0.6 : 1);  
 // Speed along the bar: Agility, plus Elowen's Forest Stride for her whole warband (dodge still uses effAgi).
 // The Pale Host shamble: every one of them, summons included, crosses the bar 5% slower.
 const PALE_HOST_PACE = 0.95;
-const barAgi = (u) => effAgi(u) * (u.faction === 'undead' ? PALE_HOST_PACE : 1) * hazardPace(u)
+const barAgi = (u) => effAgi(u) * (u.spdMult || 1) * (u.faction === 'undead' ? PALE_HOST_PACE : 1) * hazardPace(u)
   * (charNat(u).tiderun && highTide() ? 1.15 : 1)   // Tharos: the flood carries him
   * (1 + Math.max(0, ...alliesOf(u).map((a) => pv(a).haste || 0)));
 const wx = () => state.weather || 'clear';
@@ -4456,7 +4559,7 @@ function makeUnit(c, lv, side, slot, scale = 1) {
     // Covering Fire's count of the field's turns, and Bolt-On's weld (see THE TURN PULSE).
     watch: c.watch || 0, watchN: 0, attachedTo: null, latchLeft: 0, latchHeal: 0,
     // The champion's Nature (always on, see ROSTER): the engine reads its flags via charNat(u).
-    nat: c.nature || {},
+    nat: c.nature || {}, splitOnDeath: c.splitOnDeath || 0,
     cooldowns: { b: ULT_FIRST_TURN }, heat: 0, stacks: (ps.startStacks || 0) + (c.nature?.brace || 0), hitSince: false, lastAction: null, combo: false,
   };
 }
@@ -4484,7 +4587,11 @@ function makeMonster(id, lv, slot, scale = 1) {
 }
 
 function skillsOf(u) {
-  if (u.summon) return SUMMONS[u.id].skills.map((s, i) => ({ ...s, id: i === 0 ? 'attack' : `s${i}` }));
+  if (u.summon) {
+    const sk = SUMMONS[u.id].skills.map((s, i) => ({ ...s, id: i === 0 ? 'attack' : `s${i}` }));
+    if (u.controllable) sk.push(GUARD);
+    return sk;
+  }
   if (u.monster) return MONSTERS[u.id].skills.map((s, i) => ({ ...s, id: i === 0 ? 'attack' : `s${i}` }));
   const c = charById(u.id);
   const guard = u.faction === 'mech' ? { ...GUARD, desc: 'Take 50% less damage until your next turn. Vents 50 Heat.' }
@@ -4594,8 +4701,8 @@ function validTargets(u, sk) {
     // An Anchor or a Jelly is clamped onto a body, not standing in a rank behind one, so no front
     // line shields it whatever role the attachment happens to carry - otherwise the side it is
     // stuck to cannot break it off until their enemy's line has already fallen.
-    if (frontlineUp(foes[0]?.side) && !charNat(u).slipline) {   // no line holds a hound (Gorehound)
-      const front = reachable(foes.filter((f) => f.role === 'melee' || f.attach));
+    if (frontlineUp(foes[0]?.side) && !charNat(u).slipline) {   // no line holds a hound (Gorehound). Only OPEN front-liners hold a melee attacker in place: a fully fenced front falls through to the open back line below, which breaks through only when EVERY foe is fenced.
+      const front = meleeAtk ? foes.filter((f) => (f.role === 'melee' || f.attach) && !has(f, 'protected')) : foes.filter((f) => f.role === 'melee' || f.attach);
       if (front.length) return front;
     }
     return reachable(foes);
@@ -4843,6 +4950,7 @@ function fell(v, by) {
   }
   log(`${v.name} is down.`, 'sys');
   feastOfTheFallen(v);
+  if (v.splitOnDeath && !v.summon && !v.splitDone) { v.splitDone = true; splitGorehound(v); }
   const killer = by && by.summon ? unitBy(by.owner) : by;
   if (!killer || !killer.you || killer.side === v.side) return;
   const xp = killXpOf(v);
@@ -6432,7 +6540,7 @@ function roundsUntilWeather() {
 }
 
 // Battles are decided by heroes only; summons don't count.
-const heroesUp = (side) => state.teams[side].some((u) => alive(u) && !u.summon);
+const heroesUp = (side) => state.teams[side].some((u) => alive(u) && (!u.summon || u.controllable));
 
 function checkEnd() {
   if (['won', 'lost', 'cleared'].includes(state.phase)) return true;
@@ -6849,9 +6957,10 @@ async function jellyThrow(u, t, a) {
   burst(t, 'splash');
 }
 
-// A felled Gorehound comes apart: each head tears loose as an uncontrollable Hell Pup — 50 HP,
-// no mana, no skills but a bite. independent:true so they outlive their (now dead) owner, exactly
-// as a Salvage Bot outlives its Mech.
+// A felled Gorehound tears apart: each head breaks loose as a Hell Pup — 100 HP, 1.5× speed,
+// and on the player's side still yours to command. independent:true so they outlive their
+// (now dead) owner. The split fires from fell(), not sweepDeathBots, so the hounds exist
+// before any checkEnd can decide the battle is over.
 function splitGorehound(g) {
   const def = SUMMONS.splithound;
   for (let i = 0; i < (g.splitOnDeath || 2); i++) {
@@ -6860,6 +6969,8 @@ function splitGorehound(g) {
     const u = {
       uid: `${g.uid}h${state.summonSeq}`, id: 'splithound', art: 'splithound',
       side: g.side, summon: true, independent: true, owner: g.uid,
+      controllable: g.side === 'p', you: g.side === 'p', spdMult: 1.5,
+      pv: { heroic: 0.4 },
       name: def.name, level: g.level, faction: g.faction, race: null, role: def.role, floats: false,
       ...st, hp: st.maxHp, mp: 0, maxMp: 0, effects: [], cooldowns: {}, heat: 0, stacks: 0,
       hitSince: false, lastAction: null, combo: false,
@@ -6870,7 +6981,7 @@ function splitGorehound(g) {
     burst(u, 'hit');
     float(u, 'Torn loose', 'fx');
   }
-  log(`${g.name} is cut down — and both heads tear free as a pair of lesser hounds!`, g.side);
+  log(`${g.name} is cut down — both heads tear free, smaller and faster!`, g.side);
 }
 
 function spawnDeathBot(mech) {
@@ -6900,11 +7011,7 @@ function sweepDeathBots() {
       u.botSpawned = true;
       spawnDeathBot(u);
     }
-    // A slain Gorehound comes apart into its two heads (see splitGorehound).
-    if (u.splitOnDeath && !u.summon && u.hp <= 0 && !u.splitDone) {
-      u.splitDone = true;
-      splitGorehound(u);
-    }
+
   }
 }
 
@@ -7337,6 +7444,7 @@ async function nextTurn() {
   const token = state.token;
   while (token === state.token) {
     if (checkEnd()) return;
+    if (await expMaybeIntrude() && (token !== state.token || checkEnd())) return;   // §9 the loose boss may crash in
     cleanupSummons();
     nextWave();   // the Ballroom fills its empty slots between turns
     state.phase = 'busy';
@@ -7359,6 +7467,7 @@ async function nextTurn() {
     // One more turn passes on the field: Bolt-On's weld ticks, Covering Fire counts it.
     if (await turnPulse() || token !== state.token || checkEnd()) return;
     await fleeWounded();   // a Covering Fire shot (or the like) may have left a minion ready to run
+    await expEscapeCheck();   // a minor boss at 10%, or the final boss at 40%/15%, breaks off here too
     if (token !== state.token || checkEnd()) return;
     // Whatever came down at this Toll (Execute's torrent on its mark's turn, a Covering Fire shot,
     // a Grudge Axe) may have killed - or sent running - the very unit whose turn it is. Then there is
@@ -7392,9 +7501,12 @@ async function nextTurn() {
       await wait(250);
       continue;
     }
+    // §8.5.2 the final-phase boss may devour a follower to heal instead of attacking.
+    if (u.expFinal && await expBossDevour(u)) { if (token !== state.token || checkEnd()) return; endTurn(u); await wait(250); continue; }
     const { sk, t } = bossPlan(u) || aiChoose(u);   // bosses enrage and telegraph their big attacks
     await doAction(u, sk, t);
     await fleeWounded();   // a minion knocked to a quarter runs at once, not on its own turn
+    await expEscapeCheck();
     if (token !== state.token || checkEnd()) return;
     // A Mirror Dust double is good for three of its own turns; the third spent, it frays away.
     if (u.id === 'mirage' && --u.actsLeft <= 0 && u.hp > 0) u.spent = u.spent || 'faded';
@@ -7415,6 +7527,7 @@ async function commit(u, sk, t) {
   await doAction(u, sk, t);
   if (token !== state.token) return;
   await fleeWounded();   // a minion knocked to a quarter runs at once, not on its own turn
+  await expEscapeCheck();
   if (token !== state.token || checkEnd()) return;
   endTurn(u);
   await wait(250);
@@ -7605,9 +7718,9 @@ const huntDepth = () => (state.mode === 'hunt' ? depthById(state.hunt?.depth) : 
 
 function startBattle(retry) {
   FFWD = false;   // fast-forward never carries into a fresh fight
-  const hunt = huntDepth(), dg = dungeonRun(), duel = state.mode === 'duel' ? state.duel : null, spar = sparring() ? state.spar : null;
-  const fac = hunt || dg || duel || spar ? null : state.order[state.battle];
-  if (!retry && !hunt && !dg && !duel && !spar) state.enemyIds = pickEnemyTeam(fac);
+  const hunt = huntDepth(), dg = dungeonRun(), exp = expRun(), duel = state.mode === 'duel' ? state.duel : null, spar = sparring() ? state.spar : null;
+  const fac = hunt || dg || exp || duel || spar ? null : state.order[state.battle];
+  if (!retry && !hunt && !dg && !exp && !duel && !spar) state.enemyIds = pickEnemyTeam(fac);
   // Your warband fights at your champion's level. Slot 0 is you: the only unit that takes your orders.
   state.level = spar ? spar.lv : heroLevel();
   state.teams.p = (spar ? spar.p : state.team).map((id, i) => makeUnit(charById(id), state.level, 'p', i));
@@ -7617,10 +7730,18 @@ function startBattle(retry) {
     if (profile.hero && spar.p[0] === profile.hero.id) state.teams.p[0].name = heroName();
   } else if (profile.hero && state.teams.p[0]) { state.teams.p[0].you = true; state.teams.p[0].name = heroName(); }
   // Enemies: one level below you at first, rising every two battles, and 85% → 105% strength across the run.
-  if (hunt || dg) {
-    // Monsters fight at your level, never below the depth's or dungeon's minimum.
-    const src = hunt || dg;
+  if (hunt || dg || exp) {
+    // Monsters fight at your level, never below the depth's, dungeon's or expedition's minimum.
+    const src = hunt || dg || exp;
     state.teams.e = state.enemyIds.map((id, i) => makeMonster(id, Math.max(src.minLv, state.level), i, src.scale));
+    // Expeditions: HP, MP and cooldowns carry over from the previous chamber (expStoreCarry).
+    if (exp) {
+      for (const u of state.teams.p) {
+        const c = state.exp.carry[u.id];
+        if (c) { u.hp = Math.max(0, Math.min(u.maxHp, c.hp)); u.mp = Math.max(0, Math.min(u.maxMp, c.mp)); if (c.cd) u.cooldowns = { ...c.cd }; }
+      }
+      expSetupEnemies();   // minor bosses (§6) and the final boss's persisted state (§8)
+    }
     // Dungeons: HP, MP and skill cooldowns carry over from the previous room.
     if (dg) {
       for (const u of state.teams.p) {
@@ -7673,6 +7794,7 @@ function startBattle(retry) {
   state.token++;
   $('#overlay').hidden = true;
   if (dg) log(`${dg.name}, ${dgIsBossRoom() ? 'the boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}: ${state.teams.e.map((u) => `${u.name}${u.fledOnce ? ' (wounded)' : ''}`).join(', ')}.`, 'sys');
+  else if (exp) log(`${exp.name}, ${expChamber().name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (hunt) log(`${CAVE.name}, ${hunt.name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (spar) log(`Sparring at the Training Yard, level ${spar.lv}: ${state.teams.p.map((u) => u.name).join(', ')} against ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (duel) log(`The Proving Grounds, ${duel.name} for ${duel.pay} gold: ${duel.band} — ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
@@ -7746,7 +7868,7 @@ function endHunt(won) {
 const SPAR_CTL = [['all', 'Everyone'], ['side', 'My side only'], ['you', 'Only my champion']];
 const sparring = () => state.mode === 'spar';
 // Does this unit wait for your orders? Your champion always; in a spar, whoever the matchup says.
-const commandable = (u) => !!u && !u.summon && (!!u.you || (sparring() && !u.monster
+const commandable = (u) => !!u && (!u.summon || u.controllable) && (!!u.you || (sparring() && !u.monster
   && (state.spar.ctl === 'all' || (state.spar.ctl === 'side' && u.side === 'p'))));
 const randomBand = () => shuffle(ROSTER.map((c) => c.id)).slice(0, TEAM_SIZE);
 
@@ -8275,6 +8397,453 @@ function retreatDungeon() {
   openPlace('gate');
 }
 
+/* ---------- Expeditions (foundation slice) ---------- */
+const expRun = () => (state.mode === 'expedition' ? expeditionById(state.exp?.id) : null);
+const expState = () => state.exp;
+const expChamber = (id) => { const e = expRun(); return e ? e.chambers[id || state.exp.current] : null; };
+const expTypeLabel = (t) => ({ combat: 'a fight ahead', boss: 'the boss lair', treasure: 'treasure', rune: 'runes', deadend: 'a dead end', start: 'preparation' }[t] || t);
+// Seeded "server-side" RNG (mulberry32 over seed + a turn counter): deterministic, not
+// player-tweakable mid-run. Used for the timer's automatic forward movement (§5.2).
+function expRandInt(n) {
+  const s = expState(); s.rngN = (s.rngN || 0) + 1;
+  let t = (s.seed + s.rngN * 0x6D2B79F5) >>> 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return Math.floor((((t ^ (t >>> 14)) >>> 0) / 4294967296) * n);
+}
+// Maps (§3.3): bought outside a run, per dungeon. The proving vault ships its own (freeMap).
+const expHasMap = () => { const e = expRun(); return !!(e && (e.freeMap || profile.expMaps?.[e.id])); };
+
+function startExpedition(id) {
+  const e = expeditionById(id);
+  if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
+  if (!e || heroLevel() < e.minLv || state.runPending) return;
+  state.mode = 'expedition';
+  state.exp = {
+    id, seed: (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0, rngN: 0,
+    current: e.entry, path: [], visited: new Set(), reentry: {}, cleared: new Set(), looted: new Set(),
+    carry: {}, gold: 0, xp: 0, done: false, timer: null, deadline: null, lastLoot: null,
+    // §6 minor bosses, §8 final boss arc, §9 intrusion.
+    minorsSlain: 0, minorReturning: null, pendingRuneDrop: false,
+    boss: { phase: 0, hp: null, loc: e.bossStart || null, followers: null, slain: false, escaping: false },
+    bossInFight: false,
+  };
+  state.level = heroLevel();
+  profile.stats.runs++; saveProfile();
+  expEnterChamber(e.entry, { initial: true });
+}
+
+// Move into a chamber. Handles the re-entry cap and monster recovery (§14), then routes by type.
+function expEnterChamber(id, opts = {}) {
+  const e = expRun(), s = expState(), ch = e.chambers[id];
+  expClearTimer();
+  if (!opts.initial && s.visited.has(id)) {
+    s.reentry[id] = (s.reentry[id] || 0) + 1;   // §14.2: counts toward the one allowed re-entry
+    expRecoverMonsters(id);                       // §14.3: survivors recover 10% max HP
+  }
+  if (!opts.initial && !opts.retreat) s.path.push(s.current);   // remember the road in, for retreat
+  s.current = id;
+  s.visited.add(id);
+  s.lastLoot = null;
+  // A cleared combat/boss chamber stays cleared (§14.2.4): re-entering it starts no new fight.
+  if ((ch.type === 'combat' || ch.type === 'boss') && !s.cleared.has(id)) return expBeginCombat();
+  if (ch.type === 'treasure') return expTreasure(ch);
+  // start / dead end / already-cleared: no encounter — straight to the Post-Chamber decision phase.
+  announce('Expedition', `${e.name} · ${ch.name}`);
+  expPostChamber();
+}
+
+// §14.3: surviving monsters in a re-entered chamber heal 10% of max HP. The foundation never
+// leaves survivors behind (a combat chamber is fully cleared before you can leave), but the
+// hook is here for the minor-boss / final-boss escape arcs that will populate s.survivors.
+function expRecoverMonsters(id) {
+  const surv = expState().survivors?.[id];
+  if (!surv?.length) return;
+  for (const m of surv) m.hp = Math.min(1, (m.hp || 0) + EXP_REENTRY_HEAL);   // stored as a fraction of max
+  log(`Surviving monsters in ${expRun().chambers[id].name} recover ${Math.round(EXP_REENTRY_HEAL * 100)}% HP.`, 'sys');
+}
+
+function expBeginCombat() {
+  const e = expRun(), s = expState(), ch = expChamber(), id = s.current;
+  let ids = [];
+  if (ch.type === 'boss' && s.boss.loc === id && !s.boss.slain) {
+    s.bossInFight = true;
+    // Followers: the first encounter fields e.bossAdds; later ones field whoever fled with the boss (§8.2.2).
+    const followers = s.boss.followers == null ? (e.bossAdds || []).map((x) => ({ id: x, hp: 1 })) : s.boss.followers;
+    s._bossFollowers = followers;
+    ids = [e.boss, ...followers.map((f) => f.id)];
+  } else {
+    s.bossInFight = false;
+    ids = [...(ch.pack || [])];
+  }
+  // A returning minor boss (§6.2) rejoins this combat at 20% HP, unable to flee again.
+  if (s.minorReturning) ids = [s.minorReturning.id, ...ids];
+  state.enemyIds = ids.length ? ids : ['wraith'];
+  startBattle(true);
+}
+
+// A monster promoted into a minor boss (§6): bigger, much tougher, harder-hitting, and it never
+// uses the ordinary minion flee — it has its own 10% escape.
+function expPromoteMinor(u, name) {
+  u.expMinor = true; u.elite = true; u.name = name;
+  u.maxHp = Math.round(u.maxHp * EXP_MINOR_HP_MULT); u.hp = u.maxHp;
+  u.atk = Math.round(u.atk * EXP_MINOR_ATK_MULT);
+}
+
+// Enemy-side setup for an expedition fight (called from startBattle): minor-boss promotion and
+// return, and the final boss's persisted HP, phase behaviour, double speed and wounded followers.
+function expSetupEnemies() {
+  const e = expRun(), s = expState(), ch = expChamber();
+  // The returning minor boss (§6.2) first: promote the injected copy, set it to 20% HP, forbid a
+  // second flee. Doing this before the chamber's own promotion keeps the two from colliding.
+  if (s.minorReturning) {
+    const r = s.minorReturning;
+    const u = state.teams.e.find((x) => x.id === r.id && !x.expMinor);
+    if (u) { expPromoteMinor(u, r.name); u.hp = Math.max(1, Math.round(u.maxHp * EXP_MINOR_RETURN_HP)); u.expReturning = true; u.noFlee = true; burst(u, 'smoke'); }
+    s.minorReturning = null;
+  }
+  // Promote the chamber's own designated minor boss (§6).
+  if (ch.minorBoss) {
+    const u = state.teams.e.find((x) => x.id === ch.minorBoss.id && !x.expMinor);
+    if (u) expPromoteMinor(u, ch.minorBoss.name);
+  }
+  // The final boss (§8).
+  if (s.bossInFight) {
+    const boss = state.teams.e.find((x) => x.id === e.boss && x.boss);
+    if (boss) {
+      if (s.boss.hp != null) boss.hp = Math.max(1, Math.round(boss.maxHp * s.boss.hp));
+      boss.expBoss = true;
+      boss.spdMult = s.boss.phase < 2 ? EXP_BOSS_SPEED_MULT : 1;   // §8.1 double speed; §8.5.3 normal in the final phase
+      if (s.boss.phase >= 2) { boss.expFinal = true; addFx(boss, 'enraged', 999, 0, true); }   // §8.5: no flee, consumes allies
+      const foll = s._bossFollowers || [];
+      let fi = 0;
+      for (const u of state.teams.e) {
+        if (u === boss) continue;
+        u.bossMinion = true;
+        const f = foll[fi++];
+        if (f && f.hp < 1) u.hp = Math.max(1, Math.round(u.maxHp * f.hp));
+      }
+    }
+    s._bossFollowers = null;
+  }
+}
+
+function expTreasure(ch) {
+  const s = expState();
+  if (!s.looted.has(s.current)) {
+    s.looted.add(s.current);
+    const g = ch.chest?.gold || 0, got = [];
+    if (g) { profile.gold += g; s.gold += g; profile.stats.earned += g; }
+    for (let i = 0; i < (ch.chest?.items || 0); i++) {
+      const k = pick(ITEM_KEYS);
+      if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; got.push(ITEMS[k].name); }
+    }
+    saveProfile();
+    s.lastLoot = { gold: g, items: got };
+    log(`${ch.name}: a chest — +${g} gold${got.length ? `, ${got.join(', ')}` : ''}.`, 'sys');
+  } else {
+    log(`${ch.name}: the chest is already emptied.`, 'sys');
+  }
+  announce('Treasure', ch.name);
+  expPostChamber();
+}
+
+// Carry HP / MP / cooldowns to the next chamber. PLACEHOLDER revive (see EXP_REVIVE) until
+// Preparation Turns (§4) and resurrection items (§12) are built.
+function expStoreCarry() {
+  for (const u of state.teams.p.filter((x) => !x.summon)) {
+    const hp = u.hp > 0 ? u.hp : Math.round(u.maxHp * EXP_REVIVE);
+    expState().carry[u.id] = { hp: Math.min(u.maxHp, hp), mp: Math.min(u.maxMp, u.mp || 0), cd: { ...u.cooldowns } };
+  }
+}
+
+// Combat chamber resolved (called from endBattle). Pays XP/gold, then opens the decision phase
+// on a win, or the end overlay on a loss or boss kill. Expeditions never use showEndOverlay.
+async function expResolveCombat(won) {
+  const e = expRun(), ch = expChamber(), s = expState();
+  const slain = state.teams.e.filter((u) => u.monster && !alive(u));
+  const bossKilled = state.teams.e.some((u) => u.expBoss && !alive(u));   // the final boss actually died (not fled)
+  const news = slain.flatMap((u) => questEvent('slay', { monster: u.id }));
+  for (const u of slain) if (u.boss) news.push(...questEvent('boss', { id: u.id }));
+  if (won) {
+    state.phase = 'won';
+    const lv = state.teams.e[0]?.level || 1;
+    state.goldWon = guildGold(HUNT_GOLD_BASE + HUNT_GOLD_PER * slain.length);
+    const xp = Math.round(slain.reduce((a, u) => a + (MONSTERS[u.id]?.xp || 0) * (u.boss ? 3 : u.expMinor ? 2 : 1), 0) * (1 + 0.1 * (lv - 1)) * DG_XP_MULT);
+    state.reward = payXp(xp);
+    const flawless = state.teams.p.filter((u) => !u.summon).every(alive);
+    news.push(...questEvent('win', { vs: null, flawless, rounds: state.round, kills: 0 }), ...guildWin(bossKilled));
+    // Minor-boss drops (§6.1): first drops a rune casket, the second drops loot.
+    const minorsKilled = state.teams.e.filter((u) => u.expMinor && !alive(u)).length;
+    for (let i = 0; i < minorsKilled; i++) { s.minorsSlain++; expMinorDrop(s.minorsSlain); }
+    expStoreCarry();
+    s.cleared.add(s.current);
+    s.bossInFight = false;
+    profile.gold += state.goldWon; profile.stats.earned += state.goldWon; profile.stats.wins++;
+    if (bossKilled) { s.boss.slain = true; s.done = true; }
+  } else {
+    state.phase = 'lost';
+    state.goldWon = 0;
+    state.reward = payXp(XP_LOSS);
+    news.push(...questEvent('loss', { kills: 0 }));
+  }
+  s.gold += state.goldWon; s.xp += state.reward.xp;
+  state.level = heroLevel(); fillNewSlots(state.level); saveProfile();
+  log(won ? `Chamber cleared. +${state.goldWon} gold, +${state.reward.xp} XP.` : `Your warband has fallen. +${state.reward.xp} XP.`, 'sys');
+  if (state.reward.to > state.reward.from) log(`${heroName()} reaches level ${state.reward.to}!`, 'sys');
+  state.questNews = [...news, ...questsUnlocked(state.reward.from, state.reward.to)];
+  for (const t of state.questNews) log(t, 'sys');
+  render();
+  await wait(700);
+  if (!won) return expEndOverlay('lost');
+  if (s.done) return expEndOverlay('won');
+  expPostChamber();
+}
+
+// §6.1 minor-boss drops. First: a casket of 3 runes (selection is slice 3 — logged, deferred).
+// Second: ordinary loot. Minor-boss loot otherwise follows the expedition reward rules (#9 unresolved).
+function expMinorDrop(n) {
+  const s = expState();
+  if (n === 1) {
+    s.pendingRuneDrop = true;
+    log('The minor boss drops a sealed rune-casket — 3 runes within. (Rune selection arrives in slice 3.)', 'sys');
+  } else {
+    const g = 80, k = pick(ITEM_KEYS);
+    profile.gold += g; s.gold += g; profile.stats.earned += g;
+    if ((profile.items[k] || 0) < SATCHEL_MAX) profile.items[k] = (profile.items[k] || 0) + 1;
+    log(`The minor boss falls and drops loot: +${g} gold and a ${ITEMS[k].name}.`, 'sys');
+  }
+}
+
+/* --- Expedition escape arcs (§6.2 minor boss, §8.2–8.3 final boss) --- */
+// Checked wherever fleeWounded is (after each action and at turn start): a minor boss runs at 10% HP,
+// the final boss breaks off at 40% then 15% and relocates to its designated chamber.
+async function expEscapeCheck() {
+  const s = expState();
+  if (!expRun() || !s) return;
+  for (const u of [...state.teams.e]) {
+    if (u.expMinor && !u.expReturning && !u.noFlee && alive(u) && u.hp / u.maxHp <= EXP_MINOR_FLEE_AT) await expMinorFlee(u);
+  }
+  if (s.bossInFight && !s.boss.escaping) {
+    const boss = state.teams.e.find((u) => u.expBoss && alive(u));
+    if (boss && !boss.expFinal) {
+      const thresh = s.boss.phase === 0 ? EXP_BOSS_FLEE_1 : EXP_BOSS_FLEE_2;
+      if (boss.hp / boss.maxHp <= thresh) { s.boss.escaping = true; await expBossEscape(boss); }
+    }
+  }
+}
+
+async function expMinorFlee(u) {
+  const s = expState();
+  log(`${u.name} is badly wounded and flees deeper into the dungeon!`, 'sys');
+  float(u, 'Flees!', 'fx');
+  const el = document.getElementById(`u-${u.uid}`);
+  if (el) { el.classList.add('fleeing'); el.style.setProperty('--x', 115); }
+  await wait(900);
+  s.minorReturning = { id: u.id, name: u.name };   // returns in the next combat at 20% HP (§6.2)
+  removeUnit(u);
+  render();
+}
+
+async function expBossEscape(boss) {
+  const e = expRun(), s = expState(), nextPhase = s.boss.phase + 1, dest = e.bossDest[nextPhase];
+  log(`${boss.name} is driven to ${Math.round(100 * boss.hp / boss.maxHp)}% and breaks off, fleeing toward ${e.chambers[dest].name}!`, 'sys');
+  announce('The boss flees', boss.name);
+  float(boss, 'Flees!', 'fx');
+  const leaving = [boss], followers = [];
+  for (const u of state.teams.e) {
+    if (u === boss || !alive(u) || !u.bossMinion) continue;
+    if (chance(EXP_FOLLOW_CHANCE)) { followers.push({ id: u.id, hp: u.hp / u.maxHp }); leaving.push(u); log(`${u.name} flees after its master.`, 'sys'); }
+  }
+  for (const u of leaving) { const el = document.getElementById(`u-${u.uid}`); if (el) { el.classList.add('fleeing'); el.style.setProperty('--x', 115); } }
+  s.boss.hp = boss.hp / boss.maxHp; s.boss.phase = nextPhase; s.boss.loc = dest; s.boss.followers = followers;
+  await wait(950);
+  for (const u of leaving) removeUnit(u);
+  s.bossInFight = false; s.boss.escaping = false;
+  render();
+}
+
+// §8.5.2 final phase: on its turn, the boss may consume a living follower to restore HP.
+async function expBossDevour(u) {
+  const prey = alliesOf(u).filter((a) => a !== u && a.bossMinion && alive(a));
+  if (!prey.length || u.hp >= u.maxHp || !chance(0.6)) return false;
+  const victim = prey[0], heal = Math.round(u.maxHp * EXP_BOSS_DEVOUR);
+  burst(u, 'roar'); burst(victim, 'fire');
+  log(`${u.name} consumes ${victim.name}, tearing it apart to mend its own wounds!`, 'sys');
+  float(victim, 'Devoured', 'fx');
+  victim.hp = 0; removeUnit(victim);
+  healUnit(u, u, heal, 'Consume Ally', { innate: true });
+  render(); await wait(600);
+  return true;
+}
+
+/* --- §9 Boss mid-battle intrusion. One eligible 15% check per round (cadence #7 unresolved) while
+   the boss is loose in the dungeon and the party is in some OTHER fight. --- */
+async function expMaybeIntrude() {
+  const s = expState();
+  if (EXP_INTRUDE_CADENCE !== 'roundStart' || !expRun() || !s) return false;
+  if (s.bossInFight || !s.boss || s.boss.phase < 1 || s.boss.slain) return false;   // only while loose, not in its own fight
+  if (s._intrudeRound === state.round || state.round < 2) return false;
+  s._intrudeRound = state.round;
+  if (!chance(EXP_INTRUDE_CHANCE)) return false;
+  await expBossIntrusion();
+  return true;
+}
+
+async function expBossIntrusion() {
+  const e = expRun(), s = expState(), bm = MONSTERS[e.boss];
+  log(`${bm.name} crashes into the fight — the normal turn order is shattered! (Boss intrusion)`, 'sys');   // §9.5.1-2
+  announce('Boss intrusion', bm.name);
+  state.expSeq = (state.expSeq || 0) + 1;
+  const boss = makeMonster(e.boss, Math.max(e.minLv, state.level), 90 + state.expSeq, e.scale);
+  boss.name = bm.name; boss.expIntruder = true; boss.pos = TRACK;   // §9.2.3 massive speed boost: already at the gate
+  if (s.boss.hp != null) boss.hp = Math.max(1, Math.round(boss.maxHp * s.boss.hp));
+  state.teams.e.push(boss); addUnitDom(boss); render();
+  await wait(700);
+  // Turn 1 — Ambush (§9.2): the highest-HP% (or HP) hero is left at exactly 15% of max HP.
+  const targets = state.teams.p.filter((u) => !u.summon && alive(u));
+  if (targets.length) {
+    const t = (EXP_AMBUSH_TARGET === 'hp' ? targets.slice().sort((a, b) => b.hp - a.hp) : targets.slice().sort((a, b) => b.hp / b.maxHp - a.hp / a.maxHp))[0];
+    log(`Ambush: ${bm.name} singles out ${t.name} (highest ${EXP_AMBUSH_TARGET === 'hp' ? 'HP' : 'HP%'}).`, 'sys');   // §9.5.3
+    const floorHp = Math.round(t.maxHp * EXP_AMBUSH_LEAVE);
+    if (t.hp <= floorHp) {
+      log(`${t.name} is already at or below ${Math.round(EXP_AMBUSH_LEAVE * 100)}% HP — the ambush rule here is unresolved (#6); no damage dealt.`, 'sys');
+    } else {
+      const dmg = t.hp - floorHp; t.hp = floorHp;
+      burst(t, 'fire'); knock(t, true); float(t, `${dmg}`, 'dmg');
+      log(`The ambush blow lands for ${dmg}: ${t.name} is left at ${Math.round(EXP_AMBUSH_LEAVE * 100)}% HP.`, 'sys');   // §9.5.4-5
+    }
+    render(); await wait(700);
+  }
+  // Turn 2 — Minion Smash (§9.3): the boss swings a minion as a club, stunning up to 2 heroes; the minion dies.
+  const minion = state.teams.e.find((u) => u !== boss && u !== undefined && alive(u) && u.monster && !u.expBoss);
+  const victims = shuffle(state.teams.p.filter((u) => !u.summon && alive(u))).slice(0, EXP_SMASH_TARGETS);
+  log(`${bm.name} seizes ${minion ? minion.name : 'a minion'} and swings it like a club!`, 'sys');   // §9.5.6-7
+  for (const v of victims) { burst(v, 'smoke'); addFx(v, 'stun', EXP_SMASH_STUN); float(v, '💥 Smashed', 'fx'); log(`${v.name} is smashed and stunned for ${EXP_SMASH_STUN} turn.`, 'sys'); }   // §9.5.8
+  if (minion) { log(`${minion.name} is shattered by the blow and dies.`, 'sys'); minion.hp = 0; removeUnit(minion); }   // §9.5.9
+  render(); await wait(700);
+  // Exit (§9.4): the boss withdraws; its HP persists to its next encounter (§9.1.8).
+  s.boss.hp = boss.hp / boss.maxHp;
+  log(`${bm.name} withdraws from the fight. Normal combat resumes.`, 'sys');   // §9.5.10-11
+  removeUnit(boss); render(); await wait(400);
+}
+
+/* THE POST-CHAMBER BATTLE PHASE (§4–5): the party does NOT auto-advance. A 45-second window
+   to pick a connected chamber or retreat; if it lapses, the system moves forward at random.
+   Preparation Turns (§4.3) are a later slice — movement/retreat/re-entry already grant none. */
+function expPostChamber() {
+  state.phase = 'idle';
+  expClearTimer();
+  const s = expState();
+  s.deadline = Date.now() + EXP_DECISION_SECS * 1000;
+  expRenderDecision();
+  s.timer = setInterval(expTickTimer, 250);
+}
+
+function expClearTimer() { if (state.exp?.timer) { clearInterval(state.exp.timer); state.exp.timer = null; } }
+
+function expTickTimer() {
+  const s = expState();
+  if (!s) return expClearTimer();
+  const left = Math.max(0, s.deadline - Date.now());
+  const pct = (left / (EXP_DECISION_SECS * 1000)) * 100;
+  const bar = document.getElementById('expTimerFill'), txt = document.getElementById('expTimerTxt');
+  if (bar) { bar.style.width = `${pct}%`; bar.parentElement.classList.toggle('low', pct <= 25); }
+  if (txt) txt.textContent = `${Math.ceil(left / 1000)}s to decide`;
+  if (left <= 0) { expClearTimer(); expAutoMove(); }
+}
+
+// Forward exits still open under the re-entry cap (§5.2 respects the layout and the cap).
+function expValidExits() {
+  const ch = expChamber(), s = expState();
+  return (ch.exits || []).filter((id) => !s.visited.has(id) || (s.reentry[id] || 0) < EXP_REENTRY_CAP);
+}
+
+function expAutoMove() {
+  const valid = expValidExits();
+  if (!valid.length) return expNoForward();
+  const id = valid[expRandInt(valid.length)];
+  log(`The timer runs out — the party presses on to ${expRun().chambers[id].name}.`, 'sys');
+  $('#overlay').hidden = true;
+  expEnterChamber(id);
+}
+
+// §5.3 UNRESOLVED: timer expired with no valid forward chamber. Do NOT invent a fallback.
+// The decision stays open with the timer stopped; the party must retreat or abandon.
+function expNoForward() {
+  log('The timer runs out, but no road leads forward. The party must choose.', 'sys');
+  expState().deadline = null;
+  expRenderDecision();
+}
+
+function expChoose(id) { expClearTimer(); $('#overlay').hidden = true; expEnterChamber(id); }
+
+function expRetreat() {
+  const s = expState();
+  if (!s.path.length) return;
+  const back = s.path.pop();
+  expClearTimer(); $('#overlay').hidden = true;
+  log(`The party retreats to ${expRun().chambers[back].name}.`, 'sys');   // §14.1: grants no Preparation Turns
+  expEnterChamber(back, { retreat: true });
+}
+
+function expAbandon() { expEndOverlay('abandon'); }   // §15
+
+function expRenderDecision() {
+  const e = expRun(), ch = expChamber(), s = expState();
+  const exits = ch.exits || [], timed = s.deadline != null;
+  $('#ovKick').textContent = `${e.name} · ${EXP_ENVIRONMENTS[e.env] || 'Expedition'}`;
+  $('#ovTitle').textContent = exits.length ? `${ch.name} — where to?` : `${ch.name} — a dead end`;
+  const exitRows = exits.map((id) => {
+    const c = e.chambers[id], blocked = s.visited.has(id) && (s.reentry[id] || 0) >= EXP_REENTRY_CAP;
+    const tag = blocked ? 'sealed · already re-entered' : s.visited.has(id) ? 'back through here' : expTypeLabel(c.type);
+    return `<li><button class="btn" type="button" data-exp="${id}"${blocked ? ' disabled' : ''}><span>${c.name}</span><span class="etype">${tag}</span></button></li>`;
+  }).join('');
+  const loot = (s.lastLoot && (s.lastLoot.gold || s.lastLoot.items?.length))
+    ? `<p class="loot">Found: +${s.lastLoot.gold} gold${s.lastLoot.items?.length ? `, ${s.lastLoot.items.join(', ')}` : ''}</p>` : '';
+  const timerHTML = timed
+    ? `<div class="expTimer"><span id="expTimerFill" style="width:100%"></span></div><div class="expTimerTxt" id="expTimerTxt">${EXP_DECISION_SECS}s to decide</div>`
+    : '<p class="note">The decision timer has stopped. Retreat or abandon the expedition.</p>';
+  $('#ovBody').innerHTML = `${loot}${timerHTML}
+    ${exits.length ? `<ul class="expExits">${exitRows}</ul>` : '<p class="note">No road leads on from here. The only way is back.</p>'}
+    ${expHasMap() ? expMapHTML() : '<p class="note">No map for this dungeon — you see only the roads out of this chamber.</p>'}
+    <p class="note">This run so far: <b>${s.gold} gold</b>, <b>${s.xp} XP</b>. Moving between chambers never heals.</p>`;
+  const back = s.path.length ? s.path[s.path.length - 1] : null;
+  const canRetreat = back != null && (s.reentry[back] || 0) < EXP_REENTRY_CAP;
+  const btns = $('#ovBtns'); btns.innerHTML = '';
+  const mk = (label, primary, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = `btn${primary ? ' primary' : ''}`; b.textContent = label; b.addEventListener('click', fn); btns.appendChild(b); };
+  if (canRetreat) mk(`Retreat to ${e.chambers[back].name}`, false, expRetreat);
+  mk('Abandon the expedition', false, expAbandon);
+  $('#ovBody').querySelectorAll('[data-exp]').forEach((b) => b.addEventListener('click', () => expChoose(b.dataset.exp)));
+  $('#overlay').hidden = false;
+}
+
+function expMapHTML() {
+  const e = expRun(), s = expState();
+  const rows = Object.entries(e.chambers).map(([id, c]) => {
+    const here = id === s.current, done = s.cleared.has(id) || (c.type === 'treasure' && s.looted.has(id));
+    const to = (c.exits || []).map((x) => e.chambers[x].name).join(', ') || '—';
+    return `<li class="${here ? 'here' : done ? 'done' : ''}">${c.name} <small>→ ${to}</small></li>`;
+  }).join('');
+  return `<div class="expMap"><h4>Vault map</h4><ul>${rows}</ul></div>`;
+}
+
+function expEndOverlay(outcome) {
+  expClearTimer();
+  const e = expRun(), s = expState();
+  const total = `This expedition: <b>${s.gold} gold</b> and <b>${s.xp} XP</b> in total.`;
+  let kick, title, body;
+  if (outcome === 'won') { kick = `Expedition complete · ${e.name}`; title = `${MONSTERS[e.boss].name} falls`; body = `<p>The vault is cleared end to end.</p><p>${total}</p>`; }
+  else if (outcome === 'lost') { kick = 'Defeat'; title = `Your warband falls in ${e.name}`; body = `<p>The expedition ends, but you keep everything earned on the way.</p><p>${total}</p>`; }
+  else { kick = 'Abandoned'; title = `You withdraw from ${e.name}`; body = `<p>The party leaves. Everything earned so far is kept.</p><p>${total}</p>`; }
+  $('#ovKick').textContent = kick; $('#ovTitle').textContent = title; $('#ovBody').innerHTML = body;
+  const btns = $('#ovBtns'); btns.innerHTML = '';
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = 'Return to the village';
+  b.addEventListener('click', () => { $('#overlay').hidden = true; state.mode = null; state.exp = null; toVillage(); openPlace('gate'); });
+  btns.appendChild(b);
+  $('#overlay').hidden = false; b.focus();
+}
+
 async function endBattle(won) {
   state.active = null; state.pending = null;
   if (sparring()) {   // practice: nothing is won or lost
@@ -8285,6 +8854,7 @@ async function endBattle(won) {
     await wait(700);
     return showEndOverlay();
   }
+  if (expRun()) return expResolveCombat(won);   // expeditions run their own post-chamber flow
   if (dungeonRun()) endDungeonRoom(won);
   else if (huntDepth()) endHunt(won);
   else if (state.mode === 'duel') endDuel(won);
@@ -10955,13 +11525,29 @@ const PLACE_BODY = {
         <button class="btn${open ? ' primary' : ''}" type="button" data-k="dungeon:${d.id}"${open ? '' : ' disabled'}>${open ? 'Set out' : `Unlocks at level ${d.minLv}`}</button>
       </div>`;
     }).join('');
+    // Expeditions (foundation slice): branching, authored chamber maps with a decision timer.
+    const exCards = EXPEDITIONS.map((e) => {
+      const open = lv >= e.minLv, kinds = [...new Set(Object.values(e.chambers).flatMap((c) => c.pack || []))];
+      return `<div class="depth dungeon${open ? '' : ' locked'}">
+        <div class="dmini">${kinds.map((id) => `<span class="mini" title="${MONSTERS[id].name}">${spriteSVG(id)}</span>`).join('')}
+          <span class="mini boss" title="${MONSTERS[e.boss].name}">${spriteSVG(e.boss)}</span></div>
+        <h3>${e.name} <span class="role support">New</span></h3><p>${e.blurb}</p>
+        <small>Level ${e.minLv}+ · ${EXP_ENVIRONMENTS[e.env]} · branching chambers, then <b>${MONSTERS[e.boss].name}</b></small>
+        <small class="cond">🗺️ <b>Expedition</b> — forked chambers, a 45-second decision timer, and only one re-entry per chamber.</small>
+        <button class="btn${open ? ' primary' : ''}" type="button" data-k="expedition:${e.id}"${open ? '' : ' disabled'}>${open ? 'Set out' : `Unlocks at level ${e.minLv}`}</button>
+      </div>`;
+    }).join('');
     return `<p class="note">A dungeon is a run of rooms with no full heal between them: HP and MP carry over, the fallen get back up at 30%,
         and everyone rests a little. Each room pays XP and gold. The boss at the end guards a chest. Bosses enrage below half HP,
         and before their big attack they warn you a turn ahead: that's the moment to Guard or shield up.
         Badly wounded monsters flee deeper, and your warband gives chase: they'll be in the next room, still hurt.
         Abandon the run any time and you keep what you've earned.</p>
       <div class="teamRow">${teamMinis()}</div>
-      <div class="depths">${cards}</div>`;
+      <div class="depths">${cards}</div>
+      <h3 class="bhead">Expeditions (new)</h3>
+      <p class="note">An expedition is an authored, branching dungeon. After every chamber the party has 45 seconds to choose a connected
+        chamber or retreat; let the timer lapse and the party presses forward at random. Chambers can be re-entered only once.</p>
+      <div class="depths">${exCards}</div>`;
   },
 
   // The Ironsmith: Brann's anvil, which forges a champion's weapon edge and armor tier by tier.
@@ -12376,6 +12962,7 @@ function villageAction(k) {
   if (verb === 'gjoin') { joinGuild(arg); return render(); }
   if (verb === 'hunt') return startHunt(arg);
   if (verb === 'dungeon') return startDungeon(arg);
+  if (verb === 'expedition') return startExpedition(arg);
   if (verb === 'continue') { state.runPending = false; state.battle++; return startBattle(false); }
   if (verb === 'team') { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'skills') { state.skillsFor = null; state.skillsFrom = null; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
@@ -14058,9 +14645,10 @@ function renderBattle() {
   const pending = pendingAction(act);
   const targets = pending ? validTargets(act, pending) : [];
 
-  const hunt = huntDepth(), dg = dungeonRun();
+  const hunt = huntDepth(), dg = dungeonRun(), exp = expRun();
   $('#tagline').textContent = dg
     ? `${dg.name}, ${dgIsBossRoom() ? 'boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}. Warband level ${state.level}.`
+    : exp ? `${exp.name}, ${expChamber().name}. Warband level ${state.level}.`
     : hunt ? `${CAVE.name}, ${hunt.name}. Warband level ${state.level}.`
     : `Ashfall Road, battle ${state.battle + 1} of ${state.order.length}. Warband level ${state.level}.`;
   // Dungeons: the ladder lists the rooms, ending with the boss.
@@ -14068,7 +14656,7 @@ function renderBattle() {
     const done = i < state.dg.room || (i === state.dg.room && state.phase === 'won');
     const cls = done ? 'done' : i === state.dg.room ? 'now' : '';
     return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${i === DG_ROOM_COUNT ? MONSTERS[dg.boss].name : (dg.roomNames?.[i] || `Room ${i + 1}`)}</span></li>`;
-  }).join('') : hunt ? '' : state.order.map((k, i) => {
+  }).join('') : exp || hunt ? '' : state.order.map((k, i) => {
     const done = i < state.battle || (i === state.battle && (state.phase === 'won' || state.phase === 'cleared'));
     const cls = done ? 'done' : i === state.battle ? 'now' : '';
     return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${FACTIONS[k].name}</span></li>`;
@@ -14079,16 +14667,16 @@ function renderBattle() {
   $('#roundTxt').title = highTide() ? 'High Tide' : '';
 
   const W = WEATHER[wx()], left = roundsUntilWeather();
-  const under = hunt || dg;   // caves and dungeons have no weather; the cave has the odd earthquake
+  const under = hunt || dg || exp;   // caves, dungeons and expeditions have no weather; the cave has the odd earthquake
   const quake = !!hunt && quaking();
   const cond = dg ? dgCond() : null;   // the dungeon's standing condition, where it has one
   const hz = dg ? DG_HAZARDS[dgHazard()] : null;   // Castle Harrowgate: the room's hazard this round
   $('#arena').dataset.wx = under ? 'cave' : wx();
   // Brimstone Fall's warning sky: '2' two rounds out, '1' the round before (see brimstoneOmen).
   $('#arena').dataset.omen = !under && state.nextWeather === 'brim' && left <= 2 ? left : '';
-  $('#arena').dataset.dg = dg ? (dg.roomLooks?.[state.dg.room] || dg.look) : '';
+  $('#arena').dataset.dg = dg ? (dg.roomLooks?.[state.dg.room] || dg.look) : exp ? exp.look : '';
   $('#arena').classList.toggle('quake', quaking());
-  const wxName = quake ? WEATHER.quake.name : hz ? hz.name : cond ? cond.name : under ? (dg ? dg.name : 'Underground') : W.name;
+  const wxName = quake ? WEATHER.quake.name : hz ? hz.name : cond ? cond.name : under ? (dg ? dg.name : exp ? exp.name : 'Underground') : W.name;
   const wxLeft = quake ? (state.quake === 1 ? 'Last round' : `${state.quake} rounds`) : under ? '' : left === 1 ? 'Last round' : `${left} rounds`;
   $('#wxIcon').textContent = quake ? WX_ICON.quake : hz ? hz.icon : cond ? cond.icon : under ? '🕯️' : WX_ICON[wx()] || '';
   $('#wxName').textContent = $('#wxPopName').textContent = wxName;
@@ -14097,7 +14685,8 @@ function renderBattle() {
   $('#wxFavors').textContent = cond ? dg.name : !under && W.favors ? `Favors the ${FACTIONS[W.favors].name}` : '';
   $('#wxDesc').textContent = quake ? WEATHER.quake.desc : cond ? cond.desc
     : hunt ? 'No weather reaches this deep. Only the dark, the shifting rock and whatever lives in it.'
-    : dg ? 'No weather reaches this deep. Only the dark and whatever lives in it.' : W.desc;
+    : dg ? 'No weather reaches this deep. Only the dark and whatever lives in it.'
+    : exp ? 'No weather reaches these chambers. Only the dark and whatever the vault keeps.' : W.desc;
   $('#wxNext').innerHTML = under ? '' : `Next: <b>${WEATHER[state.nextWeather].name}</b> ${left === 1 ? 'next round' : `in ${left} rounds`}`;
 
   renderTrack(state.moving ? 400 : 300);
