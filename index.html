@@ -385,7 +385,7 @@ body[data-screen="select"] .top { display: none; }
 .ladder li.now .n { background: var(--accent); color: var(--accent-ink); }
 
 /* Speed bar: allies ride above the rail, enemies below; the Act gate is on the right. */
-.speed { display: grid; gap: 6px; padding: 10px 14px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+.speed { display: grid; gap: 6px; padding: 4px 0 8px; }
 /* The battle toolbar above the field: the round counter (High Tide beside it on even rounds) on the
    left; Hide log, fast-forward and the speed toggle on the right. */
 .fieldBar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 26px; }
@@ -415,9 +415,15 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .ffwdBtn[aria-pressed="true"] { background: var(--melee); border-color: var(--melee); color: #1a1410; }
 /* Bolt-On: the bolted-on drone is carried to the host's slot (settleLatch sets the translate). */
 .latched { transition: translate .5s ease; }
-.track { position: relative; height: 104px; margin-inline: 22px 52px; }
+/* The rail runs as far left as it can: the margins only clear half a token on the left and
+   the Act gate on the right. Overflow is visible all the way up, so a runner sitting at the
+   very start of the bar can overhang the edge without being cut off. */
+.track { position: relative; height: 104px; margin-inline: 10px 42px; }
+/* The rail runs on past the end of the track and under the Act gate, as far as the disc's
+   centre. Stopping at the track edge left it meeting a circle at its tangent point, where the
+   circle has no height yet - which read as a notch between the bar and the gate. */
 .rail {
-  position: absolute; left: 0; right: 0; top: 50%; height: 6px; transform: translateY(-50%);
+  position: absolute; left: 0; right: -23px; top: 50%; height: 6px; transform: translateY(-50%);
   border-radius: 3px; background: linear-gradient(90deg, var(--panel-2), var(--line) 85%, var(--accent));
 }
 .lane { position: absolute; left: -2px; font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; opacity: .7; }
@@ -429,9 +435,9 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
   display: grid; place-items: center;
   background: var(--accent); color: var(--accent-ink);
 }
-.goal svg { width: 22px; height: auto; }
+.goal svg { width: 100%; height: 100%; display: block; }
 .tok {
-  position: absolute; left: calc(var(--x, 0) * 1%); width: 40px; height: 40px; margin-left: -20px;
+  position: absolute; left: calc(var(--x, 0) * 1%); width: 32px; height: 32px; margin-left: -16px;
   transition: left var(--dur, 400ms) linear, transform .2s; z-index: 1;
 }
 .tok.p { top: 0; }
@@ -1279,14 +1285,18 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   }
   .chron .log { flex: 1; min-height: 0; max-height: none; }
 }
-.deck, .chron {
-  display: grid; gap: 10px; align-content: start; min-width: 0;
-  padding: 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line);
-}
-/* The command deck keeps one size whoever it shows; anything longer scrolls inside it. */
-.deck { position: relative; min-height: 7.5rem; }
+.deck, .chron { display: grid; gap: 10px; align-content: start; min-width: 0; }
+/* The battle log is the one thing that still sits in a panel. The deck and the speed bar give
+   theirs up: their own tiles and tokens are shape enough, and a box round each of them just
+   stacks frames inside frames on a phone. */
+.chron { padding: 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+/* The command deck keeps one size whoever it shows; anything longer scrolls inside it. No
+   panel, no outline - the tiles inside it are the shapes worth seeing. --tile is the one size
+   every slot in here is cut to, so a grid column is exactly a tile and nothing drifts inside
+   its cell. */
+.deck { --tile: 58px; position: relative; min-height: 7.5rem; padding: 2px 0 0; }
 /* (i) at the top left of every skill opens its details card (renderSkillTip). */
-.actw { position: relative; display: inline-flex; }
+.actw { position: relative; display: block; min-width: 0; }
 .ainfo {
   position: absolute; z-index: 2; left: -6px; top: -6px; width: 17px; height: 17px; padding: 0; cursor: pointer;
   border-radius: 50%; border: 1px solid var(--line); background: #2b3046; color: var(--fg);
@@ -1308,14 +1318,13 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 #arena .unit:not(.down) { cursor: pointer; }
 .unit.viewing .plate { box-shadow: 0 0 0 2px rgba(127, 227, 216, .85); }
 /* Your turn: the command deck lights up gold so it's plain the game is waiting on you. */
-.deck.your-turn {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(232, 165, 72, .45), 0 0 18px rgba(232, 165, 72, .22);
-  animation: deckCall 1.7s ease-in-out infinite;
-}
-@keyframes deckCall { 50% { box-shadow: 0 0 0 1px rgba(232, 165, 72, .8), 0 0 28px rgba(232, 165, 72, .45); } }
-@media (prefers-reduced-motion: reduce) { .deck.your-turn { animation: none; } }
+/* Waiting on you: with the outline gone the call is carried by the champion's name instead,
+   so the deck still says "your move" without drawing a box round everything. */
+.deck.your-turn #dName { color: var(--accent); animation: deckCall 1.7s ease-in-out infinite; }
+@keyframes deckCall { 50% { text-shadow: 0 0 12px rgba(232, 165, 72, .75); } }
+@media (prefers-reduced-motion: reduce) { .deck.your-turn #dName { animation: none; } }
 .dhead { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; }
+.deck > .dhead > .note { white-space: nowrap; font-size: .72rem; }
 .dhead h3 { margin: 2px 0 0; font-family: var(--font-display); font-weight: 600; font-size: 1.45rem; line-height: 1.1; }
 .passive { margin: 0; font-size: .86rem; color: var(--muted); }
 .passive .cpas { display: flex; align-items: center; gap: 7px; margin-top: 5px; }
@@ -1325,21 +1334,46 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    name underneath; the mana cost is a blue number on the icon, a cooldown a big number over it. */
 /* Skills kept at the top of the deck, the satchel beside them on the right (stacks underneath on
    narrow screens). When the satchel is hidden its auto column collapses and the skills fill the row. */
-.deckTop { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
-.deckTop .satchel { padding: 0 0 0 16px; border-top: 0; border-left: 1px solid var(--line); min-width: 130px; }
-@media (max-width: 620px) {
-  .deckTop { grid-template-columns: minmax(0, 1fr); }
-  .deckTop .satchel { padding: 10px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+/* Skills, satchel and the two basics share ONE grid of seven equal columns - four, then two,
+   then one - so every tile is the same width, every gap is the same, and the row fills the
+   deck instead of packing left and leaving a hole before Attack and Guard. */
+/* Skills, satchel and the two basics share ONE grid: seven equal tile columns with a narrow
+   spacer track at each seam. The seams are tracks rather than margins on the blocks, so every
+   tile stays exactly the same width - a margin would come out of one block and not the others
+   and leave the three groups sized differently. */
+.deckTop {
+  display: grid; align-items: start; gap: 3px;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) 6px repeat(2, minmax(0, 1fr)) 6px minmax(0, 1fr);
 }
-.acts { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.agroup { display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
-.agroup.basic { flex: none; padding-left: 10px; border-left: 1px solid var(--line); }
+.deckTop > #acts { grid-column: 1 / span 4; }
+.deckTop > #items { grid-column: 6 / span 2; }
+.deckTop > #basicActs { grid-column: 9; }
+.acts { display: block; min-width: 0; }
+/* THE SKILL SLOTS: a fixed 4 x 2 block, filled or not, so the deck is laid out once and never
+   reflows as a champion learns another. The loadout tops out at six actives (activeSlots at the
+   level cap), so the last two of the eight are always open. */
+/* Columns sized to the tile, not to the space: stretched to 1fr the tiles drift apart inside
+   their cells and the gap stops meaning anything. They pack left, hard against the edge. */
+.agroup { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; min-width: 0; }
+/* Attack and Guard sit off to the side, stacked, so the block reads as one thing. */
+/* One column, stacked: .basic also matches .agroup, so the four-column template above has to
+   be overridden here or Attack and Guard spread across four cells and squeeze the skills. The
+   gap between the blocks is what sets them apart now, not a rule. */
+.agroup.basic { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3px; }
+/* Attack and Guard are not skills: dimmer tiles and no mana badge, so the eye skips them when
+   it is hunting for something to cast and finds them when nothing else is up. */
+.agroup.basic .aico { background: #232838; box-shadow: inset 0 0 0 1px var(--line); }
+.agroup.basic .act:disabled .aico { box-shadow: none; }
+/* An empty slot is a quiet outline holding the place, not something to press. */
+.actw.open { pointer-events: none; }
+.actw.open .aico { background: none; border: 1px dashed var(--line); opacity: .55; }
 .act {
   font: inherit; color: inherit; background: none; border: 0; padding: 2px 0 0; cursor: pointer;
-  display: grid; justify-items: center; align-content: start; gap: 3px; text-align: center;
+  display: grid; justify-items: stretch; align-content: start; gap: 3px; text-align: center; width: 100%;
 }
 /* Just the icon: the name lives in the button's tooltip and aria-label, not under it. */
-.act .aico { position: relative; width: 42px; height: 42px; border-radius: 10px; background: var(--panel-2); transition: transform .12s, box-shadow .15s, opacity .15s; }
+/* Square, and as wide as the column it was given, up to --tile. */
+.act .aico { position: relative; width: 100%; max-width: var(--tile, 42px); aspect-ratio: 1; margin: 0 auto; border-radius: 10px; background: var(--panel-2); transition: transform .12s, box-shadow .15s, opacity .15s; }
 .act .aico .sic { width: 100%; height: 100%; display: block; }
 .act:hover:not(:disabled) .aico, .act:focus-visible .aico { transform: translateY(-2px); box-shadow: 0 0 0 2px rgba(232, 165, 72, .5); }
 .act:focus-visible { outline: none; }
@@ -1401,13 +1435,13 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   .ladder li:not(.now) .nm { display: none; }
   .battleGrid, .field { gap: 8px; }
   .field .arena { aspect-ratio: auto; height: 36dvh; min-height: 250px; margin-inline: -8px; border-radius: 0; }   /* edge to edge */
-  .speed { padding: 6px 10px 8px; gap: 2px; }
-  .track { height: 70px; }
+  .speed { padding: 6px 0 8px; gap: 2px; }
+  .track { height: 84px; }
   .lane { display: none; }
-  .deck { padding: 10px; gap: 8px; }
+  .deck { padding: 2px 0 0; gap: 8px; }
   .dhead h3 { font-size: 1.15rem; }
   .passive { font-size: .76rem; }
-  .act .aico { width: 38px; height: 38px; }
+  .deck { --tile: 52px; }
   .chron { padding: 8px 10px; gap: 4px; }
   .chron > .label { display: none; }
   .log { max-height: 72px; font-size: .78rem; }
@@ -1972,15 +2006,29 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .socket .mv { display: flex; flex-wrap: wrap; gap: 6px; }
 .socketNone { margin: 8px 0 0; }
 .ico.wico svg { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .5)); }
-.satchel { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
-.items { display: flex; flex-wrap: wrap; gap: 6px; }
+.satchel { display: grid; gap: 6px; padding-top: 10px; }
+/* FOUR ITEM SLOTS, always four, cut to the same --tile square as a skill slot so the 2 x 2
+   block lines up with the 4 x 2 beside it. They were full-width pills stacked down the deck,
+   which ate most of a phone screen. The name rides in the tooltip and the aria-label, the way
+   the skill tiles already do, and the count sits in the corner rather than on its own line. */
+.items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; min-width: 0; }
 .item {
-  font: inherit; font-size: .84rem; font-weight: 700; color: inherit; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px 3px 5px; border-radius: 999px;
+  font: inherit; font-weight: 700; color: inherit; cursor: pointer; box-sizing: border-box;
+  position: relative; display: grid; place-items: center; padding: 0; border-radius: 10px;
+  width: 100%; max-width: var(--tile); aspect-ratio: 1; margin: 0 auto;
   background: var(--panel-2); border: 1px solid var(--line);
 }
-.item .ico { width: 22px; height: 22px; }
-.item kbd { font: 700 .66rem/1 var(--font-body); color: var(--muted); padding: 2px 5px; border: 1px solid var(--line); border-radius: 4px; }
+.item .ico { width: 68%; height: 68%; display: block; }
+.item .ico svg, .item .ico img { width: 100%; height: 100%; display: block; }
+/* The count tucks into the bottom-right corner, over the icon, so the tile stays square. */
+.item .qty {
+  position: absolute; right: 1px; bottom: 0; font-size: .6rem; line-height: 1.2; color: var(--fg);
+  padding: 0 2px; border-radius: 4px; background: rgba(12, 14, 24, .78);
+}
+.item.armed .qty { color: var(--accent); }
+.item.open { pointer-events: none; background: none; border-style: dashed; opacity: .55; }
+.item kbd { position: absolute; left: 3px; top: 2px; font: 700 .6rem/1 var(--font-body); color: var(--muted); padding: 1px 3px; border: 1px solid var(--line); border-radius: 4px; }
+@media (pointer: coarse) { .item kbd { display: none; } }
 .item:hover:not(:disabled) { border-color: var(--accent); }
 .item.armed { border-color: var(--accent); background: var(--panel-hi); }
 .item:disabled { opacity: .42; cursor: not-allowed; }
@@ -2138,7 +2186,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           <div class="track" id="track">
             <div class="rail"><span class="lane p">Your warband</span><span class="lane e">Enemies</span></div>
             <div class="goal" role="img" aria-label="Act">
-              <svg viewBox="0 0 24 44" aria-hidden="true">
+              <svg viewBox="-21.5 -12 67 67" aria-hidden="true">
                 <!-- shield behind -->
                 <path d="M12 18 L20.5 20.5 V28 C20.5 34.5 16.8 38.8 12 41 C7.2 38.8 3.5 34.5 3.5 28 V20.5 Z"
                       fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
@@ -2154,19 +2202,23 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           </div>
         </section>
         <section class="deck" aria-label="Actions">
+          <!-- One header line: who is acting on the left, what the satchel has to say on the
+               right. The satchel used to own a whole row of its own for a single sentence. -->
           <div class="dhead">
             <h3 id="dName"></h3>
+            <span class="note" id="satchelHint" hidden></span>
           </div>
           <!-- Skills sit right under the one-line name so they never jump as the passive/nature text
                below changes length from champion to champion; the satchel rides on the right of them
                instead of being stacked underneath and shoving everything down. -->
+          <!-- One row, three blocks: the 4 x 2 of skills, the 2 x 2 satchel beside it, then
+               Attack and Guard holding the right edge. The satchel's own line sits under them. -->
           <div class="deckTop">
             <div class="acts" id="acts"></div>
-            <div class="satchel" id="satchel" hidden>
-              <div class="dhead"><p class="label">Satchel</p><span class="note" id="satchelHint"></span></div>
-              <div class="items" id="items"></div>
-            </div>
+            <div class="items" id="items" hidden></div>
+            <div class="agroup basic" id="basicActs"></div>
           </div>
+
           <p class="passive" id="dPassive" hidden></p>
           <div class="skillTip" id="skillTip" role="dialog" aria-live="polite" hidden></div>
           <div class="prompt" id="prompt" hidden>
@@ -2782,7 +2834,7 @@ const ROSTER = [
              D('Riptide', '120% hit. He lifts the trident and a wave washes the target back along the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
              D('Feeding Frenzy', 'Three bites of 55%, 60% stronger against Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
              D('Undertow', '60% to all enemies. He drives the trident into the ground and a great wave washes them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true, slam: true }),
-             { name: 'Anchor Chain', desc: 'A great anchor crashes from above and roots an enemy in place until the anchor is broken: it still takes its turns, but it cannot cross the field — no melee attacks or run-in spells, and it cannot move to an ally. Ranged attacks and in-place casts still land. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
+             { name: 'Anchor Chain', desc: 'A great anchor crashes from above and roots an enemy for 2 of its turns or until the anchor is broken — whichever comes first. The rooted enemy can still act, but it cannot cross the field: no melee attacks, run-in spells, or moves to an ally. Ranged attacks and in-place casts still land. The host can strike the anchor on itself. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
     passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }) },
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Small, frenzied Gurgling brawler.',
     mods: { hp: 0.85, agi: 1.35, atk: 1.05 },
@@ -2965,7 +3017,7 @@ const SUMMONS = {
   // Grave Cross, but area attacks wash past them. They take no turns, so they carry no skills.
   anchor: {
     name: 'Anchor', role: 'melee', life: null,
-    desc: 'A great anchor fallen from above, rooting an enemy in place. Takes 4 blows of any size to break.',
+    desc: 'A great anchor fallen from above, rooting an enemy for 2 of its turns or 4 blows of any size — whichever comes first. The host can strike the anchor on itself.',
     look: { body: 'anchor', main: '#53616b', trim: '#9fb0ba', eye: '#cfe0e8' },
     leave: (u) => `${u.name} is broken.`,
     stats: () => ({ maxHp: 4, atk: 0, def: 0, agi: 0, crit: 0, dodge: 0 }),
@@ -4687,6 +4739,7 @@ function validTargets(u, sk) {
     // through rather than deadlock — the same soft fallback the front line uses.
     // Vesper's Execute is no run-in either: the blood comes down on them as a torrent from above.
     const meleeAtk = u.role === 'melee' && !sk.o?.hurl && !sk.o?.gust && sk.kind !== 'execute';
+    if (has(u, 'rooted') && meleeAtk) return foes.filter((f) => f.attach && f.hostUid === u.uid);
     const reachable = (list) => {
       if (!meleeAtk) return list;
       const open = list.filter((f) => !has(f, 'protected'));
@@ -4741,7 +4794,7 @@ function usable(u, sk) {
   if (sk.kind === 'execute' && !warbandWhole(u)) return false;
   // Rooted: held in place — anything that would carry the unit across the field is shut off (melee
   // run-ins, Second Burial, Bolt-On). Ranged attacks, in-place casts, self-buffs and Guard still work.
-  if (has(u, 'rooted') && requiresMove(u, sk)) return false;
+  if (has(u, 'rooted') && requiresMove(u, sk) && !(sk.target === 'enemy' && attachmentsOn(u).length)) return false;
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
   if (u.cooldowns[sk.id] > 0) return false;
@@ -4951,7 +5004,8 @@ function fell(v, by) {
   log(`${v.name} is down.`, 'sys');
   feastOfTheFallen(v);
   if (v.splitOnDeath && !v.summon && !v.splitDone) { v.splitDone = true; splitGorehound(v); }
-  const killer = by && by.summon ? unitBy(by.owner) : by;
+  const owner = by && by.summon ? unitBy(by.owner) : null;
+  const killer = owner && alive(owner) ? owner : by;
   if (!killer || !killer.you || killer.side === v.side) return;
   const xp = killXpOf(v);
   if (!xp) return;
@@ -5034,7 +5088,7 @@ function strikeOnce(u, t, mult, label, o) {
   }
   // Vaun's Breathless: no breath to hold, no waver — his basic Attack cannot be dodged.
   const dodge = heroicHit || o.noDodge || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
-  const miss = dodge + (has(u, 'blind') ? 0.35 : 0);
+  const miss = o.noDodge ? 0 : dodge + (has(u, 'blind') ? 0.35 : 0);
   if (miss > 0 && chance(miss)) {
     float(t, 'Miss', 'miss');
     dodgeHop(t);
@@ -6065,7 +6119,11 @@ async function beginTurn(u) {
      the coffin) are skipped here — they count the field's global clock in turnPulse instead, and
      both BASH and the coffin hold the unit off the bar so it never reaches this point while sealed. */
   u.effects.forEach((e) => { if (e.until == null && e.tolls == null) e.turns--; });
+  const hadRooted = has(u, 'rooted');
   u.effects = u.effects.filter((e) => e.until != null || e.tolls != null || e.turns > 0);
+  if (hadRooted && !has(u, 'rooted')) {
+    for (const a of attachmentsOn(u).filter((x) => x.attach === 'anchor')) removeAttachment(a, 'expired');
+  }
   for (const k in u.cooldowns) if (u.cooldowns[k] > 0) u.cooldowns[k]--;
   return 'ok';
 }
@@ -6882,6 +6940,7 @@ function removeAttachment(a, why) {
   if (a.attach === 'anchor' && host && !attachmentsOn(host).some((x) => x !== a && x.attach === 'anchor')) {
     host.effects = host.effects.filter((e) => e.id !== 'rooted');
     if (host.hp > 0 && why === 'broken') { float(host, 'Uprooted', 'fx'); log(`The anchor breaks — ${host.name} tears free.`, host.side); }
+    if (host.hp > 0 && why === 'expired') { float(host, 'Uprooted', 'fx'); log(`The anchor falls away — ${host.name} tears free.`, host.side); }
   }
   removeUnit(a);
   // The generic Attached marker lifts once nothing is fixed onto the host anymore.
@@ -6914,10 +6973,10 @@ function jellyShock(jelly, host) {
 async function anchorSkill(u, t, sk) {
   await castPose(u, true);
   const a = spawnAttachment(u, t, 'anchor');
-  addFx(t, 'rooted', 99, 0, true);
+  addFx(t, 'rooted', 3, 0, true);
   await anchorDrop(t, a);
   render();
-  log(`${u.name} drops a great anchor on ${t.name} — rooted in place until the anchor breaks.`, u.side);
+  log(`${u.name} drops a great anchor on ${t.name} — rooted for 2 turns or 4 blows.`, u.side);
   await wait(380);
 }
 
@@ -10245,7 +10304,9 @@ function render() {
   $('#selectScreen').hidden = state.screen !== 'select';
   $('#skillsScreen').hidden = state.screen !== 'skills';
   $('#battleScreen').hidden = state.screen !== 'battle';
-  $('#ladder').hidden = state.screen !== 'battle';
+  // The run's progress is for between fights: mid-battle it only says what you already know.
+  // It comes back once the fight is settled, which is when "what's next" is worth reading.
+  $('#ladder').hidden = state.screen !== 'battle' || !['won', 'lost', 'cleared'].includes(state.phase);
   // In the village the page header steps aside: your champion and purse sit on the map's top-right corner.
   const inTown = state.screen === 'village', hud = inTown ? $('#townHud') : $('.topR');
   $('#top').hidden = inTown;
@@ -11930,7 +11991,7 @@ function codexHTML() {
     const f = FACTIONS[k], w = Object.values(WEATHER).find((x) => x.favors === k);
     return entryHTML(f.name, `<b>${f.mechanic}.</b> ${f.rule} Favored by ${w.name}. Mana pool: ${poolLabel(k)}.`);
   }).join('');
-  const foot = tab === 'weather' ? `<p class="note">The weather changes every ${WEATHER_EVERY} rounds. Battles start under Clear Skies, and the next weather is always announced ahead of time.
+  const foot = tab === 'weather' ? `<p class="note">The weather changes every ${WEATHER_EVERY} rounds. Battles start under Clear Skies. You are told when the sky will turn, never what it will turn into - though an Ash Storm always sends Brimstone Fall ahead of it, and the sky itself darkens a round or two before that.
       No weather reaches underground: Emberhollow Cave gets the odd Earthquake instead, and a dungeon's condition holds for the whole run.</p>` : '';
   return `<div class="filters" role="group" aria-label="Lore topics">${tabs}</div><div class="codex">${body}</div>${foot}`;
 }
@@ -14651,16 +14712,24 @@ function renderBattle() {
     : exp ? `${exp.name}, ${expChamber().name}. Warband level ${state.level}.`
     : hunt ? `${CAVE.name}, ${hunt.name}. Warband level ${state.level}.`
     : `Ashfall Road, battle ${state.battle + 1} of ${state.order.length}. Warband level ${state.level}.`;
-  // Dungeons: the ladder lists the rooms, ending with the boss.
-  $('#ladder').innerHTML = dg ? Array.from({ length: dgRooms() }, (_, i) => {
-    const done = i < state.dg.room || (i === state.dg.room && state.phase === 'won');
-    const cls = done ? 'done' : i === state.dg.room ? 'now' : '';
-    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${i === DG_ROOM_COUNT ? MONSTERS[dg.boss].name : (dg.roomNames?.[i] || `Room ${i + 1}`)}</span></li>`;
-  }).join('') : exp || hunt ? '' : state.order.map((k, i) => {
-    const done = i < state.battle || (i === state.battle && (state.phase === 'won' || state.phase === 'cleared'));
-    const cls = done ? 'done' : i === state.battle ? 'now' : '';
-    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${FACTIONS[k].name}</span></li>`;
-  }).join('');
+  /* Dungeons: the ladder lists the rooms, ending with the boss. The ladder is only on screen
+     once a fight is settled (see render), so a win moves the marker on to what comes NEXT
+     rather than leaving it on what just fell - on a narrow screen only the marked entry shows
+     its name (.ladder li:not(.now) .nm), and "next" is the one worth reading. A loss leaves the
+     marker where it is: that is the fight you would retry. */
+  const cleared = state.phase === 'won' || state.phase === 'cleared';
+  const rung = (i, at, label) => {
+    const cls = i < at ? 'done' : i === at ? 'now' : '';
+    return `<li class="${cls}"><span class="n">${i + 1}</span><span class="nm">${label}</span></li>`;
+  };
+  $('#ladder').innerHTML = dg ? (() => {
+    const at = state.dg.room + (cleared ? 1 : 0);
+    return Array.from({ length: dgRooms() }, (_, i) =>
+      rung(i, at, i === DG_ROOM_COUNT ? MONSTERS[dg.boss].name : (dg.roomNames?.[i] || `Room ${i + 1}`))).join('');
+  })() : exp || hunt ? '' : (() => {
+    const at = state.battle + (cleared ? 1 : 0);
+    return state.order.map((k, i) => rung(i, at, FACTIONS[k].name)).join('');
+  })();
 
   // On narrow screens "Round" shortens to "Rd" and High Tide to a wave, so it never runs into the weather pill.
   $('#roundTxt').innerHTML = `<span class="rdFull">Round</span><span class="rdShort">Rd</span> ${state.round}${highTide() ? ' · <b><span class="tideIco" aria-hidden="true">🌊</span><span class="tideTxt">High Tide</span></b>' : ''}`;
@@ -14687,7 +14756,9 @@ function renderBattle() {
     : hunt ? 'No weather reaches this deep. Only the dark, the shifting rock and whatever lives in it.'
     : dg ? 'No weather reaches this deep. Only the dark and whatever lives in it.'
     : exp ? 'No weather reaches these chambers. Only the dark and whatever the vault keeps.' : W.desc;
-  $('#wxNext').innerHTML = under ? '' : `Next: <b>${WEATHER[state.nextWeather].name}</b> ${left === 1 ? 'next round' : `in ${left} rounds`}`;
+  // When the sky turns, not what it turns into: naming it ahead of time let you plan around a
+  // Blood Moon or an Ash Storm before it arrived. The omen sky still warns of Brimstone Fall.
+  $('#wxNext').innerHTML = under ? '' : `The sky turns ${left === 1 ? 'next round' : `in ${left} rounds`}`;
 
   renderTrack(state.moving ? 400 : 300);
 
@@ -14776,7 +14847,10 @@ function renderBattle() {
     $('#prompt').hidden = true;
     return;
   }
-  $('#dName').textContent = d.summon || d.monster ? d.name : d.you ? `${d.name} · ${charById(d.id).name}` : charById(d.id).name;
+  // Your champion shows the name you gave them beside the champion they are; when you kept the
+  // champion's own name, that read "Sawtooth · Sawtooth", so only say it once.
+  const own = d.summon || d.monster ? null : charById(d.id).name;
+  $('#dName').textContent = !own ? d.name : d.you && d.name !== own ? `${d.name} · ${own}` : own;
   $('#dPassive').innerHTML = passiveText(d);
 
   // Only the fighter whose turn it is can be ordered; anyone else's deck is there to read.
@@ -14791,12 +14865,17 @@ function renderBattle() {
         <span class="combo" hidden>Discipline +15%</span>
       </button><button type="button" class="ainfo" data-info="${s.id}" aria-label="${escHTML(`About ${s.name}`)}" aria-expanded="false">i</button></span>`;
     const basic = (s) => s.id === 'attack' || s.id === 'guard';
-    acts.innerHTML = `<div class="agroup">${skills.map((s, i) => (basic(s) ? '' : btn(s, i))).join('')}</div>
-      <div class="agroup basic">${skills.map((s, i) => (basic(s) ? btn(s, i) : '')).join('')}</div>`;
+    // Keys still follow the loadout order, so a slot keeps its number wherever it sits.
+    const own = skills.map((sk, i) => [sk, i]).filter(([sk]) => !basic(sk));
+    const open = `<span class="actw open" aria-hidden="true"><span class="act"><span class="aico"></span></span></span>`;
+    acts.innerHTML = `<div class="agroup">${own.map(([sk, i]) => btn(sk, i)).join('')}${open.repeat(Math.max(0, SKILL_SLOTS - own.length))}</div>`;
+    $('#basicActs').innerHTML = skills.map((s, i) => (basic(s) ? btn(s, i) : '')).join('');
     acts.dataset.uid = d.uid;
   }
   renderSkillTip(d);
-  acts.querySelectorAll('.act').forEach((b) => {
+  // The whole row, not just #acts: Attack and Guard sit in their own container beside it.
+  // [data-id]: the empty slots padding the block out carry no skill to read.
+  $('.deckTop').querySelectorAll('.act[data-id]').forEach((b) => {
     const s = skills.find((x) => x.id === b.dataset.id);
     const cd = d.cooldowns[s.id] || 0;
     const hushed = silenced(d, s), broke = (s.mp || 0) > (d.mp || 0);
@@ -14826,7 +14905,7 @@ function renderSkillTip(d) {
   if (state.tipFor !== d?.uid) { state.tipSkill = null; state.tipFor = d?.uid; }
   const s = d && state.tipSkill ? skillsOf(d).find((x) => x.id === state.tipSkill) : null;
   tip.hidden = !s;
-  $('#acts').querySelectorAll('.ainfo').forEach((b) => b.setAttribute('aria-expanded', String(!!s && b.dataset.info === s.id)));
+  $('.deckTop').querySelectorAll('.ainfo').forEach((b) => b.setAttribute('aria-expanded', String(!!s && b.dataset.info === s.id)));
   if (!s) return;
   const meta = [s.sig ? '★ Signature' : s.id === 'attack' || s.id === 'guard' ? 'Basic' : 'Skill',
     s.cd ? `Cooldown ${s.cd}` : '', s.mp ? `${s.mp} MP` : ''].filter(Boolean).join(' · ');
@@ -14834,18 +14913,27 @@ function renderSkillTip(d) {
 }
 
 // Satchel row under the actions: only on your own champion's turn. Keys 6–9 then 0 follow ITEM_KEYS order.
+// The deck is laid out to a fixed shape so it never jumps: a 4 x 2 block of skill slots beside
+// Attack and Guard, four item slots under them. Empties are drawn as outlines, not left out.
+const SKILL_SLOTS = 8, ITEM_SLOTS = 4;   // 4 x 2 skills, one row of items
+
 function renderSatchel(act) {
   const mine = !!act && act.you && !sparring() && !['won', 'lost', 'cleared'].includes(state.phase);   // only your champion uses the satchel, and never in a spar
   const owned = mine ? ITEM_KEYS.filter((k) => profile.items[k] > 0) : [];
-  $('#satchel').hidden = !owned.length;   // nothing carried, nothing shown
-  if (!owned.length) return;
+  $('#satchelHint').hidden = !mine;   // your champion's row, empty slots and all; nobody else's
+  $('#items').hidden = !mine;
+  if (!mine) return;
   const ready = state.phase === 'choose' && !state.itemUsed;
-  $('#satchelHint').textContent = !owned.length ? '' : state.itemUsed ? 'Item used this turn.' : 'One item per turn. Using it does not end your turn.';
-  $('#items').innerHTML = owned.length ? owned.map((k) => `
-    <button class="item${state.pending === `item:${k}` ? ' armed' : ''}" type="button" data-item="${k}" title="${ITEMS[k].desc}"${ready ? '' : ' disabled'}>
-      <kbd>${(ITEM_KEYS.indexOf(k) + 6) % 10}</kbd><span class="ico">${ITEM_ICON[k]}</span>${ITEMS[k].name} ×${profile.items[k]}
-    </button>`).join('')
-    : '<span class="note">Empty. Buy supplies at the Market in Cinderhold.</span>';
+  // Short enough to sit on the name's line: the long form was a row of its own.
+  $('#satchelHint').textContent = !owned.length ? 'Satchel empty' : state.itemUsed ? 'Item used' : 'One item a turn';
+  // Four slots whatever is carried. Carrying more kinds than that simply grows the row rather
+  // than hiding a draught the player paid for.
+  const open = '<span class="item open" aria-hidden="true"></span>';
+  $('#items').innerHTML = owned.map((k) => `
+    <button class="item${state.pending === `item:${k}` ? ' armed' : ''}" type="button" data-item="${k}"
+      title="${escHTML(`${ITEMS[k].name}: ${ITEMS[k].desc}`)}" aria-label="${escHTML(`${ITEMS[k].name}, ${profile.items[k]} carried. ${ITEMS[k].desc}`)}"${ready ? '' : ' disabled'}>
+      <kbd>${(ITEM_KEYS.indexOf(k) + 6) % 10}</kbd><span class="ico">${ITEM_ICON[k]}</span><span class="qty">${'\u00d7'}${profile.items[k]}</span>
+    </button>`).join('') + open.repeat(Math.max(0, ITEM_SLOTS - owned.length));
 }
 
 // XP bar for your champion: level, progress to the next level.
@@ -14996,7 +15084,7 @@ function showEndOverlay() {
 /* ==================================================================
    INPUT
    ================================================================== */
-$('#acts').addEventListener('click', (ev) => {
+$('.deckTop').addEventListener('click', (ev) => {
   const info = ev.target.closest('.ainfo');
   if (info) {   // (i): open this skill's details, or close them if they are already open
     state.tipSkill = state.tipSkill === info.dataset.info ? null : info.dataset.info;
