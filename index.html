@@ -266,6 +266,25 @@ body[data-screen="select"] .top { display: none; }
 .expMap ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: .78rem; }
 .expMap li.here { color: var(--accent); font-weight: 700; }
 .expMap li.done { color: var(--muted); text-decoration: line-through; }
+/* The Post-Chamber phase: Preparation Turns (§4) and the rune selections (§7). */
+.expPrep, .expRunes { margin: 10px 0 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #0002; }
+.expPrep h4, .expRunes h4 { margin: 0 0 6px; font-size: .8rem; color: var(--muted); font-weight: 700; }
+.plist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.plist li { display: grid; gap: 4px; font-size: .78rem; }
+.plist .prow.has { padding: 4px 6px; border-radius: 6px; background: #ffffff08; }
+/* .pbar, not .phead — the panel headers already own that name (see the place-panel rules). */
+.expPrep .pbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.expPrep .pname { font-weight: 700; }
+.expPrep .pstat { color: var(--muted); }
+.expPrep .pturns { margin-left: auto; color: var(--accent); font-weight: 700; }
+.expPrep .prow:not(.has) .pturns { color: var(--muted); }
+.expPrep .pacts { display: flex; gap: 4px; flex-wrap: wrap; }
+.btn.tiny { padding: 2px 7px; font-size: .72rem; }
+.btn.tiny.extra { border-color: var(--accent); color: var(--accent); }
+.rchip { font-size: .68rem; font-weight: 700; color: var(--good); border: 1px solid var(--good); border-radius: 999px; padding: 0 6px; }
+.fxchip { font-size: .68rem; font-weight: 700; border-radius: 999px; padding: 0 5px; background: #0003; }
+.fxchip.bad { color: var(--heat); }
+.fxchip.good { color: var(--good); }
 .bhead { margin: 6px 0 0; font-family: var(--font-display); font-size: 1.3rem; }
 .bestiary { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
 .beast { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); }
@@ -4190,8 +4209,7 @@ const MINI_HP_MULT = 1.8, MINI_ATK_MULT = 1.3, MINI_EXTRA_CHANCE = 0.35;
    a 45-second window to choose a connected chamber or retreat. If the timer
    runs out, the system auto-moves FORWARD at random (seeded). Chambers may be
    re-entered only once, and the layout is manually authored — never generated.
-   NOT YET BUILT (later slices, seams left open): Preparation Turns, runes,
-   minor-boss / final-boss escape arcs, boss intrusion, contribution scoring,
+   NOT YET BUILT (later slices, seams left open): contribution scoring,
    battle inventory & resurrection items. See the design spec.
    ================================================================== */
 const EXP_DECISION_SECS   = 45;    // §5.1 chamber decision window
@@ -4219,6 +4237,49 @@ const EXP_SMASH_STUN      = 1;     // §9.3 stun duration (turns)
 const EXP_AMBUSH_TARGET   = 'hpPct';       // #5: 'hpPct' (highest HP%) or 'hp' (highest current HP)
 const EXP_INTRUDE_CADENCE = 'roundStart';  // #7: one eligible intrusion check at each round start
 
+/* SLICE 3 — PREPARATION TURNS (§4) & RUNES (§7).
+   Between chambers the warband gets a breath: one Preparation Turn each, and one more for
+   whoever the Captain — you — singles out. A turn buys a mend, a drink, a cleansing, a
+   braced shield, or something out of the satchel. The turns belong to the FIGHT that earned
+   them (§4.4): walking a corridor, doubling back, letting the clock run out, or opening a
+   chest earns nothing, so no warband can pace between two cleared rooms healing itself
+   forever. Unused turns die with the phase — a new qualifying fight grants a fresh set. */
+const EXP_PREP_HEAL   = 0.25;  // §4.3.9 "Healing": a prep turn binds wounds for this share of max HP
+const EXP_PREP_MP     = 40;    // ...or gathers this much mana back (an Ironclad shortens cooldowns instead)
+const EXP_PREP_SHIELD = 2;     // §4.3.9 "Applying buffs": braced, they walk in shielded for this many turns
+// Which satchel items make sense with no enemy in the room. A firebomb needs something to throw at,
+// a war horn a bar to surge along, and mirror dust a fight to haunt — none of those is a preparation.
+const EXP_PREP_ITEMS  = ['draught', 'tonic', 'salts'];
+// §4.3.10: "status effects carry into the next chamber according to their normal duration rules" —
+// which is also what gives a cleansing prep turn something to strip. Only effects that mean anything
+// away from the fight that laid them travel: the slow poisons and the plain buffs. Left behind are
+// the ones counted in Tolls or milliseconds (bash, fear, coffin, flee, stun, stagger, overheat),
+// the ones that point at another unit (link, attached, bolted, the blood rites), and the
+// turn-shaped postures (guard, windup, aiming, evade, taunt) that belong to a single exchange.
+const EXP_CARRY_FX = ['burn', 'poison', 'bleed', 'weaken', 'sunder', 'slow', 'blind', 'hex',
+                      'silence', 'choke', 'exposed', 'soaked', 'empower', 'shield', 'ward', 'regen', 'thorns'];
+
+/* THE RUNES (§7). Twice in a run the vault offers three of these — once in a casket off the
+   first minor boss, once in a chest of its own — and the warband keeps exactly one, cut into
+   exactly one member for the rest of the expedition. Each is a DIFFERENT buff (§7.1.3-4), and
+   nothing offered the first time is offered again (§7.1.7), so the catalogue needs more than
+   six. They are applied fresh at the start of every chamber (expApplyRunes) and they never
+   leave the vault: the run state they live in is thrown away at the gate (§7.2.5-6). */
+const EXP_RUNES = {
+  might:   { name: 'Rune of Might',       desc: 'strikes 20% harder',                 apply: (u) => { u.atk = Math.round(u.atk * 1.2); } },
+  vigor:   { name: 'Rune of Vigor',       desc: '20% more health',                    apply: (u) => { const g = Math.round(u.maxHp * 0.2); u.maxHp += g; u.hp += g; } },
+  haste:   { name: 'Rune of Haste',       desc: 'crosses the speed bar 15% faster',   apply: (u) => { u.spdMult = (u.spdMult || 1) * 1.15; } },
+  aegis:   { name: 'Rune of the Aegis',   desc: 'turns aside 15% of every blow',       apply: (u) => { u.blockPhys = (u.blockPhys || 0) + 0.15; u.blockMagic = (u.blockMagic || 0) + 0.15; } },
+  mending: { name: 'Rune of Mending',     desc: 'mends 4% of its bearer each turn',   apply: (u) => { u.hpRegen = (u.hpRegen || 0) + Math.round(u.maxHp * 0.04); } },
+  edge:    { name: 'Rune of the Keen Edge', desc: '12% more crit',                    apply: (u) => { u.crit = (u.crit || 0) + 0.12; } },
+  // Only wardDebuffs is bumped: addFx reads `u.wardLeft ?? u.wardDebuffs`, and wardLeft is still
+  // unset this early in the chamber, so the rune's charges fold into the Warding Pearl's own count.
+  warding: { name: 'Rune of Warding',     desc: 'shrugs off the first 2 curses of each chamber', apply: (u) => { u.wardDebuffs = (u.wardDebuffs || 0) + 2; } },
+  bulwark: { name: 'Rune of the Bulwark', desc: 'walks into every chamber shielded',  apply: (u) => { u.effects.push({ id: 'shield', turns: 2, value: 0 }); } },
+};
+const EXP_RUNE_KEYS = Object.keys(EXP_RUNES);
+const EXP_RUNE_OFFER = 3;   // §7.1.2 three physical runes per selection, of which one is kept
+
 /* One authored proving-ground expedition. `env` is one of the spec's 8 environments;
    `look` reuses an existing arena palette. `chambers` is the graph: each entry has a
    type, a name, and `exits` (forward connections by chamber id). The first chamber is
@@ -4236,8 +4297,12 @@ const EXPEDITIONS = [
       c1:    { type: 'combat',   name: 'The Cloister',      pack: ['cryptghoul', 'bonerattler', 'wraith'], minorBoss: { id: 'bonerattler', name: 'The Bonelord' }, exits: ['c2', 'c3'] },
       c2:    { type: 'treasure', name: 'The Reliquary',     chest: { gold: 60, items: 1 }, exits: ['c4'] },
       c3:    { type: 'combat',   name: 'The Ossuary',       pack: ['bonerattler', 'cryptghoul', 'wraith', 'cryptghoul'], minorBoss: { id: 'cryptghoul', name: 'The Pale Deacon' }, exits: ['c4'] },
-      c4:    { type: 'combat',   name: 'The Flooded Nave',  pack: ['wraith', 'cryptghoul', 'bonerattler'], exits: ['dead1', 'lair1'] },
+      c4:    { type: 'combat',   name: 'The Flooded Nave',  pack: ['wraith', 'cryptghoul', 'bonerattler'], exits: ['dead1', 'rune1'] },
       dead1: { type: 'deadend',  name: 'A Collapsed Stair', exits: [] },
+      // §7.1.1 promises runes twice in a run: once off the first minor boss, once in a chest.
+      // The chest sits on the only road left to the lair, so the promise is kept whichever
+      // way the warband forked earlier — it cannot be walked past.
+      rune1: { type: 'rune',     name: 'The Carving Room',  exits: ['lair1'] },
       // The boss arc: the Abbot is met in lair1, flees deeper twice, and dies in lair3. The side
       // vault lets the party explore (and loot) before pressing on (§8.4).
       lair1:  { type: 'boss',     name: "The Abbot's Nave",     exits: ['vault', 'lair2'] },
@@ -7795,9 +7860,13 @@ function startBattle(retry) {
     state.teams.e = state.enemyIds.map((id, i) => makeMonster(id, Math.max(src.minLv, state.level), i, src.scale));
     // Expeditions: HP, MP and cooldowns carry over from the previous chamber (expStoreCarry).
     if (exp) {
+      expApplyRunes();   // §7.2 run-long rune buffs, cut in before the carry clamps the pools
       for (const u of state.teams.p) {
         const c = state.exp.carry[u.id];
-        if (c) { u.hp = Math.max(0, Math.min(u.maxHp, c.hp)); u.mp = Math.max(0, Math.min(u.maxMp, c.mp)); if (c.cd) u.cooldowns = { ...c.cd }; }
+        if (c) {
+          u.hp = Math.max(0, Math.min(u.maxHp, c.hp)); u.mp = Math.max(0, Math.min(u.maxMp, c.mp)); if (c.cd) u.cooldowns = { ...c.cd };
+          expApplyCarryFx(u, c);   // §4.3.10 what still clings to them, and what a Preparation Turn added
+        }
       }
       expSetupEnemies();   // minor bosses (§6) and the final boss's persisted state (§8)
     }
@@ -8483,7 +8552,14 @@ function startExpedition(id) {
     current: e.entry, path: [], visited: new Set(), reentry: {}, cleared: new Set(), looted: new Set(),
     carry: {}, gold: 0, xp: 0, done: false, timer: null, deadline: null, lastLoot: null,
     // §6 minor bosses, §8 final boss arc, §9 intrusion.
-    minorsSlain: 0, minorReturning: null, pendingRuneDrop: false,
+    minorsSlain: 0, minorReturning: null,
+    // §4 Preparation Turns. `prep` is the CURRENT phase only, rebuilt every time the decision
+    // window opens; `encGranted` is the run's memory of which fights have already paid out, so
+    // the same encounter can never pay twice however often the warband walks back through it.
+    prep: null, encGranted: new Set(),
+    // §7 runes: who carries what for the rest of the run, which effects have already been
+    // offered (never offered twice), and the selection sitting open right now.
+    runes: {}, runesOffered: new Set(), runeSel: 0, pendingRune: null,
     boss: { phase: 0, hp: null, loc: e.bossStart || null, followers: null, slain: false, escaping: false },
     bossInFight: false,
   };
@@ -8507,9 +8583,12 @@ function expEnterChamber(id, opts = {}) {
   // A cleared combat/boss chamber stays cleared (§14.2.4): re-entering it starts no new fight.
   if ((ch.type === 'combat' || ch.type === 'boss') && !s.cleared.has(id)) return expBeginCombat();
   if (ch.type === 'treasure') return expTreasure(ch);
+  if (ch.type === 'rune') return expRuneChamber(ch);
   // start / dead end / already-cleared: no encounter — straight to the Post-Chamber decision phase.
+  // §4.4.4-5 and §18: entering a chamber, and walking back into a cleared one, is not a fight.
+  // The entrance hall is a preparation area in name only; it grants no Preparation Turns either.
   announce('Expedition', `${e.name} · ${ch.name}`);
-  expPostChamber();
+  expPostChamber(false);
 }
 
 // §14.3: surviving monsters in a re-entered chamber heal 10% of max HP. The foundation never
@@ -8604,16 +8683,208 @@ function expTreasure(ch) {
     log(`${ch.name}: the chest is already emptied.`, 'sys');
   }
   announce('Treasure', ch.name);
-  expPostChamber();
+  expPostChamber(false);   // §4.4.4 a chest is not a fight: no Preparation Turns
 }
 
-// Carry HP / MP / cooldowns to the next chamber. PLACEHOLDER revive (see EXP_REVIVE) until
-// Preparation Turns (§4) and resurrection items (§12) are built.
+// Carry HP / MP / cooldowns / lingering effects to the next chamber. Nothing here heals anyone:
+// a warband walks out of a chamber exactly as battered as it walked out of the fight, and the only
+// relief between rooms is a Preparation Turn (§4). PLACEHOLDER revive (see EXP_REVIVE) until
+// resurrection items (§12) are built in slice 4.
 function expStoreCarry() {
   for (const u of state.teams.p.filter((x) => !x.summon)) {
     const hp = u.hp > 0 ? u.hp : Math.round(u.maxHp * EXP_REVIVE);
-    expState().carry[u.id] = { hp: Math.min(u.maxHp, hp), mp: Math.min(u.maxMp, u.mp || 0), cd: { ...u.cooldowns } };
+    expState().carry[u.id] = {
+      hp: Math.min(u.maxHp, hp), mp: Math.min(u.maxMp, u.mp || 0), cd: { ...u.cooldowns },
+      // §4.3.10: what was burning, weakened or shielded still is, with whatever turns it had left.
+      fx: alive(u) ? u.effects.filter((e) => EXP_CARRY_FX.includes(e.id) && e.turns > 0).map((e) => ({ id: e.id, turns: e.turns, value: e.value || 0 })) : [],
+    };
   }
+}
+
+/* ---------- PREPARATION TURNS (§4) ---------- */
+// The warband a prep turn acts on. After a fight the units are still standing in state.teams.p,
+// which is where the names and the HP pools live; the fallback covers a decision window that
+// somehow opens before the first fight (where there are no turns to spend anyway).
+function expMembers() {
+  const live = state.teams.p?.filter((u) => !u.summon) || [];
+  if (live.length) return live;
+  return state.team.map((id) => charById(id)).filter(Boolean).map((c) => ({ id: c.id, name: shortName(c), faction: c.faction, maxHp: 0, maxMp: 0 }));
+}
+
+// §4.4.1-3: one qualifying fight, one set of turns, remembered by the chamber it was won in.
+// A cleared chamber never fights again, so the chamber id IS the unique encounter id.
+function expGrantPrep(encId) {
+  const s = expState();
+  if (s.encGranted.has(encId)) return false;   // §4.4.3 the same encounter cannot pay twice
+  s.encGranted.add(encId);
+  return true;
+}
+
+// Open a preparation phase. `granted` is true only when a qualifying fight was just won —
+// every other way into the decision window (walking, retreating, a chest, a lapsed clock,
+// the entrance hall) opens it with no turns at all, which is the whole of §4.4.
+function expOpenPrep(granted) {
+  const s = expState();
+  if (!granted) { s.prep = null; return; }
+  const turns = {};
+  for (const u of expMembers()) turns[u.id] = 1;   // §4.3.1 exactly one each
+  s.prep = { turns, extraTo: null, log: [] };
+}
+
+const expPrepLeft = (id) => expState().prep?.turns[id] || 0;
+
+// §4.3.2-7: the Captain hands the extra turn to one member, afresh each phase, and it is gone
+// when the phase is. Nothing carries it forward and nothing lets it be given twice.
+function expPrepExtra(id) {
+  const s = expState(), p = s.prep;
+  if (!p || p.extraTo || !(id in p.turns)) return;
+  p.extraTo = id;
+  p.turns[id] += 1;
+  const m = expMembers().find((u) => u.id === id);
+  log(`The Captain gives ${m?.name || id} a second Preparation Turn.`, 'sys');
+  expRenderDecision();
+}
+
+// Spend one Preparation Turn. Everything written here goes into the carry (§4.3.10-11), because
+// the units in front of us are about to be rebuilt from scratch for the next chamber — the carry
+// is the only thing that survives the walk.
+function expPrepAct(id, act) {
+  const s = expState(), p = s.prep;
+  if (!p || expPrepLeft(id) < 1) return;
+  const u = expMembers().find((x) => x.id === id);
+  const c = s.carry[id];
+  if (!u || !c) return;
+  let did = '';
+  if (act === 'mend') {
+    const heal = Math.round(u.maxHp * EXP_PREP_HEAL);
+    const was = c.hp;
+    c.hp = Math.min(u.maxHp, c.hp + heal);
+    did = `binds their wounds (+${c.hp - was} HP)`;
+  } else if (act === 'focus') {
+    // Mana comes back; an Ironclad has none to gather, so the time goes into its gear instead
+    // (§4.2.4-5, "inspect utilities and cooldowns", "plan which abilities will be available").
+    // Heat is deliberately not touched here: it is forged anew each chamber and never carries.
+    if (u.maxMp) { const was = c.mp; c.mp = Math.min(u.maxMp, c.mp + EXP_PREP_MP); did = `gathers their mana back (+${c.mp - was} MP)`; }
+    else { for (const k in c.cd) c.cd[k] = Math.max(0, c.cd[k] - 1); did = 'works over their gear — every cooldown a turn shorter'; }
+  } else if (act === 'cleanse') {
+    const before = (c.fx || []).length;
+    c.fx = (c.fx || []).filter((e) => FX[e.id].kind !== 'bad');
+    did = before > c.fx.length ? 'is cleansed of what clung to them' : 'has nothing left to cleanse';
+  } else if (act === 'brace') {
+    c.fx = (c.fx || []).filter((e) => e.id !== 'shield');
+    c.fx.push({ id: 'shield', turns: EXP_PREP_SHIELD, value: 0 });
+    did = 'sets their guard for the next chamber';
+  } else return;
+  p.turns[id] -= 1;
+  log(`${u.name} ${did}.`, 'sys');
+  expRenderDecision();
+}
+
+// §4.3.9 "Using consumable items": the satchel is open between chambers, and a drink taken here
+// is a drink gone from the stock, exactly as in a fight.
+function expPrepItem(id, key) {
+  const s = expState(), p = s.prep;
+  if (!p || expPrepLeft(id) < 1 || !EXP_PREP_ITEMS.includes(key) || (profile.items[key] || 0) < 1) return;
+  const u = expMembers().find((x) => x.id === id), c = s.carry[id];
+  if (!u || !c) return;
+  if (key === 'tonic' && !u.maxMp) return;   // nothing to pour it into: an Ironclad runs on Heat
+  profile.items[key]--;
+  saveProfile();
+  let did = '';
+  if (key === 'draught') { const was = c.hp; c.hp = Math.min(u.maxHp, c.hp + Math.round(u.maxHp * 0.35)); did = `drinks a Healing Draught (+${c.hp - was} HP)`; }
+  else if (key === 'tonic') { const was = c.mp; c.mp = Math.min(u.maxMp, c.mp + 40); did = `drinks a Mana Tonic (+${c.mp - was} MP)`; }
+  else if (key === 'salts') { c.fx = (c.fx || []).filter((e) => FX[e.id].kind !== 'bad'); did = 'is scoured clean by Purifying Salts'; }
+  p.turns[id] -= 1;
+  for (const t of questEvent('item', { key })) log(t, 'sys');
+  log(`${u.name} ${did}.`, 'sys');
+  expRenderDecision();
+}
+
+/* ---------- THE RUNES (§7) ---------- */
+// Draw three distinct buffs, none of them ever offered before in this run (§7.1.3-4, §7.1.7).
+// Seeded, like every other decision the vault makes for itself.
+function expRuneDraw() {
+  const s = expState();
+  const pool = EXP_RUNE_KEYS.filter((k) => !s.runesOffered.has(k));
+  const offer = [];
+  while (offer.length < EXP_RUNE_OFFER && pool.length) offer.push(...pool.splice(expRandInt(pool.length), 1));
+  for (const k of offer) s.runesOffered.add(k);
+  return offer;
+}
+
+// Lay a selection open. It sits in the decision window until the warband keeps one or the clock
+// runs out and the vault keeps one for them (§7.3).
+function expRuneOffer(source) {
+  const s = expState();
+  const offer = expRuneDraw();
+  if (offer.length < EXP_RUNE_OFFER) { log('The casket holds only dust — every rune in this vault has been cut already.', 'sys'); return; }
+  s.runeSel++;
+  s.pendingRune = { source, offer, kept: null };
+  log(`${source === 'casket' ? 'The rune-casket splits open' : 'Three runes rest in the carving room'}: ${offer.map((k) => EXP_RUNES[k].name).join(', ')}. Keep one.`, 'sys');
+}
+
+function expRuneKeep(key) {
+  const s = expState(), sel = s.pendingRune;
+  if (!sel || sel.kept || !sel.offer.includes(key)) return;
+  sel.kept = key;
+  log(`The warband keeps the ${EXP_RUNES[key].name}; the other two are left behind.`, 'sys');   // §7.1.6
+  expRenderDecision();
+}
+
+function expRuneAssign(id) {
+  const s = expState(), sel = s.pendingRune;
+  if (!sel?.kept) return;
+  const u = expMembers().find((x) => x.id === id);
+  if (!u) return;
+  (s.runes[id] = s.runes[id] || []).push(sel.kept);
+  log(`The ${EXP_RUNES[sel.kept].name} is cut into ${u.name} — ${EXP_RUNES[sel.kept].desc}, for the rest of the expedition.`, 'sys');
+  announce('Rune', `${u.name} — ${EXP_RUNES[sel.kept].name}`);   // §7.4.3 the choice is shown
+  s.pendingRune = null;
+  expRenderDecision();
+}
+
+// §7.3: the clock ran out with the warband still arguing. Two separate seeded rolls — one of the
+// three runes (≈33.33%), one of the four members (25%) — and both are announced.
+function expRuneAuto() {
+  const s = expState(), sel = s.pendingRune;
+  if (!sel) return;
+  if (!sel.kept) {
+    sel.kept = sel.offer[expRandInt(sel.offer.length)];
+    log(`No one can agree. The vault decides: the ${EXP_RUNES[sel.kept].name}.`, 'sys');
+  }
+  const members = expMembers();
+  const m = members[expRandInt(members.length)];
+  log(`And it decides who carries it: ${m.name}.`, 'sys');
+  expRuneAssign(m.id);
+}
+
+// A rune chamber (§7.1.1, "once in a chest"). Looted once; walking back in finds bare stone.
+function expRuneChamber(ch) {
+  const s = expState();
+  if (!s.looted.has(s.current)) { s.looted.add(s.current); expRuneOffer('chest'); }
+  else log(`${ch.name}: the carving bench is bare.`, 'sys');
+  announce('Runes', ch.name);
+  expPostChamber(false);   // §4.4.4 a chamber is not a fight: no Preparation Turns
+}
+
+// Rune buffs, cut fresh into their bearers at the start of every chamber (§7.2.3-4). Applied
+// BEFORE the carry clamps HP and MP, so a Rune of Vigor raises the pool a battered unit is
+// measured against rather than quietly healing them for the difference.
+function expApplyRunes() {
+  const s = expState();
+  for (const u of state.teams.p) {
+    for (const key of s.runes[u.id] || []) {
+      EXP_RUNES[key]?.apply(u);
+      u.runeNames = [...(u.runeNames || []), EXP_RUNES[key].name];
+    }
+  }
+}
+
+// What the last chamber left on them, and whatever a Preparation Turn added (§4.3.10). Pushed
+// straight onto the effect list rather than through addFx: these are not new afflictions
+// arriving, so nothing should resist, ward or bless them a second time.
+function expApplyCarryFx(u, c) {
+  for (const e of c.fx || []) if (FX[e.id]) u.effects.push({ id: e.id, turns: e.turns, value: e.value || 0 });
 }
 
 // Combat chamber resolved (called from endBattle). Pays XP/gold, then opens the decision phase
@@ -8622,6 +8893,7 @@ async function expResolveCombat(won) {
   const e = expRun(), ch = expChamber(), s = expState();
   const slain = state.teams.e.filter((u) => u.monster && !alive(u));
   const bossKilled = state.teams.e.some((u) => u.expBoss && !alive(u));   // the final boss actually died (not fled)
+  let prepGranted = false;   // §4: set below, once the win is banked and this encounter is logged as paid
   const news = slain.flatMap((u) => questEvent('slay', { monster: u.id }));
   for (const u of slain) if (u.boss) news.push(...questEvent('boss', { id: u.id }));
   if (won) {
@@ -8636,6 +8908,8 @@ async function expResolveCombat(won) {
     const minorsKilled = state.teams.e.filter((u) => u.expMinor && !alive(u)).length;
     for (let i = 0; i < minorsKilled; i++) { s.minorsSlain++; expMinorDrop(s.minorsSlain); }
     expStoreCarry();
+    // §4.4.1-2: a fight was won here, so this encounter pays out Preparation Turns — once, ever.
+    prepGranted = expGrantPrep(s.current);
     s.cleared.add(s.current);
     s.bossInFight = false;
     profile.gold += state.goldWon; profile.stats.earned += state.goldWon; profile.stats.wins++;
@@ -8656,16 +8930,15 @@ async function expResolveCombat(won) {
   await wait(700);
   if (!won) return expEndOverlay('lost');
   if (s.done) return expEndOverlay('won');
-  expPostChamber();
+  expPostChamber(prepGranted);
 }
 
-// §6.1 minor-boss drops. First: a casket of 3 runes (selection is slice 3 — logged, deferred).
+// §6.1 minor-boss drops. First: a casket of 3 runes, opened in the decision window that follows.
 // Second: ordinary loot. Minor-boss loot otherwise follows the expedition reward rules (#9 unresolved).
 function expMinorDrop(n) {
   const s = expState();
   if (n === 1) {
-    s.pendingRuneDrop = true;
-    log('The minor boss drops a sealed rune-casket — 3 runes within. (Rune selection arrives in slice 3.)', 'sys');
+    expRuneOffer('casket');   // §7.1.1 the drop half of the two rune selections
   } else {
     const g = 80, k = pick(ITEM_KEYS);
     profile.gold += g; s.gold += g; profile.stats.earned += g;
@@ -8788,12 +9061,16 @@ async function expBossIntrusion() {
 }
 
 /* THE POST-CHAMBER BATTLE PHASE (§4–5): the party does NOT auto-advance. A 45-second window
-   to pick a connected chamber or retreat; if it lapses, the system moves forward at random.
-   Preparation Turns (§4.3) are a later slice — movement/retreat/re-entry already grant none. */
-function expPostChamber() {
+   to pick a connected chamber or retreat, to spend Preparation Turns, and to settle any rune
+   the vault has just offered; if it lapses, the vault decides both for them and moves forward.
+   `granted` is true ONLY after a fight won in a chamber that has never paid out before — every
+   other road into this window (walking, retreating, a chest, a carving room, a lapsed clock,
+   the entrance hall) opens it with no Preparation Turns, which is the whole of §4.4. */
+function expPostChamber(granted = false) {
   state.phase = 'idle';
   expClearTimer();
   const s = expState();
+  expOpenPrep(granted);
   s.deadline = Date.now() + EXP_DECISION_SECS * 1000;
   expRenderDecision();
   s.timer = setInterval(expTickTimer, 250);
@@ -8809,7 +9086,8 @@ function expTickTimer() {
   const bar = document.getElementById('expTimerFill'), txt = document.getElementById('expTimerTxt');
   if (bar) { bar.style.width = `${pct}%`; bar.parentElement.classList.toggle('low', pct <= 25); }
   if (txt) txt.textContent = `${Math.ceil(left / 1000)}s to decide`;
-  if (left <= 0) { expClearTimer(); expAutoMove(); }
+  // §7.3: an unsettled rune is decided by the vault first, so the warband leaves carrying it.
+  if (left <= 0) { expClearTimer(); if (s.pendingRune) expRuneAuto(); expAutoMove(); }
 }
 
 // Forward exits still open under the re-entry cap (§5.2 respects the layout and the cap).
@@ -8848,32 +9126,92 @@ function expRetreat() {
 
 function expAbandon() { expEndOverlay('abandon'); }   // §15
 
+// The Preparation panel (§4.2): who is carrying what, what each of them still has the time to
+// do, and the Captain's one extra turn to hand out. Everything reads from the carry, because the
+// carry is what walks into the next chamber.
+function expPrepHTML() {
+  const s = expState(), p = s.prep;
+  const chips = (id) => (s.runes[id] || []).map((k) => `<span class="rchip" title="${EXP_RUNES[k].desc}">${EXP_RUNES[k].name}</span>`).join('');
+  const fxChips = (c) => (c?.fx || []).map((f) => `<span class="fxchip ${FX[f.id].kind}">${FX[f.id].icon} ${f.turns}</span>`).join('');
+  if (!p) {
+    // No fight was won on the way in, so there is nothing to spend — but the warband's state
+    // and its runes are still worth showing before the next decision.
+    const rows = expMembers().map((u) => {
+      const c = s.carry[u.id];
+      return `<li><span class="pname">${u.name}</span>${c ? `<span class="pstat">${c.hp}/${u.maxHp} HP</span>` : ''}${fxChips(c)}${chips(u.id)}</li>`;
+    }).join('');
+    return `<div class="expPrep"><h4>The warband</h4><ul class="plist">${rows}</ul>
+      <p class="note">No Preparation Turns here — they are earned by winning a fight, and only once per chamber (§4.4).</p></div>`;
+  }
+  const rows = expMembers().map((u) => {
+    const c = s.carry[u.id], left = expPrepLeft(u.id);
+    const acts = [['mend', `Bind wounds +${Math.round(EXP_PREP_HEAL * 100)}%`],
+                  ['focus', u.maxMp ? `Gather mana +${EXP_PREP_MP}` : 'Work the gear −1 cd'],
+                  ['cleanse', 'Cleanse'], ['brace', 'Brace']];
+    const actBtns = acts.map(([a, label]) => `<button class="btn tiny" type="button" data-prep="${u.id}:${a}"${left < 1 ? ' disabled' : ''}>${label}</button>`).join('');
+    const itemBtns = EXP_PREP_ITEMS.filter((k) => (profile.items[k] || 0) > 0 && !(k === 'tonic' && !u.maxMp))
+      .map((k) => `<button class="btn tiny" type="button" data-prepitem="${u.id}:${k}"${left < 1 ? ' disabled' : ''}>${ITEMS[k].name} ×${profile.items[k]}</button>`).join('');
+    const extraBtn = !p.extraTo ? `<button class="btn tiny extra" type="button" data-extra="${u.id}">Give the extra turn</button>` : '';
+    return `<li class="prow${left ? ' has' : ''}">
+      <div class="pbar"><span class="pname">${u.name}</span>
+        <span class="pstat">${c ? `${c.hp}/${u.maxHp} HP` : ''}${c && u.maxMp ? ` · ${c.mp}/${u.maxMp} MP` : ''}</span>
+        ${fxChips(c)}${chips(u.id)}
+        <span class="pturns">${left} turn${left === 1 ? '' : 's'}${p.extraTo === u.id ? ' (Captain\'s extra)' : ''}</span></div>
+      <div class="pacts">${actBtns}${itemBtns}${extraBtn}</div></li>`;
+  }).join('');
+  return `<div class="expPrep"><h4>Preparation Turns</h4><ul class="plist">${rows}</ul>
+    <p class="note">${p.extraTo ? 'The extra turn is given, and it does not carry past this chamber.' : 'The Captain may give one member a second turn (§4.3.2).'} Unspent turns are lost when the warband moves.</p></div>`;
+}
+
+// The rune selection (§7.1-7.2): three cut runes, one kept, one bearer. Nothing moves until it
+// is settled — the casket is open on the floor in front of them — but the vault can always be
+// abandoned, and the clock will decide for them if they dither (§7.3).
+function expRuneHTML() {
+  const sel = expState().pendingRune;
+  if (!sel) return '';
+  if (!sel.kept) {
+    const cards = sel.offer.map((k) => `<li><button class="btn" type="button" data-rune="${k}"><span>${EXP_RUNES[k].name}</span><span class="etype">${EXP_RUNES[k].desc}</span></button></li>`).join('');
+    return `<div class="expRunes"><h4>${sel.source === 'casket' ? 'The rune-casket' : 'The carving room'} — keep one of three</h4>
+      <ul class="expExits">${cards}</ul><p class="note">The other two are left behind. If the clock runs out the vault keeps one for you.</p></div>`;
+  }
+  const who = expMembers().map((u) => `<li><button class="btn" type="button" data-runeto="${u.id}"><span>${u.name}</span><span class="etype">cut it into them</span></button></li>`).join('');
+  return `<div class="expRunes"><h4>${EXP_RUNES[sel.kept].name} — who carries it?</h4>
+    <p class="note">${EXP_RUNES[sel.kept].desc}, for the rest of the expedition.</p><ul class="expExits">${who}</ul></div>`;
+}
+
 function expRenderDecision() {
   const e = expRun(), ch = expChamber(), s = expState();
-  const exits = ch.exits || [], timed = s.deadline != null;
+  const exits = ch.exits || [], timed = s.deadline != null, held = !!s.pendingRune;
   $('#ovKick').textContent = `${e.name} · ${EXP_ENVIRONMENTS[e.env] || 'Expedition'}`;
-  $('#ovTitle').textContent = exits.length ? `${ch.name} — where to?` : `${ch.name} — a dead end`;
+  $('#ovTitle').textContent = held ? `${ch.name} — runes` : exits.length ? `${ch.name} — where to?` : `${ch.name} — a dead end`;
   const exitRows = exits.map((id) => {
     const c = e.chambers[id], blocked = s.visited.has(id) && (s.reentry[id] || 0) >= EXP_REENTRY_CAP;
     const tag = blocked ? 'sealed · already re-entered' : s.visited.has(id) ? 'back through here' : expTypeLabel(c.type);
-    return `<li><button class="btn" type="button" data-exp="${id}"${blocked ? ' disabled' : ''}><span>${c.name}</span><span class="etype">${tag}</span></button></li>`;
+    return `<li><button class="btn" type="button" data-exp="${id}"${blocked || held ? ' disabled' : ''}><span>${c.name}</span><span class="etype">${tag}</span></button></li>`;
   }).join('');
   const loot = (s.lastLoot && (s.lastLoot.gold || s.lastLoot.items?.length))
     ? `<p class="loot">Found: +${s.lastLoot.gold} gold${s.lastLoot.items?.length ? `, ${s.lastLoot.items.join(', ')}` : ''}</p>` : '';
   const timerHTML = timed
     ? `<div class="expTimer"><span id="expTimerFill" style="width:100%"></span></div><div class="expTimerTxt" id="expTimerTxt">${EXP_DECISION_SECS}s to decide</div>`
     : '<p class="note">The decision timer has stopped. Retreat or abandon the expedition.</p>';
-  $('#ovBody').innerHTML = `${loot}${timerHTML}
+  $('#ovBody').innerHTML = `${loot}${timerHTML}${expRuneHTML()}${expPrepHTML()}
     ${exits.length ? `<ul class="expExits">${exitRows}</ul>` : '<p class="note">No road leads on from here. The only way is back.</p>'}
+    ${held ? '<p class="note">Settle the rune before the warband moves on.</p>' : ''}
     ${expHasMap() ? expMapHTML() : '<p class="note">No map for this dungeon — you see only the roads out of this chamber.</p>'}
     <p class="note">This run so far: <b>${s.gold} gold</b>, <b>${s.xp} XP</b>. Moving between chambers never heals.</p>`;
   const back = s.path.length ? s.path[s.path.length - 1] : null;
-  const canRetreat = back != null && (s.reentry[back] || 0) < EXP_REENTRY_CAP;
+  const canRetreat = back != null && (s.reentry[back] || 0) < EXP_REENTRY_CAP && !held;
   const btns = $('#ovBtns'); btns.innerHTML = '';
   const mk = (label, primary, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = `btn${primary ? ' primary' : ''}`; b.textContent = label; b.addEventListener('click', fn); btns.appendChild(b); };
   if (canRetreat) mk(`Retreat to ${e.chambers[back].name}`, false, expRetreat);
-  mk('Abandon the expedition', false, expAbandon);
-  $('#ovBody').querySelectorAll('[data-exp]').forEach((b) => b.addEventListener('click', () => expChoose(b.dataset.exp)));
+  mk('Abandon the expedition', false, expAbandon);   // §15 always available, rune or no rune
+  const body = $('#ovBody');
+  body.querySelectorAll('[data-exp]').forEach((b) => b.addEventListener('click', () => expChoose(b.dataset.exp)));
+  body.querySelectorAll('[data-prep]').forEach((b) => b.addEventListener('click', () => { const [id, act] = b.dataset.prep.split(':'); expPrepAct(id, act); }));
+  body.querySelectorAll('[data-prepitem]').forEach((b) => b.addEventListener('click', () => { const [id, key] = b.dataset.prepitem.split(':'); expPrepItem(id, key); }));
+  body.querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', () => expPrepExtra(b.dataset.extra)));
+  body.querySelectorAll('[data-rune]').forEach((b) => b.addEventListener('click', () => expRuneKeep(b.dataset.rune)));
+  body.querySelectorAll('[data-runeto]').forEach((b) => b.addEventListener('click', () => expRuneAssign(b.dataset.runeto)));
   $('#overlay').hidden = false;
 }
 
@@ -8890,6 +9228,11 @@ function expMapHTML() {
 function expEndOverlay(outcome) {
   expClearTimer();
   const e = expRun(), s = expState();
+  // §7.2.5-6: no rune leaves the vault — not in victory, not in defeat, not when the warband
+  // walks out. They are cut for this expedition and they end with it.
+  const borne = Object.values(s.runes).flat().length;
+  if (borne) log(`The ${borne === 1 ? 'rune' : `${borne} runes`} cut for this expedition crumble as the warband leaves.`, 'sys');
+  s.runes = {}; s.pendingRune = null; s.prep = null;
   const total = `This expedition: <b>${s.gold} gold</b> and <b>${s.xp} XP</b> in total.`;
   let kick, title, body;
   if (outcome === 'won') { kick = `Expedition complete · ${e.name}`; title = `${MONSTERS[e.boss].name} falls`; body = `<p>The vault is cleared end to end.</p><p>${total}</p>`; }
