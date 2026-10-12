@@ -554,6 +554,30 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 }
 /* No z-index here on purpose: champions from both sides share one layer, so a runner can pass in front. */
 .arena > .side { position: absolute; inset: 0; pointer-events: none; }
+/* MOLOTOV'S GROUND FIRE. Same bargain as .side: no z-index, so each flame's own depth competes with the
+   champions' and the fire sorts in among them rather than sitting flatly over or under the lot. */
+.arena > .gfire { position: absolute; inset: 0; pointer-events: none; }
+.gf {
+  position: absolute; width: clamp(13px, 3.1cqw, 34px); translate: -50% -86%;
+  animation: gfRise .45s ease-out backwards;   /* staggered, so the fire runs along the ground as it catches */
+}
+.gf svg { width: 100%; height: auto; display: block; overflow: visible; scale: var(--gs, 1); transform-origin: 50% 100%; }
+/* Each tongue flickers on its own clock (--fd is negative, so it starts mid-flicker), and the inner
+   yellow core runs a beat behind its outer flame. */
+.gf .flame { animation-delay: var(--fd, 0s); }
+.gf .flame + .flame { animation-delay: calc(var(--fd, 0s) - .23s); }
+/* the scorched glow each tongue throws on the dirt it stands in */
+.gf::after {
+  content: ''; position: absolute; left: 50%; bottom: -6%; translate: -50% 0;
+  width: 240%; aspect-ratio: 3 / 1; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 138, 29, .45), rgba(224, 69, 26, .16) 55%, transparent 75%);
+  animation: gfGlow 1.3s ease-in-out infinite alternate; animation-delay: inherit;
+}
+@keyframes gfRise { from { opacity: 0; scale: .3; } }
+/* Breathes on `scale`, never on `width`: a whole field of these animating a layout property would make
+   the browser re-lay the arena out on every frame. */
+@keyframes gfGlow { to { opacity: .55; scale: .82 1; } }
+@media (prefers-reduced-motion: reduce) { .gf, .gf::after { animation: none; } }
 .arena::before, .arena::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .8s; }
 .arena[data-wx="ash"] { --sky-now: var(--sky-ash); }
 /* Brimstone Fall: the warning sky (yellow and bright orange two rounds out, dusky beige-orange the
@@ -702,7 +726,9 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 body.picking .unit:not(.targetable) > :is(.chips, .plate, .body) { pointer-events: none; }
 /* Dungeon chase: a wounded monster turns tail and runs off the right edge; then the warband runs after it. */
 .unit.fleeing { transition: left 1s ease-in, opacity .7s ease-in .3s; opacity: 0; pointer-events: none; }
-.unit.e.fleeing .upic svg, .unit.e.fleeing .upic img { transform: none; }
+/* Whoever is running, runs to the right and faces that way, whatever they were looking at a moment ago.
+   The extra .body is specificity, not decoration: it has to outrank the .unit.lookW mirror further down. */
+.unit.fleeing .body .upic svg, .unit.fleeing .body .upic img { transform: none; }
 .unit.running { transition: left 1.7s ease-in; pointer-events: none; }
 .unit.running .body { animation: runBob .3s ease-in-out infinite !important; }
 @keyframes runBob { 50% { transform: translateY(-7%) rotate(4deg); } }
@@ -868,7 +894,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   animation: fenceRise .75s cubic-bezier(.25, .8, .35, 1) both;
 }
 .unit.e.fenced .upic::after { right: auto; left: -9%; }
-/* Grudge Axe: Krug on 0 HP, outlined in red until his axe flies at the next Toll. */
+/* Grudge Axe: Krug on 0 HP, outlined in red until his axe flies at the next Rev. */
 .unit.grudge .upic { filter: drop-shadow(1.5px 0 0 #ff2a3e) drop-shadow(-1.5px 0 0 #ff2a3e) drop-shadow(0 1.5px 0 #ff2a3e) drop-shadow(0 -1.5px 0 #ff2a3e) drop-shadow(0 0 9px rgba(255, 42, 62, .85)); }
 .unit.grudge .plate { border-color: #ff2a3e; box-shadow: 0 0 0 1px rgba(255, 42, 62, .6); }   /* enemies face left, so the fence stands on their left */
 /* ...planted in a churned mound of grave-dirt (FENCE_DIRT), drawn in front of the fence's foot so the
@@ -902,7 +928,11 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @keyframes ringPulse { 50% { opacity: .45; } }
 .upic { position: relative; width: 100%; height: 100%; }
 .upic svg, .pic svg, .mini svg, .upic img, .pic img, .mini img { width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; }
-.unit.e .upic svg, .unit.e .upic img { transform: scaleX(-1); }
+/* Every champion is drawn facing east, so the drawing is mirrored when they are looking WEST - which is
+   decided by the bearing to whatever they are acting on, not by the side they fight for (see looksWest).
+   An enemy who has done nothing yet still starts out looking west, so a battle opens exactly as before;
+   a healer reaching for an ally behind her turns round to do it. */
+.unit.lookW .upic svg, .unit.lookW .upic img { transform: scaleX(-1); }
 /* Animated champions. The clip lies over the SVG and is sized and offset in multiples of --size
    (see clipVars) so its feet land on the same spot the SVG's do. It only becomes visible once the
    file has loaded, so a champion with no clip — or a clip that 404s — simply keeps the SVG. */
@@ -922,6 +952,45 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit:has(.upic.animated) .body { animation: none; }
 /* Status overlays (syncStatusFx). Each clip covers art units (-15,-25)-(115,100): the 100x100 sprite box
    plus room above for smoke and stun stars. The tints tie the sprite into the effect. */
+/* VESPER'S MIST FORM. He does not dodge so much as stop being quite there: the drawing loses its edges
+   and goes thin, and a red fog gathers about his feet and turns over until his next turn. Keyed to the
+   skill rather than to Evasive — Grubblefin's scales, Seraxa's wings and a Smoke Bomb all hand out the
+   same status and none of them is made of mist (the `mist` tag is set in buffSkill).
+   The fog is its own element because every pseudo-element here is already spoken for: the fence owns
+   both of .upic's, the ground glow and the Heat aura own both of .body's. It is the FIRST child of
+   .upic, so it lies behind him and he stands in it. */
+.unit.misted .upic > :is(.art, svg, .anim) {
+  filter: blur(1.7px) saturate(.78) contrast(.92);
+  opacity: .72;
+}
+.upic > .art, .upic > svg, .upic > .anim { transition: filter .4s ease, opacity .4s ease; }
+.mistfog { display: none; }
+.unit.misted .mistfog {
+  display: block; position: absolute; inset: -12% -24% -6%; pointer-events: none;
+  background:
+    radial-gradient(52% 38% at 32% 74%, rgba(192, 48, 63, .55), transparent 70%),
+    radial-gradient(46% 32% at 70% 66%, rgba(214, 70, 86, .40), transparent 72%),
+    radial-gradient(70% 46% at 50% 88%, rgba(96, 16, 28, .52), transparent 76%);
+  filter: blur(6px);
+  animation: mistBreathe 4.6s ease-in-out infinite, mistGather .45s ease-out;
+}
+/* ...and a thinner set of wisps crossing it, so the fog turns over instead of merely pulsing. */
+.unit.misted .mistfog::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(36% 24% at 20% 58%, rgba(224, 69, 90, .42), transparent 70%),
+    radial-gradient(30% 20% at 78% 72%, rgba(224, 69, 90, .34), transparent 72%);
+  filter: blur(4px);
+  animation: mistDrift 6.5s ease-in-out infinite alternate;
+}
+@keyframes mistGather { from { opacity: 0; transform: scale(.78); } }
+@keyframes mistBreathe { 50% { transform: scale(1.07) translateY(-2%); opacity: .88; } }
+@keyframes mistDrift { from { transform: translate(-7%, 2%); } to { transform: translate(8%, -3%); } }
+/* A fallen Vesper is not in mist any more; and nothing here should churn for reduced motion. */
+.unit.down .mistfog { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .unit.misted .mistfog, .unit.misted .mistfog::before { animation: none; }
+}
 .upic .stfx { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .upic .stfx img { position: absolute; left: -15%; top: -25%; width: 130%; height: 125%; max-width: none; object-fit: fill; }
 .unit.st-burn .upic > :is(.art, svg, .anim) { filter: sepia(.25) saturate(1.35) brightness(1.06); }
@@ -1028,7 +1097,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .bolt.rite path.rt-core { stroke: #ff7a88; stroke-width: 4.5; filter: drop-shadow(0 0 6px #ff2a3e); }
 .bolt.rite polygon { stroke: none; }
 .bolt.rite polygon.rt-glow { fill: rgba(150, 12, 34, .35); filter: blur(5px); }
-/* Execute's blood, hanging over the mark until it comes down, two Tolls on (bloodCloud). */
+/* Execute's blood, hanging over the mark until it comes down, two Revs on (bloodCloud). */
 .bloodcloud { position: absolute; z-index: 238; aspect-ratio: 2.4; transform: translate(-50%, 0); pointer-events: none;
   border-radius: 50%; background: radial-gradient(closest-side, rgba(150, 10, 28, .95), rgba(110, 8, 22, .8) 55%, rgba(90, 6, 18, 0));
   filter: drop-shadow(0 0 10px rgba(220, 30, 50, .65)); animation: cloudChurn 1.6s ease-in-out infinite; }
@@ -1099,6 +1168,15 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .burst-heal { background: radial-gradient(circle, rgba(108, 194, 138, .6), transparent 65%); animation-name: rise; animation-duration: .9s; }
 .burst-heal::after { content: '+ + +'; position: absolute; inset: 22% 0 auto; text-align: center; font-weight: 800; font-size: 1.1rem; letter-spacing: .25em; color: #b6f5c9; }
 .burst-shield { border: 3px solid rgba(160, 210, 255, .9); box-shadow: inset 0 0 16px rgba(140, 200, 255, .7), 0 0 14px rgba(140, 200, 255, .55); animation-name: bubble; animation-duration: .85s; }
+/* HEROIC (Wren, Garrick only — see heroicFlare). The blue aura that marks their sworn guard firing:
+   a deeper, filled blue than the Shielded bubble above, and it hangs a beat longer, so a blow landing
+   on the wrong champion reads as a choice they made rather than a stray swing or a ward. */
+.burst-heroic {
+  width: 128%; border: 3px solid rgba(96, 178, 255, .95);
+  background: radial-gradient(circle, rgba(96, 178, 255, .42) 0 28%, rgba(48, 120, 230, .2) 54%, transparent 72%);
+  box-shadow: 0 0 22px rgba(96, 178, 255, .85), inset 0 0 18px rgba(150, 210, 255, .7);
+  animation-name: bubble; animation-duration: 1s;
+}
 .burst-buff { background: radial-gradient(circle, rgba(232, 165, 72, .6), transparent 65%); animation-name: rise; }
 .burst-curse { background: radial-gradient(circle, rgba(196, 139, 224, .65), transparent 65%); }
 /* Mana Burn (manaBurn / manaBurnPct): the struck body secretes its mana — blue droplets well up and
@@ -2203,6 +2281,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
             <p id="wxDesc"></p>
             <p class="wxx" id="wxNext"></p>
           </div>
+          <div class="gfire" id="gfire" aria-hidden="true"></div>
           <div class="side" id="side-p" aria-label="Your warband"></div>
           <div class="side" id="side-e" aria-label="Enemy warband"></div>
         </main>
@@ -2484,6 +2563,10 @@ const FX = {
   // (o.charges, shown as ×N on the chip) and are spent in strikeOnce as the damage lands.
   bloodpact: { icon: '🩸', label: 'Blood Pact', kind: 'good', verb: 'binds the warband in a blood pact: the next blows he takes are split evenly across every living ally' },
   bloodward: { icon: '🛡️', label: 'Blood Ward', kind: 'good', verb: 'spreads a blood ward over the warband: she takes half of the next blows any ally suffers' },
+  // Garrick's Shieldbearer. The mark rides on the KNIGHT, not on the ally he is covering — u.wardUid
+  // names the ward — so one shield answers for one person, and a stance that outlives its ward (or
+  // its knight) simply stops mattering instead of leaving a stale chip on someone.
+  shieldbearer: { icon: '🛡️', label: 'Shieldbearer', kind: 'good', verb: 'plants himself in front of an ally: what is meant for them is his' },
   leak:     { icon: '🪫', label: 'Mana Leak', kind: 'bad',  verb: 'is leaking mana: every action burns 12 MP' },
   // ATTACHED — the general marker for any device fixed onto a unit (Anchor, Stinging Jelly, and
   // future attach-skills). Neutral: it is neither a buff nor a debuff on its own — the thing it
@@ -2497,6 +2580,9 @@ const FX = {
   patchrig: { icon: '🔧', label: 'Patch Rig', kind: 'good', verb: 'carries Patchwork bolted to their back, mending them as the turns pass' },
   toll:     { icon: '😈', label: 'Infernal Toll', kind: 'bad', verb: 'is marked by Infernal Toll: its next skill also costs 5% of its HP' },
   exposed:  { icon: '🎯', label: 'Exposed',   kind: 'bad',  verb: 'is exposed: takes 25% more damage' },
+  // Dispel's mark, and the mirror of Charmed: that turns aside what is cast AT you, this turns aside
+  // what is cast FOR you. Counted in Revs (the field's own clock), not in the owner's turns.
+  unblessed: { icon: '🚫', label: 'Unblessed', kind: 'bad', verb: 'is stripped bare: no blessing will take hold' },
   aiming:   { icon: '🔭', label: 'Taking aim', kind: 'good', verb: 'takes aim' },
   shield:   { icon: '🛡️', label: 'Shielded',  kind: 'good', verb: 'is shielded' },
   ward:     { icon: '🔰', label: 'Spirit Ward', kind: 'good', verb: 'is wrapped in a Spirit Ward' },
@@ -2517,7 +2603,7 @@ const FX = {
   // held in rather than blows it has taken, so neither can be cleansed, stolen or resisted.
   undying:  { icon: '🟢', label: 'Undying',   kind: 'good', verb: 'should be dead, and keeps its feet: the next damage it takes is the end, and no mending can reach it' },
   coffin:   { icon: '⚰️', label: 'Coffined',  kind: 'good', verb: 'is sealed in a coffin: nothing can target it, area attacks wash over it, and no mending reaches in' },
-  // Krug's Grudge Axe: standing on 0 HP until the next Toll, when the axe flies and he falls.
+  // Krug's Grudge Axe: standing on 0 HP until the next Rev, when the axe flies and he falls.
   grudge:   { icon: '🪓', label: 'Grudge',    kind: 'good', verb: 'should be down, and holds on for one last axe' },
   // Barrow's Burrow: under the grave-dirt for one round of the field's clock (TIMED_FX).
   burrowed: { icon: '🕳️', label: 'Burrowed',  kind: 'good', verb: 'burrows into the grave-dirt for a round: nothing can target him, and area attacks pass over him' },
@@ -2527,7 +2613,7 @@ const FX = {
   // melee ally so fenced cannot swing out past it, while an arching shot still clears it freely.
   // Counted in the owner's own turns like any ward (see validTargets and usable).
   protected: { icon: '🪦', label: 'Protected', kind: 'good', verb: 'stands behind a graveyard fence: no melee blow reaches them and straight shots glance off, though area attacks and anything lobbed from above still land' },
-  // BASH and FEAR are counted on the field's global clock — in Tolls (any unit's turn-start, see
+  // BASH and FEAR are counted on the field's global clock — in Revs (any unit's turn-start, see
   // THE TURN PULSE), not the owner's own turns. BASH holds the unit off the speed bar outright;
   // FEAR only shoves it back a little, so it still acts, just later.
   bash:     { icon: '🔨', label: 'Bashed',    kind: 'bad',  verb: 'is bashed off the speed bar' },
@@ -2594,8 +2680,8 @@ function rollWeather(except) {
      heal: all, cleanse, tideBonus, fx     buff: heal, reduceCd, cleanse, selfStacks, aiTarget
      wave / quake (melee AoE: one slam, then a fire ring / short tremor rolls out and the
      hits land nearest-first), slash (a great crescent arc carved across the struck target),
-     rampage:<n> (melee: the opener lands on the target, then n-1 more leaps at enemies drawn
-     at random, repeats and all),
+     rampage:<n> (melee: the opener lands on the target, then n-1 more leaps, each crossing to
+     the other rank from the one before it - front, back, front - drawn at random within it),
      watersweep (Tharos calls the water from where he stands: no run-in, no shot, a wave does
      the traveling) with slam for the ground-smash version instead of the trident raise,
      selfFx:[[status, turns]] (on the caster), chanceFx:[[status, turns, chance]], selfStacks:<n>,
@@ -2695,12 +2781,12 @@ const ROSTER = [
     look: { body: 'orc', main: '#5a3a2a', trim: '#9aa3b5', skin: '#6b8f56', hair: '#1d1d1d', weapon: 'axe' },
     nature: { name: 'Red Mist', desc: 'Below half HP his Double Attack chance is doubled — the redder the mist, the faster the axes.', redmist: 1 },
     skills: [D('Cleave', '65% to all enemies.', 3, 0.65, { aoe: true }),
-             D('Blood Frenzy', 'Krug launches himself at the target and tears through the warband: six leaping blows of 38%, each landing on whoever the frenzy throws him at next. The same enemy can take two in a row. Costs 10% of his own HP.', 4, 0.38, { selfCost: 0.1, rampage: 6 }),
+             D('Blood Frenzy', 'Krug launches himself at the target and carves a line through the warband: six leaping blows of 38%, each one crossing to the other rank from the one before it — front, back, front again — until the six are spent. Costs 10% of his own HP.', 4, 0.38, { selfCost: 0.1, rampage: 6 }),
              D('Reckless Swing', 'Krug swings both axes for 170%, then careens into another enemy at random and swings again for 100%. All that momentum leaves him Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { bounce: 0.6, selfFx: [['exposed', 1]] }),
              D('Twin Axes', 'Two chops of 85%. Causes Bleed.', 3, 0.85, { hits: 2, fx: [['bleed', 3, 0.3]] }),
              B('Warchief\'s Fury', 'Krug works himself into a rage: Enraged for 2 turns, dealing 35% more damage.', 4, 'self', [['enraged', 3]])],
     passive: P('Bloodlust', 'Defeating an enemy heals him for 20% of his max HP.', { killHeal: 0.2 }),
-    passiveAlt: P('Grudge Axe', 'The blow that would kill him leaves him standing on 0 HP, outlined in red. At the next Toll he hurls his axe at his killer, and it bounces on until every enemy in reach has been hit once - each hit for 100% of his attack, never dodged. Then he falls. Once per battle.', { grudge: 1 }) },
+    passiveAlt: P('Grudge Axe', 'The blow that would kill him leaves him standing on 0 HP, outlined in red. On the next turn, whoever\'s it is, he hurls his axe at his killer, and it bounces on until every enemy in reach has been hit once - each hit for 100% of his attack, never dodged. Then he falls. Once per battle.', { grudge: 1 }) },
   { id: 'mogra', name: 'Mogra Ironhide', short: 'Mogra', faction: 'orc', role: 'melee', bio: 'Shield-and-mace bruiser.',
     mods: { hp: 1.15, def: 1.25, atk: 0.9 },
     look: { body: 'orc', main: '#4a4e5c', trim: '#b07d3e', skin: '#7a9a5e', weapon: 'hammer', shield: '#6b4f32' },
@@ -2730,7 +2816,7 @@ const ROSTER = [
              D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2]] }),
              D('Cinder Spray', '50% fire to all enemies. Never misses. Blinds them all.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
              D('Sticky Tar', '80% hit. Burns, Slows and sunders the target\'s armor.', 4, 0.8, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] }),
-             D('Molotov', 'Drekka lights the bottle: it flies on the next Toll, whoever\'s turn it is — 75% fire to all enemies. Never misses. Burns them all and sets the enemy ground ablaze for 2 turns, searing anyone who stands there. Burns off Soaked and leaves them Dry while it lasts.', 5, 0.75, { magic: true, aoe: true, noDodge: true, attackType: 'arch', fuse: 1, fx: [['burn', 3, 0.3], ['dry', 2]], groundFire: 2 })],
+             D('Molotov', 'Drekka lights the bottle: it flies on the next turn, whoever\'s it is — 75% fire to all enemies. Never misses. Burns them all and sets the enemy ground ablaze for 2 turns, searing anyone who stands there. Burns off Soaked and leaves them Dry while it lasts.', 5, 0.75, { magic: true, aoe: true, noDodge: true, attackType: 'arch', fuse: 1, fx: [['burn', 3, 0.3], ['dry', 2]], groundFire: 2 })],
     passive: P('Pyromaniac', 'Deals 25% more damage to Burning enemies.', { vs: { fx: 'burn', bonus: 0.25 } }) },
   { id: 'hesk', name: 'Old Mother Hesk', short: 'Hesk', faction: 'orc', role: 'support', bio: 'Shaman who keeps the war drums.',
     mods: { hp: 1.05 },
@@ -2763,7 +2849,8 @@ const ROSTER = [
              B('Oathguard', 'Shield an ally for 2 turns and reflect 40% of the damage they take.', 4, 'ally', [['shield', 2], ['thorns', 2]], { aiTarget: 'lowest' }),
              D('Consecrate', '45% holy damage to all enemies. Never misses. Heals all allies a little.', 4, 0.45, { magic: true, aoe: true, noDodge: true, allyHeal: 0.8 }),
              D('Hammer of Judgement', '150% holy smash. Never misses, with a 40% chance to stun.', 4, 1.5, { magic: true, noDodge: true, stun: 0.4 }),
-             B('Lionheart', 'Taunt all enemies and take 60% less damage for 2 turns.', 5, 'self', [['taunt', 3], ['ward', 2]])],
+             B('Lionheart', 'Taunt all enemies and take 60% less damage for 2 turns.', 5, 'self', [['taunt', 3], ['ward', 2]]),
+             B('Shieldbearer', 'Garrick steps in front of an ally and stands there for 2 turns: every blow meant for them lands on him instead, physical or magical, and half the time his shield turns aside a quarter of what he catches. Only a lobbed shot arcs over him.', 4, 'ally', [], { bodyguard: 2, notSelf: true, aiTarget: 'lowest' })],
     passive: P('Retribution', 'When he takes a hit, every enemy takes 20% of that damage.', { retribution: 0.2 }),
     passiveAlt: [P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }),
                  P('Heroic', 'When a melee attacker strikes at one of his allies, 25% chance Sir Garrick throws himself into its path — he takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.25 })] },
@@ -2776,7 +2863,7 @@ const ROSTER = [
     nature: { name: 'Covering Fire', desc: 'Every five turns taken on the field — friend or foe — she snaps off a free shot at a random enemy, taunters first.' },
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#c68f6a', hair: '#5a3520', weapon: 'gun' },
     skills: [D('Aimed Shot', '140% shot, +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
-             D('Powder Shot', 'Mara takes aim: 2 Tolls later the shot goes off on its own, whoever\'s turn it is — 220%, +70% crit chance. While she aims she is Exposed, and her Covering Fire holds. A Silence, stun or bash breaks her aim and the shot is lost. A mark that has gone to ground or into a coffin is simply not there, and a graveyard fence turns the round aside.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
+             D('Powder Shot', 'Mara takes aim: 2 turns later the shot goes off on its own, whoever takes them — 220%, +70% crit chance. While she aims she is Exposed, and her Covering Fire holds. A Silence, stun or bash breaks her aim and the shot is lost. A mark that has gone to ground or into a coffin is simply not there, and a graveyard fence turns the round aside.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
              D('Ricochet', '90% shot that ricochets into another enemy for 60%.', 3, 0.9, { bounce: 0.6 }),
              D('Pistol Whip', '100% hit with a 40% chance to Stagger.', 2, 1.0, { chanceFx: [['stagger', 1, 0.4]] }),
              D('Volley Fire', '55% to all enemies, +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 })],
@@ -2897,7 +2984,7 @@ const ROSTER = [
              D('Tentacle Snare', '90% hit. Slows the target for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
              D('Ink Whip', '120% hit. Never misses. Blinds the target for 2 turns.', 3, 1.2, { magic: true, noDodge: true, fx: [['blind', 3]] }),
              D('Crushing Grip', '160% hit. Silences the target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] }),
-             { name: 'Stinging Veil', desc: 'Octavia flings a pink jellyfish that clamps onto an enemy, shocking it for 15 magic at once and 15 more every 3 Tolls. The jelly stands as a unit of its own — targetable, untouched by area attacks, and burst only by 3 blows of any size.', cd: 4, kind: 'jelly', target: 'enemy', o: {} }],
+             { name: 'Stinging Veil', desc: 'Octavia flings a pink jellyfish that clamps onto an enemy, shocking it for 15 magic at once and 15 more every 3 turns, whoever takes them. The jelly stands as a unit of its own — targetable, untouched by area attacks, and burst only by 3 blows of any size.', cd: 4, kind: 'jelly', target: 'enemy', o: {} }],
     passive: P('Ink Sac', 'When hit, 25% chance to Blind the attacker.', { onHitTaken: { chance: 0.25, fx: [['blind', 2]] } }) },
   { id: 'maren', name: 'Maren Pearlheart', short: 'Maren', faction: 'tide', role: 'support', bio: 'Pearl priestess of the reef.',
     mods: {},
@@ -2917,11 +3004,11 @@ const ROSTER = [
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
-             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two Tolls later it comes down on them as a single Magic blow that cannot miss and ignores armor - sooner if their own turn comes first, before they can act. Only a mark that has gone to ground or into a coffin escapes it - a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
+             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two turns later — whoever takes them — it comes down on them as a single Magic blow that cannot miss and ignores armor - sooner if their own turn comes first, before they can act. Only a mark that has gone to ground or into a coffin escapes it - a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
              D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
-             B('Mist Form', 'Vesper dissolves into mist: attacks that can miss will miss until his next turn, and he heals a little.', 4, 'self', [['evade', 1]], { heal: 1.5 })],
+             B('Mist Form', 'Vesper dissolves into mist: attacks that can miss will miss until his next turn, and he heals a little.', 4, 'self', [['evade', 1]], { heal: 1.5, mist: true })],
     passive: P('Riposte', 'When hit in melee, 20% chance to strike back for 60%.', { riposte: { chance: 0.2, mult: 0.6 } }) },
   { id: 'malgrath', name: 'Malgrath the Unbound', short: 'Malgrath', faction: 'crimson', role: 'melee', bio: 'Demon brute freed from the pit.',
     mods: { hp: 1.15, atk: 1.05, def: 0.9, agi: 0.85 },
@@ -2971,7 +3058,7 @@ const ROSTER = [
     mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
     look: { body: 'zombie', main: '#5a5c4a', trim: '#47564a', skin: '#97a884', weapon: 'cross' },
     nature: { name: 'The Slow March', desc: 'Nothing hurries him, nothing holds him: Slow and speed-bar drags never touch his march.', march: 1 },
-    skills: [D('Grave Cross', '130% swing of the iron marker. The target is gripped by Fear: over the next 3 Tolls it runs back to the start of the speed bar, and cannot act until it gets there.', 2, 1.3, { fx: [['flee', 3]] }),
+    skills: [D('Grave Cross', '130% swing of the iron marker. The target is gripped by Fear: over the next 3 turns, whoever takes them, it runs back to the start of the speed bar, and cannot act until it gets there.', 2, 1.3, { fx: [['flee', 3]] }),
              D('Last Rites', 'Two giant iron crosses come down on the target one after the other: two 110% blows that ignore armor. They pin it where it stands, so it cannot act until Mordrek\'s next turn. If Mordrek falls first, the crosses crumble and it goes free.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
              D('Graveside Chill', '85% to all enemies on a green grave-wind. They recoil in Fear, losing ground on the speed bar.', 4, 0.85, { aoe: true, gust: true, fx: [['fear', 2]] }),
              D('Bonebreaker', 'Two blows of 75% that sunder armor.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
@@ -2998,6 +3085,7 @@ const ROSTER = [
              S('Shambling Rise', 'Claw up a 1-HP Shambler. It swings the moment it stands, swings once more if it is somehow still standing, then falls apart. It answers to nobody, and the Undying pact does not cover it.', 3, 'zombie'),
              D('Rot Shot', '110% shot that poisons.', 3, 1.1, { fx: [['poison', 3, 0.3]] }),
              D('Marrow Pierce', '150% shot that ignores armor.', 3, 1.5, { pierce: true })],
+    // "Toll" here is the DEATH TOLL — a count of the fallen, nothing to do with the field's clock.
     passive: P('Toll of the Dead', 'Deals 5% more damage for every body lying on the field, whoever it belonged to.', { deadScale: 0.05 }) },
   { id: 'vaun', name: 'Vaun Shroudfletch', short: 'Vaun', faction: 'undead', role: 'ranged', bio: 'Fletches with its own ribs. Never needs to breathe to steady a shot.',
     mods: { atk: 1.1, agi: 1.05, hp: 0.95 },
@@ -3015,7 +3103,7 @@ const ROSTER = [
     nature: { name: 'The Dead Listen', desc: 'The grave knows her voice: her mending is never halved by grave-flesh.', gravetongue: 1 },
     skills: [H('Grave Mend', 'Mend an ally with grave-dust and a whispered name.', 2, 2.8),
              R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — the Undying pact holds anew when they next fall — and mending can reach them once more.', 6, 0.10),
-             C('Coffin', 'Seal an ally in the coffin for 2 Tolls, held safe off the speed bar: nothing can target them and area attacks wash over them for nothing, but no mending reaches inside either. At hero level 5 the lid leaves their curses behind as it opens; at level 10 they step out shielded.', 4),
+             C('Coffin', 'Seal an ally in the coffin for 2 turns, whoever takes them, held safe off the speed bar: nothing can target them and area attacks wash over them for nothing, but no mending reaches inside either. At hero level 5 the lid leaves their curses behind as it opens; at level 10 they step out shielded.', 4),
              B('Hex of Ruin', 'Hex an enemy for 3 turns: all healing they receive is halved.', 3, 'enemy', [['hex', 4]]),
              D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 })],
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
@@ -3056,7 +3144,7 @@ const SUMMONS = {
   },
   jellyfish: {
     name: 'Stinging Jelly', role: 'ranged', life: null,
-    desc: 'A pink jelly clamped to an enemy, shocking it for 15 every 3 Tolls. Takes 3 blows of any size to burst.',
+    desc: 'A pink jelly clamped to an enemy, shocking it for 15 every 3 turns, whoever takes them. Takes 3 blows of any size to burst.',
     look: { body: 'jellyfish', main: '#e86fb0', trim: '#ffc0e0', eye: '#ffffff' },
     leave: (u) => `${u.name} bursts.`,
     stats: () => ({ maxHp: 3, atk: 0, def: 0, agi: 0, crit: 0, dodge: 0 }),
@@ -4234,6 +4322,29 @@ function faceTarget(u, t) {
 // Which way a unit is turned at this moment: wherever it last turned, or the way its side always looks.
 const faceOf = (u) => (u && u.face != null ? u.face : (u && u.side === 'e' ? 270 : 90));
 
+/* Turn a unit toward whatever it is about to act on. One mark is simple; an area attack has no single
+   mark, so they square up to the nearest of the people it lands on. Called at the top of every action,
+   before any dash or swing, so a champion is already looking the right way when they move. */
+function faceForAction(u, sk, t) {
+  if (!u) return null;
+  if (t && t !== u) return faceTarget(u, t);
+  const band = sk?.target === 'allEnemies' ? openFoes(u) : sk?.target === 'allAllies' ? openAllies(u) : null;
+  if (!band || !band.length) return null;
+  const near = band.reduce((a, b) => ((fieldDist(u, b) ?? Infinity) < (fieldDist(u, a) ?? Infinity) ? b : a));
+  return faceTarget(u, near);
+}
+
+/* WHICH WAY THE DRAWING LOOKS. Every champion is drawn facing east, so the western half of the compass
+   is the half that mirrors them - and it is the half they are LOOKING at that decides it now, not the
+   side they happen to fight for. A healer reaching for someone behind her turns round to do it.
+   Due north and due south say nothing about left and right, so a unit squared on keeps whichever way it
+   was already looking instead of snapping about. */
+function looksWest(u) {
+  const f = faceOf(u);
+  if (f === 0 || f === 180) return !!u.lookW;
+  return (u.lookW = f > 180);
+}
+
 /* A bearing, resolved: which of the three drawings to use, whether to mirror it, and how far to turn it.
    North and south are the back and the front head-on; east and west are the profile and its mirror; the
    diagonals are the square-on drawing turned a quarter, mirrored for the western half. */
@@ -4748,7 +4859,7 @@ const DG_MAX_FOES = 5;                                         // a pack plus it
 const DG_FLEE_AT = 0.25;                                       // a minion runs the moment its HP falls to this share or less
 const DG_FLEE_CAP = 2;                                         // the first 2 to break and run; nobody else flees that room
 // Bosses fight more violently than their stat block: harder blows, and faster on the speed bar, so
-// their turns (each one a Toll) come round more often.
+// their turns (each one a Rev) come round more often.
 const BOSS_ATK_MULT = 1.2, BOSS_AGI_MULT = 1.35;
 // The pack guards its master: every minion has its own 30-40% Heroic chance (it throws itself in
 // front of a melee blow and answers it), but only for blows aimed at a boss.
@@ -4810,7 +4921,7 @@ const EXP_PREP_ITEMS  = ['draught', 'tonic', 'salts'];
 // §4.3.10: "status effects carry into the next chamber according to their normal duration rules" —
 // which is also what gives a cleansing prep turn something to strip. Only effects that mean anything
 // away from the fight that laid them travel: the slow poisons and the plain buffs. Left behind are
-// the ones counted in Tolls or milliseconds (bash, fear, coffin, flee, stun, stagger, overheat),
+// the ones counted in Revs or milliseconds (bash, fear, coffin, flee, stun, stagger, overheat),
 // the ones that point at another unit (link, attached, bolted, the blood rites), and the
 // turn-shaped postures (guard, windup, aiming, evade, taunt) that belong to a single exchange.
 const EXP_CARRY_FX = ['burn', 'poison', 'bleed', 'weaken', 'sunder', 'slow', 'blind', 'hex',
@@ -4897,6 +5008,25 @@ function spriteSVG(id) {
   const folder = c ? ART_FOLDER[c.faction] : MONSTERS[id] ? 'monsters' : 'summons';
   return `<img class="art" src="characters/${folder}/${id}.${ART_EXT}" alt="" data-id="${id}" draggable="false">`;
 }
+/* SHIELDBEARER'S LIT SHIELD. A champion in battle is drawn by an <img> pointing at their art file,
+   and CSS cannot reach inside an <img>'s SVG to recolour one path of it — so the lit shield cannot
+   be a stylesheet rule. It is a second drawing instead: the same figure with the shield's gradient
+   brightened and given a pale rim (garrick-ward.svg), leaving his helmet plume on the old blue,
+   since that shares the gradient. While he holds the post his art points at that file; when he
+   stands down it points back. Only ids listed here have a variant — everyone else is left alone. */
+const WARD_ART = { garrick: 'garrick-ward' };
+function syncWardArt(el, u) {
+  const variant = WARD_ART[u.id];
+  if (!variant) return;
+  const img = el.querySelector('img.art');
+  if (!img) return;
+  const c = charById(u.id);
+  const folder = c ? ART_FOLDER[c.faction] : 'monsters';
+  const lit = has(u, 'shieldbearer') && u.hp > 0;
+  const want = `characters/${folder}/${lit ? variant : u.id}.${ART_EXT}`;
+  if (img.getAttribute('src') !== want) img.setAttribute('src', want);
+}
+
 const lookOf = (id) => charById(id)?.look || SUMMONS[id]?.look || MONSTERS[id]?.look;
 
 // Skill icons live in skills/<slug>.svg, named after the skill ("Siren's Hush" → sirens-hush.svg).
@@ -4934,7 +5064,9 @@ function gearUp(a, b) {
   // look.weaponScale grows the weapon about the hand (Barrow's oversized headstone); the outer group still pivots there.
   const wpn = a.weapon && WEAPONS[a.weapon](a, x, y);
   let g = b.svg + (a.weapon ? `<g class="wpn" style="transform-origin:${x}px ${y}px">${a.weaponScale ? `<g transform="translate(${x} ${y}) scale(${a.weaponScale}) translate(${-x} ${-y})">${wpn}</g>` : wpn}</g>` : '');
-  if (a.shield) g += `<path d="M29 ${50 + b.shieldY} h17 v14 q0 10 -8.5 13 q-8.5 -3 -8.5 -13 z" fill="${a.shield}" stroke="${a.trim}" stroke-width="2"/>`;
+  // A hook for styling the shield of a PLACEHOLDER-drawn figure. Champions in battle are drawn from
+  // their own art file instead (see syncWardArt), so Garrick's lit shield does not come through here.
+  if (a.shield) g += `<path class="shieldArt" d="M29 ${50 + b.shieldY} h17 v14 q0 10 -8.5 13 q-8.5 -3 -8.5 -13 z" fill="${a.shield}" stroke="${a.trim}" stroke-width="2"/>`;
   // An off-hand weapon held where a shield would be (Barrow's second headstone), a little smaller.
   if (a.offhand) {
     const oy = 72 + b.shieldY;
@@ -5095,6 +5227,9 @@ const NEUTRAL_SKILLS = {
   wardingcharm: B('Warding Charm', 'An ally resists new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { mp: 20, aiTarget: 'debuffed' }),
   demoralize:  D('Demoralize', '60% hit. Weakens the target for 2 turns.', 3, 0.6, { mp: 25, fx: [['weaken', 3]] }),
   armorcrack:  D('Armor Crack', '70% hit. Sunders armor: −40% defense for 2 turns.', 4, 0.7, { mp: 25, fx: [['sunder', 3]] }),
+  // Dispel: strips the blessings off an enemy and leaves them unable to take new ones. Counted in Revs
+  // rather than the mark's own turns, so a slow champion cannot wait it out by simply not acting.
+  dispel:      B('Dispel', 'Tear every blessing off an enemy: all their buffs come away, and nothing new will take hold on them for 2 turns, whoever takes them.', 4, 'enemy', [['unblessed', 2]], { mp: 25, strip: true }),
   // Provoke: a taunt that lasts for a number of attacks rather than turns (o.charges, see markAttacked).
   provoke:     B('Provoke', 'You or an ally taunts every enemy for the next 2 attacks against them.', 4, 'ally', [['provoke', 99]], { mp: 20, charges: 2, aiTarget: 'tank' }),
 };
@@ -5285,6 +5420,35 @@ function makeUnit(c, lv, side, slot, scale = 1) {
 // for any ally, or a minion guarding its boss (guardBoss, 30-40%) when t is the boss.
 const heroicGuardFor = (t) => (a) => a !== t && a.hp > 0 && !has(a, 'rooted')
   && ((pv(a).heroic && chance(pv(a).heroic)) || (t.boss && a.guardBoss > 0 && chance(a.guardBoss)));
+
+/* THE HEROIC AURA. Three different things reach the interception above, and only one of them is
+   the passive: Wren and Garrick's sworn guard. A Hell Pup carries heroic 0.4 as pack instinct, and
+   any minion will throw itself in front of its boss (guardBoss) — neither is a champion performing
+   Heroic, so neither lights up. The aura flares on the guardian for the moment they step in, so a
+   blow landing on the wrong champion reads as a choice they made rather than a stray swing. */
+const swornHeroic = (a) => !a.summon && !a.monster && !!pv(a).heroic;
+const heroicFlare = (a) => { if (swornHeroic(a)) burst(a, 'heroic'); };
+
+/* SHIELDBEARER (Garrick's skill). While he stands in front of a ward, every blow meant for them is
+   his to carry — the shield only ever reduces what he has already agreed to take, never what they
+   take. A quarter turned aside, half the time. */
+const BEARER_BLOCK = 0.25, BEARER_BLOCK_CHANCE = 0.5;
+// Who, if anyone, is standing in front of t. One knight, one ward (a.wardUid), both still up.
+const bearerFor = (t) => alliesOf(t).find((a) => a.uid !== t.uid && a.hp > 0 && has(a, 'shieldbearer') && a.wardUid === t.uid);
+// A blow that goes over his head rather than through him: anything lobbed on an arc, or hurled
+// from the sky. He can stand in front of a sword; he cannot stand in front of a mortar.
+const lobbedOver = (u, label, o) => !!o.hurl || !!((label === 'Attack' ? PROJ_ATTACK[u.id] : PROJ_SKILL[label])?.arc);
+
+// Shieldbearer, undone: the knight gives up his post and walks back to his own place. Safe on
+// someone covering nobody, and safe to call twice.
+function standDown(u) {
+  if (!u || !u.wardUid) return;
+  const ward = unitBy(u.wardUid);
+  u.wardUid = null;
+  u.effects = u.effects.filter((e) => e.id !== 'shieldbearer');
+  if (u._bearTrip) { dashBack(u, u._bearTrip); u._bearTrip = null; } else layoutSides();
+  if (u.hp > 0) log(`${u.name} gives up his post${ward ? ` in front of ${ward.name}` : ''}.`, u.side);
+}
 
 // A monster unit (always on the enemy side). Same stat formula as champions, no mana, fixed skills.
 function makeMonster(id, lv, slot, scale = 1) {
@@ -5545,12 +5709,12 @@ const deadCount = () => allUnits().filter((x) => x.hp <= 0 && !x.inert).length; 
 // Returns true when the death was absorbed, so fell() knows to stop short.
 /* GRUDGE AXE (Krug's alternative passive). The blow that would kill him leaves him standing - shown on
    0 HP and outlined in red (u.grudge), held on 1 underneath so nothing treats him as gone - and nothing
-   else can drop him before the next Toll. At that Toll (grudgeFalls, from turnPulse) he hurls his axe at
+   else can drop him before the next Rev. At that Rev (grudgeFalls, from turnPulse) he hurls his axe at
    whoever killed him; it bounces on to the nearest enemy not yet hit until every enemy in reach has
    taken one (straight past a killer who has died or hidden), each hit 100% of his attack, never dodged
    and never countered (a thrown axe). Then he falls for real. Once per battle. */
 function grudgeCatch(v, by) {
-  if (v.grudge) { v.hp = 1; return true; }   // already holding on: nothing ends it before the Toll
+  if (v.grudge) { v.hp = 1; return true; }   // already holding on: nothing ends it before the Rev
   if (!pv(v).grudge || v.grudgeSpent || v.summon) return false;
   v.grudgeSpent = true;
   v.grudge = { by: by?.uid || null, pulse: state.pulseN || 0 };
@@ -5738,14 +5902,18 @@ function strikeOnce(u, t, mult, label, o) {
   // counter, and the guardian takes the blow deliberately — no stepping in only to dodge it.
   // The usual path decides this up in damageSkill (so the guardian can physically leap in front of
   // the ally before the attacker arrives) and passes o.heroic; this blow is already theirs to take.
-  // The search below still covers the odd blow that reaches strikeOnce another way (e.g. Execute).
+  // The search below catches a single melee blow that reaches strikeOnce another way.
+  // o.noGuard shuts the search off for a blow that is not a melee swing at all and so cannot be
+  // stepped in front of, however melee the champion who threw it may be — Vesper's Execute falls
+  // out of the sky two Revs after he swung, and nothing can stand under rain for someone else.
   let heroicHit = false;
   if (o.heroic) {
     heroicHit = true;
-  } else if (!o.counter && !o.aoe && u.role === 'melee' && !o.hurl && !o.gust) {
+  } else if (!o.counter && !o.aoe && !o.noGuard && u.role === 'melee' && !o.hurl && !o.gust) {
     const g = alliesOf(t).find(heroicGuardFor(t));
     if (g) {
       float(g, '🛡️ Heroic', 'fx');
+      heroicFlare(g);   // blue aura, and only for Wren or Garrick's own passive
       log(`${g.name} throws into the path of the blow meant for ${t.name}, taking it in their place.`, g.side);
       t = g;
       heroicHit = true;
@@ -5838,6 +6006,26 @@ function strikeOnce(u, t, mult, label, o) {
     shareBlow(warden, soak, u);
     log(`${warden.name}'s Blood Ward takes ${soak} of the blow meant for ${t.name}.`, warden.side);
     spendCharge(warden, has(warden, 'bloodward'), `${warden.name}'s Blood Ward is spent.`);
+  }
+  // Shieldbearer (Garrick's skill): he is planted in front of this ally, so the blow finds him
+  // instead — all of it, physical or magical — and half the time his shield turns a quarter of
+  // that aside. Resolved BEFORE Sworn Shield below: a blow he has already taken is not a blow
+  // that could fell his ward, so it must not also spend the Nature's once-per-battle save.
+  const bearer = bearerFor(t);
+  if (bearer && taken > 0) {
+    if (lobbedOver(u, label, o)) {
+      log(`${label} arcs clean over ${bearer.name} and falls on ${t.name} regardless.`, t.side);
+    } else {
+      let hit = taken;
+      if (chance(BEARER_BLOCK_CHANCE)) {
+        hit = Math.max(1, Math.round(hit * (1 - BEARER_BLOCK)));
+        float(bearer, '🛡️ Turned', 'fx');
+      }
+      taken = 0;
+      bump(bearer, 'hurt');
+      log(`${bearer.name} wears the blow meant for ${t.name} — ${hit}.`, bearer.side);
+      shareBlow(bearer, hit, u);
+    }
   }
   // Sworn Shield (Garrick's Nature): once per battle, the blow that would fell an ally finds
   // his shield instead — he takes it whole, whatever it is, and the ally takes nothing.
@@ -6086,16 +6274,16 @@ async function executeSkill(u, t, sk) {
   render();
   await bloodGather(u, takes.map(([a]) => a));
   await bloodPillar(u);
-  // The blood is in the sky now. It gathers over the mark and comes down two Tolls later (executeFalls).
-  u.bloodRite = { tolls: 2, target: t.uid, pool };
+  // The blood is in the sky now. It gathers over the mark and comes down two Revs later (executeFalls).
+  u.bloodRite = { revs: 2, target: t.uid, pool };
   bloodCloud(u);
   float(t, '🩸 Marked', 'fx');
-  log(`${u.name} throws ${pool} HP of the warband's blood into the sky over ${t.name}. It comes down in 2 Tolls, or as their turn comes.`, u.side);
+  log(`${u.name} throws ${pool} HP of the warband's blood into the sky over ${t.name}. It comes down in 2 turns, whoever takes them — or as their own turn comes.`, u.side);
   render();
   await wait(420);
 }
 
-/* Two Tolls on: the blood comes down. It cannot miss (no dodge, armor ignored) and a graveyard fence
+/* Two Revs on: the blood comes down. It cannot miss (no dodge, armor ignored) and a graveyard fence
    is no roof - but a mark that has gone to ground or into a coffin is not there to be hit, and the
    torrent pours onto the mound or the lid. If the mark has fallen meanwhile it finds another enemy
    (taunters first); the blood is already in the sky, so it falls even if Vesper has fallen too. */
@@ -6114,7 +6302,10 @@ async function executeFalls(u) {
     log(`${u.name}'s Execute pours down on ${buried(t) ? 'the grave mound' : 'the coffin lid'} — ${t.name} is out of its reach.`, u.side);
   } else {
     log(`${u.name}'s blood comes down on ${t.name}!`, u.side);
-    strikeOnce(u, t, pool / Math.max(1, u.atk), 'Execute', { magic: true, noDodge: true, pierce: true });
+    // noGuard: the rite promises only a grave mound or a coffin lid turns it aside. A sworn
+    // guardian cannot take it in the mark's place, and neither can a boss's minions (guardBoss) —
+    // there is nothing to throw themselves in front of.
+    strikeOnce(u, t, pool / Math.max(1, u.atk), 'Execute', { magic: true, noDodge: true, pierce: true, noGuard: true });
     burst(t, 'blood');
   }
   render();
@@ -6150,15 +6341,15 @@ async function takeAim(u, t, sk) {
   // The cast is the loading: musket up, charge rammed home. No shot yet (mara-load).
   const load = playClip(u, 'load');
   if (load) await sleep(load.ms * 0.95); else await castPose(u);
-  u.aimShot = { tolls: sk.o.aim, target: t?.uid, sk };
+  u.aimShot = { revs: sk.o.aim, target: t?.uid, sk };
   addFx(u, 'aiming', 99, 0, true);
   addFx(u, 'exposed', 99);
   float(u, '🔭 Taking aim', 'fx');
-  log(`${u.name} takes aim at ${t ? t.name : 'the enemy'} — the ${sk.name} goes off in ${sk.o.aim} Tolls.`, u.side);
+  log(`${u.name} takes aim at ${t ? t.name : 'the enemy'} — the ${sk.name} goes off in ${sk.o.aim} turns, whoever takes them.`, u.side);
   render();
   await wait(300);
 }
-// The first Toll: she shoulders the musket and holds it on her mark (mara-aim, looping) until it goes off.
+// The first Rev: she shoulders the musket and holds it on her mark (mara-aim, looping) until it goes off.
 async function raiseAim(u) {
   u.aimShot.raised = true;
   holdClip(u, 'aim');
@@ -6170,7 +6361,7 @@ async function raiseAim(u) {
   await wait(450);
 }
 /* The laser sight: a hairline from the muzzle of the shouldered musket to the target's head, from the
-   first Toll until the shot (or the aim is dropped). Redrawn every frame, so it stays on them when
+   first Rev until the shot (or the aim is dropped). Redrawn every frame, so it stays on them when
    either of them is knocked about or runs. AIM_MUZZLE = the barrel tip in her held aim pose (the
    mara-aim clip), as a share of the body box: [ahead of centre, down from the top]. */
 const AIM_MUZZLE = { mara: [0.437, 0.528] };
@@ -6233,6 +6424,7 @@ async function fireAim(u) {
   if (!tg) { log(`${u.name} lowers the musket — nothing left to shoot.`, u.side); render(); return; }
   float(u, `${sk.name}!`, 'fx');
   log(`${u.name}'s ${sk.name} goes off at ${tg.name}!`, u.side);
+  faceTarget(u, tg);   // the shot goes off on someone else's Rev: she turns onto her mark first
   markAttacked(tg);
   await powderShotFires(u, tg, sk);
   strikeOnce(u, tg, sk.mult, sk.name, sk.o || {});
@@ -6242,14 +6434,14 @@ async function fireAim(u) {
 
 // MOLOTOV'S FUSE — the same beat as Mara's Powder Shot (takeAim + the turnPulse count), but for a lobbed
 // AREA attack: Drekka lights the bottle on her turn (loadThrow is the cast, u.loadedThrow counted down in
-// turnPulse), and it flies on the next Toll, whoever's turn it is, resolving as the full area throw
+// turnPulse), and it flies on the next Rev, whoever's turn it is, resolving as the full area throw
 // (fireLoadedThrow hands it to damageSkill). Lit but then silenced, stunned, bashed or coffined, she
 // drops it and the throw is lost. The MP and cooldown were already paid at the cast.
 async function loadThrow(u, t, sk) {
   await castPose(u, true);   // she lights the rag this turn; no bottle flies yet
-  u.loadedThrow = { tolls: sk.o.fuse, sk, target: t?.uid };
+  u.loadedThrow = { revs: sk.o.fuse, sk, target: t?.uid };
   float(u, '🔥🧪 Lit', 'fx');
-  log(`${u.name} lights the ${sk.name} — it flies on the next Toll.`, u.side);
+  log(`${u.name} lights the ${sk.name} — it flies on the next turn, whoever's it is.`, u.side);
   render();
   await wait(300);
 }
@@ -6258,6 +6450,7 @@ async function fireLoadedThrow(u) {
   u.loadedThrow = null;
   if (!openFoes(u).length) { log(`${u.name} holds the ${sk.name} — nothing left to throw it at.`, u.side); render(); return; }
   float(u, `${sk.name}!`, 'fx');
+  faceForAction(u, sk, null);   // the fuse burned down on another Rev: square up before it flies
   await damageSkill(u, null, sk);   // allEnemies: damageSkill picks the whole warband itself
 }
 
@@ -6291,7 +6484,7 @@ async function fenceDeflect(u, t, label, p) {
   log(`${u.name}'s ${label} glances off the graveyard fence before ${t.name}.`, u.side);
 }
 
-// The second Toll: fired from the held aim (mara-shot starts on the aim pose), not a fresh raise.
+// The second Rev: fired from the held aim (mara-shot starts on the aim pose), not a fresh raise.
 async function powderShotWindup(u) {
   const shot = playClip(u, 'shot');
   if (shot) await sleep(shot.hitMs ?? 0); else await aimPose(u);
@@ -6328,6 +6521,7 @@ async function damageSkill(u, t, sk) {
     if (g) {
       heroicGuard = g;
       float(g, '🛡️ Heroic', 'fx');
+      heroicFlare(g);   // blue aura, and only for Wren or Garrick's own passive
       log(`${g.name} throws into the path of the blow meant for ${t.name}, taking it in their place.`, g.side);
       heroicTrip = await interposeTo(g, t);
       t = g;
@@ -6372,19 +6566,32 @@ async function damageSkill(u, t, sk) {
     render();
     await wait(o.rampage ? RAMPAGE_GAP : hits > 1 ? 130 : 160);
   };
-  /* RAMPAGE (Blood Frenzy): he throws himself at the one he was sent at, then tears through the
-     warband at random for a fixed number of blows, jumping to whoever comes next. He is past
-     choosing by then, so the draw is wholly random each time: the same enemy can take two in a
-     row, and someone else may be missed entirely. The count is what he commits to - he lands all
-     of them as long as anything is still standing and he is still on his feet. */
+  /* RAMPAGE (Blood Frenzy): he throws himself at the one he was sent at, then CUTS BACK AND FORTH
+     through the warband - every blow crossing to the other line from the one before it, front to back
+     to front again, until the count is spent. It is the shape of the thing: he is not picking targets,
+     he is carving a line through them. Within a line the draw is still random, so the same enemy can
+     take two of his six, just never two in a row. If one line is empty - the back rank all down, or a
+     warband of nothing but melee - he takes whoever is left rather than stopping. The count is what he
+     commits to: he lands all of them as long as anything is standing and he is still on his feet. */
   if (melee && o.rampage) {
     u.frenzy = true;   // the axes run red for the whole of it (see .unit.frenzied)
     render();
+    // The two lines as the field is drawn: the melee stand in front, a boss leading them; the ranged
+    // and the support keep the line behind (the same rule layoutSides places them by).
+    const inFront = (x) => !!x.boss || x.role === 'melee';
+    let wasFront = null;   // which line the blow before this one fell on
     for (let i = 0; i < o.rampage; i++) {
       const live = singleFoes(u);   // the frenzy can only throw him at someone a blow can reach
       if (!live.length || u.hp <= 0) break;
-      // The opener lands on his mark; every blow after it falls where the frenzy takes him.
-      const at = i === 0 && t.hp > 0 ? t : pick(live);
+      // The opener lands on his mark; after that every blow crosses to the other line.
+      let at;
+      if (i === 0 && t.hp > 0) at = t;
+      else {
+        const want = wasFront === null ? true : !wasFront;   // no opener to cross from: start at the front
+        const line = live.filter((x) => inFront(x) === want);
+        at = pick(line.length ? line : live);                // that line is empty: take what is left
+      }
+      wasFront = inFront(at);
       markAttacked(at);
       if (i > 0) trip = (await dashTo(u, [at], RAMPAGE_DASH)) || trip;   // the next leap, even back onto the same one
       await strikePose(u, true, sk, RAMPAGE_SWING);
@@ -6587,6 +6794,23 @@ function cleanse(u) {
   if (u.effects.length < before) float(u, 'Cleansed', 'fx');
 }
 
+/* NOT EVERY GOOD THING IS A BLESSING. A handful of effects are filed as good because they are not bad,
+   but nobody cast them and stripping them would tear out machinery that lives elsewhere: Patchwork's
+   weld and the rig it mends through, a Blood Pact or Ward counted in blows and spent by its own caster,
+   Mara's held aim, a champion standing Undying, somebody sealed in the coffin or dug in underground,
+   and Krug held upright by his grudge. Dispel passes over all of them, and so does the block it leaves
+   behind — being bolted to an ally is not a blessing anyone can refuse you. */
+const NOT_A_BUFF = ['bloodpact', 'bloodward', 'bolted', 'patchrig', 'aiming', 'undying', 'coffin', 'burrowed', 'grudge'];
+const isBlessing = (id) => FX[id].kind === 'good' && !NOT_A_BUFF.includes(id);
+
+// The mirror of cleanse: every blessing comes off, and the machinery above is left where it stands.
+function strip(u) {
+  const before = u.effects.length;
+  u.effects = u.effects.filter((e) => !isBlessing(e.id));
+  if (u.effects.length < before) float(u, 'Stripped', 'fx');
+  return before - u.effects.length;
+}
+
 async function healSkill(u, t, sk) {
   const o = sk.o || {};
   const targets = sk.target === 'allAllies' ? openAllies(u) : [t];
@@ -6619,10 +6843,20 @@ async function buffSkill(u, t, sk) {
   for (const a of targets) {
     burst(a, look);
     if (o.cleanse) cleanse(a);
+    // Dispel: everything they had going for them comes off FIRST, so the mark that follows lands on a
+    // bare target rather than being swept away with the rest.
+    if (o.strip) {
+      const took = strip(a);
+      log(took ? `${u.name} strips ${took} blessing${took === 1 ? '' : 's'} from ${a.name}.`
+                : `${u.name} finds nothing on ${a.name} to strip.`, u.side);
+    }
     for (const [id, turns, val] of sk.fx) {
       addFx(a, id, turns, val ? Math.round(u.atk * val) : 0);
       if (o.charges && has(a, id)) has(a, id).charges = o.charges;
     }
+    // Mist Form: mark the Evasive as being made of mist. Grubblefin's scales, Seraxa's wings and a
+    // Smoke Bomb all hand out the same status, and none of them should come with Vesper's red fog.
+    if (o.mist && has(a, 'evade')) has(a, 'evade').mist = true;
     if (o.reduceCd) for (const k in a.cooldowns) a.cooldowns[k] = Math.max(0, a.cooldowns[k] - 1);
     if (o.heal) healUnit(u, a, healPower(u, o.heal), sk.name);
   }
@@ -6636,6 +6870,26 @@ async function buffSkill(u, t, sk) {
     addFx(u, 'bolted', 99, 0, true);
     log(`${u.name} bolts onto ${t.name}'s back: ${u.latchHeal} HP at each of the next 4 turns, and no single blow can find him.`, u.side);
     settleLatch();
+  }
+  /* Shieldbearer (Garrick): he crosses the field and plants himself in front of the ward, and the
+     mark goes on HIM — u.wardUid names who he is covering, so the damage path finds exactly one
+     knight for exactly one ally (see the redirect in strikeOnce's damage). He holds the spot he
+     leapt to: the trip is kept on him so standing down can walk him back (see the turn-start
+     stand-down). Recasting on someone else moves him, so the old post is given up first. */
+  if (o.bodyguard && t && t !== u && t.hp > 0 && u.hp > 0) {
+    if (u.wardUid) standDown(u);
+    u.wardUid = t.uid;
+    addFx(u, 'shieldbearer', o.bodyguard, 0, true);
+    burst(u, 'shield');
+    log(`${u.name} plants himself in front of ${t.name}: for ${o.bodyguard} turns their blows are his.`, u.side);
+    u._bearTrip = await interposeTo(u, t);
+    /* ...and he turns his back on the man he is covering. Every action squares a champion up to
+       what it is aimed at (faceForAction), which for an ally-targeted skill is the ally — right for
+       a heal, wrong for a bodyguard, who would end up nose to nose with the person behind him. He
+       faces the FOES instead, which is the whole point of standing there, and the bearing sticks
+       until he acts again, so he holds the post looking the right way. */
+    faceForAction(u, { target: 'allEnemies' }, null);
+    render();
   }
   if (o.selfStacks) gainStacks(u, o.selfStacks);
   render();
@@ -6653,19 +6907,24 @@ function gainStacks(u, n) {
 //   stun / overheat: the icon freezes for FREEZE_TIME.
 //   stagger: for STAGGER_TIME the icon moves in fits, stopping STAGGER_STOP out of every STAGGER_CYCLE.
 const TIMED_FX = { stun: 100, overheat: 100, stagger: 150, burrowed: 100 };   // 100 = one round (ROUND_TIME)
-// Toll-counted effects live on the field's GLOBAL clock (Tolls), ticked once per turn in turnPulse,
+// Rev-counted effects live on the field's GLOBAL clock (Revs), ticked once per turn in turnPulse,
 // never on the owner's own turns. BASH and the coffin hold the unit off the speed bar while they
 // last; FEAR only shoves it back (FEAR_BACK of the 1000-long track, about two turns of ground).
-// FLEE (Grave Cross) is the slow fear: no shove, but each Toll the unit runs a step back, reaching
-// the start line on the last one, and it is held off the bar until then (tollHeld).
-const TOLL_FX = { bash: true, fear: true, coffin: true, flee: true };
-const FEAR_BACK = 500, FEAR_TOLLS = 2, COFFIN_TOLLS = 2;
+// FLEE (Grave Cross) is the slow fear: no shove, but each Rev the unit runs a step back, reaching
+// the start line on the last one, and it is held off the bar until then (revHeld).
+const REV_FX = { bash: true, fear: true, coffin: true, flee: true, unblessed: true };
+const FEAR_BACK = 500, FEAR_REVS = 2, COFFIN_REVS = 2;
 
 function addFx(u, id, turns, value = 0, quiet = false) {
   if (u.inert && id !== 'taunt') return;   // a planted Grave Cross takes nothing but its own Taunt
   // Bone Charm (immune) and Thick Skull (passive immune list) stop new debuffs.
   if (FX[id].kind === 'bad' && id !== 'overheat' && (has(u, 'immune') || pv(u).immune?.includes(id))) {
     if (!quiet) { float(u, 'Resisted', 'fx'); log(`${u.name} resists ${FX[id].label}.`, u.side); }
+    return;
+  }
+  // Dispel's mark, the other way about: nothing cast FOR them takes hold while it lasts (see isBlessing).
+  if (id !== 'unblessed' && isBlessing(id) && has(u, 'unblessed')) {
+    if (!quiet) { float(u, 'Unblessed', 'fx'); log(`${u.name} is stripped bare — the ${FX[id].label} will not take.`, 'sys'); }
     return;
   }
   // Warding Pearl: the first N debuffs each battle are shrugged off. (Not Soaked, which the weather and
@@ -6716,14 +6975,14 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   }
   const ex = has(u, id);
   const until = TIMED_FX[id] ? state.time + TIMED_FX[id] : null;
-  const tollN = TOLL_FX[id] ? turns : null;   // bash/fear/coffin count Tolls, not the owner's turns
+  const revN = REV_FX[id] ? turns : null;   // bash/fear/coffin count Revs, not the owner's turns
   if (ex) {
     ex.turns = Math.max(ex.turns, turns); ex.value = Math.max(ex.value, value);
     if (until != null) ex.until = Math.max(ex.until, until);
-    if (tollN != null) ex.tolls = Math.max(ex.tolls || 0, tollN);   // refresh to the longer count, never stack
+    if (revN != null) ex.revs = Math.max(ex.revs || 0, revN);   // refresh to the longer count, never stack
     if (id === 'stagger') ex.start = state.time;   // a fresh hit restarts the stumble
   } else if (until != null) u.effects.push({ id, turns, value, until, start: state.time });
-  else if (tollN != null) u.effects.push({ id, turns: 99, value, tolls: tollN });   // turns is a no-op; tolls drives it
+  else if (revN != null) u.effects.push({ id, turns: 99, value, revs: revN });   // turns is a no-op; revs drives it
   else u.effects.push({ id, turns, value });
   // FEAR shoves the unit back along the speed bar — a little, never past the start line.
   // Dug In and The Slow March refuse it like any drag: the fear takes hold, the ground isn't lost.
@@ -6731,8 +6990,8 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   if (id === 'soaked') douse(u, 'The soaking');
   // Dry lands: the fire boils off any Soaking already on them.
   if (id === 'dry') { const w = has(u, 'soaked'); if (w) { u.effects = u.effects.filter((e) => e !== w); float(u, '💧→🔥', 'fx'); } }
-  // Flee: a step per remaining Toll, so the last Toll puts it exactly on the start line.
-  if (id === 'flee') { const e = has(u, 'flee'); e.step = Math.ceil((u.pos || 0) / Math.max(1, e.tolls)); }
+  // Flee: a step per remaining Rev, so the last Rev puts it exactly on the start line.
+  if (id === 'flee') { const e = has(u, 'flee'); e.step = Math.ceil((u.pos || 0) / Math.max(1, e.revs)); }
   u.chipsAt = Date.now();   // even a quiet status re-shows the chip text (float covers the rest)
   if (quiet) return;
   float(u, `${FX[id].icon} ${FX[id].label}`, 'fx');
@@ -6778,7 +7037,7 @@ async function beginTurn(u) {
     log(`${u.name} takes ${dmg} from ${FX[id].label}.`, 'sys');
     ticked = true;
     // Undying can catch this: fell() puts a Pale Host champion back on 1 HP, and the turn goes on.
-    // Grudge Axe can too, but a grudge does not take turns: it waits for the next Toll to throw.
+    // Grudge Axe can too, but a grudge does not take turns: it waits for the next Rev to throw.
     if (u.hp <= 0) { fell(u, unitBy(e.by)); render(); await wait(450); if (u.hp <= 0 || u.grudge) return 'dead'; }
   }
   // Nothing mends what is sealed in a coffin or already standing Undying.
@@ -6834,12 +7093,14 @@ async function beginTurn(u) {
   if (u.race === 'elf') { if (!u.hitSince) u.stacks = Math.min(stackCap(u), u.stacks + 1); u.hitSince = false; }
   if (u.faction === 'stone' && wx() === 'mist') u.stacks = Math.min(stackCap(u), u.stacks + 1);
 
-  /* Durations and cooldowns tick down at the owner's turn-start. Toll-counted effects (BASH, FEAR,
+  /* Durations and cooldowns tick down at the owner's turn-start. Rev-counted effects (BASH, FEAR,
      the coffin) are skipped here — they count the field's global clock in turnPulse instead, and
      both BASH and the coffin hold the unit off the bar so it never reaches this point while sealed. */
-  u.effects.forEach((e) => { if (e.until == null && e.tolls == null) e.turns--; });
+  u.effects.forEach((e) => { if (e.until == null && e.revs == null) e.turns--; });
   const hadRooted = has(u, 'rooted');
-  u.effects = u.effects.filter((e) => e.until != null || e.tolls != null || e.turns > 0);
+  const hadBearer = has(u, 'shieldbearer');
+  u.effects = u.effects.filter((e) => e.until != null || e.revs != null || e.turns > 0);
+  if (hadBearer && !has(u, 'shieldbearer')) standDown(u);   // the stance has run out: back to his place
   if (hadRooted && !has(u, 'rooted')) {
     for (const a of attachmentsOn(u).filter((x) => x.attach === 'anchor')) removeAttachment(a, 'expired');
   }
@@ -6893,6 +7154,7 @@ function infernalToll(u) {
 async function doAction(u, sk, t) {
   state.phase = u.side === 'p' ? 'busy' : 'enemy';
   state.pending = null;
+  faceForAction(u, sk, t);   // turn to the mark before anything moves (see WHICH WAY THE DRAWING LOOKS)
   u.combo = u.faction === 'human' && u.lastAction !== null && u.lastAction !== sk.id;
   if (u.combo) log(`${u.name}'s Discipline: +${Math.round(disciplineBonus() * 100)}%.`, u.side);
   if (sk.cd) u.cooldowns[sk.id] = sk.cd;
@@ -6922,8 +7184,8 @@ async function doAction(u, sk, t) {
   }
   render();
 
-  if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Tolls later (fireAim)
-  else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Toll (fireLoadedThrow)
+  if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Revs later (fireAim)
+  else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Rev (fireLoadedThrow)
   else if (sk.kind === 'damage') await damageSkill(u, t, sk);
   else if (sk.kind === 'heal') await healSkill(u, t, sk);
   else if (sk.kind === 'buff') await buffSkill(u, t, sk);
@@ -6943,9 +7205,9 @@ async function doAction(u, sk, t) {
   else if (sk.kind === 'coffin') {
     const lv = u.side === 'p' ? heroLevel() : 1;   // hero level sets the coffin's mercy: Lv1/5/10
     await coffinFly(u, t);                          // the coffin leaves her back and flies to the ally
-    addFx(t, 'coffin', COFFIN_TOLLS);
+    addFx(t, 'coffin', COFFIN_REVS);
     const box = has(t, 'coffin');
-    if (box) { box.cleanse = lv >= 5; box.shield = lv >= 10; }   // read on the way out, see emergeToll
+    if (box) { box.cleanse = lv >= 5; box.shield = lv >= 10; }   // read on the way out, see emergeRev
     render();
     await wait(360);
   }
@@ -7000,6 +7262,8 @@ async function doAction(u, sk, t) {
    ENEMY AI
    ================================================================== */
 const debuffs = (u) => u.effects.filter((e) => FX[e.id].kind === 'bad' && e.id !== 'soaked').length;
+// ...and how much a unit has going FOR it, counting only what Dispel could actually take (see isBlessing).
+const blessings = (u) => u.effects.filter((e) => isBlessing(e.id)).length;
 function aiChoose(u) {
   const allies = alliesOf(u).filter((a) => !a.inert);
   const hurt = allies.filter((a) => a.hp / a.maxHp < 0.55).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
@@ -7012,6 +7276,9 @@ function aiChoose(u) {
     if (s.kind === 'heal') w = hurt.length ? 6 : 0;
     if (s.kind === 'buff') w = s.target === 'self' ? (u.hp / u.maxHp < 0.7 ? 3 : 0.5) : 2;
     if (s.kind === 'buff' && s.o?.cleanse) w = allies.some(debuffs) ? 4 : 0.3;
+    // Dispel, the mirror of a cleanse: worth doing when the other side is actually carrying something,
+    // and close to worthless against a warband with nothing on it.
+    if (s.kind === 'buff' && s.o?.strip) w = foesOf(u).some(blessings) ? 4 : 0.2;
     // Bolt-On: worth it when someone needs the mending (or Patchwork himself needs to vanish).
     if (s.o?.latch) w = u.attachedTo ? 0.3 : hurt.length || u.hp / u.maxHp < 0.45 ? 4 : 1;
     // Provoke's charges are about drawing fire, so they are wasted on a band that already has a
@@ -7030,6 +7297,10 @@ function aiChoose(u) {
       const mates = allies.filter((a) => a.uid !== u.uid);
       w = mates.some((a) => a.hp / a.maxHp < 0.6) && u.hp / u.maxHp > 0.55 ? 5 : 0.4;
     }
+    // Shieldbearer: he carries someone else's blows on his own body, so he wants an ally worth
+    // covering and enough left in himself to carry what comes — and there is no sense taking a
+    // second post while he is already standing in front of someone.
+    if (s.o?.bodyguard) w = u.wardUid ? 0.3 : hurt.some((a) => a.uid !== u.uid) && u.hp / u.maxHp > 0.5 ? 5 : 1;
     // A channel pays out of the caster's own HP, so the self-buff rule above has it backwards:
     // open it when the warband is hurt and she can afford the bleed, not when she is the hurt one.
     if (s.o?.channel) w = hurt.length && u.hp / u.maxHp > 0.5 ? 5 : 0.2;
@@ -7058,7 +7329,10 @@ function aiChoose(u) {
     const pr = u.role !== 'melee' ? projectileFor(u, sk) : null;
     const open = opts.filter((f) => !fenceStops(u, sk, pr, f));
     if (open.length) opts = open;
-    t = chance(0.6) ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0] : pick(opts);
+    // A Dispel goes to whoever is carrying the most, not to whoever is weakest — stripping a bare
+    // champion while the shielded one stands next to them is the one way to waste it.
+    t = sk.o?.strip ? [...opts].sort((a, b) => blessings(b) - blessings(a))[0]
+      : chance(0.6) ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0] : pick(opts);
   } else if (sk.target === 'ally') {
     const opts = validTargets(u, sk);
     t = sk.o?.aiTarget === 'debuffed' ? [...opts].sort((a, b) => debuffs(b) - debuffs(a))[0]
@@ -7093,13 +7367,13 @@ function staggerPhase(u) {
 }
 const staggerStopped = (u) => { const ph = staggerPhase(u); return ph != null && ph < STAGGER_STOP - EPS; };
 const pinned = (u) => !!has(u, 'rites');   // Last Rites: held in place until Mordrek's next turn
-// BASH and the coffin hold a unit off the speed bar outright — counted in Tolls (see turnPulse),
-// so a held unit never reaches the Act gate until its Tolls run out. FEAR is NOT here: it only
+// BASH and the coffin hold a unit off the speed bar outright — counted in Revs (see turnPulse),
+// so a held unit never reaches the Act gate until its Revs run out. FEAR is NOT here: it only
 // shoves the unit back along the bar, so it still takes its turns, just later.
-const tollHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin') || has(u, 'flee'));
+const revHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin') || has(u, 'flee'));
 // Rooted (Tharos's Anchor) is NOT here on purpose: a rooted unit keeps reaching the Act gate and
 // taking its turns — it just can't cross the field once it acts (see requiresMove / usable).
-const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || tollHeld(u) || buried(u);   // Burrow: held for its round
+const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || revHeld(u) || buried(u);   // Burrow: held for its round
 
 // Time until a staggered unit next switches between stopping and moving.
 function staggerSwitchIn(u) {
@@ -7126,13 +7400,25 @@ function douse(u, by) {
 // Downpour beats it down one turn (once), a Thunderstorm drowns it outright. atk is Drekka's at the
 // throw, so the fire keeps its bite even if she falls.
 const GF_BURN = 0.3;   // the re-ignite's Burn, as a fraction of her attack (matches her Firepot)
+const GF_FLAMES = 52;  // how many tongues of fire are left burning across that side's ground
 function layGroundFire(u, turns) {
   const side = u.side === 'p' ? 'e' : 'p';   // it burns on the enemy ground
   if (wx() === 'storm') { log(`The Thunderstorm drowns ${u.name}'s Molotov before it can catch.`, u.side); return; }
   let t = turns, doused = false;
   if (wx() === 'rain') { t -= 1; doused = true; }   // a Downpour means it starts a turn shorter
   if (t <= 0) { log(`The Downpour smothers ${u.name}'s Molotov at once.`, u.side); return; }
-  state.groundFire = { side, turns: t, atk: u.atk, by: u.name, doused };
+  /* Where it actually caught. The flames are scattered across that side's ground once, as the bottle
+     breaks, and kept on the fire itself — work them out at render time instead and they would jump to
+     fresh ground on every repaint. Each carries its own depth (y), so a flame further up the field is
+     drawn behind whoever stands in front of it, exactly as a champion is (see syncGroundFire). */
+  const lo = side === 'e' ? 54 : 6;
+  const spots = Array.from({ length: GF_FLAMES }, () => ({
+    x: +(lo + Math.random() * 40).toFixed(1),
+    y: +(44 + Math.random() * 50).toFixed(1),
+    s: +(0.55 + Math.random() * 0.75).toFixed(2),   // no two tongues the same size
+    d: +(-Math.random() * 1.4).toFixed(2),          // ...nor flickering in step
+  }));
+  state.groundFire = { side, turns: t, atk: u.atk, by: u.name, doused, spots };
   log(`${u.name}'s Molotov sets the enemy ground ablaze.`, u.side);
 }
 function extinguishGroundFire(how = 'dies down', by) {
@@ -7657,11 +7943,11 @@ function removeUnit(u) {
    attacks wash past it (noAoe, filtered from openFoes). The host's own
    team must break it to be free: the Anchor roots the host in place
    (rooted) until it breaks; the Jelly shocks the host for 15 magic
-   every 3 Tolls (see turnPulse). independent:true so a fallen caster
+   every 3 Revs (see turnPulse). independent:true so a fallen caster
    does not drag it off the field, and it is intercepted in fell() before
    the Grave-Cross "flies home" path.
    ================================================================== */
-// opts.life (Tolls) makes an attachment fall off on its own after a set time, on top of — or instead
+// opts.life (Revs) makes an attachment fall off on its own after a set time, on top of — or instead
 // of — being broken by blows (stats().maxHp). Omit it for a blows-only attachment like today's.
 function spawnAttachment(caster, host, kind, opts = {}) {
   const def = SUMMONS[kind], st = def.stats();
@@ -7678,7 +7964,7 @@ function spawnAttachment(caster, host, kind, opts = {}) {
   state.teams[caster.side].push(u);
   addUnitDom(u);
   countBlows(u);   // hp becomes the number of blows left; every hit of any size takes exactly one
-  if (opts.life != null) u.tollLife = opts.life;   // falls off on its own after this many Tolls (see turnPulse)
+  if (opts.life != null) u.revLife = opts.life;   // falls off on its own after this many Revs (see turnPulse)
   addFx(host, 'attached', 99, 0, true);            // the generic marker: something is fixed onto this unit
   return u;
 }
@@ -7916,16 +8202,16 @@ async function advanceClock(token) {
   while (token === state.token) {
     const living = allUnits().filter(alive);
     const movers = living.filter((u) => !frozen(u) && !u.inert);   // a planted cross never takes a turn
-    // Deadlock guard: if everyone left is held off the bar on the Toll clock (BASH / coffin) and
-    // nothing timed will free them, no turn will ever come up to tick a Toll — so pass one by hand.
+    // Deadlock guard: if everyone left is held off the bar on the Rev clock (BASH / coffin) and
+    // nothing timed will free them, no turn will ever come up to tick a Rev — so pass one by hand.
     if (!movers.length) {
-      const held = living.filter((u) => u.effects.some((e) => e.tolls != null));
+      const held = living.filter((u) => u.effects.some((e) => e.revs != null));
       const timed = living.some((u) => u.effects.some((e) => e.until != null) || staggerSwitchIn(u) !== Infinity || u.expires != null);
       if (held.length && !timed) {
         for (const u of held) {
-          for (const e of u.effects) if (e.tolls != null) e.tolls = Math.max(0, e.tolls - 1);
-          const done = u.effects.filter((e) => e.tolls != null && e.tolls <= 0);
-          if (done.length) { u.effects = u.effects.filter((e) => !done.includes(e)); for (const e of done) emergeToll(u, e); }
+          for (const e of u.effects) if (e.revs != null) e.revs = Math.max(0, e.revs - 1);
+          const done = u.effects.filter((e) => e.revs != null && e.revs <= 0);
+          if (done.length) { u.effects = u.effects.filter((e) => !done.includes(e)); for (const e of done) emergeRev(u, e); }
         }
         render();
         await waitBar(beat(220));
@@ -8115,10 +8401,10 @@ function settleAttachments() {
   }
 }
 
-// A Toll-counted effect runs out as this turn comes up: the unit shakes off a BASH, steadies from
+// A Rev-counted effect runs out as this turn comes up: the unit shakes off a BASH, steadies from
 // FEAR, or the coffin lid lifts. Hero level decides how much mercy the coffin folds in on the way
 // out (set at cast): Lv5+ leaves the curses behind, Lv10+ steps the ally out already warded.
-function emergeToll(u, e) {
+function emergeRev(u, e) {
   if (e.id === 'bash') {
     float(u, 'Comes to', 'fx');
     log(`${u.name} shakes off the Bash and moves again.`, 'sys');
@@ -8135,7 +8421,7 @@ function emergeToll(u, e) {
 }
 
 async function turnPulse() {
-  state.pulseN = (state.pulseN || 0) + 1;   // which Toll this is (Grudge Axe waits for the next one)
+  state.pulseN = (state.pulseN || 0) + 1;   // which Rev this is (Grudge Axe waits for the next one)
   // Molotov's ground fire answers to the sky. A Thunderstorm drowns it outright; a Downpour beats it
   // down a turn, once. (The searing itself is at each turn-start on that ground, see beginTurn.)
   if (state.groundFire) {
@@ -8186,7 +8472,7 @@ async function turnPulse() {
     await wait(260);
     if (checkEnd()) return true;
   }
-  // Powder Shot: each Toll brings an aimed shot closer; on its last it goes off, whoever's turn this is.
+  // Powder Shot: each Rev brings an aimed shot closer; on its last it goes off, whoever's turn this is.
   // Silenced, stunned, bashed or coffined while she aims, the shot is lost — she can't hold the musket.
   for (const m of allUnits()) {
     if (!m.aimShot) continue;
@@ -8201,13 +8487,13 @@ async function turnPulse() {
       await wait(400);
       continue;
     }
-    m.aimShot.tolls = Math.max(0, m.aimShot.tolls - 1);
-    if (m.aimShot.tolls === 1 && !m.aimShot.raised) await raiseAim(m);
-    if (m.aimShot.tolls > 0) continue;
+    m.aimShot.revs = Math.max(0, m.aimShot.revs - 1);
+    if (m.aimShot.revs === 1 && !m.aimShot.raised) await raiseAim(m);
+    if (m.aimShot.revs > 0) continue;
     await fireAim(m);
     if (checkEnd()) return true;
   }
-  // Molotov's fuse: the lit bottle flies on the Toll after she lights it, whoever's turn it is. Dropped
+  // Molotov's fuse: the lit bottle flies on the Rev after she lights it, whoever's turn it is. Dropped
   // if she is silenced, stunned, bashed or coffined before it goes (see loadThrow / fireLoadedThrow).
   for (const m of allUnits()) {
     if (!m.loadedThrow) continue;
@@ -8222,43 +8508,43 @@ async function turnPulse() {
       await wait(400);
       continue;
     }
-    m.loadedThrow.tolls = Math.max(0, m.loadedThrow.tolls - 1);
-    if (m.loadedThrow.tolls > 0) continue;
+    m.loadedThrow.revs = Math.max(0, m.loadedThrow.revs - 1);
+    if (m.loadedThrow.revs > 0) continue;
     await fireLoadedThrow(m);
     if (checkEnd()) return true;
   }
-  // Execute: the blood thrown into the sky comes down two Tolls later, whoever's turn it is - or the
+  // Execute: the blood thrown into the sky comes down two Revs later, whoever's turn it is - or the
   // moment the mark's own turn comes up, if that is sooner: it lands before they can act.
   for (const v of allUnits()) {
     if (!v.bloodRite) continue;
     const marksTurn = state.active === v.bloodRite.target;
-    if (--v.bloodRite.tolls > 0 && !marksTurn) continue;
+    if (--v.bloodRite.revs > 0 && !marksTurn) continue;
     await executeFalls(v);
     if (checkEnd()) return true;
   }
-  // Grudge Axe: Krug, held up by his grudge, throws on the Toll after the one he was struck down in.
+  // Grudge Axe: Krug, held up by his grudge, throws on the Rev after the one he was struck down in.
   for (const v of allUnits()) {
     if (!v.grudge || v.grudge.pulse >= state.pulseN) continue;
     await grudgeFalls(v);
     if (checkEnd()) return true;
   }
   // THE TOLLS TICK — one turn has come up on the field, so every effect counted on the global clock
-  // loses a Toll. BASH and the coffin hold their owner off the speed bar until the count runs out
-  // (emergeToll frees them); FEAR simply fades. Everything expires here, never on the owner's turn.
+  // loses a Rev. BASH and the coffin hold their owner off the speed bar until the count runs out
+  // (emergeRev frees them); FEAR simply fades. Everything expires here, never on the owner's turn.
   let fled = false;
   for (const u of allUnits()) {
     if (u.hp <= 0) continue;
     const fl = has(u, 'flee');
     if (fl && u.pos > 0) { u.pos = Math.max(0, u.pos - fl.step); u.recoil = true; fled = true; }
-    for (const e of u.effects) if (e.tolls != null) e.tolls = Math.max(0, e.tolls - 1);
-    const done = u.effects.filter((e) => e.tolls != null && e.tolls <= 0);
+    for (const e of u.effects) if (e.revs != null) e.revs = Math.max(0, e.revs - 1);
+    const done = u.effects.filter((e) => e.revs != null && e.revs <= 0);
     if (!done.length) continue;
     u.effects = u.effects.filter((e) => !done.includes(e));
-    for (const e of done) emergeToll(u, e);
+    for (const e of done) emergeRev(u, e);
     render();
   }
   if (fled) { renderTrack(300); await wait(FLEE_MS * 0.6); }   // let the frightened run their step back
-  // Stinging Jelly (Octavia): every 3 Tolls it shocks its host for 15 magic, until it is burst.
+  // Stinging Jelly (Octavia): every 3 Revs it shocks its host for 15 magic, until it is burst.
   for (const a of allUnits()) {
     if (a.attach !== 'jellyfish' || a.hp <= 0) continue;
     const host = unitBy(a.hostUid);
@@ -8270,9 +8556,9 @@ async function turnPulse() {
     await wait(240);
     if (checkEnd()) return true;
   }
-  // Timed attachments (spawned with opts.life): count down one Toll each, and fall away when spent.
-  for (const a of allUnits().filter((x) => x.attach && x.hp > 0 && x.tollLife != null)) {
-    if (--a.tollLife > 0) continue;
+  // Timed attachments (spawned with opts.life): count down one Rev each, and fall away when spent.
+  for (const a of allUnits().filter((x) => x.attach && x.hp > 0 && x.revLife != null)) {
+    if (--a.revLife > 0) continue;
     const host = unitBy(a.hostUid);
     if (host && host.hp > 0) { float(host, 'Freed', 'fx'); log(`The ${a.name} falls away from ${host.name}.`, host.side); }
     removeAttachment(a, 'expired');
@@ -8309,7 +8595,7 @@ async function nextTurn() {
     await fleeWounded();   // a Covering Fire shot (or the like) may have left a minion ready to run
     await expEscapeCheck();   // a minor boss at 10%, or the final boss at 40%/15%, breaks off here too
     if (token !== state.token || checkEnd()) return;
-    // Whatever came down at this Toll (Execute's torrent on its mark's turn, a Covering Fire shot,
+    // Whatever came down at this Rev (Execute's torrent on its mark's turn, a Covering Fire shot,
     // a Grudge Axe) may have killed - or sent running - the very unit whose turn it is. Then there is
     // no turn: never start one for a corpse, whose turn-start regen would stand it back up.
     if (u.hp <= 0 || !allUnits().includes(u)) { endTurn(u); continue; }
@@ -12495,9 +12781,9 @@ const SPEED_LORE = [
   ['Stun and Overheat', 'The icon freezes in place for about one round.', ['stun', 'overheat']],
   ['Slow', 'The icon crawls along at 60% speed.', ['slow']],
   ['Stagger', 'The icon keeps stopping and starting for about a round and a half.', ['stagger']],
-  ['Tolls', `The field keeps one clock for everyone: a Toll passes each time any fighter's turn comes up, whoever's turn it is. Bash and Fear count down in Tolls, not in their owner's own turns.`],
-  ['Bash', 'Knocked clean off the speed bar. The icon stays put and the fighter takes no turn at all until the Bash wears off, counted in Tolls.', ['bash']],
-  ['Fear', `The icon is shoved back ${Math.round(FEAR_BACK / 10)}% of the way down the speed bar, never past the start. An Afraid fighter still acts, just later, and the Fear fades after ${FEAR_TOLLS} Tolls.`, ['fear']],
+  ['Counting turns', `Most effects count YOUR turns: "2 turns" means the next two turns you take. A few cannot — Bash, the Coffin and a Fear that drives you back all stop you taking turns at all, so there are no turns of yours left to count. Those count every turn on the field instead, whoever takes it, and that is why their text says "whoever takes them".`],
+  ['Bash', 'Knocked clean off the speed bar. The icon stays put and the fighter takes no turn at all until the Bash wears off — counted in turns on the field, whoever takes them, because a bashed fighter takes none of their own.', ['bash']],
+  ['Fear', `The icon is shoved back ${Math.round(FEAR_BACK / 10)}% of the way down the speed bar, never past the start. An Afraid fighter still acts, just later, and the Fear fades after ${FEAR_REVS} turns on the field, whoever takes them.`, ['fear']],
   ['Infernal Toll', `Malgrath's Hellfire Slam marks every enemy it hits. The marked fighter's next skill also costs ${Math.round(TOLL_PCT * 100)}% of their current HP, on top of its usual price, and that spends the mark. Attack and Guard are free, and it never takes the last point of HP.`, ['toll']],
   ['★ Signature skills', `Each champion's signature skill unlocks on their ${ULT_FIRST_TURN}rd turn.`],
 ];
@@ -14307,7 +14593,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${u.faction === 'mech' && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic">${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
+      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
     </div>`;
 }
 
@@ -14341,6 +14627,27 @@ function syncStatusFx(el, u) {
     }, ROOTS_GROW_MS);
   }
   for (const id of STATUS_FX) el.classList.toggle(`st-${id}`, on.includes(id));
+}
+
+/* MOLOTOV'S GROUND FIRE, on the field. The flames stand where the bottle caught (groundFire.spots), and
+   each carries its own depth from how far up the field it is — so a flame burning behind a champion is
+   drawn behind them, and one at their feet in front. The same trick layoutSides uses for the champions
+   themselves; the .gfire layer is deliberately z-index-less so its flames share that one layer.
+   Redrawn only when the fire itself changes, never on an ordinary repaint: rebuilding the markup would
+   restart every flicker and the whole fire would blink in step. */
+let gfDrawn = null;
+const GF_ART = `<svg viewBox="0 0 20 30" aria-hidden="true">
+  <path class="flame" d="M10 29 Q2 21 5 12 Q6.5 17.5 9 18.5 Q6.5 10 11 3 Q14 11.5 15.5 15 Q17.5 12 16.5 7.5 Q21 18 17 25 Q14 29.5 10 29 Z" fill="#ff7a1d"/>
+  <path class="flame" d="M10 29 Q5.5 23 7.5 16.5 Q8.5 20.5 10.5 20.5 Q9.5 14 13 9.5 Q16 17 15 21.5 Q14 27 10 29 Z" fill="#ffd166"/>
+</svg>`;
+function syncGroundFire() {
+  const host = $('#gfire');
+  if (!host) return;
+  const spots = state.groundFire?.spots || null;
+  if (spots === gfDrawn) return;   // the same fire still burning: leave the flames alone
+  gfDrawn = spots;
+  host.innerHTML = !spots ? '' : spots.map((f, i) =>
+    `<i class="gf" style="left:${f.x}%; top:${f.y}%; --gs:${f.s}; --fd:${f.d}s; animation-delay:${(i * 0.045).toFixed(2)}s; z-index:${Math.round(f.y)}">${GF_ART}</i>`).join('');
 }
 
 function tokenHTML(u) {
@@ -14529,7 +14836,7 @@ function playAttack(u, fresh = false) {
 
 /* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).
    restClip is the loop they fall back to between moves: idle, unless holdClip has set another
-   (her aim, held from the first Toll until the shot). playClip plays a one-shot clip and hands
+   (her aim, held from the first Rev until the shot). playClip plays a one-shot clip and hands
    back to that resting loop; it returns the clip's manifest entry, or null when there is none. */
 const restClip = (u, a) => (u.restClip && a[u.restClip]) || a.idle;
 function playClip(u, name) {
@@ -15875,6 +16182,7 @@ function renderBattle() {
   $('#arena').dataset.omen = !under && state.nextWeather === 'brim' && left <= 2 ? left : '';
   $('#arena').dataset.dg = dg ? (dg.roomLooks?.[state.dg.room] || dg.look) : exp ? exp.look : '';
   $('#arena').classList.toggle('quake', quaking());
+  syncGroundFire();   // Molotov: the flames left burning across one side's ground
   const wxName = quake ? WEATHER.quake.name : hz ? hz.name : cond ? cond.name : under ? (dg ? dg.name : exp ? exp.name : 'Underground') : W.name;
   const wxLeft = quake ? (state.quake === 1 ? 'Last round' : `${state.quake} rounds`) : under ? '' : left === 1 ? 'Last round' : `${left} rounds`;
   $('#wxIcon').textContent = quake ? WX_ICON.quake : hz ? hz.icon : cond ? cond.icon : under ? '🕯️' : WX_ICON[wx()] || '';
@@ -15946,6 +16254,10 @@ function renderBattle() {
     syncStatusFx(el, u);
     el.classList.toggle('winding', !!u.windup);
     el.classList.toggle('frenzied', !!u.frenzy);   // Blood Frenzy: his axes run red while it lasts
+    el.classList.toggle('lookW', looksWest(u));    // mirrored by where they LOOK, not whose side they fight for
+    el.classList.toggle('misted', !!has(u, 'evade')?.mist && u.hp > 0);   // Vesper, gone to mist
+    el.classList.toggle('bearing', !!has(u, 'shieldbearer') && u.hp > 0);  // Garrick, shield up for a ward
+    syncWardArt(el, u);                                                     // ...and his shield is drawn lit
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
