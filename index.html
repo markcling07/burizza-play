@@ -774,6 +774,18 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .watchdial.ready b { color: #fff3c4; }
 @keyframes watchReady { 50% { box-shadow: 0 0 0 2px rgba(232, 165, 72, .35), 0 0 10px rgba(255, 200, 90, .9); } }
 .unit.down .watchdial { display: none; }
+/* THE GEAR PINS. What a champion bought at the Armory, worn in plain sight: little discs hung
+   off the right of the plate - weapon above, kit below - drawn with the shop's own icons. Only
+   your warband wears them (the ledger is yours; an enemy sharing an id owns none of it), and
+   they go down with the champion, same as the dial. */
+.unit .plate:has(.gearpins) { position: relative; }
+/* The plate is a click target (see HIT BOXES above), but the pins hanging off it are not:
+   they must not widen the plate's hit zone into the field behind it. */
+.gearpins { position: absolute; left: calc(100% + 3px); top: 0; display: grid; gap: 2px; pointer-events: none; }
+.gearpins .pin { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--plate); border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.gearpins .pin svg { width: 13px; height: 13px; display: block; }
+.unit.down .gearpins { display: none; }
 .unit.acting .plate { border-color: var(--accent); }
 /* Your own champion on the field: a gold star and a gold name on the plate, every turn. */
 .unit.you .who strong { color: var(--accent); }
@@ -1807,6 +1819,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .townie { transition: left var(--t, 0s) linear, top var(--t, 0s) linear; }
 .townie.walking > div { animation: townWalk .45s ease-in-out infinite; }
 @keyframes townWalk { 50% { transform: translateY(-5%); } }
+/* Your pet: half a champion's size, just scenery (clicks go through), and it hops when it trots. */
+.townie.pet { width: 1.5%; pointer-events: none; cursor: default; }
+.townie.pet.walking > div { animation: petHop .32s ease-in-out infinite; }
+@keyframes petHop { 50% { transform: translateY(-10%); } }
 /* Night falls on people as it does on the streets: the veil is the top layer of the map (nightLayer). */
 .townie img, .townie svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .townie.flip img, .townie.flip svg { transform: scaleX(-1); }
@@ -2611,7 +2627,7 @@ const SAVE_KEY = 'burizza.profile.v1';
 // stash = what's kept at Your House ({ items: {key: n}, trinkets: {key: n} }); home = furniture keys you own (see DECOR).
 // hero = your one champion { id, name } (null until you create one); level/xp = your champion's progression;
 // recruits = the TEAM_SIZE − 1 champion ids the AI plays beside you.
-const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {}, stones: {} }, home: [],
+const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {}, stones: {} }, home: [], pets: { owned: [], active: null },
   hero: null, level: 1, xp: 0, recruits: [],
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
   recruitLoadouts: {},   // skills you chose for recruits, per champion id; a recruit with none auto-picks
@@ -2704,8 +2720,8 @@ const gearRaw = (id) => profile.gear[id] || {};
 const addUp = (into, bonus) => { for (const k in bonus) into[k] = (into[k] || 0) + bonus[k]; return into; };
 const homePerks = () => profile.home.reduce((sum, k) => addUp(sum, DECOR[k]?.perk || {}), {});
 const gearOf = (id) => { const g = gearRaw(id);
-  return addUp(addUp(addUp(addUp(addUp({ ...g }, TRINKETS[g.t]?.bonus || {}), weaponBonus(id)), equipBonus(id)),
-    socketBonus(id)), homePerks()); };
+  return addUp(addUp(addUp(addUp(addUp(addUp({ ...g }, TRINKETS[g.t]?.bonus || {}), weaponBonus(id)), equipBonus(id)),
+    socketBonus(id)), homePerks()), petPerk(id)); };
 
 const ROLES = {
   melee:   { label: 'Melee',   hp: 150, atk: 18, def: 10, agi: 10, dodge: 0,    mp: 60 },
@@ -7642,7 +7658,7 @@ function douseMechs() {
    stone, not live rock: they have no weather and no quakes. */
 const QUAKE_CHANCE = 0.4, QUAKE_ROUNDS = 2;
 const QUAKE_EVERY = 25, QUAKE_SLIP = 50;   // four jolts a round, each sliding units back 5% of the track
-const underground = () => state.mode === 'hunt' || state.mode === 'dungeon';
+const underground = () => state.mode === 'hunt' || state.mode === 'dungeon' || state.mode === 'expedition';
 const caveHunt = () => state.mode === 'hunt';
 const quaking = () => (state.quake || 0) > 0;
 
@@ -10896,6 +10912,86 @@ const DECOR = {
   bed:      { name: 'Feather Bed', price: 160, perk: { hpPct: 0.05 }, desc: 'Well rested: your warband has +5% max HP.' },
 };
 const DECOR_KEYS = Object.keys(DECOR);
+
+/* PETS — the Pet House on the square, kept by Ella. Adopt a pet once for gold and it's yours
+   for good (profile.pets.owned). One walks at your champion's side (profile.pets.active) and trots after
+   them round the village; the rest wait at home. The one at your side gives YOUR champion its gift in
+   every battle (petPerk, added in gearOf); recruits get nothing from it. */
+const PETS = {
+  pup:      { name: 'Ash Hound Pup', price: 120, perk: { agi: 2 }, gift: '+2 Agility',
+              desc: 'All paws and no patience. Gets your champion moving sooner on the speed bar.' },
+  cat:      { name: 'Ember Cat', price: 140, perk: { crit: 0.03 }, gift: '+3% critical chance',
+              desc: 'Sleeps in the forge ashes and wakes up to pounce. Teaches a keen eye for the weak spot.' },
+  princess: { name: 'Princess', price: 200, perk: { crit: 0.02, agi: 1 }, gift: '+2% critical chance and +1 Agility',
+              desc: "Ella's favorite." },
+  fox:      { name: 'Cinder Fox', price: 160, perk: { atkPct: 0.03 }, gift: '+3% Attack',
+              desc: 'A sly red thief from the burnt woods. Somehow every blow lands a little harder with it near.' },
+  tortoise: { name: 'Shellback Tortoise', price: 160, perk: { hpPct: 0.05 }, gift: '+5% max HP',
+              desc: 'Slow, steady and very hard to hurt. Some of that rubs off.' },
+  owl:      { name: 'Lantern Owl', price: 180, perk: { blockMagic: 0.03 }, gift: 'Turns aside 3% of magic damage',
+              desc: 'Hoots at a hex before it lands. Nobody knows how it can tell.' },
+  drake:    { name: 'Ember Drakeling', price: 320, perk: { atkPct: 0.03, hpPct: 0.03 }, gift: '+3% Attack and +3% max HP',
+              desc: 'A hatchling from the volcano slopes: no bigger than a cat, and twice as proud.' },
+};
+const PET_KEYS = Object.keys(PETS);
+const petPerk = (id) => (id && id === profile.hero?.id && PETS[profile.pets?.active]?.perk) || {};
+function adoptPet(k) {
+  const p = PETS[k], pets = profile.pets;
+  if (!p || pets.owned.includes(k) || profile.gold < p.price) return false;
+  profile.gold -= p.price;
+  pets.owned.push(k);
+  pets.active = k;   // a new pet comes straight along with you
+  saveProfile();
+  return true;
+}
+// Pet art: 100x100, facing right, paws on y=94 like the townsfolk, so one drawing serves the shop and the map.
+const petSVG = (body) => `<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="94" rx="27" ry="4" fill="#000" opacity=".35"/>${body}</svg>`;
+const PG = (inner) => `<g stroke="#15121d" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">${inner}</g>`;
+const PET_ART = {
+  pup: petSVG(PG(`<path d="M25 62 Q12 50 16 36 Q22 50 31 57Z" fill="#6e6876"/><path d="M29 72 l-2 20 h8 l3 -18Z" fill="#5a5462"/><path d="M59 74 v18 h8 v-18Z" fill="#5a5462"/>
+    <ellipse cx="46" cy="66" rx="24" ry="14" fill="#7d7786"/><path d="M35 74 l-1 18 h8 l2 -17Z" fill="#7d7786"/><path d="M65 72 v20 h8 v-20Z" fill="#7d7786"/>
+    <path d="M58 66 Q66 54 64 44 L82 44 Q84 58 74 70Z" fill="#7d7786"/><circle cx="74" cy="40" r="15" fill="#7d7786"/>
+    <path d="M82 42 q13 0 13 8 q0 7 -13 6Z" fill="#c8c0d0"/><path d="M66 28 q-9 4 -6 21 q8 -4 10 -17Z" fill="#4a4452"/>
+    <path d="M61 59 q13 6 24 -4" fill="none" stroke="#c0303f" stroke-width="4"/><circle cx="72" cy="63" r="3.2" fill="#e8a548" stroke-width="1.2"/>`)
+    + '<circle cx="78" cy="37" r="2.5" fill="#15121d"/><circle cx="94" cy="48" r="2.8" fill="#15121d"/>'),
+  cat: petSVG(PG(`<path d="M30 76 Q10 68 14 46 Q16 38 22 40 Q19 54 32 68Z" fill="#3a3440"/><circle cx="19" cy="40" r="5.5" fill="#ff8a3d"/>
+    <path d="M34 76 v16 h7 v-14Z" fill="#2e2834"/><ellipse cx="48" cy="73" rx="21" ry="12" fill="#3a3440"/><path d="M59 76 v16 h7 v-16Z" fill="#3a3440"/>
+    <path d="M55 46 l2 -16 l10 10Z" fill="#3a3440"/><path d="M70 40 l9 -12 l3 16Z" fill="#3a3440"/><circle cx="67" cy="54" r="14" fill="#3a3440"/>`)
+    + '<path d="M58 41 l1.4 -7 l4.6 4.6Z M74 39 l4 -6 l1.2 7Z" fill="#ff8a3d" opacity=".75"/>'
+    + '<ellipse cx="62" cy="53" rx="2.6" ry="3.2" fill="#ffb347"/><ellipse cx="73" cy="53" rx="2.6" ry="3.2" fill="#ffb347"/><path d="M66 59 l-2.4 2.4 h4.8Z" fill="#e0645a"/>'),
+  princess: petSVG(PG(`<path d="M30 76 Q10 68 14 46 Q16 38 22 40 Q19 54 32 68Z" fill="#e8873a"/>
+    <path d="M34 76 v16 h7 v-14Z" fill="#c96a28"/><ellipse cx="48" cy="73" rx="21" ry="12" fill="#e8873a"/><path d="M59 76 v16 h7 v-16Z" fill="#e8873a"/>
+    <path d="M55 46 l2 -16 l10 10Z" fill="#e8873a"/><path d="M70 40 l9 -12 l3 16Z" fill="#e8873a"/><circle cx="67" cy="54" r="14" fill="#e8873a"/>
+    <path d="M60 39 l1.5 -9 l4 5 l3.5 -7 l3.5 7 l4 -5 l1.5 9Z" fill="#f2c94c" stroke-width="1.4"/>`)
+    + '<path d="M40 63 q2 6 0 12 M48 61 q2 7 0 14 M56 63 q2 6 0 11" stroke="#b85a20" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+    + '<path d="M15 50 h5 M17 58 h6" stroke="#b85a20" stroke-width="2" stroke-linecap="round"/>'
+    + '<path d="M58 41 l1.4 -7 l4.6 4.6Z M74 39 l4 -6 l1.2 7Z" fill="#f2a0a0" opacity=".8"/><ellipse cx="68" cy="60" rx="6" ry="4" fill="#f6dcb0"/>'
+    + '<ellipse cx="62" cy="53" rx="2.4" ry="3" fill="#6cc28a"/><ellipse cx="73" cy="53" rx="2.4" ry="3" fill="#6cc28a"/>'
+    + '<ellipse cx="62" cy="53" rx="1" ry="2.4" fill="#15121d"/><ellipse cx="73" cy="53" rx="1" ry="2.4" fill="#15121d"/>'
+    + '<path d="M66 58 l-2.4 2.4 h4.8Z" fill="#e0707a"/><circle cx="69" cy="34" r="1.6" fill="#c0303f"/>'),
+  fox: petSVG(PG(`<path d="M32 66 Q8 68 8 46 Q20 54 38 58Z" fill="#d8642a"/><path d="M8 46 Q6 56 15 61 Q11 53 18 50Z" fill="#f2ead8"/>
+    <path d="M33 72 l-2 20 h7 l2 -18Z" fill="#2a2228"/><path d="M58 74 v18 h7 v-18Z" fill="#2a2228"/><ellipse cx="48" cy="67" rx="22" ry="12" fill="#e0742e"/>
+    <path d="M38 74 l-1 18 h7 l1 -17Z" fill="#2a2228"/><path d="M63 72 v20 h7 v-20Z" fill="#2a2228"/>
+    <path d="M60 62 L68 34 L76 46 L86 36 L86 52 L97 58 L80 68Z" fill="#e0742e"/><path d="M79 58 L97 58 L82 67Z" fill="#f2ead8"/>`)
+    + '<path d="M70 40 l4 6 h-5Z M84 41 l0 7 l-4 -3Z" fill="#2a2228"/><circle cx="81" cy="51" r="2.4" fill="#15121d"/><circle cx="96.5" cy="58" r="2.4" fill="#15121d"/>'),
+  tortoise: petSVG(PG(`<path d="M33 84 v8 h9 v-8Z" fill="#a8b878"/><path d="M63 84 v8 h9 v-8Z" fill="#a8b878"/>
+    <path d="M77 77 Q86 64 95 69 Q99 78 90 83 Q84 85 77 83Z" fill="#a8b878"/><path d="M24 86 Q24 52 52 50 Q80 52 80 86Z" fill="#5f8a4a"/>
+    <path d="M22 88 Q52 94 82 88 L80 83 Q52 89 24 83Z" fill="#c9b28a"/>
+    <path d="M40 62 l12 -5 l12 5 v11 l-12 5 l-12 -5Z" fill="#7aa060" stroke-width="1.6"/><path d="M28 78 l10 -4 v-8 M76 78 l-10 -4 v-8 M52 78 v6" fill="none" stroke-width="1.6"/>`)
+    + '<circle cx="90" cy="73" r="2.4" fill="#15121d"/>'),
+  owl: petSVG(PG(`<path d="M34 92 Q27 60 40 40 Q51 30 62 40 Q75 60 68 92Z" fill="#8a6a4a"/><path d="M40 90 Q38 64 51 58 Q64 64 62 90Z" fill="#d8c08a"/>
+    <path d="M62 50 Q77 64 70 87 Q62 77 60 56Z" fill="#6e5238"/><path d="M38 43 l-5 -13 l11 7Z M64 43 l5 -13 l-11 7Z" fill="#6e5238"/>
+    <circle cx="44" cy="48" r="8.5" fill="#e8d8b0"/><circle cx="58" cy="48" r="8.5" fill="#e8d8b0"/>
+    <path d="M44 92 v2.5 M48 92 v2.5 M54 92 v2.5 M58 92 v2.5" stroke="#e8a548" stroke-width="2.6"/>`)
+    + '<circle cx="44" cy="48" r="4.8" fill="#ffb347"/><circle cx="58" cy="48" r="4.8" fill="#ffb347"/><circle cx="45" cy="48" r="2.2" fill="#15121d"/><circle cx="59" cy="48" r="2.2" fill="#15121d"/>'
+    + '<path d="M51 53 l-3 4.5 h6Z" fill="#e8a548"/><path d="M44 68 q3 3 6 0 M52 74 q3 3 6 0 M44 80 q3 3 6 0" stroke="#a88a5a" stroke-width="1.4" fill="none"/>'),
+  drake: petSVG(PG(`<path d="M30 76 Q12 80 7 64 Q16 71 31 68Z" fill="#a8332e"/><path d="M7 64 l-3 -7 l8 4Z" fill="#f0c070"/>
+    <path d="M42 62 Q35 34 52 25 Q50 40 61 44 Q57 52 55 63Z" fill="#e0645a"/>
+    <path d="M36 78 v14 h8 v-12Z" fill="#8a2a26"/><ellipse cx="48" cy="72" rx="21" ry="13" fill="#c0403a"/><path d="M58 78 v14 h8 v-14Z" fill="#c0403a"/>
+    <path d="M40 82 Q50 87 63 80 Q56 74 44 76Z" fill="#f0c070" stroke-width="1.6"/>
+    <path d="M58 67 Q62 50 72 46 Q87 43 93 52 Q93 59 84 61 L75 61 Q71 65 69 73Z" fill="#c0403a"/><path d="M74 46 l-3 -11 l8 8Z M82 45 l2 -11 l4 11Z" fill="#f0c070"/>`)
+    + '<circle cx="82" cy="51" r="2.4" fill="#15121d"/><circle cx="91" cy="55" r="1.2" fill="#15121d"/><circle cx="97" cy="57" r="3" fill="#ffb347" opacity=".8"/>'),
+};
 const DECOR_ICON = {
   rug: '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="18" rx="14" ry="8" fill="#9a2f36" stroke="#e8a548" stroke-width="1.4"/><ellipse cx="16" cy="18" rx="8" ry="4" fill="none" stroke="#e9e4d8" stroke-width="1.2" stroke-dasharray="2 2"/></svg>',
   lantern: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2v5" stroke="#6a6070" stroke-width="1.4"/><circle cx="16" cy="18" r="10" fill="#ffb347" opacity=".25"/><path d="M11 9h10l-1 3h-8z" fill="#b08a2e"/><rect x="11.5" y="12" width="9" height="12" rx="2" fill="#ffd28a" stroke="#b08a2e" stroke-width="1.4"/><path d="M10.5 24h11l-1 3h-9z" fill="#b08a2e"/></svg>',
@@ -11256,6 +11352,15 @@ const ARMORY = {
   voltbore:     { name: 'Voltbore Repeater', faction: 'mech', look: 'gun', price: 380,
                   flavor: 'Six chambers, one trigger, and a coil that hums for an hour after.',
                   bonus: { atkPct: 0.14, double: 0.13, critMult: 0.20 } },
+  rivetfist:    { name: 'Rivetfist Gauntlet', faction: 'mech', look: 'fist', price: 110,
+                  flavor: 'Plate over the knuckles and a ram in the wrist. It punches and it holds.',
+                  bonus: { atkPct: 0.04, double: 0.07, blockPhys: 0.03 } },
+  spanner:      { name: 'Coolant Spanner', faction: 'mech', look: 'wrench', price: 220,
+                  flavor: 'Half tool, half club. Brann keeps one on the bench for the same reason.',
+                  bonus: { atkPct: 0.08, double: 0.08, hpRegen: 4 } },
+  breachloader: { name: 'Breachloader', faction: 'mech', look: 'cannon', price: 380,
+                  flavor: 'One shell at a time, and it takes the whole arm to seat it. Worth the wait.',
+                  bonus: { atkPct: 0.15, double: 0.06, critMult: 0.30 } },
 
   // Bloodtusk Horde — Rage drinks deepest from a wound, so their steel does too.
   tuskcleaver:  { name: 'Tuskcleaver', faction: 'orc', look: 'axe', price: 110,
@@ -11267,6 +11372,15 @@ const ARMORY = {
   skullsplitter:{ name: 'Skullsplitter', faction: 'orc', look: 'hammer', price: 380,
                   flavor: 'Named for what it does, by the Horde, who name nothing else.',
                   bonus: { atkPct: 0.14, stealLost: 0.22, crit: 0.06 } },
+  boarpike:     { name: "Boarpike", faction: 'orc', look: 'spear', price: 110,
+                  flavor: "Vashka throws hers and walks to fetch it from the body; keep both hands on this one.",
+                  bonus: { atkPct: 0.05, stealLost: 0.14 } },
+  firegutpot:   { name: "Firegut Stewpot", faction: 'orc', look: 'pot', price: 220,
+                  flavor: "Drekka's spare, still crusted, swung by the handle at anything that is not dinner.",
+                  bonus: { atkPct: 0.09, stealLost: 0.18, crit: 0.05 } },
+  heskstave:    { name: "Hesk's Gallows Stave", faction: 'orc', look: 'staff', price: 380,
+                  flavor: "Old Mother Hesk cut it from a gallows beam and swears the wood still remembers the drop.",
+                  bonus: { atkPct: 0.14, stealLost: 0.22, double: 0.05 } },
 
   // Kingdom of Aldmere — Discipline: drilled strikes land where they are aimed.
   oathblade:    { name: 'Oathblade', faction: 'human', look: 'sword', price: 110,
@@ -11278,6 +11392,15 @@ const ARMORY = {
   kingslance:   { name: 'Kingsguard Lance', faction: 'human', look: 'spear', price: 380,
                   flavor: 'Issued to the hundred who held the gate at Ashfall. Twelve came home.',
                   bonus: { atkPct: 0.14, crit: 0.18, double: 0.04 } },
+  drillmaul:    { name: "Drillmaul", faction: 'human', look: 'hammer', price: 110,
+                  flavor: "Sir Garrick Vane brings it down on the count of three, and there is rarely need for four.",
+                  bonus: { atkPct: 0.05, crit: 0.11 } },
+  servicepistol:{ name: "Guardsman's Pistol", faction: 'human', look: 'gun', price: 220,
+                  flavor: "Mara Holt chambers one disciplined round and counts the rest as waste.",
+                  bonus: { atkPct: 0.09, crit: 0.14, double: 0.03 } },
+  cadencestave: { name: "Cadence Stave", faction: 'human', look: 'staff', price: 380,
+                  flavor: "Aldous Emberfall drilled the cadets to strike on the beat, and this stave still keeps the count.",
+                  bonus: { atkPct: 0.14, crit: 0.18, critMult: 0.15 } },
 
   // Stoneleaf Accord — Precision: the elves pick the gap, the dwarves widen it.
   runehammer:   { name: 'Runed Stonehammer', faction: 'stone', look: 'hammer', price: 110,
@@ -11288,6 +11411,15 @@ const ARMORY = {
                   bonus: { atkPct: 0.09, critMult: 0.45, crit: 0.05 } },
   deeproot:     { name: 'Deeproot Bardiche', faction: 'stone', look: 'axe', price: 380,
                   flavor: 'Heartwood haft, ash-iron edge, and it has never needed honing.',
+                  bonus: { atkPct: 0.14, critMult: 0.55, agi: 1 } },
+  thornlock:    { name: "Thornshot Crosslock", faction: 'stone', look: 'crossbow', price: 110,
+                  flavor: "Faelan sights once, breathes out, and the bolt finds the seam in the plate before the breath is gone.",
+                  bonus: { atkPct: 0.05, critMult: 0.35 } },
+  mantlestaff:  { name: "Greenmantle Rootstaff", faction: 'stone', look: 'staff', price: 220,
+                  flavor: "Elowen cut it from a root that grew through a dead king's crown, and it has not forgotten the shape.",
+                  bonus: { atkPct: 0.09, crit: 0.05, critMult: 0.45 } },
+  phalanxpike:  { name: "Anvilbeard Phalanx Pike", faction: 'stone', look: 'spear', price: 380,
+                  flavor: "Twelve feet of ash and dwarven steel, made to be held in a line and useless to a fool standing alone.",
                   bonus: { atkPct: 0.14, critMult: 0.55, agi: 1 } },
 
   // The Tideborn — the tide takes what it finds, and the biggest thing first.
@@ -11300,6 +11432,15 @@ const ARMORY = {
   abbotstave:   { name: 'Drowned Abbot’s Stave', faction: 'tide', look: 'staff', price: 380,
                   flavor: 'Fished out of the Sunken Crypt. It is still wet. It is always still wet.',
                   bonus: { atkPct: 0.14, stealFoe: 0.055, crit: 0.06 } },
+  coralgutter:  { name: "Coral Gutter", faction: 'tide', look: 'dagger', price: 110,
+                  flavor: "Grubblefin guts fish with it, and the odd man who owes him.",
+                  bonus: { atkPct: 0.05, stealFoe: 0.035 } },
+  brineharpoon: { name: "Barbed Harpoon", faction: 'tide', look: 'crossbow', price: 220,
+                  flavor: "Tharos Razorfin keeps one loaded by the hull, for whatever climbs up.",
+                  bonus: { atkPct: 0.09, crit: 0.05, stealFoe: 0.045 } },
+  tideorb:      { name: "Tideglass Orb", faction: 'tide', look: 'orb', price: 380,
+                  flavor: "Octavia Inkveil reads the tide in it, and does not share what it says.",
+                  bonus: { atkPct: 0.14, mpRegen: 3, stealFoe: 0.055 } },
 
   // The Crimson Court — Bloodthirst, in the steel as much as the wielder.
   nightthorn:   { name: 'Nightthorn Rapier', faction: 'crimson', look: 'rapier', price: 110,
@@ -11310,6 +11451,15 @@ const ARMORY = {
                   bonus: { atkPct: 0.09, stealMax: 0.045, hpRegen: 3 } },
   heartreaper:  { name: 'Heartreaper Fangs', faction: 'crimson', look: 'dagger', price: 380,
                   flavor: 'A matched pair. Vesper gives them as gifts, and expects them back.',
+                  bonus: { atkPct: 0.14, stealMax: 0.05, crit: 0.08 } },
+  courtblade:   { name: "Courtier's Greatblade", faction: 'crimson', look: 'sword', price: 110,
+                  flavor: "A duelling greatblade for the freshly ennobled, who learn soon enough the Court takes its cut in blood.",
+                  bonus: { atkPct: 0.05, stealMax: 0.035 } },
+  bloodstave:   { name: "Sanguine Stave", faction: 'crimson', look: 'staff', price: 220,
+                  flavor: "Morwenna bled three apprentices into the haft and swears the fourth was an accident.",
+                  bonus: { atkPct: 0.09, hpRegen: 3, stealMax: 0.045 } },
+  unboundaxe:   { name: "Unbound Axe", faction: 'crimson', look: 'axe', price: 380,
+                  flavor: "Malgrath wore it like a limb, and when the Court loosed him it was the only part of the man that came back.",
                   bonus: { atkPct: 0.14, stealMax: 0.05, crit: 0.08 } },
 
   // The Pale Host - grave goods. Their own rule halves the healing they take, so these lean on a
@@ -11323,6 +11473,15 @@ const ARMORY = {
   mournerscross:{ name: "Mourner's Cross", faction: 'undead', look: 'cross', price: 380,
                   flavor: 'Carried at the front of a funeral nobody came back from. It leads still.',
                   bonus: { atkPct: 0.14, critMult: 0.30, hpRegen: 7 } },
+  gravepike:    { name: "Grave-Pike", faction: 'undead', look: 'spear', price: 110,
+                  flavor: "A fence post pulled from a pauper's plot, sharpened at the muddy end where the roots let go.",
+                  bonus: { atkPct: 0.05, double: 0.04, hpRegen: 4 } },
+  shroudlock:   { name: "Shroudlock", faction: 'undead', look: 'crossbow', price: 220,
+                  flavor: "Vaun Shroudfletch strings them from grave-linen, and the bolts have a habit of walking home.",
+                  bonus: { atkPct: 0.09, crit: 0.06, hpRegen: 6 } },
+  mortstave:    { name: "Mortessa's Stave", faction: 'undead', look: 'staff', price: 380,
+                  flavor: "Mortessa leans on it while the dead are slow to stand, which with her is never long.",
+                  bonus: { atkPct: 0.14, critMult: 0.25, hpRegen: 7 } },
 };
 const ARMORY_KEYS = Object.keys(ARMORY);
 
@@ -12436,6 +12595,8 @@ const PLACES = {
   gate:   { name: 'Expedition Gate', kick: 'Explore', blurb: 'Dungeons along Ashfall Road: rooms, bosses and loot chests.' },
   academy: { name: 'The Academy', kick: 'Study', blurb: 'Compare champions, read the library, and learn the basics of allies, threats and combos.',
             flavor: 'Headmistress Ilse Varrow has studied every warband that ever marched down Ashfall Road. She teaches the basics, and leaves the rest for you to find out.' },
+  pets:   { name: 'Pet House', kick: 'Pets', blurb: "Adopt a pet to walk at your champion's side. Each one brings a small gift.",
+            flavor: 'Ella takes in every stray that wanders down Ashfall Road. When one of them chooses a champion, she lets it go with a full belly.' },
   train:  { name: 'Training Yard', kick: 'Train', blurb: 'Drill new techniques and earn skill points.',
             flavor: 'A fenced stretch of packed dirt outside the west wall, full of straw dummies and old scars. Serel Vance drills anyone who pays and most who do not.' },
   cave:   { name: 'Emberhollow Cave', kick: 'Hunt', blurb: 'Hunt monster packs for XP and gold.',
@@ -12453,7 +12614,7 @@ const PLACES = {
   tavern: { name: 'The Smoldering Mug', kick: 'Rest', blurb: 'Rumors, tips and the tales told of you.',
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'workshop', 'carnival', 'elder', 'tavern'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 // With the Expedition Gate open, the warband waits on the road out of it, facing the gate.
 const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
@@ -12462,6 +12623,37 @@ const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
 // a tile of their own spot and never back inside the gate. The walk is a CSS transition on left/top
 // (--t); buildVillage's depth timer keeps re-sorting them against the buildings as they go.
 const STROLL_SPEED = 34;   // map units a second: an easy walking pace
+// Your pet (profile.pets.active) trots a step behind your champion, the first townie: wherever they head,
+// it follows a moment later, a little quicker so it catches up.
+const petSpotBy = ([x, y], facingLeft) => [x + (facingLeft ? 24 : -24), y + 3];
+function petTownieHTML(atGate) {
+  const k = profile.pets.active;
+  if (!k || !PET_ART[k]) return '';
+  const [x, y] = petSpotBy((atGate ? GATE_SPOTS : TOWNIE_SPOTS)[0], atGate);
+  return `<div class="townie pet${atGate ? ' flip' : ''}" aria-hidden="true" style="left:${mapX(x)};top:${mapY(y)};z-index:${zAt(x, y)}"><div>${PET_ART[k]}</div></div>`;
+}
+function trailHero(pet) {
+  clearTimeout(pet.strollT);
+  pet.strollT = setTimeout(() => {
+    if (!pet.isConnected) return;
+    const hero = pet.parentNode.querySelector('.townie[data-champ]');
+    if (hero?.mapAt && !$('#villageScreen').hidden) {
+      const [x, y] = petSpotBy(hero.mapAt, hero.classList.contains('flip')), [x0, y0] = pet.mapAt, far = Math.hypot(x - x0, y - y0);
+      if (far > 3) {
+        const t = far / (STROLL_SPEED * 1.25);
+        pet.classList.toggle('flip', x < x0);
+        pet.style.setProperty('--t', `${t.toFixed(2)}s`);
+        pet.classList.add('walking');
+        pet.style.left = mapX(x);
+        pet.style.top = mapY(y);
+        pet.mapAt = [x, y];
+        clearTimeout(pet.stopT);
+        pet.stopT = setTimeout(() => { pet.classList.remove('walking'); pet.classList.toggle('flip', hero.classList.contains('flip')); }, t * 1000);
+      }
+    }
+    trailHero(pet);
+  }, 600);
+}
 function strollSpot(i, atGate) {
   if (atGate) {
     const [hx, hy] = GATE_SPOTS[i] || GATE_SPOTS[0], s = (hy - ISO.y0) / ISO.ky, d = (hx - ISO.x0) / ISO.kx;
@@ -12586,6 +12778,15 @@ const KEEPERS = {
     ],
     react: ['There. Still warm.', 'Mind your fingers. Mine are all accounted for, mostly.',
       'Good as anything Odo sells. Better, if you ask me.', 'Another one for the road. Use it well.'] },
+  pets: { id: 'ella', name: 'Ella', title: 'Beast Keeper', at: [1316, 898], flip: false,
+    greet: [
+      'Mind the pup. He bites boots. Only boots, mind you.',
+      'Every one of these was found on the road, and every one of them is looking for someone.',
+      'A pet at your side fights with you in its own way. Do not ask me how. They just do.',
+      () => (profile.pets.active === 'princess' ? 'Princess picked you? She never lets anyone carry her. Mind you treat her like the royalty she is.'
+        : profile.pets.active ? `Your ${PETS[profile.pets.active].name} looks well fed. Good. Keep it that way.` : null),
+    ],
+    react: ['There, see? It likes you already.', 'Feed it twice a day. Three times on battle days.', 'Treat it kindly and it will never leave your side.'] },
   academy: { id: 'ilse', name: 'Ilse Varrow', title: 'Headmistress', at: [450, 859], flip: false,
     greet: [
       'Sit. Every champion has friends and enemies on the field. I will show you a few of each.',
@@ -13454,6 +13655,23 @@ const PLACE_BODY = {
       ${stoneShopHTML()}`;
   },
 
+  // The Pet House: adopt pets, and choose which one walks with you.
+  pets() {
+    const { owned, active } = profile.pets;
+    const card = (k) => {
+      const p = PETS[k], has = owned.includes(k), here = active === k, ok = profile.gold >= p.price;
+      const btn = here ? '<button class="btn small" type="button" data-k="phome">Leave at home</button>'
+        : has ? `<button class="btn small primary" type="button" data-k="ptake:${k}">Take along</button>`
+        : `<button class="btn small${ok ? ' primary' : ''}" type="button" data-k="padopt:${k}"${ok ? '' : ' disabled'}>Adopt for ${p.price} gold</button>`;
+      return `<div class="ware${here ? ' worn' : ''}"><div class="ico">${PET_ART[k]}</div>
+        <strong>${p.name}${here ? ' · at your side' : has ? ' · yours' : ''}</strong><p>${p.desc}</p>
+        <div class="buy"><span class="note"><b>${p.gift}</b></span>${btn}</div></div>`;
+    };
+    const lead = active ? `<b>${PETS[active].name}</b> walks at your champion's side, and its gift counts in every battle your champion fights.`
+      : 'One pet walks at your champion\'s side at a time, and its gift counts in every battle your champion fights. The others wait at home.';
+    return `<p class="note">${lead}</p><div class="wares">${PET_KEYS.map(card).join('')}</div>`;
+  },
+
   academy() {
     const tab = state.acadTab || 'lessons';
     const tabs = `<div class="filters" role="group" aria-label="The Academy">${[['lessons', 'Lessons'], ['chart', 'Champion chart'], ['library', 'Library']]
@@ -14139,18 +14357,20 @@ function renderVillage() {
 
   // Your warband stands round the bonfire; open the Expedition Gate and they line up on its road.
   const atGate = state.place === 'gate';
-  const townies = $('#townies'), key = state.team.join() + (atGate ? '@gate' : '');
+  const townies = $('#townies'), key = state.team.join() + (atGate ? '@gate' : '') + (profile.pets.active ? `+${profile.pets.active}` : '');
   if (townies.dataset.k !== key) {
     townies.innerHTML = state.team.map((id, i) => {
       const [x, y] = (atGate ? GATE_SPOTS : TOWNIE_SPOTS)[i];
       const who = i === 0 ? heroName() : charById(id).name;
       return `<div class="townie${atGate || i === 2 ? ' flip' : ''}" data-champ="${id}" role="button" tabindex="0" aria-label="${escHTML(who)}: skills, backpack and gear" title="${escHTML(who)}" style="left:${mapX(x)};top:${mapY(y)};z-index:${zAt(x, y)}"><div>${spriteSVG(id)}</div></div>`;
-    }).join('');
+    }).join('') + petTownieHTML(atGate);
     townies.dataset.k = key;
-    townies.querySelectorAll('.townie').forEach((el, i) => {
+    townies.querySelectorAll('.townie[data-champ]').forEach((el, i) => {
       el.mapAt = (atGate ? GATE_SPOTS : TOWNIE_SPOTS)[i];
       if (!reduced) strollTownie(el, i, atGate);
     });
+    const pet = townies.querySelector('.townie.pet');
+    if (pet) { pet.mapAt = petSpotBy((atGate ? GATE_SPOTS : TOWNIE_SPOTS)[0], atGate); if (!reduced) trailHero(pet); }
   }
 
   const npcs = $('#npcs'), folkKey = state.folk.map((f) => f.id + f.lane.x0).join();
@@ -14704,6 +14924,25 @@ function townPlaces() {
     s += box(7.9, 33.9, .55, .4, 4, '#3e5a8c') + box(7.95, 33.95, .45, .35, 4, '#c0303f', 4) + box(7.9, 33.9, .5, .4, 4, '#e8a548', 8);
     out.academy = [37.7, s];
   }
+  // THE PET HOUSE: a cosy cottage on the square's east side by the well, a pen out front with a kennel
+  // and a water bowl, a paw print on the gable.
+  {
+    const [gx, gy, w, d, h] = [25.8, 16.9, 3.4, 2.1, 36], wall = '#a07a52', fy = gy + d;
+    let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
+    s += onLeft(fy, 26.15, 26.85, 0, 24, '#3a2418') + onLeft(fy, 27.35, 27.85, 0, 8, '#2a1d16');   // a door, and a flap for the small ones
+    s += onLeft(fy, 28.2, 28.85, 11, 21, '#ffd28a', ' class="lit"') + onRight(gx + w, 17.3, 17.9, 11, 22, '#e8b060', ' class="lit"');
+    s += gable(gx, gy, w, d, h, 26, '#5f8a4a', wall, 'y');
+    const [px, py] = P2(gx + w / 2, fy, h + 17);
+    s += `<g fill="#3a2418"${NS}><ellipse cx="${n1(px)}" cy="${n1(py + 3)}" rx="5" ry="4"/>`
+      + [[-6, -3], [-2, -7], [2, -7], [6, -3]].map(([dx, dy]) => `<circle cx="${n1(px + dx)}" cy="${n1(py + dy)}" r="1.8"/>`).join('') + '</g>';
+    s += wallBoard('L', fy, 26, 29, 26, 48, 'Pet House');
+    // The pen: a kennel, a water bowl and a low fence along the road.
+    s += box(26, 19.3, .75, .55, 10, '#8a5a3a') + gable(26, 19.3, .75, .55, 10, 7, '#5f8a4a', '#8a5a3a', 'y', .08) + onLeft(19.85, 26.2, 26.55, 0, 6, '#2a1d16');
+    s += disc(27.2, 19.75, .22, '#6a6470') + disc(27.2, 19.75, .15, '#5b97e6', 1);
+    for (let u = 25.6; u <= 28; u += .48) s += box(u, 20.12, .08, .08, 9, '#6b4f32');
+    s += line3([25.6, 20.16, 7], [28.08, 20.16, 7], '#7a5434', 2) + line3([25.6, 20.16, 3], [28.08, 20.16, 3], '#7a5434', 2);
+    out.pets = [45.6, s];
+  }
   return out;
 }
 
@@ -14808,7 +15047,7 @@ function buildTownMap() {
   }
   for (const [gx, gy] of [[18.5, 18.2], [23.6, 23.8], [18.4, 23.8], [23.6, 18.4], [25.5, 22.8], [29, 22.8], [19.8, 26], [19.8, 31], [22.6, 14], [19.6, 11], [15, 22.6], [10, 22.6]])
     add(gx + gy, lamp(gx, gy));
-  const INSIDE_TREES = [[6, 7.5], [11.5, 7.5], [7.5, 13.5], [18, 11], [27, 8], [31, 9], [35, 8], [28, 17.5], [35.5, 18], [35.5, 26.5], [26, 36], [30.5, 30],
+  const INSIDE_TREES = [[6, 7.5], [11.5, 7.5], [7.5, 13.5], [18, 11], [27, 8], [31, 9], [35, 8], [35.5, 18], [35.5, 26.5], [26, 36], [30.5, 30],
     [18, 29.5], [13, 30], [6, 28.5], [6.5, 20], [11, 21.5], [5, 23.2], [17.5, 36], [7, 36], [25, 30.5], [9.6, 26.6]];
   for (const [gx, gy] of INSIDE_TREES) add(gx + gy, tree(gx, gy, .9 + rnd() * .3, rnd() < .15 ? 2 : 0));
 
@@ -14862,6 +15101,7 @@ const TOWN_LABELS = {
   tavern: 'The Smoldering Mug tavern: rumors and records', home: 'Your House: your stash and belongings',
   market: 'Market: buy supplies for battle', bounty: 'Bounty Board: daily jobs that pay gold',
   pvp: 'Proving Grounds: duel rival warbands for gold', academy: 'The Academy: champion chart, library and lessons', workshop: 'The Workshop: craft supplies, tomes and trinkets from materials', gate: 'Expedition Gate: dungeons along Ashfall Road',
+  pets: 'Pet House: adopt a pet to walk at your side',
   cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
 };
 
@@ -15118,6 +15358,10 @@ function villageAction(k) {
   // Your House: furniture, satchel ↔ stash, and trinkets between the stash and your champions.
   else if (verb === 'mtab') state.marketTab = arg;
   else if (verb === 'decor') { if (buyDecor(arg)) keeperReact('market'); }
+  // The Pet House: adopt (it comes along at once), take an owned one along, or leave yours at home.
+  else if (verb === 'padopt') { if (adoptPet(arg)) keeperReact('pets'); }
+  else if (verb === 'ptake') { if (profile.pets.owned.includes(arg)) { profile.pets.active = arg; saveProfile(); keeperReact('pets'); } }
+  else if (verb === 'phome') { profile.pets.active = null; saveProfile(); }
   else if (verb === 'store') storeItem(arg);
   else if (verb === 'take') takeItem(arg);
   else if (verb === 'give') { if (giveTrinket(arg, arg2) && state.place === 'jeweler') keeperReact('jeweler'); }
@@ -15225,6 +15469,18 @@ function buildVillage() {
 const artOf = (u) => u.art || u.id;
 const unitClasses = (u) => `${u.side}${u.you ? ' you' : ''}${u.summon ? ' summon' : ''}${u.inert ? ' inert' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
 
+/* THE GEAR PINS (CSS .gearpins). The weapon and kit a champion wears, pinned to their plate with
+   the Armory's and the Armor Stand's own icons. gearRaw reads YOUR ledger, so only your side wears
+   pins - an enemy Krug shares the id but owns none of your steel. Gear cannot change mid-battle,
+   so the pins are part of the card rather than something render() keeps in step. */
+function gearPinsHTML(u) {
+  if (u.side !== 'p' || u.summon || !charById(u.id)) return '';
+  const g = gearRaw(u.id);
+  const pins = (ARMORY[g.wp] ? `<span class="pin">${wepIcon(g.wp)}</span>` : '')
+             + (EQUIPMENT[g.eq] ? `<span class="pin">${kitIcon(g.eq)}</span>` : '');
+  return pins ? `<div class="gearpins">${pins}</div>` : '';
+}
+
 // A champion standing on the battlefield (--d staggers the idle breathing so nobody bobs in sync).
 function unitCardHTML(u) {
   return `
@@ -15232,6 +15488,7 @@ function unitCardHTML(u) {
       <ul class="chips"></ul>
       <div class="plate">
         ${u.watch ? '<div class="watchdial" aria-hidden="true"><b></b></div>' : ''}
+        ${gearPinsHTML(u)}
         <div class="who"><strong>${u.attach === 'anchor' ? '' : u.name}</strong><span class="lvl"></span></div>
         <div class="bar hp"><div class="fill"></div><span></span></div>
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}

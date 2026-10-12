@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ella (NPC) - Cinderhold villager art. Beast keeper; keeper of the Pet House.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="ella-tunic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6f9a5a"/><stop offset=".6" stop-color="#4c7440"/><stop offset="1" stop-color="#34532c"/></linearGradient>
+    <linearGradient id="ella-apron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b08a5e"/><stop offset="1" stop-color="#7f5f3e"/></linearGradient>
+    <linearGradient id="ella-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0c9a2"/><stop offset="1" stop-color="#c9926c"/></linearGradient>
+    <linearGradient id="ella-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d0743a"/><stop offset="1" stop-color="#8e3f1e"/></linearGradient>
+    <linearGradient id="ella-boot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3e28"/><stop offset="1" stop-color="#3a2618"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="21" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- boots and legs -->
+    <path d="M42 76 h7 v13 h-8 z" fill="#4a3a30"/>
+    <path d="M53 76 h7 v13 h-7 z" fill="#4a3a30"/>
+    <path d="M40.5 88 h9 v5.5 h-11 z" fill="url(#ella-boot)"/>
+    <path d="M52.5 88 h9 l2.5 5.5 h-11.5 z" fill="url(#ella-boot)"/>
+    <!-- braid down the back -->
+    <path d="M44 30 Q38 42 40 56 Q42 60 44.5 56 Q43 44 48 33 Z" fill="url(#ella-hair)"/>
+    <!-- tunic -->
+    <path d="M43 40 Q37 50 38 64 L39 79 Q50 82 62 79 L62.5 64 Q63 50 57 40 Z" fill="url(#ella-tunic)"/>
+    <!-- apron with a treat pouch -->
+    <path d="M44.5 50 L56.5 50 L59 78 Q50 80.5 42 78 Z" fill="url(#ella-apron)"/>
+    <path d="M45 50 Q50 46.5 56 50" fill="none" stroke-width="1.2"/>
+    <path d="M47 62 h9 v7 q-4.5 3 -9 0 z" fill="#8f6a44" stroke-width="1.2"/>
+    <path d="M47 64.5 h9" stroke-width="1"/>
+    <!-- back arm -->
+    <path d="M43 42 Q37 50 38.5 60 L42.5 60.5 Q42 52 46 46 Z" fill="url(#ella-tunic)"/>
+    <circle cx="40.5" cy="61.5" r="2.6" fill="url(#ella-skin)"/>
+    <!-- neck and head -->
+    <path d="M47.5 34 h5 v6.5 h-5 z" fill="url(#ella-skin)" stroke-width="1.1"/>
+    <circle cx="51.5" cy="27" r="8.3" fill="url(#ella-skin)"/>
+    <path d="M43.6 29.5 Q42.4 17.6 52 17.2 Q60.6 17.2 60.4 24.4 Q56 21 51 22.6 Q47.6 24 47.6 32 Z" fill="url(#ella-hair)"/>
+    <!-- forward arm holding out a treat -->
+    <path d="M56 42 Q63 44 66 50 L69.5 55 L66.4 57.4 Q62 52.5 58 50 Z" fill="url(#ella-tunic)"/>
+    <circle cx="68.6" cy="57.4" r="2.8" fill="url(#ella-skin)"/>
+    <path d="M70.5 54 q3.5 -1.6 5.5 .4 q-1.6 2.4 -5 1.6 z" fill="#c9a26a" stroke-width="1"/>
+    <!-- a little finch riding on her shoulder -->
+    <path d="M57 38 q2.4 -6 8 -4.4 q3.2 1.2 2.6 4.6 q-4.6 2.6 -10.6 -.2 z" fill="#e8a548" stroke-width="1.1"/>
+    <path d="M57.4 37.6 l-4 -1.6 l3.4 3" fill="#c0703a" stroke-width="1"/>
+    <path d="M67.2 35.6 l2.6 .8 l-2.4 1" fill="#3a2618" stroke-width=".8"/>
+  </g>
+  <!-- faces -->
+  <circle cx="55.2" cy="26.6" r="1.1" fill="#1d2130"/>
+  <path d="M53.6 23.6 q1.8 -.9 3.4 0" stroke="#7a3a1e" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M54 31.4 q2 1.4 4 0" stroke="#7a3a30" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <circle cx="57.4" cy="29.4" r="1.6" fill="#e0806a" opacity=".45"/>
+  <circle cx="64.6" cy="34.8" r=".8" fill="#15121d"/>
+</svg>
