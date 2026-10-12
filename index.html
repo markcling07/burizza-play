@@ -1620,6 +1620,10 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 body.inTown { overflow: hidden; }
 body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .townMap { display: block; width: 100%; height: auto; }
+/* The map's depth layers (buildTownMap): stacked over the base map, interleaved with the people by z-index.
+   Only the buildings take clicks; trees, lamps and walls let them through to whatever is underneath. */
+.townMap.tLayer { position: absolute; left: 0; top: 0; height: 100%; pointer-events: none; overflow: visible; }
+.tLayer .bld { pointer-events: auto; }
 /* The map and everything standing on it (townies, NPCs) live in one view, so pan and zoom move them together.
    zoomTown/setView set its transform; --zinv undoes the scale for name tags and quest marks so they stay readable. */
 /* --map-ar is set from MAP_W / MAP_H at startup, so the map's shape is defined in one place. */
@@ -1736,10 +1740,12 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 @media (min-aspect-ratio: 1/1) { .town.sheetOpen .dock { display: flex; } }
 .bld { cursor: pointer; transition: filter .2s; outline: none; }
 .bld:hover, .bld:focus-visible, .bld.open { filter: brightness(1.22) drop-shadow(0 0 8px rgba(232, 165, 72, .55)); }
-.sign rect { fill: rgba(22, 25, 37, .88); stroke: var(--line); stroke-width: 1.5; }
-.sign text { fill: var(--fg); font-family: var(--font-display); font-weight: 700; font-size: 28px; text-anchor: middle; }
-.bld:hover .sign rect, .bld:focus-visible .sign rect, .bld.open .sign rect { stroke: var(--accent); stroke-width: 2.5; }
-.bld:hover .sign text, .bld:focus-visible .sign text, .bld.open .sign text { fill: var(--accent); }
+/* Map nameboards: a plank fixed flat to a building's wall, in the wall's slant (nameBoard). */
+.sign .sBoard { fill: url(#tPlank); stroke: #24160c; stroke-width: 2; }
+.sign .sNail { fill: #2a2228; stroke: #b89a6a; stroke-width: .6; }
+.sign text { fill: #f6e6c2; font-family: var(--font-display); font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: #3a2212; stroke-width: 2.6px; stroke-linejoin: round; }
+.bld:hover .sign .sBoard, .bld:focus-visible .sign .sBoard, .bld.open .sign .sBoard { stroke: var(--accent); stroke-width: 2.6; }
+.bld:hover .sign text, .bld:focus-visible .sign text, .bld.open .sign text { fill: #ffd28a; }
 .smoke { transform-box: fill-box; transform-origin: center; animation: smoke 5.1s linear infinite; }
 @keyframes smoke { from { transform: translate(0, 0) scale(.6); opacity: .6; } to { transform: translate(24px, -84px) scale(1.9); opacity: 0; } }
 .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flick .45s ease-in-out infinite alternate; }
@@ -1782,8 +1788,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .townies { position: absolute; inset: 0; pointer-events: none; }
 .townie { position: absolute; width: 2.6%; aspect-ratio: 1; transform: translate(-50%, -94%); }
 .townie > div { width: 100%; height: 100%; animation: townIdle 2.8s ease-in-out infinite; }
-/* Night in the village: people are a shade dimmer, like the streets they stand in (tags and quest marks stay bright). */
-.townView .npc .bob, .townView .townie > div { filter: brightness(.86) saturate(.92); }
+/* Night falls on people as it does on the streets: the veil is the top layer of the map (nightLayer). */
 .townie img, .townie svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .townie.flip img, .townie.flip svg { transform: scaleX(-1); }
 @keyframes townIdle { 50% { transform: translateY(-3%); } }
@@ -1840,6 +1845,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .quest { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
 .quest.offer, .quest.ready { border-color: var(--accent); }
 .quest.locked { opacity: .7; border-style: dashed; }
+/* A quest already under way, shown in its giver's building: just the words, no card round them. */
+#panel .quest.active { padding: 0; background: none; border: 0; border-radius: 0; }
 .quest h4 { margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
 .quest .ask { margin: 0; font-style: italic; }
 .quest .note { margin: 0; }
@@ -1988,6 +1995,30 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .stat span { font-size: .75rem; color: var(--muted); }
 .teamRow { display: flex; gap: 8px; flex-wrap: wrap; }
 .teamRow .mini { width: 56px; height: 56px; }
+/* The Arena's warband sits where the keeper's greeting would, spread across the panel, no card round it. */
+.teamRow.arenaBand { justify-content: space-around; align-items: start; }
+/* Under each fighter, their kit: three icons to a row, actives first, passives round. Bare icons, no frames. */
+.arenaBand { gap: 2px; flex-wrap: nowrap; }
+.arenaBand .tmini { align-content: start; width: auto; flex: 1 1 0; min-width: 0; padding: 6px 0; }
+.arenaBand .mini { width: 88px; height: 88px; }
+/* No frame round your own champion here: the gold name and "You" are enough. */
+.arenaBand .tmini.you { border-color: transparent; background: none; box-shadow: none; }
+.arenaBand .tmini figcaption { font-size: .86rem; }
+.arenaBand .tmini small { font-size: .64rem; }
+.bandSk { display: grid; grid-template-columns: repeat(3, 29px); gap: 1px; justify-content: center; margin-top: 4px; }
+.bsk { width: 29px; height: 29px; border-radius: 6px; overflow: hidden; }
+.bsk.pas { border-radius: 50%; }
+.bsk .sic { width: 100%; height: 100%; display: block; }
+/* The backpack under the kit: four slots, an outline where nothing is packed. */
+.bandPack { display: grid; grid-template-columns: repeat(4, 21px); gap: 2px; justify-content: center; margin-top: 5px; }
+.pslot { width: 21px; height: 21px; padding: 1px; border-radius: 5px; border: 1px dashed var(--line); background: none; cursor: pointer; display: grid; place-items: center; }
+.pslot.full { border: 1px solid #5a4a30; background: rgba(232, 165, 72, .1); }
+.pslot.picking { border: 1px solid var(--accent); box-shadow: 0 0 6px rgba(232, 165, 72, .5); }
+.pslot svg { width: 100%; height: 100%; display: block; }
+.packPick { display: grid; gap: 6px; margin-top: 6px; }
+.packPick .note { margin: 0; }
+.ppList { display: flex; flex-wrap: wrap; gap: 6px; }
+.ppIco svg { width: 18px; height: 18px; display: inline-block; vertical-align: -4px; margin-right: 4px; }
 .tmini { margin: 0; display: grid; justify-items: center; gap: 2px; width: 76px; padding: 6px 4px 5px; border-radius: 12px; border: 1px solid transparent; }
 .tmini figcaption { max-width: 100%; text-align: center; font-size: .76rem; font-weight: 800; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tmini small { display: block; font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
@@ -2459,6 +2490,7 @@ const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: 
   hero: null, level: 1, xp: 0, recruits: [],
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
   recruitLoadouts: {},   // skills you chose for recruits, per champion id; a recruit with none auto-picks
+  packs: {},       // each champion's backpack: PACK_SLOTS slots, one item in each (see BACKPACKS)
   skillRanks: {},  // skill points spent, per champion id: { a: 2, flashpowder: 1 } (see SKILL RANKS)
   training: {},    // drills done, per champion id: { smokebomb: 2, might: 3 } (see THE TRAINING YARD)
   dungeons: {},    // per dungeon id: { clears } (first clear pays a trinket; see DUNGEONS)
@@ -8738,8 +8770,8 @@ function onUnit(uid) {
 }
 
 function onItem(key) {
-  if (state.phase !== 'choose' || state.itemUsed || !(profile.items[key] > 0) || sparring()) return;
   const u = unitBy(state.active);
+  if (state.phase !== 'choose' || state.itemUsed || !u || !packHas(u.id, key) || sparring()) return;
   if (ITEMS[key].target !== 'ally') return useItem(u, key, null);
   const opts = alliesOf(u);
   if (opts.length === 1) return useItem(u, key, opts[0]);
@@ -8747,15 +8779,15 @@ function onItem(key) {
   render();
 }
 
-// Satchel items are a free action: one per turn, then the champion still chooses a normal action.
+// Backpack items are a free action: one per turn, then the champion still chooses a normal action.
 async function useItem(u, key, t) {
   const token = state.token, it = ITEMS[key];
-  // Recruits reach into the same satchel mid-turn, so hand the phase back to whatever
+  // Recruits reach into their own packs mid-turn, so hand the phase back to whatever
   // it was. Forcing 'choose' here would give you the controls during someone else's turn.
   const resume = u.you ? 'choose' : state.phase;
   state.phase = 'busy'; state.pending = null;
-  if (u.you) state.itemUsed = true;   // the one-per-turn gate is only on your own satchel row
-  profile.items[key]--;
+  if (u.you) state.itemUsed = true;   // the one-per-turn gate is only on your own backpack row
+  packTake(u.id, key);   // out of the user's own backpack (see BACKPACKS)
   saveProfile();
   log(`${u.name} uses a ${it.name}.`, u.side);
   for (const t of questEvent('item', { key })) log(t, 'sys');
@@ -8796,11 +8828,11 @@ async function useItem(u, key, t) {
   render();
 }
 
-/* Recruits raid the same satchel you do, so they are deliberately stingy: a charge is
+/* Recruits reach into their own backpacks, and are deliberately stingy: a charge is
    only spent when it clearly beats casting, and never on a fight already won. Returns
    { key, t } or null. Enemies never qualify — see the guard in the turn loop. */
 function aiItemPlan(u) {
-  const have = (k) => (profile.items[k] || 0) > 0;
+  const have = (k) => packHas(u.id, k);
   const allies = alliesOf(u).filter((a) => !a.attachedTo);   // both already drop the fallen for us; a bolted-on drone can't be singled out either
   const foes = foesOf(u);
   // 1. Someone is a hit away from going down.
@@ -8832,7 +8864,7 @@ function aiItemPlan(u) {
   return null;
 }
 
-// Your recruits may use the satchel; summons, monsters and every enemy never touch it.
+// Your recruits may use their backpacks; summons, monsters and every enemy carry none.
 const usesSatchel = (u) => u.side === 'p' && !u.you && !u.summon && !u.monster && !sparring();   // a spar never touches your satchel
 
 /* ==================================================================
@@ -10415,6 +10447,63 @@ const ITEMS = {
   mirage:   { name: 'Mirror Dust', price: 55, target: 'self', desc: 'Conjure an uncontrolled double of yourself. It fights for 75% of your damage, then fades after 3 of its turns or 8 blows.' },
 };
 const ITEM_KEYS = Object.keys(ITEMS);
+
+/* BACKPACKS — every champion carries their own PACK_SLOTS slots, one item in each. The satchel is the
+   warband's supply between fights; you load a backpack from it in the Arena (tap an empty slot and
+   pick an item, tap a full one to put it back). In battle a fighter can only reach into their own
+   pack: your champion from the deck, a recruit on its own judgment (aiItemPlan). Whatever is used is
+   gone; whatever is left stays packed for the next fight. */
+const PACK_SLOTS = 4;
+function packOf(cid) {
+  if (!profile.packs) profile.packs = {};
+  const p = profile.packs[cid] || (profile.packs[cid] = []);
+  while (p.length < PACK_SLOTS) p.push(null);
+  return p;
+}
+const packHas = (cid, k) => packOf(cid).includes(k);
+function packTake(cid, k) {
+  const p = packOf(cid), i = p.indexOf(k);
+  if (i < 0) return false;
+  p[i] = null;
+  return true;
+}
+// Satchel -> slot. One item moves; the slot must be empty.
+function packLoad(cid, slot, k) {
+  const p = packOf(cid);
+  if (p[slot] || !ITEMS[k] || !((profile.items[k] || 0) > 0)) return false;
+  profile.items[k]--;
+  p[slot] = k;
+  saveProfile();
+  return true;
+}
+// Slot -> satchel, or home to the stash when the satchel already holds as many as it can.
+function packUnload(cid, slot) {
+  const p = packOf(cid), k = p[slot];
+  if (!k) return false;
+  const n = profile.items[k] || 0;
+  if (n < SATCHEL_MAX) profile.items[k] = n + 1;
+  else profile.stash.items[k] = (profile.stash.items[k] || 0) + 1;
+  p[slot] = null;
+  saveProfile();
+  return true;
+}
+// Saves from before backpacks: your champion's pack is filled from the satchel once, one of each
+// kind in turn, so the items you were fighting with are still to hand in your next battle.
+function seedPacks() {
+  if (profile.packsSeeded || !profile.hero) return;
+  const p = packOf(profile.hero.id);
+  let moved = true;
+  while (moved && p.includes(null)) {
+    moved = false;
+    for (const k of ITEM_KEYS) {
+      const i = p.indexOf(null);
+      if (i < 0) break;
+      if ((profile.items[k] || 0) > 0) { profile.items[k]--; p[i] = k; moved = true; }
+    }
+  }
+  profile.packsSeeded = true;
+  saveProfile();
+}
 
 const flask = (c) => `<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="11.5" y="2.5" width="9" height="3" rx="1" fill="#b07d3e"/><path d="M12 5h8v3l-1.5 1.5v4l6.5 9a4 4 0 0 1-3.3 6.5H10.3A4 4 0 0 1 7 22.5l6.5-9v-4L12 8z" fill="#2c2433" stroke="#e9e4d8" stroke-width="1.4" stroke-linejoin="round"/><path d="M9.6 20h12.8l1.5 2.4a2.6 2.6 0 0 1-2.2 3.8H10.3a2.6 2.6 0 0 1-2.2-3.8z" fill="${c}"/><circle cx="14" cy="17" r="1.2" fill="${c}"/></svg>`;
 const ITEM_ICON = {
@@ -12184,7 +12273,7 @@ const nextFoe = () => (state.runPending ? FACTIONS[state.order[state.battle + 1]
 
 // Keepers stand by their building. Clicking one opens it, and inside they greet you and react to purchases.
 const KEEPERS = {
-  train: { id: 'serel', name: 'Serel Vance', title: 'Drillmaster', at: [542, 939], flip: false,
+  train: { id: 'serel', name: 'Serel Vance', title: 'Drillmaster', at: [630, 950], flip: false,
     greet: [
       'You can swing. Anyone can swing. I teach you what to do when swinging is not working.',
       'Three mornings on a technique. Four if it is worth having. No, you cannot skip to the end.',
@@ -12235,7 +12324,7 @@ const KEEPERS = {
     ],
     react: ['A winner! Everyone, look at this winner!', 'Ohhh, so close! Again? Again!', 'The crowd goes wild! Well, Pip does.',
       'Ha! The wheel of fortune spins for no one... except you, apparently.'] },
-  elder: { id: 'ysolde', name: 'Elder Ysolde', title: 'Elder of Cinderhold', at: [898, 691], flip: false,
+  elder: { id: 'ysolde', name: 'Elder Ysolde', title: 'Elder of Cinderhold', at: [856, 704], flip: false,
     greet: [
       'Sit, child. The road has taught me much, and I forget less than they think.',
       'Six banners have marched past this hut. Each fought differently. Each bled the same.',
@@ -12243,7 +12332,7 @@ const KEEPERS = {
       'The mountain is restless tonight. It always is. That is how we know it is alive.',
     ],
     react: [] },
-  jeweler: { id: 'vesna', name: 'Vesna Glimmerglass', title: 'Jeweler', at: [1704, 719], flip: true,
+  jeweler: { id: 'vesna', name: 'Vesna Glimmerglass', title: 'Jeweler', at: [1790, 700], flip: true,
     greet: [
       'Every stone here drank the mountain\'s fire. Wear one, and a little of that fire is yours.',
       'One trinket per champion. Two, and the stones start arguing. You do not want to hear stones argue.',
@@ -12676,13 +12765,13 @@ const QMARK = (id) => `<span class="qmark" style="top:${NPC_HEAD[id] ?? 12}%" ar
 function npcsHTML() {
   const keepers = Object.entries(KEEPERS).map(([place, n]) => `
     <button class="npc stand${n.flip ? ' flip' : ''}" type="button" data-place="${place}" data-npc="${n.id}"
-      style="left:${mapX(n.at[0])};top:${mapY(n.at[1])};z-index:${n.at[1]};--d:${(-Math.random() * 3).toFixed(2)}s"
+      style="left:${mapX(n.at[0])};top:${mapY(n.at[1])};z-index:${zAt(...n.at)};--d:${(-Math.random() * 3).toFixed(2)}s"
       data-label="${n.name}, ${n.title}. Opens ${PLACES[place].name}">
       <span class="tag">${n.name}</span>${QMARK(n.id)}<div class="face"><div class="bob">${npcArt(n.id)}</div></div></button>`);
   const folk = state.folk.map(({ id, lane }) => {
     const n = TOWNSFOLK[id], f0 = lane.x1 > lane.x0 ? 1 : -1;
     return `<button class="npc walker" type="button" data-folk="${id}" data-npc="${id}"
-      style="z-index:${Math.round(Math.max(lane.y0 ?? lane.y, lane.y1 ?? lane.y))};--x0:${mapX(lane.x0)};--x1:${mapX(lane.x1)};--y0:${mapY(lane.y0 ?? lane.y)};--y1:${mapY(lane.y1 ?? lane.y)};--f0:${f0};--f1:${-f0};--dur:${18 + Math.round(Math.random() * 10)}s;--d:${(-Math.random() * 20).toFixed(2)}s"
+      style="z-index:${zAt(lane.x0, lane.y0 ?? lane.y)};--x0:${mapX(lane.x0)};--x1:${mapX(lane.x1)};--y0:${mapY(lane.y0 ?? lane.y)};--y1:${mapY(lane.y1 ?? lane.y)};--f0:${f0};--f1:${-f0};--dur:${18 + Math.round(Math.random() * 10)}s;--d:${(-Math.random() * 20).toFixed(2)}s"
       data-label="${n.name}, ${n.title}. Talk">
       <span class="tag">${n.name}</span>${QMARK(id)}<div class="face"><div class="bob">${npcArt(id)}</div></div></button>`;
   });
@@ -12763,6 +12852,11 @@ function keeperHTML(place) {
   if (!n) return '';
   const q = questOf(n.id);
   const loot = state.keeperLoot ? `<p class="loot">${state.keeperLoot}</p>` : '';
+  // The Arena opens on your warband instead of Roska's greeting: who you are taking into the pit is
+  // what you came in to see. He still speaks up when he has something for you (a delivered message).
+  if (place === 'arena' && profile.hero && state.team.length === TEAM_SIZE && !state.keeperLoot) {
+    return `<div class="teamRow arenaBand">${teamMinis(true)}</div>${packPickerHTML()}` + (q ? questCardHTML(q, 'giver') : '');
+  }
   const said = state.keeperSays ? `<div class="keeper"><div class="kpic">${npcArt(n.id)}</div>
     <div><strong>${n.name}</strong> <small>${n.title}</small><p>“${state.keeperSays}”</p>${loot}</div></div>` : '';
   return said + (q ? questCardHTML(q, 'giver') : '');
@@ -12826,10 +12920,36 @@ const fxChip = (id) => `<span class="chip ${FX[id].kind}"><span class="ico">${FX
 const entryHTML = (h, p) => `<div class="entry"><h4>${h}</h4><p>${p}</p></div>`;
 const statHTML = (v, label) => `<div class="stat"><b>${v}</b><span>${label}</span></div>`;
 // Your warband in a row, each with their name; your own champion framed in gold.
-const teamMinis = () => state.team.map((id, i) => {
+// The Arena's warband: each fighter with the kit they will carry into the pit under them - the
+// actives in their loadout, then their passives (round). Recruits fight at your level (loadoutFor).
+const bandSkillsHTML = (id) => {
+  const c = charById(id), lo = c && loadoutFor(c, heroLevel());
+  if (!lo) return '';
+  const ico = (sk, pas) => sk ? `<span class="bsk${pas ? ' pas' : ''}" title="${escHTML(`${sk.name}: ${sk.desc}`)}" aria-label="${escHTML(sk.name)}">${skillIcon(sk)}</span>` : '';
+  return `<div class="bandSk">${lo.act.map((k) => ico(activeById(c, k), false)).join('')}${lo.pas.map((k) => ico(passiveById(c, k), true)).join('')}</div>`;
+};
+// ...and their backpack under that: tap an empty slot to load it from the satchel, a full one to unpack it.
+const bandPackHTML = (id) => `<div class="bandPack">${packOf(id).map((k, i) => {
+  const picking = state.packPick === `${id}:${i}`;
+  return k
+    ? `<button class="pslot full" type="button" data-k="pack:${id}:${i}" title="${escHTML(`${ITEMS[k].name}: ${ITEMS[k].desc} Tap to put it back.`)}" aria-label="${escHTML(`${ITEMS[k].name}, packed. Tap to put it back in the satchel.`)}">${ITEM_ICON[k]}</button>`
+    : `<button class="pslot${picking ? ' picking' : ''}" type="button" data-k="pack:${id}:${i}" title="Empty slot: tap to pack an item" aria-label="Empty backpack slot. Tap to pack an item from the satchel."></button>`;
+}).join('')}</div>`;
+// Picking an item for the slot you tapped: whatever the satchel holds, one tap packs it.
+function packPickerHTML() {
+  if (!state.packPick) return '';
+  const [cid] = state.packPick.split(':');
+  const who = isHeroId(cid) ? heroName() : shortName(charById(cid));
+  const have = ITEM_KEYS.filter((k) => (profile.items[k] || 0) > 0);
+  return `<div class="packPick"><p class="note">Pack an item for <b>${who}</b>:</p><div class="ppList">
+    ${have.length ? have.map((k) => `<button class="btn small" type="button" data-k="packload:${k}" title="${escHTML(ITEMS[k].desc)}"><span class="ppIco">${ITEM_ICON[k]}</span>${ITEMS[k].name} ×${profile.items[k]}</button>`).join('')
+      : '<span class="note">The satchel is empty. Buy supplies at the Market.</span>'}
+    <button class="btn small" type="button" data-k="packcancel">Cancel</button></div></div>`;
+}
+const teamMinis = (withSkills = false) => state.team.map((id, i) => {
   const you = i === 0, name = you ? heroName() : shortName(charById(id));
   return `<figure class="tmini${you ? ' you' : ''}"><div class="mini">${spriteSVG(id)}</div>
-    <figcaption>${name}<small>${you ? 'You' : 'Recruit'}</small></figcaption></figure>`;
+    <figcaption>${name}<small>${you ? 'You' : 'Recruit'}</small></figcaption>${withSkills ? bandSkillsHTML(id) + bandPackHTML(id) : ''}</figure>`;
 }).join('');
 
 const PLACE_BODY = {
@@ -12838,7 +12958,6 @@ const PLACE_BODY = {
       const next = FACTIONS[state.order[state.battle + 1]];
       return `<p class="note">Your run is paused after battle ${state.battle + 1} of ${state.order.length}. ${heroName()} is level ${heroLevel()}.
           Next up: <b>${theFaction(next)}</b> (${next.mechanic}). Anything you forge or buy now counts in that fight.</p>
-        <div class="teamRow">${teamMinis()}</div>
         <div class="btns"><button class="btn primary" type="button" data-k="continue">Fight ${theFaction(next)}</button>
           <button class="btn" type="button" data-k="abandon">Abandon the run</button></div>`;
     }
@@ -12851,7 +12970,6 @@ const PLACE_BODY = {
     return `<p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
         <b>${battleXp(0)} XP</b>, more for every battle deeper, and clearing all six adds <b>${CLEAR_BONUS} gold</b> and <b>${XP_CLEAR_BONUS} XP</b>.
         Levels stick: ${heroName()} keeps every level they earn, and your recruits fight at your level.</p>
-      ${full ? `<div class="teamRow">${teamMinis()}</div>` : ''}
       <div class="btns">${full ? `<button class="btn primary" type="button" data-k="fight">Fight as ${heroName()}</button>` : ''}
         <button class="btn" type="button" data-k="skills">Choose skills</button>
         <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button></div>`;
@@ -13608,7 +13726,7 @@ function placeHTML(k) {
   const p = PLACES[k];
   return `<section class="panel" id="panel" aria-label="${p.name}">
     <div class="phead">
-      <div><p class="label">${p.kick}</p><h2>${p.name}</h2>${p.flavor ? `<p class="flavor">${p.flavor}</p>` : ''}</div>
+      <div><h2>${p.name}</h2>${p.flavor ? `<p class="flavor">${p.flavor}</p>` : ''}</div>
       <button class="btn small iconBack" type="button" data-k="back" aria-label="Back to the square" title="Back to the square"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
     ${keeperHTML(k)}
@@ -13626,7 +13744,7 @@ function renderVillage() {
   if (townies.dataset.k !== key) {
     townies.innerHTML = state.team.map((id, i) => {
       const [x, y] = TOWNIE_SPOTS[i];
-      return `<div class="townie${i === 2 ? ' flip' : ''}" style="left:${mapX(x)};top:${mapY(y)};z-index:${y}"><div>${spriteSVG(id)}</div></div>`;
+      return `<div class="townie${i === 2 ? ' flip' : ''}" style="left:${mapX(x)};top:${mapY(y)};z-index:${zAt(x, y)}"><div>${spriteSVG(id)}</div></div>`;
     }).join('');
     townies.dataset.k = key;
   }
@@ -13670,8 +13788,8 @@ function pinSheetButtons(host) {
    TOWN MAP — Cinderhold seen from above, in 2:1 isometric (a bird's-eye view).
    World positions are tiles: gx runs down-right on screen, gy down-left, z is height
    in map units. isoisoP(gx, gy, z) projects onto the MAP_W × MAP_H map. buildTownMap() draws it
-   once at boot. Every place you can visit is a <g class="bld" data-place="…"> (its drawing)
-   plus a second one holding only its .sign plate, in a top layer so no roof covers a sign.
+   once at boot. Every place you can visit is a <g class="bld" data-place="…">: its drawing, with its
+   name on a .sign board fixed flat to one of its walls.
    Keepers, townsfolk and your warband are HTML on top, placed in map units
    (KEEPERS[].at, FOLK_LANES, TOWNIE_SPOTS). The village wall runs tiles 3..37 both ways;
    the square's bonfire is at tile (21, 21) = map (1200, 848).
@@ -13682,6 +13800,16 @@ const n1 = (v) => String(Math.round(v * 10) / 10);
 const isoX = (gx, gy) => ISO.x0 + (gx - gy) * ISO.kx;
 const isoY = (gx, gy, z = 0) => ISO.y0 + (gx + gy) * ISO.ky - z;
 const isoP = (gx, gy, z = 0) => `${n1(isoX(gx, gy))},${n1(isoY(gx, gy, z))}`;
+// Depth sorting. Everything that stands up is drawn in order of its depth (gx + gy; see buildTownMap),
+// and the map is cut into layers of half a tile of depth each, so people can stand between them:
+// someone whose feet are deeper than a building's walks in front of it, otherwise behind it.
+// Outside the walls depths are pushed past 1000, so the outer forest and walls draw over the village.
+function depthAt(x, y) {
+  const s = (y - ISO.y0) / ISO.ky, d = (x - ISO.x0) / ISO.kx, gx = (s + d) / 2, gy = (s - d) / 2;
+  return s + (gx > 37.6 || gy > 37.6 ? 1000 : 0);
+}
+const layerKey = (depth) => (depth >= 1000 ? Math.floor(depth / 2) * 4 : Math.floor(depth * 2));   // the forest out there in coarser bands
+const zAt = (x, y) => 10 + layerKey(depthAt(x, y));   // a person's z-index, standing at map (x, y)
 const NS = ' stroke="none"';
 const poly = (pts, fill, more = '') => `<polygon points="${pts.join(' ')}" fill="${fill}"${more}/>`;
 
@@ -13806,7 +13934,34 @@ function house(gx, gy, w, d, h, wall, roof, axis = 'x', chimney = false) {
   return s;
 }
 
-// Each place: [depth (front corner gx+gy, for painter's order), drawing, sign position, sign text].
+// A place's name on a plank fixed flat to its wall and slanted with it, drawn as part of the building, so
+// whatever stands in front of the wall covers it too. (X, Y): its centre on the map; W x H: its size;
+// k: the wall's slant (+.5 a wall running along gx, -.5 one running along gy, 0 the front of a round wall).
+// Each board lights a small pool of its own, so the night never swallows a name.
+function nameBoard(X, Y, W, H, k, text) {
+  const fs = Math.min(H * .72, (W - 14) / (text.length * .52));
+  light(X, Y, 70, .45);
+  return `<g class="sign" transform="matrix(1 ${n1(k)} 0 1 ${n1(X)} ${n1(Y)})">`
+    + `<rect class="sBoard" x="${n1(-W / 2)}" y="${n1(-H / 2)}" width="${n1(W)}" height="${n1(H)}" rx="3"/>`
+    + `<circle class="sNail" cx="${n1(-W / 2 + 5)}" cy="0" r="1.6"/><circle class="sNail" cx="${n1(W / 2 - 5)}" cy="0" r="1.6"/>`
+    + `<text y="${n1(fs * .35)}" style="font-size:${n1(fs)}px">${text}</text></g>`;
+}
+// The same on a box's wall: face 'L' is the wall at gy = g running along gx from a to b, 'R' the wall at
+// gx = g running along gy; z0..z1 is how high on the wall it hangs.
+function wallBoard(face, g, a, b, z0, z1, text) {
+  const m = (a + b) / 2, z = (z0 + z1) / 2;
+  const [X, Y] = face === 'L' ? [isoX(m, g), isoY(m, g, z)] : [isoX(g, m), isoY(g, m, z)];
+  return nameBoard(X, Y, (b - a) * ISO.kx, z1 - z0, face === 'L' ? ISO.ky / ISO.kx : -ISO.ky / ISO.kx, text);
+}
+// A board on the front of a round wall (radius r tiles round (cx, cy)), at screen angle t from its right
+// rim (90 = straight at you), z0..z1 high, W wide.
+function roundBoard(cx, cy, r, t, z0, z1, W, text) {
+  const a = t * Math.PI / 180, X = isoX(cx, cy) + r * RX * Math.cos(a), Y = isoY(cx, cy, (z0 + z1) / 2) + r * RY * Math.sin(a);
+  return nameBoard(X, Y, W, z1 - z0, -(RY * Math.cos(a)) / (RX * Math.sin(a)), text);
+}
+
+// Each place: [depth (gx + gy at the middle of its footprint, for the draw order; past 1000 outside the walls),
+// drawing (its nameboard included)]. The middle, not the front corner, so whoever stands at a door is in front.
 function townPlaces() {
   const P2 = (gx, gy, z) => [isoX(gx, gy), isoY(gx, gy, z)];
   const out = {};
@@ -13819,13 +13974,13 @@ function townPlaces() {
     s += disc(c[0], c[1], 1.2, 'none', 6, ' stroke="#a8875c" stroke-width="2" stroke-dasharray="8 6"');
     for (const zRow of [8, 30]) {
       for (let a = -30; a <= 120; a += 15) {
-        if (zRow === 8 && Math.abs(a - 45) < 12) continue;
+        if (Math.abs(a - 45) < (zRow === 8 ? 12 : 20)) continue;   // room for the gate, and its nameboard above it
         const t = a * Math.PI / 180, [x, y] = P2(c[0] + R * Math.cos(t), c[1] + R * Math.sin(t), zRow);
         s += `<path d="M${n1(x - 6)} ${n1(y)} v-15 a6 6 0 0 1 12 0 v15z" fill="#3a2a22"/>`;
       }
     }
     const [gx, gy] = P2(c[0] + R * .707, c[1] + R * .707, 0);
-    s += `<path d="M${n1(gx - 16)} ${n1(gy)} v-28 a16 16 0 0 1 32 0 v28z" fill="#1a1216"/><path d="M${n1(gx - 10)} ${n1(gy)} v-30 M${n1(gx)} ${n1(gy)} v-38 M${n1(gx + 10)} ${n1(gy)} v-30" stroke="#5a4a3e" stroke-width="2"/>`;
+    s += `<path d="M${n1(gx - 16)} ${n1(gy)} v-22 a16 16 0 0 1 32 0 v22z" fill="#1a1216"/><path d="M${n1(gx - 10)} ${n1(gy)} v-24 M${n1(gx)} ${n1(gy)} v-32 M${n1(gx + 10)} ${n1(gy)} v-24" stroke="#5a4a3e" stroke-width="2"/>`;
     s += glowAt(gx - 24, gy - 30, 14) + glowAt(gx + 24, gy - 30, 14);
     s += `<path class="flame" d="M${n1(gx - 28)} ${n1(gy - 26)} q2 -10 4 -12 q3 6 4 12z" fill="#ffb347"${NS}/><path class="flame" d="M${n1(gx + 20)} ${n1(gy - 26)} q2 -10 4 -12 q3 6 4 12z" fill="#ffb347"${NS}/>`;
     const flagCols = ['#c0303f', '#e8a548', '#6fb5e6', '#6cc28a', '#c48be0', '#e0645a'];
@@ -13833,8 +13988,8 @@ function townPlaces() {
       const t = a * Math.PI / 180, [x, y] = P2(c[0] + R * Math.cos(t), c[1] + R * Math.sin(t), H);
       s += `<path d="M${n1(x)} ${n1(y)} V${n1(y - 38)}" stroke="#2a2228" stroke-width="2"/><path class="flag" style="animation-delay:-${i * .4}s" d="M${n1(x + 1)} ${n1(y - 37)} l22 6 l-22 6z" fill="${flagCols[i]}"/>`;
     });
-    const [sx, sy] = P2(c[0], c[1], H);
-    out.arena = [33, s, [sx, sy - R * RY - 52], 'The Arena'];
+    s += nameBoard(gx, gy - 52, 150, 24, 0, 'The Arena');
+    out.arena = [26, s];
   }
 
   // ELDER'S HUT: a round thatched hut with a skull totem.
@@ -13848,8 +14003,9 @@ function townPlaces() {
     s += box(10.4, 15.4, .32, .32, 66, '#6b4f32');
     const [tx, ty] = P2(10.56, 15.56, 66);
     s += `<circle cx="${n1(tx)}" cy="${n1(ty - 4)}" r="7" fill="#e9e4d8"/><path d="M${n1(tx - 6)} ${n1(ty - 8)} q-8 -6 -6 -16 M${n1(tx + 6)} ${n1(ty - 8)} q8 -6 6 -16" stroke="#d8c8a8" stroke-width="2.5" fill="none"/>`;
-    const [sx, sy] = P2(c[0], c[1], 96);
-    out.elder = [28.7, s, [sx, sy - 34], "Elder's Hut"];
+    const [ex, ey] = P2(c[0] + 2.4 * .707, c[1] + 2.4 * .707, 30);   // the eave's front edge
+    s += nameBoard(ex, ey - 22, 128, 24, 0, "Elder's Hut");
+    out.elder = [26, s];
   }
 
   // CARNIVAL: a striped big top with the Ferris wheel turning behind it.
@@ -13866,7 +14022,8 @@ function townPlaces() {
     s += `<path d="M${n1(ax)} ${n1(ay)} V${n1(ay - 22)}" stroke="#2a2228" stroke-width="2"/><path class="flag" d="M${n1(ax + 1)} ${n1(ay - 21)} l20 6 l-20 6z" fill="#e8a548"/>`;
     const [ex, ey] = P2(c[0] + 1.98, c[1] + 1.98, 0);
     s += `<path d="M${n1(ex - 14)} ${n1(ey)} L${n1(ex)} ${n1(ey - 30)} L${n1(ex + 14)} ${n1(ey)}Z" fill="#2a1420"/>` + glowAt(ex, ey - 10, 14);
-    out.carnival = [36.5, s, [hub[0] + 40, hub[1] - 110], 'Carnival'];
+    s += roundBoard(c[0], c[1], 2.8, 125, 3, 27, 96, 'Carnival');   // left of the entrance, clear of Zazzo
+    out.carnival = [32.5, s];
   }
 
   // IRONSMITH: a stone forge with a glowing mouth, an anvil out front and a smoking chimney.
@@ -13874,7 +14031,7 @@ function townPlaces() {
     const [gx, gy, w, d, h] = [13, 24, 5, 3.5, 46], wall = '#7a7480';
     let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
     s += onLeft(gy + d, 13.5, 15.4, 0, 28, '#1c1316') + onLeft(gy + d, 13.75, 15.15, 0, 22, '#ff7a2f', ' class="glow"' + NS);
-    s += onLeft(gy + d, 16.1, 17.2, 0, 32, '#2a1d16') + onRight(gx + w, 24.5, 25.6, 20, 32, '#ffd28a', ' class="lit"');
+    s += onLeft(gy + d, 16.1, 17.2, 0, 32, '#2a1d16') + onRight(gx + w, 25.3, 26.3, 5, 16, '#ffd28a', ' class="lit"');
     const [gwx, gwy] = P2(14.5, 27.5, 10);
     s += glowAt(gwx, gwy, 40);
     s += gable(gx, gy, w, d, h, 32, '#4a4658', wall, 'x');
@@ -13883,8 +14040,8 @@ function townPlaces() {
     s += smokeAt(cx, cy - 10, 11) + `<g fill="#ffb347"${NS}><circle class="ember" cx="${n1(cx - 4)}" cy="${n1(cy)}" r="1.8" style="animation-duration:2.4s"/><circle class="ember" cx="${n1(cx + 5)}" cy="${n1(cy)}" r="1.5" style="animation-duration:2.9s;animation-delay:-1.2s"/></g>`;
     s += box(17.8, 28.4, .9, .45, 12, '#2a2a32') + box(17.6, 28.3, 1.3, .65, 4, '#3a3a44', 12);
     s += box(12.2, 24.6, .6, 2.6, 30, '#6b4f32') + [24.9, 25.6, 26.3].map((v) => line3([12.5, v, 30], [12.5, v, 62], '#c9d1de', 3)).join('');
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 32);
-    out.forge = [45.5, s, [sx, sy - 46], 'Ironsmith'];
+    s += wallBoard('R', gx + w, 24.3, 27.3, 20, 43, 'Ironsmith');
+    out.forge = [41.3, s];
   }
 
   // TRAINING YARD: a fenced sand yard with straw dummies, a target and a weapon rack.
@@ -13904,22 +14061,22 @@ function townPlaces() {
     for (const [a, b] of [[[gx + w, gy], [gx + w, gy + d]], [[gx, gy + d], [gx + w, gy + d]]]) s += line3([...a, 14], [...b, 14], '#7a5434', 3) + line3([...a, 7], [...b, 7], '#7a5434', 3);
     for (let i = 0; i <= d; i += 1.1) s += box(gx + w - .1, gy + i, .2, .2, 18, '#6b4f32');
     for (let i = 0; i <= w; i += 1.1) s += box(gx + i, gy + d - .1, .2, .2, 18, '#6b4f32');
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, 60);
-    out.train = [49, s, [sx, sy - 20], 'Training Yard'];
+    s += wallBoard('L', gy + d + .05, 9, 13.6, 2, 24, 'Training Yard');   // hung on the front fence
+    out.train = [43.8, s];
   }
 
   // GUILD HOUSE: a long hall hung with guild banners.
   {
     const [gx, gy, w, d, h] = [15, 3.8, 5, 4, 56], wall = '#8a6a4a';
     let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
-    s += onLeft(gy + d, 16.9, 18.1, 0, 36, '#2a1d16');
-    ['#c0303f', '#3e5a8c', '#3f7a4f', '#e8a548'].forEach((col, i) => { const u = [15.3, 16.1, 18.5, 19.3][i]; s += onLeft(gy + d, u, u + .55, 14, 46, col); });
+    s += onLeft(gy + d, 16.9, 18.1, 0, 28, '#2a1d16');
+    ['#c0303f', '#3e5a8c', '#3f7a4f', '#e8a548'].forEach((col, i) => { const u = [15.3, 16.1, 18.5, 19.3][i]; s += onLeft(gy + d, u, u + .55, 4, 27, col); });
     s += onRight(gx + w, 4.6, 5.4, 24, 40, '#ffd28a', ' class="lit"') + onRight(gx + w, 6.2, 7, 24, 40, '#ffd28a', ' class="lit"');
     s += gable(gx, gy, w, d, h, 40, '#7a2e2a', wall, 'x');
     const [cx, cy] = P2(gx + w, gy + d / 2, h + 18);
     s += `<circle cx="${n1(cx)}" cy="${n1(cy)}" r="11" fill="#2a2228"/><path d="M${n1(cx - 7)} ${n1(cy - 7)} l14 14 M${n1(cx + 7)} ${n1(cy - 7)} l-14 14" stroke="#e8a548" stroke-width="3"/>`;
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 40);
-    out.guild = [27.8, s, [sx, sy - 40], 'Guild House'];
+    s += wallBoard('L', gy + d, 15.2, 19.8, 28, 51, 'Guild House');
+    out.guild = [23.3, s];
   }
 
   // JEWELER: a slim purple tower with a glowing gem on its spire.
@@ -13928,13 +14085,14 @@ function townPlaces() {
     let s = disc(c[0] + .3, c[1] + .3, 1.5, 'rgba(0,0,0,.3)', 0, NS) + cyl(c[0], c[1], 1.3, 92, '#5a4a7a');
     const [dx, dy] = P2(c[0] + .92, c[1] + .92, 0);
     s += `<path d="M${n1(dx - 8)} ${n1(dy)} v-22 a8 8 0 0 1 16 0 v22z" fill="#1d1622"/><path d="M${n1(dx - 14)} ${n1(dy - 30)} h28 l-4 -8 h-20z" fill="#6e3a86"/>`;
-    for (const z of [44, 70]) { const [x, y] = P2(c[0] + .5, c[1] + 1.2, z); light(x, y, 64, .7); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="6" fill="#ffd28a" class="lit"/>`; }
+    for (const z of [36, 84]) { const [x, y] = P2(c[0] + .5, c[1] + 1.2, z); light(x, y, 64, .7); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="6" fill="#ffd28a" class="lit"/>`; }
+    s += roundBoard(c[0], c[1], 1.3, 90, 48, 72, 94, 'Jeweler');
     s += disc(c[0], c[1], 1.3, 'none', 92, ' stroke="#d9b44a" stroke-width="3"');
     s += cone(c[0], c[1], 1.6, 92, 72, '#2f2840');
     const [gx, gy] = P2(c[0], c[1], 164);
     light(gx, gy - 10, 150, .8);   // the gem lights the rooftops around it
     s += `<circle cx="${n1(gx)}" cy="${n1(gy - 10)}" r="22" fill="url(#tGem)" class="glow"${NS}/><path d="M${n1(gx)} ${n1(gy - 22)} l7 10 l-7 12 l-7 -12z" fill="#7fe3ff" stroke="#e9f8ff" stroke-width="1"/>`;
-    out.jeweler = [31.8, s, [gx, gy - 52], 'Jeweler'];
+    out.jeweler = [30, s];
   }
 
   // TAVERN: The Smoldering Mug, stone below, timber above, a swinging mug sign.
@@ -13944,8 +14102,8 @@ function townPlaces() {
     for (let u = gx + .9; u < gx + w; u += 1) s += line3([u, gy + d, 34], [u, gy + d, 64], '#4a3426', 3);
     for (let v = gy + .9; v < gy + d; v += 1) s += line3([gx + w, v, 34], [gx + w, v, 64], '#4a3426', 3);
     s += onLeft(gy + d, 24.9, 26, 0, 26, '#2a1d16');
-    for (const u of [23.5, 26.6]) s += onLeft(gy + d, u, u + .7, 10, 24, '#ffd28a', ' class="lit"');
-    for (const u of [23.4, 25.2, 27]) s += onLeft(gy + d, u, u + .7, 42, 56, '#ffd28a', ' class="lit"');
+    for (const u of [23.5, 26.6]) s += onLeft(gy + d, u, u + .7, 8, 21, '#ffd28a', ' class="lit"');
+    for (const u of [23.4, 25.2, 27]) s += onLeft(gy + d, u, u + .7, 50, 61, '#ffd28a', ' class="lit"');
     s += onRight(gx + w, 10.2, 10.9, 42, 56, '#e8b060', ' class="lit"') + onRight(gx + w, 11.8, 12.5, 42, 56, '#e8b060', ' class="lit"');
     s += gable(gx, gy, w, d, 64, 38, '#6a3a2a', '#d2bd96', 'x');
     s += box(26.6, 9.5, .7, .7, 122, '#5a5450');
@@ -13954,8 +14112,8 @@ function townPlaces() {
     const [hx, hy] = P2(22.6, 13.2, 46);
     s += `<path d="M${n1(hx + 18)} ${n1(hy - 8)} h-22" stroke="#2a2228" stroke-width="3"/><g class="swing" style="transform-origin:${n1(hx)}px ${n1(hy - 8)}px"><rect x="${n1(hx - 14)}" y="${n1(hy - 4)}" width="28" height="22" rx="3" fill="#6b4f32"/><rect x="${n1(hx - 6)}" y="${n1(hy)}" width="10" height="13" rx="2" fill="#e8a548"/></g>`;
     for (const [x, y] of [[22.4, 11.4], [22.4, 12.3]]) s += cyl(x, y, .35, 16, '#6b4f32');
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, 102);
-    out.tavern = [41, s, [sx, sy - 40], 'Tavern'];
+    s += wallBoard('L', gy + d, 23.3, 27.7, 26, 48, 'Tavern');
+    out.tavern = [36.5, s];
   }
 
   // YOUR HOUSE: a cosy cottage with a flower box, a garden fence and your banner.
@@ -13973,8 +14131,8 @@ function townPlaces() {
     s += `<path d="M${n1(fx)} ${n1(fy)} V${n1(fy - 26)}" stroke="#2a2228" stroke-width="2"/><path class="flag" d="M${n1(fx + 1)} ${n1(fy - 25)} l18 5 l-18 5z" fill="#e8a548"/>`;
     for (let u = 29.3; u <= 32.9; u += .6) s += box(u, 17.4, .12, .12, 12, '#6b4f32');
     s += line3([29.3, 17.46, 9], [33, 17.46, 9], '#7a5434', 2);
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 30);
-    out.home = [49, s, [sx, sy - 52], 'Your House'];
+    s += wallBoard('L', gy + d, 29.5, 32.5, 27, 50, 'Your House');   // across the gable end, over the door
+    out.home = [46.3, s];
   }
 
   // MARKET: three striped stalls piled with goods, crates and barrels.
@@ -13998,8 +14156,8 @@ function townPlaces() {
     s += stall(27.6, 25, '#3e5a8c', '#e9e4d8', ['#e0645a', '#9fe08a', '#6fb5e6', '#c48be0']);
     s += stall(30.2, 25, '#e8a548', '#3a2a20', ['#3e5a8c', '#c0303f', '#d9c58a', '#8a5a32']);
     s += box(26, 28.2, .8, .8, 16, '#8a6a4a') + box(26.1, 28.3, .6, .6, 12, '#7a5a3a', 16) + cyl(31.5, 28.6, .38, 18, '#6b4f32');
-    const [sx, sy] = P2(28.6, 26, 48);
-    out.market = [60, s, [sx, sy - 44], 'Market'];
+    s += wallBoard('L', 27.17, 27.35, 29.85, 16, 38, 'Market');   // hung under the middle stall's awning
+    out.market = [54.7, s];
   }
 
   // BOUNTY BOARD: a roofed notice board covered in pinned jobs.
@@ -14007,14 +14165,14 @@ function townPlaces() {
     let s = shadowOf(33, 24.4, 2.1, .4) + box(33.1, 24.4, .16, .16, 48, '#4a3426') + box(34.9, 24.4, .16, .16, 48, '#4a3426');
     s += box(33, 24.5, 2.2, .14, 30, '#6b4f32', 14);
     const face = 24.64;
-    [[33.15, 33.65, 24, 40, '#e9dcc0'], [33.8, 34.35, 22, 42, '#f1ead6'], [34.45, 35.05, 26, 40, '#e0c79a'], [33.4, 33.9, 16, 22, '#f1ead6'], [34.1, 34.7, 15, 21, '#e9dcc0']]
+    [[33.15, 33.65, 16, 30, '#e9dcc0'], [33.8, 34.35, 15, 31, '#f1ead6'], [34.45, 35.05, 17, 30, '#e0c79a']]
       .forEach(([u0, u1, z0, z1, f]) => { s += onLeft(face, u0, u1, z0, z1, f); });
-    for (const [u, z] of [[33.4, 40], [34.08, 42], [34.75, 40]]) { const [x, y] = P2(u, face, z); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="2.6" fill="#c0303f"${NS}/>`; }
+    for (const [u, z] of [[33.4, 29], [34.08, 30], [34.75, 29]]) { const [x, y] = P2(u, face, z); s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="2.6" fill="#c0303f"${NS}/>`; }
     s += gable(32.9, 24.3, 2.4, .5, 46, 12, '#4a2f2a', '#4a2f2a', 'x', .1);
-    const [lx, ly] = P2(33.18, 24.6, 44);   // a lantern on the left post, so the jobs can be read at night
+    const [lx, ly] = P2(33.18, 24.6, 24);   // a lantern on the left post, so the jobs can be read at night
     s += `${glowAt(lx - 6, ly, 18)}<rect x="${n1(lx - 10)}" y="${n1(ly - 5)}" width="7" height="9" rx="2" fill="#ffd28a"/>`;
-    const [sx, sy] = P2(34.1, 24.5, 58);
-    out.bounty = [59.6, s, [sx, sy - 34], 'Bounty Board'];
+    s += wallBoard('L', 24.7, 32.7, 35.5, 31, 50, 'Bounties');   // the header plank across its posts
+    out.bounty = [58.7, s];
   }
 
   // PROVING GROUNDS: a roped duelling ring on a wooden platform.
@@ -14032,8 +14190,8 @@ function townPlaces() {
       const [tx, ty] = P2(x0, y0, 44);
       s += glowAt(tx, ty - 6, 18) + `<path class="flame" d="M${n1(tx - 4)} ${n1(ty)} q1 -9 4 -12 q3 6 4 12z" fill="#ffb347"${NS}/>`;
     }
-    const [sx, sy] = P2(gx + w / 2, gy + w / 2, 42);
-    out.pvp = [68.5, s, [sx, sy - 52], 'Proving Grounds'];
+    s += wallBoard('L', gy + w - .15, 28, 32, 14, 36, 'Proving Grounds');   // slung on the near ropes
+    out.pvp = [63.5, s];
   }
 
   // EXPEDITION GATE: twin stone towers astride the east road, in the village wall.
@@ -14044,8 +14202,8 @@ function townPlaces() {
     ['#c0303f', '#e8a548', '#3e5a8c'].forEach((col, i) => { const v = 20.4 + i * .8; s += onRight(37.8, v, v + .5, 40, 74, col); });
     s += box(36.6, 23, 1.4, 1.4, 96, stone) + hip(36.6, 23, 1.4, 1.4, 96, 30, '#4a2f2a');
     for (const v of [19.3, 23.7]) { const [x, y] = P2(38, v, 60); s += glowAt(x, y, 14) + `<rect x="${n1(x - 3)}" y="${n1(y - 5)}" width="6" height="8" rx="2" fill="#ffd28a"/>`; }
-    const [sx, sy] = P2(40, 22.5, 0);   // the sign stands outside, on the road it opens onto
-    out.gate = [900, s, [sx, sy - 40], 'Expedition Gate'];
+    s += wallBoard('R', 38.05, 19.6, 23.4, 70, 96, 'Expeditions');   // across the arch, over the road out
+    out.gate = [900, s];
   }
 
   // EMBERHOLLOW CAVE: a dark mouth in a rocky knoll outside the west wall, glowing deep inside.
@@ -14057,7 +14215,8 @@ function townPlaces() {
     s += `<path d="M${n1(x - 52)} ${n1(y + 24)} Q${n1(x - 50)} ${n1(y - 66)} ${n1(x - 6)} ${n1(y - 70)} Q${n1(x + 36)} ${n1(y - 60)} ${n1(x + 34)} ${n1(y + 26)}Z" fill="#140c10"/>`;
     s += glowAt(x - 8, y - 6, 44) + `<path d="M${n1(x - 30)} ${n1(y + 22)} q20 -26 46 -2" stroke="#ff7a2f" stroke-width="3" fill="none" opacity=".7"${NS}/>`;
     for (const [dx, dy, r] of [[-120, 4, 16], [118, 12, 20], [70, 28, 12]]) s += `<circle cx="${n1(x + dx)}" cy="${n1(y + dy)}" r="${r}" fill="#4a4450"/>`;
-    out.cave = [1060, s, [x, y - 168], 'Emberhollow Cave'];   // outside the wall: drawn among the outer forest
+    s += nameBoard(x - 6, y - 84, 176, 26, 0, 'Emberhollow Cave');   // nailed to the rock over the mouth
+    out.cave = [1060, s];   // outside the wall: drawn among the outer forest
   }
 
   // THE ARMORY: a stone-and-timber hall beside the Ironsmith, a weapon rack and an armor stand out front.
@@ -14068,7 +14227,7 @@ function townPlaces() {
     s += line3([gx, fy, h * .55], [gx + w, fy, h * .55], '#4a3426', 3);
     s += onLeft(fy, 16.35, 17.25, 0, 30, '#2a1d16') + line3([16.8, fy, 0], [16.8, fy, 30], '#4a3426', 2);
     s += onLeft(fy, 15.25, 15.8, 14, 22, '#ffd28a', ' class="lit"') + onLeft(fy, 17.8, 18.35, 14, 22, '#ffd28a', ' class="lit"');
-    s += onRight(gx + w, 31, 31.7, 16, 28, '#e8b060', ' class="lit"') + onRight(gx + w, 32.2, 32.9, 16, 28, '#e8b060', ' class="lit"');
+    s += onRight(gx + w, 31, 31.7, 6, 17, '#e8b060', ' class="lit"') + onRight(gx + w, 32.2, 32.9, 6, 17, '#e8b060', ' class="lit"');
     s += gable(gx, gy, w, d, h, 34, '#3e4a5c', wall, 'y');
     // The crest on the gable end: a red shield bearing an upright sword.
     const [cx, cy] = P2(gx + w / 2, fy, h + 12);
@@ -14088,17 +14247,17 @@ function townPlaces() {
     s += `<path d="M${n1(hx - 7)} ${n1(hy + 2)} v-6 a7 7 0 0 1 14 0 v6z" fill="#7a8296"/><path d="M${n1(hx - 5)} ${n1(hy - 1)} h10" stroke="#2a2228" stroke-width="2"/>`;
     const [bx, by] = P2(18.7, 34.4, 0);
     s += `<path d="M${n1(bx - 8)} ${n1(by - 2)} v-16 q8 -6 16 0 v16 q-8 7 -16 0z" fill="#3e5a8c" stroke="#e8a548" stroke-width="2"/>`;
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 34);
-    out.armory = [52.5, s, [sx + 40, sy - 52], 'The Armory'];
+    s += wallBoard('R', gx + w, 30.6, 33.2, 21, 43, 'Armory');
+    out.armory = [48.7, s];
   }
 
   // THE WORKSHOP: a crafter's timber shed outside the south wall, a kiln smoking beside it, a workbench out front.
   {
-    const [gx, gy, w, d, h] = [27, 39.4, 3.6, 2.6, 40], wall = '#7a5a3a', fy = gy + d;
+    const [gx, gy, w, d, h] = [27, 39.4, 3.6, 2.6, 46], wall = '#7a5a3a', fy = gy + d;
     let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
     for (let u = gx + .6; u < gx + w; u += .6) s += line3([u, fy, 0], [u, fy, h], '#5a3e28', 2);
-    s += onLeft(fy, 27.35, 29.05, 0, 28, '#2a1d16') + onLeft(fy, 27.55, 28.85, 2, 20, '#ff9a4a', ' class="glow"' + NS);
-    s += onLeft(fy, 29.6, 30.25, 14, 26, '#ffd28a', ' class="lit"') + onRight(gx + w, 39.9, 40.6, 14, 26, '#e8b060', ' class="lit"');
+    s += onLeft(fy, 27.35, 29.05, 0, 22, '#2a1d16') + onLeft(fy, 27.55, 28.85, 2, 17, '#ff9a4a', ' class="glow"' + NS);
+    s += onLeft(fy, 29.6, 30.25, 6, 18, '#ffd28a', ' class="lit"') + onRight(gx + w, 39.9, 40.6, 14, 26, '#e8b060', ' class="lit"');
     s += gable(gx, gy, w, d, h, 30, '#4f6a4a', wall, 'x');
     // The kiln: a squat stone dome with a glowing mouth and its own chimney.
     s += box(31.75, 39.6, .4, .4, 66, '#5a5460');
@@ -14111,8 +14270,8 @@ function townPlaces() {
     s += box(29.7, 42.5, .7, .7, 14, '#7a5a3a') + box(29.8, 42.6, .5, .5, 10, '#6b4f32', 14) + box(30.6, 42.2, .6, .6, 12, '#8a6a4a');
     const [lx, ly] = P2(29.3, 42.1, 32);
     s += box(29.25, 42.05, .1, .1, 34, '#4a3426') + glowAt(lx, ly, 16) + `<rect x="${n1(lx - 3.5)}" y="${n1(ly - 4)}" width="7" height="9" rx="2" fill="#ffd28a"/>`;
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 30);
-    out.workshop = [1072.6, s, [sx, sy - 46], 'The Workshop'];   // outside the wall: drawn among the outer forest
+    s += wallBoard('L', fy, 27.2, 30.4, 24, 45, 'Workshop');
+    out.workshop = [1069.5, s];   // outside the wall: drawn among the outer forest
   }
 
   // THE ACADEMY: a stone schoolhouse beside the Training Yard, a bell cupola on its roof and a
@@ -14120,11 +14279,10 @@ function townPlaces() {
   {
     const [gx, gy, w, d, h] = [4, 30.2, 3.6, 3.4, 50], wall = '#9a8f80', fx = gx + w;
     let s = shadowOf(gx, gy, w, d) + box(gx, gy, w, d, h, wall);
-    s += line3([gx, gy + d, 16], [gx + w, gy + d, 16], '#7a7064', 3) + line3([fx, gy, 16], [fx, gy + d, 16], '#7a7064', 3);
+    s += line3([gx, gy + d, 16], [gx + w, gy + d, 16], '#7a7064', 3);
     for (const u of [4.5, 5.6, 6.7]) s += onLeft(gy + d, u, u + .55, 22, 42, '#ffd28a', ' class="lit"');
-    s += onRight(fx, 31.4, 32.4, 0, 30, '#2a1d16') + onRight(fx, 30.5, 31, 22, 40, '#e8b060', ' class="lit"') + onRight(fx, 32.8, 33.3, 22, 40, '#e8b060', ' class="lit"');
-    // A banner by the door: an open book on blue.
-    s += onRight(fx + .02, 30.9, 31.25, 30, 48, '#3e5a8c');
+    s += onRight(fx, 31.4, 32.4, 0, 26, '#2a1d16') + onRight(fx, 30.5, 31, 10, 25, '#e8b060', ' class="lit"') + onRight(fx, 32.8, 33.3, 10, 25, '#e8b060', ' class="lit"');
+    s += wallBoard('R', fx, 30.4, 33.4, 28, 49, 'Academy');   // over the door
     s += hip(gx, gy, w, d, h, 30, '#34465e');
     // The bell cupola.
     const [bx, by] = [gx + w / 2 - .45, gy + d / 2 - .45];
@@ -14137,8 +14295,7 @@ function townPlaces() {
       + `<rect x="${n1(ex - 15)}" y="${n1(ey - 44)}" width="30" height="22" rx="2" fill="#2a3a34" stroke="#6b4f32" stroke-width="2"/>`
       + `<path d="M${n1(ex - 10)} ${n1(ey - 38)} h12 M${n1(ex - 10)} ${n1(ey - 33)} h18 M${n1(ex - 10)} ${n1(ey - 28)} h8" stroke="#e9e4d8" stroke-width="1.5"/>`;
     s += box(7.9, 33.9, .55, .4, 4, '#3e5a8c') + box(7.95, 33.95, .45, .35, 4, '#c0303f', 4) + box(7.9, 33.9, .5, .4, 4, '#e8a548', 8);
-    const [sx, sy] = P2(gx + w / 2, gy + d / 2, h + 56);
-    out.academy = [41.2, s, [sx, sy - 40], 'The Academy'];
+    out.academy = [37.7, s];
   }
   return out;
 }
@@ -14161,6 +14318,7 @@ function buildTownMap() {
     <radialGradient id="tSun"><stop offset="0" stop-color="#ffcf7a" stop-opacity=".9"/><stop offset=".35" stop-color="#e8743a" stop-opacity=".4"/><stop offset="1" stop-color="#e8743a" stop-opacity="0"/></radialGradient>
     <radialGradient id="tGlow"><stop offset="0" stop-color="#ffb347" stop-opacity=".85"/><stop offset="1" stop-color="#ff7a2f" stop-opacity="0"/></radialGradient>
     <radialGradient id="tGem"><stop offset="0" stop-color="#bfefff" stop-opacity=".9"/><stop offset="1" stop-color="#7fe3ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="tPlank" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e6238"/><stop offset=".5" stop-color="#7a5230"/><stop offset="1" stop-color="#5e3c22"/></linearGradient>
     <radialGradient id="tVale" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#4a5a3a"/><stop offset="1" stop-color="#26301f"/></radialGradient>
   </defs>
   <rect width="${MAP_W}" height="${MAP_H}" fill="url(#tVale)"/>
@@ -14228,7 +14386,7 @@ function buildTownMap() {
     [22.8, 33.6, 2.4, 2.2, 30, '#8a7a64', '#4f6a4a', 'x'],
     [4, 14, 2.6, 2.4, 32, '#8a7a64', '#7a3a2e', 'x', true],
   ];
-  for (const [gx, gy, w, d, h, wall, roof, axis, ch] of HOUSES) add(gx + w + gy + d, house(gx, gy, w, d, h, wall, roof, axis, ch));
+  for (const [gx, gy, w, d, h, wall, roof, axis, ch] of HOUSES) add(gx + w / 2 + gy + d / 2, house(gx, gy, w, d, h, wall, roof, axis, ch));
   {
     const c = [5.5, 10], [hx, hy] = [isoX(6.4, 10.9), isoY(6.4, 10.9, 74)];
     const blades = [0, 90, 180, 270].map((a) => `<path d="M${n1(hx)} ${n1(hy)} l4 -62 l12 2 l-10 60z" fill="#c9b28a" transform="rotate(${a} ${n1(hx)} ${n1(hy)})"/>`).join('');
@@ -14259,21 +14417,25 @@ function buildTownMap() {
     }
   }
 
-  // The places, then their signs in a top layer.
-  const places = townPlaces(), LABEL = {};
+  // The places, each with its nameboard on its own wall.
+  const places = townPlaces();
   for (const [k, [depth, art]] of Object.entries(places)) {
     add(depth, `<g class="bld" data-place="${k}" tabindex="0" role="button" aria-label="${TOWN_LABELS[k]}">${art}</g>`);
   }
-  const signs = Object.entries(places).map(([k, [, , [x, y], text]]) => {
-    const w = Math.round(text.length * 14.5 + 40);
-    return `<g class="bld signOnly" data-place="${k}" aria-hidden="true"><g class="sign" transform="translate(${n1(x)} ${n1(y)})"><rect x="${-w / 2}" y="-23" width="${w}" height="46" rx="10"/><text y="10">${text}</text></g></g>`;
-  }).join('');
 
+  // Whatever is behind everyone (depth < 0: the far forest and the back walls) stays on the base map. The rest
+  // goes into depth layers that the people slot between (zAt), and the night veil goes over the lot.
   items.sort((a, b) => a[0] - b[0]);
-  svg.innerHTML = `${back}${ground}<g stroke="#241812" stroke-width="1.6" stroke-linejoin="round">${items.map((i) => i[1]).join('')}</g>${nightLayer()}${signs}`;
+  const G = (inner) => `<g stroke="#241812" stroke-width="1.6" stroke-linejoin="round">${inner}</g>`, bands = new Map();
+  for (const [depth, art] of items) if (depth >= 0) bands.set(layerKey(depth), (bands.get(layerKey(depth)) || '') + art);
+  svg.innerHTML = `${back}${ground}${G(items.filter(([depth]) => depth < 0).map((i) => i[1]).join(''))}`;
+  document.querySelectorAll('#townView > .tLayer').forEach((l) => l.remove());
+  const layer = (z, inner, more = '') => `<svg class="townMap tLayer" viewBox="0 0 ${MAP_W} ${MAP_H}" style="z-index:${z}"${more}>${inner}</svg>`;
+  svg.insertAdjacentHTML('afterend', [...bands].map(([k, art]) => layer(10 + k, G(art))).join('')
+    + layer(9000, nightLayer(), ' aria-hidden="true"'));
 }
-// Night falls over Cinderhold: a dark veil over the whole map with a soft hole cut around every light,
-// then a warm pool of light where each one falls. Signs are drawn above it, so they stay readable.
+// Night falls over Cinderhold: a dark veil over the whole map (and the people on it) with a soft hole cut around every light,
+// then a warm pool of light where each one falls. Every nameboard registers a light, so names stay readable.
 // NIGHT.depth is how dark it gets (0 = daylight, 1 = pitch black).
 const NIGHT = { color: '#0b0a1f', depth: .5 };
 function nightLayer() {
@@ -14551,6 +14713,17 @@ function villageAction(k) {
   else if (verb === 'take') takeItem(arg);
   else if (verb === 'give') { if (giveTrinket(arg, arg2) && state.place === 'jeweler') keeperReact('jeweler'); }
   else if (verb === 'unequip') unequipTrinket(arg);
+  // Backpacks (see BACKPACKS): a full slot unpacks, an empty one opens the picker for it.
+  else if (verb === 'pack') {
+    const slot = Number(arg2), key = `${arg}:${slot}`;
+    if (packOf(arg)[slot]) { packUnload(arg, slot); state.packPick = null; }
+    else state.packPick = state.packPick === key ? null : key;
+  }
+  else if (verb === 'packload') {
+    if (state.packPick) { const [cid, slot] = state.packPick.split(':'); packLoad(cid, Number(slot), arg); }
+    state.packPick = null;
+  }
+  else if (verb === 'packcancel') state.packPick = null;
   else if (verb === 'codex') state.codex = arg;
   else if (verb === 'rumor') state.tip += 1 + Math.floor(Math.random() * (TIPS.length - 1));
   else if (verb === 'quest') { if (acceptQuest(arg)) { state.keeperSays = `Good${youName() ? `, ${youName()}` : ''}. Come back when it is done.`; state.keeperLoot = ''; } }
@@ -14606,6 +14779,15 @@ function buildVillage() {
     if (tab) { state.codex = tab.dataset.k.split(':')[1]; $('#rulesBody').innerHTML = codexHTML(); }
   });
   rollFolk();
+  // Townsfolk change depth as they stroll: re-sort each against the buildings a few times a second.
+  setInterval(() => {
+    const v = $('#townView'), W = v.offsetWidth, H = v.offsetHeight;
+    if ($('#villageScreen').hidden || !W) return;
+    document.querySelectorAll('#npcs .npc.walker').forEach((b) => {
+      const cs = getComputedStyle(b);
+      b.style.zIndex = zAt(parseFloat(cs.left) / W * MAP_W, parseFloat(cs.top) / H * MAP_H);
+    });
+  }, 250);
 }
 
 /* ==================================================================
@@ -16401,28 +16583,27 @@ function renderSkillTip(d) {
   tip.innerHTML = `<b>${s.name}</b><small>${meta}</small><p>${s.desc}</p>`;
 }
 
-// Satchel row under the actions: only on your own champion's turn. Keys 6–9 then 0 follow ITEM_KEYS order.
+// Backpack row beside the actions: only on your own champion's turn. Keys 6–9 are its four slots.
 // The deck is laid out to a fixed shape so it never jumps: a 4 x 2 block of skill slots beside
 // Attack and Guard, four item slots under them. Empties are drawn as outlines, not left out.
-const SKILL_SLOTS = 8, ITEM_SLOTS = 4;   // 4 x 2 skills, one row of items
+const SKILL_SLOTS = 8;   // 4 x 2 skills; the item slots are the backpack's PACK_SLOTS
 
 function renderSatchel(act) {
   const mine = !!act && act.you && !sparring() && !['won', 'lost', 'cleared'].includes(state.phase);   // only your champion uses the satchel, and never in a spar
-  const owned = mine ? ITEM_KEYS.filter((k) => profile.items[k] > 0) : [];
+  const pack = mine ? packOf(act.id) : [];
   $('#satchelHint').hidden = !mine;   // your champion's row, empty slots and all; nobody else's
   $('#items').hidden = !mine;
   if (!mine) return;
   const ready = state.phase === 'choose' && !state.itemUsed;
   // Short enough to sit on the name's line: the long form was a row of its own.
-  $('#satchelHint').textContent = !owned.length ? 'Satchel empty' : state.itemUsed ? 'Item used' : 'One item a turn';
-  // Four slots whatever is carried. Carrying more kinds than that simply grows the row rather
-  // than hiding a draught the player paid for.
+  $('#satchelHint').textContent = !pack.some(Boolean) ? 'Backpack empty' : state.itemUsed ? 'Item used' : 'One item a turn';
+  // The backpack's slots as they are packed: an item where one is, an outline where none is.
   const open = '<span class="item open" aria-hidden="true"></span>';
-  $('#items').innerHTML = owned.map((k) => `
+  $('#items').innerHTML = pack.map((k, i) => (!k ? open : `
     <button class="item${state.pending === `item:${k}` ? ' armed' : ''}" type="button" data-item="${k}"
-      title="${escHTML(`${ITEMS[k].name}: ${ITEMS[k].desc}`)}" aria-label="${escHTML(`${ITEMS[k].name}, ${profile.items[k]} carried. ${ITEMS[k].desc}`)}"${ready ? '' : ' disabled'}>
-      <kbd>${(ITEM_KEYS.indexOf(k) + 6) % 10}</kbd><span class="ico">${ITEM_ICON[k]}</span><span class="qty">${'\u00d7'}${profile.items[k]}</span>
-    </button>`).join('') + open.repeat(Math.max(0, ITEM_SLOTS - owned.length));
+      title="${escHTML(`${ITEMS[k].name}: ${ITEMS[k].desc}`)}" aria-label="${escHTML(`${ITEMS[k].name}. ${ITEMS[k].desc}`)}"${ready ? '' : ' disabled'}>
+      <kbd>${i + 6}</kbd><span class="ico">${ITEM_ICON[k]}</span>
+    </button>`)).join('');
 }
 
 // XP bar for your champion: level, progress to the next level.
@@ -16672,8 +16853,9 @@ document.addEventListener('keydown', (ev) => {
     const s = skillsOf(unitBy(state.active))[n - 1];   // the loadout decides how many actions there are
     if (s) onSkill(s.id);
   }
-  const itemIdx = n === 0 ? 4 : n - 6;   // keys 6, 7, 8, 9, 0
-  if (state.phase === 'choose' && itemIdx >= 0 && itemIdx < ITEM_KEYS.length) onItem(ITEM_KEYS[itemIdx]);
+  const itemIdx = n - 6;   // keys 6-9: the backpack's four slots
+  const packed = state.phase === 'choose' && itemIdx >= 0 && itemIdx < PACK_SLOTS && packOf(unitBy(state.active)?.id)[itemIdx];
+  if (packed) onItem(packed);
 });
 
 /* ==================================================================
@@ -16784,6 +16966,7 @@ function start(data) {
   grandfatherTraining();   // saves from before the yard opened keep the techniques they already carry
   rackIllegalWeapons();    // saves from before weapons were faction-cut hand back what no longer fits
   fillNewSlots(heroLevel());   // saves from before six-and-two slots fill the ones that are now open
+  seedPacks();   // saves from before backpacks: your champion packs what the satchel held
   if (!profile.hero) { state.team = []; state.screen = 'select'; }
   render();
 }
