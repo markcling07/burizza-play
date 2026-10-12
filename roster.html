@@ -178,6 +178,7 @@ readGame().then((src) => {
     if (w.favors) bits.push(`Favors ${FACTIONS[w.favors].name}`);
     if (SEASON_WEATHER[k]) bits.push(`${Math.round((SEASON_WEATHER[k] / rolls) * 100)}% of skies this season`);
     else if (k === 'brim') bits.push('Arrives before every Ash Storm');
+    else if (k === 'dusk') bits.push('Arrives before every Blood Moon');
     else if (k === 'quake') bits.push('Emberhollow Cave only');
     return bits.join(' · ') || 'No faction favored';
   };

@@ -52,6 +52,7 @@
   --floorglow: rgba(255, 255, 255, .05);
   --plate: rgba(20, 22, 34, .84);
   --sky-moon: #2e1420;
+  --sky-dusk: #10121f;
   --sky-pall: #262e26;
   --cave-rock: #1d1816;
   --cave-rock-hi: #2c2420;
@@ -662,6 +663,17 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
   80% { transform: translate(2px, 2px); }
 }
 @keyframes gritfall { to { background-position: 10px 220px, -8px 180px, 6px 260px, -5px 150px; } }
+/* Nightfall: the sky goes to night and the stars come out, ahead of the Blood Moon. */
+.arena[data-wx="dusk"] { --sky-now: var(--sky-dusk); }
+.arena[data-wx="dusk"]::before {
+  opacity: 1;
+  background:
+    radial-gradient(1.5px 1.5px at 12% 8%, #fff, transparent), radial-gradient(1px 1px at 27% 18%, #dfe6ff, transparent),
+    radial-gradient(1.5px 1.5px at 44% 6%, #fff, transparent), radial-gradient(1px 1px at 61% 15%, #cfd8ff, transparent),
+    radial-gradient(1.5px 1.5px at 76% 9%, #fff, transparent), radial-gradient(1px 1px at 90% 20%, #dfe6ff, transparent),
+    radial-gradient(1px 1px at 35% 26%, #fff, transparent), radial-gradient(1px 1px at 68% 27%, #fff, transparent),
+    linear-gradient(to bottom, rgba(10, 12, 30, .25), rgba(0, 0, 10, .35));
+}
 .arena[data-wx="moon"] { --sky-now: var(--sky-moon); }
 .arena[data-wx="moon"]::before {
   opacity: 1;
@@ -2830,7 +2842,7 @@ const ELEM_ICON = { lightning: '⚡', fire: '🔥', holy: '✨' };
    announced ahead of time so players can plan.
    ================================================================== */
 const WEATHER = {
-  clear: { name: 'Clear Skies',  favors: null,    desc: 'No faction is favored. When the skies clear, every Blind lifts at once.' },
+  clear: { name: 'Clear Skies',  favors: null,    desc: 'No faction is favored. When the skies clear, every Blind lifts at once. The Crimson Court cannot lifesteal under a clear sky.' },
   // The herald of every Ash Storm. Its meteors fall once, on the turn it arrives, and never again.
   brim:  { name: 'Brimstone Fall', favors: null,  desc: 'For one round the sky burns. Meteors rain on everyone — both warbands — for 10% of their max HP, and it can kill. Then the fires catch: everyone left standing Burns for 5% of the HP they have left. An Ash Storm follows next round. The sky gives warning: yellow and bright orange two rounds before, dusky orange the round before.' },
   ash:   { name: 'Ash Storm',    favors: 'orc',   desc: 'Bloodtusk Horde deal 20% more damage. Burn deals 50% more to everyone.' },
@@ -2838,6 +2850,8 @@ const WEATHER = {
   rain:  { name: 'Downpour',     favors: 'tide',  desc: 'Tideborn deal 20% more damage and healing. Everyone counts as Soaked. Burn deals 50% less to everyone. Ironclad Heat is washed out and cannot build.' },
   sun:   { name: 'Golden Dawn',  favors: 'human', desc: 'The light mends every fighter on the field once as it breaks, friend and foe alike, for 10% of their max HP. Kingdom of Aldmere deal 15% more damage and Discipline doubles to +30%. All healing is 20% stronger.' },
   mist:  { name: 'Elder Mist',   favors: 'stone', desc: 'Stoneleaf Accord gain an extra Precision or Fortify stack each turn. Everyone dodges 10% more often.' },
+  // The herald of every Blood Moon: night comes down first, for DUSK_ROUNDS, and the moon rises after it.
+  dusk:  { name: 'Nightfall',    favors: null,    desc: 'Night comes down over the field. In the dark, ranged attacks miss 15% more often; close quarters are as they ever were. A Blood Moon rises after it.' },
   moon:  { name: 'Blood Moon',   favors: 'crimson', desc: 'The Crimson Court deal 20% more damage. All lifesteal is doubled.' },
   pall:  { name: 'Grave Pall',   favors: 'undead', desc: 'The Pale Host deal 20% more damage. A grey pall settles over the field and every mending anyone receives — spell, potion or regeneration — is a quarter weaker.' },
   // Emberhollow Cave only: no sky, but the rock moves. Rolled by tickQuake, never by rollWeather.
@@ -2846,6 +2860,7 @@ const WEATHER = {
 const WEATHER_EVERY = 3;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
 // 'brim' is never rolled — it is drawn whenever ash is, and hands the sky to the Ash Storm after it.
+// 'dusk' (Nightfall) likewise: drawn whenever moon is, and hands the sky to the Blood Moon after it.
 const SEASON_WEATHER = { clear: 1, ash: 2, storm: 1, rain: 1, sun: 1, mist: 1, moon: 1, pall: 1 };
 // Golden Dawn mends this share of max HP as it breaks. Brimstone Fall strikes for this share of
 // max HP, then sets everyone Burning for BRIMSTONE_BURN of the HP they have left. Both land once,
@@ -2854,12 +2869,14 @@ const DAWN_HEAL_PCT = 0.10;
 const BRIMSTONE_PCT = 0.10;
 const BRIMSTONE_BURN = 0.05;
 const BRIMSTONE_ROUNDS = 1;
+const DUSK_ROUNDS = 2;          // Nightfall holds this long before the Blood Moon rises
+const DUSK_MISS = 0.15;         // extra miss chance on ranged attacks in the dark
 
 // Draw the next sky. Drawing an Ash Storm gives you its herald instead: Brimstone Fall comes
 // first and newRound hands the sky to the ash after it, so no ash ever arrives unannounced.
 function rollWeather(except) {
   const opts = Object.entries(SEASON_WEATHER).filter(([k]) => k !== except);
-  const herald = (k) => (k === 'ash' ? 'brim' : k);
+  const herald = (k) => (k === 'ash' ? 'brim' : k === 'moon' ? 'dusk' : k);
   let roll = Math.random() * opts.reduce((s, [, w]) => s + w, 0);
   for (const [k, w] of opts) { roll -= w; if (roll <= 0) return herald(k); }
   return herald(opts[0][0]);
@@ -6121,7 +6138,7 @@ function strikeOnce(u, t, mult, label, o) {
     }
   }
   // Vaun's Breathless: no breath to hold, no waver — his basic Attack cannot be dodged.
-  const dodge = heroicHit || o.noDodge || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0), 0.02, 0.4);
+  const dodge = heroicHit || o.noDodge || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0) + (wx() === 'dusk' && u.role === 'ranged' ? DUSK_MISS : 0), 0.02, 0.4);
   const miss = o.noDodge ? 0 : dodge + (has(u, 'blind') ? 0.35 : 0);
   if (miss > 0 && chance(miss)) {
     float(t, 'Miss', 'miss');
@@ -6869,7 +6886,7 @@ async function damageSkill(u, t, sk) {
   if (o.selfStacks) gainStacks(u, o.selfStacks);
   if (o.groundFire) layGroundFire(u, o.groundFire);   // Molotov: the enemy ground is left burning
   if (o.allyHeal && u.hp > 0) for (const a of alliesOf(u)) { burst(a, 'heal'); healUnit(u, a, healPower(u, o.allyHeal), sk.name); }
-  if (o.allySteal && total && u.hp > 0) {
+  if (o.allySteal && total && u.hp > 0 && !courtStarved(u)) {
     const a = [...alliesOf(u)].sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
     if (a) { burst(a, 'heal'); healUnit(u, a, Math.round(total * o.allySteal), sk.name); }
   }
@@ -6877,6 +6894,7 @@ async function damageSkill(u, t, sk) {
   // Kept as a helper because a Double Attack's second swing has to drain exactly the same way.
   const drain = (dealt) => {
     if (!dealt || u.hp <= 0) return;
+    if (courtStarved(u)) { if (u.manaSteal) gainMp(u, Math.round(dealt * u.manaSteal)); return; }   // Clear Skies: no HP drains at all (mana steal is not lifesteal)
     let steal = (o.lifesteal || 0) + (u.lifesteal || 0) + (u.faction === 'crimson' ? 0.2 : 0);
     if (wx() === 'moon') steal *= 2;
     if (steal) healUnit(u, u, Math.round(dealt * steal), u.faction === 'crimson' && !o.lifesteal ? 'Bloodthirst' : sk.name);
@@ -7659,6 +7677,9 @@ function douseMechs() {
 const QUAKE_CHANCE = 0.4, QUAKE_ROUNDS = 2;
 const QUAKE_EVERY = 25, QUAKE_SLIP = 50;   // four jolts a round, each sliding units back 5% of the track
 const underground = () => state.mode === 'hunt' || state.mode === 'dungeon' || state.mode === 'expedition';
+// Clear Skies starve the Crimson Court: no lifesteal of any kind for them while the sky is clear.
+// Only where there is a sky - underground the weather never turns, so 'clear' there means none.
+const courtStarved = (u) => u.faction === 'crimson' && wx() === 'clear' && !underground();
 const caveHunt = () => state.mode === 'hunt';
 const quaking = () => (state.quake || 0) > 0;
 
@@ -7701,9 +7722,10 @@ function newRound() {
   const due = state.wxNext != null ? state.round >= state.wxNext : (state.round - 1) % WEATHER_EVERY === 0;
   if (!due) { brimstoneOmen(); return false; }
   state.weather = state.nextWeather;
-  // Brimstone Fall is only ever the herald: the Ash Storm it announces always follows it, next round.
-  state.nextWeather = state.weather === 'brim' ? 'ash' : rollWeather(state.weather);
-  state.wxNext = state.round + (state.weather === 'brim' ? BRIMSTONE_ROUNDS : WEATHER_EVERY);
+  // Brimstone Fall and Nightfall are only ever heralds: the Ash Storm and the Blood Moon they
+  // announce always follow them.
+  state.nextWeather = state.weather === 'brim' ? 'ash' : state.weather === 'dusk' ? 'moon' : rollWeather(state.weather);
+  state.wxNext = state.round + (state.weather === 'brim' ? BRIMSTONE_ROUNDS : state.weather === 'dusk' ? DUSK_ROUNDS : WEATHER_EVERY);
   const W = WEATHER[state.weather];
   log(`The weather turns: ${W.name}. ${W.desc}`, 'wx');
   // Downpour or Thunderstorm hits the field: douse every mech's Heat at once. It stays doused until the weather passes.
@@ -7823,7 +7845,7 @@ function announceWeather() {
 }
 
 // Weather icons for the battle's weather pill.
-const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', moon: '🌕', quake: '🪨', pall: '🪦' };
+const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', dusk: '🌒', moon: '🌕', quake: '🪨', pall: '🪦' };
 
 function roundsUntilWeather() {
   if (state.wxNext != null) return state.wxNext - state.round;
@@ -17014,7 +17036,8 @@ function factionPassive(u) {
   if (u.race === 'elf') return `<b>Precision ${u.stacks}/${stackCap(u)}:</b> +${u.stacks * 10}% crit. ${charNat(u).line ? 'A hit costs one stack.' : 'Resets when hit.'}`;
   if (u.race === 'dwarf') return `<b>Fortify ${u.stacks}/${stackCap(u)}:</b> −${u.stacks * 8}% damage taken.`;
   if (u.faction === 'tide') return highTide() ? '<b>High Tide:</b> +25% damage and healing this round.' : '<b>Low Tide.</b> High Tide arrives next round.';
-  if (u.faction === 'crimson') return `<b>Bloodthirst:</b> every hit drains ${wx() === 'moon' ? 40 : 20}% of the damage dealt as HP.`;
+  if (u.faction === 'crimson') return courtStarved(u) ? '<b>Bloodthirst, starved:</b> no lifesteal under Clear Skies.'
+    : `<b>Bloodthirst:</b> every hit drains ${wx() === 'moon' ? 40 : 20}% of the damage dealt as HP.`;
   if (u.faction === 'undead') {
     if (undyingOn(u)) {
       const left = u.undyingHits;
