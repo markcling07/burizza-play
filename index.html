@@ -711,8 +711,13 @@ body.picking .unit:not(.targetable) > :is(.chips, .plate, .body) { pointer-event
 @media (prefers-reduced-motion: reduce) { .unit.running .body { animation: none !important; } }
 .unit.elite { --size: clamp(68px, 17cqw, 190px); }
 .unit.elite .plate { border-color: var(--bad); }
-.unit .chips { justify-content: center; min-height: 0; gap: 2px; }
+/* The chip row never wraps. Wrapping grows the block upward from the champion's feet, and a second or
+   third row of statuses reaches up over whoever stands behind them (the render caps the count, see
+   CHIP_MAX, so a single row is always enough to hold them). */
+.unit .chips { justify-content: center; min-height: 0; gap: 2px; flex-wrap: nowrap; }
 .unit .chip { font-size: .5rem; line-height: 11px; padding: 0 4px; background: var(--plate); }
+/* ...and the "+N" standing for everything that did not fit. */
+.unit .chip.more { color: var(--muted); }
 /* The chip's label slowly fades away, leaving just the icon. Anything that touches the champion —
    damage, a mend, a new status — restamps the unit's last-touched time (float / addFx), and render
    feeds it in as a negative delay (--chipAge), so the fade runs on across re-renders and the words
@@ -957,7 +962,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @keyframes pspin { to { transform: rotate(360deg); } }
 @keyframes ppulse { 50% { filter: brightness(1.5) saturate(1.3); } }   /* never transform: the flight owns it */
 .proj-rocket, .proj-missile, .proj-flak, .proj-bomb, .proj-keg { filter: drop-shadow(0 0 3px rgba(255, 170, 60, .7)); }
-.proj-firepot, .proj-napalm, .proj-fireball, .proj-meteor { filter: drop-shadow(0 0 6px #ff7a2f); }
+.proj-firepot, .proj-napalm, .proj-fireball, .proj-meteor, .proj-molotov { filter: drop-shadow(0 0 6px #ff7a2f); }
 .proj-javelin, .proj-dart { filter: drop-shadow(0 0 4px #e0242f); }
 .proj-hawkarrow { filter: drop-shadow(0 0 5px #ffd166); }
 .proj-venomarrow, .proj-venombolt, .proj-thorn, .proj-vine { filter: drop-shadow(0 0 4px #9fe08a); }
@@ -2356,6 +2361,7 @@ const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: 
   skillRanks: {},  // skill points spent, per champion id: { a: 2, flashpowder: 1 } (see SKILL RANKS)
   training: {},    // drills done, per champion id: { smokebomb: 2, might: 3 } (see THE TRAINING YARD)
   dungeons: {},    // per dungeon id: { clears } (first clear pays a trinket; see DUNGEONS)
+  expeditions: {}, // per expedition id: { clears } — this IS the Descent; see THE DESCENT
   carnival: { plays: 0, won: 0 },   // Carnival records: rounds played, gold won
   bounty: null,                     // today's Bounty Board: { day, list: [bounty…] } (see BOUNTY_TYPES)
   guild: null,     // your guild: { id, favor: { guildId: n } } — favor per guild survives switching (see GUILDS)
@@ -2463,6 +2469,10 @@ const FX = {
   slow:     { icon: '🐌', label: 'Slowed',    kind: 'bad',  verb: 'is slowed' },
   blind:    { icon: '🌑', label: 'Blinded',   kind: 'bad',  verb: 'is blinded' },
   soaked:   { icon: '💧', label: 'Soaked',    kind: 'bad',  verb: 'is soaked' },
+  // Molotov's scorched-dry ground. Burns off an existing Soaked and refuses the Soaked STATUS while it
+  // lasts (wet weather and Grave Damp still count the unit soaked - that is the field, not a status; see
+  // soaked() and addFx). A buff, so a cleanse does not take it.
+  dry:      { icon: '🏜️', label: 'Dry',       kind: 'good', verb: 'is scorched dry: the water won\'t take hold' },
   overheat: { icon: '🌡️', label: 'Overheated',kind: 'bad',  verb: 'overheats' },
   silence:  { icon: '🔇', label: 'Silenced',  kind: 'bad',  verb: 'is silenced: only Attack and Guard until it wears off' },
   choke:    { icon: '🫧', label: 'Choking',   kind: 'bad',  verb: 'is choking: if it uses a skill, it is silenced on its next turn' },
@@ -2512,8 +2522,9 @@ const FX = {
   // Barrow's Burrow: under the grave-dirt for one round of the field's clock (TIMED_FX).
   burrowed: { icon: '🕳️', label: 'Burrowed',  kind: 'good', verb: 'burrows into the grave-dirt for a round: nothing can target him, and area attacks pass over him' },
   // Barrow's Graveyard Fence: an iron fence stands before the protected ally. No melee blow can
-  // reach them, though area attacks and ranged shots still find them. The wall holds both ways —
-  // a melee ally so fenced cannot swing out past it, while a ranged ally fires over it freely.
+  // reach them, and a HORIZONTAL shot glances off the iron; only area attacks and ARCH shots (anything
+  // lobbed from above) still find them (see attackType / fenceStops). The wall holds both ways — a
+  // melee ally so fenced cannot swing out past it, while an arching shot still clears it freely.
   // Counted in the owner's own turns like any ward (see validTargets and usable).
   protected: { icon: '🪦', label: 'Protected', kind: 'good', verb: 'stands behind a graveyard fence: no melee blow reaches them and straight shots glance off, though area attacks and anything lobbed from above still land' },
   // BASH and FEAR are counted on the field's global clock — in Tolls (any unit's turn-start, see
@@ -2718,7 +2729,8 @@ const ROSTER = [
              D('Powder Keg', '75% to all enemies. Burns them all.', 5, 0.75, { magic: true, aoe: true, fx: [['burn', 3, 0.3]] }),
              D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2]] }),
              D('Cinder Spray', '50% fire to all enemies. Never misses. Blinds them all.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
-             D('Sticky Tar', '80% hit. Burns, Slows and sunders the target\'s armor.', 4, 0.8, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] })],
+             D('Sticky Tar', '80% hit. Burns, Slows and sunders the target\'s armor.', 4, 0.8, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] }),
+             D('Molotov', 'Drekka lights the bottle: it flies on the next Toll, whoever\'s turn it is — 75% fire to all enemies. Never misses. Burns them all and sets the enemy ground ablaze for 2 turns, searing anyone who stands there. Burns off Soaked and leaves them Dry while it lasts.', 5, 0.75, { magic: true, aoe: true, noDodge: true, attackType: 'arch', fuse: 1, fx: [['burn', 3, 0.3], ['dry', 2]], groundFire: 2 })],
     passive: P('Pyromaniac', 'Deals 25% more damage to Burning enemies.', { vs: { fx: 'burn', bonus: 0.25 } }) },
   { id: 'hesk', name: 'Old Mother Hesk', short: 'Hesk', faction: 'orc', role: 'support', bio: 'Shaman who keeps the war drums.',
     mods: { hp: 1.05 },
@@ -3696,6 +3708,551 @@ const WEAPONS = {
   coffin: (a, x, y) => `<g transform="rotate(-12 22 58)"><path d="M10 28 L22 22 L34 28 L32 88 L13 90 Z" fill="${WOOD}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 36 h16 M14 47 h17" stroke="${a.trim}" stroke-width="1.8" opacity=".75"/><path d="M18 62 h9 M22.5 57 v14" stroke="${a.trim}" stroke-width="2.4" stroke-linecap="round"/></g><rect x="${x - 1.5}" y="${y - 30}" width="3" height="40" rx="1" fill="${WOOD}"/><circle cx="${x}" cy="${y - 34}" r="8" fill="${a.orb}" opacity=".25"/><circle cx="${x}" cy="${y - 34}" r="4.5" fill="${a.orb}"/>`,
 };
 
+/* ==================================================================
+   FACING — THE EIGHT BEARINGS
+
+   Every body above is drawn sideways: the legs stand one behind the other, a single arm shows, and the
+   face looks east. Mirror it and you have west, and for a game fought along a line that was always enough.
+   A bearing is not a mirror, though. Turned square-on a body reads differently and has to be DRAWN: the
+   stance widens, both arms come into view, and the head is seen flat. So each body here gains two more
+   drawings - `front`, which is the face, two eyes and whatever the helm leaves showing, and `back`, which
+   has no face at all and lets the hair, the helm's crown or a cloak carry the shape.
+
+   Three drawings cover all eight bearings, because a compass is symmetrical: east and west are the profile
+   and its mirror, north and south are the back and the front, and the four diagonals are the back or the
+   front turned a quarter and mirrored for the western half (see dirPose). Five of the eight are therefore
+   free - the same trick every eight-way sprite sheet has always used.
+
+   The weapon hand moves with the view. Seen from the front it falls on the viewer's right; seen from
+   behind, the same hand is on the viewer's left - so a champion turning north through east to south
+   carries their weapon around with them instead of having it jump sides.
+
+   Bodies with no entry here (the Pale Host's oddities, the beasts) simply have no square-on drawing yet:
+   dirSprite hands back null for them and the caller falls back to turning the profile. =================*/
+const DIR_BODIES = {
+  human: {
+    front(a) {
+      const head = a.helm
+        ? `<circle cx="50" cy="29" r="11.5" fill="${a.skin}"/><path d="M38 30 Q38 16.5 50 16.5 Q62 16.5 62 30 Z" fill="${a.main}"/>
+           <rect x="41" y="26" width="18" height="4.5" rx="1.5" fill="${INK}"/><path d="M50 16.8 V30" stroke="${a.trim}" stroke-width="2.4"/>`
+        : `<circle cx="50" cy="29" r="11.5" fill="${a.skin}"/><path d="M38 30 Q38 16 50 16 Q62 16 62 30 Q58 23 50 23 Q42 23 38 30 Z" fill="${a.hair}"/>
+           <circle cx="45.6" cy="30" r="1.6" fill="${INK}"/><circle cx="54.4" cy="30" r="1.6" fill="${INK}"/>`;
+      return { hand: [68, 60], shieldY: 0, svg:
+        `<rect x="39" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/><rect x="52.5" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/>
+         <rect x="34" y="42" width="32" height="34" rx="8" fill="${a.main}"/><rect x="34" y="62" width="32" height="4" fill="${a.trim}"/>
+         <rect x="28.5" y="45" width="7" height="19" rx="3.5" fill="${a.main}"/><rect x="64.5" y="45" width="7" height="19" rx="3.5" fill="${a.main}"/>
+         <path d="M44 42 L50 50 L56 42" fill="none" stroke="${a.trim}" stroke-width="1.8"/>${head}` };
+    },
+    back(a) {
+      const head = a.helm
+        ? `<circle cx="50" cy="29" r="11.5" fill="${a.main}"/><path d="M38 30 Q38 16.5 50 16.5 Q62 16.5 62 30 Z" fill="${a.main}"/>
+           <path d="M50 16.8 V30" stroke="${a.trim}" stroke-width="2.4"/><path d="M40 30 Q50 34 60 30" fill="none" stroke="${INK}" stroke-width="1.6" opacity=".5"/>`
+        : `<circle cx="50" cy="29" r="11.5" fill="${a.skin}"/><path d="M38 31 Q38 16 50 16 Q62 16 62 31 Q62 36 50 36 Q38 36 38 31 Z" fill="${a.hair}"/>`;
+      return { hand: [32, 60], shieldY: 0, svg:
+        `<rect x="39" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/><rect x="52.5" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/>
+         <rect x="34" y="42" width="32" height="34" rx="8" fill="${a.main}"/><rect x="34" y="62" width="32" height="4" fill="${a.trim}"/>
+         <rect x="28.5" y="45" width="7" height="19" rx="3.5" fill="${a.main}"/><rect x="64.5" y="45" width="7" height="19" rx="3.5" fill="${a.main}"/>
+         <path d="M50 43 V62" stroke="${INK}" stroke-width="1.5" opacity=".45"/>${head}` };
+    },
+  },
+  orc: {
+    front(a) {
+      return { hand: [71, 60], shieldY: 0, svg:
+        `<rect x="37" y="74" width="10.5" height="20" rx="3" fill="${DARK}"/><rect x="52.5" y="74" width="10.5" height="20" rx="3" fill="${DARK}"/>
+         <rect x="31" y="42" width="38" height="36" rx="11" fill="${a.main}"/><rect x="31" y="64" width="38" height="5" fill="${a.trim}"/>
+         <path d="M31 45 q9 -10 19 -2 l-2 9 h-17 z M69 45 q-9 -10 -19 -2 l2 9 h17 z" fill="${a.trim}"/>
+         <rect x="25" y="46" width="8" height="19" rx="4" fill="${a.skin}"/><rect x="67" y="46" width="8" height="19" rx="4" fill="${a.skin}"/>
+         <circle cx="50" cy="28" r="13.5" fill="${a.skin}"/>
+         ${a.hair ? `<path d="M44 16 q6 -11 12 0 z" fill="${a.hair}"/>` : ''}
+         <circle cx="44.5" cy="27" r="1.9" fill="#e0645a"/><circle cx="55.5" cy="27" r="1.9" fill="#e0645a"/>
+         <path d="M44 37 l1.7 -5.5 l2.1 5.5 z M52.2 37 l1.7 -5.5 l2.1 5.5 z" fill="#f1ead6"/>` };
+    },
+    back(a) {
+      return { hand: [29, 60], shieldY: 0, svg:
+        `<rect x="37" y="74" width="10.5" height="20" rx="3" fill="${DARK}"/><rect x="52.5" y="74" width="10.5" height="20" rx="3" fill="${DARK}"/>
+         <rect x="31" y="42" width="38" height="36" rx="11" fill="${a.main}"/><rect x="31" y="64" width="38" height="5" fill="${a.trim}"/>
+         <path d="M31 45 q9 -10 19 -2 l-2 9 h-17 z M69 45 q-9 -10 -19 -2 l2 9 h17 z" fill="${a.trim}"/>
+         <rect x="25" y="46" width="8" height="19" rx="4" fill="${a.skin}"/><rect x="67" y="46" width="8" height="19" rx="4" fill="${a.skin}"/>
+         <circle cx="50" cy="28" r="13.5" fill="${a.skin}"/>
+         ${a.hair ? `<path d="M41 22 q9 -14 18 0 q-9 -5 -18 0 z" fill="${a.hair}"/>` : ''}
+         <path d="M50 42 V64" stroke="${INK}" stroke-width="1.5" opacity=".4"/>` };
+    },
+  },
+  elf: {
+    front(a) {
+      const ears = a.fin
+        ? `<path d="M38 27 L27 19 L31 26 L26 31 L38 33 Z" fill="${a.trim}" opacity=".9"/><path d="M62 27 L73 19 L69 26 L74 31 L62 33 Z" fill="${a.trim}" opacity=".9"/>`
+        : `<path d="M40 28 L30 20 L41 32 Z" fill="${a.skin}"/><path d="M60 28 L70 20 L59 32 Z" fill="${a.skin}"/>`;
+      return { hand: [66, 58], shieldY: 0, svg:
+        `<rect x="41" y="72" width="6.5" height="21" rx="3" fill="${DARK}"/><rect x="52.5" y="72" width="6.5" height="21" rx="3" fill="${DARK}"/>
+         <path d="M38 42 h24 l4 34 h-32 z" fill="${a.main}"/><rect x="37" y="58" width="26" height="3.5" fill="${a.trim}"/>
+         <path d="M38 28 Q33 50 39 54 L43 32 Z M62 28 Q67 50 61 54 L57 32 Z" fill="${a.hair}"/>
+         <rect x="31" y="45" width="6" height="17" rx="3" fill="${a.main}"/><rect x="63" y="45" width="6" height="17" rx="3" fill="${a.main}"/>
+         <circle cx="50" cy="29" r="10.5" fill="${a.skin}"/>${ears}
+         <path d="M39.5 29 Q39.5 17.5 50 17.5 Q60.5 17.5 60.5 29 Q56 23 50 23 Q44 23 39.5 29 Z" fill="${a.hair}"/>
+         <circle cx="46.2" cy="30" r="1.5" fill="${INK}"/><circle cx="53.8" cy="30" r="1.5" fill="${INK}"/>` };
+    },
+    back(a) {
+      const ears = a.fin
+        ? `<path d="M38 27 L27 19 L31 26 L26 31 L38 33 Z" fill="${a.trim}" opacity=".75"/><path d="M62 27 L73 19 L69 26 L74 31 L62 33 Z" fill="${a.trim}" opacity=".75"/>`
+        : `<path d="M40 28 L30 20 L41 32 Z" fill="${a.skin}"/><path d="M60 28 L70 20 L59 32 Z" fill="${a.skin}"/>`;
+      return { hand: [34, 58], shieldY: 0, svg:
+        `<rect x="41" y="72" width="6.5" height="21" rx="3" fill="${DARK}"/><rect x="52.5" y="72" width="6.5" height="21" rx="3" fill="${DARK}"/>
+         <path d="M38 42 h24 l4 34 h-32 z" fill="${a.main}"/><rect x="37" y="58" width="26" height="3.5" fill="${a.trim}"/>
+         <rect x="31" y="45" width="6" height="17" rx="3" fill="${a.main}"/><rect x="63" y="45" width="6" height="17" rx="3" fill="${a.main}"/>
+         <circle cx="50" cy="29" r="10.5" fill="${a.skin}"/>${ears}
+         <path d="M38.5 30 Q38.5 17.5 50 17.5 Q61.5 17.5 61.5 30 Q61.5 48 57 52 L43 52 Q38.5 48 38.5 30 Z" fill="${a.hair}"/>
+         <path d="M50 44 V60" stroke="${INK}" stroke-width="1.4" opacity=".4"/>` };
+    },
+  },
+  dwarf: {
+    front(a) {
+      return { hand: [70, 68], shieldY: 12, svg:
+        `<rect x="38" y="80" width="9.5" height="14" rx="3" fill="${DARK}"/><rect x="52.5" y="80" width="9.5" height="14" rx="3" fill="${DARK}"/>
+         <rect x="32" y="56" width="36" height="28" rx="9" fill="${a.main}"/><rect x="32" y="72" width="36" height="5" fill="${a.trim}"/>
+         <rect x="26" y="58" width="7.5" height="16" rx="3.5" fill="${a.main}"/><rect x="66.5" y="58" width="7.5" height="16" rx="3.5" fill="${a.main}"/>
+         <circle cx="50" cy="46" r="11" fill="${a.skin}"/>
+         <path d="M38.5 46 Q38.5 33.5 50 33.5 Q61.5 33.5 61.5 46 Z" fill="${STEEL}"/>
+         <rect x="38" y="43" width="24" height="3.5" rx="1.5" fill="${a.trim}"/>
+         <circle cx="45.8" cy="48.5" r="1.5" fill="${INK}"/><circle cx="54.2" cy="48.5" r="1.5" fill="${INK}"/>
+         <path d="M39 50 Q40 70 50 71 Q60 70 61 50 Q55.5 56 50 55 Q44.5 56 39 50 Z" fill="${a.hair}"/>` };
+    },
+    back(a) {
+      return { hand: [30, 68], shieldY: 12, svg:
+        `<rect x="38" y="80" width="9.5" height="14" rx="3" fill="${DARK}"/><rect x="52.5" y="80" width="9.5" height="14" rx="3" fill="${DARK}"/>
+         <rect x="32" y="56" width="36" height="28" rx="9" fill="${a.main}"/><rect x="32" y="72" width="36" height="5" fill="${a.trim}"/>
+         <rect x="26" y="58" width="7.5" height="16" rx="3.5" fill="${a.main}"/><rect x="66.5" y="58" width="7.5" height="16" rx="3.5" fill="${a.main}"/>
+         <circle cx="50" cy="46" r="11" fill="${a.skin}"/>
+         <path d="M38.5 47 Q38.5 33.5 50 33.5 Q61.5 33.5 61.5 47 Z" fill="${STEEL}"/>
+         <rect x="38" y="43" width="24" height="3.5" rx="1.5" fill="${a.trim}"/>
+         <path d="M40 47 Q41 60 50 61 Q59 60 60 47 Z" fill="${a.hair}" opacity=".9"/>
+         <path d="M50 62 V72" stroke="${INK}" stroke-width="1.4" opacity=".4"/>` };
+    },
+  },
+  mech: {
+    front(a) {
+      return { hand: [72, 60], shieldY: 0, svg:
+        `<rect x="38" y="72" width="9.5" height="20" rx="2" fill="#4a5164"/><rect x="52.5" y="72" width="9.5" height="20" rx="2" fill="#4a5164"/>
+         <rect x="34" y="89" width="14" height="5" rx="1.5" fill="${DARK}"/><rect x="52" y="89" width="14" height="5" rx="1.5" fill="${DARK}"/>
+         <rect x="31" y="40" width="38" height="34" rx="5" fill="${a.main}"/>
+         <rect x="39" y="47" width="22" height="13" rx="2" fill="${DARK}"/><circle cx="50" cy="53.5" r="4" fill="${a.trim}"/>
+         <rect x="24" y="43" width="9" height="21" rx="3" fill="${a.main}"/><rect x="67" y="43" width="9" height="21" rx="3" fill="${a.main}"/>
+         <rect x="39" y="19" width="22" height="18" rx="4" fill="${a.main}"/>
+         <rect x="43" y="25" width="14" height="5" rx="2" fill="${a.trim}"/>
+         <line x1="43" y1="19" x2="41" y2="11" stroke="${a.main}" stroke-width="2"/><circle cx="41" cy="10" r="2.2" fill="${a.trim}"/>` };
+    },
+    back(a) {
+      return { hand: [28, 60], shieldY: 0, svg:
+        `<rect x="38" y="72" width="9.5" height="20" rx="2" fill="#4a5164"/><rect x="52.5" y="72" width="9.5" height="20" rx="2" fill="#4a5164"/>
+         <rect x="34" y="89" width="14" height="5" rx="1.5" fill="${DARK}"/><rect x="52" y="89" width="14" height="5" rx="1.5" fill="${DARK}"/>
+         <rect x="31" y="40" width="38" height="34" rx="5" fill="${a.main}"/>
+         <rect x="37" y="45" width="26" height="22" rx="3" fill="${DARK}" opacity=".55"/>
+         <path d="M40 50 h20 M40 56 h20 M40 62 h20" stroke="${a.trim}" stroke-width="1.6" opacity=".75"/>
+         <rect x="24" y="43" width="9" height="21" rx="3" fill="${a.main}"/><rect x="67" y="43" width="9" height="21" rx="3" fill="${a.main}"/>
+         <rect x="39" y="19" width="22" height="18" rx="4" fill="${a.main}"/>
+         <rect x="44" y="24" width="12" height="4" rx="1.5" fill="${DARK}" opacity=".7"/>
+         <line x1="57" y1="19" x2="59" y2="11" stroke="${a.main}" stroke-width="2"/><circle cx="59" cy="10" r="2.2" fill="${a.trim}"/>` };
+    },
+  },
+  tide: {
+    front(a) {
+      const head = a.crest === 'octo'
+        ? `<path d="M41 32 q-7 14 -2 24 M46 36 q-3 12 1 20 M54 36 q3 12 0 20 M59 32 q7 14 2 24" stroke="${a.skin}" stroke-width="4" fill="none" stroke-linecap="round"/>
+           <ellipse cx="50" cy="24" rx="14" ry="14" fill="${a.skin}"/>
+           <circle cx="44.5" cy="26" r="3.2" fill="#f2f0e6"/><circle cx="44.5" cy="26" r="1.6" fill="${INK}"/>
+           <circle cx="55.5" cy="26" r="3.2" fill="#f2f0e6"/><circle cx="55.5" cy="26" r="1.6" fill="${INK}"/>`
+        : a.crest === 'shark'
+        ? `<path d="M45 22 L50 4 L55 22 Z" fill="${a.skin}"/>
+           <ellipse cx="50" cy="29" rx="15" ry="11" fill="${a.skin}"/>
+           <circle cx="44" cy="26" r="1.9" fill="${INK}"/><circle cx="56" cy="26" r="1.9" fill="${INK}"/>
+           <path d="M42 34 h16" stroke="#f1ead6" stroke-width="2.2" stroke-dasharray="1.6 1.2"/>`
+        : `<path d="M41 22 L45 9 L49 19 L54 8 L58 21 Z" fill="${a.main}"/>
+           <ellipse cx="50" cy="30" rx="14" ry="11" fill="${a.skin}"/>
+           <circle cx="44.5" cy="28" r="3.4" fill="#f2f0e6"/><circle cx="44.5" cy="28" r="1.7" fill="${INK}"/>
+           <circle cx="55.5" cy="28" r="3.4" fill="#f2f0e6"/><circle cx="55.5" cy="28" r="1.7" fill="${INK}"/>
+           <path d="M46 36 q4 2.5 8 0" stroke="${INK}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+      return { hand: [67, 58], shieldY: 0, svg:
+        `<rect x="41" y="72" width="7" height="21" rx="3" fill="${DARK}"/><rect x="52" y="72" width="7" height="21" rx="3" fill="${DARK}"/>
+         <path d="M36 44 Q50 38 64 44 L65 76 L35 76 Z" fill="${a.skin}"/>
+         <path d="M40 52 q5 3 10 0 q5 3 10 0 M40 59 q5 3 10 0 q5 3 10 0" stroke="${a.main}" stroke-width="1.6" fill="none" opacity=".7"/>
+         <rect x="35" y="64" width="30" height="5" fill="${a.main}"/>
+         <path d="M32 46 L28 66 L36 62 Z M68 46 L72 66 L64 62 Z" fill="${a.skin}" opacity=".85"/>
+         <rect x="29" y="46" width="7" height="18" rx="3.5" fill="${a.skin}"/><rect x="64" y="46" width="7" height="18" rx="3.5" fill="${a.skin}"/>
+         ${head}` };
+    },
+    back(a) {
+      return { hand: [33, 58], shieldY: 0, svg:
+        `<rect x="41" y="72" width="7" height="21" rx="3" fill="${DARK}"/><rect x="52" y="72" width="7" height="21" rx="3" fill="${DARK}"/>
+         <path d="M36 44 Q50 38 64 44 L65 76 L35 76 Z" fill="${a.skin}"/>
+         <path d="M50 40 L46 74 L54 74 Z" fill="${a.main}" opacity=".45"/>
+         <rect x="35" y="64" width="30" height="5" fill="${a.main}"/>
+         <path d="M32 46 L28 66 L36 62 Z M68 46 L72 66 L64 62 Z" fill="${a.skin}" opacity=".85"/>
+         <rect x="29" y="46" width="7" height="18" rx="3.5" fill="${a.skin}"/><rect x="64" y="46" width="7" height="18" rx="3.5" fill="${a.skin}"/>
+         <ellipse cx="50" cy="29" rx="14" ry="12" fill="${a.skin}"/>
+         <path d="M50 14 L46 29 L54 29 Z" fill="${a.main}" opacity=".7"/>
+         <path d="M43 34 q7 3 14 0" stroke="${a.main}" stroke-width="1.5" fill="none" opacity=".6"/>` };
+    },
+  },
+  vampire: {
+    front(a) {
+      return { hand: [68, 60], shieldY: 0, svg:
+        `<path d="M36 42 L22 92 L78 92 L64 42 Z" fill="${a.cape}"/>
+         <path d="M40 46 L31 90 L69 90 L60 46 Z" fill="${a.trim}" opacity=".35"/>
+         <rect x="39" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/><rect x="52.5" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/>
+         <rect x="34" y="42" width="32" height="34" rx="7" fill="${a.main}"/><rect x="34" y="62" width="32" height="3.5" fill="${a.trim}"/>
+         <path d="M36 45 L29 29 L45 41 Z M64 45 L71 29 L55 41 Z" fill="${a.cape}" stroke="${a.trim}" stroke-width="1.2"/>
+         <rect x="28.5" y="45" width="7" height="19" rx="3.5" fill="${a.main}"/><rect x="64.5" y="45" width="7" height="19" rx="3.5" fill="${a.main}"/>
+         <circle cx="50" cy="29" r="11" fill="${a.skin}"/>
+         <path d="M39 30 Q39 16.5 50 16.5 Q61 16.5 61 30 Q56 22 50 25 Q44 22 39 30 Z" fill="${a.hair}"/>
+         <circle cx="45.6" cy="30" r="1.8" fill="#e0304a"/><circle cx="54.4" cy="30" r="1.8" fill="#e0304a"/>
+         <path d="M46.6 35.5 l1 2.6 l1 -2.6 Z M51.4 35.5 l1 2.6 l1 -2.6 Z" fill="#f4f0f2"/>` };
+    },
+    back(a) {
+      return { hand: [32, 60], shieldY: 0, svg:
+        `<path d="M34 40 L20 92 L80 92 L66 40 Z" fill="${a.cape}"/>
+         <path d="M38 44 L29 90 L71 90 L62 44 Z" fill="${a.trim}" opacity=".25"/>
+         <rect x="39" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/><rect x="52.5" y="72" width="8.5" height="21" rx="3" fill="${DARK}"/>
+         <path d="M36 43 L29 28 L45 40 Z M64 43 L71 28 L55 40 Z" fill="${a.cape}" stroke="${a.trim}" stroke-width="1.2"/>
+         <path d="M50 44 V88" stroke="${INK}" stroke-width="1.5" opacity=".35"/>
+         <circle cx="50" cy="29" r="11" fill="${a.skin}"/>
+         <path d="M38.5 30 Q38.5 16.5 50 16.5 Q61.5 16.5 61.5 30 Q61.5 38 50 38 Q38.5 38 38.5 30 Z" fill="${a.hair}"/>` };
+    },
+  },
+  // Horns, wings and a tail. Seen from behind the wings are the whole shape - that is the view a demon
+  // is built for - and the tail swings out where the face used to be.
+  demon: {
+    front(a) {
+      const wings = a.wings
+        ? `<path d="M40 48 L10 26 L16 42 L4 44 L18 54 L8 64 L38 62 Z" fill="${a.wings}"/>
+           <path d="M60 48 L90 26 L84 42 L96 44 L82 54 L92 64 L62 62 Z" fill="${a.wings}"/>`
+        : '';
+      return { hand: [70, 60], shieldY: 0, svg:
+        `${wings}
+         <path d="M44 78 Q30 84 28 93" stroke="${a.skin}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+         <path d="M25 91 L29 97 L32 90 Z" fill="${a.skin}"/>
+         <rect x="38" y="73" width="9.5" height="20" rx="3" fill="${DARK}"/><rect x="52.5" y="73" width="9.5" height="20" rx="3" fill="${DARK}"/>
+         <rect x="33" y="42" width="34" height="35" rx="9" fill="${a.main}"/><rect x="33" y="63" width="34" height="4" fill="${a.trim}"/>
+         <rect x="27" y="46" width="8" height="19" rx="4" fill="${a.skin}"/><rect x="65" y="46" width="8" height="19" rx="4" fill="${a.skin}"/>
+         <circle cx="50" cy="30" r="12" fill="${a.skin}"/>
+         <path d="M41 23 Q33 13 37 4 Q40 14 46.5 19 Z M59 23 Q67 13 63 4 Q60 14 53.5 19 Z" fill="${a.horn}"/>
+         <circle cx="44.5" cy="30" r="2.2" fill="${a.eye}"/><circle cx="44.5" cy="30" r="4.5" fill="${a.eye}" opacity=".25"/>
+         <circle cx="55.5" cy="30" r="2.2" fill="${a.eye}"/><circle cx="55.5" cy="30" r="4.5" fill="${a.eye}" opacity=".25"/>
+         <path d="M45 37 q5 3 10 0" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/>` };
+    },
+    back(a) {
+      const wings = a.wings
+        ? `<path d="M40 46 L6 20 L13 40 L0 43 L16 55 L5 67 L38 63 Z" fill="${a.wings}"/>
+           <path d="M60 46 L94 20 L87 40 L100 43 L84 55 L95 67 L62 63 Z" fill="${a.wings}"/>
+           <path d="M40 46 L6 20 M40 52 L0 43 M39 60 L5 67 M60 46 L94 20 M60 52 L100 43 M61 60 L95 67" stroke="${a.skin}" stroke-width="1.2" opacity=".5"/>`
+        : '';
+      return { hand: [30, 60], shieldY: 0, svg:
+        `${wings}
+         <path d="M56 78 Q70 84 72 93" stroke="${a.skin}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+         <path d="M68 90 L71 97 L75 91 Z" fill="${a.skin}"/>
+         <rect x="38" y="73" width="9.5" height="20" rx="3" fill="${DARK}"/><rect x="52.5" y="73" width="9.5" height="20" rx="3" fill="${DARK}"/>
+         <rect x="33" y="42" width="34" height="35" rx="9" fill="${a.main}"/><rect x="33" y="63" width="34" height="4" fill="${a.trim}"/>
+         <rect x="27" y="46" width="8" height="19" rx="4" fill="${a.skin}"/><rect x="65" y="46" width="8" height="19" rx="4" fill="${a.skin}"/>
+         <path d="M50 43 V63" stroke="${INK}" stroke-width="1.5" opacity=".4"/>
+         <circle cx="50" cy="30" r="12" fill="${a.skin}"/>
+         <path d="M41 23 Q33 13 37 4 Q40 14 46.5 19 Z M59 23 Q67 13 63 4 Q60 14 53.5 19 Z" fill="${a.horn}"/>
+         <path d="M42 31 Q50 35 58 31" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".45"/>` };
+    },
+  },
+  // A skull reads much the same whichever way it is turned, so the honest difference is behind it:
+  // the ribs give way to a spine and a pair of shoulder blades, and the eye sockets go out entirely.
+  skeleton: {
+    front(a) {
+      return { hand: [74, 58], shieldY: 0, svg:
+        `<line x1="45" y1="78" x2="42" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <line x1="55" y1="78" x2="58" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <path d="M41 77 h18" stroke="${a.main}" stroke-width="5" stroke-linecap="round"/>
+         <rect x="47" y="44" width="6" height="34" rx="3" fill="${a.main}"/>
+         <path d="M38 50 h24 M37 57 h26 M38 64 h24" stroke="${a.main}" stroke-width="3.2" stroke-linecap="round"/>
+         <line x1="42" y1="48" x2="28" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <line x1="58" y1="48" x2="72" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <circle cx="50" cy="31" r="12" fill="${a.main}"/>
+         <rect x="44" y="38" width="12" height="7" rx="2" fill="${a.main}"/>
+         <path d="M37.5 30 Q37.5 17 50 17 Q62.5 17 62.5 30 Z" fill="${a.trim}"/><circle cx="50" cy="21" r="3" fill="#ffd166"/>
+         <circle cx="45" cy="32" r="3.4" fill="${INK}"/><circle cx="55" cy="32" r="3.4" fill="${INK}"/>
+         <path d="M46 41 v3 M50 41 v3 M54 41 v3" stroke="${INK}" stroke-width="1.4"/>` };
+    },
+    back(a) {
+      return { hand: [26, 58], shieldY: 0, svg:
+        `<line x1="45" y1="78" x2="42" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <line x1="55" y1="78" x2="58" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <path d="M41 77 h18" stroke="${a.main}" stroke-width="5" stroke-linecap="round"/>
+         <rect x="47" y="42" width="6" height="36" rx="3" fill="${a.main}"/>
+         <path d="M42 48 q-5 7 -3 14 M58 48 q5 7 3 14" stroke="${a.main}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+         <path d="M40 46 h20" stroke="${a.main}" stroke-width="4" stroke-linecap="round"/>
+         <path d="M44 56 h-5 M56 56 h5 M44 64 h-4 M56 64 h4" stroke="${a.main}" stroke-width="2.6" stroke-linecap="round"/>
+         <line x1="42" y1="48" x2="28" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <line x1="58" y1="48" x2="72" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <circle cx="50" cy="31" r="12" fill="${a.main}"/>
+         <path d="M37.5 30 Q37.5 17 50 17 Q62.5 17 62.5 30 Z" fill="${a.trim}"/><circle cx="50" cy="21" r="3" fill="#ffd166"/>
+         <path d="M44 33 Q50 37 56 33" fill="none" stroke="${INK}" stroke-width="1.3" opacity=".45"/>` };
+    },
+  },
+  // The same bones, still half dressed in what it was buried in.
+  revenant: {
+    front(a) {
+      return { hand: [74, 58], shieldY: 2, svg:
+        `<line x1="45" y1="78" x2="42" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <line x1="55" y1="78" x2="58" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <path d="M41 77 h18" stroke="${a.main}" stroke-width="5" stroke-linecap="round"/>
+         <path d="M37 48 Q35 70 39 80 L61 80 Q65 70 63 48 Z" fill="${a.trim}" opacity=".5"/>
+         <rect x="47" y="44" width="6" height="34" rx="3" fill="${a.main}"/>
+         <path d="M38 50 h24 M37 57 h26 M38 64 h24" stroke="${a.main}" stroke-width="3.2" stroke-linecap="round"/>
+         <path d="M35 46 Q50 40 65 46 L63 54 Q50 49 37 54 Z" fill="${a.trim}" opacity=".85"/>
+         <line x1="42" y1="48" x2="28" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <line x1="58" y1="48" x2="72" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <circle cx="50" cy="31" r="12" fill="${a.main}"/>
+         <rect x="44" y="38" width="12" height="7" rx="2" fill="${a.main}"/>
+         <path d="M37.5 30 Q37.5 17 50 17 Q62.5 17 62.5 30 Z" fill="${a.trim}"/>
+         <circle cx="45" cy="32" r="3.4" fill="${INK}"/><circle cx="55" cy="32" r="3.4" fill="${INK}"/>
+         <circle cx="45" cy="32" r="1.5" fill="${a.eye || '#8ee6a0'}"/><circle cx="55" cy="32" r="1.5" fill="${a.eye || '#8ee6a0'}"/>
+         <path d="M46 41 v3 M50 41 v3 M54 41 v3" stroke="${INK}" stroke-width="1.4"/>` };
+    },
+    back(a) {
+      return { hand: [26, 58], shieldY: 2, svg:
+        `<line x1="45" y1="78" x2="42" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <line x1="55" y1="78" x2="58" y2="93" stroke="${a.main}" stroke-width="4.5" stroke-linecap="round"/>
+         <path d="M41 77 h18" stroke="${a.main}" stroke-width="5" stroke-linecap="round"/>
+         <path d="M37 46 Q35 70 39 80 L61 80 Q65 70 63 46 Z" fill="${a.trim}" opacity=".6"/>
+         <rect x="47" y="44" width="6" height="34" rx="3" fill="${a.main}"/>
+         <path d="M42 50 q-5 7 -3 14 M58 50 q5 7 3 14" stroke="${a.main}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+         <line x1="42" y1="48" x2="28" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <line x1="58" y1="48" x2="72" y2="58" stroke="${a.main}" stroke-width="3.5" stroke-linecap="round"/>
+         <circle cx="50" cy="31" r="12" fill="${a.main}"/>
+         <path d="M37.5 30 Q37.5 17 50 17 Q62.5 17 62.5 30 Z" fill="${a.trim}"/>
+         <path d="M44 33 Q50 37 56 33" fill="none" stroke="${INK}" stroke-width="1.3" opacity=".45"/>` };
+    },
+  },
+  // Burial flesh gone slack. From the front the ribs show through the torn coat and the jaw hangs;
+  // from behind there is only the split of the coat and the hair matted over the back of the skull.
+  zombie: {
+    front(a) {
+      const eye = a.eye || '#8ee6a0';
+      return { hand: [73, 56], shieldY: 0, svg:
+        `<rect x="39" y="73" width="9" height="20" rx="3.5" fill="${DARK}"/><rect x="52" y="75" width="9" height="18" rx="3.5" fill="${DARK}"/>
+         <path d="M35 47 Q32 63 36 78 L64 78 Q68 62 65 47 Q50 41 35 47 Z" fill="${a.main}"/>
+         <path d="M36 78 l4 5 l4.5 -5 l4.5 6 l5 -6 l4 5 l4 -5" fill="${a.main}"/>
+         <path d="M43 51 q7 -3 14 0 l-1.5 13 q-5.5 -2.5 -11 0 Z" fill="${a.skin}"/>
+         <path d="M45.5 55 h9 M45.5 59 h9" stroke="#efe9d8" stroke-width="1.7"/>
+         <path d="M35 49 Q28 60 30 72" stroke="${a.skin}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="30" cy="74" r="3" fill="${a.skin}"/>
+         <path d="M65 49 Q72 58 73 70" stroke="${a.skin}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="73" cy="72" r="3" fill="${a.skin}"/>
+         <circle cx="50" cy="30" r="11.5" fill="${a.skin}"/>
+         <path d="M39 28 Q40 16 50 16.5 Q60 17 61 28 Q55 21 50 23 Q45 21 39 28 Z" fill="${a.trim}"/>
+         <circle cx="45.5" cy="29" r="3.1" fill="${INK}"/><circle cx="45.5" cy="29" r="1.3" fill="${eye}"/>
+         <circle cx="54.5" cy="29" r="3.1" fill="${INK}"/><circle cx="54.5" cy="29" r="1.3" fill="${eye}"/>
+         <path d="M45 37 q5 5 10 0 l-.8 4.5 q-4.2 2.6 -8.4 0 z" fill="${a.skin}"/>
+         <path d="M47.5 40 l1 2.2 M51.5 40.4 l1 2" stroke="#efe9d8" stroke-width="1.1"/>` };
+    },
+    back(a) {
+      return { hand: [27, 56], shieldY: 0, svg:
+        `<rect x="39" y="73" width="9" height="20" rx="3.5" fill="${DARK}"/><rect x="52" y="75" width="9" height="18" rx="3.5" fill="${DARK}"/>
+         <path d="M35 47 Q32 63 36 78 L64 78 Q68 62 65 47 Q50 41 35 47 Z" fill="${a.main}"/>
+         <path d="M36 78 l4 5 l4.5 -5 l4.5 6 l5 -6 l4 5 l4 -5" fill="${a.main}"/>
+         <path d="M50 46 V76" stroke="${INK}" stroke-width="1.6" opacity=".35"/>
+         <path d="M44 56 q-4 6 -3 12 M56 56 q4 6 3 12" stroke="${INK}" stroke-width="1" fill="none" opacity=".25"/>
+         <path d="M35 49 Q28 60 30 72" stroke="${a.skin}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="30" cy="74" r="3" fill="${a.skin}"/>
+         <path d="M65 49 Q72 58 73 70" stroke="${a.skin}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="73" cy="72" r="3" fill="${a.skin}"/>
+         <circle cx="50" cy="30" r="11.5" fill="${a.skin}"/>
+         <path d="M38.5 29 Q38.5 16 50 16 Q61.5 16 61.5 29 Q61.5 37 50 37 Q38.5 37 38.5 29 Z" fill="${a.trim}"/>` };
+    },
+  },
+  // A dead girl in a burial dress, and all that hair. Turned away she is a curtain of it.
+  haunted: {
+    front(a) {
+      const eye = a.eye || '#8ee6a0';
+      return { hand: [70, 60], shieldY: 0, svg:
+        `<path d="M40 26 Q35 48 37 72 Q40 70 42 72 Q40 46 43 30 Z" fill="${a.hair}" opacity=".85"/>
+         <path d="M60 26 Q65 48 63 72 Q60 70 58 72 Q60 46 57 30 Z" fill="${a.hair}" opacity=".85"/>
+         <path d="M37 93 L41 50 Q50 43 59 50 L63 93 Q56 90 50 93 Q44 90 37 93 Z" fill="${a.main}"/>
+         <path d="M41 56 Q50 52 59 56" stroke="${a.trim}" stroke-width="1.8" fill="none" opacity=".6"/>
+         <path d="M43 66 Q46 78 44 90 M57 66 Q54 78 56 90" stroke="${INK}" stroke-width="1" fill="none" opacity=".25"/>
+         <path d="M43 52 Q37 55 34 62" stroke="${a.main}" stroke-width="5.5" fill="none" stroke-linecap="round"/><circle cx="34" cy="62" r="3" fill="${a.skin}"/>
+         <path d="M57 52 Q63 55 66 62" stroke="${a.main}" stroke-width="5.5" fill="none" stroke-linecap="round"/><circle cx="66" cy="62" r="3" fill="${a.skin}"/>
+         <circle cx="50" cy="30" r="10.5" fill="${a.skin}"/>
+         <ellipse cx="46" cy="30" rx="2.4" ry="3" fill="${INK}"/><circle cx="46" cy="30.4" r="1.05" fill="${eye}"/>
+         <ellipse cx="54" cy="30" rx="2.4" ry="3" fill="${INK}"/><circle cx="54" cy="30.4" r="1.05" fill="${eye}"/>
+         <path d="M47.5 38 h5" stroke="#8d8578" stroke-width="1.2" stroke-linecap="round"/>
+         <path d="M39.5 29 Q39 15 50 15.5 Q61 15 60.5 29 Q60 21 54 19.5 Q57 24 55 27 Q52 19 46 20 Q42 22 42 28 Z" fill="${a.hair}"/>` };
+    },
+    back(a) {
+      return { hand: [30, 60], shieldY: 0, svg:
+        `<path d="M37 93 L41 50 Q50 43 59 50 L63 93 Q56 90 50 93 Q44 90 37 93 Z" fill="${a.main}"/>
+         <path d="M50 48 V91" stroke="${INK}" stroke-width="1.1" fill="none" opacity=".25"/>
+         <path d="M43 52 Q37 55 34 62" stroke="${a.main}" stroke-width="5.5" fill="none" stroke-linecap="round"/><circle cx="34" cy="62" r="3" fill="${a.skin}"/>
+         <path d="M57 52 Q63 55 66 62" stroke="${a.main}" stroke-width="5.5" fill="none" stroke-linecap="round"/><circle cx="66" cy="62" r="3" fill="${a.skin}"/>
+         <circle cx="50" cy="30" r="10.5" fill="${a.skin}"/>
+         <path d="M38.5 28 Q38.5 15 50 15 Q61.5 15 61.5 28 Q64 50 61 70 Q55 66 50 70 Q45 66 39 70 Q36 50 38.5 28 Z" fill="${a.hair}"/>
+         <path d="M46 34 Q50 58 48 68 M54 34 Q50 58 52 68" stroke="${INK}" stroke-width=".9" fill="none" opacity=".2"/>` };
+    },
+  },
+  // Grave-iron and a shroud. The armour is the front of him; turned away he is mostly cloak, with the
+  // hood's back and a dented backplate showing through.
+  wight: {
+    front(a) {
+      const iron = a.main, mid = '#4b5243', lite = '#7b8270', shroud = a.cape || '#2b302a';
+      const eye = a.eye || '#8ee696', moss = '#7f9a55', bone = a.skin;
+      return { hand: [78, 62], shieldY: 0, svg:
+        `<ellipse cx="50" cy="56" rx="34" ry="38" fill="${eye}" opacity=".07"/>
+         <path d="M38 40 Q20 50 16 90 L21 86 L25 93 L30 86 L34 92 L38 85 L42 90 L44 60 Z" fill="${shroud}"/>
+         <path d="M62 40 Q80 50 84 90 L79 86 L75 93 L70 86 L66 92 L62 85 L58 90 L56 60 Z" fill="${shroud}"/>
+         <path d="M36 74 h11 l-1 15 h-9 Z" fill="${iron}"/><path d="M33 89 h15 v4 h-16 Z" fill="#2a2f27"/>
+         <path d="M53 74 h11 l1 15 h-11 Z" fill="${iron}"/><path d="M52 89 h15 l3 4 h-18 Z" fill="#3d4337"/>
+         <path d="M31 69 L69 69 L71 81 L65 77 L59 82 L53 77 L47 82 L41 77 L35 81 Z" fill="${mid}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>
+         <path d="M31 46 Q33 39 45 37 L55 37 Q67 39 69 46 L67 71 Q50 76 33 71 Z" fill="${iron}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>
+         <path d="M50 39 V73" stroke="${INK}" stroke-width="1.2" opacity=".4"/>
+         <path d="M34 50 Q50 46 66 50" stroke="${lite}" stroke-width="1.4" fill="none" opacity=".55"/>
+         <path d="M43 58 l2.2 -7 l4.8 4.6 l4.8 -4.6 l2.2 7 Z" fill="${a.trim}" opacity=".75" stroke="${INK}" stroke-width=".9"/>
+         <rect x="32" y="65" width="36" height="5" rx="1.5" fill="#3a2f22" stroke="${INK}" stroke-width="1"/>
+         <circle cx="50" cy="67.5" r="3" fill="${a.trim}" stroke="${INK}" stroke-width="1"/>
+         <path d="M29 46 Q31 38 42 37 Q45 44 41 51 Q33 53 29 46 Z" fill="${mid}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+         <path d="M71 46 Q69 38 58 37 Q55 44 59 51 Q67 53 71 46 Z" fill="${mid}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+         <path d="M38 34 Q36 14 50 12 Q64 14 62 34 Q58 42 50 42 Q42 42 38 34 Z" fill="${shroud}" stroke="${INK}" stroke-width="1.4"/>
+         <path d="M43 31 Q42 18 50 17 Q58 18 57 31 Q57 37 53 39 L47 39 Q43 37 43 31 Z" fill="${bone}"/>
+         <path d="M41 21 Q50 16 59 21 L59 24.5 Q50 20 41 24.5 Z" fill="${a.trim}" stroke="${INK}" stroke-width=".9"/>
+         <ellipse cx="46.5" cy="28" rx="2.6" ry="2.5" fill="#12161a"/><ellipse cx="53.5" cy="28" rx="2.6" ry="2.5" fill="#12161a"/>
+         <circle cx="46.5" cy="28" r="4.2" fill="${eye}" opacity=".3"/><circle cx="53.5" cy="28" r="4.2" fill="${eye}" opacity=".3"/>
+         <circle cx="46.5" cy="28" r="1.4" fill="${eye}"/><circle cx="53.5" cy="28" r="1.4" fill="${eye}"/>
+         <path d="M45 35.5 h10 M47 34.2 v2.6 M50 34.2 v2.6 M53 34.2 v2.6" stroke="${INK}" stroke-width=".9" opacity=".8"/>
+         <ellipse cx="36" cy="62" rx="3.4" ry="2.2" fill="${moss}" opacity=".75"/><ellipse cx="65" cy="49" rx="2.6" ry="1.8" fill="${moss}" opacity=".7"/>` };
+    },
+    back(a) {
+      const iron = a.main, mid = '#4b5243', lite = '#7b8270', shroud = a.cape || '#2b302a';
+      const eye = a.eye || '#8ee696', moss = '#7f9a55';
+      return { hand: [22, 62], shieldY: 0, svg:
+        `<ellipse cx="50" cy="56" rx="34" ry="38" fill="${eye}" opacity=".05"/>
+         <path d="M34 36 Q14 50 12 92 L18 87 L23 94 L29 86 L35 93 L41 86 L46 93 L50 60 Z" fill="${shroud}"/>
+         <path d="M66 36 Q86 50 88 92 L82 87 L77 94 L71 86 L65 93 L59 86 L54 93 L50 60 Z" fill="${shroud}"/>
+         <path d="M50 40 V92" stroke="${INK}" stroke-width="1.4" opacity=".4"/>
+         <path d="M36 74 h11 l-1 15 h-9 Z" fill="${iron}" opacity=".6"/><path d="M53 74 h11 l1 15 h-11 Z" fill="${iron}" opacity=".6"/>
+         <path d="M33 46 Q35 39 45 37 L55 37 Q65 39 67 46 L65 70 Q50 75 35 70 Z" fill="${iron}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>
+         <path d="M38 48 Q50 44 62 48" stroke="${lite}" stroke-width="1.4" fill="none" opacity=".5"/>
+         <path d="M40 56 q-4 8 -2 14 M60 56 q4 8 2 14" stroke="${INK}" stroke-width="1.1" fill="none" opacity=".35"/>
+         <rect x="34" y="64" width="32" height="5" rx="1.5" fill="#3a2f22" stroke="${INK}" stroke-width="1"/>
+         <path d="M29 46 Q31 38 42 37 Q45 44 41 51 Q33 53 29 46 Z" fill="${mid}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+         <path d="M71 46 Q69 38 58 37 Q55 44 59 51 Q67 53 71 46 Z" fill="${mid}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>
+         <path d="M37 34 Q35 13 50 11 Q65 13 63 34 Q59 43 50 43 Q41 43 37 34 Z" fill="${shroud}" stroke="${INK}" stroke-width="1.4"/>
+         <path d="M43 20 Q50 16 57 20" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".5"/>
+         <ellipse cx="34" cy="60" rx="3" ry="2" fill="${moss}" opacity=".6"/><ellipse cx="67" cy="52" rx="2.4" ry="1.6" fill="${moss}" opacity=".6"/>` };
+    },
+  },
+  // Four legs and two heads, which is a different problem from a man: head-on the hound is a narrow
+  // chest with both skulls thrust forward over it, and from behind it is haunches, tail and the two
+  // heads craning past its own shoulders.
+  direhound: {
+    front(a) {
+      const shade = '#3b171c';
+      const fl = (x, y, k, c) => `<path transform="translate(${x} ${y}) scale(${k})" d="M0 0 q-4 -6 -1 -12 q1 5 4 6 q1 -4 -1 -8 q7 6 5 14 q-2 3 -7 0 Z" fill="${c}"/>`;
+      const skull = (x, k) => `<g transform="translate(${x} 34) scale(${k})">
+        <path d="M-13 -2 Q-15 -14 -4 -17 L4 -17 Q15 -14 13 -2 Q11 8 0 9 Q-11 8 -13 -2 Z" fill="${a.main}"/>
+        <path d="M-10 -14 L-14 -29 L0 -18 Z" fill="${a.main}"/><path d="M10 -14 L14 -29 L0 -18 Z" fill="${a.main}"/>
+        <circle cx="-5.5" cy="-3" r="2.6" fill="${a.eye}"/><circle cx="-5.5" cy="-3" r="6" fill="${a.eye}" opacity=".3"/>
+        <circle cx="5.5" cy="-3" r="2.6" fill="${a.eye}"/><circle cx="5.5" cy="-3" r="6" fill="${a.eye}" opacity=".3"/>
+        <path d="M-7 6 l2.3 4 l2.3 -4 l2.4 4 l2.3 -4 l2.3 4 l2 -4" stroke="#f6f2f4" stroke-width="1.5" fill="none" stroke-linejoin="round"/></g>`;
+      return { hand: [76, 66], shieldY: 0, svg:
+        `<path d="M36 72 q-4 11 -1 20 M44 74 q-2 10 -1 18 M56 74 q2 10 1 18 M64 72 q4 11 1 20" stroke="${shade}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+         <path d="M34 90 h8 M46 90 h7 M54 90 h7 M62 90 h8" stroke="#f6f2f4" stroke-width="3" stroke-linecap="round"/>
+         <path d="M33 56 Q36 46 50 45 Q64 46 67 56 Q68 72 50 74 Q32 72 33 56 Z" fill="${a.main}"/>
+         <path d="M36 66 Q50 74 64 66 Q62 73 50 74 Q38 73 36 66 Z" fill="${shade}"/>
+         ${fl(38, 50, 0.6, a.trim)}${fl(50, 46, 0.72, a.trim)}${fl(62, 50, 0.6, a.trim)}
+         ${skull(39, 0.82)}${skull(61, 0.9)}` };
+    },
+    back(a) {
+      const shade = '#3b171c';
+      const fl = (x, y, k, c) => `<path transform="translate(${x} ${y}) scale(${k})" d="M0 0 q-4 -6 -1 -12 q1 5 4 6 q1 -4 -1 -8 q7 6 5 14 q-2 3 -7 0 Z" fill="${c}"/>`;
+      const backSkull = (x, k, rot) => `<g transform="translate(${x} 33) rotate(${rot}) scale(${k})">
+        <path d="M-12 -2 Q-14 -13 -4 -16 L4 -16 Q14 -13 12 -2 Q10 7 0 8 Q-10 7 -12 -2 Z" fill="${a.main}"/>
+        <path d="M-9 -13 L-13 -27 L0 -17 Z" fill="${a.main}"/><path d="M9 -13 L13 -27 L0 -17 Z" fill="${a.main}"/>
+        <path d="M-7 -2 Q0 2 7 -2" fill="none" stroke="${INK}" stroke-width="1.2" opacity=".4"/></g>`;
+      return { hand: [24, 66], shieldY: 0, svg:
+        `<path d="M50 58 Q62 44 58 30" stroke="${a.main}" stroke-width="6" fill="none" stroke-linecap="round"/>
+         ${fl(58, 33, 0.7, a.trim)}
+         <path d="M36 72 q-4 11 -1 20 M44 74 q-2 10 -1 18 M56 74 q2 10 1 18 M64 72 q4 11 1 20" stroke="${shade}" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+         <path d="M34 90 h8 M46 90 h7 M54 90 h7 M62 90 h8" stroke="#f6f2f4" stroke-width="3" stroke-linecap="round"/>
+         <path d="M32 58 Q35 47 50 46 Q65 47 68 58 Q69 74 50 76 Q31 74 32 58 Z" fill="${a.main}"/>
+         <path d="M50 48 V75" stroke="${INK}" stroke-width="1.4" opacity=".35"/>
+         <path d="M35 68 Q50 76 65 68 Q63 75 50 76 Q37 75 35 68 Z" fill="${shade}"/>
+         ${fl(40, 52, 0.55, a.trim)}${fl(60, 52, 0.55, a.trim)}
+         ${backSkull(37, 0.78, -12)}${backSkull(63, 0.86, 12)}` };
+    },
+  },
+};
+
+/* ==================================================================
+   WHICH WAY A CHAMPION IS TURNED
+
+   A champion turns to their mark before they swing. The bearing is measured between where the two of
+   them actually stand on the field (stageBox), snapped to the nearest of the eight, and remembered on
+   the unit as `u.face` - so anything downstream (the drawing, and one day a rule about being struck
+   from behind) can ask which way somebody was looking.
+
+   IT IS MEASURED ON THE FIELD, NOT ON THE SCREEN. Bearings read a unit's own coordinates (u.fx, u.fy,
+   set in layoutSides from SLOTS) rather than asking the browser where the sprite ended up. That matters:
+   the arena is a wide, shallow box of pixels, so measured there the depth of the field is crushed and
+   28 of 32 attacker-to-target lines come out due east or west - the eight bearings collapse back into
+   the two the game always had. In the field's own 0..100 space the two ranks are as far apart in depth
+   as the warbands are across, and the diagonals appear on their own, with nothing fudged.
+   ================================================================== */
+const DIR_KEYS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+// How deep the field is reckoned to be against how wide. Both of a unit's coordinates run 0..100 over
+// the same stage, so 1 means a step across the line and a step into the depth count the same. Raise it
+// to make the ranks feel further apart (more north and south), lower it to flatten the field.
+const FIELD_ASPECT = 1;
+
+// Where a unit stands in the field's own coordinates. Units laid out before the arena exists, or never
+// placed at all, have none - then there is no bearing to be had.
+const fieldPos = (u) => (u && u.fx != null && u.fy != null ? { x: u.fx, y: u.fy } : null);
+
+// The compass bearing from one unit to another: 0 is north, and it runs clockwise.
+function bearingTo(u, t) {
+  const A = fieldPos(u), B = fieldPos(t);
+  if (!A || !B) return null;
+  const dx = B.x - A.x, dy = (B.y - A.y) * FIELD_ASPECT;   // y grows into the field's depth, so north is -dy
+  if (!dx && !dy) return null;
+  return ((Math.atan2(dx, -dy) * 180 / Math.PI) + 360) % 360;
+}
+// How far apart two units stand, in field units — the other half of having real coordinates.
+function fieldDist(u, t) {
+  const A = fieldPos(u), B = fieldPos(t);
+  if (!A || !B) return null;
+  return Math.hypot(B.x - A.x, (B.y - A.y) * FIELD_ASPECT);
+}
+const snap8 = (deg) => ((Math.round(deg / 45) % 8) + 8) % 8 * 45;      // the nearest of the eight
+const dirKey = (deg) => DIR_KEYS[((Math.round(deg / 45) % 8) + 8) % 8];  // ...by name
+
+/* Turn a unit to face another before it acts. Hands back the bearing it settled on (also left on the
+   unit as u.face), or null when there is nothing to turn to - then it keeps looking whichever way it was. */
+function faceTarget(u, t) {
+  if (!u || !t || u === t) return null;
+  const deg = bearingTo(u, t);
+  if (deg == null) return null;
+  return (u.face = snap8(deg));
+}
+// Which way a unit is turned at this moment: wherever it last turned, or the way its side always looks.
+const faceOf = (u) => (u && u.face != null ? u.face : (u && u.side === 'e' ? 270 : 90));
+
+/* A bearing, resolved: which of the three drawings to use, whether to mirror it, and how far to turn it.
+   North and south are the back and the front head-on; east and west are the profile and its mirror; the
+   diagonals are the square-on drawing turned a quarter, mirrored for the western half. */
+const DIR_QUARTER = 32;   // how far a diagonal turns the square-on drawing, in degrees
+const BEARINGS = { N: 0, NE: 45, E: 90, SE: 135, S: 180, SW: 225, W: 270, NW: 315 };
+function dirPose(deg) {
+  const d = ((Math.round(deg / 45) * 45) % 360 + 360) % 360;
+  switch (d) {
+    case 0:   return { view: 'back',  mirror: false, yaw: 0 };
+    case 45:  return { view: 'back',  mirror: false, yaw: DIR_QUARTER };
+    case 90:  return { view: 'side',  mirror: false, yaw: 0 };
+    case 135: return { view: 'front', mirror: false, yaw: DIR_QUARTER };
+    case 180: return { view: 'front', mirror: false, yaw: 0 };
+    case 225: return { view: 'front', mirror: true,  yaw: DIR_QUARTER };
+    case 270: return { view: 'side',  mirror: true,  yaw: 0 };
+    default:  return { view: 'back',  mirror: true,  yaw: DIR_QUARTER };   // 315, north-west
+  }
+}
+
 /* Character art is loaded from the characters/ folder:
      characters/<faction folder>/<id>.<ART_EXT>   e.g. characters/human/wren.svg
    Switch ART_EXT to 'png' once your art is PNG. If a file is missing,
@@ -4280,12 +4837,28 @@ const EXP_RUNES = {
 const EXP_RUNE_KEYS = Object.keys(EXP_RUNES);
 const EXP_RUNE_OFFER = 3;   // §7.1.2 three physical runes per selection, of which one is kept
 
+/* THE DESCENT — how far down a vault has let you come back.
+   NOT from the spec: an addition on top of it. A vault remembers every warband that has
+   walked out of it alive, and it is readier the next time. Each clear raises that
+   expedition's Descent by one, and with it everything inside: the monsters are heavier and
+   hit harder, and the bosses — the Abbot and the two it keeps — climb faster still, so the
+   things with names stay ahead of the things without. The climb pays: the deeper the vault
+   is set against you, the more it gives up. It only ever rises on a CLEAR; dying in there
+   or walking out early leaves it exactly where it was, so the ladder can never be climbed
+   by accident, and never falls back either. Descent is per expedition and is SAVED — unlike
+   the run state, it outlives the run (profile.expeditions). */
+const EXP_DEPTH_STEP   = 0.18;  // +18% monster HP and attack per Descent (scale multiplies both)
+const EXP_DEPTH_BOSS   = 0.10;  // bosses and minor bosses gain this much AGAIN per Descent, on top
+const EXP_DEPTH_REWARD = 0.15;  // +15% gold and XP per Descent, so climbing is worth doing
+const EXP_DEPTH_CAP    = 10;    // the vault stops learning here: ~2.8x monsters, ~5.6x bosses
+
 /* One authored proving-ground expedition. `env` is one of the spec's 8 environments;
    `look` reuses an existing arena palette. `chambers` is the graph: each entry has a
    type, a name, and `exits` (forward connections by chamber id). The first chamber is
    an empty preparation area (§3.2) and never counts as a combat encounter. */
 const EXPEDITIONS = [
-  { id: 'proving', name: 'The Proving Vault', env: 'dungeon', look: 'crypt', minLv: 5, scale: 0.85,
+  // scale was 0.85 while the vault was a tutorial; at 1.0 even a first Descent is a real fight.
+  { id: 'proving', name: 'The Proving Vault', env: 'dungeon', look: 'crypt', minLv: 5, scale: 1.0,
     freeMap: true,   // the guild provides this training vault's map (§3.3)
     blurb: 'A test crypt the guild keeps for green warbands. Its passages fork — the road you pick is on you.',
     entry: 'start',
@@ -4352,10 +4925,10 @@ const npcArt = (id) => `<img class="npcArt" src="characters/npcs/${id}.${ART_EXT
 const NPC_FALLBACK = '<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="94" rx="20" ry="3.6" fill="#000" opacity=".35"/><path d="M36 93 L39 52 Q50 44 61 52 L64 93 Z" fill="#5a4a52" stroke="#15121d" stroke-width="1.5"/><circle cx="50" cy="38" r="11" fill="#d9b48f" stroke="#15121d" stroke-width="1.5"/><path d="M38 40 Q38 24 50 24 Q62 24 62 40 Q56 32 50 32 Q44 32 38 40 Z" fill="#4a3a42" stroke="#15121d" stroke-width="1.5"/></svg>';
 
 const spriteCache = {};
-function builtinSprite(id) {
-  if (spriteCache[id]) return spriteCache[id];
-  const a = lookOf(id);
-  const b = BODIES[a.body](a);
+// A body with its weapon, shield and off-hand hung on it. Kept apart from builtinSprite because the
+// square-on facings (dirSprite) hang the very same gear on a differently drawn body: whichever way a
+// champion is turned, they carry what they always carried.
+function gearUp(a, b) {
   const [x, y] = b.hand;
   // The weapon is its own group, pivoting on the hand, so an attack pose can swing it (WEAPON_STRIKES).
   // look.weaponScale grows the weapon about the hand (Barrow's oversized headstone); the outer group still pivots there.
@@ -4369,8 +4942,29 @@ function builtinSprite(id) {
     g += `<g class="wpn2" style="transform-origin:37px ${oy}px"><g transform="translate(37 ${oy}) scale(${a.offhandScale || 0.82}) translate(-37 ${-oy})">${WEAPONS[a.offhand](a, 37, oy, a.offhand === 'headstone' ? 6 : undefined)}</g></g>`;
   }
   if (a.scale) g = `<g transform="translate(50 94) scale(${a.scale}) translate(-50 -94)">${g}</g>`;
-  const rx = a.body === 'dwarf' || a.scale ? 18 : 23;
-  return (spriteCache[id] = `<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="94" rx="${rx}" ry="3.6" fill="#000" opacity=".35"/>${g}</svg>`);
+  return g;
+}
+// The shadow they stand in, and the frame around the whole drawing.
+const spriteFrame = (a, g) =>
+  `<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="94" rx="${a.body === 'dwarf' || a.scale ? 18 : 23}" ry="3.6" fill="#000" opacity=".35"/>${g}</svg>`;
+
+function builtinSprite(id) {
+  if (spriteCache[id]) return spriteCache[id];
+  const a = lookOf(id);
+  return (spriteCache[id] = spriteFrame(a, gearUp(a, BODIES[a.body](a))));
+}
+
+/* The champion drawn on a bearing (see THE EIGHT BEARINGS). Hands back the drawing together with how it
+   should be hung - `mirror` for the western half of the compass, `yaw` for the quarter-turn on a diagonal -
+   or null when that body has no square-on art yet, which is the caller's cue to fall back to turning the
+   profile instead. East and west never return null: those are the profile the game has always had. */
+function dirSprite(id, deg) {
+  const a = lookOf(id);
+  if (!a) return null;
+  const pose = dirPose(deg);
+  const rec = pose.view === 'side' ? BODIES[a.body] : DIR_BODIES[a.body]?.[pose.view];
+  if (!rec) return null;
+  return { svg: spriteFrame(a, gearUp(a, rec(a))), mirror: pose.mirror, yaw: pose.yaw, view: pose.view };
 }
 
 /* ==================================================================
@@ -4391,12 +4985,18 @@ let SPEED = (() => { try { const v = +localStorage.getItem(SPEED_KEY); return SP
    It lets go on its own the moment the battle ends or something raises you back up. */
 const FFWD_MULT = 3;
 let FFWD = false;
+// AUTO_PLAY: the sim harness (index.html?battle&auto=1) hands your champion to the AI too, so a fight
+// runs hands-off from the first turn. Off in the real game — only bootTest ever sets it. It also runs the
+// whole fight AUTO_SPEED× faster (both the action beats and the speed bar) so results come in early.
+let AUTO_PLAY = false;
+const AUTO_SPEED = 10;
+const autoFast = () => (AUTO_PLAY ? AUTO_SPEED : 1);
 const youDown = () => { const y = state?.teams?.p?.find((x) => x.you); return !!y && y.hp <= 0; };
 const ffwdOn = () => FFWD && youDown() && !['won', 'lost', 'cleared'].includes(state.phase);
-const speedNow = () => SPEED * (ffwdOn() ? FFWD_MULT : 1);
+const speedNow = () => SPEED * (ffwdOn() ? FFWD_MULT : 1) * autoFast();
 const beat = (ms) => ms / speedNow();
 const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 150) : ms / speedNow()));
-const waitBar = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 150) : ms / (ffwdOn() ? FFWD_MULT : 1)));   // speed bar: always 1×, except fast-forward
+const waitBar = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 150) : ms / ((ffwdOn() ? FFWD_MULT : 1) * autoFast())));   // speed bar: 1×, except fast-forward or auto-sim
 const chance = (p) => Math.random() < p;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -5640,13 +6240,44 @@ async function fireAim(u) {
   await wait(320);
 }
 
-/* GRAVEYARD FENCE vs. RANGED: a shot fired straight at a fenced champion strikes the iron and glances
-   off - arrows, bullets, bolts, thrown blades and spell-bolts alike, a basic Attack or a skill. Area
-   attacks still land, and so does anything that comes down from above: a lobbed or arching round
-   (proj.arc), a hurled skill (Last Rites), a gust or a wave. A melee attacker never gets this far
-   (validTargets keeps it off a fenced mark). p = the projectile the shot would fly as. */
+// MOLOTOV'S FUSE — the same beat as Mara's Powder Shot (takeAim + the turnPulse count), but for a lobbed
+// AREA attack: Drekka lights the bottle on her turn (loadThrow is the cast, u.loadedThrow counted down in
+// turnPulse), and it flies on the next Toll, whoever's turn it is, resolving as the full area throw
+// (fireLoadedThrow hands it to damageSkill). Lit but then silenced, stunned, bashed or coffined, she
+// drops it and the throw is lost. The MP and cooldown were already paid at the cast.
+async function loadThrow(u, t, sk) {
+  await castPose(u, true);   // she lights the rag this turn; no bottle flies yet
+  u.loadedThrow = { tolls: sk.o.fuse, sk, target: t?.uid };
+  float(u, '🔥🧪 Lit', 'fx');
+  log(`${u.name} lights the ${sk.name} — it flies on the next Toll.`, u.side);
+  render();
+  await wait(300);
+}
+async function fireLoadedThrow(u) {
+  const { sk } = u.loadedThrow;
+  u.loadedThrow = null;
+  if (!openFoes(u).length) { log(`${u.name} holds the ${sk.name} — nothing left to throw it at.`, u.side); render(); return; }
+  float(u, `${sk.name}!`, 'fx');
+  await damageSkill(u, null, sk);   // allEnemies: damageSkill picks the whole warband itself
+}
+
+/* RANGED ATTACK TYPES. Every ranged attack has a shape, and ground obstacles key off this named axis
+   (the Graveyard Fence is the first; more rise later). ARCH comes down from above and clears a
+   waist-high obstacle - a lobbed or arching round, a shot called down, a hurled skill, a gust or a
+   wave. HORIZONTAL flies flat and is stopped by it - arrows, bullets, bolts, thrown blades and
+   spell-bolts alike, a basic Attack or a skill. A skill names its own shape with o.attackType
+   ('arch' | 'horizontal'); unset, it is read from the projectile (a tumbling/lobbed round, o.arc or
+   arc:'curve', or a hurl/gust/wave) so every existing attack keeps its shape with no retagging. Melee
+   is neither type - it never reaches a fenced mark at all (validTargets keeps it off). */
+const ARCH = 'arch', HORIZONTAL = 'horizontal';
+const attackType = (u, sk, p) =>
+  sk?.o?.attackType ? sk.o.attackType
+  : (p?.arc || sk?.o?.hurl || sk?.o?.gust || sk?.o?.watersweep) ? ARCH
+  : HORIZONTAL;
+/* GRAVEYARD FENCE vs. RANGED: a HORIZONTAL shot at a fenced champion strikes the iron and glances off;
+   an ARCH shot sails over and lands, and area attacks still land. p = the projectile the shot flies as. */
 const fenceStops = (u, sk, p, t) => !!t && t.hp > 0 && has(t, 'protected') && u.role !== 'melee' && sk.target === 'enemy'
-  && !sk.o?.hurl && !sk.o?.gust && !sk.o?.watersweep && !p?.arc;
+  && attackType(u, sk, p) === HORIZONTAL;
 // Where the fence stands: on the side of the target facing the shooter, just short of them.
 const FENCE_STOP = (e, to, from) => ({ x: e.x - Math.sign(e.x - from.x) * e.w * 0.42 });
 async function fenceDeflect(u, t, label, p) {
@@ -5823,6 +6454,7 @@ async function damageSkill(u, t, sk) {
   if (o.hurl) settleCrosses(u, t, o.pin && struck.has(t));
   for (const [id, turns] of o.selfFx || []) if (u.hp > 0) addFx(u, id, turns);
   if (o.selfStacks) gainStacks(u, o.selfStacks);
+  if (o.groundFire) layGroundFire(u, o.groundFire);   // Molotov: the enemy ground is left burning
   if (o.allyHeal && u.hp > 0) for (const a of alliesOf(u)) { burst(a, 'heal'); healUnit(u, a, healPower(u, o.allyHeal), sk.name); }
   if (o.allySteal && total && u.hp > 0) {
     const a = [...alliesOf(u)].sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
@@ -6076,6 +6708,12 @@ function addFx(u, id, turns, value = 0, quiet = false) {
     if (!quiet) { float(u, 'Unmoved', 'fx'); log(`${u.name} does not give an inch.`, u.side); }
     return;
   }
+  // Molotov's Dry sheds water: a scorched-dry unit shrugs off the Soaked STATUS (weather and Grave Damp
+  // still count it soaked - that is the field, not a status; see soaked()).
+  if (id === 'soaked' && has(u, 'dry')) {
+    if (!quiet) { float(u, 'Dry', 'fx'); log(`${u.name} is scorched dry — the soaking finds no purchase.`, u.side); }
+    return;
+  }
   const ex = has(u, id);
   const until = TIMED_FX[id] ? state.time + TIMED_FX[id] : null;
   const tollN = TOLL_FX[id] ? turns : null;   // bash/fear/coffin count Tolls, not the owner's turns
@@ -6091,6 +6729,8 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   // Dug In and The Slow March refuse it like any drag: the fear takes hold, the ground isn't lost.
   if (id === 'fear' && !charNat(u).anchor && !charNat(u).march) { u.pos = Math.max(0, (u.pos || 0) - FEAR_BACK); u.recoil = true; }
   if (id === 'soaked') douse(u, 'The soaking');
+  // Dry lands: the fire boils off any Soaking already on them.
+  if (id === 'dry') { const w = has(u, 'soaked'); if (w) { u.effects = u.effects.filter((e) => e !== w); float(u, '💧→🔥', 'fx'); } }
   // Flee: a step per remaining Toll, so the last Toll puts it exactly on the start line.
   if (id === 'flee') { const e = has(u, 'flee'); e.step = Math.ceil((u.pos || 0) / Math.max(1, e.tolls)); }
   u.chipsAt = Date.now();   // even a quiet status re-shows the chip text (float covers the rest)
@@ -6109,6 +6749,20 @@ async function beginTurn(u) {
   if (charNat(u).evergreen) {
     const leaf = u.effects.find((e) => FX[e.id].kind === 'bad' && e.id !== 'overheat');
     if (leaf) { u.effects = u.effects.filter((e) => e !== leaf); float(u, `${FX[leaf.id].icon} Shed`, 'fx'); }
+  }
+  // Molotov's ground fire: standing on it re-ignites you at the start of your turn (the fresh Burn
+  // ticks below with the rest), and the fire burns down a turn for it. Flyers hover above and take
+  // nothing. The sky's say over it (Downpour docks a turn, Thunderstorm drowns it) is in turnPulse.
+  const gf = state.groundFire;
+  if (gf && u.side === gf.side && u.hp > 0) {
+    if (u.floats) float(u, 'Above the flames', 'fx');
+    else {
+      float(u, '🔥 Ground Fire', 'fx');
+      log(`The burning ground sears ${u.name}.`, 'sys');
+      addFx(u, 'burn', 3, Math.max(1, Math.round((gf.atk || 0) * GF_BURN)));
+    }
+    gf.turns -= 1;
+    if (gf.turns <= 0) extinguishGroundFire('dies down');
   }
   let ticked = false;
   for (const id of DOT_IDS) {
@@ -6269,6 +6923,7 @@ async function doAction(u, sk, t) {
   render();
 
   if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Tolls later (fireAim)
+  else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Toll (fireLoadedThrow)
   else if (sk.kind === 'damage') await damageSkill(u, t, sk);
   else if (sk.kind === 'heal') await healSkill(u, t, sk);
   else if (sk.kind === 'buff') await buffSkill(u, t, sk);
@@ -6463,6 +7118,27 @@ function douse(u, by) {
   u.heat = 0;
   float(u, 'Doused', 'fx');
   log(`${by} douses ${u.name}'s Heat.`, u.side);
+}
+// MOLOTOV'S GROUND FIRE. Drekka's Molotov leaves the enemy ground burning: one field (state.groundFire)
+// sits on the struck side and, at the start of each of that side's turns, re-ignites whoever stands
+// there (beginTurn applies a fresh Burn, which ticks with the rest - flyers hover above it and take
+// nothing). It burns down a turn each time the side acts, and the sky works it over in turnPulse: a
+// Downpour beats it down one turn (once), a Thunderstorm drowns it outright. atk is Drekka's at the
+// throw, so the fire keeps its bite even if she falls.
+const GF_BURN = 0.3;   // the re-ignite's Burn, as a fraction of her attack (matches her Firepot)
+function layGroundFire(u, turns) {
+  const side = u.side === 'p' ? 'e' : 'p';   // it burns on the enemy ground
+  if (wx() === 'storm') { log(`The Thunderstorm drowns ${u.name}'s Molotov before it can catch.`, u.side); return; }
+  let t = turns, doused = false;
+  if (wx() === 'rain') { t -= 1; doused = true; }   // a Downpour means it starts a turn shorter
+  if (t <= 0) { log(`The Downpour smothers ${u.name}'s Molotov at once.`, u.side); return; }
+  state.groundFire = { side, turns: t, atk: u.atk, by: u.name, doused };
+  log(`${u.name}'s Molotov sets the enemy ground ablaze.`, u.side);
+}
+function extinguishGroundFire(how = 'dies down', by) {
+  if (!state.groundFire) return;
+  state.groundFire = null;
+  log(by ? `${by} puts the ground fire out.` : `The ground fire ${how}.`, 'sys');
 }
 // Downpour or Thunderstorm washes the Heat out of every living Ironclad champion at once.
 // Clear Skies arriving: the light comes back and every Blind on the field lifts at once.
@@ -6662,15 +7338,24 @@ function roundsUntilWeather() {
   return WEATHER_EVERY - ((state.round - 1) % WEATHER_EVERY);
 }
 
-// Battles are decided by heroes only; summons don't count.
-const heroesUp = (side) => state.teams[side].some((u) => alive(u) && (!u.summon || u.controllable));
+/* WHO IS STILL IN THE FIGHT.
+   A warband is not beaten the moment its last champion drops. Anything of theirs that can still
+   swing keeps them in it — a Scrapbot, a Risen, a Hell Pup, a War Boar, an Ink Double — and the
+   other side has to put every one of them down before the field is theirs. A fight between two
+   wiped warbands goes on as a fight between what they left behind.
+   Scenery is not a fighter, and never holds a battle open on its own: a planted Grave Cross, an
+   Anchor, a Stinging Jelly. They are inert devices with no attack of their own (skills: []) — they
+   can be in the way, but they cannot carry a warband. A summon you command (an Ink Double) counts
+   whatever else is true of it. */
+const fightsOn = (u) => alive(u) && !u.inert && (!u.summon || u.controllable || !!SUMMONS[u.id]?.skills?.length);
+const stillFighting = (side) => state.teams[side].some(fightsOn);
 
 function checkEnd() {
   if (['won', 'lost', 'cleared'].includes(state.phase)) return true;
   // The Ballroom rallies before it falls: a waiting coward steps in rather than let the fight end.
-  while (!heroesUp('e') && nextWave());
-  if (!heroesUp('e')) { endBattle(true); return true; }
-  if (!heroesUp('p')) { endBattle(false); return true; }
+  while (!stillFighting('e') && nextWave());
+  if (!stillFighting('e')) { endBattle(true); return true; }
+  if (!stillFighting('p')) { endBattle(false); return true; }
   return false;
 }
 
@@ -7451,6 +8136,17 @@ function emergeToll(u, e) {
 
 async function turnPulse() {
   state.pulseN = (state.pulseN || 0) + 1;   // which Toll this is (Grudge Axe waits for the next one)
+  // Molotov's ground fire answers to the sky. A Thunderstorm drowns it outright; a Downpour beats it
+  // down a turn, once. (The searing itself is at each turn-start on that ground, see beginTurn.)
+  if (state.groundFire) {
+    const gf = state.groundFire;
+    if (wx() === 'storm') extinguishGroundFire(null, 'The Thunderstorm');
+    else if (wx() === 'rain' && !gf.doused) {
+      gf.doused = true; gf.turns -= 1;
+      log('The Downpour beats the ground fire down.', 'sys');
+      if (gf.turns <= 0) extinguishGroundFire('dies down');
+    }
+  }
   // Bolt-On: every turn anyone takes is one of the weld's four.
   for (const p of allUnits()) {
     if (!p.attachedTo) continue;
@@ -7509,6 +8205,26 @@ async function turnPulse() {
     if (m.aimShot.tolls === 1 && !m.aimShot.raised) await raiseAim(m);
     if (m.aimShot.tolls > 0) continue;
     await fireAim(m);
+    if (checkEnd()) return true;
+  }
+  // Molotov's fuse: the lit bottle flies on the Toll after she lights it, whoever's turn it is. Dropped
+  // if she is silenced, stunned, bashed or coffined before it goes (see loadThrow / fireLoadedThrow).
+  for (const m of allUnits()) {
+    if (!m.loadedThrow) continue;
+    if (m.hp <= 0) { m.loadedThrow = null; continue; }
+    const lost = has(m, 'silence') || hardFrozen(m) || has(m, 'bash') || inBox(m);
+    if (lost) {
+      const why = has(m, 'silence') ? 'silenced' : hardFrozen(m) ? 'stunned' : has(m, 'bash') ? 'bashed' : 'sealed in the coffin';
+      log(`${m.name} is ${why} — the ${m.loadedThrow.sk.name} is dropped.`, m.side);
+      float(m, 'Dropped', 'miss');
+      m.loadedThrow = null;
+      render();
+      await wait(400);
+      continue;
+    }
+    m.loadedThrow.tolls = Math.max(0, m.loadedThrow.tolls - 1);
+    if (m.loadedThrow.tolls > 0) continue;
+    await fireLoadedThrow(m);
     if (checkEnd()) return true;
   }
   // Execute: the blood thrown into the sky comes down two Tolls later, whoever's turn it is - or the
@@ -7605,7 +8321,7 @@ async function nextTurn() {
     if (shouldFlee(u)) { await flee(u); continue; }
     // Your heroes wait for you; summons (on either side) act on their own.
     // Only your champion waits for your orders; recruits and summons act on their own.
-    if (commandable(u)) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
+    if (commandable(u) && !AUTO_PLAY) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
     await wait(450);
     // A recruit may spend one satchel item before acting, just as you can on your turn.
     if (usesSatchel(u)) {
@@ -7857,7 +8573,9 @@ function startBattle(retry) {
   if (hunt || dg || exp) {
     // Monsters fight at your level, never below the depth's, dungeon's or expedition's minimum.
     const src = hunt || dg || exp;
-    state.teams.e = state.enemyIds.map((id, i) => makeMonster(id, Math.max(src.minLv, state.level), i, src.scale));
+    // An expedition's monsters are scaled by its Descent as well as its own scale (THE DESCENT).
+    const mScale = exp ? expScale(exp) : src.scale;
+    state.teams.e = state.enemyIds.map((id, i) => makeMonster(id, Math.max(src.minLv, state.level), i, mScale));
     // Expeditions: HP, MP and cooldowns carry over from the previous chamber (expStoreCarry).
     if (exp) {
       expApplyRunes();   // §7.2 run-long rune buffs, cut in before the carry clamps the pools
@@ -7917,12 +8635,13 @@ function startBattle(retry) {
   state.phase = 'busy'; state.pending = null; state.reward = null; state.log = [];
   state.killXp = 0; state.kills = 0;   // what your champion's killing blows earn here, paid out at the end
   state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0; state.quakeJolt = null;
+  state.groundFire = null;   // Molotov's ground fire never carries between battles
   state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;   // battles open under Clear Skies; the first change is at round 4
   state.screen = 'battle';
   state.token++;
   $('#overlay').hidden = true;
   if (dg) log(`${dg.name}, ${dgIsBossRoom() ? 'the boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}: ${state.teams.e.map((u) => `${u.name}${u.fledOnce ? ' (wounded)' : ''}`).join(', ')}.`, 'sys');
-  else if (exp) log(`${exp.name}, ${expChamber().name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
+  else if (exp) log(`${exp.name}, ${expChamber().name}${expDepth(exp.id) ? ` (Descent ${expDepth(exp.id)})` : ''}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (hunt) log(`${CAVE.name}, ${hunt.name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (spar) log(`Sparring at the Training Yard, level ${spar.lv}: ${state.teams.p.map((u) => u.name).join(', ')} against ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (duel) log(`The Proving Grounds, ${duel.name} for ${duel.pay} gold: ${duel.band} — ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
@@ -8542,6 +9261,18 @@ function expRandInt(n) {
 // Maps (§3.3): bought outside a run, per dungeon. The proving vault ships its own (freeMap).
 const expHasMap = () => { const e = expRun(); return !!(e && (e.freeMap || profile.expMaps?.[e.id])); };
 
+/* THE DESCENT (see the constants). `expDepth` is how many times this vault has been cleared,
+   which is also how much harder it is about to be. Read from the SAVE, not the run state, so
+   it survives a closed tab — and read live rather than frozen at the gate, so a clear is
+   already counted the next time you walk in. */
+const expDepth = (id) => Math.min(EXP_DEPTH_CAP, profile.expeditions?.[id]?.clears || 0);
+// What the monsters are multiplied by: the expedition's own scale, plus the vault's memory.
+const expScale = (e) => (e.scale || 1) * (1 + EXP_DEPTH_STEP * expDepth(e.id));
+// What a boss gets ON TOP of that, so the named things outpace the nameless ones.
+const expBossMult = (e) => 1 + EXP_DEPTH_BOSS * expDepth(e.id);
+// What the vault pays for being this far down.
+const expRewardMult = (e) => 1 + EXP_DEPTH_REWARD * expDepth(e.id);
+
 function startExpedition(id) {
   const e = expeditionById(id);
   if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
@@ -8623,9 +9354,10 @@ function expBeginCombat() {
 // A monster promoted into a minor boss (§6): bigger, much tougher, harder-hitting, and it never
 // uses the ordinary minion flee — it has its own 10% escape.
 function expPromoteMinor(u, name) {
+  const d = expBossMult(expRun());   // THE DESCENT: a named thing climbs faster than its pack
   u.expMinor = true; u.elite = true; u.name = name;
-  u.maxHp = Math.round(u.maxHp * EXP_MINOR_HP_MULT); u.hp = u.maxHp;
-  u.atk = Math.round(u.atk * EXP_MINOR_ATK_MULT);
+  u.maxHp = Math.round(u.maxHp * EXP_MINOR_HP_MULT * d); u.hp = u.maxHp;
+  u.atk = Math.round(u.atk * EXP_MINOR_ATK_MULT * d);
 }
 
 // Enemy-side setup for an expedition fight (called from startBattle): minor-boss promotion and
@@ -8649,6 +9381,11 @@ function expSetupEnemies() {
   if (s.bossInFight) {
     const boss = state.teams.e.find((x) => x.id === e.boss && x.boss);
     if (boss) {
+      // THE DESCENT first: the persisted HP below is a FRACTION of max, so the pool has to be
+      // its final size before that fraction is read, or a boss would shrink mid-arc.
+      const d = expBossMult(e);
+      boss.maxHp = Math.round(boss.maxHp * d); boss.hp = boss.maxHp;
+      boss.atk = Math.round(boss.atk * d);
       if (s.boss.hp != null) boss.hp = Math.max(1, Math.round(boss.maxHp * s.boss.hp));
       boss.expBoss = true;
       boss.spdMult = s.boss.phase < 2 ? EXP_BOSS_SPEED_MULT : 1;   // §8.1 double speed; §8.5.3 normal in the final phase
@@ -8899,8 +9636,11 @@ async function expResolveCombat(won) {
   if (won) {
     state.phase = 'won';
     const lv = state.teams.e[0]?.level || 1;
-    state.goldWon = guildGold(HUNT_GOLD_BASE + HUNT_GOLD_PER * slain.length);
-    const xp = Math.round(slain.reduce((a, u) => a + (MONSTERS[u.id]?.xp || 0) * (u.boss ? 3 : u.expMinor ? 2 : 1), 0) * (1 + 0.1 * (lv - 1)) * DG_XP_MULT);
+    // THE DESCENT pays. Worked out BEFORE the clear is banked below, so the last fight of a run
+    // is paid at the depth you walked in at, not the one you just earned.
+    const pay = expRewardMult(e);
+    state.goldWon = guildGold(Math.round((HUNT_GOLD_BASE + HUNT_GOLD_PER * slain.length) * pay));
+    const xp = Math.round(slain.reduce((a, u) => a + (MONSTERS[u.id]?.xp || 0) * (u.boss ? 3 : u.expMinor ? 2 : 1), 0) * (1 + 0.1 * (lv - 1)) * DG_XP_MULT * pay);
     state.reward = payXp(xp);
     const flawless = state.teams.p.filter((u) => !u.summon).every(alive);
     news.push(...questEvent('win', { vs: null, flawless, rounds: state.round, kills: 0 }), ...guildWin(bossKilled));
@@ -8913,7 +9653,19 @@ async function expResolveCombat(won) {
     s.cleared.add(s.current);
     s.bossInFight = false;
     profile.gold += state.goldWon; profile.stats.earned += state.goldWon; profile.stats.wins++;
-    if (bossKilled) { s.boss.slain = true; s.done = true; }
+    // The vault only learns from a warband that walks out of it alive (THE DESCENT): the clear
+    // is banked here, where the boss is actually dead, and nowhere else.
+    if (bossKilled) {
+      s.boss.slain = true; s.done = true;
+      profile.expeditions = profile.expeditions || {};
+      const rec = (profile.expeditions[e.id] = profile.expeditions[e.id] || { clears: 0 });
+      rec.clears++;
+      profile.stats.clears++;
+      const next = Math.min(EXP_DEPTH_CAP, rec.clears);
+      log(next >= EXP_DEPTH_CAP
+        ? `${e.name} has nothing left to learn from you. It will meet you at Descent ${EXP_DEPTH_CAP} from now on.`
+        : `${e.name} remembers you. It will be waiting at Descent ${next}.`, 'sys');
+    }
   } else {
     state.phase = 'lost';
     state.goldWon = 0;
@@ -9198,7 +9950,7 @@ function expRenderDecision() {
     ${exits.length ? `<ul class="expExits">${exitRows}</ul>` : '<p class="note">No road leads on from here. The only way is back.</p>'}
     ${held ? '<p class="note">Settle the rune before the warband moves on.</p>' : ''}
     ${expHasMap() ? expMapHTML() : '<p class="note">No map for this dungeon — you see only the roads out of this chamber.</p>'}
-    <p class="note">This run so far: <b>${s.gold} gold</b>, <b>${s.xp} XP</b>. Moving between chambers never heals.</p>`;
+    <p class="note">This run so far: <b>${s.gold} gold</b>, <b>${s.xp} XP</b>${expDepth(e.id) ? ` · <b>Descent ${expDepth(e.id)}</b>` : ''}. Moving between chambers never heals.</p>`;
   const back = s.path.length ? s.path[s.path.length - 1] : null;
   const canRetreat = back != null && (s.reentry[back] || 0) < EXP_REENTRY_CAP && !held;
   const btns = $('#ovBtns'); btns.innerHTML = '';
@@ -9235,7 +9987,14 @@ function expEndOverlay(outcome) {
   s.runes = {}; s.pendingRune = null; s.prep = null;
   const total = `This expedition: <b>${s.gold} gold</b> and <b>${s.xp} XP</b> in total.`;
   let kick, title, body;
-  if (outcome === 'won') { kick = `Expedition complete · ${e.name}`; title = `${MONSTERS[e.boss].name} falls`; body = `<p>The vault is cleared end to end.</p><p>${total}</p>`; }
+  if (outcome === 'won') {
+    // The clear was banked in expResolveCombat, so expDepth already reads the NEW depth.
+    const d = expDepth(e.id);
+    kick = `Expedition complete · ${e.name}`; title = `${MONSTERS[e.boss].name} falls`;
+    body = `<p>The vault is cleared end to end.</p><p>${total}</p>
+      <p>${d >= EXP_DEPTH_CAP ? `${e.name} can learn nothing more. It will meet you at <b>Descent ${EXP_DEPTH_CAP}</b> every time from here.`
+        : `${e.name} has taken your measure. Come back and it will be waiting at <b>Descent ${d}</b> — heavier monsters, and bosses heavier still.`}</p>`;
+  }
   else if (outcome === 'lost') { kick = 'Defeat'; title = `Your warband falls in ${e.name}`; body = `<p>The expedition ends, but you keep everything earned on the way.</p><p>${total}</p>`; }
   else { kick = 'Abandoned'; title = `You withdraw from ${e.name}`; body = `<p>The party leaves. Everything earned so far is kept.</p><p>${total}</p>`; }
   $('#ovKick').textContent = kick; $('#ovTitle').textContent = title; $('#ovBody').innerHTML = body;
@@ -11932,12 +12691,20 @@ const PLACE_BODY = {
     // Expeditions (foundation slice): branching, authored chamber maps with a decision timer.
     const exCards = EXPEDITIONS.map((e) => {
       const open = lv >= e.minLv, kinds = [...new Set(Object.values(e.chambers).flatMap((c) => c.pack || []))];
+      // THE DESCENT: what this vault has learned from you, and what it costs and pays now.
+      const d = expDepth(e.id);
+      const pct = (n) => `${Math.round(n * 100)}%`;
+      const descent = d === 0
+        ? '<small class="cond">🕯️ <b>Descent 0</b> — the vault has never seen you. Clear it and it will be readier next time.</small>'
+        : `<small class="cond">🕯️ <b>Descent ${d}${d >= EXP_DEPTH_CAP ? ' · deepest' : ''}</b> — monsters +${pct(EXP_DEPTH_STEP * d)} HP and damage,
+             bosses +${pct((1 + EXP_DEPTH_STEP * d) * (1 + EXP_DEPTH_BOSS * d) - 1)} · pays +${pct(EXP_DEPTH_REWARD * d)} gold and XP.</small>`;
       return `<div class="depth dungeon${open ? '' : ' locked'}">
         <div class="dmini">${kinds.map((id) => `<span class="mini" title="${MONSTERS[id].name}">${spriteSVG(id)}</span>`).join('')}
           <span class="mini boss" title="${MONSTERS[e.boss].name}">${spriteSVG(e.boss)}</span></div>
         <h3>${e.name} <span class="role support">New</span></h3><p>${e.blurb}</p>
         <small>Level ${e.minLv}+ · ${EXP_ENVIRONMENTS[e.env]} · branching chambers, then <b>${MONSTERS[e.boss].name}</b></small>
         <small class="cond">🗺️ <b>Expedition</b> — forked chambers, a 45-second decision timer, and only one re-entry per chamber.</small>
+        ${descent}
         <button class="btn${open ? ' primary' : ''}" type="button" data-k="expedition:${e.id}"${open ? '' : ' disabled'}>${open ? 'Set out' : `Unlocks at level ${e.minLv}`}</button>
       </div>`;
     }).join('');
@@ -13633,11 +14400,20 @@ function layoutSides() {
   for (const side of ['p', 'e']) {
     const at = {};   // uid → [x, y] of everyone placed so far, so summons can find their caster
     const place = (u, [x, y]) => {
-      at[u.uid] = [x, y];
+      at[u.uid] = [x, y];   // the un-mirrored slot, so a summon can find its caster's
+      /* WHERE THE UNIT STANDS — the field's own coordinates, and the simulation's source of truth.
+         fx runs 0..100 across the line and is ABSOLUTE (already mirrored for the far side, so the two
+         warbands share one coordinate space); fy runs 0..100 into the depth of the stage. Everything
+         that needs to know where somebody is - bearings, distance, who is behind whom - reads these.
+         The CSS below is DERIVED from them. Never the other way round: asking the browser where a unit
+         ended up (getBoundingClientRect) makes the simulation depend on its own rendering, and on the
+         arena's pixel shape, which is what made every blow read as due east. */
+      u.fx = side === 'p' ? x : 100 - x;
+      u.fy = y;
       const el = actorEl(u);
       if (!el) return;
-      el.style.setProperty('--x', side === 'p' ? x : 100 - x);
-      el.style.setProperty('--y', y);
+      el.style.setProperty('--x', u.fx);
+      el.style.setProperty('--y', u.fy);
       el.style.zIndex = y;   // lower on the field = closer to you = drawn in front
     };
     // The melee line holds the front every battle; a boss strides out to lead it whatever its role.
@@ -14261,6 +15037,7 @@ const PROJ_SKILL = {
   "Hunter's Mark": { kind: 'dart' },
   'Gutpiercer': { kind: 'javelin' },
   'Firepot': { kind: 'firepot', arc: true, impact: 'fire' },
+  'Molotov': { kind: 'molotov', arc: true, impact: 'fire' },
   'Napalm Jar': { kind: 'napalm', arc: true, impact: 'fire' },
   'Powder Keg': { kind: 'keg', arc: true, impact: 'boom' },
   // Kingdom of Aldmere
@@ -14332,6 +15109,13 @@ const PROJ_ART = {
     <path d="M2.5 13 Q8 15.5 13.5 13" fill="none" stroke="#e8a548" stroke-width=".8"/>`],
   napalm: [16, 19, `<rect x="4" y="1.5" width="8" height="3" rx="1" fill="#5a3a1c" ${PI_}/><rect x="3" y="4" width="10" height="11" rx="3" fill="#8a4a2a" ${PI_}/>
     <path d="M3 7 Q5 10 4 13 Q7 10 8 8 Q9 12 11 9 Q12 11 13 7 Z" fill="#ff8a1d"/><circle class="pk" cx="8" cy="17.5" r="1.3" fill="#ff8a1d"/>`],
+  // Molotov: a black glass bottle with a lit rag burning at the neck (class pk = the flicker).
+  molotov: [14, 22, `<path class="pk" d="M7 0 C9 1.5 9 3.5 7.5 5 L6.5 5 C5 3.5 5 1.5 7 0 Z" fill="#ff8a1d"/>
+    <circle class="pk" cx="7" cy="2.6" r="1.2" fill="#fff1a0"/>
+    <rect x="5.4" y="4.2" width="3.2" height="4" rx="1" fill="#17171e" ${PI_}/>
+    <path d="M4 8 Q3 9.5 3 12.5 L3 18 Q3 21 7 21 Q11 21 11 18 L11 12.5 Q11 9.5 10 8 Z" fill="#1b1b24" ${PI_}/>
+    <path d="M4.6 12 Q7 13.4 9.4 12" fill="none" stroke="#e0455a" stroke-width="1.3"/>
+    <path d="M5 10 Q4.6 15 5.2 18.5" fill="none" stroke="#3a3a4a" stroke-width=".9" opacity=".8"/>`],
   keg: [18, 17, `<path d="M3 3 Q1 9 3 15 H15 Q17 9 15 3 Z" fill="#b07a46" ${PI_}/>
     <path d="M2.2 6 H15.8 M2.2 12 H15.8" stroke="#454d61" stroke-width="1.4"/><path d="M9 3 Q10 1 12 1" fill="none" stroke="#c9b28a" stroke-width="1"/>
     <circle class="pk" cx="12.5" cy="1" r="1.6" fill="#ffd166"/>`],
@@ -15033,6 +15817,9 @@ function factionPassive(u) {
   return f.rule;
 }
 
+// How many status chips a champion wears before the rest are gathered into a "+N" (see the render below).
+// Four fits the unit's own width at every size without reaching over the champions either side of them.
+const CHIP_MAX = 4;
 function passiveChips(u) {
   const c = [];
   if (u.faction === 'orc') { const r = Math.round(50 * (1 - u.hp / u.maxHp)); if (r > 0 && u.hp > 0) c.push(`Rage +${r}%`); }
@@ -15041,7 +15828,7 @@ function passiveChips(u) {
   if (u.faction === 'tide' && highTide() && u.hp > 0) c.push('High Tide');
   if (pv(u).deadScale && u.hp > 0) { const d = deadCount(); if (d) c.push(`Toll +${Math.round(pv(u).deadScale * d * 100)}%`); }
   if (favored(u) && u.hp > 0) c.push(WEATHER[wx()].name);
-  return c.map((t) => `<li class="chip pass">${t}</li>`).join('');
+  return c;   // labels; the battlefield builds the chips so it can rank and cap them with the statuses
 }
 
 function renderBattle() {
@@ -15052,7 +15839,7 @@ function renderBattle() {
   const hunt = huntDepth(), dg = dungeonRun(), exp = expRun();
   $('#tagline').textContent = dg
     ? `${dg.name}, ${dgIsBossRoom() ? 'boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}. Warband level ${state.level}.`
-    : exp ? `${exp.name}, ${expChamber().name}. Warband level ${state.level}.`
+    : exp ? `${exp.name}, ${expChamber().name}.${expDepth(exp.id) ? ` Descent ${expDepth(exp.id)}.` : ''} Warband level ${state.level}.`
     : hunt ? `${CAVE.name}, ${hunt.name}. Warband level ${state.level}.`
     : `Ashfall Road, battle ${state.battle + 1} of ${state.order.length}. Warband level ${state.level}.`;
   /* Dungeons: the ladder lists the rooms, ending with the boss. The ladder is only on screen
@@ -15137,11 +15924,25 @@ function renderBattle() {
       mpBar.querySelector('.fill').style.width = `${(u.mp / u.maxMp) * 100}%`;
       mpBar.querySelector('span').textContent = `${u.mp} / ${u.maxMp} MP`;
     }
-    // Status chips: the icon stays put; the label sits in .txt so it can fade away (see .unit .chip .txt).
+    /* STATUS CHIPS. The icon stays put; the label sits in .txt so it can fade away (see .unit .chip .txt).
+       Late in a fight a champion can carry a dozen statuses at once, and left to itself the block wraps
+       into row after row. The rows grow UPWARD from the feet, so a well-cursed champion ends up wearing
+       a wall of text that buries whoever stands behind them. So the row never wraps and never runs past
+       CHIP_MAX: what demands an answer comes first (the bad, then the good, then the passive auras,
+       which are the most decorative and the widest), and the remainder is gathered into one "+N" that
+       names them on hover. */
     const chips = el.querySelector('.chips');
     chips.style.setProperty('--chipAge', `${-(Date.now() - (u.chipsAt || 0))}ms`);
-    chips.innerHTML = passiveChips(u) + u.effects.map((e) =>
-      `<li class="chip ${FX[e.id].kind}"><span class="ico">${FX[e.id].icon}</span><span class="txt">${FX[e.id].label}${e.charges != null ? ` ×${e.charges}` : e.until != null || e.turns >= 99 ? '' : ` ${e.turns}`}</span></li>`).join('');
+    const dur = (e) => (e.charges != null ? ` ×${e.charges}` : e.until != null || e.turns >= 99 ? '' : ` ${e.turns}`);
+    const rank = { bad: 0, neutral: 1, good: 2 };
+    const borne = [...u.effects].sort((a, b) => (rank[FX[a.id].kind] ?? 3) - (rank[FX[b.id].kind] ?? 3))
+      .map((e) => ({ name: FX[e.id].label,
+        html: `<li class="chip ${FX[e.id].kind}"><span class="ico">${FX[e.id].icon}</span><span class="txt">${FX[e.id].label}${dur(e)}</span></li>` }));
+    const auras = passiveChips(u).map((t) => ({ name: t, html: `<li class="chip pass">${t}</li>` }));
+    const all = [...borne, ...auras];
+    const over = all.length - CHIP_MAX;
+    chips.innerHTML = (over > 0 ? all.slice(0, CHIP_MAX) : all).map((c) => c.html).join('')
+      + (over > 0 ? `<li class="chip more" title="${all.slice(CHIP_MAX).map((c) => c.name).join(', ')}">+${over}</li>` : '');
     syncStatusFx(el, u);
     el.classList.toggle('winding', !!u.windup);
     el.classList.toggle('frenzied', !!u.frenzy);   // Blood Frenzy: his axes run red while it lasts
@@ -15503,7 +16304,8 @@ function setLogHidden(hide) {
   b.textContent = hide ? 'Show log' : 'Hide log';
   b.setAttribute('aria-expanded', String(!hide));
   b.title = hide ? 'Show the battle log' : 'Hide the battle log';
-  try { localStorage.setItem(LOG_KEY, hide ? '1' : '0'); } catch {}
+  // A sim fight hiding the log (?battle&nolog=1) is not a preference — never let it overwrite the real one.
+  if (!TEST_MODE) { try { localStorage.setItem(LOG_KEY, hide ? '1' : '0'); } catch {} }
 }
 $('#logBtn').addEventListener('click', () => setLogHidden(!document.body.classList.contains('logHidden')));
 setLogHidden((() => { try { return localStorage.getItem(LOG_KEY) === '1'; } catch { return false; } })());
@@ -15538,6 +16340,8 @@ document.addEventListener('keydown', (ev) => {
      ?battle                 a quick gauntlet with the default warband
      ?battle&team=wren,garrick,aelira,maren   who stands in the band (slot 0 = you)
      ?battle&foe=tunnels     a cave hunt at that depth instead (tunnels|grotto|den)
+     ?battle&vs=barrow,octavia,mogra,hesk   a hand-picked enemy warband (champions, fought as a duel)
+     ?battle&auto=1          the AI plays your champion too, so the fight runs hands-off
      ?battle&lv=10           your champion's level (skills unlock with it; default 8)
      ?battle&pas=heroic      force the hero's passive loadout (comma-separated ids)
 
@@ -15545,6 +16349,17 @@ document.addEventListener('keydown', (ev) => {
    ================================================================== */
 function bootTest(params) {
   TEST_MODE = true;
+  AUTO_PLAY = params.has('auto') && params.get('auto') !== '0';   // auto=1: the AI plays your champion too
+  if (params.has('nolog')) setLogHidden(true);                    // nolog=1: all field, no chronicle
+  /* The Sim Deck runs these fights in frames and needs to know when one is decided so it can deal the
+     next. It cannot simply read `state`: that is a module-scope binding and invisible from outside the
+     frame. So a test fight publishes a tiny read-only window onto itself - nothing the game uses, and
+     nothing that exists outside the harness. */
+  window.SIM = {
+    get phase() { return state.phase; },
+    get round() { return state.round; },
+    get over() { return ['won', 'lost', 'cleared'].includes(state.phase); },
+  };
   profile = blankProfile();   // a clean slate — the real save on disk is left alone
   profile.level = Math.max(1, Math.min(30, parseInt(params.get('lv'), 10) || 8));
 
@@ -15567,6 +16382,20 @@ function bootTest(params) {
   buildVillage();
   syncTeam();
 
+  // Optional: a hand-picked ENEMY warband (vs=ids). Fought as a duel, so the other side is champions
+  // (not a monster pack or the random gauntlet), your recruits still act on their own AI, and slot 0 is
+  // still you. Same ids on both sides is a mirror match; a shared id is tagged "Rival" on the enemy.
+  const vs = (params.get('vs') || '').split(',').map((s) => s.trim()).filter(Boolean).filter((id) => charById(id));
+  if (vs.length) {
+    const eband = vs.slice(0, TEAM_SIZE);
+    for (const c of ROSTER) { if (eband.length >= TEAM_SIZE) break; if (!eband.includes(c.id)) eband.push(c.id); }
+    state.mode = 'duel';
+    state.enemyIds = eband;
+    state.duel = { name: 'Sim bout', tier: 1, ids: eband, band: `${shortName(charById(eband[0]))}'s warband`,
+                   lv: profile.level, scale: 1, stake: 0, pay: 0, xp: 0, lvOff: 0 };
+    startBattle(true);
+    return;
+  }
   // A cave hunt against a named depth, or the faction gauntlet by default.
   const foe = params.get('foe');
   if (foe && depthById(foe)) startHunt(foe);
@@ -15613,6 +16442,9 @@ function start(data) {
   if (!profile.hero) { state.team = []; state.screen = 'select'; }
   render();
 }
+// A window-level peek at the fight's phase, so the Sim Deck (a parent frame) can tell when a battle has
+// ended — the module-scoped `state` itself is not reachable across frames. Closes over the live `state`.
+window.simPhase = () => { try { return state && state.screen === 'battle' ? state.phase : null; } catch (e) { return null; } };
 try { window.claude?.hot?.snapshot?.(() => ({ state })); } catch (err) { /* not in a viewer */ }
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 </script>
