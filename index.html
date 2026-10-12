@@ -1786,8 +1786,14 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 @keyframes swing { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
 /* Your warband stands around the fire in the square. */
 .townies { position: absolute; inset: 0; pointer-events: none; }
-.townie { position: absolute; width: 2.6%; aspect-ratio: 1; transform: translate(-50%, -94%); }
+.townie { position: absolute; width: 2.6%; aspect-ratio: 1; transform: translate(-50%, -94%); pointer-events: auto; cursor: pointer; }
+.townie:hover > div, .townie:focus-visible > div { filter: drop-shadow(0 0 6px rgba(232, 165, 72, .9)); }
+.townie:focus-visible { outline: none; }
 .townie > div { width: 100%; height: 100%; animation: townIdle 2.8s ease-in-out infinite; }
+/* Your champions stroll (strollTownie): left/top glide over --t seconds, with a quicker step bob while they walk. */
+.townie { transition: left var(--t, 0s) linear, top var(--t, 0s) linear; }
+.townie.walking > div { animation: townWalk .45s ease-in-out infinite; }
+@keyframes townWalk { 50% { transform: translateY(-5%); } }
 /* Night falls on people as it does on the streets: the veil is the top layer of the map (nightLayer). */
 .townie img, .townie svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .townie.flip img, .townie.flip svg { transform: scaleX(-1); }
@@ -1841,6 +1847,9 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   box-shadow: 0 0 10px rgba(232, 165, 72, .7); animation: qbounce 1.6s ease-in-out infinite;
 }
 .qmark[hidden] { display: none; }
+/* A gate guide's "!": brighter, and it pulses, so it reads as "talk to me" rather than a quest. */
+.qmark.hot { background: #ffd34d; animation: qbounce 1.6s ease-in-out infinite, qglow 1.2s ease-in-out infinite; }
+@keyframes qglow { 50% { box-shadow: 0 0 16px 4px rgba(255, 211, 77, .95); } }
 @keyframes qbounce { 50% { transform: translate(-50%, -125%); } }
 .quest { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
 .quest.offer, .quest.ready { border-color: var(--accent); }
@@ -1973,6 +1982,107 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .skrow { display: flex; gap: 8px; align-items: center; font-size: .88rem; }
 .skrow .sic { width: 28px; height: 28px; flex: none; }
 .skrow small { color: var(--muted); }
+/* The warband's four mini cards at the Expedition Gate (renderBandMinis). --bmw / --bmh are set to fit
+   the strip of map above the panel, so the type and slots scale down with them on a small phone. */
+.bandMinis { position: absolute; z-index: 35; display: grid; grid-template-columns: var(--bmw, 120px) minmax(0, 1fr) var(--bmw, 120px); gap: 6px; pointer-events: none; }
+.bandMinis .bandMini { pointer-events: auto; }
+.bandMinis > :nth-child(1) { grid-area: 1 / 3; }
+.bandMinis > :nth-child(2) { grid-area: 2 / 3; }
+.bandMinis > :nth-child(3) { grid-area: 1 / 1; }
+.bandMinis > :nth-child(4) { grid-area: 2 / 1; }
+.bandMinis[hidden] { display: none; }
+.bandMini {
+  max-height: var(--bmh, 150px); display: grid; align-content: start; gap: 3px; padding: 5px 6px; cursor: pointer; text-align: left; color: var(--fg);
+  font: inherit; border-radius: 10px; border: 1px solid var(--line); background: rgba(24, 27, 40, .93); box-shadow: 0 4px 12px rgba(0, 0, 0, .45); overflow: hidden;
+}
+.bandMini.you { border-color: var(--accent); }
+.bandMini { position: relative; }
+.bmX { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; padding: 0; display: grid; place-items: center; cursor: pointer;
+  border-radius: 5px; border: 1px solid var(--line); background: #1a1e2b; color: var(--muted); font-size: .62rem; line-height: 1; }
+.bmX:hover, .bmX:focus-visible { color: var(--fg); border-color: var(--accent); outline: none; }
+.bmHead { padding-right: 20px; }
+.bmSpot { pointer-events: none; }
+.bandMini:hover, .bandMini:focus-visible { border-color: var(--accent); outline: none; }
+.bmHead { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 4px; align-items: center; }
+.bmPic { width: 24px; height: 24px; }
+.bmPic img, .bmPic svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.bmName { min-width: 0; display: grid; line-height: 1.05; }
+.bmName b { font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bandMini.you .bmName b { color: var(--accent); }
+.bmName small { font-size: .58rem; color: var(--muted); font-weight: 800; }
+.bmBar { position: relative; display: block; height: 12px; border-radius: 4px; background: #11131c; overflow: hidden; }
+.bmBar i { position: absolute; inset: 0; display: block; width: 100%; }
+.bmBar em { position: relative; display: block; text-align: center; font-style: normal; font-size: .54rem; font-weight: 800; line-height: 12px; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .85); white-space: nowrap; }
+.bmBar.hp i { background: #4fbf63; }
+.bmBar.mp i { background: #4f8fe0; }
+.bmStats { display: flex; flex-wrap: wrap; gap: 0 6px; font-size: .56rem; font-weight: 800; letter-spacing: .03em; color: var(--muted); line-height: 1.3; }
+.bmStats b { color: var(--fg); }
+.bmRow { display: flex; gap: 2px; align-items: center; }
+.bmSkills .bmSk { flex: 1 1 0; max-width: 20px; aspect-ratio: 1; border-radius: 4px; overflow: hidden; }
+.bmSkills .bmSk.pas { border-radius: 50%; }
+.bmSk .sic { width: 100%; height: 100%; display: block; }
+.bmGap { flex: 0 0 4px; }
+.bmSlot { flex: 1 1 0; max-width: 20px; aspect-ratio: 1; display: grid; place-items: center; border-radius: 4px; border: 1px solid #3a4058; background: #1a1e2b; color: #59607a; }
+.bmSlot.full { border-color: #8a6a3a; color: var(--fg); }
+.bmSlot svg, .bmSlot img { width: 80%; height: 80%; display: block; }
+
+/* A champion's floating card on the map (renderChampPop). */
+.champPop {
+  position: absolute; z-index: 40; width: min(310px, calc(100% - 16px)); overflow-y: auto; display: grid; gap: 6px;
+  padding: 10px 12px 12px; border-radius: 14px; background: rgba(24, 27, 40, .96); border: 1px solid var(--accent);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .55), 0 0 14px rgba(232, 165, 72, .25); color: var(--fg);
+}
+.champPop[hidden] { display: none; }
+/* An equipment screen: the name on top, the champion on a lit pedestal in the middle, what they
+   wear down the left and their backpack down the right. Empty slots show a faint outline and a +. */
+.cpTop { display: grid; grid-template-columns: 26px minmax(0, 1fr) 26px; align-items: start; text-align: center; }
+.cpTop > div { grid-column: 2; }
+.cpTop b { display: block; font-family: var(--font-display); font-size: 1.2rem; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; }
+.cpTop small { color: var(--muted); font-size: .66rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.cpTop .cpX { grid-column: 3; }
+.cpStage { display: grid; grid-template-columns: 46px minmax(0, 1fr) 46px; gap: 6px; align-items: center; }
+.cpCol { display: grid; gap: 6px; align-content: center; }
+.cpSlot {
+  position: relative; width: 46px; height: 46px; padding: 6px; display: grid; place-items: center; cursor: pointer;
+  border-radius: 10px; border: 1px solid #3a4058; background: linear-gradient(180deg, #262b3d, #1a1e2b); color: #59607a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 2px 4px rgba(0, 0, 0, .4);
+}
+.cpSlot.full { border-color: #8a6a3a; color: var(--fg); background: linear-gradient(180deg, #33303a, #221f28); }
+.cpSlot.picking { border-color: var(--accent); box-shadow: 0 0 8px rgba(232, 165, 72, .6); }
+.cpSlot:hover { border-color: var(--accent); }
+.cpSlot svg, .cpSlot img { width: 100%; height: 100%; display: block; }
+.cpSlot .glyph { width: 70%; height: 70%; opacity: .55; }
+.cpSlot .plus { position: absolute; right: -5px; bottom: -6px; font-size: .8rem; font-weight: 900; line-height: 1; color: #8b92aa; }
+.cpFig { position: relative; display: grid; place-items: end center; height: 196px; }
+.cpPed { position: absolute; left: 50%; bottom: 4px; width: 86%; height: 26px; transform: translateX(-50%); border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(232, 165, 72, .45), rgba(232, 165, 72, .08) 70%, transparent), #2a2532;
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, .5); }
+.cpFig::before { content: ''; position: absolute; inset: 0 6% 12px; border-radius: 50% 50% 10px 10px;
+  background: radial-gradient(60% 55% at 50% 60%, rgba(232, 165, 72, .18), transparent 75%); }
+.cpModel { position: relative; width: 100%; max-width: 170px; height: 184px; }
+.cpModel img, .cpModel svg { width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; }
+.cpX { align-self: start; width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); cursor: pointer; font-size: .8rem; }
+.cpBars { display: grid; gap: 4px; }
+.cpBar { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px; align-items: center; }
+.cpBar small { font-size: .66rem; font-weight: 800; letter-spacing: .06em; color: var(--muted); }
+.cpTrack { position: relative; height: 14px; border-radius: 7px; overflow: hidden; background: #11131c; box-shadow: inset 0 0 0 1px var(--line); }
+.cpTrack i { position: absolute; inset: 0 auto 0 0; border-radius: 7px; }
+.cpBar.hp i { background: linear-gradient(180deg, #6fd37e, #3a9a4c); }
+.cpBar.mp i { background: linear-gradient(180deg, #6fb3ff, #3a6fc0); }
+.cpTrack em { position: relative; display: block; text-align: center; font-style: normal; font-size: .66rem; font-weight: 800; line-height: 14px; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .8); }
+.cpStats { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: .78rem; }
+.cpStats small { color: var(--muted); margin-right: 3px; font-size: .66rem; font-weight: 800; letter-spacing: .06em; }
+.cpLbl { margin: 2px 0 0; font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.cpSkills { display: flex; flex-wrap: wrap; gap: 4px; }
+.cpSk { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 7px; background: none; cursor: pointer; overflow: hidden; }
+.cpSk.pas { border-radius: 50%; }
+.cpSk.on { box-shadow: 0 0 0 2px var(--accent); }
+.cpSk .sic { width: 100%; height: 100%; display: block; }
+.cpTip { margin: 0; font-size: .78rem; line-height: 1.3; color: var(--muted); }
+.cpTip b { color: var(--fg); }
+.cpTip.hint { font-style: italic; }
+.champPop .packPick { margin-top: 2px; }
+.cpBtns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
 .skrow.locked { color: var(--muted); font-style: italic; }
 .place {
   font: inherit; color: inherit; text-align: left; cursor: pointer; display: grid; gap: 3px; align-content: start;
@@ -2249,6 +2359,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
       <div class="npcs" id="npcs" role="group" aria-label="People of Cinderhold"></div>
       </div>
       <div class="say" id="npcSay" role="status" hidden></div>
+      <div class="champPop" id="champPop" role="dialog" aria-label="Champion details" hidden></div>
+      <div class="bandMinis" id="bandMinis" role="group" aria-label="Your warband" hidden></div>
       <nav class="dock" id="dock" aria-label="Your warband and skills"></nav>
       <div class="battleDock" id="battleDock" hidden>
         <div class="battleMenu" id="battleMenu" role="menu" aria-label="Choose a battle" hidden>
@@ -12238,8 +12350,8 @@ const PLACES = {
             flavor: 'A crooked little cottage at the edge of Cinderhold. The roof leaks, but it is yours.' },
   bounty: { name: 'Bounty Board', kick: 'Jobs', blurb: 'Three new jobs every day, paid in gold.',
             flavor: 'Sergeant Holt pins up fresh jobs every morning by the east road. The ink is barely dry, but the pay is real.' },
-  gate:   { name: 'Expedition Gate', kick: 'Explore', blurb: 'Dungeons along Ashfall Road: rooms, bosses and loot chests.',
-            flavor: 'The east gate, where Ashfall Road leaves Cinderhold. Past it lie the crypt and the mine, a haunted manor, a frost-locked castle, a witches\' hollow, and the Spire at the very end.' },
+  // What the gate is, and how a dungeon runs, are told by Osric and Bram on the road (GATE_GUIDES).
+  gate:   { name: 'Expedition Gate', kick: 'Explore', blurb: 'Dungeons along Ashfall Road: rooms, bosses and loot chests.' },
   academy: { name: 'The Academy', kick: 'Study', blurb: 'Compare champions, read the library, and learn the basics of allies, threats and combos.',
             flavor: 'Headmistress Ilse Varrow has studied every warband that ever marched down Ashfall Road. She teaches the basics, and leaves the rest for you to find out.' },
   train:  { name: 'Training Yard', kick: 'Train', blurb: 'Drill new techniques and earn skill points.',
@@ -12261,6 +12373,38 @@ const PLACES = {
 };
 const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'workshop', 'carnival', 'elder', 'tavern'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
+// With the Expedition Gate open, the warband waits on the road out of it, facing the gate.
+const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
+// Your champions don't stand still: each walks to a random spot, waits a few seconds, and picks another.
+// On the square that's anywhere inside the ring of lamps but clear of the fire; on the gate road, within
+// a tile of their own spot and never back inside the gate. The walk is a CSS transition on left/top
+// (--t); buildVillage's depth timer keeps re-sorting them against the buildings as they go.
+const STROLL_SPEED = 34;   // map units a second: an easy walking pace
+function strollSpot(i, atGate) {
+  if (atGate) {
+    const [hx, hy] = GATE_SPOTS[i] || GATE_SPOTS[0], s = (hy - ISO.y0) / ISO.ky, d = (hx - ISO.x0) / ISO.kx;
+    const gx = Math.max(38.4, (s + d) / 2 + (Math.random() - .5) * 1.8), gy = (s - d) / 2 + (Math.random() - .5) * 1.8;
+    return [isoX(gx, gy), isoY(gx, gy)];
+  }
+  const a = Math.random() * Math.PI * 2, r = 1.7 + Math.random() * 1.3, gx = 21 + r * Math.cos(a), gy = 21 + r * Math.sin(a);
+  return [isoX(gx, gy), isoY(gx, gy)];
+}
+function strollTownie(el, i, atGate) {
+  clearTimeout(el.strollT);
+  el.strollT = setTimeout(() => {
+    if (!el.isConnected) return;
+    // Hold still while you're pointing at them, or while the village is out of sight.
+    if (el.matches(':hover, :focus-visible, .held') || $('#villageScreen').hidden) return strollTownie(el, i, atGate);   // .held: their card is open (renderChampPop)
+    const [x, y] = strollSpot(i, atGate), t = Math.hypot(x - el.mapAt[0], y - el.mapAt[1]) / STROLL_SPEED;
+    el.classList.toggle('flip', x < el.mapAt[0]);   // they face right; walking left turns them round
+    el.style.setProperty('--t', `${t.toFixed(2)}s`);
+    el.classList.add('walking');
+    el.style.left = mapX(x);
+    el.style.top = mapY(y);
+    el.mapAt = [x, y];
+    el.strollT = setTimeout(() => { el.classList.remove('walking'); strollTownie(el, i, atGate); }, t * 1000);
+  }, 2500 + Math.random() * 5000);
+}
 
 /* ------------------------------------------------------------------
    NPCs. Art is characters/npcs/<id>.svg. Positions are in map units
@@ -12610,6 +12754,28 @@ const QUEST_BY_ID = Object.fromEntries(QUESTS.map((q) => [q.id, q]));
 // Art top (y of 100) for the short NPCs, so their quest marker sits just above the head.
 const NPC_HEAD = { pip: 42, bolt: 45 };
 
+/* GATE GUIDES — two of the watch posted either side of the road out of the Expedition Gate. They
+   carry no quest: each has one thing to tell you about what lies past the gate, marked with a
+   glowing "!" until you have heard it (profile.guidesRead). Tapping one shows it in a speech bubble. */
+const GATE_GUIDES = {
+  osric: { name: 'Osric', title: 'Gate warden', at: [1646, 1122],
+           say: 'The east gate, where Ashfall Road leaves Cinderhold. Past it lie the crypt and the mine, a haunted manor, a frost-locked castle, a witches\' hollow, and the Spire at the very end.' },
+  bram:  { name: 'Bram', title: 'Road scout', at: [1805, 1076], flip: true,
+           say: 'A dungeon is a run of rooms with no full heal between them: HP and MP carry over, the fallen get back up at 30%, and everyone rests a little. Each room pays XP and gold. The boss at the end guards a chest. Bosses enrage below half HP, and before their big attack they warn you a turn ahead: that\'s the moment to Guard or shield up. Badly wounded monsters flee deeper, and your warband gives chase: they\'ll be in the next room, still hurt. Abandon the run any time and you keep what you\'ve earned.' },
+};
+const guideUnread = (id) => !profile.guidesRead?.[id];
+function guideTalk(btn) {
+  const id = btn.dataset.guide, g = GATE_GUIDES[id];
+  if (!g) return;
+  showSay(btn, `<strong>${g.name} · ${g.title}</strong>${g.say}<span class="btns"><button class="btn small" type="button" data-k="hush">Close</button></span>`, true);
+  if (guideUnread(id)) {
+    if (!profile.guidesRead) profile.guidesRead = {};
+    profile.guidesRead[id] = true;
+    saveProfile();
+    updateQuestMarks();
+  }
+}
+
 const questSt = (q) => profile.quests[q.id] || null;
 const goalN = (q) => q.goal.n || 1;
 // The quest an NPC is currently offering, running or waiting to pay out (undefined once their list is done).
@@ -12704,10 +12870,11 @@ function questMark(npcId) {
 
 function updateQuestMarks() {
   document.querySelectorAll('#npcs .npc').forEach((b) => {
-    const m = questMark(b.dataset.npc), el = b.querySelector('.qmark');
+    const guide = b.dataset.guide, m = guide ? (guideUnread(guide) ? '!' : '') : questMark(b.dataset.npc), el = b.querySelector('.qmark');
     el.textContent = m;
     el.hidden = !m;
-    b.setAttribute('aria-label', b.dataset.label + (m === '!' ? '. Has a quest for you' : m === '?' ? '. Quest to hand in' : ''));
+    el.classList.toggle('hot', !!guide && !!m);   // a gate guide's "!" glows until you have heard them
+    b.setAttribute('aria-label', b.dataset.label + (guide ? (m ? '. Has something to tell you' : '') : m === '!' ? '. Has a quest for you' : m === '?' ? '. Quest to hand in' : ''));
   });
 }
 
@@ -12775,7 +12942,12 @@ function npcsHTML() {
       data-label="${n.name}, ${n.title}. Talk">
       <span class="tag">${n.name}</span>${QMARK(id)}<div class="face"><div class="bob">${npcArt(id)}</div></div></button>`;
   });
-  return [...keepers, ...folk].join('');
+  const guides = Object.entries(GATE_GUIDES).map(([id, g]) => `
+    <button class="npc stand guide${g.flip ? ' flip' : ''}" type="button" data-guide="${id}" data-npc="${id}"
+      style="left:${mapX(g.at[0])};top:${mapY(g.at[1])};z-index:${zAt(...g.at)};--d:${(-Math.random() * 3).toFixed(2)}s"
+      data-label="${g.name}, ${g.title}. Talk">
+      <span class="tag">${g.name}</span>${QMARK(id)}<div class="face"><div class="bob">${npcArt(id)}</div></div></button>`);
+  return [...keepers, ...folk, ...guides].join('');
 }
 
 // Speech bubble over a townsperson. Clicking the same person again moves to their next line.
@@ -12814,7 +12986,9 @@ function showSay(btn, html, sticky = false) {
   bub.classList.toggle('ask', sticky);
   bub.hidden = false;
   const tr = town.getBoundingClientRect(), r = btn.getBoundingClientRect();
-  const cx = r.left + r.width / 2 - tr.left, left = clamp(cx - bub.offsetWidth / 2, 6, tr.width - bub.offsetWidth - 6);
+  // A building's panel docked on the right covers that side of the map: keep the bubble clear of it.
+  const pr = $('#placePanel')?.getBoundingClientRect(), right = pr && pr.width && pr.left > tr.left + tr.width / 2 ? pr.left - tr.left : tr.width;
+  const cx = r.left + r.width / 2 - tr.left, left = clamp(cx - bub.offsetWidth / 2, 6, right - bub.offsetWidth - 6);
   bub.style.left = `${left}px`;
   bub.style.top = `${Math.max(4, r.top - tr.top + r.height * 0.1 - bub.offsetHeight - 8)}px`;
   bub.style.setProperty('--tail', `${clamp(cx - left, 12, bub.offsetWidth - 12)}px`);
@@ -13145,13 +13319,8 @@ const PLACE_BODY = {
         <button class="btn${open ? ' primary' : ''}" type="button" data-k="expedition:${e.id}"${open ? '' : ' disabled'}>${open ? 'Set out' : `Unlocks at level ${e.minLv}`}</button>
       </div>`;
     }).join('');
-    return `<p class="note">A dungeon is a run of rooms with no full heal between them: HP and MP carry over, the fallen get back up at 30%,
-        and everyone rests a little. Each room pays XP and gold. The boss at the end guards a chest. Bosses enrage below half HP,
-        and before their big attack they warn you a turn ahead: that's the moment to Guard or shield up.
-        Badly wounded monsters flee deeper, and your warband gives chase: they'll be in the next room, still hurt.
-        Abandon the run any time and you keep what you've earned.</p>
-      <div class="teamRow">${teamMinis()}</div>
-      <div class="depths">${cards}</div>
+    // No warband row here: they are already standing on the gate road outside (GATE_SPOTS).
+    return `<div class="depths">${cards}</div>
       <h3 class="bhead">Expeditions (new)</h3>
       <p class="note">An expedition is an authored, branching dungeon. After every chamber the party has 45 seconds to choose a connected
         chamber or retreat; let the timer lapse and the party presses forward at random. Chambers can be re-entered only once.</p>
@@ -13634,6 +13803,143 @@ function inventoryHTML(close) {
   </section>`;
 }
 
+/* A CHAMPION'S CARD — tap one of your warband on the map and their details float beside them on the
+   map: who they are and their stats, the skills they take into battle (tap one to read it), their
+   backpack (packed and unpacked right here, see BACKPACKS) and what they have equipped, with the
+   way on to their skills or the full inventory. Whatever panel is open stays open underneath, so the
+   warband stays where it was standing (the gate road). */
+function openChamp(cid) {
+  hideSay();
+  const el = document.querySelector(`.townie[data-champ="${cid}"]`);
+  state.champ = state.champ === cid ? null : cid;
+  state.champAt = state.champ && el ? el.getBoundingClientRect() : null;   // where they stood when tapped
+  state.champTip = null;
+  state.packPick = null;
+  render();
+}
+// Faint outlines for an empty slot, so it reads as "a weapon goes here" before anything does.
+const SLOT_GLYPH = {
+  wp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 3l3 3-10 10-3-3zM8 13l3 3-2 2-1-1-3 3-1-1 3-3-1-1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  eq: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l1 3 3 1-1 6h-2v8H7v-8H5L4 7l3-1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  t:  '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="5.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 6.5L12 3l2.5 3.5L12 9.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  pack: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6V5a3 3 0 0 1 6 0v1M6 8h12l1 12H5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h6" stroke="currentColor" stroke-width="1.6"/></svg>',
+};
+function champHTML(cid) {
+  const c = charById(cid), lv = heroLevel(), you = isHeroId(cid), name = you ? heroName() : c.name;
+  const u = makeUnit(c, lv, 'p', Math.max(0, state.team.indexOf(cid)));
+  // HP and MP as bars (full in the village: everyone rests up between fights); the rest as numbers.
+  const bar = (k, cls, n) => `<div class="cpBar ${cls}"><small>${k}</small><span class="cpTrack"><i style="width:100%"></i><em>${n} / ${n}</em></span></div>`;
+  const bars = bar('HP', 'hp', u.maxHp) + (u.maxMp ? bar('MP', 'mp', u.maxMp) : '');
+  const stats = [['ATK', u.atk], ['DEF', u.def], ['Crit', `${Math.round((u.crit || 0) * 100)}%`]]
+    .map(([k, v]) => `<span><small>${k}</small><b>${v}</b></span>`).join('');
+  const lo = loadoutFor(c, lv);
+  const kit = [...lo.act.map((k) => [k, activeById(c, k), k === 'b' ? '★ Signature' : NEUTRAL_SKILLS[k] ? 'Neutral' : 'Active']),
+    ...lo.pas.map((k) => [`p-${k}`, passiveById(c, k), 'Passive'])].filter(([, sk]) => sk);
+  const icons = kit.map(([k, sk, sub]) => `<button class="cpSk${sub === 'Passive' ? ' pas' : ''}${state.champTip === k ? ' on' : ''}" type="button" data-k="ctip:${k}" title="${escHTML(sk.name)}" aria-label="${escHTML(`${sk.name}, ${sub}`)}">${skillIcon(sk)}</button>`).join('');
+  const tip = kit.find(([k]) => k === state.champTip);
+  const tipLine = tip ? `<p class="cpTip"><b>${tip[1].name}</b> <small>${tip[2]}</small><br>${tip[1].desc}</p>` : '<p class="cpTip hint">Tap a skill to read it.</p>';
+  // Left column: what they wear. A tap goes to the inventory, where gear is equipped and taken off.
+  const g = gearRaw(cid), w = ARMORY[g.wp], e = EQUIPMENT[g.eq], t = TRINKETS[g.t];
+  const gslot = (kind, label, item, icon) => `<button class="cpSlot${item ? ' full' : ''}" type="button" data-k="invopen:${cid}"
+      title="${escHTML(item ? `${label}: ${item.name}` : `${label}: empty. Tap to equip one`)}" aria-label="${escHTML(item ? `${label}: ${item.name}` : `No ${label.toLowerCase()}. Open the inventory`)}">
+      ${item ? icon : `<span class="glyph">${SLOT_GLYPH[kind]}</span><span class="plus">+</span>`}</button>`;
+  const gearCol = gslot('wp', 'Weapon', w, w && wepIcon(g.wp)) + gslot('eq', 'Kit', e, e && kitIcon(g.eq)) + gslot('t', 'Trinket', t, t && TRINKET_ICON[g.t]);
+  // Right column: the backpack (see BACKPACKS) - an empty slot opens the picker, a full one unpacks.
+  const packCol = packOf(cid).map((k, i) => {
+    const picking = state.packPick === `${cid}:${i}`;
+    return k
+      ? `<button class="cpSlot full item" type="button" data-k="pack:${cid}:${i}" title="${escHTML(`${ITEMS[k].name}: ${ITEMS[k].desc} Tap to put it back.`)}" aria-label="${escHTML(`${ITEMS[k].name}, packed. Tap to put it back in the satchel.`)}">${ITEM_ICON[k]}</button>`
+      : `<button class="cpSlot${picking ? ' picking' : ''}" type="button" data-k="pack:${cid}:${i}" title="Backpack: empty. Tap to pack an item" aria-label="Empty backpack slot. Tap to pack an item from the satchel."><span class="glyph">${SLOT_GLYPH.pack}</span><span class="plus">+</span></button>`;
+  }).join('');
+  return `<div class="cpTop"><div><b>${name}</b><small>Level ${lv} · ${you ? 'You' : 'Recruit'}</small></div>
+      <button class="cpX" type="button" data-k="champ:" aria-label="Close" title="Close">✕</button></div>
+    <div class="cpStage">
+      <div class="cpCol">${gearCol}</div>
+      <div class="cpFig"><span class="cpPed" aria-hidden="true"></span><span class="cpModel">${spriteSVG(cid)}</span></div>
+      <div class="cpCol">${packCol}</div>
+    </div>
+    ${state.packPick?.startsWith(`${cid}:`) ? packPickerHTML() : ''}
+    <div class="cpBars">${bars}</div>
+    <div class="cpStats">${stats}</div>
+    <p class="cpLbl">Skills</p><div class="cpSkills">${icons}</div>${tipLine}
+    <div class="cpBtns"><button class="btn small" type="button" data-k="skillsfor:${cid}">Change skills</button>
+      <button class="btn small" type="button" data-k="invopen:${cid}">Inventory</button></div>`;
+}
+/* At the Expedition Gate the whole warband is laid out above the panel: four small cards in a 2 x 2,
+   sized to the strip of map still showing so all four fit on a phone. Each has HP and MP, their
+   stats, the skills they take into battle, what they wear and what they carry; a tap opens that
+   champion's full card. */
+function bandMiniHTML(cid, i) {
+  const c = charById(cid), lv = heroLevel(), you = i === 0, name = you ? heroName() : shortName(c);
+  const u = makeUnit(c, lv, 'p', i);
+  // HP and MP written on their own bars (full in the village: everyone rests up between fights).
+  const bar = (cls, k, n) => `<span class="bmBar ${cls}"><i></i><em>${k} ${n} / ${n}</em></span>`;
+  const g = gearRaw(cid);
+  const gear = [['wp', ARMORY[g.wp], g.wp && wepIcon(g.wp)], ['eq', EQUIPMENT[g.eq], g.eq && kitIcon(g.eq)], ['t', TRINKETS[g.t], TRINKET_ICON[g.t]]]
+    .map(([kind, item, icon]) => `<span class="bmSlot${item ? ' full' : ''}">${item ? icon : SLOT_GLYPH[kind]}</span>`).join('');
+  const pack = packOf(cid).map((k) => `<span class="bmSlot${k ? ' full' : ''}">${k ? ITEM_ICON[k] : ''}</span>`).join('');
+  const lo = loadoutFor(c, lv);
+  const skills = [...lo.act.map((k) => [activeById(c, k), '']), ...lo.pas.map((k) => [passiveById(c, k), ' pas'])]
+    .filter(([sk]) => sk).map(([sk, cls]) => `<span class="bmSk${cls}" title="${escHTML(sk.name)}">${skillIcon(sk)}</span>`).join('');
+  const stats = `<span class="bmStats"><span>ATK <b>${u.atk}</b></span><span>DEF <b>${u.def}</b></span><span>CRIT <b>${Math.round((u.crit || 0) * 100)}%</b></span></span>`;
+  // A div standing in for a button, so the ✕ inside it can be a real button of its own.
+  return `<div class="bandMini${you ? ' you' : ''}" role="button" tabindex="0" data-k="champopen:${cid}" aria-label="${escHTML(`${name}, level ${lv}. Open their details`)}">
+    <button class="bmX" type="button" data-k="minix:${cid}" aria-label="${escHTML(`Hide ${name}'s card`)}" title="Hide">✕</button>
+    <span class="bmHead"><span class="bmPic">${spriteSVG(cid)}</span><span class="bmName"><b>${name}</b><small>Lv ${lv}</small></span></span>
+    ${bar('hp', 'HP', u.maxHp)}${u.maxMp ? bar('mp', 'MP', u.maxMp) : ''}
+    ${stats}
+    <span class="bmRow bmSkills">${skills}</span>
+    <span class="bmRow">${gear}<span class="bmGap"></span>${pack}</span></div>`;
+}
+function renderBandMinis() {
+  const box = $('#bandMinis');
+  if (!box) return;
+  const show = state.screen === 'village' && state.place === 'gate' && !state.champ && state.team.length > 0;
+  box.hidden = !show;
+  if (!show) { box.innerHTML = ''; return; }
+  // A card closed with its ✕ stays away until the gate is opened again (openPlace clears miniHidden);
+  // the others keep their side and row.
+  box.innerHTML = state.team.map((id, i) => (state.miniHidden?.includes(id) ? '<span class="bmSpot" aria-hidden="true"></span>' : bandMiniHTML(id, i))).join('');
+  // The strip of map between the top bar and the panel (or left of a panel docked on the right).
+  const town = $('#town'), tr = town.getBoundingClientRect(), pp = $('#placePanel'), pr = pp && !pp.hidden ? pp.getBoundingClientRect() : null;
+  const hud = document.querySelector('.townHud')?.getBoundingClientRect();
+  const top = Math.max(8, hud ? hud.bottom - tr.top + 6 : 8);
+  const docked = pr && pr.left > tr.left + tr.width / 2;
+  const bottom = pr && !docked && pr.top > tr.top + tr.height / 3 ? pr.top - tr.top - 8 : tr.height - 70;
+  const right = docked ? pr.left - tr.left - 8 : tr.width - 8;
+  const gap = 6, w = Math.min(176, (right - 8 - 2 * gap) / 2), h = Math.min(150, (bottom - top - gap) / 2);   // two gaps: either side of the clear middle
+  box.style.setProperty('--bmw', `${Math.floor(w)}px`);
+  box.style.setProperty('--bmh', `${Math.floor(h)}px`);
+  // Two down each side of the strip: your champion and the first recruit on the right, the other
+  // two on the left, so the middle of the map (the gate and the road) stays in view.
+  box.style.top = `${top}px`;
+  box.style.left = '8px';
+  box.style.width = `${Math.max(2 * w + 2 * gap, right - 8)}px`;
+}
+
+// Floats beside where the champion stood when tapped, kept inside the part of the map that is still
+// showing: clear of a panel docked on the right or a sheet risen from the bottom.
+function renderChampPop() {
+  const pop = $('#champPop');
+  if (!pop) return;
+  if (state.champ && (!state.team.includes(state.champ) || state.screen !== 'village')) state.champ = null;
+  // The champion whose card is open stands still for it (strollTownie skips a .held townie).
+  document.querySelectorAll('#townies .townie').forEach((t) => t.classList.toggle('held', t.dataset.champ === state.champ));
+  if (!state.champ) { pop.hidden = true; pop.innerHTML = ''; return; }
+  pop.innerHTML = champHTML(state.champ);
+  pop.hidden = false;
+  const town = $('#town'), tr = town.getBoundingClientRect(), pr = $('#placePanel')?.getBoundingClientRect();
+  const panelOpen = pr && pr.width && pr.height && !$('#placePanel').hidden;
+  const right = panelOpen && pr.left > tr.left + tr.width / 2 ? pr.left - tr.left : tr.width;
+  const bottom = panelOpen && pr.top > tr.top + tr.height / 3 ? pr.top - tr.top : tr.height;
+  pop.style.maxHeight = `${Math.max(160, bottom - 16)}px`;
+  const at = state.champAt, w = pop.offsetWidth, h = pop.offsetHeight;
+  let left = at ? at.right - tr.left + 10 : 12, top = at ? at.top - tr.top - h * 0.35 : 12;
+  if (left + w > right - 8) left = at ? at.left - tr.left - w - 10 : right - w - 8;   // no room on the right: the left side
+  pop.style.left = `${clamp(left, 8, Math.max(8, right - w - 8))}px`;
+  pop.style.top = `${clamp(top, 8, Math.max(8, bottom - h - 8))}px`;
+}
+
 // The warband and skills sheets that the dock opens.
 function sheetHTML(which) {
   const lv = heroLevel(), c = charById(profile.hero.id);
@@ -13740,13 +14046,20 @@ function renderVillage() {
     : 'Season 1: Ashfall Road. Cinderhold is the last village before the road. Click a building to go inside.';
   document.querySelectorAll('.bld').forEach((b) => b.classList.toggle('open', b.dataset.place === state.place));
 
-  const townies = $('#townies'), key = state.team.join();
+  // Your warband stands round the bonfire; open the Expedition Gate and they line up on its road.
+  const atGate = state.place === 'gate';
+  const townies = $('#townies'), key = state.team.join() + (atGate ? '@gate' : '');
   if (townies.dataset.k !== key) {
     townies.innerHTML = state.team.map((id, i) => {
-      const [x, y] = TOWNIE_SPOTS[i];
-      return `<div class="townie${i === 2 ? ' flip' : ''}" style="left:${mapX(x)};top:${mapY(y)};z-index:${zAt(x, y)}"><div>${spriteSVG(id)}</div></div>`;
+      const [x, y] = (atGate ? GATE_SPOTS : TOWNIE_SPOTS)[i];
+      const who = i === 0 ? heroName() : charById(id).name;
+      return `<div class="townie${atGate || i === 2 ? ' flip' : ''}" data-champ="${id}" role="button" tabindex="0" aria-label="${escHTML(who)}: skills, backpack and gear" title="${escHTML(who)}" style="left:${mapX(x)};top:${mapY(y)};z-index:${zAt(x, y)}"><div>${spriteSVG(id)}</div></div>`;
     }).join('');
     townies.dataset.k = key;
+    townies.querySelectorAll('.townie').forEach((el, i) => {
+      el.mapAt = (atGate ? GATE_SPOTS : TOWNIE_SPOTS)[i];
+      if (!reduced) strollTownie(el, i, atGate);
+    });
   }
 
   const npcs = $('#npcs'), folkKey = state.folk.map((f) => f.id + f.lane.x0).join();
@@ -13760,10 +14073,13 @@ function renderVillage() {
   const host = $('#placePanel');
   const focusKey = host.contains(document.activeElement) ? document.activeElement.dataset.k : null;
   if (state.sheet && !profile.hero) state.sheet = null;
+  if (state.champ && !state.team.includes(state.champ)) state.champ = null;
   const html = state.place ? placeHTML(state.place) : state.sheet ? sheetHTML(state.sheet) : '';
   host.hidden = !html;
   host.innerHTML = html;
   pinSheetButtons(host);
+  renderChampPop();
+  renderBandMinis();
   if (focusKey) host.querySelector(`[data-k="${focusKey}"]`)?.focus();
   $('#dock').innerHTML = dockHTML();
   $('#battleDock').hidden = !profile.hero;
@@ -14554,7 +14870,7 @@ function buildStage() {
   const town = $('#town');
   let drag = null, dragged = false;
   town.addEventListener('pointerdown', (ev) => {
-    if (ev.button !== 0 || !view || ev.target.closest('#placePanel, .townHud, .dock, #battleDock, #npcSay')) return;
+    if (ev.button !== 0 || !view || ev.target.closest('#placePanel, .townHud, .dock, #battleDock, #npcSay, #champPop, #bandMinis')) return;
     drag = { x: ev.clientX, y: ev.clientY, v: { ...view }, id: ev.pointerId, moved: false };
   });
   town.addEventListener('pointermove', (ev) => {
@@ -14588,6 +14904,8 @@ function buildStage() {
 
 function openPlace(k) {
   state.place = k;
+  state.champ = null;
+  state.miniHidden = [];   // the gate's warband cards all come back
   state.booth = null; state.boothNews = '';   // walking away from the carnival abandons any game in progress
   state.trainNews = '';                       // and the yard forgets this morning's drill
   hideSay();
@@ -14620,7 +14938,7 @@ function villageAction(k) {
   if (verb === 'skills') { state.skillsFor = null; state.skillsFrom = null; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'skillsfor') { state.skillsFor = arg; state.skillsFrom = 'warband'; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'play') { if (startBooth(arg)) { render(); runBooth(); } return; }
-  if (verb === 'sheet') { state.place = null; state.booth = null; state.swapSlot = null; state.invSel = null; state.sheet = arg && state.sheet !== arg ? arg : null; }
+  if (verb === 'sheet') { state.place = null; state.champ = null; state.booth = null; state.swapSlot = null; state.invSel = null; state.sheet = arg && state.sheet !== arg ? arg : null; }
   else if (verb === 'swap') state.swapSlot = state.swapSlot === Number(arg) ? null : Number(arg);
   // Inventory: whose gear, equip from the bag, put an equipped item back.
   else if (verb === 'invfor') { state.invFor = arg; state.invSel = null; }
@@ -14724,6 +15042,15 @@ function villageAction(k) {
     state.packPick = null;
   }
   else if (verb === 'packcancel') state.packPick = null;
+  else if (verb === 'champ') { state.champ = arg || null; state.packPick = null; state.champTip = null; }
+  else if (verb === 'ctip') state.champTip = state.champTip === arg ? null : arg;
+  // A mini card at the gate opens the full card, anchored where that mini card sat.
+  else if (verb === 'minix') state.miniHidden = [...(state.miniHidden || []), arg];
+  else if (verb === 'champopen') {
+    const el = document.querySelector(`.bandMini[data-k="champopen:${arg}"]`);
+    state.champ = arg; state.champAt = el ? el.getBoundingClientRect() : null; state.champTip = null; state.packPick = null;
+  }
+  else if (verb === 'invopen') { state.champ = null; state.place = null; state.sheet = 'inventory'; state.invFor = arg; state.invSel = null; }
   else if (verb === 'codex') state.codex = arg;
   else if (verb === 'rumor') state.tip += 1 + Math.floor(Math.random() * (TIPS.length - 1));
   else if (verb === 'quest') { if (acceptQuest(arg)) { state.keeperSays = `Good${youName() ? `, ${youName()}` : ''}. Come back when it is done.`; state.keeperLoot = ''; } }
@@ -14736,17 +15063,28 @@ function buildVillage() {
   const town = $('#town');
   town.addEventListener('click', (ev) => {
     if (ev.target.closest('#placePanel, .townHud, #battleDock')) return;   // they have their own handlers
+    const ck = ev.target.closest('#champPop [data-k], #bandMinis [data-k]');
+    if (ck) return villageAction(ck.dataset.k);
+    if (ev.target.closest('#champPop')) return;
     const dk = ev.target.closest('.dock [data-k]');
     if (dk) return villageAction(dk.dataset.k);
     const said = ev.target.closest('#npcSay [data-k]');
     if (said) return sayAction(said.dataset.k);
     if (ev.target.closest('#npcSay')) return;
+    const guide = ev.target.closest('.npc.guide');
+    if (guide) return guideTalk(guide);
+    const champ = ev.target.closest('.townie[data-champ]');
+    if (champ) return openChamp(champ.dataset.champ);
     const b = ev.target.closest('.bld, .npc.stand'), folk = ev.target.closest('.npc.walker');
     if (folk) folkTalk(folk);
     else if (b) openPlace(b.dataset.place);
-    else hideSay();
+    else { hideSay(); if (state.champ) { state.champ = null; render(); } }   // a tap on open ground puts the card away
   });
   town.addEventListener('keydown', (ev) => {
+    const ch = ev.target.closest('.townie[data-champ]');
+    if (ch && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); return openChamp(ch.dataset.champ); }
+    const mini = ev.target === ev.target.closest('.bandMini') && ev.target;
+    if (mini && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); return villageAction(mini.dataset.k); }
     const b = ev.target.closest('.bld');
     if (b && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); openPlace(b.dataset.place); }
   });
@@ -14779,11 +15117,11 @@ function buildVillage() {
     if (tab) { state.codex = tab.dataset.k.split(':')[1]; $('#rulesBody').innerHTML = codexHTML(); }
   });
   rollFolk();
-  // Townsfolk change depth as they stroll: re-sort each against the buildings a few times a second.
+  // Townsfolk and your champions change depth as they stroll: re-sort each against the buildings a few times a second.
   setInterval(() => {
     const v = $('#townView'), W = v.offsetWidth, H = v.offsetHeight;
     if ($('#villageScreen').hidden || !W) return;
-    document.querySelectorAll('#npcs .npc.walker').forEach((b) => {
+    document.querySelectorAll('#npcs .npc.walker, #townies .townie').forEach((b) => {
       const cs = getComputedStyle(b);
       b.style.zIndex = zAt(parseFloat(cs.left) / W * MAP_W, parseFloat(cs.top) / H * MAP_H);
     });
