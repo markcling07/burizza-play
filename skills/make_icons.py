@@ -29,6 +29,7 @@ PAL = {
     'tide':    ('#1c6b7c', '#091f26', '#7fe3d8'),
     'crimson': ('#5c1a2d', '#18060d', '#e0455a'),
     'undead':  ('#3f5244', '#0e1510', '#8ee696'),
+    'monster': ('#4a4038', '#16110d', '#c0a080'),
 }
 
 DEFS = f'''
@@ -1606,15 +1607,365 @@ def _():
             + g(plus(), 48, 18, 0, .45))
 
 
+# ================================================================ skills and passives added later
+@icon('Molotov')
+def _():
+    return (g(flame('url(#fire)'), 32, 14, 0, .5)
+            + '<rect x="28" y="18" width="8" height="6" rx="1.6" fill="#17171e"/>'
+            + '<path d="M23 26 Q20 31 20 38 V50 Q20 57 32 57 Q44 57 44 50 V38 Q44 31 41 26 Z" fill="#1b1b24"/>'
+            + '<path d="M24 38 Q32 42 40 38" fill="none" stroke="#e0455a" stroke-width="3"/>')
+
+
+@icon('Shieldbearer')
+def _():
+    return (g(heater(), 24, 34, 0, 1.0) + g(heater('url(#iron)'), 42, 36, 0, .8)
+            + twinkle(47, 16, .8, '#e0bb55'))
+
+
+@icon('Anchor Chain')
+def _():
+    return ('<path d="M14 12 q5 4 0 8 q-5 4 0 8 q5 4 0 8" fill="none" stroke="#9aa3b5" stroke-width="3.4"/>'
+            + '<path d="M32 20 V50" stroke="url(#iron)" stroke-width="5"/>'
+            + '<circle cx="32" cy="16" r="5" fill="none" stroke="url(#iron)" stroke-width="4"/>'
+            + '<path d="M18 40 Q32 58 46 40" fill="none" stroke="url(#iron)" stroke-width="5"/>'
+            + '<path d="M22 26 H42" stroke="url(#iron)" stroke-width="4"/>')
+
+
+@icon('Stinging Veil')
+def _():
+    return ('<path d="M18 30 Q32 14 46 30 Q40 36 32 36 Q24 36 18 30 Z" fill="#f2a0c8"/>'
+            + '<path d="M22 36 q-3 12 1 18 M28 37 q-2 12 1 17 M36 37 q2 12 -1 17 M42 36 q3 12 -1 18"'
+              ' fill="none" stroke="#f2a0c8" stroke-width="3" stroke-linecap="round"/>'
+            + burst(32, 26, 2, 6, 7, '#fff1a0'))
+
+
+@icon('Heroic')
+def _():
+    return (g(heater(), 26, 34, -14, 1.0)
+            + '<path d="M40 20 L52 32 L40 44" fill="none" stroke="#e0bb55" stroke-width="4"/>'
+            + twinkle(50, 15, .7, '#ffffff'))
+
+
+@icon('Tear Apart')
+def _():
+    return (g(jaws('#8a3a3a'), 20, 32, -20, .9) + g(jaws('#8a3a3a'), 44, 32, 160, .9)
+            + g(drop(), 32, 44, 0, .7))
+
+
+@icon('Dispel')
+def _():
+    return ('<circle cx="32" cy="32" r="15" fill="none" stroke="#bfa0ff" stroke-width="3" opacity=".9"/>'
+            + '<circle cx="32" cy="32" r="9" fill="none" stroke="#bfa0ff" stroke-width="2" opacity=".5"/>'
+            + poly('M14 50 L50 14', '#ffffff', 4.2)
+            + burst(32, 32, 3, 8, 8, '#e0e6ff'))
+
+
+# ---- monster passives
+@icon('Hardened Crust')
+def _():
+    return ('<path d="M12 44 Q20 26 32 26 Q44 26 52 44 Z" fill="#6a4030"/>'
+            + '<path d="M12 44 Q32 52 52 44 L52 50 Q32 58 12 50 Z" fill="url(#fire)"/>'
+            + '<path d="M20 38 L26 32 L32 38 L38 32 L44 38" fill="none" stroke="#2a1a14" stroke-width="2"/>')
+
+
+@icon('Reassemble')
+def _():
+    return (g(skull(), 32, 24, 0, .72)
+            + '<path d="M16 44 h12 M36 44 h12 M22 52 h20" stroke="url(#bone)" stroke-width="5" stroke-linecap="round"/>'
+            + arc_lines(32, 40, 15, 3, 70, '#cfe6ff', -90, 2))
+
+
+@icon('Troll Blood')
+def _():
+    return (g(drop('url(#heal)'), 32, 30, 0, 1.25) + g(plus(), 32, 34, 0, .5)
+            + arc_lines(32, 34, 19, 3, 80, '#9ae0a0', -90, 2))
+
+
+@icon('Grave Hunger')
+def _():
+    return (g(jaws('#7a6a52'), 32, 30, 0, 1.15)
+            + '<path d="M20 50 h24" stroke="url(#bone)" stroke-width="5" stroke-linecap="round"/>'
+            + twinkle(48, 18, .7, '#8ee696'))
+
+
+@icon('Incorporeal')
+def _():
+    return ('<path d="M20 48 Q16 22 32 16 Q48 22 44 48 Q38 44 32 50 Q26 44 20 48 Z" fill="#cfe6ff" opacity=".45"/>'
+            + '<circle cx="27" cy="30" r="2.6" fill="#2a3a4a"/><circle cx="37" cy="30" r="2.6" fill="#2a3a4a"/>'
+            + speed_lines(10, 32, 3, 8, 6, '#cfe6ff'))
+
+
+@icon('Iron Plating')
+def _():
+    return ('<path d="M16 16 H48 V40 Q32 52 16 40 Z" fill="url(#iron)"/>'
+            + '<path d="M16 28 H48" stroke="#2a2f3f" stroke-width="2"/>'
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="2" fill="#c9ccd8"/>'
+                      for x, y in ((21, 21), (43, 21), (21, 35), (43, 35))))
+
+
+@icon('Second Intention')
+def _():
+    return (g(rapier(), 24, 34, -28, .9) + g(rapier(), 42, 34, 28, .9)
+            + arc_lines(32, 30, 16, 2, 50, '#cfe6ff', -90, 2))
+
+
+@icon('Fading')
+def _():
+    return ('<path d="M22 50 Q18 24 32 18 Q46 24 42 50 Q37 46 32 51 Q27 46 22 50 Z" fill="#dfe8f5" opacity=".7"/>'
+            + '<path d="M26 44 Q24 28 32 24 Q40 28 38 44 Z" fill="#dfe8f5" opacity=".35"/>'
+            + twinkle(47, 20, .7, '#ffffff'))
+
+
+@icon('Pack Hunter')
+def _():
+    def paw(x, y, s):
+        return g('<ellipse cx="0" cy="4" rx="6" ry="5" fill="#b9a68a"/>'
+                 '<circle cx="-5" cy="-3" r="2.4" fill="#b9a68a"/><circle cx="0" cy="-5" r="2.4" fill="#b9a68a"/>'
+                 '<circle cx="5" cy="-3" r="2.4" fill="#b9a68a"/>', x, y, 0, s)
+    return paw(21, 24, .9) + paw(41, 30, .9) + paw(28, 44, 1.0)
+
+
+@icon('Dread Armor')
+def _():
+    return ('<path d="M18 22 Q32 12 46 22 V38 Q32 52 18 38 Z" fill="#3a3f52"/>'
+            + '<path d="M22 28 H42 V33 H22 Z" fill="#12151e"/>'
+            + '<circle cx="27" cy="30.5" r="1.8" fill="#e0455a"/><circle cx="37" cy="30.5" r="1.8" fill="#e0455a"/>'
+            + '<path d="M32 14 V8" stroke="#8a2030" stroke-width="3"/>')
+
+
+@icon('Stone Skin')
+def _():
+    return ('<path d="M16 20 H48 V44 Q32 54 16 44 Z" fill="#7a7f8c"/>'
+            + '<path d="M16 30 H48 M26 20 V44 M38 20 V46" stroke="#4a4f5c" stroke-width="2"/>'
+            + '<path d="M20 24 L24 27 L20 27 Z M42 34 L46 37 L42 37 Z" fill="#9aa0ad"/>')
+
+
+# ---- champion Natures (always-on traits; the round passive frame)
+@icon('Built to Hold')
+def _():
+    return g(heater('url(#iron)'), 32, 32, 0, 1.15) + '<path d="M32 22 V42" stroke="#f0a73a" stroke-width="3"/>'
+
+
+@icon('Flywheel')
+def _():
+    return g(gear(13, 10, '#f0a73a'), 32, 32) + arc_lines(32, 32, 20, 3, 70, '#ffd166', -90, 2)
+
+
+@icon('Arc Transfer')
+def _():
+    return (poly('M28 12 L18 34 H29 L24 52 L46 28 H33 L40 12 Z', 'url(#bolt)', 2.2)
+            + twinkle(14, 44, .8, '#a6ecff'))
+
+
+@icon('Dug In')
+def _():
+    return ('<path d="M10 44 H54 L48 54 H16 Z" fill="#6a5844"/>'
+            + g(heater('url(#iron)'), 32, 28, 0, .95)
+            + '<path d="M14 44 L20 36 M50 44 L44 36" stroke="#f0a73a" stroke-width="3"/>')
+
+
+@icon('Oil Can')
+def _():
+    return ('<path d="M20 30 H40 V48 Q30 52 20 48 Z" fill="url(#iron)"/>'
+            + '<path d="M40 34 L54 22" stroke="#9aa3b5" stroke-width="3.4"/>'
+            + '<rect x="25" y="24" width="10" height="6" rx="2" fill="#6a7180"/>'
+            + g(drop('#f0a73a'), 54, 30, 0, .6))
+
+
+@icon('Red Mist')
+def _():
+    return (g(axe('#b03040'), 24, 34, -26, .85) + g(axe('#b03040'), 42, 34, 26, .85)
+            + '<ellipse cx="32" cy="44" rx="20" ry="8" fill="#9a0f1c" opacity=".45"/>')
+
+
+@icon('Tusk and Board')
+def _():
+    return (g(heater('url(#iron)'), 26, 34, 0, .95)
+            + '<path d="M42 42 Q52 36 50 24 Q44 30 42 42 Z" fill="url(#bone)"/>')
+
+
+@icon('Two on the Trail')
+def _():
+    return (g(spear('url(#steel)', 38), 24, 32, 12, .85) + g(spear('url(#steel)', 38), 42, 32, 12, .85)
+            + twinkle(50, 16, .7, '#d48c3c'))
+
+
+@icon('Long Fuse')
+def _():
+    return (g(flame(), 46, 18, 0, .62)
+            + '<path d="M44 22 Q30 26 24 38" fill="none" stroke="#c9b28a" stroke-width="3"/>'
+            + '<circle cx="22" cy="42" r="9" fill="#2a2a33"/>')
+
+
+@icon("Ancestors' Whisper")
+def _():
+    return (g(skull(), 32, 28, 0, .78)
+            + arc_lines(32, 30, 18, 3, 80, '#8ee696', -90, 2)
+            + twinkle(16, 44, .7, '#8ee696'))
+
+
+@icon("Spellblade's Rhythm")
+def _():
+    return (g(sword(), 32, 32, 40, 1.0)
+            + arc_lines(32, 32, 20, 3, 60, '#a6ecff', 40, 2)
+            + twinkle(16, 18, .8, '#cfe6ff'))
+
+
+@icon('Sworn Shield')
+def _():
+    return (g(heater(), 32, 32, 0, 1.1)
+            + '<path d="M32 23 L35 30 H42 L36 34 L38 42 L32 37 L26 42 L28 34 L22 30 H29 Z" fill="#e0bb55"/>')
+
+
+@icon('Ember-Warm')
+def _():
+    return (g(flame(), 32, 34, 0, 1.0)
+            + arc_lines(32, 34, 20, 4, 90, '#ffb347', -90, 2))
+
+
+@icon('Undimmed')
+def _():
+    return (burst(32, 32, 7, 17, 10, '#fff1a0', -90)
+            + '<circle cx="32" cy="32" r="7" fill="#ffffff"/>')
+
+
+@icon('Anvil-Patient')
+def _():
+    return ('<path d="M14 30 H44 L50 24 V34 H42 L38 44 H22 Z" fill="url(#iron)"/>'
+            + '<path d="M20 46 H42 V52 H20 Z" fill="#4a4f5c"/>'
+            + twinkle(49, 16, .7, '#a8d06b'))
+
+
+@icon('Deep Foundation')
+def _():
+    return ('<path d="M12 36 H52 V44 H12 Z" fill="#7a7f8c"/>'
+            + '<path d="M18 44 H28 V56 H18 Z M36 44 H46 V56 H36 Z" fill="#5a606c"/>'
+            + g(heater('url(#iron)'), 32, 24, 0, .85))
+
+
+@icon("Fletcher's Line")
+def _():
+    return (g(arrow('url(#steel)', '#a8d06b', 36), 32, 24, 0, .9)
+            + g(arrow('url(#steel)', '#a8d06b', 36), 32, 42, 0, .9))
+
+
+@icon('Crawling Venom')
+def _():
+    return ('<path d="M14 44 q8 -10 16 0 q8 10 16 0" fill="none" stroke="url(#poison)" stroke-width="4.2"/>'
+            + g(drop('url(#poison)'), 32, 22, 0, .95)
+            + twinkle(48, 18, .7, '#d6ff86'))
+
+
+@icon('Evergreen')
+def _():
+    return ('<path d="M32 12 L44 32 H36 L46 50 H18 L28 32 H20 Z" fill="url(#leaf)"/>'
+            + '<path d="M32 50 V56" stroke="#6b4422" stroke-width="4"/>')
+
+
+@icon('Tide-Runner')
+def _():
+    return ('<path d="M8 40 q8 -8 16 0 t16 0 t16 0" fill="none" stroke="url(#water)" stroke-width="4"/>'
+            + '<path d="M8 50 q8 -8 16 0 t16 0 t16 0" fill="none" stroke="url(#water)" stroke-width="3" opacity=".6"/>'
+            + speed_lines(10, 24, 3, 11, 6, '#b4f4ff'))
+
+
+@icon('Snapback')
+def _():
+    return (g(jaws(), 32, 32, 0, 1.15) + arc_lines(32, 32, 19, 2, 50, '#7fe3d8', -90, 2))
+
+
+@icon('Sea-Sung')
+def _():
+    return (g(note(), 26, 34, -8, 1.0) + g(note('#b4f4ff'), 42, 26, 8, .8)
+            + '<path d="M10 50 q8 -6 16 0 t16 0" fill="none" stroke="url(#water)" stroke-width="3"/>')
+
+
+@icon('Vanish in Ink')
+def _():
+    return (g(octo(), 32, 28, 0, .95)
+            + '<ellipse cx="32" cy="46" rx="18" ry="8" fill="#2a1d40" opacity=".75"/>')
+
+
+@icon('Gift of the Reef')
+def _():
+    return ('<path d="M32 50 V32 M32 38 L24 28 M32 38 L40 28 M32 44 L22 38 M32 44 L42 38"'
+            ' fill="none" stroke="#f2a0c8" stroke-width="3.4" stroke-linecap="round"/>'
+            + g(plus(), 32, 18, 0, .55))
+
+
+@icon('Noble Blood')
+def _():
+    return (g(drop(), 32, 32, 0, 1.2)
+            + '<path d="M22 14 L26 20 L32 12 L38 20 L42 14 L40 24 H24 Z" fill="url(#gold)"/>')
+
+
+@icon('Pit-Forged')
+def _():
+    return (g(flame(), 32, 38, 0, 1.0)
+            + '<path d="M16 18 H48 V26 H16 Z" fill="url(#iron)"/>'
+            + twinkle(14, 34, .7, '#ff9a2e'))
+
+
+@icon('Slips the Line')
+def _():
+    return ('<path d="M16 18 V46 M26 18 V46" stroke="#5a606c" stroke-width="3"/>'
+            + g(jaws('#8a3a3a'), 42, 32, 0, .9)
+            + speed_lines(30, 32, 3, 9, 5, '#e0455a'))
+
+
+@icon('Overflowing Cup')
+def _():
+    return ('<path d="M22 22 H42 L39 40 Q32 46 25 40 Z" fill="url(#gold)"/>'
+            + '<path d="M28 46 H36 V52 H28 Z M22 52 H42 V56 H22 Z" fill="#8a5a14"/>'
+            + g(drop(), 22, 24, 0, .55) + g(drop(), 42, 26, 0, .5))
+
+
+@icon('The Slow March')
+def _():
+    return ('<path d="M24 14 H40 V50 H24 Z" fill="url(#bone)"/>'
+            + '<path d="M16 24 H48" stroke="url(#bone)" stroke-width="6" stroke-linecap="round"/>'
+            + speed_lines(10, 44, 2, 8, 6, '#8ee696', 0, .5))
+
+
+@icon('Lord of the Mound')
+def _():
+    return ('<path d="M10 48 Q32 32 54 48 Z" fill="#4a4030"/>'
+            + '<path d="M24 20 H40 V44 H24 Z" fill="#9aa0ad"/>'
+            + '<path d="M28 26 H36 M32 26 V36" stroke="#5a606c" stroke-width="2.4"/>')
+
+
+@icon('Bone-Thrift')
+def _():
+    return ('<path d="M18 40 h12 M34 40 h12" stroke="url(#bone)" stroke-width="6" stroke-linecap="round"/>'
+            + g(skull(), 32, 24, 0, .66)
+            + twinkle(48, 46, .7, '#8ee696'))
+
+
+@icon('Breathless')
+def _():
+    return (g(skull(), 32, 30, 0, 1.0)
+            + '<path d="M14 48 q6 -5 12 0 t12 0 t12 0" fill="none" stroke="#8ee696" stroke-width="2.6" opacity=".7"/>')
+
+
+@icon('The Dead Listen')
+def _():
+    return ('<path d="M26 20 Q40 16 42 28 Q44 40 34 42 L30 50" fill="none" stroke="url(#bone)" stroke-width="5"'
+            ' stroke-linecap="round"/>'
+            + arc_lines(24, 30, 13, 3, 80, '#8ee696', 180, 2))
+
+
 # ---------------------------------------------------------------- catalog (for the frame + gallery)
 # kind: "skill", "sig" (★ signature, gold frame), "passive" or "neutral" (round frame).
 # Per champion: skill, second skill, ★ signature, passive. Mirrors ROSTER / SUMMONS in index.html.
 CATALOG = {
     'common': ('Everyone', [('Attack', 'All champions', 'skill'), ('Guard', 'All champions', 'skill'),
-        ('Provoke', 'Neutral skill', 'neutral'),
+        ('Provoke', 'Neutral skill', 'neutral'), ('Dispel', 'Neutral skill', 'neutral'),
         ('Toughness', 'Any champion', 'passive'), ('Might', 'Any champion', 'passive'), ('Swiftness', 'Any champion', 'passive'),
         ('Keen Edge', 'Any champion', 'passive'), ('Deep Well', 'Any champion', 'passive'), ('Second Wind', 'Any champion', 'passive')]),
     'mech': ('Ironclad Union', [
+        ('Built to Hold', 'Bulwark-7 · Nature', 'passive'), ('Flywheel', 'Sawtooth · Nature', 'passive'),
+        ('Arc Transfer', 'Arclight · Nature', 'passive'), ('Dug In', 'Howitzer · Nature', 'passive'),
+        ('Oil Can', 'Patchwork · Nature', 'passive'),
         ('Piston Punch', 'Bulwark-7', 'skill'), ('Steam Vent', 'Bulwark-7', 'skill'), ('Hydraulic Slam', 'Bulwark-7', 'sig'), ('Piledriver', 'Bulwark-7', 'skill'), ('Bunker Down', 'Bulwark-7', 'skill'), ('Reactive Plating', 'Bulwark-7', 'passive'),
         ('Rip Saw', 'Sawtooth', 'skill'), ('Shrapnel Spin', 'Sawtooth', 'skill'), ('Grinder', 'Sawtooth', 'sig'), ('Limb Shear', 'Sawtooth', 'skill'), ('Rev Up', 'Sawtooth', 'skill'), ('Serrated', 'Sawtooth', 'passive'),
         ('Arc Bolt', 'Arclight', 'skill'), ('Discharge', 'Arclight', 'skill'), ('Chain Surge', 'Arclight', 'sig'), ('Overload Coil', 'Arclight', 'skill'), ('Static Field', 'Arclight', 'skill'), ('Feedback Loop', 'Arclight', 'passive'),
@@ -1624,6 +1975,10 @@ CATALOG = {
         ('Rivet Burst', 'Scrapbot (summon)', 'skill'),
     ]),
     'orc': ('Bloodtusk Horde', [
+        ('Molotov', 'Drekka Firegut', 'skill'),
+        ('Red Mist', 'Krug · Nature', 'passive'), ('Tusk and Board', 'Mogra · Nature', 'passive'),
+        ('Two on the Trail', 'Vashka · Nature', 'passive'), ('Long Fuse', 'Drekka · Nature', 'passive'),
+        ("Ancestors' Whisper", 'Hesk · Nature', 'passive'),
         ('Cleave', 'Krug Skullsplitter', 'skill'), ('Reckless Swing', 'Krug Skullsplitter', 'skill'), ('Blood Frenzy', 'Krug Skullsplitter', 'sig'), ('Twin Axes', 'Krug Skullsplitter', 'skill'), ("Warchief's Fury", 'Krug Skullsplitter', 'skill'), ('Bloodlust', 'Krug Skullsplitter', 'passive'), ('Grudge Axe', 'Krug Skullsplitter', 'passive'),
         ('Skull Rattler', 'Mogra Ironhide', 'skill'), ('Ground Pound', 'Mogra Ironhide', 'skill'), ('Iron Hide', 'Mogra Ironhide', 'sig'), ('Bonebreaker', 'Mogra Ironhide', 'skill'), ('Hold the Line', 'Mogra Ironhide', 'skill'), ('Thick Skull', 'Mogra Ironhide', 'passive'),
         ('Call the War Boar', 'Vashka Spearthrower', 'skill'), ("Hunter's Mark", 'Vashka Spearthrower', 'skill'), ('Gutpiercer', 'Vashka Spearthrower', 'sig'), ('Pinning Throw', 'Vashka Spearthrower', 'skill'), ('Volley of Spears', 'Vashka Spearthrower', 'skill'), ('Steppe Hunter', 'Vashka Spearthrower', 'passive'),
@@ -1633,6 +1988,9 @@ CATALOG = {
         ('Tusk Charge', 'War Boar (summon)', 'skill'),
     ]),
     'human': ('Kingdom of Aldmere', [
+        ('Shieldbearer', 'Sir Garrick Vane', 'skill'), ('Heroic', 'Wren / Garrick · alt passive', 'passive'),
+        ("Spellblade's Rhythm", 'Wren · Nature', 'passive'), ('Sworn Shield', 'Garrick · Nature', 'passive'),
+        ('Ember-Warm', 'Aldous · Nature', 'passive'), ('Undimmed', 'Liesl · Nature', 'passive'),
         ('Power Slash', 'Wren', 'skill'), ('Arcane Edge', 'Wren', 'skill'), ('Thunderclap', 'Wren', 'sig'), ('Mageslayer', 'Wren', 'skill'), ('Runed Thrust', 'Wren', 'skill'), ('Arcane Ward', 'Wren', 'passive'),
         ('Smite', 'Sir Garrick Vane', 'skill'), ('Consecrate', 'Sir Garrick Vane', 'skill'), ('Oathguard', 'Sir Garrick Vane', 'sig'), ('Hammer of Judgement', 'Sir Garrick Vane', 'skill'), ('Lionheart', 'Sir Garrick Vane', 'skill'), ('Retribution', 'Sir Garrick Vane', 'passive'), ('Shield of the Realm', 'Sir Garrick Vane', 'passive'),
         ('Aimed Shot', 'Mara Holt', 'skill'), ('Ricochet', 'Mara Holt', 'skill'), ('Powder Shot', 'Mara Holt', 'sig'), ('Pistol Whip', 'Mara Holt', 'skill'), ('Volley Fire', 'Mara Holt', 'skill'), ('Deadeye', 'Mara Holt', 'passive'),
@@ -1640,6 +1998,9 @@ CATALOG = {
         ('Sacred Light', 'Sister Liesl', 'skill'), ('Guardian Angel', 'Sister Liesl', 'skill'), ('Prayer of Dawn', 'Sister Liesl', 'sig'), ('Benediction', 'Sister Liesl', 'skill'), ('Censure', 'Sister Liesl', 'skill'), ('Mercy', 'Sister Liesl', 'passive'),
     ]),
     'stone': ('Stoneleaf Accord', [
+        ('Anvil-Patient', 'Durgan · Nature', 'passive'), ('Deep Foundation', 'Hilda · Nature', 'passive'),
+        ("Fletcher's Line", 'Aelira · Nature', 'passive'), ('Crawling Venom', 'Faelan · Nature', 'passive'),
+        ('Evergreen', 'Elowen · Nature', 'passive'),
         ('Hammerfall', 'Durgan Anvilbeard', 'skill'), ('Anvil Strike', 'Durgan Anvilbeard', 'skill'), ('Mountain Breaker', 'Durgan Anvilbeard', 'sig'), ('Forge Strike', 'Durgan Anvilbeard', 'skill'), ('Quake Hammer', 'Durgan Anvilbeard', 'skill'), ('Grudge', 'Durgan Anvilbeard', 'passive'),
         ('Shield Bash', 'Hilda Stonewall', 'skill'), ('Shieldwall', 'Hilda Stonewall', 'skill'), ('Stand Firm', 'Hilda Stonewall', 'sig'), ('Boulder Toss', 'Hilda Stonewall', 'skill'), ('Bulwark of the Accord', 'Hilda Stonewall', 'skill'), ('Unbreakable', 'Hilda Stonewall', 'passive'),
         ('Swift Arrows', 'Aelira Swiftwind', 'skill'), ('Arrow Rain', 'Aelira Swiftwind', 'skill'), ('Hawkeye', 'Aelira Swiftwind', 'sig'), ('Piercing Shot', 'Aelira Swiftwind', 'skill'), ('Steady Aim', 'Aelira Swiftwind', 'skill'), ('Keen Eye', 'Aelira Swiftwind', 'passive'),
@@ -1647,6 +2008,10 @@ CATALOG = {
         ('Regrowth', 'Elowen Greenmantle', 'skill'), ('Entangle', 'Elowen Greenmantle', 'skill'), ('Bloom of Spring', 'Elowen Greenmantle', 'sig'), ('Barkskin', 'Elowen Greenmantle', 'skill'), ('Thornlash', 'Elowen Greenmantle', 'skill'), ('Forest Stride', 'Elowen Greenmantle', 'passive'), ('Verdant Aura', 'Elowen Greenmantle', 'passive'),
     ]),
     'tide': ('The Tideborn', [
+        ('Anchor Chain', 'Tharos Razorfin', 'skill'), ('Stinging Veil', 'Octavia Inkveil', 'skill'),
+        ('Tide-Runner', 'Tharos · Nature', 'passive'), ('Snapback', 'Grubblefin · Nature', 'passive'),
+        ('Sea-Sung', 'Seraphine · Nature', 'passive'), ('Vanish in Ink', 'Octavia · Nature', 'passive'),
+        ('Gift of the Reef', 'Maren · Nature', 'passive'),
         ('Trident Lunge', 'Tharos Razorfin', 'skill'), ('Riptide', 'Tharos Razorfin', 'skill'), ('Blood in the Water', 'Tharos Razorfin', 'sig'), ('Feeding Frenzy', 'Tharos Razorfin', 'skill'), ('Undertow', 'Tharos Razorfin', 'skill'), ('Blood Scent', 'Tharos Razorfin', 'passive'),
         ('Nibble Flurry', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Gurgle Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Choking Bite', 'Grubblefin', 'skill'), ('Tiny Target', 'Grubblefin', 'passive'),
         ("Siren's Hush", 'Seraphine Wavecaller', 'skill'), ('Dirge of the Deep', 'Seraphine Wavecaller', 'skill'), ('Lure Song', 'Seraphine Wavecaller', 'sig'), ('Drowning Chorus', 'Seraphine Wavecaller', 'skill'), ('Song of the Depths', 'Seraphine Wavecaller', 'skill'), ('Echo', 'Seraphine Wavecaller', 'passive'),
@@ -1655,6 +2020,9 @@ CATALOG = {
         ('Ink Lash', 'Ink Illusion (summon)', 'skill'),
     ]),
     'crimson': ('The Crimson Court', [
+        ('Tear Apart', 'Gorehound', 'passive'),
+        ('Noble Blood', 'Vesper · Nature', 'passive'), ('Pit-Forged', 'Malgrath · Nature', 'passive'),
+        ('Slips the Line', 'Gorehound · Nature', 'passive'), ('Overflowing Cup', 'Morwenna · Nature', 'passive'),
         ('Crimson Lunge', 'Vesper Nightshade', 'skill'), ('Night Waltz', 'Vesper Nightshade', 'skill'), ('Execute', 'Vesper Nightshade', 'sig'), ('Exsanguinate', 'Vesper Nightshade', 'skill'), ('Throat Tear', 'Vesper Nightshade', 'skill'), ('Mist Form', 'Vesper Nightshade', 'skill'), ('Riposte', 'Vesper Nightshade', 'passive'),
         ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Blood Pact', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'),
         ('Kiss of Ruin', 'Seraxa Thornwing', 'skill'), ('Shadowstep', 'Seraxa Thornwing', 'skill'), ('Dance of Knives', 'Seraxa Thornwing', 'sig'), ('Wing Carve', 'Seraxa Thornwing', 'skill'), ("Predator's Grace", 'Seraxa Thornwing', 'skill'), ('Flurry', 'Seraxa Thornwing', 'passive'),
@@ -1662,6 +2030,9 @@ CATALOG = {
         ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
     ]),
     'undead': ('The Pale Host', [
+        ('The Slow March', 'Mordrek · Nature', 'passive'), ('Lord of the Mound', 'Barrow · Nature', 'passive'),
+        ('Bone-Thrift', 'Cadris · Nature', 'passive'), ('Breathless', 'Vaun · Nature', 'passive'),
+        ('The Dead Listen', 'Mortessa · Nature', 'passive'),
         ('Grave Cross', 'Mordrek the Interred', 'skill'), ('Graveside Chill', 'Mordrek the Interred', 'skill'), ('Last Rites', 'Mordrek the Interred', 'sig'), ('Plant the Marker', 'Mordrek the Interred', 'skill'), ('Second Grave', 'Mordrek the Interred', 'passive'),
         ('Tomb Slab', 'Barrow', 'skill'), ('Grasping Hands', 'Barrow', 'skill'), ('Barrow Wall', 'Barrow', 'sig'), ('Crypt Breaker', 'Barrow', 'skill'), ('Hold the Grave', 'Barrow', 'skill'), ('Graveyard Fence', 'Barrow', 'skill'), ('Burrow', 'Barrow', 'skill'), ('Feast of the Fallen', 'Barrow', 'passive'),
         ('Bone Dart', 'Cadris Gravecall', 'skill'), ('Shambling Rise', 'Cadris Gravecall', 'skill'), ('Charnel Volley', 'Cadris Gravecall', 'sig'), ('Rot Shot', 'Cadris Gravecall', 'skill'), ('Marrow Pierce', 'Cadris Gravecall', 'skill'), ('Toll of the Dead', 'Cadris Gravecall', 'passive'),
@@ -1669,8 +2040,15 @@ CATALOG = {
         ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
         ('Clawing Grasp', 'Shambler (summon)', 'skill'),
     ]),
+    'monster': ('Monsters of Ashfall Road', [
+        ('Hardened Crust', 'Magma Slime', 'passive'), ('Reassemble', 'Bone Rattler', 'passive'),
+        ('Troll Blood', 'Cave Troll', 'passive'), ('Grave Hunger', 'Crypt Ghoul', 'passive'),
+        ('Incorporeal', 'Banshee', 'passive'), ('Iron Plating', 'Rust Golem', 'passive'),
+        ('Second Intention', 'Disgraced Duelist', 'passive'), ('Fading', 'Pale Phantom', 'passive'),
+        ('Pack Hunter', 'Grave Hound', 'passive'), ('Dread Armor', 'Fallen Knight', 'passive'),
+        ('Stone Skin', 'Stone Gargoyle', 'passive'),
+    ]),
 }
-
 
 
 # ---------------------------------------------------------------- second-wave skills

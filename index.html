@@ -1396,15 +1396,29 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    panel, no outline - the tiles inside it are the shapes worth seeing. --tile is the one size
    every slot in here is cut to, so a grid column is exactly a tile and nothing drifts inside
    its cell. */
-.deck { --tile: 58px; position: relative; min-height: 7.5rem; padding: 2px 0 0; }
+/* --gut is the space between the deck's three blocks (skills | satchel | Attack & Guard). It has to
+   beat the 3px gap BETWEEN tiles or the eye reads one long row instead of three groups — but as a
+   fixed width it would eat a phone's deck, where every pixel is tile. So it scales with the viewport
+   and is clamped at both ends: roomy on a desktop, barely more than the inner gap on a narrow one. */
+.deck { --tile: 58px; --gut: clamp(8px, 2.2vw, 18px); position: relative; min-height: 7.5rem; padding: 2px 0 0; }
 /* (i) at the top left of every skill opens its details card (renderSkillTip). */
 .actw { position: relative; display: block; min-width: 0; }
+/* The (i) is furniture, not content: it annotates the tile rather than being something you came
+   here to press. Eight filled discs, one per tile, carried the same weight as the icons themselves
+   and read as a column of blue dots down the deck. Stripped to a bare glyph and held back, it
+   stops competing — then comes forward on the tile under the cursor, or when it is the one holding
+   the panel open. Deliberately dimmed rather than hidden: a touch screen has no hover, so this is
+   the only way in to a skill's text there, and the 17px target is unchanged. */
 .ainfo {
   position: absolute; z-index: 2; left: -6px; top: -6px; width: 17px; height: 17px; padding: 0; cursor: pointer;
-  border-radius: 50%; border: 1px solid var(--line); background: #2b3046; color: var(--fg);
-  font: italic 800 .66rem/15px Georgia, serif; text-align: center;
+  border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--muted);
+  font: italic 800 .66rem/15px Georgia, serif; text-align: center; opacity: .5;
+  transition: opacity .15s, color .15s, border-color .15s, background-color .15s;
 }
-.ainfo:hover, .ainfo[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.actw:hover .ainfo, .actw:focus-within .ainfo { opacity: .85; }
+.ainfo:hover, .ainfo:focus-visible, .ainfo[aria-expanded="true"] {
+  opacity: 1; color: var(--accent); border-color: var(--accent); background: #2b3046;
+}
 .skillTip {
   /* Opens upward over the name (and the foot of the speed bar), its bottom edge just above the
      skill icons' (i) badges - the space under the icons is kept for the items. */
@@ -1445,11 +1459,16 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    and leave the three groups sized differently. */
 .deckTop {
   display: grid; align-items: start; gap: 3px;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) 6px repeat(2, minmax(0, 1fr)) 6px minmax(0, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr)) var(--gut) repeat(2, minmax(0, 1fr)) var(--gut) minmax(0, 1fr);
 }
 .deckTop > #acts { grid-column: 1 / span 4; }
 .deckTop > #items { grid-column: 6 / span 2; }
 .deckTop > #basicActs { grid-column: 9; }
+/* The three blocks are separated by SPACE, not by a line. A 6px gutter is narrower than the gap
+   between two tiles inside a block, so the eye reads nine equal tiles in a row instead of three
+   groups; widening it past the inner gap is what makes the grouping appear, and it costs no ink
+   in a deck that already has plenty. (A ruled divider was tried here and removed: furniture added
+   to solve a spacing problem.) */
 .acts { display: block; min-width: 0; }
 /* THE SKILL SLOTS: a fixed 4 x 2 block, filled or not, so the deck is laid out once and never
    reflows as a champion learns another. The loadout tops out at six actives (activeSlots at the
@@ -1468,7 +1487,10 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .agroup.basic .act:disabled .aico { box-shadow: none; }
 /* An empty slot is a quiet outline holding the place, not something to press. */
 .actw.open { pointer-events: none; }
-.actw.open .aico { background: none; border: 1px dashed var(--line); opacity: .55; }
+/* An open slot is an absence, and should read as one. At .55 four empty boxes carried as much of
+   the eye as the skills beside them; held further back they become the quiet ground the filled
+   tiles sit on. */
+.actw.open .aico { background: none; border: 1px dashed var(--line); opacity: .32; }
 .act {
   font: inherit; color: inherit; background: none; border: 0; padding: 2px 0 0; cursor: pointer;
   display: grid; justify-items: stretch; align-content: start; gap: 3px; text-align: center; width: 100%;
@@ -5435,9 +5457,15 @@ const heroicFlare = (a) => { if (swornHeroic(a)) burst(a, 'heroic'); };
 const BEARER_BLOCK = 0.25, BEARER_BLOCK_CHANCE = 0.5;
 // Who, if anyone, is standing in front of t. One knight, one ward (a.wardUid), both still up.
 const bearerFor = (t) => alliesOf(t).find((a) => a.uid !== t.uid && a.hp > 0 && has(a, 'shieldbearer') && a.wardUid === t.uid);
-// A blow that goes over his head rather than through him: anything lobbed on an arc, or hurled
-// from the sky. He can stand in front of a sword; he cannot stand in front of a mortar.
-const lobbedOver = (u, label, o) => !!o.hurl || !!((label === 'Attack' ? PROJ_ATTACK[u.id] : PROJ_SKILL[label])?.arc);
+/* A blow that goes over his head rather than through him. He can stand in front of a sword; he
+   cannot stand in front of a mortar — which is the same thing the Graveyard Fence says, so it is
+   read off the same axis (ARCH vs HORIZONTAL, see RANGED ATTACK TYPES) rather than by a second
+   hand-rolled test. Written by hand this first missed o.attackType, o.gust and o.watersweep, so a
+   grave-wind or a wave arced over the fence but struck Garrick: one rule, two implementations,
+   already disagreeing. strikeOnce is handed a label and options rather than the skill object, so
+   the shape is read from those plus whatever projectile that skill flies as. */
+const lobbedOver = (u, label, o) =>
+  attackType(u, { o }, PROJ_SKILL[label] || (label === 'Attack' ? PROJ_ATTACK[u.id] : null)) === ARCH;
 
 // Shieldbearer, undone: the knight gives up his post and walks back to his own place. Safe on
 // someone covering nobody, and safe to call twice.
@@ -6011,7 +6039,12 @@ function strikeOnce(u, t, mult, label, o) {
   // instead — all of it, physical or magical — and half the time his shield turns a quarter of
   // that aside. Resolved BEFORE Sworn Shield below: a blow he has already taken is not a blow
   // that could fell his ward, so it must not also spend the Nature's once-per-battle save.
-  const bearer = bearerFor(t);
+  // ...but not an AREA strike: he is standing in front of one person, not holding an umbrella over
+  // the field. A blast catches the ward exactly as it would have, and catches Garrick separately
+  // for standing in it too. Redirecting it would spare the ward a blow that should land AND stack
+  // their share onto a Garrick already taking his own — the same reason Heroic skips o.aoe, and the
+  // same rule the Graveyard Fence states outright ("area attacks still land").
+  const bearer = o.aoe ? null : bearerFor(t);
   if (bearer && taken > 0) {
     if (lobbedOver(u, label, o)) {
       log(`${label} arcs clean over ${bearer.name} and falls on ${t.name} regardless.`, t.side);
