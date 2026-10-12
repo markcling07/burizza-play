@@ -1591,6 +1591,11 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 
 /* End-of-battle panel */
 .overlay { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: var(--scrim); overflow: auto; }
+/* Docked (the expedition's Entrance Hall): no scrim, the card sits along the bottom and scrolls inside,
+   so the warband standing in the chamber stays in view above it. */
+.overlay.docked { place-items: end center; padding: 0 8px 8px; background: none; pointer-events: none; overflow: hidden; }
+.overlay.docked .card { pointer-events: auto; max-height: 52vh; overflow-y: auto; padding: 14px 16px; gap: 8px; box-shadow: 0 -8px 26px rgba(0, 0, 0, .55); }
+.overlay.docked .card h2 { font-size: 1.4rem; }
 .card {
   width: min(460px, 100%); display: grid; gap: 12px;
   padding: 22px; border-radius: 14px; background: var(--panel); border: 1px solid var(--accent);
@@ -1667,6 +1672,14 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   padding: 14px 14px calc(16px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0;
   background: rgba(30, 33, 48, .97); border-top: 1px solid var(--accent); box-shadow: 0 -10px 30px rgba(0, 0, 0, .5);
 }
+/* The Expedition Gate's sheet sits lower, leaving more of the map for the warband's cards above it. */
+#placePanel:has(> #panel[aria-label="Expedition Gate"]) { max-height: 40%; }
+/* ...and its dungeons sit straight on the sheet, no card round each one: a thin rule between them
+   and more air keep them apart. */
+#placePanel:has(> #panel[aria-label="Expedition Gate"]) .depths { gap: 18px 22px; }
+#placePanel:has(> #panel[aria-label="Expedition Gate"]) .depth { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+#placePanel:has(> #panel[aria-label="Expedition Gate"]) .depth + .depth { padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, .07); }
+#placePanel:has(> #panel[aria-label="Expedition Gate"]) .depth .btn { justify-self: end; }   /* Set out, at the bottom right */
 #placePanel > .panel { padding: 0; border: 0; background: none; }
 /* Panel header: the title on the left, "Back to the square" (or Close) pinned to the top right, never wrapped below. */
 #placePanel > .panel > .phead { flex-wrap: nowrap; align-items: flex-start; }
@@ -2010,9 +2023,9 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .bmName b { font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bandMini.you .bmName b { color: var(--accent); }
 .bmName small { font-size: .58rem; color: var(--muted); font-weight: 800; }
-.bmBar { position: relative; display: block; height: 12px; border-radius: 4px; background: #11131c; overflow: hidden; }
+.bmBar { position: relative; display: block; height: 9px; border-radius: 3px; background: #11131c; overflow: hidden; }
 .bmBar i { position: absolute; inset: 0; display: block; width: 100%; }
-.bmBar em { position: relative; display: block; text-align: center; font-style: normal; font-size: .54rem; font-weight: 800; line-height: 12px; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .85); white-space: nowrap; }
+.bmBar em { position: relative; display: block; text-align: center; font-style: normal; font-size: .48rem; font-weight: 800; line-height: 9px; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .85); white-space: nowrap; }
 .bmBar.hp i { background: #4fbf63; }
 .bmBar.mp i { background: #4f8fe0; }
 .bmStats { display: flex; flex-wrap: wrap; gap: 0 6px; font-size: .56rem; font-weight: 800; letter-spacing: .03em; color: var(--muted); line-height: 1.3; }
@@ -9103,6 +9116,7 @@ function startBattle(retry) {
   state.screen = 'battle';
   state.token++;
   $('#overlay').hidden = true;
+  $('#overlay').classList.remove('docked');   // the Entrance Hall's docked card does not outlive the hall
   if (dg) log(`${dg.name}, ${dgIsBossRoom() ? 'the boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}: ${state.teams.e.map((u) => `${u.name}${u.fledOnce ? ' (wounded)' : ''}`).join(', ')}.`, 'sys');
   else if (exp) log(`${exp.name}, ${expChamber().name}${expDepth(exp.id) ? ` (Descent ${expDepth(exp.id)})` : ''}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (hunt) log(`${CAVE.name}, ${hunt.name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
@@ -9780,9 +9794,47 @@ function expEnterChamber(id, opts = {}) {
   if (ch.type === 'rune') return expRuneChamber(ch);
   // start / dead end / already-cleared: no encounter — straight to the Post-Chamber decision phase.
   // §4.4.4-5 and §18: entering a chamber, and walking back into a cleared one, is not a fight.
-  // The entrance hall is a preparation area in name only; it grants no Preparation Turns either.
+  // §3.2: the Entrance Hall, the first time the warband stands in it, is the starting preparation
+  // area — everyone may prepare, with no turn count and no clock, before the first road is chosen.
+  // Walking back into it later is an ordinary return and gives nothing (§4.4.5-7, §4.4.14).
   announce('Expedition', `${e.name} · ${ch.name}`);
-  expPostChamber(false);
+  const hall = ch.type === 'start' && opts.initial;
+  if (hall) expHallField();
+  expPostChamber(false, hall);
+}
+
+// §3.2: the warband walks into the Entrance Hall and stands in it — the chamber's own field, the
+// four of them on their side, no monsters on the other and no clock running — and prepares there.
+// These are stand-ins for the look of it: the first fight builds the real units afresh from the
+// carry, which is where every preparation is written (expPrepAct / expPrepItem).
+function expHallField() {
+  const e = expRun(), ch = expChamber();
+  state.level = heroLevel();
+  state.teams.p = state.team.map((id, i) => makeUnit(charById(id), state.level, 'p', i));
+  if (profile.hero && state.teams.p[0]) { state.teams.p[0].you = true; state.teams.p[0].name = heroName(); }
+  state.teams.e = []; state.enemyIds = [];
+  state.round = 1; state.time = 0; state.moving = false; state.active = null;
+  state.inspect = null; state.inspectTurn = null; state.frontline = { p: 0, e: 0 };
+  for (const u of allUnits()) u.pos = 0;
+  state.opening = false; state.phase = 'idle'; state.pending = null; state.reward = null; state.log = [];
+  state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0; state.quakeJolt = null; state.groundFire = null;
+  state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;
+  state.screen = 'battle';
+  state.token++;
+  log(`${e.name}, ${ch.name}. No monsters here: the warband readies itself before the first road.`, 'sys');
+  buildArena();
+  render();
+  window.scrollTo(0, 0);
+}
+// A preparation in the hall shows on the champion standing there: the bar fills, the shield goes up.
+function expHallShow(id, kind) {
+  const u = state.teams.p.find((x) => x.id === id), c = expState().carry[id];
+  if (!u || !c) return;
+  u.hp = Math.min(u.maxHp, c.hp); u.mp = Math.min(u.maxMp, c.mp);
+  u.effects = u.effects.filter((f) => f.id !== 'shield');
+  for (const f of c.fx || []) if (f.id === 'shield') addFx(u, 'shield', f.turns, f.value || 0, true);
+  burst(u, kind);
+  render();
 }
 
 // §14.3: surviving monsters in a re-entered chamber heal 10% of max HP. The foundation never
@@ -9908,7 +9960,12 @@ function expStoreCarry() {
 function expMembers() {
   const live = state.teams.p?.filter((u) => !u.summon) || [];
   if (live.length) return live;
-  return state.team.map((id) => charById(id)).filter(Boolean).map((c) => ({ id: c.id, name: shortName(c), faction: c.faction, maxHp: 0, maxMp: 0 }));
+  // Before the first fight (the Entrance Hall) nobody is on the field yet: build them as they will
+  // walk into it, so their HP and MP pools are real.
+  return state.team.map((id) => charById(id)).filter(Boolean).map((c, i) => {
+    const u = makeUnit(c, state.level, 'p', i);
+    return { id: c.id, name: shortName(c), faction: c.faction, maxHp: u.maxHp, maxMp: u.maxMp || 0 };
+  });
 }
 
 // §4.4.1-3: one qualifying fight, one set of turns, remembered by the chamber it was won in.
@@ -9921,10 +9978,21 @@ function expGrantPrep(encId) {
 }
 
 // Open a preparation phase. `granted` is true only when a qualifying fight was just won —
-// every other way into the decision window (walking, retreating, a chest, a lapsed clock,
-// the entrance hall) opens it with no turns at all, which is the whole of §4.4.
-function expOpenPrep(granted) {
+// every other way into the decision window (walking, retreating, a chest, a lapsed clock)
+// opens it with no turns at all, which is the whole of §4.4. The one exception is the starting
+// hall on arrival (`hall`, §3.2): everyone prepares freely there, with no turns counted.
+function expOpenPrep(granted, hall = false) {
   const s = expState();
+  if (hall) {
+    const turns = {};
+    for (const u of expMembers()) {
+      turns[u.id] = Infinity;   // free: nothing is counted in the hall
+      // No fight has happened yet, so nothing has been carried: everyone walks in whole.
+      if (!s.carry[u.id]) s.carry[u.id] = { hp: u.maxHp, mp: u.maxMp || 0, cd: {}, fx: [] };
+    }
+    s.prep = { turns, extraTo: null, log: [], hall: true };
+    return;
+  }
   if (!granted) { s.prep = null; return; }
   const turns = {};
   for (const u of expMembers()) turns[u.id] = 1;   // §4.3.1 exactly one each
@@ -9977,18 +10045,19 @@ function expPrepAct(id, act) {
   } else return;
   p.turns[id] -= 1;
   log(`${u.name} ${did}.`, 'sys');
+  if (p.hall) expHallShow(id, act === 'mend' ? 'heal' : 'buff');
   expRenderDecision();
 }
 
-// §4.3.9 "Using consumable items": the satchel is open between chambers, and a drink taken here
-// is a drink gone from the stock, exactly as in a fight.
+// §4.3.9 "Using consumable items": each member drinks from their own backpack (§13: four battle
+// slots each, see BACKPACKS), and a drink taken here is gone from it, exactly as in a fight.
 function expPrepItem(id, key) {
   const s = expState(), p = s.prep;
-  if (!p || expPrepLeft(id) < 1 || !EXP_PREP_ITEMS.includes(key) || (profile.items[key] || 0) < 1) return;
+  if (!p || expPrepLeft(id) < 1 || !EXP_PREP_ITEMS.includes(key) || !packHas(id, key)) return;
   const u = expMembers().find((x) => x.id === id), c = s.carry[id];
   if (!u || !c) return;
   if (key === 'tonic' && !u.maxMp) return;   // nothing to pour it into: an Ironclad runs on Heat
-  profile.items[key]--;
+  packTake(id, key);
   saveProfile();
   let did = '';
   if (key === 'draught') { const was = c.hp; c.hp = Math.min(u.maxHp, c.hp + Math.round(u.maxHp * 0.35)); did = `drinks a Healing Draught (+${c.hp - was} HP)`; }
@@ -9997,6 +10066,7 @@ function expPrepItem(id, key) {
   p.turns[id] -= 1;
   for (const t of questEvent('item', { key })) log(t, 'sys');
   log(`${u.name} ${did}.`, 'sys');
+  if (p.hall) expHallShow(id, key === 'draught' ? 'heal' : 'buff');
   expRenderDecision();
 }
 
@@ -10280,12 +10350,16 @@ async function expBossIntrusion() {
    the vault has just offered; if it lapses, the vault decides both for them and moves forward.
    `granted` is true ONLY after a fight won in a chamber that has never paid out before — every
    other road into this window (walking, retreating, a chest, a carving room, a lapsed clock,
-   the entrance hall) opens it with no Preparation Turns, which is the whole of §4.4. */
-function expPostChamber(granted = false) {
+   a return to the entrance hall) opens it with no Preparation Turns, which is the whole of §4.4.
+   The one exception is the first arrival in the entrance hall (`hall`, §3.2): free preparation, no clock. */
+function expPostChamber(granted = false, hall = false) {
   state.phase = 'idle';
   expClearTimer();
   const s = expState();
-  expOpenPrep(granted);
+  expOpenPrep(granted, hall);
+  // §4.1 / §16.11: the 45-second clock belongs to the Post-Chamber Battle Phase. The starting hall
+  // is not one (§3.2.6), so there the warband prepares and leaves when it is ready.
+  if (hall) { s.deadline = null; expRenderDecision(); return; }
   s.deadline = Date.now() + EXP_DECISION_SECS * 1000;
   expRenderDecision();
   s.timer = setInterval(expTickTimer, 250);
@@ -10364,16 +10438,21 @@ function expPrepHTML() {
                   ['focus', u.maxMp ? `Gather mana +${EXP_PREP_MP}` : 'Work the gear −1 cd'],
                   ['cleanse', 'Cleanse'], ['brace', 'Brace']];
     const actBtns = acts.map(([a, label]) => `<button class="btn tiny" type="button" data-prep="${u.id}:${a}"${left < 1 ? ' disabled' : ''}>${label}</button>`).join('');
-    const itemBtns = EXP_PREP_ITEMS.filter((k) => (profile.items[k] || 0) > 0 && !(k === 'tonic' && !u.maxMp))
-      .map((k) => `<button class="btn tiny" type="button" data-prepitem="${u.id}:${k}"${left < 1 ? ' disabled' : ''}>${ITEMS[k].name} ×${profile.items[k]}</button>`).join('');
-    const extraBtn = !p.extraTo ? `<button class="btn tiny extra" type="button" data-extra="${u.id}">Give the extra turn</button>` : '';
+    const packed = (k) => packOf(u.id).filter((x) => x === k).length;
+    const itemBtns = EXP_PREP_ITEMS.filter((k) => packed(k) > 0 && !(k === 'tonic' && !u.maxMp))
+      .map((k) => `<button class="btn tiny" type="button" data-prepitem="${u.id}:${k}"${left < 1 ? ' disabled' : ''}>${ITEMS[k].name} ×${packed(k)}</button>`).join('');
+    const extraBtn = !p.extraTo && !p.hall ? `<button class="btn tiny extra" type="button" data-extra="${u.id}">Give the extra turn</button>` : '';
     return `<li class="prow${left ? ' has' : ''}">
       <div class="pbar"><span class="pname">${u.name}</span>
         <span class="pstat">${c ? `${c.hp}/${u.maxHp} HP` : ''}${c && u.maxMp ? ` · ${c.mp}/${u.maxMp} MP` : ''}</span>
         ${fxChips(c)}${chips(u.id)}
-        <span class="pturns">${left} turn${left === 1 ? '' : 's'}${p.extraTo === u.id ? ' (Captain\'s extra)' : ''}</span></div>
+        <span class="pturns">${p.hall ? 'free' : `${left} turn${left === 1 ? '' : 's'}`}${p.extraTo === u.id ? ' (Captain\'s extra)' : ''}</span></div>
       <div class="pacts">${actBtns}${itemBtns}${extraBtn}</div></li>`;
   }).join('');
+  if (p.hall) {
+    return `<div class="expPrep"><h4>Prepare</h4><ul class="plist">${rows}</ul>
+      <p class="note">The Entrance Hall holds no monsters. Prepare as you like, with no turns counted and no clock, then choose a road. Coming back here later gives nothing.</p></div>`;
+  }
   return `<div class="expPrep"><h4>Preparation Turns</h4><ul class="plist">${rows}</ul>
     <p class="note">${p.extraTo ? 'The extra turn is given, and it does not carry past this chamber.' : 'The Captain may give one member a second turn (§4.3.2).'} Unspent turns are lost when the warband moves.</p></div>`;
 }
@@ -10408,6 +10487,7 @@ function expRenderDecision() {
     ? `<p class="loot">Found: +${s.lastLoot.gold} gold${s.lastLoot.items?.length ? `, ${s.lastLoot.items.join(', ')}` : ''}</p>` : '';
   const timerHTML = timed
     ? `<div class="expTimer"><span id="expTimerFill" style="width:100%"></span></div><div class="expTimerTxt" id="expTimerTxt">${EXP_DECISION_SECS}s to decide</div>`
+    : s.prep?.hall ? '<p class="note">No clock in the Entrance Hall. Take your time.</p>'
     : '<p class="note">The decision timer has stopped. Retreat or abandon the expedition.</p>';
   $('#ovBody').innerHTML = `${loot}${timerHTML}${expRuneHTML()}${expPrepHTML()}
     ${exits.length ? `<ul class="expExits">${exitRows}</ul>` : '<p class="note">No road leads on from here. The only way is back.</p>'}
@@ -10427,6 +10507,7 @@ function expRenderDecision() {
   body.querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', () => expPrepExtra(b.dataset.extra)));
   body.querySelectorAll('[data-rune]').forEach((b) => b.addEventListener('click', () => expRuneKeep(b.dataset.rune)));
   body.querySelectorAll('[data-runeto]').forEach((b) => b.addEventListener('click', () => expRuneAssign(b.dataset.runeto)));
+  $('#overlay').classList.toggle('docked', !!s.prep?.hall);
   $('#overlay').hidden = false;
 }
 
@@ -10442,6 +10523,7 @@ function expMapHTML() {
 
 function expEndOverlay(outcome) {
   expClearTimer();
+  $('#overlay').classList.remove('docked');
   const e = expRun(), s = expState();
   // §7.2.5-6: no rune leaves the vault — not in victory, not in defeat, not when the warband
   // walks out. They are cut for this expedition and they end with it.
@@ -13810,6 +13892,12 @@ function inventoryHTML(close) {
    warband stays where it was standing (the gate road). */
 function openChamp(cid) {
   hideSay();
+  // At the Expedition Gate a tap brings out (or puts away) that champion's small card instead.
+  if (state.place === 'gate' && !state.champ) {
+    const shown = state.miniShown || [];
+    state.miniShown = shown.includes(cid) ? shown.filter((id) => id !== cid) : [...shown, cid];
+    return render();
+  }
   const el = document.querySelector(`.townie[data-champ="${cid}"]`);
   state.champ = state.champ === cid ? null : cid;
   state.champAt = state.champ && el ? el.getBoundingClientRect() : null;   // where they stood when tapped
@@ -13897,9 +13985,12 @@ function renderBandMinis() {
   const show = state.screen === 'village' && state.place === 'gate' && !state.champ && state.team.length > 0;
   box.hidden = !show;
   if (!show) { box.innerHTML = ''; return; }
-  // A card closed with its ✕ stays away until the gate is opened again (openPlace clears miniHidden);
-  // the others keep their side and row.
-  box.innerHTML = state.team.map((id, i) => (state.miniHidden?.includes(id) ? '<span class="bmSpot" aria-hidden="true"></span>' : bandMiniHTML(id, i))).join('');
+  // None show until you tap that champion on the road (openChamp adds them to miniShown); the ✕ puts
+  // one away again. Each keeps its own side and row, with an empty spot where another is not showing.
+  const shown = state.miniShown || [];
+  box.hidden = !shown.length;
+  if (!shown.length) { box.innerHTML = ''; return; }
+  box.innerHTML = state.team.map((id, i) => (shown.includes(id) ? bandMiniHTML(id, i) : '<span class="bmSpot" aria-hidden="true"></span>')).join('');
   // The strip of map between the top bar and the panel (or left of a panel docked on the right).
   const town = $('#town'), tr = town.getBoundingClientRect(), pp = $('#placePanel'), pr = pp && !pp.hidden ? pp.getBoundingClientRect() : null;
   const hud = document.querySelector('.townHud')?.getBoundingClientRect();
@@ -14905,7 +14996,7 @@ function buildStage() {
 function openPlace(k) {
   state.place = k;
   state.champ = null;
-  state.miniHidden = [];   // the gate's warband cards all come back
+  state.miniShown = [];   // the gate's warband cards start put away
   state.booth = null; state.boothNews = '';   // walking away from the carnival abandons any game in progress
   state.trainNews = '';                       // and the yard forgets this morning's drill
   hideSay();
@@ -15045,7 +15136,7 @@ function villageAction(k) {
   else if (verb === 'champ') { state.champ = arg || null; state.packPick = null; state.champTip = null; }
   else if (verb === 'ctip') state.champTip = state.champTip === arg ? null : arg;
   // A mini card at the gate opens the full card, anchored where that mini card sat.
-  else if (verb === 'minix') state.miniHidden = [...(state.miniHidden || []), arg];
+  else if (verb === 'minix') state.miniShown = (state.miniShown || []).filter((id) => id !== arg);
   else if (verb === 'champopen') {
     const el = document.querySelector(`.bandMini[data-k="champopen:${arg}"]`);
     state.champ = arg; state.champAt = el ? el.getBoundingClientRect() : null; state.champTip = null; state.packPick = null;
