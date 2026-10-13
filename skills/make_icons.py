@@ -29,6 +29,7 @@ PAL = {
     'tide':    ('#1c6b7c', '#091f26', '#7fe3d8'),
     'crimson': ('#5c1a2d', '#18060d', '#e0455a'),
     'undead':  ('#3f5244', '#0e1510', '#8ee696'),
+    'riftborn': ('#2a2440', '#0e0c1a', '#b9c0e0'),
     'monster': ('#4a4038', '#16110d', '#c0a080'),
 }
 
@@ -57,6 +58,14 @@ DEFS = f'''
 <linearGradient id="grave" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcffe6"/><stop offset="1" stop-color="#4f8a60"/></linearGradient>
 <radialGradient id="graveR" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#eafff0"/><stop offset=".5" stop-color="#9fe8b4" stop-opacity=".75"/><stop offset="1" stop-color="#6fcf8a" stop-opacity="0"/></radialGradient>
 <linearGradient id="shroud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a9a8c"/><stop offset="1" stop-color="#2e3a30"/></linearGradient>
+<linearGradient id="gravity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9da6e0"/><stop offset="1" stop-color="#3a3870"/></linearGradient>
+<radialGradient id="gravR" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#d0d4ff"/><stop offset=".5" stop-color="#6b74c8"/><stop offset="1" stop-color="#2a2440"/></radialGradient>
+<linearGradient id="lightG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8d0"/><stop offset=".5" stop-color="#e8d26a"/><stop offset="1" stop-color="#a88a20"/></linearGradient>
+<radialGradient id="lightR" cx=".45" cy=".35" r=".6"><stop offset="0" stop-color="#fffef0"/><stop offset=".4" stop-color="#ffe680"/><stop offset="1" stop-color="#c8a030" stop-opacity="0"/></radialGradient>
+<linearGradient id="sound" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8eef4"/><stop offset="1" stop-color="#2a7a8a"/></linearGradient>
+<linearGradient id="void" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c89eff"/><stop offset="1" stop-color="#3a1a5c"/></linearGradient>
+<radialGradient id="voidR" cx=".5" cy=".5" r=".55"><stop offset="0" stop-color="#15121d"/><stop offset=".5" stop-color="#5a2e8a"/><stop offset="1" stop-color="#c89eff" stop-opacity="0"/></radialGradient>
+<linearGradient id="cosmic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d0d4ff"/><stop offset=".5" stop-color="#8a7ec8"/><stop offset="1" stop-color="#3a2860"/></linearGradient>
 <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
 <filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.4" stdDeviation="1" flood-color="#000" flood-opacity=".55"/></filter>
 '''
@@ -2070,6 +2079,21 @@ CATALOG = {
         ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Stolen Hours', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
         ('Clawing Grasp', 'Shambler (summon)', 'skill'),
     ]),
+    'riftborn': ('The Riftborn', [
+        ('Fixed Point', 'Thassor · Nature', 'passive'), ('Unblinking', 'Vharo · Nature', 'passive'),
+        ('Finisher', 'Nyx · Nature', 'passive'),
+        ('Dead Weight', 'Thassor', 'skill'), ('Deadfall', 'Thassor', 'sig'), ('Event Horizon', 'Thassor', 'skill'),
+        ('Collapsing Fist', 'Thassor', 'skill'), ('Graviton Guard', 'Thassor', 'skill'), ('Singularity', 'Thassor', 'skill'),
+        ('Crushing Field', 'Thassor', 'passive'),
+        ('Ray', 'Vharo', 'skill'), ('Prism Lance', 'Vharo', 'skill'), ('Starfire', 'Vharo', 'skill'),
+        ('Glare', 'Vharo', 'skill'), ('Focus', 'Vharo', 'skill'), ('Recall', 'Vharo', 'skill'),
+        ('Clarion', 'Resh', 'skill'), ('Quickening Chord', 'Resh', 'skill'), ('Thrum', 'Resh', 'skill'),
+        ('Discord', 'Resh', 'skill'), ('Steady Tone', 'Resh', 'skill'),
+        ('Null Bolt', 'Nyx', 'skill'), ('Unmake', 'Nyx', 'sig'), ('Silencing Gyre', 'Nyx', 'skill'),
+        ('Phase', 'Nyx', 'skill'), ('Collapse Point', 'Nyx', 'skill'),
+        ('Attune: Gravity', 'Orin', 'skill'), ('Grand Chord', 'Orin', 'skill'),
+        ('Attune: Light', 'Orin', 'skill'), ('Attune: Void', 'Orin', 'skill'), ('Conduct', 'Orin', 'skill'),
+    ]),
     'monster': ('Monsters of Ashfall Road', [
         ('Hardened Crust', 'Magma Slime', 'passive'), ('Reassemble', 'Bone Rattler', 'passive'),
         ('Troll Blood', 'Cave Troll', 'passive'), ('Grave Hunger', 'Crypt Ghoul', 'passive'),
@@ -2998,6 +3022,343 @@ def _():
             + g(plus('url(#heal)'), 32, 26, 0, .55))
 
 
+# ---- The Riftborn --------------------------------------------------------
+
+# Riftborn helpers
+def grav_chevron(y, w=28, h=8, fill='url(#gravity)'):
+    x0 = 32 - w / 2
+    return f'<path d="M{x0} {y} L32 {y + h} L{x0 + w} {y} L{x0 + w} {y + 3} L32 {y + h + 3} L{x0} {y + 3} Z" fill="{fill}"/>'
+
+
+def light_ray(cx, cy, length=20, angle=0, fill='url(#lightG)'):
+    import math as m
+    a = m.radians(angle)
+    dx, dy = m.cos(a), m.sin(a)
+    px, py = -dy, dx
+    return (f'<path d="M{cx + dx * 3:.1f} {cy + dy * 3:.1f} '
+            f'L{cx + dx * length:.1f} {cy + dy * length:.1f} '
+            f'L{cx + dx * (length - 3) + px * 2:.1f} {cy + dy * (length - 3) + py * 2:.1f} Z" fill="{fill}"/>')
+
+
+def void_shard(cx, cy, r=10, fill='url(#void)'):
+    return (f'<path d="M{cx} {cy - r} L{cx + r * .6:.1f} {cy} L{cx} {cy + r} L{cx - r * .6:.1f} {cy} Z" fill="{fill}"/>'
+            f'<circle cx="{cx}" cy="{cy}" r="{r * .3:.1f}" fill="#15121d" stroke="none"/>')
+
+
+def sound_wave(cx, cy, n=3, r0=8, spread=120, rot=0, color='#5fcad1'):
+    return arc_lines(cx, cy, r0, n, spread, color, rot, 2.4, 6)
+
+
+# --- Thassor (gravity melee) ---
+@icon('Fixed Point')
+def _():
+    # An anchor driven into the ground: Thassor cannot be moved.
+    return ('<rect x="29" y="10" width="6" height="36" rx="2" fill="url(#gravity)"/>'
+            '<path d="M22 38 L32 48 L42 38" fill="none" stroke="url(#gravity)" stroke-width="4"/>'
+            '<circle cx="32" cy="12" r="5" fill="url(#gravity)"/>'
+            '<circle cx="32" cy="12" r="2.5" fill="#2a2440" stroke="none"/>'
+            '<rect x="20" y="20" width="24" height="4" rx="2" fill="url(#gravity)"/>')
+
+
+@icon('Dead Weight')
+def _():
+    # A heavy fist slamming down with gravity chevrons.
+    return (grav_chevron(12) + grav_chevron(20, 22, 6)
+            + '<path d="M22 30 L22 48 L42 48 L42 30 L38 28 L26 28 Z" fill="url(#iron)"/>'
+            + '<rect x="24" y="28" width="16" height="4" rx="1.5" fill="url(#gravity)"/>'
+            + speed_lines(10, 40, 3, 8, 5, '#6b74c8'))
+
+
+@icon('Deadfall')
+def _():
+    # An enemy lifted high then smashed: upward arrow becoming a downward impact.
+    return ('<path d="M32 10 L24 22 L28 22 L28 38 L36 38 L36 22 L40 22 Z" fill="url(#gravity)"/>'
+            + grav_chevron(40, 30, 8)
+            + burst(32, 50, 5, 11, 8, 'url(#gravR)')
+            + '<path d="M18 48 L46 48" stroke="#6b74c8" stroke-width="2.5"/>')
+
+
+@icon('Event Horizon')
+def _():
+    # A spiral pulling inward: the gravity well that drags targets back.
+    return ('<circle cx="32" cy="32" r="18" fill="url(#gravR)" stroke="none"/>'
+            + '<path d="M32 14 A18 18 0 0 1 50 32" fill="none" stroke="url(#gravity)" stroke-width="3"/>'
+            + '<path d="M50 32 A18 18 0 0 1 32 50" fill="none" stroke="#9da6e0" stroke-width="2.5"/>'
+            + '<path d="M32 50 A18 18 0 0 1 14 32" fill="none" stroke="#6b74c8" stroke-width="2"/>'
+            + '<circle cx="32" cy="32" r="5" fill="#2a2440"/>'
+            + '<circle cx="32" cy="32" r="2.5" fill="#d0d4ff" stroke="none"/>'
+            + speed_lines(42, 20, 2, 7, 4, '#d0d4ff', -135))
+
+
+@icon('Collapsing Fist')
+def _():
+    # A fist with gravity lines converging on it.
+    return ('<path d="M24 26 L24 46 L44 46 L44 26 L40 24 L28 24 Z" fill="url(#iron)"/>'
+            + '<rect x="26" y="24" width="16" height="4" rx="1.5" fill="url(#gravity)"/>'
+            + '<path d="M18 24 L24 32 M46 24 L40 32 M32 14 L32 24" stroke="url(#gravity)" stroke-width="2.5"/>'
+            + twinkle(32, 38, .8, '#d0d4ff'))
+
+
+@icon('Graviton Guard')
+def _():
+    # A heater shield with a gravity orb in the centre.
+    return (g(heater('url(#gravity)', 'url(#cosmic)'), 32, 32, 0, 1.05)
+            + '<circle cx="32" cy="30" r="7" fill="url(#gravR)" stroke="none"/>'
+            + '<circle cx="32" cy="30" r="3" fill="#d0d4ff" stroke="none"/>')
+
+
+@icon('Singularity')
+def _():
+    # A black hole with rings and matter spiraling in: AoE gravity.
+    return ('<circle cx="32" cy="32" r="20" fill="url(#gravR)" stroke="none"/>'
+            + '<ellipse cx="32" cy="32" rx="20" ry="8" fill="none" stroke="url(#gravity)" stroke-width="2.5" transform="rotate(-20 32 32)"/>'
+            + '<ellipse cx="32" cy="32" rx="16" ry="5" fill="none" stroke="#9da6e0" stroke-width="1.5" transform="rotate(15 32 32)"/>'
+            + '<circle cx="32" cy="32" r="6" fill="#15121d"/>'
+            + '<circle cx="32" cy="32" r="3" fill="#6b74c8" stroke="none"/>'
+            + twinkle(16, 18, .6, '#d0d4ff') + twinkle(48, 44, .5, '#d0d4ff'))
+
+
+@icon('Crushing Field')
+def _():
+    # Pressure waves radiating from a central gravity point: passive AoE bash.
+    return ('<circle cx="32" cy="32" r="8" fill="url(#gravR)" stroke="none"/>'
+            + '<circle cx="32" cy="32" r="4" fill="#d0d4ff" stroke="none"/>'
+            + '<circle cx="32" cy="32" r="14" fill="none" stroke="url(#gravity)" stroke-width="2" stroke-dasharray="4 3"/>'
+            + '<circle cx="32" cy="32" r="21" fill="none" stroke="#9da6e0" stroke-width="1.5" stroke-dasharray="3 4"/>'
+            + grav_chevron(10, 16, 5) + grav_chevron(47, 16, 5, '#9da6e0'))
+
+
+# --- Vharo (light ranged) ---
+@icon('Unblinking')
+def _():
+    # A wide-open eye radiating light: attacks never miss.
+    return ('<path d="M12 32 Q22 18 32 18 Q42 18 52 32 Q42 46 32 46 Q22 46 12 32 Z" fill="url(#lightG)"/>'
+            + '<circle cx="32" cy="32" r="8" fill="#a88a20"/>'
+            + '<circle cx="32" cy="32" r="4" fill="#15121d"/>'
+            + '<circle cx="33" cy="31" r="1.5" fill="#fffef0" stroke="none"/>'
+            + glow('<circle cx="32" cy="32" r="12" fill="#ffe680"/>', .3))
+
+
+@icon('Ray')
+def _():
+    # A horizontal beam of light.
+    return ('<rect x="10" y="28" width="44" height="8" rx="3" fill="url(#lightG)"/>'
+            + '<rect x="12" y="30" width="40" height="4" rx="2" fill="#fffef0" stroke="none"/>'
+            + glow('<rect x="8" y="26" width="48" height="12" rx="4" fill="#ffe680"/>', .3)
+            + twinkle(50, 32, .6, '#fffef0'))
+
+
+@icon('Prism Lance')
+def _():
+    # A pointed lance of light splitting into a prism rainbow.
+    return ('<path d="M10 32 L42 24 L42 40 Z" fill="url(#lightG)"/>'
+            + '<path d="M12 32 L40 26 L40 38 Z" fill="#fffef0" stroke="none"/>'
+            + '<path d="M42 24 L54 18 L54 22 L42 28 Z" fill="#ff6060" stroke="none"/>'
+            + '<path d="M42 28 L54 22 L54 30 L42 32 Z" fill="#ffe680" stroke="none"/>'
+            + '<path d="M42 32 L54 30 L54 38 L42 36 Z" fill="#5fcad1" stroke="none"/>'
+            + '<path d="M42 36 L54 38 L54 46 L42 40 Z" fill="#8a5ad6" stroke="none"/>')
+
+
+@icon('Starfire')
+def _():
+    # Multiple light bolts radiating outward: multi-target based on swords held.
+    return (twinkle(32, 16, 1.1, '#ffe680')
+            + twinkle(18, 28, .8, '#e8d26a')
+            + twinkle(46, 28, .8, '#e8d26a')
+            + twinkle(22, 44, .7, '#c8a030')
+            + twinkle(42, 44, .7, '#c8a030')
+            + glow('<circle cx="32" cy="32" r="14" fill="#ffe680"/>', .2)
+            + '<circle cx="32" cy="32" r="6" fill="url(#lightR)" stroke="none"/>')
+
+
+@icon('Glare')
+def _():
+    # A blinding flash: bright centre with rays that can blind.
+    return ('<circle cx="32" cy="32" r="14" fill="url(#lightR)" stroke="none"/>'
+            + glow('<circle cx="32" cy="32" r="10" fill="#ffe680"/>', .5)
+            + '<circle cx="32" cy="32" r="5" fill="#fffef0" stroke="none"/>'
+            + ''.join(f'<line x1="32" y1="32" x2="{32 + 22 * math.cos(math.radians(a)):.0f}" y2="{32 + 22 * math.sin(math.radians(a)):.0f}" stroke="#ffe680" stroke-width="2"/>'
+                      for a in range(0, 360, 45)))
+
+
+@icon('Focus')
+def _():
+    # A lens focusing light into a point: empower self.
+    return ('<path d="M20 14 Q32 20 44 14 Q46 32 44 50 Q32 44 20 50 Q18 32 20 14 Z" fill="url(#lightG)" opacity=".6"/>'
+            + '<path d="M22 16 Q32 22 42 16 Q44 32 42 48 Q32 42 22 48 Q20 32 22 16 Z" fill="none" stroke="#e8d26a" stroke-width="1.5"/>'
+            + '<circle cx="32" cy="32" r="4" fill="#fffef0"/>'
+            + glow('<circle cx="32" cy="32" r="8" fill="#ffe680"/>', .3)
+            + '<path d="M32 10 L32 20 M32 44 L32 54" stroke="#e8d26a" stroke-width="1.5"/>')
+
+
+@icon('Recall')
+def _():
+    # Swords flying back to the hand: a hand with blades converging.
+    return ('<circle cx="32" cy="32" r="8" fill="url(#lightG)"/>'
+            + g(sword('url(#lightG)'), 18, 18, -135, .45)
+            + g(sword('url(#lightG)'), 46, 18, 135, .45)
+            + g(sword('url(#lightG)'), 18, 46, -45, .45)
+            + g(sword('url(#lightG)'), 46, 46, 45, .45)
+            + '<path d="M22 22 L28 28 M42 22 L36 28 M22 42 L28 36 M42 42 L36 36" stroke="#e8d26a" stroke-width="1.5" stroke-dasharray="2 2"/>')
+
+
+# --- Resh (sound support) ---
+@icon('Clarion')
+def _():
+    # A bell struck, radiating sound waves.
+    return ('<path d="M26 18 Q26 12 32 10 Q38 12 38 18 L40 38 L24 38 Z" fill="url(#sound)"/>'
+            + '<rect x="23" y="38" width="18" height="4" rx="1.5" fill="#2a7a8a"/>'
+            + '<circle cx="32" cy="42" r="3" fill="url(#sound)"/>'
+            + sound_wave(48, 26, 3, 6, 90, -20))
+
+
+@icon('Quickening Chord')
+def _():
+    # A musical note with speed lines: haste buff.
+    return ('<circle cx="28" cy="42" r="7" fill="url(#sound)"/>'
+            + '<rect x="34" y="14" width="4" height="30" rx="1.5" fill="url(#sound)"/>'
+            + '<path d="M38 14 L50 18 L50 24 L38 20 Z" fill="#5fcad1"/>'
+            + speed_lines(8, 36, 3, 10, 5, '#5fcad1')
+            + twinkle(46, 40, .6, '#a8eef4'))
+
+
+@icon('Thrum')
+def _():
+    # A heavy bass wave pushing outward: knockback sonic.
+    return (sound_wave(14, 32, 4, 8, 140, 0, '#5fcad1')
+            + '<circle cx="14" cy="32" r="5" fill="url(#sound)"/>'
+            + speed_lines(36, 32, 3, 14, 6, '#a8eef4', 0, .5))
+
+
+@icon('Discord')
+def _():
+    # Jagged broken sound waves: AoE stagger.
+    return ('<path d="M10 28 L18 22 L26 30 L34 18 L42 28 L50 20 L54 26" fill="none" stroke="url(#sound)" stroke-width="3.5"/>'
+            + '<path d="M10 38 L18 44 L26 36 L34 48 L42 38 L50 46 L54 40" fill="none" stroke="#2a7a8a" stroke-width="3"/>'
+            + twinkle(32, 32, .7, '#a8eef4')
+            + stun_stars(32, 52))
+
+
+@icon('Steady Tone')
+def _():
+    # A tuning fork with a healing glow: sustaining heal.
+    return ('<rect x="30" y="32" width="4" height="20" rx="1.5" fill="url(#sound)"/>'
+            + '<path d="M24 12 L24 34 Q24 38 28 38 L28 34 Z" fill="url(#sound)"/>'
+            + '<path d="M40 12 L40 34 Q40 38 36 38 L36 34 Z" fill="url(#sound)"/>'
+            + sound_wave(32, 16, 2, 5, 160, -90, '#a8eef4')
+            + glow(g(plus('url(#heal)'), 32, 46, 0, .55), .4))
+
+
+# --- Nyx (void ranged) ---
+@icon('Finisher')
+def _():
+    # A crosshair on a cracked target: +dmg below half HP.
+    return ('<circle cx="32" cy="32" r="14" fill="none" stroke="url(#void)" stroke-width="2.5"/>'
+            + '<circle cx="32" cy="32" r="6" fill="none" stroke="#c89eff" stroke-width="1.5"/>'
+            + '<line x1="32" y1="10" x2="32" y2="24" stroke="url(#void)" stroke-width="2"/>'
+            + '<line x1="32" y1="40" x2="32" y2="54" stroke="url(#void)" stroke-width="2"/>'
+            + '<line x1="10" y1="32" x2="24" y2="32" stroke="url(#void)" stroke-width="2"/>'
+            + '<line x1="40" y1="32" x2="54" y2="32" stroke="url(#void)" stroke-width="2"/>'
+            + '<path d="M28 32 L36 32 M32 28 L32 36" stroke="#c89eff" stroke-width="1.5"/>')
+
+
+@icon('Null Bolt')
+def _():
+    # A void shard hurtling forward: never misses.
+    return (void_shard(32, 30, 14)
+            + glow(f'<circle cx="32" cy="30" r="8" fill="#8a5ad6"/>', .3)
+            + speed_lines(8, 30, 3, 10, 5, '#c89eff')
+            + twinkle(48, 44, .5, '#c89eff'))
+
+
+@icon('Unmake')
+def _():
+    # A target being torn apart by void energy: the ultimate damage skill.
+    return ('<circle cx="32" cy="32" r="16" fill="url(#voidR)" stroke="none"/>'
+            + '<path d="M24 24 L18 14 M40 24 L46 14 M24 40 L18 50 M40 40 L46 50" stroke="url(#void)" stroke-width="2.5"/>'
+            + '<circle cx="32" cy="32" r="6" fill="#15121d"/>'
+            + '<circle cx="32" cy="32" r="2.5" fill="#c89eff" stroke="none"/>'
+            + twinkle(32, 16, .6, '#c89eff') + twinkle(32, 48, .6, '#c89eff'))
+
+
+@icon('Silencing Gyre')
+def _():
+    # A spinning void disc with a silence symbol.
+    return ('<circle cx="32" cy="32" r="16" fill="url(#voidR)" stroke="none"/>'
+            + '<ellipse cx="32" cy="32" rx="18" ry="6" fill="none" stroke="url(#void)" stroke-width="2.5" transform="rotate(25 32 32)"/>'
+            + '<line x1="24" y1="28" x2="40" y2="36" stroke="#c89eff" stroke-width="3"/>'
+            + '<circle cx="32" cy="32" r="4" fill="#15121d" stroke="none"/>')
+
+
+@icon('Phase')
+def _():
+    # A figure half-faded into the void: evade buff.
+    return ('<path d="M28 16 L28 48 L36 48 L36 16 Z" fill="url(#void)" opacity=".5"/>'
+            + '<circle cx="32" cy="20" r="6" fill="url(#void)" opacity=".7"/>'
+            + '<path d="M36 16 L36 48 L44 48 L44 16 Z" fill="none" stroke="url(#void)" stroke-width="1.5" stroke-dasharray="3 3"/>'
+            + '<path d="M20 16 L20 48 L28 48 L28 16 Z" fill="url(#void)" opacity=".3"/>'
+            + twinkle(46, 24, .5, '#c89eff') + twinkle(18, 40, .5, '#c89eff'))
+
+
+@icon('Collapse Point')
+def _():
+    # A void implosion: AoE damage. Multiple shards converging on a centre.
+    return ('<circle cx="32" cy="32" r="8" fill="url(#voidR)" stroke="none"/>'
+            + void_shard(32, 14, 6)
+            + void_shard(16, 42, 6)
+            + void_shard(48, 42, 6)
+            + '<path d="M32 20 L32 24 M20 40 L26 36 M44 40 L38 36" stroke="#c89eff" stroke-width="1.5" stroke-dasharray="2 2"/>'
+            + '<circle cx="32" cy="32" r="3" fill="#15121d" stroke="none"/>')
+
+
+# --- Orin (conductor support) ---
+@icon('Attune: Gravity')
+def _():
+    # A hand placing a gravity charge on a target.
+    return ('<circle cx="32" cy="32" r="14" fill="url(#gravR)" stroke="none"/>'
+            + grav_chevron(20, 18, 6)
+            + '<circle cx="32" cy="38" r="6" fill="url(#gravity)"/>'
+            + '<circle cx="32" cy="38" r="3" fill="#d0d4ff" stroke="none"/>'
+            + twinkle(18, 18, .5, '#d0d4ff'))
+
+
+@icon('Attune: Light')
+def _():
+    # A hand placing a light charge on a target.
+    return ('<circle cx="32" cy="32" r="14" fill="url(#lightR)" stroke="none"/>'
+            + '<circle cx="32" cy="32" r="8" fill="url(#lightG)"/>'
+            + '<circle cx="32" cy="32" r="3.5" fill="#fffef0" stroke="none"/>'
+            + ''.join(f'<line x1="32" y1="32" x2="{32 + 16 * math.cos(math.radians(a)):.0f}" y2="{32 + 16 * math.sin(math.radians(a)):.0f}" stroke="#e8d26a" stroke-width="1.5"/>'
+                      for a in range(0, 360, 60)))
+
+
+@icon('Attune: Void')
+def _():
+    # A hand placing a void charge on a target.
+    return ('<circle cx="32" cy="32" r="14" fill="url(#voidR)" stroke="none"/>'
+            + void_shard(32, 32, 12)
+            + glow('<circle cx="32" cy="32" r="6" fill="#8a5ad6"/>', .3)
+            + twinkle(18, 18, .5, '#c89eff') + twinkle(46, 46, .5, '#c89eff'))
+
+
+@icon('Grand Chord')
+def _():
+    # A massive sound wave radiating outward: AoE sound charge.
+    return (sound_wave(32, 32, 4, 6, 360, 0, '#5fcad1')
+            + '<circle cx="32" cy="32" r="7" fill="url(#sound)"/>'
+            + '<circle cx="32" cy="32" r="3.5" fill="#a8eef4" stroke="none"/>'
+            + twinkle(14, 14, .5, '#a8eef4') + twinkle(50, 50, .5, '#a8eef4'))
+
+
+@icon('Conduct')
+def _():
+    # A conductor's baton with an empowering glow: ally buff.
+    return ('<path d="M20 48 L44 16" stroke="url(#cosmic)" stroke-width="4" stroke-linecap="round"/>'
+            + '<circle cx="44" cy="16" r="4" fill="url(#cosmic)"/>'
+            + glow('<circle cx="44" cy="16" r="8" fill="#b9c0e0"/>', .3)
+            + twinkle(30, 28, .7, '#d0d4ff')
+            + twinkle(16, 38, .5, '#9da6e0')
+            + '<path d="M40 20 Q50 24 48 34" fill="none" stroke="#b9c0e0" stroke-width="1.5"/>')
 
 
 def frame(faction, kind, glyph, name):
