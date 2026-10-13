@@ -1153,7 +1153,9 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit.e.fenced .upic::after { right: auto; left: -9%; }
 /* Grudge Axe: Krug on 0 HP, outlined in red until his axe flies at the next Rev. */
 .unit.grudge .upic { filter: drop-shadow(1.5px 0 0 #ff2a3e) drop-shadow(-1.5px 0 0 #ff2a3e) drop-shadow(0 1.5px 0 #ff2a3e) drop-shadow(0 -1.5px 0 #ff2a3e) drop-shadow(0 0 9px rgba(255, 42, 62, .85)); }
-.unit.grudge .plate { border-color: #ff2a3e; box-shadow: 0 0 0 1px rgba(255, 42, 62, .6); }   /* enemies face left, so the fence stands on their left */
+.unit.grudge .plate { border-color: #ff2a3e; box-shadow: 0 0 0 1px rgba(255, 42, 62, .6); }
+.unit.sword-thrown .upic img { filter: brightness(.7) saturate(.6); transition: filter .15s; }
+.unit:not(.sword-thrown) .upic img { transition: filter .3s .1s; }   /* enemies face left, so the fence stands on their left */
 /* ...planted in a churned mound of grave-dirt (FENCE_DIRT), drawn in front of the fence's foot so the
    bars go down into the ground. It is thrown up first, as the fence starts to come through. */
 .unit.fenced .upic::before {
@@ -1369,7 +1371,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .proj-attunel { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle, #fff 0 16%, #e8d26a 45%, transparent 72%); box-shadow: 0 0 12px #e8d26a; }
 .proj-attunev { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle, #15121d 0 16%, #8a5ad6 45%, transparent 72%); box-shadow: 0 0 12px #8a5ad6; }
 .proj-gravbolt, .proj-attuneg { filter: drop-shadow(0 0 6px #6b74c8); }
-.proj-lightray, .proj-prismlance, .proj-starfire, .proj-glareshot, .proj-attunel { filter: drop-shadow(0 0 6px #e8d26a); }
+.proj-lightray, .proj-prismlance, .proj-starfire, .proj-glareshot, .proj-attunel, .proj-lightsword { filter: drop-shadow(0 0 6px #e8d26a); }
 .proj-sonicpulse, .proj-thrum, .proj-discordwave { filter: drop-shadow(0 0 6px #5fcad1); }
 .proj-voidbolt, .proj-voidlance, .proj-voidgyre, .proj-attunev { filter: drop-shadow(0 0 6px #8a5ad6); }
 .burst-gravity { width: 110%; background: radial-gradient(circle, rgba(107, 116, 200, .7) 0 22%, rgba(42, 36, 64, .5) 46%, transparent 66%); box-shadow: inset 0 0 20px rgba(107, 116, 200, .6); animation-name: ring; animation-duration: .7s; border: 2.5px solid rgba(107, 116, 200, .8); }
@@ -3986,12 +3988,13 @@ const ROSTER = [
   { id: 'vharo', name: 'Vharo', faction: 'riftborn', role: 'ranged', force: 'l', bio: 'A light-channeler who burns holes in the dark.',
     mods: { atk: 1.15, hp: 0.9, agi: 1.05 },
     look: { body: 'wraith', main: '#2a2440', trim: '#e8d26a', eye: '#e8d26a' },
-    nature: { name: 'Unblinking', desc: 'His basic attacks never miss.', breathless: 1 },
+    nature: { name: 'Unblinking', desc: 'His basic attacks never miss. Attacks throw a sword that lodges in the target — killing it returns the blade. Damage scales with swords held.', breathless: 1, swords: 5 },
     skills: [D('Ray', '120% beam of light.', 2, 1.2, { force: 'l', magic: true, mp: 15 }),
              D('Prism Lance', '200% light that pierces armor.', 4, 2.0, { force: 'l', magic: true, pierce: true, mp: 35 }),
-             D('Starfire', '70% light to all enemies.', 4, 0.7, { aoe: true, force: 'l', magic: true, mp: 30 }),
+             D('Starfire', '70% light to enemies equal to swords held.', 4, 0.7, { force: 'l', magic: true, mp: 30, swordTargets: true }),
              D('Glare', '90% light with a 50% chance to Blind.', 3, 0.9, { force: 'l', magic: true, chanceFx: [['blind', 2, 0.5]], mp: 20 }),
-             B('Focus', 'Gathers the light: +30% damage for 2 turns.', 4, 'self', [['empower', 3]], { mp: 20 })],
+             B('Focus', 'Gathers the light: +30% damage for 2 turns.', 4, 'self', [['empower', 3]], { mp: 20 }),
+             B('Recall', 'Calls all swords back. Costs a turn.', 0, 'self', [], { recall: true, noBlood: true })],
     passive: P('Keen Edge', '+8% critical hit chance.', { stat: { crit: 0.08 } }) },
   { id: 'resh', name: 'Resh', faction: 'riftborn', role: 'support', force: 's', bio: 'A sound-shaper who moves the war to his own time.',
     mods: { atk: 0.9, hp: 1.0, agi: 1.1 },
@@ -6431,6 +6434,7 @@ function makeUnit(c, lv, side, slot, scale = 1) {
     // The champion's Nature (always on, see ROSTER): the engine reads its flags via charNat(u).
     nat: c.nature || {}, splitOnDeath: c.splitOnDeath || 0,
     cooldowns: { b: ULT_FIRST_TURN }, heat: 0, stacks: (ps.startStacks || 0) + (c.nature?.brace || 0), hitSince: false, lastAction: null, combo: false,
+    swords: c.nature?.swords || 0, maxSwords: c.nature?.swords || 0, lodged: 0,
   };
 }
 
@@ -6654,6 +6658,9 @@ function usable(u, sk) {
   if (has(u, 'rooted') && requiresMove(u, sk) && !(sk.target === 'enemy' && attachmentsOn(u).length)) return false;
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
+  if (u.maxSwords && sk.id === 'attack' && u.swords <= 0) return false;
+  if (u.maxSwords && sk.o?.swordTargets && u.swords <= 0) return false;
+  if (sk.o?.recall && u.swords >= u.maxSwords) return false;
   if (u.cooldowns[sk.id] > EPS) return false;   // fractional now: a hair above zero is still ready
   // Fenced in (Graveyard Fence): the wall holds both ways. A MELEE unit behind it cannot swing
   // out past its own fence — its basic Attack and every melee damage skill are shut off (a hurled
@@ -6859,6 +6866,11 @@ function fell(v, by) {
     }
   }
   log(`${v.name} is down.`, 'sys');
+  if (v.lodged) {
+    const vharo = [...state.teams.p, ...state.teams.e].find((a) => a.maxSwords && a.hp > 0 && a.side !== v.side);
+    if (vharo) { vharo.swords = Math.min(vharo.maxSwords, vharo.swords + v.lodged); float(vharo, `⚔ ${vharo.swords}/${vharo.maxSwords}`, 'fx'); returnSwordFx(v, vharo); }
+    v.lodged = 0;
+  }
   feastOfTheFallen(v);
   if (v.splitOnDeath && !v.summon && !v.splitDone) { v.splitDone = true; splitGorehound(v); }
   const owner = by && by.summon ? unitBy(by.owner) : null;
@@ -6898,6 +6910,7 @@ function powerMult(u) {
   if (has(u, 'empower')) m *= 1.3;
   if (has(u, 'enraged')) m *= 1.35;   // dungeon bosses below half HP
   if (has(u, 'poison') && foeHas(u, 'weakenPoisoned')) m *= 0.85;   // Faelan: Debilitating Venom
+  if (u.maxSwords) m *= u.swords / u.maxSwords;
   return m;
 }
 
@@ -7621,7 +7634,7 @@ async function damageSkill(u, t, sk) {
   state.counters = [];
   // Hallucinate: whoever singles out this target may swing at someone else entirely —
   // any other combatant, including the attacker's own allies. Area attacks are immune.
-  if (sk.target === 'enemy' && t && pv(t).hallucinate && chance(pv(t).hallucinate)) {
+  if (sk.target === 'enemy' && !o.swordTargets && t && pv(t).hallucinate && chance(pv(t).hallucinate)) {
     const others = [...foesOf(u), ...alliesOf(u)].filter((x) => x.uid !== t.uid && x.uid !== u.uid && !outOfReach(x));
     if (others.length) {
       const nt = pick(others);
@@ -7647,7 +7660,13 @@ async function damageSkill(u, t, sk) {
       t = g;
     }
   }
-  const targets = sk.target === 'allEnemies' ? openFoes(u) : [t];
+  let targets = sk.target === 'allEnemies' ? openFoes(u) : [t];
+  if (o.swordTargets && u.maxSwords) {
+    const pool = openFoes(u).filter((f) => f !== t);
+    const extra = Math.min(u.swords - 1, pool.length);
+    for (let i = 0; i < extra; i++) { const r = Math.floor(Math.random() * (pool.length - i)) + i; [pool[i], pool[r]] = [pool[r], pool[i]]; }
+    targets = [t, ...pool.slice(0, extra)];
+  }
   // Front line: every melee this attack goes for counts toward their side's two, hit or miss.
   for (const tg of targets) markAttacked(tg);
   if (o.selfCost) {
@@ -7827,6 +7846,7 @@ async function damageSkill(u, t, sk) {
     }
   };
   drain(total);
+  if (u.maxSwords && sk.id === 'attack' && lastHit) { lastHit.lodged = (lastHit.lodged || 0) + 1; if (lastHit.hp > 0) lodgeSwordFx(lastHit); }
   render();
   await wait(160);
   await resolveCounters();   // defenders strike back before the attacker runs home
@@ -7959,6 +7979,18 @@ async function healSkill(u, t, sk) {
 
 async function buffSkill(u, t, sk) {
   const o = sk.o || {};
+  if (o.recall && u.maxSwords) {
+    await castPose(u, true);
+    await returnSwordsFx(u);
+    for (const f of [...state.teams.p, ...state.teams.e]) { if (f.lodged) { f.lodged = 0; } }
+    u.swords = u.maxSwords;
+    float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
+    log(`${u.name} calls every blade home.`, u.side);
+    burst(u, 'light');
+    render();
+    await wait(450);
+    return;
+  }
   const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
   await castPose(u, true);
   const ids = sk.fx.map(([id]) => id);
@@ -8433,6 +8465,7 @@ async function doAction(u, sk, t) {
 
   await scrapBotRites();   // a bot this action left on its last sparks gives itself away now
   if (sk.id === 'attack') gainMp(u, MANA.attackGain, true);
+  if (sk.id === 'attack' && u.maxSwords && u.swords > 0) { u.swords--; float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx'); }
   if (sk.id === 'guard') gainMp(u, MANA.guardGain);
   u.lastAction = sk.id;
   u.combo = false;
@@ -8508,6 +8541,7 @@ function aiChoose(u) {
     if (s.kind === 'coffin') w = allies.some((a) => a.hp / a.maxHp < 0.3) ? 5 : 0.4;
     // Burrow is a way out from under a beating, not an opener.
     if (s.kind === 'burrow') w = u.hp / u.maxHp < 0.4 ? 4 : 0.25;
+    if (s.o?.recall) w = u.swords === 0 ? 8 : u.swords <= 2 ? 4 : 0;
     return { s, w };
   }).filter((x) => x.w > 0);
   if (!scored.length) return { sk: guard, t: u };   // e.g. Mordrek with his cross planted and every skill cooling down
@@ -17894,7 +17928,7 @@ const PROJ_ATTACK = {
   scrapbot: { kind: 'laser' }, illusion: { kind: 'inkball' },   // the turret fires light, not rivets (.proj-laser)
   mara: { kind: 'silver' },   // a thin silver round, out of a barrel that flashes fire and smoke (MUZZLE)
   cadris: { kind: 'firefly', wander: true },   // his basic attack sends a small green grave-firefly, drifting every which way before it strikes
-  vharo: { kind: 'lightray' }, resh: { kind: 'sonicpulse' }, nyx: { kind: 'voidbolt' }, orin: { kind: 'orb', color: '#b9c0e0' },
+  vharo: { kind: 'lightsword', impact: 'light', swordThrow: true }, resh: { kind: 'sonicpulse' }, nyx: { kind: 'voidbolt' }, orin: { kind: 'orb', color: '#b9c0e0' },
 };
 const PROJ_SKILL = {
   // Ironclad Union
@@ -18056,6 +18090,14 @@ const PROJ_ART = {
     <circle cx="4.8" cy="5" r="1.4" fill="#15121d"/><circle cx="8.4" cy="5" r="1.4" fill="#15121d"/>
     <path d="M6.6 6.9 l-.9 1.5 h1.8 z" fill="#15121d"/>
     <path d="M5.1 9.4 v1.7 M6.6 9.4 v1.7 M8.1 9.4 v1.7" stroke="#15121d" stroke-width=".7"/>`],
+  lightsword: [96, 12, `<defs><linearGradient id="pjLsB"><stop offset="0" stop-color="#fffbe0"/><stop offset=".5" stop-color="#ffe489"/><stop offset="1" stop-color="#e8b23a"/></linearGradient></defs>
+    <path d="M0 6 Q10 1.5 18 6 Q10 10.5 0 6 Z" fill="#ffd66b" opacity=".55"/>
+    <path d="M16 2 L88 2 L96 6 L88 10 L16 10 Z" fill="#ffd66b" opacity=".7"/>
+    <path d="M19 3 L88 3 L94 6 L88 9 L19 9 Z" fill="url(#pjLsB)" stroke="#b07a1e" stroke-width=".6" stroke-linejoin="round"/>
+    <path d="M22 5.7 L90 5.7" stroke="#fffdf0" stroke-width=".7" stroke-linecap="round"/>
+    <rect x="17" y="1.2" width="3" height="9.6" rx="1" fill="url(#pjLsB)" stroke="#b07a1e" stroke-width=".6"/>
+    <rect x="10" y="4.4" width="7.5" height="3.2" rx="1" fill="#f2c94c" stroke="#b07a1e" stroke-width=".6"/>
+    <circle cx="8.6" cy="6" r="2.2" fill="url(#pjLsB)" stroke="#b07a1e" stroke-width=".6"/>`],
 };
 
 function projectileFor(u, sk) {
@@ -18202,6 +18244,61 @@ function gravPullFx(t) {
   setTimeout(() => el.remove(), 600);
 }
 
+const LODGE_SWORD_SVG = `<svg viewBox="0 0 60 10" width="60" height="10" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lsB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fffbe0"/><stop offset=".5" stop-color="#ffe489"/><stop offset="1" stop-color="#e8b23a"/></linearGradient></defs><path d="M10 3 L56 3 L60 5 L56 7 L10 7 Z" fill="url(#lsB)" stroke="#b07a1e" stroke-width=".5"/><path d="M12 4.8 L56 4.8" stroke="#fffdf0" stroke-width=".5" stroke-linecap="round"/><rect x="7" y="1" width="4" height="8" rx=".8" fill="url(#lsB)" stroke="#b07a1e" stroke-width=".5"/><rect x="2" y="3" width="6" height="4" rx=".7" fill="#f2c94c" stroke="#b07a1e" stroke-width=".5"/><circle cx="1.5" cy="5" r="1.5" fill="#f2c94c"/></svg>`;
+
+const LODGE_BOTTOMS = [45, 55, 35, 60, 42];
+
+function lodgeSwordFx(t) {
+  const b = bodyEl(t);
+  if (reduced || !b) return;
+  const vharo = [...state.teams.p, ...state.teams.e].find(a => a.maxSwords && a.hp > 0);
+  const vEl = vharo ? bodyEl(vharo) : null;
+  const tr = b.getBoundingClientRect(), vr = vEl ? vEl.getBoundingClientRect() : tr;
+  const dx = (tr.left + tr.width / 2) - (vr.left + vr.width / 2);
+  const dy = (tr.top + tr.height / 2) - (vr.top + vr.height / 2);
+  const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+  const jitter = ((t.lodged - 1) % 5 - 2) * 4;
+  const rot = ang + jitter;
+  const bot = LODGE_BOTTOMS[(t.lodged - 1) % LODGE_BOTTOMS.length];
+  const el = document.createElement('div');
+  el.className = 'lodged-sword';
+  el.innerHTML = LODGE_SWORD_SVG;
+  el.style.cssText = `position:absolute; bottom:${bot}%; left:10%; opacity:0; transform:rotate(${rot}deg); filter:drop-shadow(0 0 4px #e8d26a); pointer-events:none; z-index:10;`;
+  b.appendChild(el);
+  el.animate([
+    { opacity: 0, transform: `rotate(${rot}deg) translateX(-20px)` },
+    { opacity: 1, transform: `rotate(${rot}deg) translateX(0)` }
+  ], { duration: 300, fill: 'forwards' });
+}
+
+function returnSwordFx(v, vharo) {
+  const vEl = bodyEl(v), hEl = bodyEl(vharo);
+  if (reduced || !vEl || !hEl) { clearLodgedSwords(v); return; }
+  const swords = vEl.querySelectorAll('.lodged-sword');
+  const vr = vEl.getBoundingClientRect(), hr = hEl.getBoundingClientRect();
+  const dx = hr.left + hr.width / 2 - (vr.left + vr.width / 2), dy = hr.top + hr.height / 2 - (vr.top + vr.height / 2);
+  swords.forEach((s, i) => {
+    s.animate([
+      { transform: 'translateX(0)', opacity: 1 },
+      { transform: `translate(${dx}px, ${dy - 20}px) scale(.7)`, opacity: .8, offset: .6 },
+      { transform: `translate(${dx}px, ${dy}px)`, opacity: 0 }
+    ], { duration: 600, delay: i * 80, easing: 'ease-in', fill: 'forwards' });
+    setTimeout(() => s.remove(), 700 + i * 80);
+  });
+}
+
+async function returnSwordsFx(u) {
+  const all = [...state.teams.p, ...state.teams.e].filter((f) => f.lodged && f.side !== u.side);
+  for (const f of all) returnSwordFx(f, u);
+  clearLodgedSwords();
+  if (all.length) await sleep(beat(500));
+}
+
+function clearLodgedSwords(v) {
+  const scope = v ? bodyEl(v) : document;
+  if (scope) scope.querySelectorAll('.lodged-sword').forEach((e) => e.remove());
+}
+
 /* Riptide: Tharos plants his feet and hauls the trident overhead, holding it up while the water
    answers him. He never leaves his place - the wave does the traveling. */
 async function tridentRaise(u) {
@@ -18314,6 +18411,7 @@ function muzzleFlash(at, d) {
 async function shoot(u, t, p) {
   const s = stageBox(p.bounceFrom || u), e = stageBox(t);
   if (reduced || !s || !e) return;
+  if (p.swordThrow) actorEl(u)?.classList.add('sword-thrown');
   const d = facing(u);
   const mz = !p.bounceFrom && MUZZLE[u.id];
   const from = p.bounceFrom ? { x: s.x, y: s.top + s.h * 0.45 }
@@ -18378,6 +18476,7 @@ async function shoot(u, t, p) {
   el.remove();
   const impact = p.impact || ((p.kind === 'fire' || p.kind === 'shell') ? 'fire' : null);
   if (impact === 'boom') { burst(t, 'fire'); burst(t, 'smoke'); } else if (impact) burst(t, impact);
+  if (p.swordThrow) actorEl(u)?.classList.remove('sword-thrown');
 }
 
 // Lightning: a jagged bolt that flickers between attacker and target.

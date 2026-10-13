@@ -1,0 +1,344 @@
+{
+ "burn": {
+  "label": "Burn",
+  "kind": "bad",
+  "glyph": "<path d=\"M34 10 C37 18 41 23 41 30 C42 26 46 22 48 16 C51 23 52 30 52 38 C52 46 45 52 32 52 C19 52 12 46 12 38 C12 31 14 26 16 20 C18 24 23 26 24 30 C24 23 30 18 34 10 Z\" fill=\"url(#fire)\"/><path d=\"M33 25 C37 31 40 34 39.5 41 C39 45.5 36 48 32 48 C28 48 25 45.5 24.5 41 C24.5 36 28 33 33 25 Z\" fill=\"#fff1a0\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "poison": {
+  "label": "Poison",
+  "kind": "bad",
+  "glyph": "<path d=\"M27 15 H37 V24.9 A15 15 0 1 1 27 24.9 Z\" fill=\"#bfe0ec\"/><path d=\"M18.25 33 A15 15 0 1 0 45.75 33 C40 30.5 36 35.5 32 33 C28 30.5 24 35.5 18.25 33 Z\" fill=\"url(#poison)\"/><circle cx=\"26.5\" cy=\"43.5\" r=\"3.2\" fill=\"#d2ff86\" stroke=\"none\"/><circle cx=\"37\" cy=\"47.5\" r=\"2.3\" fill=\"#d2ff86\" stroke=\"none\"/><circle cx=\"35.5\" cy=\"28.5\" r=\"2.4\" fill=\"#9ee04a\"/><rect x=\"25.5\" y=\"10\" width=\"13\" height=\"6\" rx=\"1.6\" fill=\"url(#wood)\"/>",
+  "verified": true
+ },
+ "bleed": {
+  "label": "Bleed",
+  "kind": "bad",
+  "glyph": "<path d=\"M13 14 Q37.6 11.2 51 32 Q26.4 34.8 13 14 Z\" fill=\"url(#blood)\"/><path d=\"M18 15.5 Q33.1 17.6 45 27 Q29.9 24.9 18 15.5 Z\" fill=\"#ff8a9b\" stroke=\"none\"/><path d=\"M39 36 C42 40.5 44.2 43.5 44.2 46.8 A5.2 5.2 0 0 1 33.8 46.8 C33.8 43.5 36 40.5 39 36 Z\" fill=\"url(#blood)\"/><path d=\"M26 32 C28.25 35.4 29.9 37.6 29.9 40.1 A3.9 3.9 0 0 1 22.1 40.1 C22.1 37.6 23.75 35.4 26 32 Z\" fill=\"url(#blood)\"/>",
+  "verified": true
+ },
+ "stun": {
+  "label": "Stunned",
+  "kind": "bad",
+  "glyph": "<path d=\"M20 40 C20 28 25 22 32 22 C39 22 44 28 44 40 C44 44 42 46 41 47 L41 52 L23 52 L23 47 C22 46 20 44 20 40 Z\" fill=\"url(#bone)\"/><ellipse cx=\"32\" cy=\"30\" rx=\"18\" ry=\"7\" fill=\"none\" stroke-width=\"4\"/><path d=\"M16.5 22.5 L19.15 27.35 L24 30 L19.15 32.65 L16.5 37.5 L13.85 32.65 L9 30 L13.85 27.35 Z\" fill=\"url(#gold)\"/><path d=\"M32 13.5 L34.65 18.35 L39.5 21 L34.65 23.65 L32 28.5 L29.35 23.65 L24.5 21 L29.35 18.35 Z\" fill=\"url(#gold)\"/><path d=\"M47.5 22.5 L50.15 27.35 L55 30 L50.15 32.65 L47.5 37.5 L44.85 32.65 L40 30 L44.85 27.35 Z\" fill=\"url(#gold)\"/>",
+  "verified": false
+ },
+ "weaken": {
+  "label": "Weakened",
+  "kind": "bad",
+  "glyph": "<g transform=\"translate(38 14.3) rotate(30)\"><path d=\"M0 -6 L4 -2 L4 1 L2.5 1 L0 4 L-2.5 1 L-4 1 L-4 -2 Z\" fill=\"url(#steel)\"/></g><path d=\"M27 43 L27 25 L29.5 25 L32 30 L34.5 25 L37 25 L37 43 Z\" fill=\"url(#steel)\"/><rect x=\"28.6\" y=\"32\" width=\"2\" height=\"9\" fill=\"#dfe6f2\" stroke=\"none\"/><rect x=\"20\" y=\"43\" width=\"24\" height=\"4\" rx=\"1.6\" fill=\"url(#gold)\"/><rect x=\"30\" y=\"47\" width=\"4\" height=\"8\" fill=\"#5a3520\"/>",
+  "verified": false
+ },
+ "sunder": {
+  "label": "Sundered",
+  "kind": "bad",
+  "glyph": "<path d=\"M26 12.7 L10.7 18.8 L13.2 35.4 Q17.1 46.2 29.8 52.5 L31.2 43.9 L25.6 36.5 L30.4 27.6 L23.7 20.3 Z\" fill=\"url(#gold)\"/><path d=\"M24.8 16.5 L14.2 21.3 L16.4 35.1 Q19.6 43.2 30.5 48.2 L31.2 43.9 L25.6 36.5 L30.4 27.6 L23.7 20.3 Z\" fill=\"url(#steel)\"/><path d=\"M15.7 23 L19 21.5 L20.7 29.5 L17.5 31.7 Z\" fill=\"#e6edf8\" stroke=\"none\"/><path d=\"M38 12.7 L53.3 18.8 L50.8 35.4 Q46.9 46.2 34.2 52.5 L37.2 44.3 L33.2 36 L39.5 28.2 L34.4 19.8 Z\" fill=\"url(#gold)\"/><path d=\"M36.2 16.2 L49.8 21.3 L47.6 35.1 Q44.4 43.2 35.7 48.4 L37.2 44.3 L33.2 36 L39.5 28.2 L34.4 19.8 Z\" fill=\"url(#steel)\"/><path d=\"M48.3 23 L45 21.5 L43.3 29.5 L46.5 31.7 Z\" fill=\"#e6edf8\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "slow": {
+  "label": "Slowed",
+  "kind": "bad",
+  "glyph": "<path d=\"M13.9 30.6 L11.4 23 A3 3 0 1 1 15.4 22.2 L17.1 29.6 Z M16.2 29.6 L17.2 21 A3 3 0 1 1 21.2 21.4 L18.8 30.4 Z\" fill=\"#5ccfe9\"/><path d=\"M26 44 C25 38 22 33 19 30 C17 28 13 27.5 11.5 30 C10 32.5 10.5 37 11.5 42 C12 47 15 49 20 49 L49 49 C52.5 49 54 47.5 53.5 45 C52.5 42.5 49 41 45 41 L36 41 C32 41 28 42 26 44 Z\" fill=\"#5ccfe9\"/><ellipse cx=\"14.6\" cy=\"33.4\" rx=\"2.2\" ry=\"3.4\" fill=\"#d9f6fd\" stroke=\"none\"/><circle cx=\"36\" cy=\"29\" r=\"14\" fill=\"url(#gold)\"/><path d=\"M39.5 29 A3.5 3.5 0 0 0 32.5 29 A7 7 0 0 0 46.5 29 A10.5 10.5 0 0 0 25.5 29 L29 29 A7 7 0 0 1 43 29 A3.5 3.5 0 0 1 36 29 Z\" fill=\"#9c4d16\" transform=\"rotate(-45 36 29)\"/>",
+  "verified": true
+ },
+ "leaden": {
+  "label": "Leaden",
+  "kind": "bad",
+  "glyph": "<path d=\"M21 13 H43 C43 24 34 27 33 32 H31 C30 27 21 24 21 13 Z\" fill=\"url(#pearl)\"/><path d=\"M21 51 H43 C43 40 34 37 33 32 H31 C30 37 21 40 21 51 Z\" fill=\"url(#pearl)\"/><path d=\"M26.5 25 Q32 18.5 37.5 25 L33.5 31 H30.5 Z\" fill=\"#7c8291\" stroke=\"none\"/><rect x=\"19\" y=\"29\" width=\"26\" height=\"6\" rx=\"3\" fill=\"url(#iron)\"/>",
+  "verified": true
+ },
+ "blind": {
+  "label": "Blinded",
+  "kind": "bad",
+  "glyph": "<path d=\"M12 32 C20 12 44 12 52 32 C44 52 20 52 12 32 Z\" fill=\"url(#pearl)\"/><circle cx=\"32\" cy=\"32\" r=\"6\" fill=\"url(#water)\"/><rect x=\"14\" y=\"26\" width=\"36\" height=\"12\" rx=\"3\" fill=\"url(#bone)\" transform=\"rotate(-6 32 32)\"/><rect x=\"17\" y=\"28\" width=\"30\" height=\"2.5\" rx=\"1.25\" fill=\"#fffaf0\" stroke=\"none\" transform=\"rotate(-6 32 32)\"/>",
+  "verified": false
+ },
+ "soaked": {
+  "label": "Soaked",
+  "kind": "bad",
+  "glyph": "<ellipse cx=\"32\" cy=\"46.5\" rx=\"18.5\" ry=\"5\" fill=\"url(#water)\"/><g transform=\"translate(17 31) rotate(-30) scale(0.85)\"><path d=\"M0 -8 C3 -3.5 5.2 -.5 5.2 2.8 A5.2 5.2 0 0 1 -5.2 2.8 C-5.2 -.5 -3 -3.5 0 -8 Z\" fill=\"url(#water)\"/></g><g transform=\"translate(47 31) rotate(30) scale(0.85)\"><path d=\"M0 -8 C3 -3.5 5.2 -.5 5.2 2.8 A5.2 5.2 0 0 1 -5.2 2.8 C-5.2 -.5 -3 -3.5 0 -8 Z\" fill=\"url(#water)\"/></g><path d=\"M32 14 C37.25 21.875 41.1 27.125 41.1 32.9 A9.1 9.1 0 0 1 22.9 32.9 C22.9 27.125 26.75 21.875 32 14 Z\" fill=\"url(#water)\"/><ellipse cx=\"27.6\" cy=\"31\" rx=\"2.4\" ry=\"4.8\" transform=\"rotate(-15 27.6 31)\" fill=\"#e2f7ff\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "overheat": {
+  "label": "Overheated",
+  "kind": "bad",
+  "glyph": "<circle cx=\"32\" cy=\"32\" r=\"20\" fill=\"url(#iron)\"/><circle cx=\"32\" cy=\"32\" r=\"13\" fill=\"url(#pearl)\"/><path d=\"M32 21 A12 12 0 0 1 44 33 L39 33 A7 7 0 0 0 32 26 Z\" fill=\"#ef3b2d\"/><path d=\"M30.2 31.2 L41.1 22.1 L42.9 23.9 L33.8 34.8 Z\" fill=\"url(#gold)\"/><circle cx=\"32\" cy=\"33\" r=\"4\" fill=\"url(#gold)\"/><circle cx=\"30.8\" cy=\"31.8\" r=\"1.3\" fill=\"#ffffff\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "silence": {
+  "label": "Silenced",
+  "kind": "bad",
+  "glyph": "<path d=\"M20 12 H44 Q52 12 52 20 V34 Q52 42 44 42 H27 L15 51 L20 42 Q12 42 12 34 V20 Q12 12 20 12 Z\" fill=\"url(#mana)\"/><rect x=\"34\" y=\"16.5\" width=\"12\" height=\"5.5\" rx=\"2.75\" fill=\"#d6ecff\" stroke=\"none\"/><rect x=\"7.5\" y=\"28.5\" width=\"49\" height=\"7\" rx=\"2.5\" transform=\"rotate(42 32 32)\" fill=\"#ff4040\"/>",
+  "verified": true
+ },
+ "choke": {
+  "label": "Choking",
+  "kind": "bad",
+  "glyph": "<rect x=\"12\" y=\"36\" width=\"40\" height=\"18\" rx=\"6\" fill=\"#f0b48c\"/><circle cx=\"32\" cy=\"22\" r=\"12\" fill=\"#f0b48c\"/><path d=\"M22.5 18.5 Q26 13.5 29.5 18.5 Q26 16.5 22.5 18.5 Z M34.5 18.5 Q38 13.5 41.5 18.5 Q38 16.5 34.5 18.5 Z\" fill=\"#18060d\"/><ellipse cx=\"32\" cy=\"27.5\" rx=\"5\" ry=\"5.5\" fill=\"#18060d\"/><rect x=\"18\" y=\"39.5\" width=\"15\" height=\"13\" rx=\"3.5\" fill=\"#e8d9b0\"/><path d=\"M32 40 L41 40 Q47 40 47 43.5 Q47 46.5 43 46.5 L32 46.5 Z M32 47 L41 47 Q47 47 47 50 Q47 53 43 53 L32 53 Z\" fill=\"#e8d9b0\"/>",
+  "verified": false
+ },
+ "stagger": {
+  "label": "Staggered",
+  "kind": "bad",
+  "glyph": "<rect x=\"12\" y=\"44\" width=\"14\" height=\"8\" rx=\"3\" fill=\"url(#gold)\" stroke=\"#1a0a10\" stroke-width=\"2.5\"/><rect x=\"30\" y=\"44\" width=\"8\" height=\"8\" rx=\"3\" fill=\"url(#gold)\" stroke=\"#1a0a10\" stroke-width=\"2.5\"/><rect x=\"42\" y=\"44\" width=\"10\" height=\"8\" rx=\"3\" fill=\"url(#gold)\" stroke=\"#1a0a10\" stroke-width=\"2.5\"/><g transform=\"translate(24 46) rotate(-28)\"><path d=\"M0 0 H25 V-5 Q25 -10 19 -10 H11 V-22 Q11 -24 9 -24 H2 Q0 -24 0 -22 Z\" fill=\"url(#bone)\" stroke=\"#1a0a10\" stroke-width=\"2.5\"/><path d=\"M3 -21 H6.5 V-6 H3 Z\" fill=\"#fbf5e4\" stroke=\"none\"/></g><rect x=\"42\" y=\"32\" width=\"10\" height=\"12\" rx=\"1.5\" fill=\"url(#iron)\" stroke=\"#1a0a10\" stroke-width=\"2.5\"/>",
+  "verified": false
+ },
+ "hex": {
+  "label": "Hexed",
+  "kind": "bad",
+  "glyph": "<path d=\"M25 14 H30 L31 26 L30 38 L31 50 H25 V38 H14 V26 H25 Z\" fill=\"url(#heal)\"/><path d=\"M33 14 H39 V26 H50 V38 H39 V50 H34 L33 38 L34 26 Z\" fill=\"url(#hex)\"/><rect x=\"26.5\" y=\"17\" width=\"2.6\" height=\"30\" rx=\"1.3\" fill=\"#d9ffe9\" stroke=\"none\"/><rect x=\"35\" y=\"17\" width=\"2.6\" height=\"30\" rx=\"1.3\" fill=\"#e9c8ff\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "leak": {
+  "label": "Mana Leak",
+  "kind": "bad",
+  "glyph": "<path d=\"M27 14 L27 27 C27 31 19 32 19 39 A13 13 0 0 0 45 39 C45 32 37 31 37 27 L37 14 Z\" fill=\"url(#pearl)\"/><path d=\"M19.2 41 Q32 38.5 44.8 41 A13 13 0 0 1 19.2 41 Z\" fill=\"url(#mana)\"/><path d=\"M35.5 41.5 L41.5 46.5 L39.5 48.5 L37 45.5 Z\" fill=\"#1e1430\"/><rect x=\"26.5\" y=\"10\" width=\"11\" height=\"5.5\" rx=\"1.5\" fill=\"url(#wood)\"/><g transform=\"translate(40 47)\"><path d=\"M0 -8 C3 -3.5 5.2 -.5 5.2 2.8 A5.2 5.2 0 0 1 -5.2 2.8 C-5.2 -.5 -3 -3.5 0 -8 Z\" fill=\"url(#mana)\"/></g>",
+  "verified": false
+ },
+ "toll": {
+  "label": "Infernal Toll",
+  "kind": "bad",
+  "glyph": "<path d=\"M32 9 C34.2 13 37.5 15 37.5 19.5 C37.5 21.5 36.5 23 35 23.5 L29 23.5 C27.5 23 26.5 21.5 26.5 19.5 C26.5 16.5 28.5 15 29 12 C30.3 14.5 31 14 32 9 Z\" fill=\"url(#fire)\"/><path d=\"M32 14 C33.2 16 34.6 17 34.4 19.2 C34.3 20.5 33.3 21.2 32 21.2 C30.7 21.2 29.7 20.5 29.6 19.2 C29.6 17.5 30.8 16.8 32 14 Z\" fill=\"#fff1a0\" stroke=\"none\"/><path d=\"M32 20 C39.5 20 43 25 43 30.5 C43 35.5 45 38 48 41.5 L16 41.5 C19 38 21 35.5 21 30.5 C21 25 24.5 20 32 20 Z\" fill=\"url(#gold)\"/><path d=\"M27.2 23.6 C28.6 22.2 30.6 22.3 30 24.2 C29 26.4 28.4 29.2 28.4 32.6 C28.4 33.6 25.9 33.6 25.9 32.4 C25.9 28.6 26.3 25.8 27.2 23.6 Z\" fill=\"#fff1a0\" stroke=\"none\"/><circle cx=\"32\" cy=\"50.5\" r=\"4.2\" fill=\"url(#gold)\"/><rect x=\"14\" y=\"41\" width=\"36\" height=\"5.5\" rx=\"2.75\" fill=\"url(#fire)\"/>",
+  "verified": true
+ },
+ "exposed": {
+  "label": "Exposed",
+  "kind": "bad",
+  "glyph": "<circle cx=\"32\" cy=\"32\" r=\"22\" fill=\"#ff3f3f\"/><circle cx=\"32\" cy=\"32\" r=\"14.5\" fill=\"#fff3d6\"/><circle cx=\"32\" cy=\"32\" r=\"7\" fill=\"#ff3f3f\"/><ellipse cx=\"20.5\" cy=\"18.5\" rx=\"4.6\" ry=\"2.4\" transform=\"rotate(-45 20.5 18.5)\" fill=\"#ffb3b3\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "unblessed": {
+  "label": "Unblessed",
+  "kind": "bad",
+  "glyph": "<path d=\"M12 55 C12 46 20 43 32 43 C44 43 52 46 52 55 Z\" fill=\"url(#hide)\"/><circle cx=\"32\" cy=\"35\" r=\"8.5\" fill=\"url(#pearl)\"/><circle cx=\"29.3\" cy=\"31.8\" r=\"2.6\" fill=\"#ffffff\" stroke=\"none\"/><path d=\"M14 23 Q21 19.5 28 23 L28 27 Q21 23.5 14 27 Z\" fill=\"url(#gold)\" transform=\"translate(-3 0) rotate(22 13 25)\"/><path d=\"M50 23 Q43 19.5 36 23 L36 27 Q43 23.5 50 27 Z\" fill=\"url(#gold)\" transform=\"translate(3 0) rotate(-22 51 25)\"/><rect x=\"30.5\" y=\"17.4\" width=\"5\" height=\"3.2\" rx=\"1\" fill=\"url(#gold)\" transform=\"rotate(-32 33 19)\"/>",
+  "verified": false
+ },
+ "windup": {
+  "label": "Winding up",
+  "kind": "bad",
+  "glyph": "<path d=\"M14 23 C17 13 26 8 36 9 L35.5 14.5 C27.5 14 21 17.5 19 26 Z\" fill=\"#ffe680\"/><path d=\"M41.75 22.33 L16.75 55.33 L13.25 52.67 L38.25 19.67 Z\" fill=\"url(#wood)\"/><circle cx=\"15.5\" cy=\"51.5\" r=\"3\" fill=\"url(#gold)\"/><path d=\"M36 14.5 L39 9.5 L42 14.5 Z M45.5 18 L50.5 21 L45.5 24 Z M36 27.5 L39 32.5 L42 27.5 Z M32.5 18 L27.5 21 L32.5 24 Z\" fill=\"url(#iron)\"/><circle cx=\"39\" cy=\"21\" r=\"8\" fill=\"url(#iron)\"/><circle cx=\"36.5\" cy=\"18\" r=\"2.8\" fill=\"#c9d3e6\" stroke=\"none\"/>",
+  "verified": false
+ },
+ "rites": {
+  "label": "Last Rites",
+  "kind": "bad",
+  "glyph": "<circle cx=\"15\" cy=\"46\" r=\"5\" fill=\"url(#bone)\"/><rect x=\"20\" y=\"42\" width=\"30\" height=\"10\" rx=\"3\" fill=\"url(#bone)\"/><g transform=\"translate(27 28) rotate(-25)\"><path d=\"M-2.5 -15 H2.5 V-9 H7 V-4 H2.5 V15 H-2.5 V-4 H-7 V-9 H-2.5 Z\" fill=\"url(#iron)\"/><rect x=\"-1.6\" y=\"-13.5\" width=\"2\" height=\"27\" fill=\"#c9ced8\" stroke=\"none\"/></g><g transform=\"translate(37 28) rotate(25)\"><path d=\"M-2.5 -15 H2.5 V-9 H7 V-4 H2.5 V15 H-2.5 V-4 H-7 V-9 H-2.5 Z\" fill=\"url(#iron)\"/><rect x=\"-1.6\" y=\"-13.5\" width=\"2\" height=\"27\" fill=\"#c9ced8\" stroke=\"none\"/></g>",
+  "verified": false
+ },
+ "bash": {
+  "label": "Bashed",
+  "kind": "bad",
+  "glyph": "<path d=\"M31 43 L26 49 L27.5 54.5 L21 51 L16.5 54.5 L14.5 49 L9.5 51 L12.5 44 L9.5 37 L15.5 40 L16 31 L21 38 Z\" fill=\"#ffc528\"/><g transform=\"rotate(40 32 32)\"><rect x=\"29\" y=\"6\" width=\"6\" height=\"30\" rx=\"1.5\" fill=\"url(#wood)\"/><rect x=\"18\" y=\"33\" width=\"28\" height=\"14\" rx=\"2\" fill=\"url(#iron)\"/><rect x=\"21.5\" y=\"35.5\" width=\"21\" height=\"3.2\" rx=\"1.6\" fill=\"#dfe6f0\" stroke=\"none\"/></g>",
+  "verified": true
+ },
+ "fear": {
+  "label": "Afraid",
+  "kind": "bad",
+  "glyph": "<path d=\"M21.5 25 L19 11.5 L26 21.5 L29 10 L32 20 L35 10 L38 21.5 L45 11.5 L42.5 25 C45.5 27.5 46.8 36 44.5 44 C42 49.5 37.5 53 32 53 C26.5 53 22 49.5 19.5 44 C17.2 36 18.5 27.5 21.5 25 Z\" fill=\"url(#bone)\"/><ellipse cx=\"26\" cy=\"31\" rx=\"4\" ry=\"4.8\" fill=\"#ffffff\"/><ellipse cx=\"38\" cy=\"31\" rx=\"4\" ry=\"4.8\" fill=\"#ffffff\"/><circle cx=\"26\" cy=\"31.6\" r=\"1.7\" fill=\"#15121d\"/><circle cx=\"38\" cy=\"31.6\" r=\"1.7\" fill=\"#15121d\"/><ellipse cx=\"32\" cy=\"44.5\" rx=\"4.2\" ry=\"5.3\" fill=\"#2a1a1a\"/>",
+  "verified": true
+ },
+ "flee": {
+  "label": "Afraid",
+  "kind": "bad",
+  "glyph": "<path d=\"M42.5 19.5 H51.5 A2.5 2.5 0 0 1 51.5 24.5 H42.5 A2.5 2.5 0 0 1 42.5 19.5 Z M42.5 29.5 H51.5 A2.5 2.5 0 0 1 51.5 34.5 H42.5 A2.5 2.5 0 0 1 42.5 29.5 Z M42.5 39.5 H51.5 A2.5 2.5 0 0 1 51.5 44.5 H42.5 A2.5 2.5 0 0 1 42.5 39.5 Z\" fill=\"#ffe680\"/><path d=\"M24.4 17.9 L34.8 34.5 L47 39.4 L48.5 41.5 L45.5 44.6 L31.7 39.3 L16 52.3 L12.5 51 L12.2 47.8 L26.4 36 L17.6 22.1 Z\" fill=\"url(#mana)\"/><path d=\"M24.4 20.8 L30.5 25 L32.7 19.7 L37.3 22.3 L33.3 29.3 L31.8 31 L29.6 30.2 L21.6 25.2 Z\" fill=\"url(#mana)\"/><circle cx=\"18\" cy=\"16\" r=\"5.5\" fill=\"url(#mana)\"/><circle cx=\"16.4\" cy=\"14.4\" r=\"2\" fill=\"#dff3ff\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "rooted": {
+  "label": "Rooted",
+  "kind": "bad",
+  "glyph": "<path d=\"M9 54 C12 46.5 22 44 32 44 C42 44 52 46.5 55 54 Z\" fill=\"url(#clay)\"/><path d=\"M27 44.5 C19 45 14 47 11 52 C15 49.5 20 49 26 49.5 Z\" fill=\"url(#wood)\"/><path d=\"M42 45.5 C47 46 51 48 53 52 C50 50.5 46 50 41 50 Z\" fill=\"url(#wood)\"/><path d=\"M30 45 C30 48 32 50.5 33 53.5 C34 50.5 35.5 48 35.5 45 Z\" fill=\"url(#wood)\"/><path d=\"M22 10 H36 V32 C40 32 46 35 50 40 C51.5 42 51.5 44.5 50 46 H22 Z\" fill=\"url(#steel)\"/><rect x=\"25\" y=\"13\" width=\"4\" height=\"18\" rx=\"1.5\" fill=\"#e4ebf5\" stroke=\"none\"/>",
+  "verified": false
+ },
+ "haste": {
+  "label": "Hastened",
+  "kind": "good",
+  "glyph": "<rect x=\"9\" y=\"40.5\" width=\"10\" height=\"4.6\" rx=\"2.3\" fill=\"#ffe680\"/><rect x=\"12\" y=\"46.5\" width=\"9\" height=\"4.6\" rx=\"2.3\" fill=\"#ffe680\"/><path d=\"M24 22 C18.5 15 11.5 15.5 9 20 L16.5 25 C12 25.5 10 28 9.5 31 L17 32 C13 33 11 35.5 11 38.5 L24 37.5 Z\" fill=\"url(#pearl)\"/><path d=\"M24 14 H36 V31 C36 35 38 37 42 38 L50 40 C53 41 54 43 54 46 V50 H24 Z\" fill=\"#d8782c\"/><rect x=\"24\" y=\"46\" width=\"30\" height=\"4\" fill=\"#5a3520\"/><rect x=\"27\" y=\"17.5\" width=\"3.6\" height=\"11\" rx=\"1.8\" fill=\"#f5b060\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "dry": {
+  "label": "Dry",
+  "kind": "good",
+  "glyph": "<path d=\"M34.5 29.7 L28.5 23.6 L22.7 25.5 L14.7 20.1 L18.9 17.4 L23.5 15.4 L28.6 14.2 L33.8 14.1 L38.9 14.9 L44.1 16.1 L39.8 19.9 L35 23.2 L31.2 30.1 Z\" fill=\"url(#clay)\"/><path d=\"M34.8 31.9 L38 25.8 L42.2 23.1 L46.7 19.2 L50.6 22.1 L53.1 26 L54.3 30.3 L54.3 34.7 L53.1 38.9 L50.9 43 L45.1 35.8 L38.7 28.1 L32.6 29 Z\" fill=\"url(#clay)\"/><path d=\"M33.4 33 L37.3 31.9 L41.9 38.2 L47.8 45.5 L44 48.1 L39.5 49.9 L34.7 50.9 L29.7 51.5 L33.5 43.3 L32.5 37.2 L34.8 31.8 Z\" fill=\"url(#clay)\"/><path d=\"M31.2 30.2 L28.5 36.8 L29.5 42.7 L26 49.8 L21.2 48.7 L17 46.3 L13.6 43.2 L11.2 39.5 L9.8 35.5 L9.5 31.4 L10.4 27.2 L12.6 23.5 L22.3 29.5 L27.5 27.4 L31.5 32.3 Z\" fill=\"url(#clay)\"/><path d=\"M20 20.5 C24 17.5 29 16.5 33.5 17.5 C30 19.5 25 20.5 22 23 Z\" fill=\"#f4cf9a\" stroke=\"none\"/><path d=\"M14 36 C15 40 17.5 44 21 46.5 C17.5 45.5 14.5 42 13.5 38.5 Z\" fill=\"#f4cf9a\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "veiled": {
+  "label": "Veiled",
+  "kind": "good",
+  "glyph": "<path d=\"M32 10 C40 10 47 17 48 26 L49 36 L15 36 L16 26 C17 17 24 10 32 10 Z\" fill=\"url(#shroud)\"/><rect x=\"26\" y=\"19.5\" width=\"12\" height=\"9\" rx=\"4.5\" fill=\"#15121d\"/><path d=\"M27.8 24 a1.8 1.8 0 1 0 3.6 0 a1.8 1.8 0 1 0 -3.6 0 Z M32.6 24 a1.8 1.8 0 1 0 3.6 0 a1.8 1.8 0 1 0 -3.6 0 Z\" fill=\"#ece6ff\" stroke=\"none\"/><rect x=\"14\" y=\"41\" width=\"30\" height=\"4.5\" rx=\"2\" fill=\"url(#shroud)\"/><path d=\"M20 50.5 H50 V55 Q47 53 44 55 Q41 53 38 55 Q35 53 32 55 Q29 53 26 55 Q23 53 20 55 Z\" fill=\"url(#shroud)\"/>",
+  "verified": false
+ },
+ "link": {
+  "label": "Linked",
+  "kind": "good",
+  "glyph": "<g transform=\"rotate(-35 32 32)\"><path d=\"M9.5 32A16 16 0 1 1 41.5 32A16 16 0 1 1 9.5 32ZM15.5 32A10 10 0 1 0 35.5 32A10 10 0 1 0 15.5 32Z\" fill=\"#f2c14e\" fill-rule=\"evenodd\"/><path d=\"M22.5 32A16 16 0 1 1 54.5 32A16 16 0 1 1 22.5 32ZM28.5 32A10 10 0 1 0 48.5 32A10 10 0 1 0 28.5 32Z\" fill=\"#b7c4d8\" fill-rule=\"evenodd\"/><path d=\"M32 46.62A16 16 0 0 0 38 41.99A10 10 0 0 1 32 39.6A10 10 0 0 1 26 41.99A16 16 0 0 0 32 46.62Z\" fill=\"#f2c14e\"/><path d=\"M38.33 39.97A15.1 15.1 0 0 1 24.83 47.08L25.01 42.89A10.9 10.9 0 0 0 34.76 37.75Z\" fill=\"#f2c14e\" stroke=\"none\"/><path d=\"M14.32 22.62A14.6 14.6 0 0 1 23.47 17.54L23.91 20.71A11.4 11.4 0 0 0 16.77 24.67Z\" fill=\"#fff0b4\" stroke=\"none\"/><path d=\"M42.52 17.97A14.6 14.6 0 0 1 50.88 24.26L48.17 25.96A11.4 11.4 0 0 0 41.64 21.04Z\" fill=\"#eef3fb\" stroke=\"none\"/></g>",
+  "verified": true
+ },
+ "bloodchannel": {
+  "label": "Crimson Mend",
+  "kind": "good",
+  "glyph": "<path d=\"M29.5 22 V15 Q29.5 10.5 34 10.5 H45 V15.5 H35 Q34.5 15.5 34.5 16.5 V22 Z\" fill=\"url(#blood)\"/><path d=\"M31.5 15 V14.5 Q31.5 12.5 34 12.5 H44 V14.5 H34.5 Q33.5 14.5 33.5 15 Z\" fill=\"#ff9aa8\" stroke=\"none\"/><path d=\"M32 22 C30 17 23.5 15 19.5 18.5 C15.5 22.5 17 29 21 33 L32 44 L43 33 C47 29 48.5 22.5 44.5 18.5 C40.5 15 34 17 32 22 Z\" fill=\"url(#blood)\"/><ellipse cx=\"24.5\" cy=\"22.5\" rx=\"3.2\" ry=\"2.2\" fill=\"#ff9aa8\" stroke=\"none\"/><path d=\"M29 24 H35 V28 H39 V34 H35 V38 H29 V34 H25 V28 H29 Z\" fill=\"url(#heal)\"/>",
+  "verified": true
+ },
+ "bloodpact": {
+  "label": "Blood Pact",
+  "kind": "good",
+  "glyph": "<rect x=\"19\" y=\"46\" width=\"26\" height=\"6.5\" rx=\"3.2\" fill=\"url(#gold)\"/><rect x=\"29.4\" y=\"34\" width=\"5.2\" height=\"13\" fill=\"url(#gold)\"/><path d=\"M16 14 H48 C48 28 42 36 32 36 C22 36 16 28 16 14 Z\" fill=\"url(#gold)\"/><ellipse cx=\"32\" cy=\"14\" rx=\"16\" ry=\"4.6\" fill=\"url(#blood)\"/><ellipse cx=\"27\" cy=\"13.6\" rx=\"5\" ry=\"1.6\" fill=\"#ff8a8a\" stroke=\"none\"/><path d=\"M20.5 19 C21 25.5 23.5 29.5 27.5 32 C24 31 20 27 19.5 19 Z\" fill=\"#fff1a0\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "bloodward": {
+  "label": "Blood Ward",
+  "kind": "good",
+  "glyph": "<path d=\"M32 11 L49 17 L47 37 Q43 47 32 53 Q21 47 17 37 L15 17 Z\" fill=\"url(#bone)\"/><path d=\"M32 19 C37 27 41 32 41 37 A9 9 0 0 1 23 37 C23 32 27 27 32 19 Z\" fill=\"url(#blood)\"/><path d=\"M29.5 28.5 C25.5 32 24.5 38 26.8 42.5 C26 38 26.8 33 29.5 28.5 Z\" fill=\"#ff8f8f\" stroke=\"none\"/>",
+  "verified": false
+ },
+ "shieldbearer": {
+  "label": "Shieldbearer",
+  "kind": "good",
+  "glyph": "<path d=\"M46 23 L54 27 V46 Q54 51 49 51 H40 V36 L41 27 Z\" fill=\"url(#pearl)\"/><circle cx=\"46\" cy=\"17\" r=\"5.5\" fill=\"#f0bb8e\"/><path d=\"M28 26 L42 30 L46 40 V50 Q46 55 41 55 H15 Q10 55 10 50 V40 L14 30 Z\" fill=\"url(#gold)\"/><circle cx=\"28\" cy=\"19\" r=\"7.5\" fill=\"#f0bb8e\"/><g transform=\"translate(26 38) rotate(40)\"><rect x=\"-20\" y=\"-2.5\" width=\"14\" height=\"5\" fill=\"url(#wood)\"/><path d=\"M0 0 L-9 -6 L-9 6 Z\" fill=\"url(#steel)\"/></g>",
+  "verified": false
+ },
+ "bolted": {
+  "label": "Bolted On",
+  "kind": "good",
+  "glyph": "<circle cx=\"32\" cy=\"16\" r=\"6\" fill=\"url(#steel)\"/><path d=\"M14 52 V32 Q14 22 24 22 H40 Q50 22 50 32 V52 Z\" fill=\"url(#steel)\"/><circle cx=\"32\" cy=\"30\" r=\"5\" fill=\"url(#gold)\"/><rect x=\"25\" y=\"35\" width=\"14\" height=\"15\" rx=\"4\" fill=\"url(#gold)\"/><path d=\"M30.5 38 L28.25 41.9 L23.75 41.9 L21.5 38 L23.75 34.1 L28.25 34.1 Z\" fill=\"#ffd24a\"/><path d=\"M42.5 38 L40.25 41.9 L35.75 41.9 L33.5 38 L35.75 34.1 L40.25 34.1 Z\" fill=\"#ffd24a\"/>",
+  "verified": false
+ },
+ "patchrig": {
+  "label": "Patch Rig",
+  "kind": "good",
+  "glyph": "<rect x=\"30\" y=\"14\" width=\"4\" height=\"10\" fill=\"url(#iron)\"/><circle cx=\"32\" cy=\"13\" r=\"4\" fill=\"url(#bolt)\"/><rect x=\"16\" y=\"24\" width=\"32\" height=\"28\" rx=\"5\" fill=\"url(#iron)\"/><circle cx=\"25\" cy=\"29\" r=\"3\" fill=\"url(#bolt)\"/><circle cx=\"39\" cy=\"29\" r=\"3\" fill=\"url(#bolt)\"/><path d=\"M29 33 H35 V39 H41 V45 H35 V51 H29 V45 H23 V39 H29 Z\" fill=\"url(#heal)\"/>",
+  "verified": true
+ },
+ "aiming": {
+  "label": "Taking aim",
+  "kind": "good",
+  "glyph": "<path d=\"M29.5 10 H34.5 V18.5 H29.5 Z M29.5 45.5 H34.5 V54 H29.5 Z M10 29.5 H18.5 V34.5 H10 Z M45.5 29.5 H54 V34.5 H45.5 Z\" fill=\"url(#gold)\"/><path d=\"M32 17 A15 15 0 1 0 32.01 17 Z M32 22 A10 10 0 1 1 31.99 22 Z\" fill=\"url(#gold)\" fill-rule=\"evenodd\"/><circle cx=\"32\" cy=\"32\" r=\"4.8\" fill=\"#ff4a3a\"/><circle cx=\"30.4\" cy=\"30.4\" r=\"1.6\" fill=\"#ffd9cf\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "shield": {
+  "label": "Shielded",
+  "kind": "good",
+  "glyph": "<path d=\"M15.5 14.15 A19 19 0 1 1 15.5 49.85 L17.55 44.22 A13 13 0 1 0 17.55 19.78 Z\" fill=\"url(#mana)\"/><path d=\"M27.99 15.56 A17.5 17.5 0 0 1 27.99 48.44 L27.13 46.1 A15 15 0 0 0 27.13 17.9 Z\" fill=\"#cfe9ff\" stroke=\"none\"/><path d=\"M41 28.5 H50 V35.5 H41 Z\" fill=\"url(#steel)\"/><rect x=\"49\" y=\"25\" width=\"4\" height=\"14\" rx=\"1.5\" fill=\"url(#gold)\"/><path d=\"M35.7 26.7 L46.3 37.3 M46.3 26.7 L35.7 37.3\" stroke=\"#ffffff\" stroke-width=\"3\"/>",
+  "verified": false
+ },
+ "ward": {
+  "label": "Spirit Ward",
+  "kind": "good",
+  "glyph": "<path d=\"M50.59 36.98 A19.25 19.25 0 1 1 25.42 13.91 L26.96 18.14 A14.75 14.75 0 1 0 46.25 35.82 Z\" fill=\"url(#mana)\"/><path d=\"M26.2 9.5 C27.9 12.2 28.8 13.8 28.8 15.4 A2.6 2.6 0 0 1 23.6 15.4 C23.6 13.8 24.5 12.2 26.2 9.5 Z\" fill=\"url(#pearl)\"/><path d=\"M48.4 29.5 C50.1 32.2 51 33.8 51 35.4 A2.6 2.6 0 0 1 45.8 35.4 C45.8 33.8 46.7 32.2 48.4 29.5 Z\" fill=\"url(#pearl)\"/><path d=\"M20 26 A12 12 0 0 1 44 26 L44 42 Q40 50 36 42 Q32 50 28 42 Q24 50 20 42 Z\" fill=\"url(#pearl)\"/><ellipse cx=\"32\" cy=\"20\" rx=\"4\" ry=\"2.4\" fill=\"#ffffff\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "guard": {
+  "label": "Guarding",
+  "kind": "good",
+  "glyph": "<g transform=\"translate(33 30.75) rotate(38.2)\"><rect x=\"-4.5\" y=\"-19.4\" width=\"9\" height=\"38.8\" rx=\"4\" fill=\"url(#hide)\"/><rect x=\"-5.5\" y=\"-12.5\" width=\"11\" height=\"5\" rx=\"1\" fill=\"url(#gold)\"/></g><circle cx=\"45\" cy=\"15.5\" r=\"6\" fill=\"url(#hide)\"/><g transform=\"translate(64 0) scale(-1 1)\"><g transform=\"translate(33 30.75) rotate(38.2)\"><rect x=\"-4.5\" y=\"-19.4\" width=\"9\" height=\"38.8\" rx=\"4\" fill=\"url(#hide)\"/><rect x=\"-5.5\" y=\"-12.5\" width=\"11\" height=\"5\" rx=\"1\" fill=\"url(#gold)\"/></g><circle cx=\"45\" cy=\"15.5\" r=\"6\" fill=\"url(#hide)\"/></g>",
+  "verified": false
+ },
+ "empower": {
+  "label": "Empowered",
+  "kind": "good",
+  "glyph": "<path d=\"M10 50 H40 C44 50 46 46 46 42 C46 36 42 30 34 27 C26 26 16 31 10 38 Z\" fill=\"#e8a870\"/><ellipse cx=\"32\" cy=\"34\" rx=\"5\" ry=\"3\" fill=\"#ffd9a8\" stroke=\"none\"/><path d=\"M40 46 C40 36 41 28 42 22 C42 18 52 18 52 22 C51 30 50 40 50 46 Z\" fill=\"#e8a870\"/><path d=\"M38.5 33 H51.5 V39 H39.5 Z\" fill=\"url(#gold)\"/><circle cx=\"47\" cy=\"16\" r=\"7\" fill=\"#e8a870\"/><circle cx=\"45\" cy=\"14\" r=\"2.4\" fill=\"#ffd9a8\" stroke=\"none\"/><g transform=\"translate(19 18) scale(1.8)\"><path d=\"M0 -5 L1.3 -1.3 L5 0 L1.3 1.3 L0 5 L-1.3 1.3 L-5 0 L-1.3 -1.3 Z\" fill=\"#ffe680\"/></g>",
+  "verified": true
+ },
+ "enraged": {
+  "label": "Enraged",
+  "kind": "good",
+  "glyph": "<path d=\"M32 10 C44 10 52 18 52 30 C52 44 42 54 32 54 C22 54 12 44 12 30 C12 18 20 10 32 10 Z\" fill=\"url(#blood)\"/><path d=\"M14 26 L15 20 L29 28 L35 28 L49 20 L50 26 L36 33 L28 33 Z\" fill=\"#15121d\"/><ellipse cx=\"23\" cy=\"36.5\" rx=\"3.6\" ry=\"2.6\" fill=\"#ffe680\"/><ellipse cx=\"41\" cy=\"36.5\" rx=\"3.6\" ry=\"2.6\" fill=\"#ffe680\"/><rect x=\"20\" y=\"41.5\" width=\"24\" height=\"8\" rx=\"2.2\" fill=\"#2a1a1a\"/><rect x=\"22.5\" y=\"43.5\" width=\"19\" height=\"4\" rx=\"1\" fill=\"#fff1a0\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "taunt": {
+  "label": "Taunting",
+  "kind": "good",
+  "glyph": "<path d=\"M32 11 L49 17 L48 32 Q44 46 32 53 Q20 46 16 32 L15 17 Z\" fill=\"url(#steel)\"/><path d=\"M18.5 19 L29.5 15 L30 18.4 L19.6 22.2 Z\" fill=\"url(#pearl)\" stroke=\"none\"/><circle cx=\"32\" cy=\"28\" r=\"7\" fill=\"url(#blood)\"/><circle cx=\"32\" cy=\"28\" r=\"3\" fill=\"url(#bone)\"/>",
+  "verified": true
+ },
+ "provoke": {
+  "label": "Provoking",
+  "kind": "good",
+  "glyph": "<path d=\"M29 31 V23.5 A2.5 2.5 0 0 1 34 23.5 V31 Z M34.5 31 V22.5 A2.5 2.5 0 0 1 39.5 22.5 V31 Z M40 31 V23.5 A2.5 2.5 0 0 1 45 23.5 V31 Z\" fill=\"url(#bone)\"/><rect x=\"21.5\" y=\"27\" width=\"23.5\" height=\"19\" rx=\"5.5\" fill=\"url(#bone)\"/><path d=\"M21.5 31 L21.5 18 C21.5 11.5 28 9.5 33 12.5 C37.5 15.2 39 19.5 36.5 22.5 L31.5 20.5 C32.8 18.6 32 16.6 30.2 15.7 C28.8 15 28.5 16.5 28.5 18.5 L28.5 31 Z\" fill=\"url(#bone)\"/><rect x=\"25.5\" y=\"33\" width=\"7\" height=\"9\" rx=\"3\" fill=\"#fbf3dc\" stroke=\"none\"/><path d=\"M43 12.5 L45 18 L51 19 L46.5 22 L47.5 28 L42.5 24 L38 26.5 L39.5 21.5 L37 17.5 L41.5 18.5 Z\" fill=\"#e8352f\"/>",
+  "verified": false
+ },
+ "thorns": {
+  "label": "Thorns",
+  "kind": "good",
+  "glyph": "<path d=\"M17 38.7 L14.5 26.5 L22.2 34.1 Z M36.4 22.7 L33.3 10.5 L41.6 18.1 Z M38.6 25.6 L50.7 30.1 L43.8 21 Z M19.2 42 L31.3 46.5 L24.4 37.4 Z\" fill=\"#f4e3a1\"/><path d=\"M11 46 C20 30 34 22 49 12 L53.5 17 C38 27 24 36 15.5 51 Z\" fill=\"url(#leaf)\"/><path d=\"M13.5 45.5 C22 31 35.5 23.5 48.8 14.3 L50.2 16 C37 25.5 23.5 33.5 14.9 47.3 Z\" fill=\"#c9f59a\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "regen": {
+  "label": "Regen",
+  "kind": "good",
+  "glyph": "<path d=\"M13.8 42.5 A21 21 0 0 1 42.5 13.8 L40 18.1 A16 16 0 0 0 18.1 40 Z\" fill=\"url(#bone)\"/><path d=\"M43.5 12.1 L48.2 20 L39 19.9 Z\" fill=\"url(#bone)\"/><path d=\"M32 46 L22.5 36 C19.5 32.5 21 24.5 26.5 24.5 C29.5 24.5 31.5 26.5 32 28.5 C32.5 26.5 34.5 24.5 37.5 24.5 C43 24.5 44.5 32.5 41.5 36 Z\" fill=\"url(#blood)\"/><ellipse cx=\"27\" cy=\"29.5\" rx=\"2.6\" ry=\"2\" fill=\"#ffb3c6\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "evade": {
+  "label": "Evasive",
+  "kind": "good",
+  "glyph": "<circle cx=\"18\" cy=\"18\" r=\"5\" fill=\"url(#pearl)\"/><path d=\"M18.3 26.5 A4 4 0 0 1 25.7 29.5 L17.7 49.5 A4 4 0 0 1 10.3 46.5 Z\" fill=\"url(#pearl)\"/><path d=\"M19.7 29 L21.5 29.8 L14.5 46.8 L12.7 46 Z\" fill=\"#ffffff\" stroke=\"none\"/><rect x=\"32\" y=\"27.8\" width=\"15\" height=\"4.4\" rx=\"1\" fill=\"url(#steel)\"/><path d=\"M46 24 L54 30 L46 36 Z\" fill=\"url(#steel)\"/>",
+  "verified": false
+ },
+ "immune": {
+  "label": "Charmed",
+  "kind": "good",
+  "glyph": "<path d=\"M13 16 L13 30 A19 19 0 0 0 51 30 L51 16 L43 16 L43 30 A11 11 0 0 1 21 30 L21 16 Z\" fill=\"url(#gold)\"/><path d=\"M15.5 19 L15.5 31 Q16.5 37 20 41 L22.5 38.5 Q19.5 35 18.5 31 L18.5 19 Z\" fill=\"#fff1a0\" stroke=\"none\"/><path d=\"M32 13 L33.4 17.6 L38 19 L33.4 20.4 L32 25 L30.6 20.4 L26 19 L30.6 17.6 Z\" fill=\"#fff1a0\" stroke-width=\"1\"/>",
+  "verified": true
+ },
+ "undying": {
+  "label": "Undying",
+  "kind": "good",
+  "glyph": "<path d=\"M17 38 Q17 32 23 32 H41 Q47 32 47 38 V52 H17 Z\" fill=\"url(#bone)\"/><path d=\"M30 33 H34 L33 51 H31 Z\" fill=\"#2a1a1a\"/><path d=\"M21 24 C21 16.5 25.5 12 32 12 C38.5 12 43 16.5 43 24 C43 28 40.5 30 39.5 31 L39 34 H25 L24.5 31 C23.5 30 21 28 21 24 Z\" fill=\"url(#bone)\"/><path d=\"M24.3 22 a3.2 3.4 0 1 0 6.4 0 a3.2 3.4 0 1 0 -6.4 0 Z M33.3 22 a3.2 3.4 0 1 0 6.4 0 a3.2 3.4 0 1 0 -6.4 0 Z\" fill=\"#2a1a1a\" stroke=\"none\"/><path d=\"M32 26 C34 30.3 38 32.5 38 39 C38 43.3 35 46 32 46 C29 46 26 43.3 26 39 C26 35.2 28.5 33.6 29 29.8 C30.5 32.5 31 32.5 32 26 Z\" fill=\"#58e68a\"/><path d=\"M32 34.7 C33.5 37.4 35.5 39 35 42 C34.75 43.8 33.5 44.9 32 44.9 C30.5 44.9 29 43.8 29 42 C29 39.8 30.5 38.7 32 34.7 Z\" fill=\"#e0ffe8\" stroke=\"none\"/>",
+  "verified": false
+ },
+ "coffin": {
+  "label": "Coffined",
+  "kind": "good",
+  "glyph": "<path d=\"M24 10 L40 10 L47 21 L42 54 L22 54 L17 21 Z\" fill=\"url(#wood)\"/><path d=\"M26.5 13 L31.5 13 L28.5 51 L24.5 51 L20.5 21 Z\" fill=\"#d9a066\" stroke=\"none\"/><rect x=\"15.5\" y=\"24\" width=\"33\" height=\"4.6\" rx=\"1.4\" fill=\"url(#iron)\"/><rect x=\"18.5\" y=\"43\" width=\"27\" height=\"4.6\" rx=\"1.4\" fill=\"url(#iron)\"/><rect x=\"27\" y=\"31\" width=\"10\" height=\"9.5\" rx=\"1.6\" fill=\"url(#gold)\"/>",
+  "verified": true
+ },
+ "grudge": {
+  "label": "Grudge",
+  "kind": "good",
+  "glyph": "<path d=\"M27.1 20.84 A18 18 0 0 1 37.84 10.1 L38.87 12.9 A15 15 0 0 0 29.9 21.87 Z\" fill=\"url(#bone)\"/><path d=\"M31.05 25.87 A13 13 0 0 1 41.3 14.3 L41.9 17.2 A10 10 0 0 0 34.04 26.13 Z\" fill=\"url(#bone)\"/><g transform=\"rotate(37 20.5 43.5)\"><rect x=\"17.5\" y=\"43\" width=\"6\" height=\"11\" rx=\"3\" fill=\"url(#bone)\"/></g><g transform=\"translate(32 32) rotate(45)\"><rect x=\"-2\" y=\"-14\" width=\"4\" height=\"30\" fill=\"url(#wood)\"/><path d=\"M-3 -18 L4 -18 L12 -14 Q15 -9 12 -4 L4 -6 L-3 -6 Z\" fill=\"url(#steel)\"/><path d=\"M5 -15 L10 -12.5 L10 -7.5 L5 -8.5 Z\" fill=\"#e6ecf5\" stroke=\"none\"/></g><rect x=\"16\" y=\"39\" width=\"9\" height=\"9\" rx=\"3\" fill=\"url(#bone)\"/><g transform=\"translate(46.5 45.5)\"><path d=\"M0 -8 C3 -3.5 5.2 -.5 5.2 2.8 A5.2 5.2 0 0 1 -5.2 2.8 C-5.2 -.5 -3 -3.5 0 -8 Z\" fill=\"url(#blood)\"/></g>",
+  "verified": false
+ },
+ "burrowed": {
+  "label": "Burrowed",
+  "kind": "good",
+  "glyph": "<path d=\"M38 30 V19 A7 7 0 0 1 52 19 V30 Z\" fill=\"url(#grave)\" transform=\"rotate(8 45 24)\"/><path d=\"M10 50 C10 38 17 30 25 27 C31 25 36 28 40 30 L50 30 C53 31 54 36 54 50 Z\" fill=\"#8a5230\"/><ellipse cx=\"26\" cy=\"40\" rx=\"11\" ry=\"8\" fill=\"#3a2418\"/><circle cx=\"21.5\" cy=\"40\" r=\"4\" fill=\"#ffe066\"/><circle cx=\"31\" cy=\"40\" r=\"4\" fill=\"#ffe066\"/>",
+  "verified": false
+ },
+ "protected": {
+  "label": "Protected",
+  "kind": "good",
+  "glyph": "<rect x=\"24\" y=\"30\" width=\"30\" height=\"4\" rx=\"1\" fill=\"url(#pearl)\"/><rect x=\"24\" y=\"42\" width=\"30\" height=\"4\" rx=\"1\" fill=\"url(#pearl)\"/><rect x=\"9\" y=\"36\" width=\"15\" height=\"4.5\" rx=\"1\" fill=\"url(#gold)\"/><path d=\"M9 34.25 L15 36 L15 40.5 L9 42.25 L11.5 38.25 Z\" fill=\"url(#blood)\"/><path d=\"M27 38.25 L19 34.25 L19 42.25 Z\" fill=\"url(#gold)\"/><path d=\"M21 54 V24 L24 20 L27 24 V54 Z M35 54 V24 L38 20 L41 24 V54 Z M49 54 V24 L52 20 L55 24 V54 Z\" fill=\"url(#pearl)\"/><rect x=\"22\" y=\"27\" width=\"2\" height=\"22\" fill=\"#fffaf0\" stroke=\"none\"/>",
+  "verified": false
+ },
+ "attached": {
+  "label": "Attached",
+  "kind": "neutral",
+  "glyph": "<rect x=\"29.6\" y=\"17\" width=\"4.8\" height=\"34\" fill=\"url(#gold)\"/><path d=\"M12 30 L19 34 C20 44 25 50 32 50 C39 50 44 44 45 34 L52 30 L50 38 C48 48 41 54.5 32 54.5 C23 54.5 16 48 14 38 Z\" fill=\"url(#gold)\"/><rect x=\"19\" y=\"22.5\" width=\"26\" height=\"4.8\" rx=\"2.4\" fill=\"url(#wood)\"/><circle cx=\"32\" cy=\"14\" r=\"4.6\" fill=\"url(#gold)\"/><circle cx=\"32\" cy=\"14\" r=\"1.9\" fill=\"#12171f\"/><rect x=\"30.6\" y=\"30\" width=\"1.5\" height=\"17\" fill=\"#fff1a0\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "rcg": {
+  "label": "Gravity",
+  "kind": "neutral",
+  "glyph": "<path d=\"M10 40 Q32 56 54 40 L54 46 Q32 58 10 46 Z\" fill=\"url(#gold)\"/><rect x=\"30\" y=\"10\" width=\"4\" height=\"12\" fill=\"#ffd166\"/><path d=\"M23 21 L41 21 L32 31 Z\" fill=\"#ffd166\"/><circle cx=\"32\" cy=\"37\" r=\"9\" fill=\"url(#steel)\"/><circle cx=\"28.5\" cy=\"33.5\" r=\"3\" fill=\"#cfd9ea\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "rcl": {
+  "label": "Light",
+  "kind": "neutral",
+  "glyph": "<path d=\"M30 24 L16 16 L24 30 Z M34 24 L48 16 L40 30 Z M34 40 L48 48 L40 34 Z M30 40 L16 48 L24 34 Z\" fill=\"url(#gold)\"/><path d=\"M28 24 L32 9 L36 24 Z M40 28 L55 32 L40 36 Z M36 40 L32 55 L28 40 Z M24 36 L9 32 L24 28 Z\" fill=\"url(#holy)\"/><circle cx=\"32\" cy=\"32\" r=\"10\" fill=\"url(#holy)\"/><circle cx=\"29\" cy=\"29\" r=\"3.5\" fill=\"#ffffff\" stroke=\"none\"/>",
+  "verified": true
+ },
+ "rcs": {
+  "label": "Sound",
+  "kind": "neutral",
+  "glyph": "<path d=\"M32 15 C25 15 23 20 23 28 C23 34 21 38 20 41 L44 41 C43 38 41 34 41 28 C41 20 39 15 32 15 Z\" fill=\"url(#gold)\"/><path d=\"M28 20 C26 22 26 27 26.5 31 L29 31 C28.5 27 28.5 23 30 20 Z\" fill=\"#fff1a0\" stroke=\"none\"/><circle cx=\"32\" cy=\"44\" r=\"3\" fill=\"url(#iron)\"/><path d=\"M18 20 Q10 32 18 44 L21 42 Q15 32 21 22 Z\" fill=\"#7fe3ff\"/><path d=\"M46 20 Q54 32 46 44 L43 42 Q49 32 43 22 Z\" fill=\"#7fe3ff\"/>",
+  "verified": true
+ },
+ "rcv": {
+  "label": "Void",
+  "kind": "neutral",
+  "glyph": "<path d=\"M32 9 L43 20 L40 30 L45 40 L32 55 L20 42 L24 31 L19 20 Z\" fill=\"#a04dff\"/><path d=\"M32 15 L39 22 L36.5 30.5 L40 40 L32 49 L25 42 L28 32 L24 22 Z\" fill=\"#1a0b2e\"/><path d=\"M30.5 16.5 L25.5 22 L28.7 32 L26.3 41.5 L29.5 41 L31.3 32 L28.5 23 L32 18.5 Z\" fill=\"#d8b4ff\" stroke=\"none\"/>",
+  "verified": false
+ }
+}
