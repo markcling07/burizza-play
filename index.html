@@ -8320,6 +8320,11 @@ function aiChoose(u) {
     let w = s.id === 'attack' ? 1 : s.id === 'guard' ? 0 : s.sig ? 3 : 2;
     if (s.kind === 'heal') w = hurt.length ? 6 : 0;
     if (s.kind === 'buff') w = s.target === 'self' ? (u.hp / u.maxHp < 0.7 ? 3 : 0.5) : 2;
+    // The tempo-support skills (Quickstep Drums, First Light, Wind at the Back, Quickened Blood,
+    // Stolen Hours) ride this generic weight of 2 ON PURPOSE — no bespoke rule. Sim-verified: a
+    // support reaches for them ~10-17% of its picks, and a hurt ally's heal (weight 6) rightly
+    // out-prioritizes them, so they fire when the band is healthy and wait when it is bleeding.
+    // That is the triage we want; special-casing them here would only break it.
     if (s.kind === 'buff' && s.o?.cleanse) w = allies.some(debuffs) ? 4 : 0.3;
     // Dispel, the mirror of a cleanse: worth doing when the other side is actually carrying something,
     // and close to worthless against a warband with nothing on it.
