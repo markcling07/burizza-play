@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Howitzer (ranged) - Ashfall Road art v2. Walking artillery platform.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="73,66.5">
   <defs>
     <linearGradient id="hull" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b0bd9e"/><stop offset=".5" stop-color="#6b785c"/><stop offset="1" stop-color="#3c4533"/></linearGradient>
     <linearGradient id="hullD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a664c"/><stop offset="1" stop-color="#2d3426"/></linearGradient>
@@ -13,7 +13,7 @@
   </defs>
   <ellipse cx="50" cy="94" rx="28" ry="3.8" fill="#000" opacity=".38"/>
   <!-- muzzle heat + smoke -->
-  <circle cx="91" cy="17" r="7" fill="url(#heat)" filter="url(#glow)"/>
+  <circle class="wpn" cx="91" cy="17" r="7" fill="url(#heat)" filter="url(#glow)"/>
   <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- back legs -->
     <path d="M31 70 h12 l-1 17 h-11 z" fill="url(#hullD)"/>
@@ -30,7 +30,7 @@
     <!-- cabin / head -->
     <path d="M56 44 Q57 35 66 35 Q75 36 75 45 L74 54 L57 54 Z" fill="url(#hull)"/>
     <!-- shoulder cannon -->
-    <g transform="rotate(-24 40 38)">
+    <g class="wpn" transform="rotate(-24 40 38)">
       <rect x="28" y="31" width="22" height="15" rx="3" fill="url(#hull)"/>
       <rect x="48" y="33.5" width="40" height="10" rx="1.5" fill="url(#iron)"/>
       <rect x="62" y="32" width="4" height="13" rx="1" fill="url(#orange)"/>
@@ -46,7 +46,7 @@
     <rect x="70" y="64" width="6" height="5" rx="1.5" fill="url(#iron)"/>
   </g>
   <!-- muzzle bore glow -->
-  <circle cx="91.5" cy="16.5" r="2.4" fill="#ffd2a8" opacity=".9" transform="rotate(-24 91.5 16.5)"/>
+  <circle class="wpn" cx="91.5" cy="16.5" r="2.4" fill="#ffd2a8" opacity=".9" transform="rotate(-24 91.5 16.5)"/>
   <!-- body vents -->
   <rect x="35" y="55" width="16" height="9" rx="1.5" fill="#1d1a22" stroke="#15121d" stroke-width="1.2"/>
   <rect x="36.5" y="56.5" width="13" height="6" rx="1" fill="#ff7a45" opacity=".85" filter="url(#glow)"/>

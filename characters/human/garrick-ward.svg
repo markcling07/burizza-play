@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Sir Garrick Vane (melee) - Ashfall Road art v2. Heavily armored paladin.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66,60">
   <defs>
     <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#d7dbe4"/><stop offset="1" stop-color="#8c94a6"/></linearGradient>
     <linearGradient id="plateD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8afbf"/><stop offset="1" stop-color="#5d6578"/></linearGradient>
@@ -30,12 +30,12 @@
     <path d="M40 34.5 Q51 39 62.5 34.5 L62.5 37 Q51 41.5 40 37.5 Z" fill="url(#gold)"/>
     <!-- warhammer -->
     <g transform="rotate(14 66 60)">
-      <rect x="64.6" y="25" width="3.2" height="47" rx="1" fill="#6b4630"/>
-      <path d="M58 19 h16 v12 h-16 z" fill="url(#plate)"/>
-      <rect x="58" y="23.5" width="16" height="3" fill="url(#gold)"/>
-      <path d="M74 21.5 l5 3.5 l-5 3.5 z" fill="url(#plateD)"/>
-      <path d="M64.5 19 l1.7 -5 l1.7 5 z" fill="url(#plateD)"/>
-      <circle cx="66.2" cy="73.5" r="2.2" fill="url(#gold)"/>
+      <rect class="wpn" x="64.6" y="25" width="3.2" height="47" rx="1" fill="#6b4630"/>
+      <path class="wpn" d="M58 19 h16 v12 h-16 z" fill="url(#plate)"/>
+      <rect class="wpn" x="58" y="23.5" width="16" height="3" fill="url(#gold)"/>
+      <path class="wpn" d="M74 21.5 l5 3.5 l-5 3.5 z" fill="url(#plateD)"/>
+      <path class="wpn" d="M64.5 19 l1.7 -5 l1.7 5 z" fill="url(#plateD)"/>
+      <circle class="wpn" cx="66.2" cy="73.5" r="2.2" fill="url(#gold)"/>
     </g>
     <!-- front arm + pauldron -->
     <path d="M60 50 L68 57 L64 62.5 L57 56 Z" fill="url(#plate)"/>

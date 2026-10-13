@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Bulwark-7 (melee) - Ashfall Road art v2. Hulking frontline war machine.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="72,63">
   <defs>
     <linearGradient id="hull" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d3dbea"/><stop offset=".5" stop-color="#8d9ab3"/><stop offset="1" stop-color="#55607a"/></linearGradient>
     <linearGradient id="hullD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#77839c"/><stop offset="1" stop-color="#3d465b"/></linearGradient>
@@ -37,16 +37,16 @@
     <!-- head (sunk between shoulders) -->
     <path d="M43 30 Q43 24 51 24 Q59 24 60 30 L60 40 L43 40 Z" fill="url(#hull)"/>
     <!-- piston forearm -->
-    <rect x="68" y="60" width="13" height="9" rx="1.5" fill="url(#iron)"/>
-    <rect x="70" y="56.5" width="12" height="3" rx="1.2" fill="url(#rod)"/>
-    <rect x="70" y="69.5" width="12" height="3" rx="1.2" fill="url(#rod)"/>
+    <rect class="wpn" x="68" y="60" width="13" height="9" rx="1.5" fill="url(#iron)"/>
+    <rect class="wpn" x="70" y="56.5" width="12" height="3" rx="1.2" fill="url(#rod)"/>
+    <rect class="wpn" x="70" y="69.5" width="12" height="3" rx="1.2" fill="url(#rod)"/>
     <!-- front upper arm + pauldron -->
     <path d="M60 52 L70 56 L71 70 L62 68 Z" fill="url(#hull)"/>
     <path d="M55 44 Q56 34 66 34 Q77 35 77 47 L74 53 L58 53 Z" fill="url(#hull)"/>
     <path d="M57 49 Q66 46 76 49.5 L74 53 L58 53 Z" fill="url(#amber)"/>
     <!-- piston fist -->
-    <path d="M80 54 h12 q5 0 5 5 v12 q0 5 -5 5 h-12 z" fill="url(#hull)"/>
-    <rect x="91" y="55" width="6" height="20" rx="2" fill="url(#amber)"/>
+    <path class="wpn" d="M80 54 h12 q5 0 5 5 v12 q0 5 -5 5 h-12 z" fill="url(#hull)"/>
+    <rect class="wpn" x="91" y="55" width="6" height="20" rx="2" fill="url(#amber)"/>
   </g>
   <!-- vent glow -->
   <rect x="41.5" y="49.5" width="15" height="8" rx="1" fill="#ff9a3a" opacity=".8" filter="url(#glow)"/>

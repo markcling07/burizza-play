@@ -3009,7 +3009,250 @@ let TEST_MODE = false;
 function saveProfile() {
   if (TEST_MODE) { renderPurse(); return; }
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(profile)); } catch (err) { /* progress just won't persist */ }
+  if (NET.on && NET.token) netQueueSave();   // online: the server copy follows, debounced
   renderPurse();
+}
+
+/* ONLINE PLAY — the Phase 2 seam, and deliberately nothing more.
+   With ?online in the query string the profile's source of truth moves to the
+   server: boot fetches the saved profile (first login seeds the server FROM the
+   local save, which is how an existing player's progress comes along), and every
+   saveProfile() also queues a debounced PUT. The server's version number rides
+   with us; if another device saved first the PUT comes back 409 and we adopt the
+   newer version before writing again. Offline play, the mirror build, and the
+   headless harness are untouched: no flag, no network — localStorage behaves
+   exactly as it always has. Auth here is the dev door (Phase 3 replaces it);
+   the seam itself — load remote, save remote, survive restarts — is final-shaped. */
+const NET = (() => {
+  try {
+    const q = new URLSearchParams(location.search);
+    if (!q.has('online')) return { on: false };
+    return { on: true, user: (q.get('user') || '').replace(/[^A-Za-z0-9_]/g, '').slice(0, 20) || 'player',
+             token: null, version: 0, timer: null, busy: false, dirty: false, seq: 0, txns: [] };
+  } catch (err) { return { on: false }; }   // headless: no location, no network, no seam
+})();
+
+async function netApi(method, path, body) {
+  const headers = { 'content-type': 'application/json' };
+  if (NET.token) headers.authorization = `Bearer ${NET.token}`;
+  const r = await fetch(path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(data.message || `HTTP ${r.status}`); e.code = data.error; e.data = data; throw e; }
+  return data;
+}
+
+// The server's copy becomes ours, through the same shelf-merging loadProfile uses —
+// an old save gains new stash shelves instead of losing them.
+function netAdopt(data) {
+  const p = blankProfile();
+  profile = { ...p, ...data, stats: { ...p.stats, ...(data.stats || {}) }, stash: { ...p.stash, ...(data.stash || {}) } };
+}
+
+function netQueueSave() {
+  clearTimeout(NET.timer);
+  NET.timer = setTimeout(netSaveNow, 1200);   // a burst of changes is one PUT, not a hail of them
+}
+
+async function netSaveNow() {
+  if (!NET.on || !NET.token || TEST_MODE) return;
+  if (NET.busy) { NET.dirty = true; return; }
+  NET.busy = true;
+  try {
+    // The wallet queue goes first: the server applies every earn and spend it
+    // accepts and answers with the balances IT believes — which become ours
+    // before the profile snapshot is written. The client proposes, the vault
+    // disposes; a rejected transaction simply never happened.
+    if (NET.txns.length) {
+      const batch = NET.txns.splice(0, 40);
+      try {
+        const w = await netApi('POST', '/api/wallet/txns', { txns: batch, idemKey: `w${NET.version}-${++NET.seq}` });
+        profile.gold = w.gold; profile.xp = w.xp; profile.level = w.level;
+        if (w.rejected && w.rejected.length) console.warn('Burizza online: the vault refused', w.rejected);
+      } catch (e) {
+        NET.txns.unshift(...batch);   // submit again with the next save
+        throw e;
+      }
+    }
+    // One key per attempt: a network retry of THIS save dedupes server-side, a new save never does.
+    const out = await netApi('PUT', '/api/profile', { profile, version: NET.version, idemKey: `s${NET.version}-${++NET.seq}` });
+    NET.version = out.version;
+    if (out.wallet) { profile.gold = out.wallet.gold; profile.xp = out.wallet.xp; profile.level = out.wallet.level; }
+  } catch (e) {
+    if (e.data && e.data.serverVersion != null) {
+      // Another device wrote first. Adopt its version and write over it once —
+      // last writer wins in Phase 2, and the console says so out loud. Phase 4's
+      // server authority retires this policy along with the client's say-so.
+      console.warn(`Burizza online: profile conflict, server at v${e.data.serverVersion}; re-saving.`);
+      NET.version = e.data.serverVersion;
+      NET.dirty = true;
+    } else if (e.code === 'unauthorized') {
+      // The session died under us — revoked elsewhere, or expired. Progress keeps
+      // landing in localStorage as ever; the pill stops claiming otherwise.
+      console.warn('Burizza online: session expired; progress is saving locally only.');
+      NET.on = false; NET.token = null; netStoreToken(null);
+      const pill = document.getElementById('netBadge');
+      if (pill) pill.firstElementChild.textContent = '⛨ session expired — reload to sign in';
+    } else {
+      console.warn('Burizza online: save failed, will retry on the next change.', e.message);
+    }
+  } finally {
+    NET.busy = false;
+    if (NET.dirty) { NET.dirty = false; netQueueSave(); }
+  }
+}
+
+const NET_TOKEN_KEY = 'burizza.net.token';
+const netStoreToken = (t) => { try { t ? localStorage.setItem(NET_TOKEN_KEY, t) : localStorage.removeItem(NET_TOKEN_KEY); } catch (err) { /* re-login next visit */ } };
+
+// A session has arrived (register, sign-in, or the dev door): keep it, then take
+// the server's profile if one exists or seed the server from the local save.
+async function netSession(res) {
+  NET.token = res.token;
+  NET.name = res.account?.username || NET.user;
+  netStoreToken(res.token);
+  if (res.profile) { NET.version = res.profile.version; netAdopt(res.profile.data); }
+  else await netSeed();
+}
+
+async function netBoot() {
+  try {
+    let tok = null;
+    try { tok = localStorage.getItem(NET_TOKEN_KEY); } catch (err) { /* blocked storage */ }
+    if (tok) {
+      NET.token = tok;
+      try {
+        const got = await netApi('GET', '/api/profile');
+        NET.version = got.version; netAdopt(got.profile);
+        netBadge();
+        return;
+      } catch (e) {
+        if (e.code === 'not_found') { await netSeed(); netBadge(); return; }
+        NET.token = null; netStoreToken(null);   // expired or revoked: sign in again
+      }
+    }
+    // ?user=name is the dev door (DEV_AUTH servers only); everyone else gets the gate.
+    if (NET.user !== 'player') {
+      try { await netSession(await netApi('POST', '/api/dev/login', { username: NET.user })); netBadge(); return; }
+      catch (err) { /* dev door closed on this server: fall through to the gate */ }
+    }
+    await netGate();
+    netBadge();
+  } catch (err) {
+    console.warn('Burizza online: could not reach the server; playing offline.', err.message);
+    NET.on = false;
+  }
+}
+
+/* The sign-in gate — the game's front door when playing online with no session.
+   Register and sign-in are the same card with the words swapped; the server
+   message (wrong password, name taken, rate-limited) is shown as written.
+   Styles ride along here so the whole online feature stays one block. */
+function netGate() {
+  return new Promise((resolve) => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .netgate { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center;
+        background: radial-gradient(80% 60% at 50% 30%, #1a1430, #0b0d14 75%); }
+      .netgate .card { width: min(340px, 92vw); display: grid; gap: 10px; padding: 22px 20px;
+        background: #12141f; border: 1px solid var(--line, #2a2d3e); border-radius: 14px; }
+      .netgate h2 { margin: 0; font-size: 1.6rem; }
+      .netgate p { margin: 0; color: var(--muted, #8b8fa3); font-size: .85rem; }
+      .netgate input { padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line, #2a2d3e);
+        background: #0b0d14; color: inherit; font: inherit; }
+      .netgate .err { color: #ec786e; font-size: .82rem; min-height: 1.2em; margin: 0; }
+      .netgate .ghost { background: none; border: none; color: var(--muted, #8b8fa3);
+        font: inherit; font-size: .82rem; cursor: pointer; text-decoration: underline; }
+    `;
+    document.head.appendChild(style);
+    const gate = document.createElement('div');
+    gate.className = 'netgate';
+    gate.innerHTML = `
+      <form class="card">
+        <h2>Burizza</h2>
+        <p class="sub">Sign in, and your road is kept.</p>
+        <input name="u" placeholder="name" autocomplete="username" maxlength="20" required>
+        <input name="p" type="password" placeholder="password" autocomplete="current-password" maxlength="200" required>
+        <p class="err"></p>
+        <button class="btn primary" type="submit">Sign in</button>
+        <button class="ghost" type="button">New here? Create an account</button>
+      </form>`;
+    document.body.appendChild(gate);
+    const form = gate.querySelector('form'), err = gate.querySelector('.err');
+    const submit = form.querySelector('[type="submit"]'), toggle = gate.querySelector('.ghost');
+    let creating = false;
+    toggle.addEventListener('click', () => {
+      creating = !creating;
+      submit.textContent = creating ? 'Create account' : 'Sign in';
+      gate.querySelector('.sub').textContent = creating ? 'Three letters or more; the name is yours for good.' : 'Sign in, and your road is kept.';
+      gate.querySelector('[name="p"]').autocomplete = creating ? 'new-password' : 'current-password';
+      toggle.textContent = creating ? 'Have an account? Sign in' : 'New here? Create an account';
+      err.textContent = '';
+    });
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      err.textContent = ''; submit.disabled = true;
+      try {
+        const body = { username: form.u.value.trim(), password: form.p.value };
+        await netSession(await netApi('POST', creating ? '/api/auth/register' : '/api/auth/login', body));
+        gate.remove(); style.remove();
+        resolve();
+      } catch (e) {
+        err.textContent = e.message || 'Something went wrong.';
+        submit.disabled = false;
+      }
+    });
+  });
+}
+
+// The signed-in pill: who you are, and the way out. Sign-out revokes the session
+// server-side, forgets the token AND the local cache (the next player at this
+// keyboard should not inherit a stranger's save), then reloads to the gate.
+function netBadge() {
+  if (!NET.on || !NET.token) return;
+  const pill = document.createElement('div');
+  pill.id = 'netBadge';
+  pill.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:80;display:flex;gap:8px;align-items:center;'
+    + 'padding:5px 10px;border:1px solid var(--line,#2a2d3e);border-radius:999px;background:#0b0d14cc;'
+    + 'color:var(--muted,#8b8fa3);font-size:.76rem;';
+  pill.innerHTML = `<span>⛨ ${NET.name || 'signed in'}</span><button type="button" style="background:none;border:none;color:inherit;font:inherit;cursor:pointer;text-decoration:underline">Sign out</button>`;
+  pill.querySelector('button').addEventListener('click', async () => {
+    try { await netApi('POST', '/api/logout'); } catch (err) { /* the token dies locally regardless */ }
+    netStoreToken(null);
+    try { localStorage.removeItem(SAVE_KEY); } catch (err) { /* nothing to forget */ }
+    location.reload();
+  });
+  document.body.appendChild(pill);
+}
+
+// First login: the server has nothing, so the local save IS the account's history.
+async function netSeed() {
+  const out = await netApi('PUT', '/api/profile', { profile, version: 0, idemKey: 'first-seed' });
+  NET.version = out.version;
+}
+
+/* THE WALLET (Phase 4). Offline these are the same `profile.gold` arithmetic the
+   game has always done, in one place. Online each movement is also queued as a
+   transaction; netSaveNow submits the queue and the SERVER's validated totals
+   come back and overwrite ours — the client proposes, the vault disposes. */
+function walletEarn(n, why) {
+  n = Math.round(n || 0);
+  if (n > 0) {
+    profile.gold += n;
+    if (NET.on && NET.token) NET.txns.push({ kind: 'earn', why, gold: n, xp: 0 });
+  }
+  return n;
+}
+function walletSpend(n, why = 'spend', items = null) {
+  n = Math.round(n || 0);
+  profile.gold -= n;
+  if (n > 0 && NET.on && NET.token) NET.txns.push({ kind: 'spend', why, gold: n, xp: 0, items: items || [] });
+  return n;
+}
+// A satchel item arriving by loot, chest or quest: the grant is queued so the
+// server's inventory ledger learns of it — otherwise the clamp, doing its one
+// job, would take back what the vault never heard was given.
+function netLootItem(k, qty = 1) {
+  if (NET.on && NET.token) NET.txns.push({ kind: 'earn', why: 'loot', gold: 0, xp: 0, items: [{ id: k, qty }] });
 }
 /* PROGRESSION — you are one champion (profile.hero) who levels up for good.
    Recruits are AI-controlled allies who fight beside you at your level.
@@ -3040,6 +3283,7 @@ function gainXp(n) {
     profile.xp -= xpToNext(profile.level);
     profile.level++;
   }
+  if (n > 0 && NET.on && NET.token) NET.txns.push({ kind: 'earn', why: 'battle', gold: 0, xp: n });
   return { xp: n, from, to: profile.level };
 }
 
@@ -3093,6 +3337,13 @@ const FX = {
   weaken:   { icon: '📉', label: 'Weakened',  kind: 'bad',  verb: 'is weakened' },
   sunder:   { icon: '🪓', label: 'Sundered',  kind: 'bad',  verb: 'has its armor sundered' },
   slow:     { icon: '🐌', label: 'Slowed',    kind: 'bad',  verb: 'is slowed' },
+  // Slow's mirror. A Hastened champion crosses the speed bar faster (and is a touch harder to hit —
+  // the same effAgi that Slow drags down). Laid on by the supports' tempo skills (Quickstep Drums,
+  // Wind at the Back, Quickened Blood).
+  haste:    { icon: '💨', label: 'Hastened',  kind: 'good', verb: 'is hastened: the bar runs quicker under them' },
+  // Mortessa's Stolen Hours. Leaden cooldowns do not run down — tickCooldowns refuses them — so
+  // whatever an enemy was winding up stays wound. Counted like Slow, on the mark's own turns.
+  leaden:   { icon: '⏳', label: 'Leaden',    kind: 'bad',  verb: 'is leaden: its cooldowns do not run down' },
   blind:    { icon: '🌑', label: 'Blinded',   kind: 'bad',  verb: 'is blinded' },
   soaked:   { icon: '💧', label: 'Soaked',    kind: 'bad',  verb: 'is soaked' },
   // Molotov's scorched-dry ground. Burns off an existing Soaked and refuses the Soaked STATUS while it
@@ -3384,7 +3635,8 @@ const ROSTER = [
              B('Drums of the Horde', 'All allies deal 30% more damage for 2 turns, plus a small heal.', 5, 'allAllies', [['empower', 3]], { heal: 1.0 }),
              B('Bone Charm', 'Clear an ally\'s debuffs. They resist new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { cleanse: true, aiTarget: 'debuffed' }),
              H('Ancestor\'s Balm', 'Heal an ally; they regenerate for 3 turns and resist new debuffs.', 3, 2.0, { fx: [['regen', 3, 0.6], ['immune', 3]] }),
-             B('Totem of Stone', 'Plant a totem: shield all allies until their next turn and give them Thorns.', 4, 'allAllies', [['shield', 1], ['thorns', 2]])],
+             B('Totem of Stone', 'Plant a totem: shield all allies until their next turn and give them Thorns.', 4, 'allAllies', [['shield', 1], ['thorns', 2]]),
+             B('Quickstep Drums', 'The drums change their beat and the warband falls in step: every ally is Hastened for 2 turns, crossing the speed bar far faster.', 5, 'allAllies', [['haste', 3]])],
     passive: P('Ancestral Watch', 'The first time an ally drops below 30% HP, the spirits Ward them for 2 turns.', { guardian: 0.3 }) },
 
   // ---- Kingdom of Aldmere (Human) ----
@@ -3444,7 +3696,8 @@ const ROSTER = [
              H('Prayer of Dawn', 'Heal all allies and restore 25 mana to each.', 5, 2.0, { all: true, manaRestore: 25 }),
              B('Guardian Angel', 'Shield an ally for 2 turns and give them Regen.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
              B('Benediction', 'An ally takes 60% less damage for 2 turns and resists new debuffs.', 4, 'ally', [['ward', 2], ['immune', 3]], { aiTarget: 'lowest' }),
-             D('Censure', '70% holy hit. Never misses. Weakens and Blinds the target for 2 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['blind', 3]] })],
+             D('Censure', '70% holy hit. Never misses. Weakens and Blinds the target for 2 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['blind', 3]] }),
+             B('First Light', 'The dawn comes early for one ally: they surge a quarter of the way up the speed bar, healed a little as the light takes them.', 4, 'ally', [], { surge: 250, heal: 1.2 })],
     passive: P('Mercy', 'Her healing is 30% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.3 } }) },
 
   // ---- Stoneleaf Accord (Elves & Dwarves) ----
@@ -3496,7 +3749,8 @@ const ROSTER = [
              H('Bloom of Spring', 'Heal all allies a little, clear their debuffs and give them Regen.', 5, 1.0, { all: true, cleanse: true, fx: [['regen', 3, 0.6]] }),
              D('Entangle', '70% hit. Roots Slow and Stagger the target.', 3, 0.7, { magic: true, fx: [['slow', 2], ['stagger', 1]], roots: true }),
              B('Barkskin', 'An ally is shielded for 2 turns and takes 60% less damage.', 4, 'ally', [['shield', 2], ['ward', 2]], { aiTarget: 'lowest' }),
-             D('Thornlash', '80% hit. Roots the target: Slowed, and it takes 25% more damage for 2 turns.', 3, 0.8, { magic: true, fx: [['slow', 2], ['exposed', 3]], roots: true })],
+             D('Thornlash', '80% hit. Roots the target: Slowed, and it takes 25% more damage for 2 turns.', 3, 0.8, { magic: true, fx: [['slow', 2], ['exposed', 3]], roots: true }),
+             B('Wind at the Back', 'The wood lends its wind: an ally is Hastened for 3 turns, and any Slow on them is blown away like dead leaves.', 4, 'ally', [['haste', 4]], { shedSlow: true })],
     passive: P('Forest Stride', 'While she stands, all allies move 20% faster on the speed bar.', { haste: 0.2 }),
     passiveAlt: P('Verdant Aura', 'While she stands, all allies regenerate an extra 2% of max HP each turn.', { allyRegen: 0.02 }) },
 
@@ -3614,7 +3868,8 @@ const ROSTER = [
              D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { magic: true, noDodge: true, allySteal: 1 }),
              B('Crimson Mend', `Open a blood channel for 3 turns. At the start of each of her turns it mends every ally — summoned units included — for ${Math.round(CRIMSON_MEND_PCT * 100)}% of their max HP, and costs Morwenna ${Math.round(CRIMSON_MEND_PCT * 100)}% of hers.`, 4, 'self', [['bloodchannel', 3]], { channel: true }),
              D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] }),
-             B('Blood Ward', 'Morwenna spreads her ward over the whole warband. The next 3 blows any ally takes are halved, and she bleeds the other half herself. Blows aimed at her are hers alone.', 4, 'self', [['bloodward', 99]], { charges: 3 })],
+             B('Blood Ward', 'Morwenna spreads her ward over the whole warband. The next 3 blows any ally takes are halved, and she bleeds the other half herself. Blows aimed at her are hers alone.', 4, 'self', [['bloodward', 99]], { charges: 3 }),
+             B('Quickened Blood', 'Her blood runs in an ally\'s veins for a while: Hastened for 2 turns and mended a little.', 4, 'ally', [['haste', 3]], { heal: 1.0, notSelf: true })],
     passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }) },
   // ---- The Pale Host (Undead) ----
   { id: 'mordrek', name: 'Mordrek the Interred', short: 'Mordrek', faction: 'undead', role: 'melee', bio: 'Dug himself out, and brought his own marker with him.',
@@ -3668,7 +3923,8 @@ const ROSTER = [
              R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — the Undying pact holds anew when they next fall — and mending can reach them once more.', 6, 0.10),
              C('Coffin', 'Seal an ally in the coffin for 2 turns, whoever takes them, held safe off the speed bar: nothing can target them and area attacks wash over them for nothing, but no mending reaches inside either. At hero level 5 the lid leaves their curses behind as it opens; at level 10 they step out shielded.', 4),
              B('Hex of Ruin', 'Hex an enemy for 3 turns: all healing they receive is halved.', 3, 'enemy', [['hex', 4]]),
-             D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 })],
+             D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 }),
+             B('Stolen Hours', 'The grave pockets an enemy\'s hours: they are dragged a quarter of the way back down the speed bar and left Leaden for 2 turns — their cooldowns do not run down.', 5, 'enemy', [['leaden', 2]], { dragBack: 250 })],
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
 ];
 
@@ -5818,7 +6074,9 @@ const alive = (u) => u.hp > 0;
 const alliesOf = (u) => state.teams[u.side].filter(alive);
 const foesOf = (u) => state.teams[u.side === 'p' ? 'e' : 'p'].filter(alive);
 const highTide = () => state.round > 0 && state.round % 2 === 0;
-const effAgi = (u) => u.agi * (has(u, 'slow') && !charNat(u).march ? 0.6 : 1);   // Mordrek: nothing holds his march
+// Slow drags Agility to 0.6 of itself; Haste lifts it to 1.4. Both together come out a little
+// under even — mud is mud, however quick the feet. (Mordrek: nothing holds his march.)
+const effAgi = (u) => u.agi * (has(u, 'slow') && !charNat(u).march ? 0.6 : 1) * (has(u, 'haste') ? 1.4 : 1);
 // Speed along the bar: Agility, plus Elowen's Forest Stride for her whole warband (dodge still uses effAgi).
 // The Pale Host shamble: every one of them, summons included, crosses the bar 5% slower.
 const PALE_HOST_PACE = 0.95;
@@ -5906,6 +6164,11 @@ const GENERIC_PASSIVES = {
   hallucinate: P('Hallucinate', 'Enemies that single them out have a 25% chance to lash out at a different target instead — even one of their own.', { hallucinate: 0.25 }),
   finisher:    P('Finisher', 'Deals 15% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.15 } }),
   spikedcloak: P('Spiked Cloak', 'When hit, 20% chance the attacker starts Bleeding.', { onHitTaken: { chance: 0.2, fx: [['bleed', 3, 0.2]] } }),
+  /* The item-tempo passive. Items are a free action already; this makes the turn they are used in
+     CHEAP as well — the champion comes back onto the speed bar three-quarters of the way along
+     instead of at the start (endTurn pays it; useItem notes it). Once every 2 of their turns, or
+     backpacks would become engines. */
+  quickhands:  P('Quick Hands', 'Using an item barely breaks their stride: that turn, they come back onto the speed bar three-quarters of the way along. Their hands need 2 turns to recover.', { quickhand: 0.75 }),
 };
 const GENERIC_KEYS = Object.keys(GENERIC_PASSIVES);
 // A champion may offer more than one alternative own passive: passiveAlt can be a single P or an
@@ -5938,7 +6201,7 @@ const masteredCount = (cid) => TRAINABLE.filter((id) => drillsDone(cid, id) >= t
 function drill(id) {
   const cid = profile.hero?.id;
   if (!cid || !isTrainable(id) || isTrained(cid, id) || profile.gold < trainFee(id)) return null;
-  profile.gold -= trainFee(id);
+  walletSpend(trainFee(id));
   if (!profile.training) profile.training = {};
   const t = (profile.training[cid] = profile.training[cid] || {});
   t[id] = (t[id] || 0) + 1;
@@ -7587,6 +7850,32 @@ async function buffSkill(u, t, sk) {
       log(frozen(a) ? `${u.name} jolts ${a.name}, but they cannot move yet — the charge waits on them.`
                     : `${u.name} jolts ${a.name} to the head of the line: they act next.`, u.side);
     }
+    // A surge part-way up the bar — Jump Start's smaller cousin (First Light). The cap is the bar's end.
+    if (o.surge && a.hp > 0) {
+      a.pos = Math.min(TRACK, (a.pos || 0) + o.surge);
+      burst(a, 'roar');
+      float(a, 'Surge', 'fx');
+      renderTrack(300);
+    }
+    // Dragged back DOWN the bar (Stolen Hours). The same feet that refuse a knockback refuse this:
+    // Dug In and The Slow March do not give an inch.
+    if (o.dragBack && a.hp > 0) {
+      if (charNat(a).anchor || charNat(a).march) {
+        float(a, 'Unmoved', 'fx');
+        log(`${a.name} does not give an inch.`, a.side);
+      } else {
+        a.pos = Math.max(0, (a.pos || 0) - o.dragBack);
+        a.recoil = true;
+        float(a, 'Dragged back', 'fx');
+        log(`${a.name} is dragged back along the speed bar.`, u.side);
+        renderTrack(300);
+      }
+    }
+    // Wind at the Back: whatever Slow clings to them is blown away like leaves.
+    if (o.shedSlow) {
+      const sl = has(a, 'slow');
+      if (sl) { a.effects = a.effects.filter((e) => e !== sl); float(a, '🐌 Shed', 'fx'); }
+    }
     if (o.reduceCd) for (const k in a.cooldowns) a.cooldowns[k] = Math.max(0, a.cooldowns[k] - 1);
     if (o.heal) healUnit(u, a, healPower(u, o.heal), sk.name);
   }
@@ -7826,6 +8115,7 @@ async function beginTurn(u) {
   if (u.race === 'elf') { if (!u.hitSince) u.stacks = Math.min(stackCap(u), u.stacks + 1); u.hitSince = false; }
   if (u.faction === 'stone' && wx() === 'mist') u.stacks = Math.min(stackCap(u), u.stacks + 1);
 
+  if (u.quickCd > 0) u.quickCd--;   // Quick Hands recovers: ready again once this reaches 0
   /* Durations and cooldowns tick down at the owner's turn-start. Rev-counted effects (BASH, FEAR,
      the coffin) are skipped here — they count the field's global clock in turnPulse instead, and
      both BASH and the coffin hold the unit off the bar so it never reaches this point while sealed. */
@@ -8148,6 +8438,8 @@ function cdText(cd) {
 // Run every cooldown down by `turns` (a fraction of one), and let nothing sit on a hair above zero.
 function tickCooldowns(u, turns) {
   if (!(turns > 0) || !u.cooldowns) return;
+  if (has(u, 'leaden')) return;   // Stolen Hours: the grave pockets them — nothing winds down
+
   for (const k in u.cooldowns) {
     if (u.cooldowns[k] <= 0) continue;
     u.cooldowns[k] = Math.max(0, u.cooldowns[k] - turns);
@@ -9446,9 +9738,17 @@ async function nextTurn() {
   }
 }
 
-// After acting, the unit's icon goes back to the start of the speed bar.
+// After acting, the unit's icon goes back to the start of the speed bar — unless Quick Hands is
+// owed: a champion who used an item this turn comes back three-quarters of the way along instead.
 function endTurn(u) {
-  u.pos = 0;
+  if (u.quickHand) {
+    u.quickHand = false;
+    u.pos = TRACK * (pv(u).quickhand || 0.75);
+    float(u, 'Quick Hands', 'fx');
+    log(`${u.name}'s hands never stopped: they come back onto the bar three-quarters along.`, u.side);
+  } else {
+    u.pos = 0;
+  }
   renderTrack(350);
 }
 
@@ -9549,6 +9849,13 @@ async function useItem(u, key, t) {
   // A reusable piece stays packed and is simply marked wound for this fight; everything else is spent.
   if (it.reusable) (state.reusedItems ||= {})[`${u.id}:${key}`] = true;
   else packTake(u.id, key);   // out of the user's own backpack (see BACKPACKS)
+  // Quick Hands (generic passive): the practiced hand barely breaks stride. Noted here, PAID at
+  // endTurn — that is where the bar resets, and the discount is on the whole turn, not the item.
+  if (pv(u).quickhand && !(u.quickCd > 0)) {
+    u.quickHand = true;
+    u.quickCd = 2;
+    float(u, '⚡ Quick Hands', 'fx');
+  }
   saveProfile();
   log(`${u.name} uses a ${it.name}.`, u.side);
   for (const t of questEvent('item', { key })) log(t, 'sys');
@@ -9823,7 +10130,7 @@ function endHunt(won) {
     // A won hunt sometimes turns up a Chipped gem stone among the pack's leavings.
     if (Math.random() < HUNT_STONE_CHANCE) { const sid = rollStone(1); addStone(sid); state.stoneNews.push(stoneName(sid)); }
     state.goldWon = guildGold(HUNT_GOLD_BASE + HUNT_GOLD_PER * state.teams.e.length);
-    profile.gold += state.goldWon;
+    walletEarn(state.goldWon, 'hunt');
     profile.stats.earned += state.goldWon; profile.stats.wins++;
     const xp = Math.round(state.teams.e.reduce((s, u) => s + MONSTERS[u.id].xp, 0) * (1 + 0.1 * (lv - 1)));
     state.reward = payXp(xp);
@@ -10105,7 +10412,7 @@ function startDuel(i) {
   const d = state.duels[i];
   if (!profile.hero || state.team.length !== TEAM_SIZE) { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (!d || state.runPending || profile.gold < d.stake) return;
-  profile.gold -= d.stake;
+  walletSpend(d.stake);
   saveProfile();
   state.mode = 'duel';
   state.duel = { ...d, lv: Math.max(1, heroLevel() + d.lvOff) };
@@ -10121,7 +10428,7 @@ function endDuel(won) {
   if (won) {
     state.phase = 'won';
     state.goldWon = guildGold(d.pay);
-    profile.gold += state.goldWon;
+    walletEarn(state.goldWon, 'duel');
     profile.stats.earned += state.goldWon; profile.stats.wins++;
     profile.stats.duelWins = (profile.stats.duelWins || 0) + 1;
     const xp = Math.round(d.xp * (1 + 0.08 * (d.lv - 1)));
@@ -10315,8 +10622,8 @@ function chestLoot(d) {
   }
   for (let i = 0; i < d.chest.items; i++) {
     const k = pick(LOOT_ITEMS);
-    if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; got.push(`${ITEMS[k].name} (satchel)`); }
-    else if ((profile.stash.items[k] || 0) < stashCap()) { profile.stash.items[k] = (profile.stash.items[k] || 0) + 1; got.push(`${ITEMS[k].name} (stash)`); }
+    if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; netLootItem(k); got.push(`${ITEMS[k].name} (satchel)`); }
+    else if ((profile.stash.items[k] || 0) < stashCap()) { profile.stash.items[k] = (profile.stash.items[k] || 0) + 1; netLootItem(k); got.push(`${ITEMS[k].name} (stash)`); }
     else { extraGold += ITEMS[k].price; got.push(`${ITEMS[k].price} gold instead of a ${ITEMS[k].name}`); }
   }
   return { got, extraGold };
@@ -10355,7 +10662,7 @@ function endDungeonRoom(won) {
       state.dg.done = true;
       news.push(...questEvent('dungeon', { id: d.id, cleared: true, rooms: dgRooms() }));
     }
-    profile.gold += state.goldWon;
+    walletEarn(state.goldWon, 'hunt');
     profile.stats.earned += state.goldWon; profile.stats.wins++;
   } else {
     state.phase = 'lost';
@@ -10585,10 +10892,10 @@ function expTreasure(ch) {
   if (!s.looted.has(s.current)) {
     s.looted.add(s.current);
     const g = ch.chest?.gold || 0, got = [];
-    if (g) { profile.gold += g; s.gold += g; profile.stats.earned += g; }
+    if (g) { walletEarn(g, 'exp'); s.gold += g; profile.stats.earned += g; }
     for (let i = 0; i < (ch.chest?.items || 0); i++) {
       const k = pick(LOOT_ITEMS);
-      if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; got.push(ITEMS[k].name); }
+      if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; netLootItem(k); got.push(ITEMS[k].name); }
     }
     saveProfile();
     s.lastLoot = { gold: g, items: got };
@@ -10915,7 +11222,7 @@ async function expResolveCombat(won) {
     prepGranted = expGrantPrep(s.current);
     s.cleared.add(s.current);
     s.bossInFight = false;
-    profile.gold += state.goldWon; profile.stats.earned += state.goldWon; profile.stats.wins++;
+    walletEarn(state.goldWon, 'exp'); profile.stats.earned += state.goldWon; profile.stats.wins++;
     // The vault only learns from a warband that walks out of it alive (THE DESCENT): the clear
     // is banked here, where the boss is actually dead, and nowhere else.
     if (bossKilled) {
@@ -10956,8 +11263,8 @@ function expMinorDrop(n) {
     expRuneOffer('casket');   // §7.1.1 the drop half of the two rune selections
   } else {
     const g = 80, k = pick(LOOT_ITEMS);
-    profile.gold += g; s.gold += g; profile.stats.earned += g;
-    if ((profile.items[k] || 0) < SATCHEL_MAX) profile.items[k] = (profile.items[k] || 0) + 1;
+    walletEarn(g, 'exp'); s.gold += g; profile.stats.earned += g;
+    if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; netLootItem(k); }
     log(`The minor boss falls and drops loot: +${g} gold and a ${ITEMS[k].name}.`, 'sys');
   }
 }
@@ -11488,7 +11795,7 @@ async function endBattle(won) {
     const cleared = state.battle === state.order.length - 1;
     // Gold: more for every battle deeper into the gauntlet, plus a bonus for clearing it.
     state.goldWon = guildGold(battleGold(state.battle) + (cleared ? CLEAR_BONUS : 0));
-    profile.gold += state.goldWon;
+    walletEarn(state.goldWon, 'battle');
     const s = profile.stats;
     s.earned += state.goldWon; s.wins++; s.best = Math.max(s.best, state.battle + 1);
     state.phase = cleared ? 'cleared' : 'won';
@@ -11652,7 +11959,7 @@ const shopNeedsHero = () => (profile.hero ? '' : `<p class="note">The shopkeeper
 function forgeUp(slot) {
   const id = forgeHero(), g = { ...gearRaw(id) }, t = g[slot] || 0, cost = FORGE_COST[t];
   if (t >= FORGE_MAX || profile.gold < cost) return false;
-  profile.gold -= cost;
+  walletSpend(cost);
   g[slot] = t + 1;
   profile.gear[id] = g;
   saveProfile();
@@ -11770,7 +12077,7 @@ const fmtWait = (ms) => { const m = Math.ceil(ms / 60000), h = Math.floor(m / 60
 
 function buyTome() {
   if (!tomeInStock() || profile.gold < TOME.price) return false;
-  profile.gold -= TOME.price;
+  walletSpend(TOME.price);
   profile.tomes = (profile.tomes || 0) + 1;
   profile.tomeBought = Date.now();
   saveProfile();
@@ -11806,7 +12113,7 @@ function tomeHTML(where) {
 function buyItem(key) {
   const it = ITEMS[key], n = profile.items[key] || 0, m = profile.stash.items[key] || 0;
   if ((n >= SATCHEL_MAX && m >= stashCap()) || profile.gold < it.price) return false;
-  profile.gold -= it.price;
+  walletSpend(it.price, 'item:' + key, [{ id: key, qty: 1 }]);
   if (n < SATCHEL_MAX) profile.items[key] = n + 1;
   else profile.stash.items[key] = m + 1;
   saveProfile();
@@ -11856,7 +12163,7 @@ const petPerk = (id) => (id && id === profile.hero?.id && PETS[profile.pets?.act
 function adoptPet(k) {
   const p = PETS[k], pets = profile.pets;
   if (!p || pets.owned.includes(k) || profile.gold < p.price) return false;
-  profile.gold -= p.price;
+  walletSpend(p.price);
   pets.owned.push(k);
   pets.active = k;   // a new pet comes straight along with you
   saveProfile();
@@ -11925,7 +12232,7 @@ const DECOR_ICON = {
 function buyDecor(k) {
   const d = DECOR[k];
   if (!d || ownsDecor(k) || profile.gold < d.price) return false;
-  profile.gold -= d.price;
+  walletSpend(d.price);
   profile.home.push(k);
   saveProfile();
   return true;
@@ -11981,7 +12288,7 @@ const gameById = (id) => CARNIVAL_GAMES.find((g) => g.id === id);
 function startBooth(id) {
   const g = gameById(id);
   if (!g?.play || state.booth || profile.gold < (g.cost || 0)) return false;
-  profile.gold -= g.cost || 0;
+  walletSpend(g.cost || 0);
   profile.carnival.plays++;
   saveProfile();
   state.booth = id;
@@ -11997,7 +12304,7 @@ function runBooth() {
     if (over || state.booth !== g.id) return;   // only the first finish() counts, and only if you're still at the booth
     over = true;
     const prize = clamp(Math.round(coins) || 0, 0, g.maxPrize ?? Infinity);
-    profile.gold += prize;
+    walletEarn(prize, 'carnival');
     profile.carnival.won += prize;
     profile.stats.earned += prize;
     saveProfile();
@@ -12089,7 +12396,7 @@ function claimBounty(i) {
   if (!b?.done || b.claimed) return false;
   b.claimed = true;
   const pay = guildBountyGold(b.gold);   // the Oathbound take a bigger cut
-  profile.gold += pay;
+  walletEarn(pay, 'bounty');
   profile.stats.earned += pay;
   saveProfile();
   return true;
@@ -12098,7 +12405,7 @@ function claimBounty(i) {
 function rerollBounties() {
   const cost = guildPct('bounty') ? 0 : BOUNTY_REROLL;   // the Oathbound get fresh postings for free
   if (profile.gold < cost) return false;
-  profile.gold -= cost;
+  walletSpend(cost);
   postBounties();
   return true;
 }
@@ -12150,7 +12457,7 @@ function joinGuild(id) {
   if (!GUILDS[id] || profile.guild?.id === id) return false;
   const first = !profile.guild?.id;
   if (!first && profile.gold < GUILD_SWITCH_COST) return false;
-  if (!first) profile.gold -= GUILD_SWITCH_COST;
+  if (!first) walletSpend(GUILD_SWITCH_COST);
   profile.guild = { id, favor: { ...(profile.guild?.favor || {}) } };
   saveProfile();
   return true;
@@ -12195,7 +12502,7 @@ const trinketRefund = (k) => Math.floor(TRINKETS[k].price / 2);
 function buyTrinket(k) {
   const id = forgeHero(), g = { ...gearRaw(id) }, cost = TRINKETS[k]?.price;
   if (!TRINKETS[k] || g.t === k || (TRINKETS[k].mana && !hasMana(id)) || profile.gold < cost) return false;
-  profile.gold -= cost;
+  walletSpend(cost);
   if (g.t) profile.stash.trinkets[g.t] = (profile.stash.trinkets[g.t] || 0) + 1;
   g.t = k;
   profile.gear[id] = g;
@@ -12206,7 +12513,7 @@ function buyTrinket(k) {
 function sellTrinket() {
   const id = forgeHero(), g = { ...gearRaw(id) };
   if (!g.t) return false;
-  profile.gold += trinketRefund(g.t);
+  walletEarn(trinketRefund(g.t), 'refund');
   delete g.t;
   profile.gear[id] = g;
   saveProfile();
@@ -12260,7 +12567,16 @@ const ARMORY = {
                   flavor: 'Road-worn at one end and capped at the other. It has walked further than you have.',
                   bonus: { atkPct: 0.12, mpRegen: 4, hpRegen: 3 } },
 
-  // Ironclad Union — pistons and repeating mechanisms: the machines swing again.
+  // Ironclad Union — pistons and repeating mechanisms: the machines swing again. The Union keeps
+  // its own budget tier (the common rack is cut for flesh, and fitsWeapon turns machines away):
+  // the Loading Arm and Tack Driver stand where the Road Cudgel and Pitted Shortbow stand for
+  // everyone else, at the same prices and the same weight of stats, flavored to the machine.
+  loadarm:      { name: 'Loading Arm', faction: 'mech', look: 'fist', price: 90,
+                  flavor: 'Thirty years lifting crates at the freight dock. It is not fussy about what it closes on now.',
+                  bonus: { atkPct: 0.04 } },
+  tackdriver:   { name: 'Tack Driver', faction: 'mech', look: 'gun', price: 120,
+                  flavor: 'A workshop nailer rechambered for the field. It has seated ten thousand rivets and minds the change of work not at all.',
+                  bonus: { atkPct: 0.04, double: 0.04 } },
   pistonmaul:   { name: 'Piston Maul', faction: 'mech', look: 'hammer', price: 110,
                   flavor: 'A sledge with a steam ram in the shaft. It rebounds before you do.',
                   bonus: { atkPct: 0.05, double: 0.09 } },
@@ -12406,9 +12722,21 @@ const ARMORY_KEYS = Object.keys(ARMORY);
 const wepOf = (id) => ARMORY[gearRaw(id).wp] || null;
 // Faction work is wielded only by its own faction; Free Company work by anyone.
 // Same shape as fitsKit on the armor stand, so both racks refuse a sale the same way.
+/* THE ROLE CUT: which looks are swung and which are loosed. A champion wields only their role's
+   class — melee swing steel, ranged and support loose and cast from the back line — except the
+   look they were DRAWN with, which is always theirs: Vashka throws her spears, Patchwork was
+   built around her spanner, Mortessa carries the coffin wherever she goes. */
+const MELEE_LOOKS = ['sword', 'axe', 'hammer', 'dagger', 'rapier', 'fist', 'saw', 'wrench', 'spear', 'trident', 'headstone', 'cross', 'coffin', 'gravefence'];
 const fitsWeapon = (k, id) => {
   const w = ARMORY[k], c = charById(id);
-  return !!w && !!c && (w.faction === 'all' || w.faction === c.faction);
+  if (!w || !c) return false;
+  // The Free Company's rack serves anyone with hands of flesh — but not the Ironclad. A machine
+  // takes nothing cut for flesh and leather: wooden grips split on a piston's close, a jerkin has
+  // no hull to sit on. The Union makes its own budget work instead (Loading Arm, Tack Driver).
+  if (!(w.faction === c.faction || (w.faction === 'all' && c.faction !== 'mech'))) return false;
+  if (!c.look.weapon) return false;            // drawn with no weapon at all (the Gorehound): no hands to rack one
+  if (w.look === c.look.weapon) return true;   // the weapon they were drawn with is always theirs
+  return c.role === 'melee' ? MELEE_LOOKS.includes(w.look) : !MELEE_LOOKS.includes(w.look);
 };
 // What gearOf folds into the unit. A weapon a champion cannot wield gives nothing, so a save
 // that still holds one off-faction gets no use out of it before rackIllegalWeapons sweeps it.
@@ -12491,7 +12819,7 @@ const rollStone = (g = 1) => stoneId(pick(STONE_KINDS), g);
 function fuseStones(id) {
   const [k, g] = stoneParts(id), cost = FUSE_COST[g - 1];
   if (!STONES[k] || g >= 3 || stonesHeld(id) < 3 || profile.gold < cost) return null;
-  profile.gold -= cost;
+  walletSpend(cost);
   profile.stash.stones[id] -= 3;
   if (!profile.stash.stones[id]) delete profile.stash.stones[id];
   const up = stoneId(k, g + 1);
@@ -12501,7 +12829,7 @@ function fuseStones(id) {
 }
 function buyStone(k) {
   if (!STONES[k] || profile.gold < STONE_PRICE) return false;
-  profile.gold -= STONE_PRICE;
+  walletSpend(STONE_PRICE);
   addStone(stoneId(k, 1));
   saveProfile();
   return true;
@@ -12541,11 +12869,22 @@ function rackIllegalWeapons() {
   let moved = 0;
   for (const id in profile.gear) {
     const g = profile.gear[id];
-    if (!g.wp || fitsWeapon(g.wp, id)) continue;
-    profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
-    popStones(g, 'wp');   // otherwise they would carry over to the next weapon as free stats
-    delete g.wp;
-    moved++;
+    if (g.wp && !fitsWeapon(g.wp, id)) {
+      profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
+      popStones(g, 'wp');   // otherwise they would carry over to the next weapon as free stats
+      delete g.wp;
+      moved++;
+    }
+    // Worn kit the same way. Nothing could rack an ill-fitting piece until the Ironclad were
+    // turned away from the common rack — but saves from before that carry Free Company kit on
+    // machines, and socketBonus pays a socketed stone with no questions asked, so the piece has
+    // to come off and popStones with it.
+    if (g.eq && !fitsKit(g.eq, id)) {
+      profile.stash.equipment[g.eq] = (profile.stash.equipment[g.eq] || 0) + 1;
+      popStones(g, 'eq');
+      delete g.eq;
+      moved++;
+    }
   }
   if (moved) saveProfile();
 }
@@ -12554,7 +12893,7 @@ function rackIllegalWeapons() {
 function buyWeapon(k) {
   const id = forgeHero(), g = { ...gearRaw(id) }, cost = ARMORY[k]?.price;
   if (!fitsWeapon(k, id) || g.wp === k || profile.gold < cost) return false;
-  profile.gold -= cost;
+  walletSpend(cost);
   if (g.wp) profile.stash.weapons[g.wp] = (profile.stash.weapons[g.wp] || 0) + 1;
   popStones(g, 'wp');   // the old weapon's gems come home rather than leaving with it
   g.wp = k;
@@ -12566,7 +12905,7 @@ function buyWeapon(k) {
 function sellWeapon() {
   const id = forgeHero(), g = { ...gearRaw(id) };
   if (!g.wp) return false;
-  profile.gold += wepRefund(g.wp);
+  walletEarn(wepRefund(g.wp), 'refund');
   popStones(g, 'wp');
   delete g.wp;
   profile.gear[id] = g;
@@ -12698,7 +13037,11 @@ const EQUIPMENT = {
                  flavor: 'Plate scraps, mail scraps and rope. Brann calls it honest work.',
                  bonus: { blockPhys: 0.03, blockMagic: 0.03, hpPct: 0.05 } },
 
-  // Ironclad Union - a boiler wants plating, and lead cloth to keep the spellfire off it.
+  // Ironclad Union - a boiler wants plating, and lead cloth to keep the spellfire off it. The
+  // budget piece stands in for the Free Company Jerkin the machines are turned away from (fitsKit).
+  scrapplate:  { name: 'Scrapyard Plating', faction: 'mech', look: 'plate', price: 90,
+                 flavor: 'Off-cuts tacked over the boiler in a weekend. Rust holds it together as much as the welds do.',
+                 bonus: { blockPhys: 0.02 } },
   boilerplate: { name: 'Riveted Boiler Plate', faction: 'mech', look: 'plate', price: 150,
                  flavor: 'Second skin for a steam hull. The rivets are the strong part.',
                  bonus: { blockPhys: 0.04, hpPct: 0.05 } },
@@ -12761,7 +13104,9 @@ const kitOf = (id) => EQUIPMENT[gearRaw(id).eq] || null;
 // Faction kit fits only its own faction; Free Company kit fits anyone.
 const fitsKit = (k, id) => {
   const e = EQUIPMENT[k], c = charById(id);
-  return !!e && !!c && (e.faction === 'all' || e.faction === c.faction);
+  // Same wall as fitsWeapon: common kit is cut for flesh, and a steam hull wears none of it.
+  // The Union plates its own (Scrapyard Plating is the budget piece).
+  return !!e && !!c && (e.faction === c.faction || (e.faction === 'all' && c.faction !== 'mech'));
 };
 // What gearOf folds into the unit. A piece a champion cannot wear gives nothing, so no
 // save can smuggle another faction's kit into battle.
@@ -12775,7 +13120,7 @@ const kitRefund = (k) => Math.floor(EQUIPMENT[k].price / 2);
 function buyKit(k) {
   const id = forgeHero(), g = { ...gearRaw(id) }, cost = EQUIPMENT[k]?.price;
   if (!fitsKit(k, id) || g.eq === k || profile.gold < cost) return false;
-  profile.gold -= cost;
+  walletSpend(cost);
   if (g.eq) profile.stash.equipment[g.eq] = (profile.stash.equipment[g.eq] || 0) + 1;
   popStones(g, 'eq');
   g.eq = k;
@@ -12787,7 +13132,7 @@ function buyKit(k) {
 function sellKit() {
   const id = forgeHero(), g = { ...gearRaw(id) };
   if (!g.eq) return false;
-  profile.gold += kitRefund(g.eq);
+  walletEarn(kitRefund(g.eq), 'refund');
   popStones(g, 'eq');
   delete g.eq;
   profile.gear[id] = g;
@@ -12971,7 +13316,7 @@ function priseStone(id, slot, i) {
   if (!sid) return false;
   const fee = priseFee(sid);
   if (profile.gold < fee) return false;
-  profile.gold -= fee;
+  walletSpend(fee);
   stones[i] = null;
   profile.gear[id] = { ...gearRaw(id), [SOCKET_SLOTS[slot].stones]: stones };
   addStone(sid);   // saves the profile
@@ -14051,11 +14396,11 @@ function claimQuest(id) {
   if (q.item) {
     const n = profile.items[q.item] || 0;
     const m = profile.stash.items[q.item] || 0;
-    if (n < SATCHEL_MAX) { profile.items[q.item] = n + 1; got.push(`a ${ITEMS[q.item].name}`); }
-    else if (m < stashCap()) { profile.stash.items[q.item] = m + 1; got.push(`a ${ITEMS[q.item].name} (sent to your stash)`); }
+    if (n < SATCHEL_MAX) { profile.items[q.item] = n + 1; netLootItem(q.item); got.push(`a ${ITEMS[q.item].name}`); }
+    else if (m < stashCap()) { profile.stash.items[q.item] = m + 1; netLootItem(q.item); got.push(`a ${ITEMS[q.item].name} (sent to your stash)`); }
     else gold += ITEMS[q.item].price;
   }
-  profile.gold += gold;
+  walletEarn(gold, 'quest');
   profile.stats.earned += gold;
   saveProfile();
   return [gold ? `+${gold} gold` : '', ...got].filter(Boolean).join(' and ');
@@ -14989,8 +15334,26 @@ function inventoryHTML(close) {
     const def = kind === 'gem' ? { name: stoneName(key), bonus: stoneBonus(key) } : { wp: ARMORY, eq: EQUIPMENT, t: TRINKETS, item: ITEMS }[kind]?.[key];
     if (def) {
       const lines = def.bonus && wepLines(def.bonus).length ? wepLines(def.bonus) : [def.desc];
-      const why = kind === 'wp' && !fitsWeapon(key, cid) ? `${FACTIONS[def.faction]?.name || 'Another faction'} work: ${name} can't wield it. A faction's own work can only be handed to its own champions.`
-        : kind === 'eq' && !fitsKit(key, cid) ? `Cut for ${FACTIONS[def.faction]?.name || 'another faction'}: ${name} can't wear it.`
+      // A weapon can be refused for three reasons, told apart in fitsWeapon's own order: no hands
+      // to hold one (the Gorehound), the faction wall (with the machine's own line for Free
+      // Company work), or the role cut — swung steel against the back line and loosed work
+      // against the front.
+      const whyWp = () => {
+        const c = charById(cid);
+        if (!c?.look.weapon) return `Nothing for a hound to hold — ${name} fights with what the pit gave it.`;
+        if (!(def.faction === c.faction || (def.faction === 'all' && c.faction !== 'mech'))) {
+          return def.faction === 'all'
+            ? `Free Company work, cut for hands of flesh: ${name} takes only Union-made arms.`
+            : `${FACTIONS[def.faction]?.name || 'Another faction'} work: ${name} can't wield it. A faction's own work can only be handed to its own champions.`;
+        }
+        return MELEE_LOOKS.includes(def.look)
+          ? `Swung steel: the ${def.name} is front-line work, and ${name} fights from the back.`
+          : `Loosed, not swung: the ${def.name} is back-line work, and ${name} holds the front.`;
+      };
+      const why = kind === 'wp' && !fitsWeapon(key, cid) ? whyWp()
+        : kind === 'eq' && !fitsKit(key, cid) ? (def.faction === 'all'
+          ? `Cut for flesh and leather: ${name} plates itself in Union work only.`
+          : `Cut for ${FACTIONS[def.faction]?.name || 'another faction'}: ${name} can't wear it.`)
         : kind === 't' && def.mana && !hasMana(cid) ? `${name} has no mana, so this does nothing for them.` : '';
       const act = where === 'slot' ? `<button class="btn small" type="button" data-k="iunq:${kind}">Put back in the bag</button>`
         : where === 'loot' ? '<span class="note">Used in battle from your satchel.</span>'
@@ -18823,7 +19186,7 @@ function start(data) {
   // Your warband comes from your saved champion and recruits. A new player starts by creating a champion.
   syncTeam();
   grandfatherTraining();   // saves from before the yard opened keep the techniques they already carry
-  rackIllegalWeapons();    // saves from before weapons were faction-cut hand back what no longer fits
+  rackIllegalWeapons();    // saves from before the faction cuts (and the Ironclad's flesh-kit wall) hand back what no longer fits
   fillNewSlots(heroLevel());   // saves from before six-and-two slots fill the ones that are now open
   seedPacks();   // saves from before backpacks: your champion packs what the satchel held
   if (!profile.hero) { state.team = []; state.screen = 'select'; }
@@ -18833,5 +19196,11 @@ function start(data) {
 // ended — the module-scoped `state` itself is not reachable across frames. Closes over the live `state`.
 window.simPhase = () => { try { return state && state.screen === 'battle' ? state.phase : null; } catch (e) { return null; } };
 try { window.claude?.hot?.snapshot?.(() => ({ state })); } catch (err) { /* not in a viewer */ }
-window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+// Online mode fetches (or seeds) the server profile BEFORE the game builds its
+// screens, so everything that reads `profile` sees the account, not the cache.
+// `launch` must stay clear of the hot?.ready token: the headless harness slices
+// the script at that token's first appearance, which has to remain the last line.
+const netReady = NET.on ? netBoot() : Promise.resolve();
+const launch = (data) => netReady.finally(() => start(data));
+window.claude?.hot?.ready ? window.claude.hot.ready(launch) : launch(window.claude?.hot?.data ?? {});
 </script>

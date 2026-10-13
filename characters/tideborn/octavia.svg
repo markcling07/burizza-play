@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Octavia Inkveil (ranged) - Ashfall Road art v2. Octopus-folk ink caster.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="71,50.3">
   <defs>
     <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8a0d6"/><stop offset=".5" stop-color="#9b6aa8"/><stop offset="1" stop-color="#673f76"/></linearGradient>
     <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#875a99"/><stop offset="1" stop-color="#543163"/></linearGradient>
@@ -13,7 +13,7 @@
   </defs>
   <ellipse cx="50" cy="94" rx="25" ry="3.6" fill="#000" opacity=".35"/>
   <!-- ink glow -->
-  <circle cx="78.5" cy="49" r="12.5" fill="#a48cf0" opacity=".6" filter="url(#glow)"/>
+  <circle class="wpn" cx="78.5" cy="49" r="12.5" fill="#a48cf0" opacity=".6" filter="url(#glow)"/>
   <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- tentacle feet -->
     <path d="M47 86 Q43 93.5 35 93.5 Q30 93.5 30.5 89.5 Q31 87.5 33 88.5 Q32.5 91 35.5 91 Q40.5 90.5 42 85 Z" fill="url(#skinD)"/>
@@ -47,17 +47,17 @@
     <path d="M66.2 45.6 L70 47 L68.5 53 L64.8 52.2 Z" fill="url(#gold)"/>
     <circle cx="71" cy="50.3" r="2.8" fill="url(#skin)"/>
     <!-- ink orb -->
-    <circle cx="78.5" cy="49" r="6.5" fill="url(#ink)"/>
+    <circle class="wpn" cx="78.5" cy="49" r="6.5" fill="url(#ink)"/>
   </g>
   <!-- orb rim + swirl -->
-  <circle cx="78.5" cy="49" r="5.1" fill="none" stroke="#c4b0ff" stroke-width="1" opacity=".85"/>
-  <path d="M76 49.5 Q76 46 79 46 Q82 46.5 81.5 49.5 Q81 52 78.5 51.5 Q77 51 77.6 49.5" stroke="#e2d8ff" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <circle class="wpn" cx="78.5" cy="49" r="5.1" fill="none" stroke="#c4b0ff" stroke-width="1" opacity=".85"/>
+  <path class="wpn" d="M76 49.5 Q76 46 79 46 Q82 46.5 81.5 49.5 Q81 52 78.5 51.5 Q77 51 77.6 49.5" stroke="#e2d8ff" stroke-width="1.2" fill="none" stroke-linecap="round"/>
   <!-- swirling ink -->
-  <path d="M70 40 Q77 36 84.5 41" stroke="#c4b0ff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".8"/>
-  <path d="M70 40 Q77 36 84.5 41" stroke="#3b2f63" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <path d="M87 52 Q86 59 78 60" stroke="#c4b0ff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".8"/>
-  <path d="M87 52 Q86 59 78 60" stroke="#3b2f63" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <g fill="#5a4a8a" stroke="#c4b0ff" stroke-width=".8">
+  <path class="wpn" d="M70 40 Q77 36 84.5 41" stroke="#c4b0ff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path class="wpn" d="M70 40 Q77 36 84.5 41" stroke="#3b2f63" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M87 52 Q86 59 78 60" stroke="#c4b0ff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path class="wpn" d="M87 52 Q86 59 78 60" stroke="#3b2f63" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <g class="wpn" fill="#5a4a8a" stroke="#c4b0ff" stroke-width=".8">
     <path d="M89 42 q-1.8 2.8 0 3.9 q1.8 -1.1 0 -3.9 z"/>
     <path d="M74 61 q-1.5 2.4 0 3.3 q1.5 -.9 0 -3.3 z"/>
     <circle cx="91" cy="49" r="1.1"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Seraphine Wavecaller (ranged) - Ashfall Road art v2. Siren whose song drowns sailors.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="69.5,47.3">
   <defs>
     <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cdeee8"/><stop offset=".5" stop-color="#9fd0c8"/><stop offset="1" stop-color="#6da59c"/></linearGradient>
     <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86b9b1"/><stop offset="1" stop-color="#55877f"/></linearGradient>
@@ -13,7 +13,7 @@
   </defs>
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
   <!-- song glow -->
-  <circle cx="77" cy="45" r="12" fill="#f2c6d8" opacity=".65" filter="url(#glow)"/>
+  <circle class="wpn" cx="77" cy="45" r="12" fill="#f2c6d8" opacity=".65" filter="url(#glow)"/>
   <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- long flowing hair -->
     <path d="M45 21 Q33 26 35 42 Q34 54 26 64 Q37 66 43 57 Q47 49 47 40 L52 26 Z" fill="url(#hair)"/>
@@ -34,7 +34,7 @@
     <path d="M55 45 Q62 43 69 44.5 L68.5 50 Q61 50 56 52 Z" fill="url(#skin)"/>
     <circle cx="69.5" cy="47.3" r="2.8" fill="url(#skin)"/>
     <!-- siren orb -->
-    <circle cx="77.5" cy="45" r="6.2" fill="url(#orb)"/>
+    <circle class="wpn" cx="77.5" cy="45" r="6.2" fill="url(#orb)"/>
   </g>
   <!-- fin ribs, gown details -->
   <path d="M46 30 L39 25 M46 31.5 L37 31 M46 33 L38.5 36" stroke="#b6ae9a" stroke-width=".9" fill="none" stroke-linecap="round"/>
@@ -52,9 +52,9 @@
   <!-- highlights -->
   <path d="M44.5 23.5 Q47 20 52 19.6" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
   <path d="M42 51 Q42.5 47.5 45 46.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
-  <circle cx="75.6" cy="43" r="1.5" fill="#fff" opacity=".9"/>
+  <circle class="wpn" cx="75.6" cy="43" r="1.5" fill="#fff" opacity=".9"/>
   <!-- song ripples + notes -->
-  <path d="M86.5 37 Q90.5 45 86.5 53 M91 33 Q97 45 91 57" stroke="#f2c6d8" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path class="wpn" d="M86.5 37 Q90.5 45 86.5 53 M91 33 Q97 45 91 57" stroke="#f2c6d8" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".9"/>
   <path d="M63.5 32 q2 3 0 6 M66.3 30.5 q3 4.5 0 9" stroke="#f2c6d8" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/>
   <g fill="#f2c6d8" stroke="#15121d" stroke-width=".8" stroke-linejoin="round">
     <ellipse cx="70" cy="24" rx="2.2" ry="1.6" transform="rotate(-20 70 24)"/>

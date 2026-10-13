@@ -1989,7 +1989,7 @@ CATALOG = {
     'common': ('Everyone', [('Attack', 'All champions', 'skill'), ('Guard', 'All champions', 'skill'),
         ('Provoke', 'Neutral skill', 'neutral'), ('Dispel', 'Neutral skill', 'neutral'),
         ('Toughness', 'Any champion', 'passive'), ('Might', 'Any champion', 'passive'), ('Swiftness', 'Any champion', 'passive'),
-        ('Keen Edge', 'Any champion', 'passive'), ('Deep Well', 'Any champion', 'passive'), ('Second Wind', 'Any champion', 'passive')]),
+        ('Keen Edge', 'Any champion', 'passive'), ('Deep Well', 'Any champion', 'passive'), ('Second Wind', 'Any champion', 'passive'), ('Quick Hands', 'Any champion', 'passive')]),
     'mech': ('Ironclad Union', [
         ('Jump Start', 'Arclight', 'skill'),
         ('Built to Hold', 'Bulwark-7 · Nature', 'passive'), ('Flywheel', 'Sawtooth · Nature', 'passive'),
@@ -2012,7 +2012,7 @@ CATALOG = {
         ('Skull Rattler', 'Mogra Ironhide', 'skill'), ('Ground Pound', 'Mogra Ironhide', 'skill'), ('Iron Hide', 'Mogra Ironhide', 'sig'), ('Bonebreaker', 'Mogra Ironhide', 'skill'), ('Hold the Line', 'Mogra Ironhide', 'skill'), ('Thick Skull', 'Mogra Ironhide', 'passive'),
         ('Call the War Boar', 'Vashka Spearthrower', 'skill'), ("Hunter's Mark", 'Vashka Spearthrower', 'skill'), ('Gutpiercer', 'Vashka Spearthrower', 'sig'), ('Pinning Throw', 'Vashka Spearthrower', 'skill'), ('Volley of Spears', 'Vashka Spearthrower', 'skill'), ('Steppe Hunter', 'Vashka Spearthrower', 'passive'),
         ('Firepot', 'Drekka Firegut', 'skill'), ('Napalm Jar', 'Drekka Firegut', 'skill'), ('Powder Keg', 'Drekka Firegut', 'sig'), ('Cinder Spray', 'Drekka Firegut', 'skill'), ('Sticky Tar', 'Drekka Firegut', 'skill'), ('Pyromaniac', 'Drekka Firegut', 'passive'),
-        ('Spirit Ward', 'Old Mother Hesk', 'skill'), ('Bone Charm', 'Old Mother Hesk', 'skill'), ('Drums of the Horde', 'Old Mother Hesk', 'sig'), ("Ancestor's Balm", 'Old Mother Hesk', 'skill'), ('Totem of Stone', 'Old Mother Hesk', 'skill'), ('Ancestral Watch', 'Old Mother Hesk', 'passive'),
+        ('Spirit Ward', 'Old Mother Hesk', 'skill'), ('Bone Charm', 'Old Mother Hesk', 'skill'), ('Drums of the Horde', 'Old Mother Hesk', 'sig'), ("Ancestor's Balm", 'Old Mother Hesk', 'skill'), ('Totem of Stone', 'Old Mother Hesk', 'skill'), ('Quickstep Drums', 'Old Mother Hesk', 'skill'), ('Ancestral Watch', 'Old Mother Hesk', 'passive'),
         ('Gore', 'War Boar (summon)', 'skill'),
         ('Tusk Charge', 'War Boar (summon)', 'skill'),
     ]),
@@ -2024,7 +2024,7 @@ CATALOG = {
         ('Smite', 'Sir Garrick Vane', 'skill'), ('Consecrate', 'Sir Garrick Vane', 'skill'), ('Oathguard', 'Sir Garrick Vane', 'sig'), ('Hammer of Judgement', 'Sir Garrick Vane', 'skill'), ('Lionheart', 'Sir Garrick Vane', 'skill'), ('Retribution', 'Sir Garrick Vane', 'passive'), ('Shield of the Realm', 'Sir Garrick Vane', 'passive'),
         ('Aimed Shot', 'Mara Holt', 'skill'), ('Ricochet', 'Mara Holt', 'skill'), ('Powder Shot', 'Mara Holt', 'sig'), ('Pistol Whip', 'Mara Holt', 'skill'), ('Volley Fire', 'Mara Holt', 'skill'), ('Deadeye', 'Mara Holt', 'passive'),
         ('Fireball', 'Aldous Emberfall', 'skill'), ('Ignite', 'Aldous Emberfall', 'skill'), ('Inferno', 'Aldous Emberfall', 'sig'), ('Flame Lance', 'Aldous Emberfall', 'skill'), ('Mantle of Flame', 'Aldous Emberfall', 'skill'), ('Kindling', 'Aldous Emberfall', 'passive'),
-        ('Sacred Light', 'Sister Liesl', 'skill'), ('Guardian Angel', 'Sister Liesl', 'skill'), ('Prayer of Dawn', 'Sister Liesl', 'sig'), ('Benediction', 'Sister Liesl', 'skill'), ('Censure', 'Sister Liesl', 'skill'), ('Mercy', 'Sister Liesl', 'passive'),
+        ('Sacred Light', 'Sister Liesl', 'skill'), ('Guardian Angel', 'Sister Liesl', 'skill'), ('Prayer of Dawn', 'Sister Liesl', 'sig'), ('Benediction', 'Sister Liesl', 'skill'), ('Censure', 'Sister Liesl', 'skill'), ('First Light', 'Sister Liesl', 'skill'), ('Mercy', 'Sister Liesl', 'passive'),
     ]),
     'stone': ('Stoneleaf Accord', [
         ('Anvil-Patient', 'Durgan · Nature', 'passive'), ('Deep Foundation', 'Hilda · Nature', 'passive'),
@@ -2034,7 +2034,7 @@ CATALOG = {
         ('Shield Bash', 'Hilda Stonewall', 'skill'), ('Shieldwall', 'Hilda Stonewall', 'skill'), ('Stand Firm', 'Hilda Stonewall', 'sig'), ('Boulder Toss', 'Hilda Stonewall', 'skill'), ('Bulwark of the Accord', 'Hilda Stonewall', 'skill'), ('Unbreakable', 'Hilda Stonewall', 'passive'),
         ('Swift Arrows', 'Aelira Swiftwind', 'skill'), ('Arrow Rain', 'Aelira Swiftwind', 'skill'), ('Hawkeye', 'Aelira Swiftwind', 'sig'), ('Piercing Shot', 'Aelira Swiftwind', 'skill'), ('Steady Aim', 'Aelira Swiftwind', 'skill'), ('Keen Eye', 'Aelira Swiftwind', 'passive'),
         ('Venom Bolt', 'Faelan Thornshot', 'skill'), ('Envenom', 'Faelan Thornshot', 'skill'), ('Thornvolley', 'Faelan Thornshot', 'sig'), ('Crippling Bolt', 'Faelan Thornshot', 'skill'), ('Toxic Barrage', 'Faelan Thornshot', 'skill'), ('Debilitating Venom', 'Faelan Thornshot', 'passive'),
-        ('Regrowth', 'Elowen Greenmantle', 'skill'), ('Entangle', 'Elowen Greenmantle', 'skill'), ('Bloom of Spring', 'Elowen Greenmantle', 'sig'), ('Barkskin', 'Elowen Greenmantle', 'skill'), ('Thornlash', 'Elowen Greenmantle', 'skill'), ('Forest Stride', 'Elowen Greenmantle', 'passive'), ('Verdant Aura', 'Elowen Greenmantle', 'passive'),
+        ('Regrowth', 'Elowen Greenmantle', 'skill'), ('Entangle', 'Elowen Greenmantle', 'skill'), ('Bloom of Spring', 'Elowen Greenmantle', 'sig'), ('Barkskin', 'Elowen Greenmantle', 'skill'), ('Thornlash', 'Elowen Greenmantle', 'skill'), ('Wind at the Back', 'Elowen Greenmantle', 'skill'), ('Forest Stride', 'Elowen Greenmantle', 'passive'), ('Verdant Aura', 'Elowen Greenmantle', 'passive'),
     ]),
     'tide': ('The Tideborn', [
         ('Anchor Chain', 'Tharos Razorfin', 'skill'), ('Stinging Veil', 'Octavia Inkveil', 'skill'),
@@ -2057,7 +2057,7 @@ CATALOG = {
         ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Blood Pact', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'),
         ('Kiss of Ruin', 'Seraxa Thornwing', 'skill'), ('Shadowstep', 'Seraxa Thornwing', 'skill'), ('Dance of Knives', 'Seraxa Thornwing', 'sig'), ('Wing Carve', 'Seraxa Thornwing', 'skill'), ("Predator's Grace", 'Seraxa Thornwing', 'skill'), ('Flurry', 'Seraxa Thornwing', 'passive'),
         ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Bloodhound', 'Gorehound', 'passive'),
-        ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
+        ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Quickened Blood', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
     ]),
     'undead': ('The Pale Host', [
         ('The Slow March', 'Mordrek · Nature', 'passive'), ('Lord of the Mound', 'Barrow · Nature', 'passive'),
@@ -2067,7 +2067,7 @@ CATALOG = {
         ('Tomb Slab', 'Barrow', 'skill'), ('Grasping Hands', 'Barrow', 'skill'), ('Barrow Wall', 'Barrow', 'sig'), ('Crypt Breaker', 'Barrow', 'skill'), ('Hold the Grave', 'Barrow', 'skill'), ('Graveyard Fence', 'Barrow', 'skill'), ('Burrow', 'Barrow', 'skill'), ('Feast of the Fallen', 'Barrow', 'passive'),
         ('Bone Dart', 'Cadris Gravecall', 'skill'), ('Shambling Rise', 'Cadris Gravecall', 'skill'), ('Charnel Volley', 'Cadris Gravecall', 'sig'), ('Rot Shot', 'Cadris Gravecall', 'skill'), ('Marrow Pierce', 'Cadris Gravecall', 'skill'), ('Toll of the Dead', 'Cadris Gravecall', 'passive'),
         ('Shroud Arrow', 'Vaun Shroudfletch', 'skill'), ('Withering Shot', 'Vaun Shroudfletch', 'skill'), ('Pall of Arrows', 'Vaun Shroudfletch', 'sig'), ('Graveshot', 'Vaun Shroudfletch', 'skill'), ('Scatter of Bones', 'Vaun Shroudfletch', 'skill'), ('Deathmark', 'Vaun Shroudfletch', 'passive'),
-        ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
+        ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Stolen Hours', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
         ('Clawing Grasp', 'Shambler (summon)', 'skill'),
     ]),
     'monster': ('Monsters of Ashfall Road', [
@@ -2513,6 +2513,79 @@ def _():
 
 
 # ---- The Crimson Court
+@icon('Quickstep Drums')
+def _():
+    # The war drum, and the beat running out ahead of it.
+    return ('<path d="M20 28 h20 v14 q-10 3 -20 0 z" fill="#8a5a32" stroke="#15121d" stroke-width="2"/>'
+            + '<ellipse cx="30" cy="28" rx="10" ry="3.4" fill="#e8d8b8" stroke="#15121d" stroke-width="2"/>'
+            + '<path d="M24 30.5 l5 8 M36 30.5 l-5 8" stroke="#15121d" stroke-width="1.4"/>'
+            + g('<rect x="-1" y="-9" width="2.2" height="10" rx="1" fill="#d8c8a8" stroke="#15121d"/>', 22, 22, -28, 1)
+            + g('<rect x="-1" y="-9" width="2.2" height="10" rx="1" fill="#d8c8a8" stroke="#15121d"/>', 38, 22, 28, 1)
+            + speed_lines(46, 34, 3, 9, 5, '#ffd166', 0, .85)
+            + twinkle(50, 16, .7, '#ffd166'))
+
+
+@icon('First Light')
+def _():
+    # Dawn on the line, and the one it comes early for already moving.
+    return ('<path d="M8 42 h48" stroke="#15121d" stroke-width="2.6"/>'
+            + '<path d="M18 42 a14 14 0 0 1 28 0 z" fill="#f6d365" stroke="#15121d" stroke-width="2"/>'
+            + poly('M32 20 v-6 M20 24 l-4 -4 M44 24 l4 -4', '#f6d365', 2.2)
+            + poly('M14 50 h22', '#ffd166', 2.6)
+            + '<path d="M36 46.5 l9 3.5 l-9 3.5 z" fill="#ffd166" stroke="#15121d" stroke-width="1.4"/>')
+
+
+@icon('Wind at the Back')
+def _():
+    # Three gusts and a leaf carried on them.
+    return (poly('M8 24 Q26 18 44 24', '#bfeee6', 3)
+            + poly('M6 34 Q28 28 50 34', '#9fdcd0', 3)
+            + poly('M10 44 Q30 39 48 44', '#bfeee6', 2.4)
+            + g('<path d="M0 6 C3 1 9 1 12 6 C9 11 3 11 0 6 Z" fill="#7ac74f" stroke="#15121d" stroke-width="1.6"/>'
+                + '<path d="M1 6 H11" stroke="#3f7a2a" stroke-width=".8"/>', 42, 16, -18, 1)
+            + twinkle(54, 40, .6, '#d6fff4'))
+
+
+@icon('Stolen Hours')
+def _():
+    # An upright hourglass with the sand held in the top bulb — the grave has pocketed its hours,
+    # so nothing runs down. A drag-back arrow sweeps left beneath it.
+    frame = ('<path d="M-9 -13 h18 M-9 13 h18" stroke="#d8c8a8" stroke-width="2.6" stroke-linecap="round"/>'
+             + '<path d="M-7 -12 Q-7 -2 0 0 Q7 -2 7 -12 Z" fill="#1a1a24" stroke="#d8c8a8" stroke-width="2"/>'
+             + '<path d="M-7 12 Q-7 2 0 0 Q7 2 7 12 Z" fill="#1a1a24" stroke="#d8c8a8" stroke-width="2"/>'
+             # the sand, all of it still in the TOP bulb (stuck, not falling)
+             + '<path d="M-5 -11 Q-5 -3 0 -1 Q5 -3 5 -11 Z" fill="#8ee696"/>')
+    return (g(frame, 36, 26, 0, 1.15)
+            + poly('M46 50 L14 50', '#8ee696', 3)
+            + '<path d="M18 46 l-6 4 l6 4 z" fill="#8ee696" stroke="#15121d" stroke-width="1.4"/>'
+            + twinkle(52, 12, .7, '#bdf2c4'))
+
+
+@icon('Quickened Blood')
+def _():
+    # Her drop, already running.
+    return (g(drop('#e0455a'), 30, 26, 0, 1.6)
+            + speed_lines(10, 26, 3, 10, 6, '#e0455a', 0, .8)
+            + poly('M26 46 Q36 50 46 44', '#ff8a96', 2.4)
+            + twinkle(49, 40, .6, '#ffd0d6'))
+
+
+@icon('Quick Hands')
+def _():
+    # One thrown flask up top, trailing a little speed; below it the speed bar, with the marker
+    # already landed three-quarters along — the hand never really stopped.
+    flask = ('<path d="M-3.5 -9 h7 v4.5 l4.5 9 a8 8 0 0 1 -16 0 l4.5 -9 z" fill="#5b97e6" stroke="#15121d" stroke-width="2"/>'
+             + '<path d="M-4.5 -10 h9" stroke="#d8c8a8" stroke-width="2.4"/>'
+             + '<path d="M-4 3 h8" stroke="#bcdcff" stroke-width="2" opacity=".7"/>')
+    return (g(flask, 30, 22, 16, 1.15)
+            + speed_lines(8, 22, 3, 9, 6, '#cdf3ff', 0, .75)
+            # the speed bar, with its track, and the glowing marker 3/4 along
+            + poly('M10 48 h44', '#5a6070', 3)
+            + '<circle cx="43" cy="48" r="5.5" fill="url(#bolt)" stroke="#15121d" stroke-width="1.8"/>'
+            + poly('M30 48 L41 48', '#ffd166', 3)
+            + '<path d="M38 44.5 l6 3.5 l-6 3.5 z" fill="#ffd166" stroke="#15121d" stroke-width="1.4"/>')
+
+
 @icon('Throat Tear')
 def _():
     return (g(rapier(), 30, 32, -18, 1.0)

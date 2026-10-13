@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Elowen Greenmantle (support) - Ashfall Road art v2. Elf druid of the deep wood.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="68.4,52">
   <defs>
     <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#84b56c"/><stop offset=".5" stop-color="#5e8a4a"/><stop offset="1" stop-color="#36552a"/></linearGradient>
     <linearGradient id="robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#46693a"/><stop offset="1" stop-color="#26401e"/></linearGradient>
@@ -14,7 +14,7 @@
   </defs>
   <ellipse cx="51" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
   <!-- orb light -->
-  <circle cx="70" cy="16" r="11" fill="#9fe08a" opacity=".6" filter="url(#glow)"/>
+  <circle class="wpn" cx="70" cy="16" r="11" fill="#9fe08a" opacity=".6" filter="url(#glow)"/>
   <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- flowing hair -->
     <path d="M48 17 Q35 28 37 60 Q43 56 47.5 46 L51 26 Z" fill="url(#hair)"/>
@@ -28,11 +28,11 @@
     <!-- vine sash -->
     <path d="M45.5 55 Q55 58 63.8 54.5 L64 58.5 Q55 62 45.2 59 Z" fill="url(#gold)"/>
     <!-- staff -->
-    <path d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke-width="5" fill="none"/>
-    <path d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke="url(#wood)" stroke-width="2.8" fill="none"/>
-    <path d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke-width="4" fill="none"/>
-    <path d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke="url(#wood)" stroke-width="2" fill="none"/>
-    <circle cx="70" cy="16" r="5.6" fill="url(#orb)"/>
+    <path class="wpn" d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke-width="5" fill="none"/>
+    <path class="wpn" d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke="url(#wood)" stroke-width="2.8" fill="none"/>
+    <path class="wpn" d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke-width="4" fill="none"/>
+    <path class="wpn" d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke="url(#wood)" stroke-width="2" fill="none"/>
+    <circle class="wpn" cx="70" cy="16" r="5.6" fill="url(#orb)"/>
     <!-- head -->
     <circle cx="55" cy="22" r="8.5" fill="#f0d2b4"/>
     <path d="M46.5 26 Q45.5 12.5 55.5 12.5 Q64 12.5 64 20 Q58 16.8 52.5 18.5 Q50 20 50 29 Z" fill="url(#hair)"/>
@@ -48,8 +48,8 @@
     <circle cx="68.4" cy="52" r="2.7" fill="#f0d2b4"/>
   </g>
   <!-- vines on staff -->
-  <path d="M67.4 88 Q71 84 67.4 80 Q64.5 76 68 72 M68.4 64 Q72 60 69 56" stroke="#5aa03c" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-  <path d="M68 72 q3 -1 4 1.5 q-3 1 -4 -1.5 z M67.4 80 q-3.2 -.6 -4 2 q3 .6 4 -2 z M69 56 q3 -1.6 4.5 .8 q-3 1.4 -4.5 -.8 z" fill="url(#leaf)" stroke="#15121d" stroke-width=".7" stroke-linejoin="round"/>
+  <path class="wpn" d="M67.4 88 Q71 84 67.4 80 Q64.5 76 68 72 M68.4 64 Q72 60 69 56" stroke="#5aa03c" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M68 72 q3 -1 4 1.5 q-3 1 -4 -1.5 z M67.4 80 q-3.2 -.6 -4 2 q3 .6 4 -2 z M69 56 q3 -1.6 4.5 .8 q-3 1.4 -4.5 -.8 z" fill="url(#leaf)" stroke="#15121d" stroke-width=".7" stroke-linejoin="round"/>
   <!-- mantle veins -->
   <path d="M47 41 l1.3 3 M52.5 40.5 v3.5 M58.5 40 l.7 3.2 M62.5 39.5 l-.5 3" stroke="#3f7a2c" stroke-width=".9" stroke-linecap="round"/>
   <path d="M47 36.5 Q50 34 54 33.4" stroke="#e8f8c8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
@@ -62,10 +62,10 @@
   <path d="M52 37 L49 88.5 M57 37 L60 88.5" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
   <path d="M40.5 30 Q39.5 42 41 52" stroke="#f3a674" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".7"/>
   <!-- orb shine + floating leaves -->
-  <circle cx="68.2" cy="14" r="1.4" fill="#fff"/>
-  <g fill="url(#leaf)" stroke="#15121d" stroke-width=".8" stroke-linejoin="round">
+  <circle class="wpn" cx="68.2" cy="14" r="1.4" fill="#fff"/>
+  <g class="wpn" fill="url(#leaf)" stroke="#15121d" stroke-width=".8" stroke-linejoin="round">
     <path d="M82 30 q3 -3 6 -1 q-3 3 -6 1 z"/>
     <path d="M80 46 q2 -3.5 5 -2.5 q-2 3.5 -5 2.5 z"/>
   </g>
-  <g fill="#c8f5b0"><circle cx="81" cy="12" r="1"/><circle cx="58" cy="5" r=".8"/><circle cx="85" cy="22" r=".7"/><circle cx="77" cy="38" r=".8"/></g>
+  <g class="wpn" fill="#c8f5b0"><circle cx="81" cy="12" r="1"/><circle cx="58" cy="5" r=".8"/><circle cx="85" cy="22" r=".7"/><circle cx="77" cy="38" r=".8"/></g>
 </svg>

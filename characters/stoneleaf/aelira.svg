@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Aelira Swiftwind (ranged) - Ashfall Road art v2. Elf longbow archer.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="79,41">
   <defs>
     <linearGradient id="tunic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fa070"/><stop offset=".5" stop-color="#3f7a4f"/><stop offset="1" stop-color="#23472d"/></linearGradient>
     <linearGradient id="tunicD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f5e3c"/><stop offset="1" stop-color="#18321f"/></linearGradient>
@@ -39,15 +39,15 @@
     <path d="M57 37 L78 39 L78 43.5 L57 43.5 Z" fill="url(#tunicD)"/>
   </g>
   <!-- longbow -->
-  <path d="M71 6 Q91 41 71 77" stroke="#15121d" stroke-width="4.6" fill="none" stroke-linecap="round"/>
-  <path d="M71 6 Q91 41 71 77" stroke="url(#wood)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-  <path d="M73.5 12 Q80 22 82 30" stroke="#ecc590" stroke-width="1" fill="none" stroke-linecap="round" opacity=".8"/>
-  <path d="M71.3 7 L57.5 41 L71.3 76" stroke="#f2ecdc" stroke-width=".9" fill="none" stroke-linejoin="round"/>
+  <path class="wpn" d="M71 6 Q91 41 71 77" stroke="#15121d" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M71 6 Q91 41 71 77" stroke="url(#wood)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M73.5 12 Q80 22 82 30" stroke="#ecc590" stroke-width="1" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path class="wpn" d="M71.3 7 L57.5 41 L71.3 76" stroke="#f2ecdc" stroke-width=".9" fill="none" stroke-linejoin="round"/>
   <!-- arrow -->
-  <path d="M53 41 H90" stroke="#15121d" stroke-width="2.6" stroke-linecap="round"/>
-  <path d="M53 41 H90" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
-  <path d="M89 38.3 L95.5 41 L89 43.7 Z" fill="url(#steel)" stroke="#15121d" stroke-width="1.1" stroke-linejoin="round"/>
-  <path d="M51 38 h5 l2 3 l-2 3 h-5 l2 -3 z" fill="#f2efe4" stroke="#15121d" stroke-width="1" stroke-linejoin="round"/>
+  <path class="wpn" d="M53 41 H90" stroke="#15121d" stroke-width="2.6" stroke-linecap="round"/>
+  <path class="wpn" d="M53 41 H90" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <path class="wpn" d="M89 38.3 L95.5 41 L89 43.7 Z" fill="url(#steel)" stroke="#15121d" stroke-width="1.1" stroke-linejoin="round"/>
+  <path class="wpn" d="M51 38 h5 l2 3 l-2 3 h-5 l2 -3 z" fill="#f2efe4" stroke="#15121d" stroke-width="1" stroke-linejoin="round"/>
   <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- bow hand -->
     <rect x="76.5" y="37.6" width="5" height="7" rx="2.4" fill="#f0d2b4"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Seraxa Thornwing (melee) - Burizza art v2. Winged demon blade dancer.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="70,50.5">
   <defs>
     <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b874d0"/><stop offset=".5" stop-color="#8f4ba6"/><stop offset="1" stop-color="#5e2b72"/></linearGradient>
     <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#77408f"/><stop offset="1" stop-color="#47225c"/></linearGradient>
@@ -33,8 +33,8 @@
     <!-- back arm + dagger -->
     <path d="M45 43 Q40 48 39.5 53 L44 55 Q44.5 50 48.5 47 Z" fill="url(#skinD)"/>
     <path d="M40 52 L34 57 L36.5 61 L43.5 56 Z" fill="url(#skinD)"/>
-    <path d="M33 58.5 Q27 51.5 19 52 Q25 55.5 30.5 61.5 Z" fill="url(#blade)"/>
-    <rect x="31.5" y="56" width="3" height="7.5" rx="1" fill="url(#pink)" transform="rotate(-42 33 59.8)"/>
+    <path class="wpn" d="M33 58.5 Q27 51.5 19 52 Q25 55.5 30.5 61.5 Z" fill="url(#blade)"/>
+    <rect class="wpn" x="31.5" y="56" width="3" height="7.5" rx="1" fill="url(#pink)" transform="rotate(-42 33 59.8)"/>
     <circle cx="36" cy="59" r="2.6" fill="url(#skinD)"/>
     <!-- back leg -->
     <path d="M46.5 63 L54 65 L48.5 78.5 L42.5 76.5 Z" fill="url(#suitD)"/>
@@ -70,9 +70,9 @@
     <!-- front arm + reverse-grip dagger -->
     <path d="M57.5 44 L63.5 53 L60 56 L55 48 Z" fill="url(#skin)"/>
     <path d="M61 52 L68.5 47.5 L70.5 51.5 L62.5 56 Z" fill="url(#skin)"/>
-    <path d="M68 54.5 Q68 63.5 76.5 68.5 Q72.5 61.5 71.8 54.5 Z" fill="url(#blade)"/>
-    <path d="M68.6 47.5 L70 44 L71.4 47.5 Z" fill="url(#pink)"/>
-    <rect x="65.8" y="53.4" width="8" height="2.6" rx="1" fill="url(#pink)"/>
+    <path class="wpn" d="M68 54.5 Q68 63.5 76.5 68.5 Q72.5 61.5 71.8 54.5 Z" fill="url(#blade)"/>
+    <path class="wpn" d="M68.6 47.5 L70 44 L71.4 47.5 Z" fill="url(#pink)"/>
+    <rect class="wpn" x="65.8" y="53.4" width="8" height="2.6" rx="1" fill="url(#pink)"/>
     <circle cx="70" cy="50.5" r="3" fill="url(#skin)"/>
     <path d="M55 44.5 Q56 38.5 62 39.5 Q66 41.5 64 47.5 Q58.5 48.5 55 44.5 Z" fill="url(#suit)"/>
   </g>
@@ -98,9 +98,9 @@
   <path d="M61.6 79.8 L60.9 85.5" stroke="#fff" stroke-width="1" opacity=".4" stroke-linecap="round"/>
   <path d="M58.6 72.6 L61 75.6" stroke="#fff" stroke-width="1" opacity=".35" stroke-linecap="round"/>
   <!-- blade glints -->
-  <path d="M69.6 57.5 Q70.6 63 74.6 66.5" stroke="#ff6bb5" stroke-width="1" fill="none" stroke-linecap="round"/>
-  <path d="M29.5 56.5 Q25.5 53.2 21.5 52.8" stroke="#ff6bb5" stroke-width="1" fill="none" stroke-linecap="round"/>
-  <g fill="#ffd6ea">
+  <path class="wpn" d="M69.6 57.5 Q70.6 63 74.6 66.5" stroke="#ff6bb5" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M29.5 56.5 Q25.5 53.2 21.5 52.8" stroke="#ff6bb5" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <g class="wpn" fill="#ffd6ea">
     <path d="M78.5 60.5 l.6 1.7 l1.7 .6 l-1.7 .6 l-.6 1.7 l-.6 -1.7 l-1.7 -.6 l1.7 -.6 z"/>
     <path d="M19.5 47 l.5 1.3 l1.3 .5 l-1.3 .5 l-.5 1.3 l-.5 -1.3 l-1.3 -.5 l1.3 -.5 z"/>
   </g>
