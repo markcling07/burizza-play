@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Thassor (Riftborn, melee, Gravity) - Burizza art v2. A dark cloaked figure hanging in the air before
+     a pale halo, two points of light for eyes; the ground's loose stones lift and drift up around him
+     as if he were the heaviest thing on the field. Rim-lit in Gravity's blue-violet so the silhouette
+     reads on a dark battlefield. Canvas 100x100, faces right, feet dangle well above y=94.
+     He fights barehanded (no class="wpn"): a racked weapon is drawn at data-hand. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="60,57">
+  <defs>
+    <radialGradient id="th-halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".62" stop-color="#eef0ff"/><stop offset=".8" stop-color="#b9bff0"/><stop offset="1" stop-color="#6b74c8" stop-opacity="0"/></radialGradient>
+    <radialGradient id="th-haloGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#9aa2ec" stop-opacity=".55"/><stop offset="1" stop-color="#6b74c8" stop-opacity="0"/></radialGradient>
+    <linearGradient id="th-cloak" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#2e2a46"/><stop offset=".35" stop-color="#17142a"/><stop offset="1" stop-color="#0a0812"/></linearGradient>
+    <linearGradient id="th-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#231f36"/><stop offset="1" stop-color="#0c0a14"/></linearGradient>
+    <linearGradient id="th-rock" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a6880"/><stop offset="1" stop-color="#2a2838"/></linearGradient>
+    <filter id="th-blur" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  </defs>
+  <!-- a faint shadow far below: he does not touch the ground -->
+  <ellipse cx="50" cy="94" rx="16" ry="2.6" fill="#000" opacity=".3"/>
+  <!-- the ground giving way to him: a warp ring and stones rising -->
+  <ellipse cx="50" cy="92" rx="22" ry="3.4" fill="none" stroke="#6b74c8" stroke-width=".9" opacity=".45"/>
+  <ellipse cx="50" cy="92" rx="14" ry="2.2" fill="none" stroke="#9aa2ec" stroke-width=".7" opacity=".4"/>
+  <!-- everything of him hangs higher than the ground -->
+  <g transform="translate(0 -5)">
+  <!-- halo -->
+  <circle cx="51" cy="22" r="23" fill="url(#th-haloGlow)"/>
+  <circle cx="51" cy="22" r="16" fill="url(#th-halo)"/>
+  <ellipse cx="51" cy="22" rx="21" ry="5.6" fill="none" stroke="#9aa2ec" stroke-width=".9" opacity=".55" transform="rotate(-18 51 22)"/>
+  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- dangling legs and boots -->
+    <path d="M44.5 76 L49 76 L48 85 L44 85 Z" fill="url(#th-body)"/>
+    <path d="M51.5 76 L56 76 L57 84.5 L52.5 84.5 Z" fill="url(#th-body)"/>
+    <path d="M43.6 84.6 L48.4 84.6 L48.6 88.2 Q47.6 90.6 45.4 90.4 Q43.2 89.8 43.6 87 Z" fill="#0c0a12"/>
+    <path d="M52.2 84.2 L57.2 84.2 L58.4 87.6 Q58 90 55.6 89.8 Q53 89.4 52.4 87.2 Z" fill="#0c0a12"/>
+    <!-- the cloak, falling to two long points -->
+    <path d="M40.5 33 Q50.5 29 61 33 Q64 46 64.5 58 Q66 70 69 81 Q62.5 78.6 58 80.5 Q52 78.4 46 80.6 Q40.6 78.6 33 82 Q35.5 70 36.5 58 Q37 45 40.5 33 Z" fill="url(#th-cloak)"/>
+    <!-- the arm folded under it -->
+    <path d="M55.5 40 Q60.5 48 59.5 58 Q56.5 60 53.5 58.5 Q55.5 49 52 42 Z" fill="url(#th-body)" stroke-width="1.1"/>
+    <!-- hood about the shoulders -->
+    <path d="M42 33.5 Q50.5 27.5 59.5 33.5 Q55 37.5 50.5 37.5 Q46 37.5 42 33.5 Z" fill="url(#th-body)"/>
+    <!-- head, unkempt hair against the halo -->
+    <path d="M44.5 24 Q44 15.5 51 14.5 Q58.5 14 58.5 22 Q58.6 29 55 31.8 Q52 33.4 48.6 32 Q44.8 29.6 44.5 24 Z" fill="url(#th-body)"/>
+    <path d="M44.2 23.4 Q41.6 21.6 42.4 18.8 Q44 19.8 45.4 19.4 Q44.6 16.4 46.6 14.8 Q47.4 16.8 48.8 16.6 Q49 13.2 52.4 12.6 Q51.6 15 53 15.6 Q55.6 13.4 58.4 14.6 Q56.6 16 57.4 17.2 Q60.2 17.4 61.4 19.8 Q59.4 19.8 58.8 21 Q60.4 22.6 59.6 24.4 Q58.2 22.8 57.2 23 Z" fill="url(#th-body)"/>
+  </g>
+  <!-- rim light from the halo along the silhouette -->
+  <g fill="none" stroke="#9aa2ec" stroke-linecap="round" opacity=".85">
+    <path d="M43.4 19.6 Q46 15.4 52 13.6 Q57.4 14 60.6 19.4" stroke-width="1.1"/>
+    <path d="M43.2 33.4 Q50.5 29.4 58.6 33.2" stroke-width="1"/>
+    <path d="M61.4 34.6 Q63.8 46 64.2 57.4 Q65.4 69 67.8 79.4" stroke-width=".9"/>
+    <path d="M40 35 Q37.2 46 36.8 57.6" stroke-width=".8" opacity=".6"/>
+  </g>
+  <path d="M47 41 Q46 58 44.5 78 M52 44 Q52.6 62 52 78" stroke="#2c2846" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <!-- two points of light for eyes -->
+  <g fill="#f4f6ff">
+    <path d="M53.4 22 L54.2 22 L54 26 L53.6 26 Z"/>
+    <path d="M56.6 22.2 L57.4 22.2 L57.2 25.8 L56.8 25.8 Z"/>
+  </g>
+  <g fill="#c9ceff" filter="url(#th-blur)" opacity=".9"><circle cx="53.8" cy="24" r="1.6"/><circle cx="57" cy="24" r="1.4"/></g>
+  </g>
+  <!-- stones lifting off the ground into his pull -->
+  <g stroke="#15121d" stroke-width=".9" stroke-linejoin="round">
+    <path d="M28 70 l3 -1.6 l2.4 1.2 l-.6 2.8 l-3.2 .8 Z" fill="url(#th-rock)"/>
+    <path d="M71.6 63 l2.6 -.8 l1.6 2 l-1.4 2.2 l-2.8 -.4 Z" fill="url(#th-rock)"/>
+    <path d="M24.4 84 l2.2 -1 l1.8 1.6 l-1 2 l-2.6 -.2 Z" fill="url(#th-rock)"/>
+    <path d="M74 80.6 l2.8 -1.2 l1.6 1.8 l-1.2 2.2 l-2.6 -.4 Z" fill="url(#th-rock)"/>
+    <path d="M33.6 52 l1.8 -.8 l1.2 1.4 l-.8 1.6 l-1.8 -.2 Z" fill="url(#th-rock)"/>
+    <path d="M68 46.6 l1.6 -.6 l1 1.2 l-.8 1.4 l-1.6 -.2 Z" fill="url(#th-rock)"/>
+  </g>
+  <!-- the trails they leave, rising -->
+  <g stroke="#9aa2ec" stroke-width=".7" stroke-linecap="round" opacity=".5">
+    <path d="M30.8 74 v4.6 M73.4 67.4 v4 M26.2 87.6 v3.4 M76 84.4 v3.6 M35 55.4 v3 M69 49.6 v2.6"/>
+  </g>
+  <g fill="#c9ceff"><circle cx="40" cy="88" r=".7"/><circle cx="61.4" cy="89" r=".6"/><circle cx="66" cy="72" r=".5"/><circle cx="31" cy="62" r=".5"/></g>
+</svg>

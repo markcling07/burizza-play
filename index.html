@@ -62,6 +62,7 @@
   --plate: rgba(20, 22, 34, .84);
   --sky-moon: #2e1420;
   --sky-dusk: #10121f;
+  --sky-starfall: #171033;
   --sky-pall: #262e26;
   --cave-rock: #1d1816;
   --cave-rock-hi: #2c2420;
@@ -886,6 +887,17 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 @keyframes gritfall { to { background-position: 10px 220px, -8px 180px, 6px 260px, -5px 150px; } }
 /* Nightfall: the sky goes to night and the stars come out, ahead of the Blood Moon. */
 .arena[data-wx="dusk"] { --sky-now: var(--sky-dusk); }
+/* Starfall: a torn violet sky streaked with falling light, for the Riftborn. */
+.arena[data-wx="starfall"] { --sky-now: var(--sky-starfall); }
+.arena[data-wx="starfall"]::before {
+  opacity: 1;
+  background:
+    radial-gradient(1.5px 1.5px at 18% 10%, #fff, transparent), radial-gradient(1px 1px at 40% 7%, #d7c8ff, transparent),
+    radial-gradient(1.5px 1.5px at 66% 12%, #fff, transparent), radial-gradient(1px 1px at 86% 8%, #cdbcff, transparent),
+    linear-gradient(115deg, transparent 0 48%, rgba(190,150,255,.5) 49% 50%, transparent 51%),
+    linear-gradient(110deg, transparent 0 62%, rgba(150,200,255,.4) 63% 64%, transparent 65%),
+    radial-gradient(120% 70% at 50% 0%, rgba(120,90,220,.35), transparent 70%);
+}
 .arena[data-wx="dusk"]::before {
   opacity: 1;
   background:
@@ -1341,6 +1353,30 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .proj-note::before { content: '\266A'; color: #fff; text-shadow: 0 0 8px #bff3ff, 0 0 2px #15121d; }
 .proj-heartnote::before { content: '\2665\266A'; font-size: 17px; color: #ff9ac8; text-shadow: 0 0 8px #ff7ab0, 0 0 2px #15121d; }
 .proj-dirge::before { content: '\266B'; color: #7fa8c8; text-shadow: 0 0 8px #3a2a6a, 0 0 2px #15121d; }
+/* The Riftborn: four cosmic forces, each with its own light. */
+.proj-gravbolt { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle, #c8b8ff 0 16%, #6b74c8 42%, #2a2440 66%, transparent 74%); box-shadow: 0 0 14px #6b74c8; }
+.proj-lightray { width: 36px; height: 4px; margin: -2px 0 0 -18px; border-radius: 2px; background: linear-gradient(90deg, transparent, #e8d26a 25%, #fff 70%, #fffbe0); box-shadow: 0 0 12px #e8d26a; }
+.proj-prismlance { width: 42px; height: 5px; margin: -2.5px 0 0 -21px; border-radius: 2px; background: linear-gradient(90deg, transparent, #ff8a8a 15%, #e8d26a 35%, #8aefaa 55%, #8ac8ff 75%, #c8a8ff 90%, #fff); box-shadow: 0 0 14px #e8d26a, 0 0 6px #fff; }
+.proj-starfire { width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; background: radial-gradient(circle, #fff 0 18%, #fffbe0 30%, #e8d26a 50%, transparent 72%); box-shadow: 0 0 18px #e8d26a, 0 0 6px #fff; }
+.proj-glareshot { width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: radial-gradient(circle, #fff 0 28%, #fffbe0 48%, #e8d26a 64%, transparent 76%); box-shadow: 0 0 20px #fff, 0 0 10px #e8d26a; animation: ppulse .12s infinite; }
+.proj-sonicpulse { width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 2.5px solid rgba(95, 202, 209, .9); background: radial-gradient(circle, rgba(95, 202, 209, .3) 0 30%, transparent 65%); box-shadow: 0 0 12px #5fcad1; }
+.proj-thrum { width: 28px; height: 14px; margin: -7px 0 0 -14px; border-radius: 50%; border: 2px solid rgba(95, 202, 209, .85); background: radial-gradient(circle, rgba(95, 202, 209, .2) 0 40%, transparent 70%); box-shadow: 0 0 14px #5fcad1; }
+.proj-discordwave { width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; border: 2px solid #5fcad1; box-shadow: 0 0 10px #5fcad1, 0 0 0 5px rgba(95, 202, 209, .3), 0 0 0 10px rgba(95, 202, 209, .15); animation: ppulse .16s infinite; }
+.proj-voidbolt { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle, #15121d 0 22%, #8a5ad6 50%, transparent 72%); box-shadow: 0 0 14px #8a5ad6; }
+.proj-voidlance { width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: radial-gradient(circle, #0a0812 0 18%, #241b33 34%, #8a5ad6 54%, transparent 72%); box-shadow: 0 0 20px #8a5ad6, 0 0 6px #c8a8ff; animation: ppulse .18s infinite; }
+.proj-voidgyre { width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 2.5px solid #8a5ad6; background: radial-gradient(circle, #0a0812 0 30%, rgba(138, 90, 214, .3) 60%, transparent 75%); box-shadow: 0 0 14px #8a5ad6; animation: pspin .4s linear infinite; }
+.proj-attuneg { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle, #fff 0 16%, #6b74c8 45%, transparent 72%); box-shadow: 0 0 12px #6b74c8; }
+.proj-attunel { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle, #fff 0 16%, #e8d26a 45%, transparent 72%); box-shadow: 0 0 12px #e8d26a; }
+.proj-attunev { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle, #15121d 0 16%, #8a5ad6 45%, transparent 72%); box-shadow: 0 0 12px #8a5ad6; }
+.proj-gravbolt, .proj-attuneg { filter: drop-shadow(0 0 6px #6b74c8); }
+.proj-lightray, .proj-prismlance, .proj-starfire, .proj-glareshot, .proj-attunel { filter: drop-shadow(0 0 6px #e8d26a); }
+.proj-sonicpulse, .proj-thrum, .proj-discordwave { filter: drop-shadow(0 0 6px #5fcad1); }
+.proj-voidbolt, .proj-voidlance, .proj-voidgyre, .proj-attunev { filter: drop-shadow(0 0 6px #8a5ad6); }
+.burst-gravity { width: 110%; background: radial-gradient(circle, rgba(107, 116, 200, .7) 0 22%, rgba(42, 36, 64, .5) 46%, transparent 66%); box-shadow: inset 0 0 20px rgba(107, 116, 200, .6); animation-name: ring; animation-duration: .7s; border: 2.5px solid rgba(107, 116, 200, .8); }
+.burst-light { width: 115%; background: radial-gradient(circle, #fff 0 18%, rgba(232, 210, 106, .7) 38%, transparent 64%); animation-duration: .5s; }
+.burst-sound { width: 120%; border: 2.5px solid rgba(95, 202, 209, .85); background: radial-gradient(circle, rgba(95, 202, 209, .5) 0 20%, rgba(95, 202, 209, .2) 45%, transparent 68%); animation-name: ring; animation-duration: .6s; }
+.burst-void { width: 105%; background: radial-gradient(circle, #0a0812 0 16%, rgba(138, 90, 214, .7) 38%, rgba(36, 27, 51, .4) 56%, transparent 70%); animation-duration: .7s; }
+.burst-rift { width: 130%; background: radial-gradient(circle, #fff 0 10%, rgba(200, 168, 255, .6) 30%, rgba(107, 116, 200, .3) 50%, transparent 68%); animation-duration: .6s; }
 .burst-flak { width: 110%; background: radial-gradient(circle at 30% 40%, #ffd166 0 4%, transparent 5%), radial-gradient(circle at 68% 30%, #ffd166 0 3%, transparent 4%), radial-gradient(circle at 60% 70%, #ffb347 0 3%, transparent 4%), radial-gradient(circle, rgba(120, 120, 135, .85) 0 26%, rgba(80, 80, 95, .5) 46%, transparent 66%); animation-duration: .7s; }
 .burst-ink { width: 120%; background: radial-gradient(circle, rgba(42, 29, 64, .9) 0 30%, rgba(90, 74, 138, .55) 50%, transparent 68%); animation-duration: .9s; }
 .burst-flash { width: 130%; background: radial-gradient(circle, #fff 0 20%, rgba(255, 255, 240, .7) 40%, transparent 66%); animation-duration: .45s; }
@@ -2929,6 +2965,8 @@ const FACTIONS = {
            rule: 'The Court keeps no mana — it pays in blood. A skill costs 15% of the caster\'s current HP and a ★ signature 20%, and no toll can take their last point: they are left standing on 1 HP at worst. Attack and Guard are free. Every hit drains 20% of the damage dealt as HP, and every attack drinks a further 5% of the victim\'s maximum HP on top of whatever the skill itself steals. The Court has no ranged fighters: four melee and a support who Hexes enemies so they heal for half.' },
   undead: { name: 'The Pale Host',     mechanic: 'Undying',
            rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet, lit by a pale green light and already dead: nothing can heal it, and it stands and fights until one more instance of damage lands — a blow, a tick, anything — and that one is the end. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will stand past its death a second time. The dead are in no hurry: the whole Host crosses the speed bar 5% slower. And the dead have no blood to spill: nothing can make the Pale Host Bleed.' },
+  riftborn: { name: 'The Riftborn',   mechanic: 'Resonance',
+           rule: 'The Riftborn bend the four forces between the stars — Gravity, Light, Sound and Void. Every hit a Riftborn lands carries its champion\'s Force and leaves a Charge of it on the enemy. When a DIFFERENT Force then strikes a charged enemy, the charge detonates into a Resonance: Gravity + Light lenses a searing burst, Gravity + Void collapses them and Bashes them off the bar, Gravity + Sound quakes them backward, Light + Void annihilates through shields, Light + Sound flashes Blind and Stagger, Sound + Void Silences. Weak striking alone, they are deadly in concert — the warband sets off each other\'s charges.' },
 };
 const FACTION_KEYS = Object.keys(FACTIONS);
 // "the Bloodtusk Horde", "the Tideborn": names that already start with "The" don't get a second one.
@@ -2938,7 +2976,7 @@ const theFaction = (f, start = false) => `${start ? 'The' : 'the'} ${f.name.repl
    the role's base pool × the faction's multiplier. Skills and ultimates cost mana;
    it regenerates every turn, Attack restores a little and Guard restores more. */
 const MANA = {
-  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0 },
+  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0, riftborn: 1 },
   skillCost: 20, skill2Cost: 25, ultCost: 40,   // default costs; a skill can override with o.mp
   poolScale: 0.9,                       // champions' own pool runs 10% leaner (gear and passives add on top, in full)
   spellExtra: 10, healExtra: 20,        // every spell costs 10 MP over its listed price; a healing skill 20 more on top of that
@@ -3421,6 +3459,11 @@ const FX = {
   // FEAR only shoves it back a little, so it still acts, just later.
   bash:     { icon: '🔨', label: 'Bashed',    kind: 'bad',  verb: 'is bashed off the speed bar' },
   fear:     { icon: '😱', label: 'Afraid',    kind: 'bad',  verb: 'recoils in fear and loses ground on the speed bar' },
+  // THE RIFTBORN's Resonance charges: a neutral mark of one Force, waiting for a different Force to set it off.
+  rcg:      { icon: '🕳️', label: 'Gravity',   kind: 'neutral', verb: 'is charged with Gravity' },
+  rcl:      { icon: '✨', label: 'Light',     kind: 'neutral', verb: 'is charged with Light' },
+  rcs:      { icon: '🔊', label: 'Sound',     kind: 'neutral', verb: 'is charged with Sound' },
+  rcv:      { icon: '🟣', label: 'Void',      kind: 'neutral', verb: 'is charged with Void' },
   flee:     { icon: '😱', label: 'Afraid',    kind: 'bad',  verb: 'is gripped by fear: it turns and runs back down the speed bar' },
   // Rooted (Tharos's Anchor, and anything else that pins a unit): it still takes its turns, but it
   // cannot cross the field — melee run-in attacks and spells are shut off (a hurled or gust skill is
@@ -3450,6 +3493,7 @@ const WEATHER = {
   dusk:  { name: 'Nightfall',    favors: null,    desc: 'Night comes down over the field. In the dark, ranged attacks miss 15% more often; close quarters are as they ever were. A Blood Moon rises after it.' },
   moon:  { name: 'Blood Moon',   favors: 'crimson', desc: 'The Crimson Court deal 20% more damage. All lifesteal is doubled.' },
   pall:  { name: 'Grave Pall',   favors: 'undead', desc: 'The Pale Host deal 20% more damage. A grey pall settles over the field and every mending anyone receives — spell, potion or regeneration — is a quarter weaker.' },
+  starfall: { name: 'Starfall',  favors: 'riftborn', desc: 'The sky tears open and the forces pour through. The Riftborn deal 20% more damage, and every Resonance reaction lands harder.' },
   // Emberhollow Cave only: no sky, but the rock moves. Rolled by tickQuake, never by rollWeather.
   quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. Again and again the floor bucks and everyone on the speed bar is thrown back a step — they catch their footing and press on toward their turn. Flyers feel nothing.' },
 };
@@ -3457,7 +3501,7 @@ const WEATHER_EVERY = 3;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
 // 'brim' is never rolled — it is drawn whenever ash is, and hands the sky to the Ash Storm after it.
 // 'dusk' (Nightfall) likewise: drawn whenever moon is, and hands the sky to the Blood Moon after it.
-const SEASON_WEATHER = { clear: 1, ash: 2, storm: 1, rain: 1, sun: 1, mist: 1, moon: 1, pall: 1 };
+const SEASON_WEATHER = { clear: 1, ash: 2, storm: 1, rain: 1, sun: 1, mist: 1, moon: 1, pall: 1, starfall: 1 };
 // Golden Dawn mends this share of max HP as it breaks. Brimstone Fall strikes for this share of
 // max HP, then sets everyone Burning for BRIMSTONE_BURN of the HP they have left. Both land once,
 // on arrival. Brimstone Fall lasts BRIMSTONE_ROUNDS; every other sky lasts WEATHER_EVERY.
@@ -3926,6 +3970,56 @@ const ROSTER = [
              D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 }),
              B('Stolen Hours', 'The grave pockets an enemy\'s hours: they are dragged a quarter of the way back down the speed bar and left Leaden for 2 turns — their cooldowns do not run down.', 5, 'enemy', [['leaden', 2]], { dragBack: 250 })],
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
+
+  // ---- The Riftborn (cosmic forces; Resonance) ----
+  { id: 'thassor', name: 'Thassor', faction: 'riftborn', role: 'melee', force: 'g', bio: 'A gravity-bound bulwark who drags the field toward him.',
+    mods: { hp: 1.2, def: 1.2, atk: 0.95, agi: 0.85 },
+    look: { body: 'golem', main: '#2a2440', trim: '#6b74c8', eye: '#6b74c8' },
+    nature: { name: 'Fixed Point', desc: 'Nothing can shove him along the speed bar.', anchor: 1 },
+    skills: [D('Dead Weight', '120% crushing blow.', 2, 1.2, { force: 'g', quake: true }),
+             D('Deadfall', 'Lifts an enemy high into the air on a well of gravity, then smashes it down: 200% hit that Bashes it off the speed bar.', 5, 2.0, { force: 'g', fx: [['bash', 2]], deadfall: true }),
+             D('Event Horizon', '180% hit that drags the target back down the speed bar.', 4, 1.8, { force: 'g', knockback: 180, gravpull: true }),
+             D('Collapsing Fist', '140% hit.', 3, 1.4, { force: 'g', slash: true }),
+             B('Graviton Guard', 'Braces behind his own weight: shielded for 2 turns.', 3, 'self', [['shield', 2]]),
+             D('Singularity', '90% to all enemies, each left charged with Gravity.', 4, 0.9, { aoe: true, force: 'g', quake: true })],
+    passive: P('Crushing Field', 'Any champion that attacks him is Bashed off the speed bar.', { onHitTaken: { chance: 1, fx: [['bash', 2]] } }) },
+  { id: 'vharo', name: 'Vharo', faction: 'riftborn', role: 'ranged', force: 'l', bio: 'A light-channeler who burns holes in the dark.',
+    mods: { atk: 1.15, hp: 0.9, agi: 1.05 },
+    look: { body: 'wraith', main: '#2a2440', trim: '#e8d26a', eye: '#e8d26a' },
+    nature: { name: 'Unblinking', desc: 'His basic attacks never miss.', breathless: 1 },
+    skills: [D('Ray', '120% beam of light.', 2, 1.2, { force: 'l', magic: true, mp: 15 }),
+             D('Prism Lance', '200% light that pierces armor.', 4, 2.0, { force: 'l', magic: true, pierce: true, mp: 35 }),
+             D('Starfire', '70% light to all enemies.', 4, 0.7, { aoe: true, force: 'l', magic: true, mp: 30 }),
+             D('Glare', '90% light with a 50% chance to Blind.', 3, 0.9, { force: 'l', magic: true, chanceFx: [['blind', 2, 0.5]], mp: 20 }),
+             B('Focus', 'Gathers the light: +30% damage for 2 turns.', 4, 'self', [['empower', 3]], { mp: 20 })],
+    passive: P('Keen Edge', '+8% critical hit chance.', { stat: { crit: 0.08 } }) },
+  { id: 'resh', name: 'Resh', faction: 'riftborn', role: 'support', force: 's', bio: 'A sound-shaper who moves the war to his own time.',
+    mods: { atk: 0.9, hp: 1.0, agi: 1.1 },
+    look: { body: 'wraith', main: '#2a2440', trim: '#5fcad1', eye: '#5fcad1' },
+    skills: [D('Clarion', '110% sonic blast.', 2, 1.1, { force: 's', magic: true, mp: 15 }),
+             B('Quickening Chord', 'An ally is Hastened for 3 turns: the bar runs quicker under them.', 4, 'ally', [['haste', 4]], { mp: 30, aiTarget: 'lowest' }),
+             D('Thrum', '100% sonic that pushes the target back.', 3, 1.0, { force: 's', magic: true, knockback: 120, mp: 20 }),
+             D('Discord', '80% sonic to all enemies with a 50% chance to Stagger.', 4, 0.8, { aoe: true, force: 's', magic: true, chanceFx: [['stagger', 1, 0.5]], mp: 30 }),
+             H('Steady Tone', 'A sustaining note heals an ally.', 3, 1.4, { mp: 20 })],
+    passive: P('Deep Well', '+25 max MP and +3 MP every turn.', { stat: { mp: 25, mpRegen: 3 } }) },
+  { id: 'nyx', name: 'Nyx', faction: 'riftborn', role: 'ranged', force: 'v', bio: 'A void-caller who unmakes what she touches.',
+    mods: { atk: 1.2, hp: 0.85, agi: 1.15 },
+    look: { body: 'wraith', main: '#241b33', trim: '#8a5ad6', eye: '#8a5ad6' },
+    skills: [D('Null Bolt', '120% void that never misses.', 2, 1.2, { force: 'v', magic: true, noDodge: true, mp: 15 }),
+             D('Unmake', '210% void that ignores shields.', 5, 2.1, { force: 'v', magic: true, ignoreShield: true, mp: 40 }),
+             D('Silencing Gyre', '90% void with a 50% chance to Silence.', 4, 0.9, { force: 'v', magic: true, chanceFx: [['silence', 2, 0.5]], mp: 30 }),
+             B('Phase', 'Slips half out of the world: attacks that can miss her will until her next turn.', 4, 'self', [['evade', 1]], { mp: 25 }),
+             D('Collapse Point', '70% void to all enemies.', 4, 0.7, { aoe: true, force: 'v', magic: true, mp: 30 })],
+    passive: P('Finisher', 'Deals 15% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.15 } }) },
+  { id: 'orin', name: 'Orin', faction: 'riftborn', role: 'support', bio: 'The Conductor: carries no force of his own, and so can lay any of them.',
+    mods: { atk: 0.85, hp: 1.0, agi: 1.0 },
+    look: { body: 'wraith', main: '#2a2440', trim: '#b9c0e0', eye: '#b9c0e0' },
+    skills: [D('Attune: Gravity', '80% hit that charges the target with Gravity.', 2, 0.8, { force: 'g', magic: true, mp: 15 }),
+             D('Grand Chord', '60% to all enemies, charging each with Sound for the warband to set off.', 4, 0.6, { aoe: true, force: 's', magic: true, mp: 35 }),
+             D('Attune: Light', '80% hit that charges the target with Light.', 2, 0.8, { force: 'l', magic: true, mp: 15 }),
+             D('Attune: Void', '80% hit that charges the target with Void.', 2, 0.8, { force: 'v', magic: true, mp: 15 }),
+             B('Conduct', 'An ally is Empowered for 2 turns: +30% damage.', 3, 'ally', [['empower', 3]], { mp: 20, aiTarget: 'lowest' })],
+    passive: P('Deep Well', '+25 max MP and +3 MP every turn.', { stat: { mp: 25, mpRegen: 3 } }) },
 ];
 
 const ATTACK = { id: 'attack', name: 'Attack', desc: 'Basic hit for 100%.', cd: 0, kind: 'damage', target: 'enemy', mult: 1, o: { heat: 10 } };
@@ -5188,7 +5282,7 @@ function dirPose(deg) {
    Switch ART_EXT to 'png' once your art is PNG. If a file is missing,
    the built-in placeholder drawing below is used instead. */
 const ART_EXT = 'svg';
-const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead' };
+const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead', riftborn: 'riftborn' };
 
 /* ==================================================================
    MONSTERS — the wild things of Emberhollow Cave. They fight with the
@@ -6828,6 +6922,50 @@ function searContact(mech, foe) {
 }
 
 // One hit: dodge → damage = ATK × mult × (±10%) × 50/(50+DEF) → crit, status and faction modifiers.
+/* ==================================================================
+   THE RIFTBORN — Resonance (see FACTIONS.riftborn). Every Riftborn hit carries one Force: the
+   champion's own `force`, or a skill's o.force. A landed hit leaves a Charge of that force on the
+   target (rcg/rcl/rcs/rcv, kept straight on u.effects as neutral marks, so cleanse and ward leave
+   them be). When a DIFFERENT force strikes a charged target the charge is spent and detonates into
+   a reaction — a bonus hit for a share of the detonator's attack, plus the status the pair carries.
+   ================================================================== */
+const RIFT_FORCE = { g: { name: 'Gravity', icon: '🕳️' }, l: { name: 'Light', icon: '✨' }, s: { name: 'Sound', icon: '🔊' }, v: { name: 'Void', icon: '🟣' } };
+const isRiftChip = (e) => e.id[0] === 'r' && e.id[1] === 'c' && !!RIFT_FORCE[e.id[2]];
+const riftGet = (t) => t.effects.find(isRiftChip);
+function riftSet(t, f) {
+  t.effects = t.effects.filter((e) => !isRiftChip(e));
+  t.effects.push({ id: 'rc' + f, turns: 2, force: f });
+}
+const RIFT_REACT = {
+  gl: { name: 'Lensing',      mult: 1.6, burst: 'fire' },
+  gv: { name: 'Collapse',     mult: 1.3, burst: 'smoke', fx: [['bash', 2]] },
+  gs: { name: 'Quake',        mult: 1.1, burst: 'roar',  knock: 200 },
+  lv: { name: 'Annihilation', mult: 1.9, burst: 'fire' },
+  ls: { name: 'Flash',        mult: 0.6, burst: 'buff',  fx: [['blind', 2], ['stagger', 2]] },
+  sv: { name: 'Silence',      mult: 0.9, burst: 'smoke', fx: [['silence', 2]] },
+};
+function riftDetonate(u, t, a, b) {
+  const r = RIFT_REACT[[a, b].sort().join('')];
+  if (!r) return;
+  let dmg = Math.max(1, Math.round(u.atk * r.mult));
+  if (favored(u)) dmg = Math.round(dmg * 1.25);   // Starfall: every reaction lands harder
+  t.hp = Math.max(0, t.hp - dmg);
+  burst(t, r.burst);
+  float(t, `${dmg}`, 'dmg');
+  float(t, `✦ ${r.name}`, 'fx');
+  log(`Resonance on ${t.name}: ${RIFT_FORCE[a].name} and ${RIFT_FORCE[b].name} meet — ${r.name} for ${dmg}.`, u.side);
+  if (r.knock && t.hp > 0) { t.pos = Math.max(0, (t.pos || 0) - r.knock); t.recoil = true; }
+  if (t.hp <= 0) { fell(t, u); return; }
+  for (const [id, n] of r.fx || []) addFx(t, id, n);
+}
+// Every Riftborn hit that lands runs through here: charge the target, or set off what is on it.
+function riftStrike(u, t, force) {
+  if (!force || t.hp <= 0) return;
+  const cur = riftGet(t);
+  if (cur && cur.force !== force) { t.effects = t.effects.filter((e) => e !== cur); riftDetonate(u, t, cur.force, force); }
+  else riftSet(t, force);
+}
+
 function strikeOnce(u, t, mult, label, o) {
   if (t.hp <= 0) return { miss: true };
   // Veiled: a champion a Vigil Candle has just called back takes nothing until their own turn comes.
@@ -7125,6 +7263,9 @@ function applyHitEffects(u, t, o) {
   // Entangle: mark the Slow it landed as rooted, so thorny roots grow at the target's feet (syncStatusFx).
   if (o.roots && has(t, 'slow')) has(t, 'slow').roots = true;
   for (const [id, turns, p] of o.chanceFx || []) if (chance(p)) { addFx(t, id, turns); ownFx(u, t, id); }
+  // THE RIFTBORN: this hit carries a Force (the skill's, or the champion's own) — charge or detonate.
+  const rforce = o.force || (u.faction === 'riftborn' ? charById(u.id)?.force : null);
+  if (rforce && RIFT_FORCE[rforce] && t.hp > 0) riftStrike(u, t, rforce);
   if (o.knockback && t.hp > 0) {
     // Dug In (Howitzer) and The Slow March (Mordrek): some things refuse to be moved.
     if (charNat(t).anchor || charNat(t).march) {
@@ -7597,7 +7738,8 @@ async function damageSkill(u, t, sk) {
   } else for (const tg of targets) {
     for (let i = 0; i < hits; i++) {
       if (tg.hp <= 0 || u.hp <= 0) break;
-      if (melee) await strikePose(u, false, sk, 1, tg);
+      if (o.deadfall && melee) await deadfallLift(u, tg);
+      else if (melee) await strikePose(u, false, sk, 1, tg);
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
       else if (!o.watersweep && !o.gust && targets.length === 1) {
@@ -7605,6 +7747,7 @@ async function damageSkill(u, t, sk) {
         await shoot(u, tg, proj);
       }
       if (o.slash && melee) slashFx(tg, facing(u));
+      if (o.gravpull) gravPullFx(tg);
       await hitOnce(tg, sk.mult);
     }
   }
@@ -7819,7 +7962,9 @@ async function buffSkill(u, t, sk) {
   const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
   await castPose(u, true);
   const ids = sk.fx.map(([id]) => id);
-  const look = ids.includes('taunt') ? 'roar' : ids.some((id) => id === 'shield' || id === 'ward') ? 'shield' : 'buff';
+  const forceBurst = { g: 'gravity', l: 'light', s: 'sound', v: 'void' };
+  const look = ids.includes('taunt') ? 'roar' : ids.some((id) => id === 'shield' || id === 'ward') ? 'shield'
+    : (u.faction === 'riftborn' && forceBurst[charById(u.id)?.force]) || 'buff';
   for (const a of targets) {
     burst(a, look);
     if (o.cleanse) cleanse(a);
@@ -8714,7 +8859,7 @@ function announceWeather() {
 }
 
 // Weather icons for the battle's weather pill.
-const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', dusk: '🌒', moon: '🌕', quake: '🪨', pall: '🪦' };
+const WX_ICON = { clear: '🌤️', brim: '☄️', ash: '🌋', storm: '⛈️', rain: '🌧️', sun: '🌅', mist: '🌫️', dusk: '🌒', moon: '🌕', starfall: '🌠', quake: '🪨', pall: '🪦' };
 
 function roundsUntilWeather() {
   if (state.wxNext != null) return state.wxNext - state.round;
@@ -17180,7 +17325,8 @@ const ANIM_FOOT = 0.94;   // the SVGs plant their feet here, so the clips line u
 let ANIM = null;          // manifest.json once it loads, and null for the whole session if it never does
 
 if (!reduced) {
-  fetch(`${ANIM_DIR}manifest.json`).then((r) => (r.ok ? r.json() : null)).then((m) => { ANIM = m; })
+  // no-cache: revalidate every load, so clips added in an update show up rather than a stale cached list
+  fetch(`${ANIM_DIR}manifest.json`, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((m) => { ANIM = m; })
     .catch(() => { /* no manifest: every champion keeps its SVG */ });
 }
 
@@ -17748,6 +17894,7 @@ const PROJ_ATTACK = {
   scrapbot: { kind: 'laser' }, illusion: { kind: 'inkball' },   // the turret fires light, not rivets (.proj-laser)
   mara: { kind: 'silver' },   // a thin silver round, out of a barrel that flashes fire and smoke (MUZZLE)
   cadris: { kind: 'firefly', wander: true },   // his basic attack sends a small green grave-firefly, drifting every which way before it strikes
+  vharo: { kind: 'lightray' }, resh: { kind: 'sonicpulse' }, nyx: { kind: 'voidbolt' }, orin: { kind: 'orb', color: '#b9c0e0' },
 };
 const PROJ_SKILL = {
   // Ironclad Union
@@ -17790,6 +17937,23 @@ const PROJ_SKILL = {
   'Blood Siphon': { kind: 'bloodbolt' },
   // The Pale Host
   'Scatter of Bones': { kind: 'bloodbones', arc: true },   // Vaun flings a fistful of broken, bloody ribs
+  // The Riftborn
+  'Ray': { kind: 'lightray' },
+  'Prism Lance': { kind: 'prismlance' },
+  'Starfire': { kind: 'starfire', impact: 'light' },
+  'Glare': { kind: 'glareshot', impact: 'light' },
+  'Clarion': { kind: 'sonicpulse', impact: 'sound' },
+  'Thrum': { kind: 'thrum', impact: 'sound' },
+  'Discord': { kind: 'discordwave', impact: 'sound' },
+  'Null Bolt': { kind: 'voidbolt', impact: 'void' },
+  'Unmake': { kind: 'voidlance', impact: 'void' },
+  'Silencing Gyre': { kind: 'voidgyre', impact: 'void' },
+  'Collapse Point': { kind: 'voidbolt', impact: 'void' },
+  'Attune: Gravity': { kind: 'attuneg', impact: 'gravity' },
+  'Attune: Light': { kind: 'attunel', impact: 'light' },
+  'Attune: Void': { kind: 'attunev', impact: 'void' },
+  'Grand Chord': { kind: 'discordwave', impact: 'sound' },
+  'Steady Tone': { kind: 'sonicpulse' },
   // Neutral skills (when a ranged champion equips them)
   'Throwing Axe': { kind: 'axe', arc: true },
   'Flash Powder': { kind: 'flash', arc: true, impact: 'flash' },
@@ -18003,6 +18167,39 @@ async function leapPose(u) {
     { transform: `translate(${d * 44}px, 2px) rotate(${d * 16}deg)`, offset: 0.8 },
     { transform: 'none' }], 520)) return;
   await sleep(beat(340));
+}
+
+/* Thassor's Deadfall: he lifts the target on a well of gravity (the target bobs up, hangs, then
+   crashes down) while Thassor himself drives his fist into the floor. The hit resolves on impact. */
+async function deadfallLift(u, t) {
+  const d = facing(u);
+  pose(u, [{ transform: 'none' },
+    { transform: `translateY(-8px) scaleY(1.06) rotate(${-d * 5}deg)`, offset: 0.3 },
+    { transform: `translateY(-10px) scaleY(1.08) rotate(${-d * 7}deg)`, offset: 0.5 },
+    { transform: `translateY(6px) scaleY(.88) rotate(${d * 8}deg)`, offset: 0.72, easing: 'cubic-bezier(.6,0,1,.4)' },
+    { transform: 'none' }], 820);
+  burst(t, 'gravity');
+  if (!pose(t, [{ transform: 'none' },
+    { transform: 'translateY(-60px) scale(.92)', offset: 0.28, easing: 'ease-out' },
+    { transform: 'translateY(-66px) scale(.9)', offset: 0.48 },
+    { transform: 'translateY(8px) scale(1.08)', offset: 0.72, easing: 'cubic-bezier(.7,0,1,.4)' },
+    { transform: 'translateY(4px) scale(1.04)', offset: 0.84 },
+    { transform: 'none' }], 820)) return;
+  await sleep(beat(580));
+  tremorFx(500);
+  burst(t, 'smoke');
+  await sleep(beat(140));
+}
+
+/* Thassor's Event Horizon: a gravity vortex yanks the target — a brief purple inward spiral. */
+function gravPullFx(t) {
+  const b = bodyEl(t);
+  if (reduced || !b) return;
+  const el = document.createElement('div');
+  el.className = 'burst burst-gravity';
+  el.style.cssText = 'animation: ring .5s ease-in reverse; border-width: 3px;';
+  b.appendChild(el);
+  setTimeout(() => el.remove(), 600);
 }
 
 /* Riptide: Tharos plants his feet and hauls the trident overhead, holding it up while the water
@@ -18536,6 +18733,7 @@ function factionPassive(u) {
   if (u.race === 'elf') return `<b>Precision ${u.stacks}/${stackCap(u)}:</b> +${u.stacks * 10}% crit. ${charNat(u).line ? 'A hit costs one stack.' : 'Resets when hit.'}`;
   if (u.race === 'dwarf') return `<b>Fortify ${u.stacks}/${stackCap(u)}:</b> −${u.stacks * 8}% damage taken.`;
   if (u.faction === 'tide') return highTide() ? '<b>High Tide:</b> +25% damage and healing this round.' : '<b>Low Tide.</b> High Tide arrives next round.';
+  if (u.faction === 'riftborn') { const f = charById(u.id)?.force; return `<b>Resonance:</b> hits carry ${f ? RIFT_FORCE[f].name : 'a Force'}; a second, different Force on a charged enemy sets off a reaction.`; }
   if (u.faction === 'crimson') return courtStarved(u) ? '<b>Bloodthirst, starved:</b> no lifesteal under Clear Skies.'
     : `<b>Bloodthirst:</b> every hit drains ${wx() === 'moon' ? 40 : 20}% of the damage dealt as HP.`;
   if (u.faction === 'undead') {

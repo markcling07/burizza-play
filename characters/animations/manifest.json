@@ -741,5 +741,120 @@
       "ms": 1440,
       "hitMs": 675
     }
+  },
+  "thassor": {
+    "idle": {
+      "src": "thassor-idle.webp",
+      "w": 350,
+      "h": 280,
+      "footX": 150,
+      "footY": 270,
+      "frames": 18,
+      "frameMs": 75,
+      "ms": 1350
+    },
+    "attack": {
+      "src": "thassor-attack.webp",
+      "w": 350,
+      "h": 280,
+      "footX": 150,
+      "footY": 270,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 520
+    }
+  },
+  "vharo": {
+    "idle": {
+      "src": "vharo-idle.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 18,
+      "frameMs": 75,
+      "ms": 1350
+    },
+    "attack": {
+      "src": "vharo-attack.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 480
+    }
+  },
+  "resh": {
+    "idle": {
+      "src": "resh-idle.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 18,
+      "frameMs": 75,
+      "ms": 1350
+    },
+    "attack": {
+      "src": "resh-attack.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 520
+    }
+  },
+  "nyx": {
+    "idle": {
+      "src": "nyx-idle.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 18,
+      "frameMs": 75,
+      "ms": 1350
+    },
+    "attack": {
+      "src": "nyx-attack.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 520
+    }
+  },
+  "orin": {
+    "idle": {
+      "src": "orin-idle.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 18,
+      "frameMs": 72,
+      "ms": 1296
+    },
+    "attack": {
+      "src": "orin-attack.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 520
+    }
   }
 }
