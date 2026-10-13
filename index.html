@@ -43,6 +43,15 @@
   --sky-sun: #4a3a30;
   --sky-mist: #2b3a3a;
   --rain: rgba(170, 205, 255, .22);
+  /* Standing water. A puddle is darker than the dry ground it sits in, not lighter — the light it
+     does catch sits on the rim. The flood is deeper and bluer, and its waterline catches the light
+     that the body of it does not. */
+  --puddle-deep: rgba(12, 28, 46, .50);
+  --puddle: rgba(116, 170, 220, .30);
+  --puddle-lip: rgba(196, 229, 255, .52);
+  --flood: rgba(62, 116, 168, .58);
+  --flood-deep: rgba(18, 48, 82, .72);
+  --flood-line: rgba(188, 226, 255, .55);
   --flash: rgba(220, 230, 255, .9);
   --ember: rgba(255, 140, 70, .6);
   --ash: rgba(210, 200, 190, .35);
@@ -262,11 +271,41 @@ body[data-screen="select"] .top { display: none; }
 .expExits button { width: 100%; text-align: left; display: flex; align-items: center; gap: 10px; }
 .expExits .etype { font-size: .72rem; color: var(--accent); font-weight: 700; margin-left: auto; }
 .expExits button:disabled .etype { color: var(--muted); }
-.expMap { margin: 10px 0 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #0002; }
-.expMap h4 { margin: 0 0 6px; font-size: .8rem; color: var(--muted); font-weight: 700; }
-.expMap ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: .78rem; }
-.expMap li.here { color: var(--accent); font-weight: 700; }
-.expMap li.done { color: var(--muted); text-decoration: line-through; }
+/* THE VAULT MAP — the screen the warband shares. On an expedition this is all they see together:
+   the road, where they stand on it, and which doors are open. A champion is tended to on a sheet of
+   their own (expSheetHTML), which is a separate screen on purpose — see the note there. The rooms
+   are real buttons rather than shapes inside the drawing, so the road can be walked by keyboard and
+   read by a screen reader; only the passages between them are drawn. */
+.vmap { position: relative; margin: 10px 0 0; }
+.vmap > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.vmap > svg path { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.vroom {
+  position: absolute; translate: -50% -50%; display: flex; align-items: center; gap: 6px;
+  padding: 4px 9px; border-radius: 6px; border: 1px solid var(--line); background: #0b0d14d9;
+  color: var(--muted); font: inherit; font-size: .74rem; white-space: nowrap; cursor: default;
+}
+.vroom.done { opacity: .5; }
+.vroom.dead { border-style: dashed; opacity: .55; }
+.vroom.here { border-color: var(--accent); color: var(--accent); font-weight: 700; background: #e8b65a24; }
+/* An open door. The only rooms on the map that can be clicked are the ones you could walk to now. */
+.vroom.go { cursor: pointer; border-color: #8ab4e8; color: #d6e6f8; }
+.vroom.go:hover, .vroom.go:focus-visible { background: #8ab4e82e; outline: none; }
+.vroom:disabled { cursor: default; }
+.vm.m-start { color: var(--accent); } .vm.m-fight { color: #ec786e; } .vm.m-loot { color: var(--accent); }
+.vm.m-rune { color: #7eb2e0; } .vm.m-boss { color: #ff6a5a; } .vm.m-dead { color: var(--muted); }
+.vkey { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; font-size: .68rem; color: var(--muted); }
+/* The warband strip: who is with you and how they are, and nothing you can act on. Acting happens
+   on a champion's own sheet. */
+.wband { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.wchip {
+  display: grid; gap: 1px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: #0b0d14aa; color: var(--text); font: inherit; font-size: .76rem; text-align: left; cursor: pointer;
+}
+.wchip:hover, .wchip:focus-visible { border-color: var(--accent); outline: none; }
+.wchip .wn { font-weight: 700; }
+.wchip .ws { color: var(--muted); font-size: .9em; }
+.wchip .wt { color: var(--accent); font-size: .9em; font-weight: 700; }
+.wchip.spent .wt { color: var(--muted); font-weight: 400; }
 /* The Post-Chamber phase: Preparation Turns (§4) and the rune selections (§7). */
 .expPrep, .expRunes { margin: 10px 0 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #0002; }
 .expPrep h4, .expRunes h4 { margin: 0 0 6px; font-size: .8rem; color: var(--muted); font-weight: 700; }
@@ -545,6 +584,45 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .tok.down { display: none; }
 
 /* Battlefield: a side-view stage. Champions stand on it by their feet (--x, --y in % of the stage). */
+/* ==================================================================
+   THE BATTLEFIELD (see FIELDS). An overland battle is fought somewhere, and that somewhere is drawn
+   the way the cave ceiling is: out of one attribute, in CSS and inline SVG, with no image files.
+   Each field sets its own sky, horizon and ground, plus four depth colours the scene SVG reads:
+     --f-far    the band on the skyline, furthest off and darkest
+     --f-mid    standing things behind the warbands
+     --f-near   what lies on the ground they fight over
+     --f-line   the one lit edge that picks all of it out of the murk
+   Deliberately placed BEFORE the weather rules below: [data-wx] ties with [data-field] on
+   specificity, so the later block wins and the weather keeps its say over the sky. Caves, dungeons
+   and expeditions never carry a field at all — they have their own look already. */
+.arena[data-field="forest"] {
+  --sky-now: #1d2b26; --horizon: #14201a; --ground: #1b2619; --floorglow: rgba(150, 220, 160, .05);
+  --f-far: #0e1712; --f-mid: #16241a; --f-near: #27351f; --f-line: rgba(176, 226, 150, .5);
+}
+.arena[data-field="village"] {
+  --sky-now: #2b2a33; --horizon: #241d18; --ground: #2a211a; --floorglow: rgba(255, 196, 120, .07);
+  --f-far: #171319; --f-mid: #2a2019; --f-near: #3a2d21; --f-line: rgba(255, 206, 140, .55);
+}
+.arena[data-field="ruins"] {
+  --sky-now: #272932; --horizon: #20212a; --ground: #23242b; --floorglow: rgba(200, 206, 226, .06);
+  --f-far: #15161d; --f-mid: #262833; --f-near: #343645; --f-line: rgba(206, 214, 238, .45);
+}
+/* The backdrop itself. First child of the arena and z-index 0, so it paints after the arena's own
+   gradient and before the champions (who are later in the DOM at z-index auto) — the warbands always
+   stand in front of the scenery, never inside it. Stretches with the arena on purpose: the horizon
+   has to stay welded to the 34% line the background gradient puts it on. */
+.arena > .scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.arena > .scene svg { width: 100%; height: 100%; display: block; }
+/* Underground there is no field, and no scenery either way. */
+.arena[data-wx="cave"] > .scene { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  /* The only thing that moves out there: chimney smoke, and leaves coming down through the wood. */
+  .scene .drift { animation: fieldDrift 9s linear infinite; }
+  .scene .drift:nth-of-type(2n) { animation-duration: 13s; animation-delay: -4s; }
+  .scene .drift:nth-of-type(3n) { animation-duration: 11s; animation-delay: -7s; }
+}
+@keyframes fieldDrift { to { transform: translate(6px, 0); opacity: 0; } }
+
 .arena {
   --sky-now: var(--sky);
   position: relative; overflow: hidden; isolation: isolate; container-type: inline-size;
@@ -557,12 +635,47 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .arena > .side { position: absolute; inset: 0; pointer-events: none; }
 /* MOLOTOV'S GROUND FIRE. Same bargain as .side: no z-index, so each flame's own depth competes with the
    champions' and the fire sorts in among them rather than sitting flatly over or under the lot. */
+/* WHAT IS BEING CAST. Each side shows the last spell it threw, in its own bottom corner of the
+   chamber — yours on the left, theirs on the right. One apiece, replaced as the fight goes: a stack
+   of the last several turned into a wall of small pictures nobody reads, and at four it had already
+   begun wrapping on top of itself. Basic swings and Guard are not spells and never appear here — a
+   feed that logged every attack would say nothing. */
+.castfeed { position: absolute; bottom: 2.5%; z-index: 6; pointer-events: none; display: flex; }
+.cf-p { left: 2%; }
+.cf-e { right: 2%; }
+.castfeed img {
+  width: clamp(24px, 5.6cqw, 50px); height: auto; display: block; border-radius: 7px;
+  border: 1px solid var(--line); background: #0b0d14cc;
+  animation: castIn .32s ease-out backwards;
+}
+.cf-p img { border-color: rgba(138, 180, 232, .5); }
+.cf-e img { border-color: rgba(236, 120, 110, .5); }
+@keyframes castIn { from { opacity: 0; scale: .5; } }
+@media (prefers-reduced-motion: reduce) { .castfeed img { animation: none; } }
+
 .arena > .gfire { position: absolute; inset: 0; pointer-events: none; }
 .gf {
   position: absolute; width: clamp(13px, 3.1cqw, 34px); translate: -50% -86%;
+  --gf-cycle: 2.8s;
   animation: gfRise .45s ease-out backwards;   /* staggered, so the fire runs along the ground as it catches */
 }
-.gf svg { width: 100%; height: auto; display: block; overflow: visible; scale: var(--gs, 1); transform-origin: 50% 100%; }
+/* The fire is alive: every tongue belongs to one of three sets (--gset, dealt 0,1,2 along the
+   ground in syncGroundFire), and each set guts down to an ember and flares back in turn. The sets
+   are held a third of a cycle apart, so at any moment one is falling, one is climbing and one is
+   burning — the fire keeps rolling along itself instead of sitting there flickering in place.
+   Neighbouring tongues land in different sets, which is what makes the movement travel.
+   Never fully out: a tongue that vanished outright would leave its scorch glow burning on bare
+   dirt. Dipping to an ember keeps the two honest, and reads as fire finding new fuel. */
+.gf svg {
+  width: 100%; height: auto; display: block; overflow: visible; scale: var(--gs, 1); transform-origin: 50% 100%;
+  animation: gfCycle var(--gf-cycle) ease-in-out infinite;
+  animation-delay: calc(var(--gset, 0) * var(--gf-cycle) / -3);
+}
+@keyframes gfCycle {
+  0%, 34%   { opacity: 1; scale: var(--gs, 1); }
+  50%       { opacity: .16; scale: calc(var(--gs, 1) * .34); }
+  66%, 100% { opacity: 1; scale: var(--gs, 1); }
+}
 /* Each tongue flickers on its own clock (--fd is negative, so it starts mid-flicker), and the inner
    yellow core runs a beat behind its outer flame. */
 .gf .flame { animation-delay: var(--fd, 0s); }
@@ -578,7 +691,7 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 /* Breathes on `scale`, never on `width`: a whole field of these animating a layout property would make
    the browser re-lay the arena out on every frame. */
 @keyframes gfGlow { to { opacity: .55; scale: .82 1; } }
-@media (prefers-reduced-motion: reduce) { .gf, .gf::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .gf, .gf svg, .gf::after { animation: none; } }
 .arena::before, .arena::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .8s; }
 .arena[data-wx="ash"] { --sky-now: var(--sky-ash); }
 /* Brimstone Fall: the warning sky (yellow and bright orange two rounds out, dusky beige-orange the
@@ -624,6 +737,114 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
   opacity: 1; background: linear-gradient(90deg, transparent, var(--mist) 30%, transparent 60%, var(--mist) 85%, transparent);
   background-size: 200% 100%; animation: mist 14s linear infinite;
 }
+/* STANDING WATER (.wxg) — puddles in a Downpour, a flooded field in a Thunderstorm. One element,
+   two states, no script: the arena's own data-wx decides which, and it is display:none in the other
+   nine kinds of weather so it costs nothing there. The arena's floor begins at 36% of its height
+   (see the sky/horizon/floor gradient above), so everything below is placed under that line.
+   The arena's ::before and ::after are already spoken for — the falling rain and the lightning
+   flash — which is why this is a real element rather than another pseudo.
+   Motion is opacity and transform ONLY. A sheet of water breathing on a layout property would make
+   the browser re-lay the arena out every frame, the same rule the ground fire follows. */
+.wxg { position: absolute; inset: 0; display: none; pointer-events: none; }
+
+/* DOWNPOUR — puddles standing in the dips of the ground, each with a brighter lip where the water
+   meets the dirt. Placed by hand and deliberately unevenly: an even spread reads as wallpaper,
+   not as ground that happens to hold water.
+
+   They are not there when the rain starts. --pud is the share of its full size every pool is
+   currently at, and it runs 0 → 1 over the opening half-minute of the Downpour, so the ground
+   darkens and spreads while the warbands are already fighting on it. It has to be a registered
+   property: an ordinary custom property is a string as far as the animation is concerned and
+   would snap from 0 to 1 at the halfway mark instead of sweeping through it. */
+@property --pud { syntax: '<number>'; initial-value: 1; inherits: true; }
+@keyframes puddleFill { from { --pud: 0; } }
+
+.arena[data-wx="rain"] .wxg {
+  display: block;
+  /* Near enough to linear: the water has to keep gaining the whole time it is raining. An eased
+     curve looks right on paper and cheats in practice — anything that reaches full height early
+     spends the rest of the Downpour standing still, which is the pop we were trying to avoid. */
+  animation: puddleFill 24s cubic-bezier(.45, .25, .6, .9);
+  background-image:
+    /* Foreground — nearest the eye, so the widest pools. */
+    radial-gradient(ellipse calc(8.0% * var(--pud)) calc(2.5% * var(--pud)) at 53% 95%, var(--puddle-deep) 0 32%, var(--puddle) 50%, var(--puddle-lip) 72% 84%, transparent 92%),
+    radial-gradient(ellipse calc(7.0% * var(--pud)) calc(2.3% * var(--pud)) at 25% 93%, var(--puddle-deep) 0 30%, var(--puddle) 48%, var(--puddle-lip) 70% 82%, transparent 90%),
+    radial-gradient(ellipse calc(4.5% * var(--pud)) calc(1.5% * var(--pud)) at 80% 91%, var(--puddle-deep) 0 28%, var(--puddle) 46%, var(--puddle-lip) 68% 82%, transparent 90%),
+    /* Midfield, where the warbands stand. */
+    radial-gradient(ellipse calc(6.0% * var(--pud)) calc(2.0% * var(--pud)) at 70% 87%, var(--puddle-deep) 0 30%, var(--puddle) 48%, var(--puddle-lip) 70% 82%, transparent 90%),
+    radial-gradient(ellipse calc(6.0% * var(--pud)) calc(2.0% * var(--pud)) at 7% 86%, var(--puddle-deep) 0 30%, var(--puddle) 48%, var(--puddle-lip) 70% 82%, transparent 90%),
+    radial-gradient(ellipse calc(5.5% * var(--pud)) calc(1.7% * var(--pud)) at 37% 84%, var(--puddle-deep) 0 28%, var(--puddle) 46%, var(--puddle-lip) 68% 82%, transparent 90%),
+    radial-gradient(ellipse calc(5.0% * var(--pud)) calc(1.6% * var(--pud)) at 87% 78%, var(--puddle-deep) 0 28%, var(--puddle) 46%, var(--puddle-lip) 68% 82%, transparent 90%),
+    radial-gradient(ellipse calc(9.5% * var(--pud)) calc(2.6% * var(--pud)) at 61% 73%, var(--puddle-deep) 0 32%, var(--puddle) 50%, var(--puddle-lip) 72% 84%, transparent 92%),
+    radial-gradient(ellipse calc(4.5% * var(--pud)) calc(1.4% * var(--pud)) at 31% 72%, var(--puddle-deep) 0 28%, var(--puddle) 46%, var(--puddle-lip) 68% 82%, transparent 90%),
+    /* Back of the field — further off, so they shrink toward the horizon. */
+    radial-gradient(ellipse calc(7.5% * var(--pud)) calc(2.2% * var(--pud)) at 16% 69%, var(--puddle-deep) 0 30%, var(--puddle) 48%, var(--puddle-lip) 70% 82%, transparent 90%),
+    radial-gradient(ellipse calc(3.5% * var(--pud)) calc(1.1% * var(--pud)) at 46% 65%, var(--puddle-deep) 0 28%, var(--puddle) 46%, var(--puddle-lip) 68% 82%, transparent 90%),
+    radial-gradient(ellipse calc(6.5% * var(--pud)) calc(2.0% * var(--pud)) at 91% 64%, var(--puddle-deep) 0 30%, var(--puddle) 48%, var(--puddle-lip) 70% 82%, transparent 90%);
+}
+/* The rain keeps striking them, so they are never quite still: a second, fainter set of highlights
+   over the same pools, swelling and fading out of step with nothing in particular. */
+.arena[data-wx="rain"] .wxg::after {
+  content: ''; position: absolute; inset: 36% 0 0; pointer-events: none;
+  background-image:
+    radial-gradient(ellipse calc(3.5% * var(--pud)) calc(1.2% * var(--pud)) at 53% 92%, var(--puddle-lip) 0 50%, transparent 70%),
+    radial-gradient(ellipse calc(3% * var(--pud)) calc(1.1% * var(--pud)) at 25% 89%, var(--puddle-lip) 0 50%, transparent 70%),
+    radial-gradient(ellipse calc(2.5% * var(--pud)) calc(1% * var(--pud)) at 70% 80%, var(--puddle-lip) 0 50%, transparent 70%),
+    radial-gradient(ellipse calc(3% * var(--pud)) calc(1.1% * var(--pud)) at 16% 52%, var(--puddle-lip) 0 50%, transparent 70%),
+    radial-gradient(ellipse calc(4% * var(--pud)) calc(1.3% * var(--pud)) at 61% 58%, var(--puddle-lip) 0 50%, transparent 70%),
+    radial-gradient(ellipse calc(2.5% * var(--pud)) calc(1% * var(--pud)) at 91% 44%, var(--puddle-lip) 0 50%, transparent 70%);
+  opacity: .5; animation: puddleStir 4.5s ease-in-out infinite;
+}
+@keyframes puddleStir { 50% { opacity: .95; } }
+
+/* THUNDERSTORM — the field floods. A bright waterline where the surface cuts the ground, a body of
+   water below it, and the depth darkening toward the foot of the arena.
+
+   The water comes in as a tide rather than a switch. --flood-lvl is where the surface stands: 0 is
+   bare ground, 1 is up to the horizon, and the whole arena below the line is water. It creeps up
+   over the opening half-minute, stands at its height while the storm is at its worst, then drains
+   back down just as slowly. The cycle repeats, so a long Thunderstorm surges and falls instead of
+   sitting at one level — and because the water recedes the way it arrived, nothing ever snaps.
+   WATER_TOP is that surface expressed as a distance down the arena: the floor starts at 36%, so
+   level 1 puts the line there and level 0 puts it at the very bottom, 64% further down. */
+@property --flood-lvl { syntax: '<number>'; initial-value: 1; inherits: true; }
+@keyframes floodTide {
+  0%   { --flood-lvl: 0; }
+  38%  { --flood-lvl: 1; }
+  60%  { --flood-lvl: 1; }
+  96%  { --flood-lvl: 0; }
+  100% { --flood-lvl: 0; }
+}
+.arena[data-wx="storm"] .wxg {
+  display: block;
+  --water-top: calc(100% - 64% * var(--flood-lvl));
+  background-image:
+    /* The waterline, laid over the body as its own thin strip so it can fade out at either end.
+       Run edge to edge at a flat brightness it stops being water and starts reading as a drawn
+       rule across the arena — the fade is what keeps it a surface. */
+    linear-gradient(to right, transparent, var(--flood-line) 14% 86%, transparent),
+    linear-gradient(to bottom, transparent 0 var(--water-top), var(--flood) var(--water-top), var(--flood-deep) 100%);
+  background-size: 100% 2px, 100% 100%;
+  background-position: 0 var(--water-top), 0 0;
+  background-repeat: no-repeat;
+  /* ease-in-out applies to each leg, so the water settles at the top of the tide and at the bottom
+     instead of arriving and leaving at full speed. */
+  animation: floodTide 74s ease-in-out infinite;
+}
+/* ...and the surface moves: slow bands drifting down the water, clipped to the water itself, so
+   they only ever appear below wherever the line currently stands. */
+.arena[data-wx="storm"] .wxg::after {
+  content: ''; position: absolute; inset: var(--water-top) 0 0; pointer-events: none;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 15px, rgba(190, 226, 255, .05) 15px 16px);
+  animation: floodDrift 7s linear infinite;
+}
+@keyframes floodDrift { to { transform: translateY(16px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .arena[data-wx="rain"] .wxg::after, .arena[data-wx="storm"] .wxg::after { animation: none; }
+  .arena[data-wx="storm"] .wxg { animation: none; }
+}
+
 /* Underground: a rock ceiling with stalactites and a faint ember glow instead of a sky. */
 .arena[data-wx="cave"] {
   --sky-now: var(--cave-rock);
@@ -1015,6 +1236,11 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @media (prefers-reduced-motion: reduce) {
   .unit.misted .mistfog, .unit.misted .mistfog::before { animation: none; }
 }
+/* WEARING WHAT YOU CARRY. While a champion holds something other than the weapon they were drawn
+   with, their art is inlined and the painted weapon's pieces (class="wpn" in the art file) are
+   hidden — all but the one we just put in their hand, which wears the same class so the strike
+   poses still swing it. Costs nothing for a champion carrying their own weapon: no .held, no rule. */
+.upic svg.art.held .wpn:not(.heldwpn) { display: none; }
 .upic .stfx { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .upic .stfx img { position: absolute; left: -15%; top: -25%; width: 130%; height: 125%; max-width: none; object-fit: fill; }
 .unit.st-burn .upic > :is(.art, svg, .anim) { filter: sepia(.25) saturate(1.35) brightness(1.06); }
@@ -1023,6 +1249,30 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit.st-bleed .upic > :is(.art, svg, .anim) { filter: drop-shadow(0 0 2px rgba(220, 40, 60, .7)); }
 .unit.st-taunt .upic > :is(.art, svg, .anim) { filter: drop-shadow(0 0 3px rgba(255, 90, 60, .8)); }
 .unit.st-burn.st-soaked .upic > :is(.art, svg, .anim) { filter: sepia(.15) saturate(1.1); }
+/* BURN — tongues scattered over the champion themselves (see burnFlamesSVG). Drawn in the art's own
+   100x100 space so they sit exactly where the body is, with overflow visible because a tall tongue
+   on a shoulder reaches past the top of the box. The flicker comes free from the shared .flame rule. */
+.upic .stfx .burnfx { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+/* The light the fire throws, hung on the group rather than on each path — one filter per burning
+   champion instead of eight, and it keeps the glow off the smoke, which should not be lit. */
+.burnfx .burnlit { filter: drop-shadow(0 0 2px rgba(255, 150, 40, .9)); }
+/* Smoke: a thin wisp off a couple of the tongues, climbing and spreading as it goes. Deliberately
+   faint — the fire is the read, this is only what proves it is burning something. */
+.burnfx .smoke {
+  transform-box: fill-box; transform-origin: 50% 100%;
+  filter: blur(.7px);   /* softens the ellipse into a puff — unblurred it reads as a grey dot */
+  animation: burnSmoke 2.8s ease-out infinite;
+}
+@keyframes burnSmoke {
+  0%   { opacity: 0; transform: translateY(0) scale(.4); }
+  28%  { opacity: .42; }
+  100% { opacity: 0; transform: translateY(-24px) scale(1.7); }
+}
+/* Soaked and burning at once: the fire is losing. It guts down to embers rather than vanishing,
+   which keeps the two statuses legible on the same body. */
+.unit.st-soaked .upic .stfx .burnfx { opacity: .5; }
+.unit.st-soaked .burnfx .burnlit { filter: drop-shadow(0 0 1px rgba(255, 150, 40, .5)); }
+@media (prefers-reduced-motion: reduce) { .burnfx .smoke { animation: none; opacity: .2; } }
 
 /* Projectiles, lightning and impact effects */
 .proj { position: absolute; left: 0; top: 0; z-index: 250; pointer-events: none; will-change: transform; }
@@ -1033,6 +1283,16 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   background: linear-gradient(180deg, #ffffff, #c9d0dc 55%, #8d97a8); box-shadow: 0 0 4px rgba(235, 242, 255, .95), 0 0 9px rgba(190, 205, 230, .55); }
 .proj-silver::before { content: ''; position: absolute; right: 100%; top: 50%; width: 26px; height: 1.6px; margin-top: -.8px;
   background: linear-gradient(90deg, rgba(220, 228, 242, 0), rgba(235, 240, 250, .75)); }
+/* The Scrapbot's gun: a very thin green laser. Drawn in CSS rather than as PROJ_ART because a
+   hairline of light has no edge to ink and a sub-pixel SVG stroke only comes out muddy — the same
+   reason Mara's tracer is a CSS bar. 1.5px tall, hottest at the leading tip, with a long faint
+   tail behind it so three of them read as a burst of beams rather than three dashes.
+   Green is #8be28b, the bot's own trim colour (SUMMONS.scrapbot.look). */
+.proj-laser { width: 34px; height: 1.5px; margin: -.75px 0 0 -17px; border-radius: .75px;
+  background: linear-gradient(90deg, rgba(139, 226, 139, 0), rgba(139, 226, 139, .55) 40%, #8be28b 74%, #f2fff2);
+  box-shadow: 0 0 4px rgba(139, 226, 139, .95), 0 0 11px rgba(90, 210, 110, .6); }
+.proj-laser::before { content: ''; position: absolute; right: 100%; top: 50%; width: 30px; height: 1px; margin-top: -.5px;
+  background: linear-gradient(90deg, rgba(139, 226, 139, 0), rgba(139, 226, 139, .5)); }
 /* Muzzle fire and smoke at the barrel of a gun (muzzleFlash): a wrapper flipped to face the shot, the
    flame inside it, and loose puffs of powder smoke. */
 .ricospark { position: absolute; z-index: 252; width: 40px; height: 40px; margin: -20px 0 0 -20px; pointer-events: none; }
@@ -1168,6 +1428,16 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @keyframes tvBeat { 15% { transform: scale(1.5); } 30% { transform: scale(1); } 45% { transform: scale(1.3); } 60% { transform: scale(1); } }
 @keyframes tvIn { from { opacity: 0; } }
 .burst-splash { width: 115%; background: radial-gradient(circle at 35% 35%, #fff 0 4%, transparent 5%), radial-gradient(circle at 66% 42%, #dff7ff 0 3%, transparent 4%), radial-gradient(circle, rgba(170, 235, 250, .85) 0 22%, rgba(63, 182, 216, .55) 44%, transparent 66%); animation-duration: .6s; }
+/* Rimefall's shards breaking on a body: a hard white shatter with splinters thrown off it, colder
+   and sharper than the Tideborn's splash — no wet bloom, just frost and glass. */
+.burst-ice { width: 112%;
+  background: radial-gradient(circle at 50% 46%, #fff 0 7%, transparent 8%),
+              radial-gradient(circle at 28% 28%, #fff 0 3%, transparent 4%),
+              radial-gradient(circle at 74% 34%, #e8fbff 0 2.6%, transparent 3.6%),
+              radial-gradient(circle at 33% 72%, #e8fbff 0 2.4%, transparent 3.4%),
+              radial-gradient(circle at 70% 70%, #fff 0 2%, transparent 3%),
+              radial-gradient(circle, rgba(214, 245, 255, .9) 0 16%, rgba(132, 206, 236, .5) 38%, transparent 62%);
+  animation-duration: .5s; }
 /* Stinging Jelly's shock (jellyShock): a quick blue-white electric crackle with a jagged bolt. */
 .burst-shock { width: 108%;
   background: radial-gradient(circle at 42% 30%, #fff 0 3%, transparent 4%),
@@ -1620,6 +1890,65 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .overlay.docked { place-items: end center; padding: 0 8px 8px; background: none; pointer-events: none; overflow: hidden; }
 .overlay.docked .card { pointer-events: auto; max-height: 52vh; overflow-y: auto; padding: 14px 16px; gap: 8px; box-shadow: 0 -8px 26px rgba(0, 0, 0, .55); }
 .overlay.docked .card h2 { font-size: 1.4rem; }
+/* THE DECISION, HELD UP IN THE ROOM ITSELF. Rather than throwing a card over the whole screen, the
+   map stands in the right of the chamber — where nothing is standing — and the rune-casket is opened
+   on the floor to its left, so the warband is never hidden behind its own paperwork. The arena is
+   responsive and its box is not knowable from CSS, so expDockToArena measures it on every render and
+   publishes it as --ax/--ay/--aw/--ah; everything below is placed off those. */
+.overlay.exproom { display: block; place-items: unset; padding: 0; background: none; overflow: visible; pointer-events: none; }
+.overlay.exproom .card, .overlay.exproom .runepane {
+  position: fixed; pointer-events: auto; top: calc(var(--ay, 0px) + 10px);
+  max-height: calc(var(--ah, 0px) - 20px); overflow-y: auto;
+  background: #0b0d14f0; border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+.overlay.exproom .card {
+  right: calc(var(--ar, 0px) + var(--aw, 0px) * .03); width: calc(var(--aw, 0px) * .355);
+  padding: 10px 13px; gap: 6px;
+}
+.overlay.exproom .card h2 { font-size: 1.05rem; }
+.overlay.exproom .card .kick { font-size: .6rem; }
+.overlay.exproom .runepane { right: calc(var(--ar, 0px) + var(--aw, 0px) * .405); width: calc(var(--aw, 0px) * .3); padding: 10px 13px; }
+/* While a kept rune is looking for a bearer the warband IS the chooser, so the chamber has to be
+   clear enough to choose in: the map stands down (its doors are all disabled anyway while a rune is
+   held) and the casket takes its place on the right, leaving the champions in the open. */
+.overlay.exproom.casketopen .card { display: none; }
+.overlay.exproom.casketopen .runepane { right: calc(var(--ar, 0px) + var(--aw, 0px) * .03); width: calc(var(--aw, 0px) * .355); }
+.overlay.exproom .runepane h4 { margin: 0 0 8px; font-size: .78rem; color: var(--accent); }
+/* The three runes stand one above another — a column of cut stones, never a row. */
+/* grid-auto-rows:1fr makes the three stones the same height whatever their wording — a casket of
+   equals, so nothing is chosen because its card looked bigger. */
+.runepane .expExits { grid-template-columns: 1fr; grid-auto-rows: 1fr; margin: 0; }
+.runepane .expExits li { display: grid; }
+.runepane .expExits button { flex-direction: row; align-items: center; gap: 9px; padding: 7px 9px; height: 100%; }
+.runepane .expExits .etype { margin-left: 0; font-weight: 400; font-size: .67rem; color: var(--muted); white-space: normal; line-height: 1.35; }
+.rtext { display: grid; gap: 1px; min-width: 0; }
+.rtext .rname { font-weight: 700; font-size: .79rem; line-height: 1.2; }
+/* The cut stone itself. The mark is stroked, never filled — a carving is a groove, not a shape. */
+.runeart { width: 29px; height: 36px; flex: 0 0 auto; display: block; }
+.runeart .stone { fill: #171b25; stroke: rgba(214, 198, 166, .3); stroke-width: 1.3; stroke-linejoin: round; }
+.runeart .cut { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+/* The kept rune, held up while the warband decides who carries it. */
+.runeheld { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.runeheld .runeart { width: 38px; height: 47px; }
+/* THE CUTTING. With a rune kept and nobody yet carrying it, the whole warband stands lit and waiting
+   — the field is the chooser, not a list of names. The stone then flies to whoever is picked and
+   flares in its own colour on them, so the answer to "who got it?" is watched rather than read. */
+.unit.runepick { cursor: pointer; }
+.unit.runepick .upic { animation: runePick 1.2s ease-in-out infinite; }
+@keyframes runePick { 50% { filter: drop-shadow(0 0 7px var(--accent)) brightness(1.16); } }
+.runefly { position: fixed; translate: -50% -50%; z-index: 30; pointer-events: none; width: 38px; }
+.runefly .runeart { width: 38px; height: 47px; }
+.unit.runelit .upic { animation: runeLit 1.3s ease-out; }
+@keyframes runeLit {
+  0%   { filter: drop-shadow(0 0 14px var(--rc)) brightness(1.75); }
+  60%  { filter: drop-shadow(0 0 8px var(--rc)) brightness(1.25); }
+  100% { filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .unit.runepick .upic, .unit.runelit .upic { animation: none; }
+  .unit.runepick .upic { filter: drop-shadow(0 0 6px var(--accent)); }
+}
 .card {
   width: min(460px, 100%); display: grid; gap: 12px;
   padding: 22px; border-radius: 14px; background: var(--panel); border: 1px solid var(--accent);
@@ -2338,6 +2667,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .item:hover:not(:disabled) { border-color: var(--accent); }
 .item.armed { border-color: var(--accent); background: var(--panel-hi); }
 .item:disabled { opacity: .42; cursor: not-allowed; }
+/* A reusable piece (the Brass Metronome) is never taken out of the pack, so once it has been wound
+   this fight it has to read as spent where it stands: greyed right out and struck through. */
+.item.spent { opacity: .3; filter: grayscale(1); }
+.item.spent::after { content: ''; position: absolute; left: 12%; right: 12%; top: 50%; height: 2px; background: var(--muted); transform: rotate(-18deg); }
 .item:focus-visible, .hbtn:focus-visible, .place:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* Elder's Hut + Tavern */
 .codex { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
@@ -2477,6 +2810,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
           </div>
         </div>
         <main class="arena" id="arena">
+          <div class="scene" id="scene" aria-hidden="true"></div>
           <div class="wxAnnounce" id="wxAnnounce" aria-hidden="true"></div>
           <button type="button" class="wxPill" id="weather" aria-expanded="false" aria-controls="wxPop" aria-live="polite">
             <span class="wxi" id="wxIcon" aria-hidden="true"></span><span class="wxn" id="wxName"></span><span class="wxl" id="wxLeft"></span>
@@ -2487,9 +2821,15 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
             <p id="wxDesc"></p>
             <p class="wxx" id="wxNext"></p>
           </div>
+          <!-- Standing water: puddles in a Downpour, a flooded field in a Thunderstorm. Ahead of
+               the fire and the warbands in the markup so it paints beneath both — the champions
+               stand IN it, not on a sheet laid over them. Driven entirely by the arena's data-wx. -->
+          <div class="wxg" id="wxGround" aria-hidden="true"></div>
           <div class="gfire" id="gfire" aria-hidden="true"></div>
           <div class="side" id="side-p" aria-label="Your warband"></div>
           <div class="side" id="side-e" aria-label="Enemy warband"></div>
+          <div class="castfeed cf-p" id="cast-p" aria-label="Spells your warband has cast"></div>
+          <div class="castfeed cf-e" id="cast-e" aria-label="Spells the enemy has cast"></div>
         </main>
         <section class="speed" aria-label="Speed bar">
           <div class="track" id="track">
@@ -2759,6 +3099,11 @@ const FX = {
   // lasts (wet weather and Grave Damp still count the unit soaked - that is the field, not a status; see
   // soaked() and addFx). A buff, so a cleanse does not take it.
   dry:      { icon: '🏜️', label: 'Dry',       kind: 'good', verb: 'is scorched dry: the water won\'t take hold' },
+  /* A Vigil Candle's revive. Called back, but not wholly here yet: no blow lands on them, nothing can
+     single them out and no area attack reaches them (veiled feeds outOfReach). It holds until their own
+     turn comes round and burns it off, on beginTurn's duration tick. Not a buff a Dispel can take
+     (NOT_A_BUFF) — stripping it would undo the candle before the champion ever got to stand. */
+  veiled:   { icon: '🕯️', label: 'Veiled',    kind: 'good', verb: 'is not wholly here yet: nothing can touch them until their turn comes' },
   overheat: { icon: '🌡️', label: 'Overheated',kind: 'bad',  verb: 'overheats' },
   silence:  { icon: '🔇', label: 'Silenced',  kind: 'bad',  verb: 'is silenced: only Attack and Guard until it wears off' },
   choke:    { icon: '🫧', label: 'Choking',   kind: 'bad',  verb: 'is choking: if it uses a skill, it is silenced on its next turn' },
@@ -2960,7 +3305,8 @@ const ROSTER = [
              D('Chain Surge', '75% lightning to all enemies. Ignores shields.', 4, 0.75, { aoe: true, element: 'lightning', noDodge: true, ignoreShield: true }),
              D('Discharge', '100% lightning. Never misses. Burns 25 of the target\'s mana as extra damage.', 3, 1.0, { element: 'lightning', noDodge: true, manaBurn: 25 }),
              D('Overload Coil', '170% lightning. Never misses. Causes Mana Leak. Builds 45 Heat.', 4, 1.7, { element: 'lightning', noDodge: true, fx: [['leak', 3]], heat: 45 }),
-             D('Static Field', '55% lightning to all enemies. Never misses. Slows them all.', 4, 0.55, { aoe: true, element: 'lightning', noDodge: true, fx: [['slow', 2]] })],
+             D('Static Field', '55% lightning to all enemies. Never misses. Slows them all.', 4, 0.55, { aoe: true, element: 'lightning', noDodge: true, fx: [['slow', 2]] }),
+             B('Jump Start', 'Arclight throws a charge into an ally: they are jolted to the head of the speed bar and take their turn next, straight after hers.', 5, 'ally', [], { jumpstart: true, notSelf: true })],
     passive: P('Feedback Loop', 'Her lightning deals 25% more damage to targets with Mana Leak.', { vs: { fx: 'leak', bonus: 0.25, element: 'lightning' } }) },
   { id: 'howitzer', name: 'Howitzer', faction: 'mech', role: 'ranged', bio: 'Walking artillery platform.',
     mods: { hp: 1.1, agi: 0.75, atk: 1.05 },
@@ -3185,7 +3531,8 @@ const ROSTER = [
              D('Lure Song', '70% hit with a 70% chance to charm (stun) the target.', 4, 0.7, { magic: true, noDodge: true, stun: 0.7 }),
              D('Dirge of the Deep', '50% to all enemies. Never misses. Weakens them.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
              D('Drowning Chorus', '60% to all enemies. Never misses. Slows and Blinds them all.', 4, 0.6, { magic: true, aoe: true, noDodge: true, fx: [['slow', 2], ['blind', 2]] }),
-             B('Song of the Depths', 'All allies are shielded until their next turn and deal 30% more damage for 2 turns.', 5, 'allAllies', [['shield', 1], ['empower', 3]])],
+             B('Song of the Depths', 'All allies are shielded until their next turn and deal 30% more damage for 2 turns.', 5, 'allAllies', [['shield', 1], ['empower', 3]]),
+             B('Turncoat Verse', 'Seraphine sings an enemy champion round onto their own: they strike the ally of theirs who is furthest gone, with everything that blow would normally carry — and lose half the speed bar for it.', 5, 'enemy', [], { turncoat: true })],
     passive: P('Echo', 'Her Silence, Weaken and other lasting debuffs last 1 turn longer.', { fxLonger: 1 }) },
   { id: 'octavia', name: 'Octavia Inkveil', short: 'Octavia', faction: 'tide', role: 'ranged', bio: 'Octopus-folk ink caster.',
     mods: {},
@@ -3206,7 +3553,11 @@ const ROSTER = [
              B('Pearl Barrier', 'Shield all allies until their next turn and heal them a little.', 5, 'allAllies', [['shield', 1]], { heal: 1.0 }),
              B('Tide Pool', 'All allies regenerate for 3 turns.', 4, 'allAllies', [['regen', 3, 0.5]]),
              H('Reef Bloom', 'Heal an ally and clear their debuffs. 30% stronger at High Tide.', 3, 2.6, { cleanse: true, tideBonus: 1.3 }),
-             D('Riptide Crash', '70% to all enemies. Never misses. Weakens them all.', 4, 0.7, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] })],
+             D('Riptide Crash', '70% to all enemies. Never misses. Weakens them all.', 4, 0.7, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
+             /* The only thing in the game that lands a Bash. Deliberately dodgeable, unlike her
+                Riptide Crash: a shard that misses carries no Bash with it (applyHitEffects only runs
+                on a hit), so an agile warband is not simply frozen out by one cast. */
+             D('Rimefall', 'Maren freezes the spray and brings it down over the enemy warband: 60% to all enemies, falling from above. Every shard that lands knocks its mark clean off the speed bar — Bashed for 2 turns on the field, whoever takes them, so a slow champion cannot wait it out by refusing to act. A shard that is dodged carries no Bash.', 5, 0.6, { magic: true, aoe: true, attackType: 'arch', fx: [['bash', 2]] })],
     passive: P('Backwash', 'Each time an enemy uses a skill, it takes damage equal to 10% of its current HP.', { spellBacklash: 0.1 }),
     passiveAlt: P('Tidecaller', 'Her heals also restore 8 MP.', { healMp: 8 }) },
 
@@ -3364,12 +3715,12 @@ const SUMMONS = {
   },
   scrapbot: {
     name: 'Scrapbot', role: 'ranged', life: 300,
-    desc: 'Rivet-gun turret. Fights on its own and falls apart after 3 rounds. Brought to 25% HP or less, it drags itself to the lowest-HP ally at once and gives them the rest of its HP.',
+    desc: 'Beam turret. Fights on its own and falls apart after 3 rounds. Brought to 25% HP or less, it drags itself to the lowest-HP ally at once and gives them the rest of its HP.',
     look: { body: 'bot', main: '#a39a86', trim: '#8be28b' },
     leave: (u) => `${u.name} falls apart.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.55), atk: Math.round(o.atk * 1.3), def: o.def, agi: 12, crit: 0.08, dodge: 0 }),
-    skills: [{ ...ATTACK, name: 'Rivet Shot', desc: '100% shot.' },
-             D('Rivet Burst', 'Three rivets of 45%.', 3, 0.45, { hits: 3 })],
+    skills: [{ ...ATTACK, name: 'Beam Shot', desc: '100% shot.' },
+             D('Beam Burst', 'Three beams of 45%.', 3, 0.45, { hits: 3 })],
   },
   illusion: {
     name: 'Illusion', copy: true, role: 'ranged', life: 200,
@@ -5158,6 +5509,28 @@ const EXP_RUNES = {
   bulwark: { name: 'Rune of the Bulwark', desc: 'walks into every chamber shielded',  apply: (u) => { u.effects.push({ id: 'shield', turns: 2, value: 0 }); } },
 };
 const EXP_RUNE_KEYS = Object.keys(EXP_RUNES);
+
+/* THE RUNES, AS CUT STONE. Each is a tablet with one mark struck into it, lit in the colour of what
+   it does — the eye learns "the green one mends" long before it reads the words again. Drawn here
+   rather than kept as eight files in skills/: the play-mirror builds that folder from the last
+   commit, so art that lives in this file can never go live with its picture missing.
+   The marks lean on the Elder Futhark the vault's carvers would have known. */
+const RUNE_GLYPH = {
+  might:   ['#ff9a5a', 'M16 31 L16 10 M16 10 L10 17 M16 10 L22 17'],                               // Tiwaz, the spear
+  vigor:   ['#86d98a', 'M10 31 L10 15 Q16 8 22 15 L22 31'],                                        // Uruz, the ox
+  haste:   ['#7ec8ff', 'M21 9 L11 21 L17 21 L12 32'],                                              // Sowilo, the bolt
+  aegis:   ['#9fc6ff', 'M16 32 L16 19 M16 19 L9 10 M16 19 L23 10'],                                // Algiz, the raised hand
+  mending: ['#8fe0b0', 'M11 31 L11 9 L18 9 Q24 14 18 20 L11 20 M18 20 Q25 26 18 31 L11 31'],       // Berkano, the growing
+  edge:    ['#ffd166', 'M21 9 L11 20 L21 31 M12 20 L22 20'],                                       // Kaunan, the torch
+  warding: ['#c7a6ff', 'M16 8 L16 32 M10 14 L22 14 M10 26 L22 26'],                                // Isa, barred twice
+  bulwark: ['#8ab4e8', 'M16 8 L24 12 V22 Q24 29 16 32 Q8 29 8 22 V12 Z'],                          // the shield itself
+};
+function expRuneArt(key) {
+  const g = RUNE_GLYPH[key] || RUNE_GLYPH.might;
+  return `<svg class="runeart" viewBox="0 0 32 40" aria-hidden="true">
+    <path class="stone" d="M7 2 L25 3 L28 35 Q16 39 4 36 Z"/>
+    <path class="cut" d="${g[1]}" style="stroke:${g[0]};filter:drop-shadow(0 0 2.5px ${g[0]}aa)"/></svg>`;
+}
 const EXP_RUNE_OFFER = 3;   // §7.1.2 three physical runes per selection, of which one is kept
 
 /* THE DESCENT — how far down a vault has let you come back.
@@ -5237,6 +5610,82 @@ function syncWardArt(el, u) {
   const lit = has(u, 'shieldbearer') && u.hp > 0;
   const want = `characters/${folder}/${lit ? variant : u.id}.${ART_EXT}`;
   if (img.getAttribute('src') !== want) img.setAttribute('src', want);
+}
+
+/* ==================================================================
+   WEARING WHAT YOU CARRY (see THE ARMORY)
+   A champion's art file has their signature weapon painted into it, and CSS cannot reach inside an
+   <img> to hide one part of a drawing — the same wall syncWardArt runs into just above. So when a
+   champion is carrying a weapon they are NOT drawn holding, their art is inlined instead of linked:
+   the painted weapon's pieces are hidden and the weapon they actually carry is drawn in its place,
+   pivoting on the hand the file declares in data-hand.
+
+   The painted weapon is marked piece by piece with class="wpn" in the art file rather than wrapped in
+   one group, because a weapon is not a contiguous run of the drawing — Drekka's firepot sits behind
+   the hand that grips it and its spark glow is laid down before the body — so grouping would reorder
+   what is drawn over what. Marking in place leaves the z-order exactly as the artist left it.
+
+   A champion drawn by builtinSprite needs none of this: their weapon is already its own group (see
+   gearUp), so they are simply redrawn holding the new one. And a champion carrying the weapon they
+   were drawn with costs nothing at all — the art stays a plain linked <img>, as it has always been.
+   ================================================================== */
+const artText = new Map();
+const fetchArt = (src) => {
+  if (!artText.has(src)) artText.set(src, fetch(src).then((r) => (r.ok ? r.text() : null)).catch(() => null));
+  return artText.get(src);
+};
+// The look of the weapon a champion is actually carrying, or null when there is nothing to change:
+// no weapon racked, one their faction cannot wield, or the very one they are already drawn holding.
+function heldWeapon(id) {
+  const g = gearRaw(id);
+  if (!g.wp || !ARMORY[g.wp] || !fitsWeapon(g.wp, id)) return null;
+  const look = ARMORY[g.wp].look;
+  return look && WEAPONS[look] && look !== lookOf(id)?.weapon ? look : null;
+}
+// Where the weapon sits in the hand. The art file says so itself; a file not yet re-authored falls
+// back to the hand of its body archetype, which is drawn in the same 100x100 box.
+function handOf(id, svg) {
+  const d = svg?.getAttribute('data-hand');
+  if (d) { const [x, y] = d.split(',').map(Number); if (isFinite(x) && isFinite(y)) return [x, y]; }
+  const a = lookOf(id);
+  return (a && BODIES[a.body] && BODIES[a.body](a).hand) || [62, 44];
+}
+async function syncHeldWeapon(el, u) {
+  const host = el.querySelector('.upic');
+  if (!host) return;
+  // Only your own champions carry gear: summons, monsters and every enemy have none.
+  const want = (u.side === 'p' && !u.summon && !u.monster && !u.inert && heldWeapon(u.id)) || '';
+  if ((host.dataset.held || '') === want) return;
+  host.dataset.held = want;
+  const a = lookOf(u.id);
+  const cur = () => host.querySelector('.art');
+  if (!want) {   // back to the weapon they are drawn with: the plain linked art, as before
+    const c = cur();
+    if (c && c.tagName !== 'IMG') c.outerHTML = spriteSVG(artOf(u));
+    return;
+  }
+  const folder = charById(u.id) ? ART_FOLDER[charById(u.id).faction] : null;
+  const file = folder ? `characters/${folder}/${artOf(u)}.${ART_EXT}` : null;
+  const txt = file ? await fetchArt(file) : null;
+  if (host.dataset.held !== want) return;   // the rack changed again while the fetch was in flight
+  if (!txt) {
+    // No art file (the Pale Host): the built-in drawing holds its weapon in its own group already.
+    const look = { ...a, weapon: want };
+    const c = cur();
+    if (c && BODIES[look.body]) c.outerHTML = spriteFrame(look, gearUp(look, BODIES[look.body](look)));
+    return;
+  }
+  const c = cur();
+  if (c) c.outerHTML = txt.replace(/<\?xml[\s\S]*?\?>/, '').trim().replace('<svg', '<svg class="art held"');
+  const node = host.querySelector('svg.art');
+  if (!node) return;
+  node.querySelector('.heldwpn')?.remove();
+  const [hx, hy] = handOf(u.id, node);
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('class', 'wpn heldwpn');          // .wpn so the strike poses still swing it
+  g.style.transformOrigin = `${hx}px ${hy}px`;
+  g.innerHTML = WEAPONS[want](a, hx, hy);
+  node.appendChild(g);
 }
 
 const lookOf = (id) => charById(id)?.look || SUMMONS[id]?.look || MONSTERS[id]?.look;
@@ -5764,7 +6213,11 @@ function frontlineHit(t) {
 const inBox = (u) => !!has(u, 'coffin');
 // Burrowed (Barrow's Burrow) is out of reach the way the coffin is: no single blow, no area attack.
 const buried = (u) => !!has(u, 'burrowed');
-const outOfReach = (u) => inBox(u) || buried(u);
+// Veiled (a Vigil Candle's revive) is out of reach the same way the coffin and the grave mound are:
+// no single blow, no area attack, and no mending or blessing either — they are not wholly on the
+// field until their own turn comes round. strikeOnce turns aside anything that reaches them anyway.
+const veiled = (u) => !!has(u, 'veiled');
+const outOfReach = (u) => inBox(u) || buried(u) || veiled(u);
 const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
@@ -5844,7 +6297,7 @@ function usable(u, sk) {
   if (has(u, 'rooted') && requiresMove(u, sk) && !(sk.target === 'enemy' && attachmentsOn(u).length)) return false;
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
-  if (u.cooldowns[sk.id] > 0) return false;
+  if (u.cooldowns[sk.id] > EPS) return false;   // fractional now: a hair above zero is still ready
   // Fenced in (Graveyard Fence): the wall holds both ways. A MELEE unit behind it cannot swing
   // out past its own fence — its basic Attack and every melee damage skill are shut off (a hurled
   // or gust skill still goes over the top). A ranged unit fires clean over it, and anyone fenced
@@ -6114,6 +6567,14 @@ function searContact(mech, foe) {
 // One hit: dodge → damage = ATK × mult × (±10%) × 50/(50+DEF) → crit, status and faction modifiers.
 function strikeOnce(u, t, mult, label, o) {
   if (t.hp <= 0) return { miss: true };
+  // Veiled: a champion a Vigil Candle has just called back takes nothing until their own turn comes.
+  // outOfReach already keeps them out of every target list, so this is the backstop for a blow that
+  // found them another way — a counter, a sweep that picked its marks before they rose, a queued hit.
+  if (veiled(t)) {
+    float(t, 'Untouched', 'miss');
+    log(`${u.name}'s ${label} passes through ${t.name} — they are not wholly here yet.`, u.side);
+    return { miss: true };
+  }
   // Heroic (Wren, Garrick — their opt-in passive): a melee blow swung at an ally may be met by a
   // sworn guardian who throws themselves into its path, taking it in the ally's place and then
   // answering with a full counter (queued below). Single-target melee only, never off another
@@ -6677,6 +7138,38 @@ async function fireLoadedThrow(u) {
   await damageSkill(u, null, sk);   // allEnemies: damageSkill picks the whole warband itself
 }
 
+/* TURNCOAT VERSE — Seraphine sings a champion round onto their own warband. She does not take their
+   turn from them: she makes them spend a blow NOW, on whichever of their own is furthest gone (the
+   smallest share of their own HP, the same reckoning aiTarget:'lowest' uses everywhere else), and the
+   song costs them half the speed bar for it.
+   The blow is run through damageSkill as an ordinary Attack rather than being hand-rolled, so it dashes
+   in, crits, drinks lifesteal, wakes Thorns and can be answered with a counter exactly as a real one
+   would - including the betrayed ally striking back at the champion who hit them. */
+async function turncoatVerse(u, t) {
+  await castPose(u, true);
+  if (!t || t.hp <= 0) return;
+  float(t, '🎵 Turned', 'fx');
+  // Their own warband, minus themselves, and only those a blow could actually reach.
+  const kin = openAllies(t).filter((a) => a !== t && a.hp > 0);
+  const mark = kin.sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+  if (mark) {
+    log(`${u.name}'s song turns ${t.name} on ${mark.name}.`, u.side);
+    faceTarget(t, mark);
+    await damageSkill(t, mark, ATTACK);
+  } else {
+    log(`${u.name}'s song turns ${t.name} — and there is no one left to turn them on.`, u.side);
+  }
+  /* ...and the ground goes whether or not anyone was there to strike. Dug In and The Slow March refuse
+     to be moved by anything, the same way they refuse FEAR. */
+  if (t.hp > 0 && !charNat(t).anchor && !charNat(t).march) {
+    t.pos = Math.max(0, (t.pos || 0) - TURNCOAT_BACK);
+    t.recoil = true;
+    log(`${t.name} loses half the bar to the song.`, t.side);
+  }
+  render();
+  await wait(320);
+}
+
 /* RANGED ATTACK TYPES. Every ranged attack has a shape, and ground obstacles key off this named axis
    (the Graveyard Fence is the first; more rise later). ARCH comes down from above and clears a
    waist-high obstacle - a lobbed or arching round, a shot called down, a hurled skill, a gust or a
@@ -7024,7 +7517,7 @@ function cleanse(u) {
    Mara's held aim, a champion standing Undying, somebody sealed in the coffin or dug in underground,
    and Krug held upright by his grudge. Dispel passes over all of them, and so does the block it leaves
    behind — being bolted to an ally is not a blessing anyone can refuse you. */
-const NOT_A_BUFF = ['bloodpact', 'bloodward', 'bolted', 'patchrig', 'aiming', 'undying', 'coffin', 'burrowed', 'grudge'];
+const NOT_A_BUFF = ['bloodpact', 'bloodward', 'bolted', 'patchrig', 'aiming', 'undying', 'coffin', 'burrowed', 'grudge', 'veiled'];
 const isBlessing = (id) => FX[id].kind === 'good' && !NOT_A_BUFF.includes(id);
 
 // The mirror of cleanse: every blessing comes off, and the machinery above is left where it stands.
@@ -7081,6 +7574,19 @@ async function buffSkill(u, t, sk) {
     // Mist Form: mark the Evasive as being made of mist. Grubblefin's scales, Seraxa's wings and a
     // Smoke Bomb all hand out the same status, and none of them should come with Vesper's red fog.
     if (o.mist && has(a, 'evade')) has(a, 'evade').mist = true;
+    /* JUMP START — the ally is thrown to the head of the speed bar. advanceClock picks whoever has the
+       least ground left to cover, so a unit standing ON the end has none and goes next; the caster has
+       just been sent back to the start by their own turn, so nothing can get in between. A softer
+       version of this already exists in the War Horn (+300 to the whole warband).
+       Someone held off the bar — stunned, bashed, sealed in the coffin — cannot be made to move by it.
+       The charge still lands and waits for them, but it is honest about it in the log. */
+    if (o.jumpstart && a !== u) {
+      a.pos = TRACK;
+      burst(a, 'shock');
+      float(a, '⚡ Next', 'fx');
+      log(frozen(a) ? `${u.name} jolts ${a.name}, but they cannot move yet — the charge waits on them.`
+                    : `${u.name} jolts ${a.name} to the head of the line: they act next.`, u.side);
+    }
     if (o.reduceCd) for (const k in a.cooldowns) a.cooldowns[k] = Math.max(0, a.cooldowns[k] - 1);
     if (o.heal) healUnit(u, a, healPower(u, o.heal), sk.name);
   }
@@ -7138,6 +7644,9 @@ const TIMED_FX = { stun: 100, overheat: 100, stagger: 150, burrowed: 100 };   //
 // the start line on the last one, and it is held off the bar until then (revHeld).
 const REV_FX = { bash: true, fear: true, coffin: true, flee: true, unblessed: true };
 const FEAR_BACK = 500, FEAR_REVS = 2, COFFIN_REVS = 2;
+// Turncoat Verse: the same half of the bar FEAR takes, because it is the same idea — ground lost, not
+// a turn stolen. The charmed champion still acts when it comes round; it just comes round later.
+const TURNCOAT_BACK = 500;
 
 function addFx(u, id, turns, value = 0, quiet = false) {
   if (u.inert && id !== 'taunt') return;   // a planted Grave Cross takes nothing but its own Taunt
@@ -7328,7 +7837,8 @@ async function beginTurn(u) {
   if (hadRooted && !has(u, 'rooted')) {
     for (const a of attachmentsOn(u).filter((x) => x.attach === 'anchor')) removeAttachment(a, 'expired');
   }
-  for (const k in u.cooldowns) if (u.cooldowns[k] > 0) u.cooldowns[k]--;
+  // (Cooldowns are NOT ticked here any more — they run down with the ground covered, in advanceClock.
+  //  Ticking in both places would take two turns off every turn. See COOLDOWNS.)
   return 'ok';
 }
 
@@ -7375,13 +7885,33 @@ function infernalToll(u) {
   else burst(u, 'fire');
 }
 
+/* The corner record. Hung on doAction because that is the one gate every action goes through, so no
+   skill can be cast without being written down — summons, monsters, intruding bosses and all. */
+const CAST_FEED_MAX = 1;   // the last spell each side threw, and only that
+function noteCast(u, sk) {
+  if (!sk || sk.id === 'attack' || sk.id === 'guard') return;   // a swing is not a spell
+  const host = document.querySelector(`#cast-${u.side === 'p' ? 'p' : 'e'}`);
+  if (!host) return;
+  const img = document.createElement('img');
+  img.src = `skills/${skillSlug(sk.name)}.svg`;
+  img.alt = '';
+  img.draggable = false;
+  img.title = `${u.name} — ${sk.name}`;
+  host.prepend(img);   // newest nearest the corner
+  while (host.children.length > CAST_FEED_MAX) host.lastElementChild.remove();
+}
+function clearCastFeeds() {
+  for (const id of ['#cast-p', '#cast-e']) { const h = document.querySelector(id); if (h) h.innerHTML = ''; }
+}
+
 async function doAction(u, sk, t) {
   state.phase = u.side === 'p' ? 'busy' : 'enemy';
   state.pending = null;
+  noteCast(u, sk);
   faceForAction(u, sk, t);   // turn to the mark before anything moves (see WHICH WAY THE DRAWING LOOKS)
   u.combo = u.faction === 'human' && u.lastAction !== null && u.lastAction !== sk.id;
   if (u.combo) log(`${u.name}'s Discipline: +${Math.round(disciplineBonus() * 100)}%.`, u.side);
-  if (sk.cd) u.cooldowns[sk.id] = sk.cd;
+  if (sk.cd) u.cooldowns[sk.id] = cdFor(u, sk);   // a champion's CDR is a share off the declared turns
   // Mana: remember the pool before paying (mana-scaling damage uses it), pay the cost, then any leak.
   u.castMp = u.mp || 0;
   if (sk.mp) u.mp -= charNat(u).seasung && highTide() ? Math.ceil(sk.mp / 2) : sk.mp;   // Seraphine: the sea carries the song
@@ -7410,6 +7940,7 @@ async function doAction(u, sk, t) {
 
   if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Revs later (fireAim)
   else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Rev (fireLoadedThrow)
+  else if (sk.o?.turncoat) await turncoatVerse(u, t);   // the mark is made to swing at its own
   else if (sk.kind === 'damage') await damageSkill(u, t, sk);
   else if (sk.kind === 'heal') await healSkill(u, t, sk);
   else if (sk.kind === 'buff') await buffSkill(u, t, sk);
@@ -7582,6 +8113,47 @@ function aiChoose(u) {
 const TRACK = 1000, ROUND_TIME = 100, FREEZE_TIME = 100;
 const STAGGER_CYCLE = 40, STAGGER_STOP = 16;   // stop 16, move 24, repeat (starts with a stop)
 const EPS = 1e-6;
+
+/* ==================================================================
+   COOLDOWNS — counted in turns, but run down on the SPEED BAR.
+
+   A cooldown is still written in turns, the way a skill declares it (cd: 4). What ticks it is the
+   ground the champion covers: every TRACK of bar progress is one turn's worth, so a cooldown falls by
+   gained/TRACK each time the clock advances (see advanceClock). For whole numbers that is exactly the
+   old behaviour — one full traverse, one turn off — but it also lets a cooldown hold a FRACTION and
+   mean it. Shorten 4 by 12.5% and the skill really does come back half a turn sooner, instead of the
+   half being quietly rounded away.
+
+   A champion held off the bar (frozen, bashed, coffined) covers no ground, so its cooldowns do not
+   move either — the same as when they ticked on its turns, which it was not getting.
+
+   CDR is a share, not a number of turns: it scales, so it is worth the same on a 2-turn skill as on a
+   6-turn one. It is capped, because nothing should come back instantly.
+   ================================================================== */
+const CDR_CAP = 0.5;
+// Every source of cooldown reduction a champion carries: a passive, a trinket, the forge.
+const cdrOf = (u) => clamp((pv(u).cdr || 0) + (u.cdr || 0), 0, CDR_CAP);
+// The cooldown a skill actually starts on for this champion.
+const cdFor = (u, sk) => (sk.cd || 0) * (1 - cdrOf(u));
+/* What the badge shows. A cooldown is a countdown, so it reads as what is still TO COME: 3.2 turns left
+   is still "4" turns of waiting, the same as it always was. The quarters are spelled out where they
+   land exactly, so a champion with CDR can see the half-turn they paid for instead of it rounding away. */
+const CD_FRAC = { 0.25: '¼', 0.5: '½', 0.75: '¾' };
+function cdText(cd) {
+  const whole = Math.floor(cd + EPS), frac = +(cd - whole).toFixed(2);
+  if (!frac) return String(whole);
+  const glyph = CD_FRAC[frac];
+  return glyph ? (whole ? `${whole}${glyph}` : glyph) : String(Math.ceil(cd));
+}
+// Run every cooldown down by `turns` (a fraction of one), and let nothing sit on a hair above zero.
+function tickCooldowns(u, turns) {
+  if (!(turns > 0) || !u.cooldowns) return;
+  for (const k in u.cooldowns) {
+    if (u.cooldowns[k] <= 0) continue;
+    u.cooldowns[k] = Math.max(0, u.cooldowns[k] - turns);
+    if (u.cooldowns[k] < EPS) u.cooldowns[k] = 0;
+  }
+}
 
 const hardFrozen = (u) => u.effects.some((e) => (e.id === 'stun' || e.id === 'overheat') && e.until > state.time + EPS);
 function staggerPhase(u) {
@@ -8463,7 +9035,12 @@ async function advanceClock(token) {
       ? Math.max(EPS, (state.quakeJolt ??= state.time + QUAKE_EVERY) - state.time) : Infinity;
     const dt = Math.max(0, Math.min(dtActor, dtRound, dtThaw, dtJolt));
 
-    for (const u of movers) u.pos = Math.min(TRACK, u.pos + barAgi(u) * dt);
+    // Cooldowns run down with the ground a champion covers, not in whole turns (see COOLDOWNS).
+    for (const u of movers) {
+      const gained = Math.min(TRACK - u.pos, barAgi(u) * dt);
+      u.pos = Math.min(TRACK, u.pos + gained);
+      tickCooldowns(u, gained / TRACK);
+    }
     state.time += dt;
     // The opening race is shown slower so you can watch everyone run from the start line.
     const ms = state.opening ? clamp(dt * 22, 900, 2200) : clamp(dt * 9, 120, 900);
@@ -8888,6 +9465,12 @@ async function commit(u, sk, t) {
   if (token === state.token) nextTurn();
 }
 
+/* Is a taunt what narrowed this skill's marks to the ones offered? Not merely "someone out there is
+   taunting" — a taunter behind his own Graveyard Fence cannot hold a melee attacker, and validTargets
+   has already looked past him. The honest test is whether everything still on offer IS a taunter. */
+const tauntHeld = (sk, opts) => sk.target === 'enemy' && !!opts.length
+  && opts.every((f) => has(f, 'taunt') || has(f, 'provoke'));
+
 function onSkill(id) {
   if (state.phase !== 'choose') return;
   const u = unitBy(state.active);
@@ -8897,7 +9480,11 @@ function onSkill(id) {
   // body on the field it is raised straight away).
   if (sk.target === 'enemy' || sk.target === 'ally' || sk.target === 'deadAlly') {
     const opts = validTargets(u, sk);
-    if (opts.length === 1) return commit(u, sk, opts[0]);
+    /* The one-option shortcut looses the skill without asking — right for Second Burial over the only
+       body on the field, wrong when a TAUNT is what narrowed the field. Being held is a thing the
+       player should have to acknowledge: the skill waits, the taunter is the only mark that lights up,
+       and nothing is spent until they pick them. A tap anywhere else does nothing at all. */
+    if (opts.length === 1 && !tauntHeld(sk, opts)) return commit(u, sk, opts[0]);
     state.pending = sk.id;
     render();
     return;
@@ -8932,11 +9519,20 @@ function onUnit(uid) {
   else commit(u, sk, t);
 }
 
+/* A reusable item (the Brass Metronome) is never taken out of the pack, so the "do you still have
+   one" question cannot gate it. It winds once a fight instead, per champion carrying it — packing two
+   buys no second wind. state.reusedItems is cleared with the rest of the board in startBattle. */
+const itemWound = (u, key) => !!ITEMS[key].reusable && !!(state.reusedItems || {})[`${u.id}:${key}`];
+
 function onItem(key) {
   const u = unitBy(state.active);
   if (state.phase !== 'choose' || state.itemUsed || !u || !packHas(u.id, key) || sparring()) return;
-  if (ITEMS[key].target !== 'ally') return useItem(u, key, null);
-  const opts = alliesOf(u);
+  if (itemWound(u, key)) return;   // already wound this fight
+  const aimed = ITEMS[key].target === 'ally' || ITEMS[key].target === 'deadAlly';
+  if (!aimed) return useItem(u, key, null);
+  // The Vigil Candle's marks are this side's fallen, exactly as Second Burial reads them.
+  const opts = ITEMS[key].target === 'deadAlly' ? validTargets(u, { target: 'deadAlly' }) : alliesOf(u);
+  if (!opts.length) return;   // a candle with no body to light it over is not spent
   if (opts.length === 1) return useItem(u, key, opts[0]);
   state.pending = `item:${key}`;
   render();
@@ -8950,7 +9546,9 @@ async function useItem(u, key, t) {
   const resume = u.you ? 'choose' : state.phase;
   state.phase = 'busy'; state.pending = null;
   if (u.you) state.itemUsed = true;   // the one-per-turn gate is only on your own backpack row
-  packTake(u.id, key);   // out of the user's own backpack (see BACKPACKS)
+  // A reusable piece stays packed and is simply marked wound for this fight; everything else is spent.
+  if (it.reusable) (state.reusedItems ||= {})[`${u.id}:${key}`] = true;
+  else packTake(u.id, key);   // out of the user's own backpack (see BACKPACKS)
   saveProfile();
   log(`${u.name} uses a ${it.name}.`, u.side);
   for (const t of questEvent('item', { key })) log(t, 'sys');
@@ -8976,6 +9574,21 @@ async function useItem(u, key, t) {
   } else if (key === 'horn') {
     for (const a of alliesOf(u)) if (a !== u) { a.pos = Math.min(TRACK, (a.pos || 0) + 300); burst(a, 'roar'); float(a, 'Surge', 'fx'); }
     log('The War Horn sounds. Your warband surges forward.', u.side);
+  } else if (key === 'candle') {
+    // reviveUnit does the standing up (and wipes what was on the body); the veil is laid on after,
+    // quietly so a Blessing Citrine cannot stretch the one turn of grace into two.
+    await raiseRitual(u, t, () => {
+      reviveUnit(u, t, 0.25, it.name);
+      addFx(t, 'veiled', 1, 0, true);
+      log(`${t.name} rises in the candlelight. Nothing can touch them until their turn comes.`, u.side);
+    });
+  } else if (key === 'metronome') {
+    for (const a of alliesOf(u)) {
+      a.pos = Math.min(TRACK, (a.pos || 0) + Math.round(TRACK * 0.3));
+      burst(a, 'roar');
+      float(a, 'Surge', 'fx');
+    }
+    log('The Brass Metronome ticks, and the whole warband falls into step.', u.side);
   } else if (key === 'mirage') {
     // The dust throws off an uncontrolled copy of the user (stats, reach and fade set in SUMMONS.mirage).
     const s = summonUnit(u, 'mirage');
@@ -8998,6 +9611,12 @@ function aiItemPlan(u) {
   const have = (k) => packHas(u.id, k);
   const allies = alliesOf(u).filter((a) => !a.attachedTo);   // both already drop the fallen for us; a bolted-on drone can't be singled out either
   const foes = foesOf(u);
+  // 0. A champion already on the ground is worth more than anything else in the pack, so the candle
+  //    is lit the moment there is a body to light it over. Same marks as Second Burial.
+  if (have('candle')) {
+    const body = state.teams[u.side].find((a) => a.hp <= 0 && !a.summon && !undyingOn(a));
+    if (body) return { key: 'candle', t: body };
+  }
   // 1. Someone is a hit away from going down.
   if (have('draught')) {
     const hurt = allies.filter((a) => a.hp / a.maxHp <= 0.4)
@@ -9022,8 +9641,8 @@ function aiItemPlan(u) {
     const pressed = foes.length >= 3 && allies.some((a) => a.hp / a.maxHp < 0.6);
     if (finishes || pressed) return { key: 'firebomb', t: null };
   }
-  // The War Horn is left to you on purpose: its value depends on turn order you can
-  // read off the speed bar and the AI cannot, so it would only ever be wasted here.
+  // The War Horn and the Brass Metronome are left to you on purpose: their value depends on turn
+  // order you can read off the speed bar and the AI cannot, so they would only ever be wasted here.
   return null;
 }
 
@@ -9150,11 +9769,12 @@ function startBattle(retry) {
   state.killXp = 0; state.kills = 0;   // what your champion's killing blows earn here, paid out at the end
   state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0; state.quakeJolt = null;
   state.groundFire = null;   // Molotov's ground fire never carries between battles
+  state.reusedItems = {};    // every reusable backpack piece winds again for a fresh fight (itemWound)
   state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;   // battles open under Clear Skies; the first change is at round 4
   state.screen = 'battle';
   state.token++;
   $('#overlay').hidden = true;
-  $('#overlay').classList.remove('docked');   // the Entrance Hall's docked card does not outlive the hall
+  expUndock();   // the Entrance Hall's card and the in-room map do not outlive the hall
   if (dg) log(`${dg.name}, ${dgIsBossRoom() ? 'the boss room' : `room ${state.dg.room + 1} of ${dgRooms()}`}: ${state.teams.e.map((u) => `${u.name}${u.fledOnce ? ' (wounded)' : ''}`).join(', ')}.`, 'sys');
   else if (exp) log(`${exp.name}, ${expChamber().name}${expDepth(exp.id) ? ` (Descent ${expDepth(exp.id)})` : ''}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
   else if (hunt) log(`${CAVE.name}, ${hunt.name}: ${state.teams.e.map((u) => u.name).join(', ')}.`, 'sys');
@@ -9694,7 +10314,7 @@ function chestLoot(d) {
     got.push(`${stoneName(sid)} (stones)`);
   }
   for (let i = 0; i < d.chest.items; i++) {
-    const k = pick(ITEM_KEYS);
+    const k = pick(LOOT_ITEMS);
     if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; got.push(`${ITEMS[k].name} (satchel)`); }
     else if ((profile.stash.items[k] || 0) < stashCap()) { profile.stash.items[k] = (profile.stash.items[k] || 0) + 1; got.push(`${ITEMS[k].name} (stash)`); }
     else { extraGold += ITEMS[k].price; got.push(`${ITEMS[k].price} gold instead of a ${ITEMS[k].name}`); }
@@ -9803,6 +10423,8 @@ function startExpedition(id) {
     // window opens; `encGranted` is the run's memory of which fights have already paid out, so
     // the same encounter can never pay twice however often the warband walks back through it.
     prep: null, encGranted: new Set(),
+    // Which champion's own sheet is open over the map, if any (§4.2 — see expSheetHTML).
+    sheet: null,
     // §7 runes: who carries what for the rest of the run, which effects have already been
     // offered (never offered twice), and the selection sitting open right now.
     runes: {}, runesOffered: new Set(), runeSel: 0, pendingRune: null,
@@ -9818,6 +10440,8 @@ function startExpedition(id) {
 function expEnterChamber(id, opts = {}) {
   const e = expRun(), s = expState(), ch = e.chambers[id];
   expClearTimer();
+  s.sheet = null;   // nobody walks into the next chamber with a champion's sheet still open
+  expUndock();      // the map and the casket do not follow them through the door
   if (!opts.initial && s.visited.has(id)) {
     s.reentry[id] = (s.reentry[id] || 0) + 1;   // §14.2: counts toward the one allowed re-entry
     expRecoverMonsters(id);                       // §14.3: survivors recover 10% max HP
@@ -9963,7 +10587,7 @@ function expTreasure(ch) {
     const g = ch.chest?.gold || 0, got = [];
     if (g) { profile.gold += g; s.gold += g; profile.stats.earned += g; }
     for (let i = 0; i < (ch.chest?.items || 0); i++) {
-      const k = pick(ITEM_KEYS);
+      const k = pick(LOOT_ITEMS);
       if ((profile.items[k] || 0) < SATCHEL_MAX) { profile.items[k] = (profile.items[k] || 0) + 1; got.push(ITEMS[k].name); }
     }
     saveProfile();
@@ -10139,16 +10763,84 @@ function expRuneKeep(key) {
   expRenderDecision();
 }
 
+/* The warband stands lit while a kept rune has no bearer, and every one of them is a target: the
+   choosing happens on the field. The listener is bound once per unit element and re-checks the run's
+   state when it fires, so it cannot assign a rune that is no longer waiting to be given. */
+function expSyncRunePick() {
+  const s = expState();
+  const on = !!s?.pendingRune?.kept && !s.pendingRune.flying;
+  for (const u of (s ? expMembers() : [])) {
+    const el = document.querySelector(`#u-${u.uid}`);
+    if (!el) continue;
+    el.classList.toggle('runepick', on);
+    if (!el.dataset.runeBound) {
+      el.dataset.runeBound = '1';
+      el.addEventListener('click', () => {
+        const cur = expState()?.pendingRune;
+        if (cur?.kept && !cur.flying) expRuneAssign(u.id);
+      });
+    }
+  }
+}
+function expClearRunePick() {
+  document.querySelectorAll('.unit.runepick').forEach((el) => el.classList.remove('runepick'));
+}
+
+/* The stone leaves the casket and crosses the chamber to whoever was chosen. Presentation only — the
+   rune has already been given by the time this runs (see expRuneAssign), so every branch here is free
+   to give up quietly: no DOM, no animation support, reduced motion, a hidden tab. `a` is the casket's
+   box, measured by the caller BEFORE the re-render takes the casket off the screen. */
+function expRuneFly(u, key, a, done) {
+  const to = document.querySelector(`#u-${u.uid} .upic`) || document.querySelector(`#u-${u.uid}`);
+  const b = to && typeof to.getBoundingClientRect === 'function' ? to.getBoundingClientRect() : null;
+  if (reduced || !a || !b || !b.width) { done(); return; }
+  const fly = document.createElement('div');
+  if (typeof fly.animate !== 'function') { done(); return; }
+  fly.className = 'runefly';
+  fly.innerHTML = expRuneArt(key);
+  fly.style.left = `${a.left + a.width / 2}px`;
+  fly.style.top = `${a.top + a.height / 2}px`;
+  document.body.appendChild(fly);
+  /* Animated rather than transitioned: a transition set in the same frame the element is appended has
+     no "before" to start from, and the stone simply appears on the champion. */
+  const anim = fly.animate([
+    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+    { transform: `translate(${b.left + b.width / 2 - (a.left + a.width / 2)}px, ${b.top + b.height / 2 - (a.top + a.height / 2)}px) scale(1.35)`, opacity: .15 },
+  ], { duration: 560, easing: 'cubic-bezier(.35,.75,.4,1)' });
+  anim.onfinish = () => { fly.remove(); done(); };
+  setTimeout(() => { if (fly.isConnected) { fly.remove(); done(); } }, 1400);
+}
+
+// ...and flares on them in its own colour, which is the receipt.
+function expRuneLight(u, key) {
+  const el = document.querySelector(`#u-${u.uid}`);
+  // Decoration only: with no real styled element to light (a headless run), there is nothing to do.
+  if (!el?.style || typeof el.style.removeProperty !== 'function' || !el.classList) return;
+  el.style.setProperty('--rc', (RUNE_GLYPH[key] || RUNE_GLYPH.might)[0]);
+  el.classList.add('runelit');
+  setTimeout(() => { el.classList.remove('runelit'); el.style.removeProperty('--rc'); }, 1400);
+}
+
 function expRuneAssign(id) {
   const s = expState(), sel = s.pendingRune;
-  if (!sel?.kept) return;
+  if (!sel?.kept || sel.flying) return;   // one stone, one bearer — not two while it is in the air
   const u = expMembers().find((x) => x.id === id);
   if (!u) return;
-  (s.runes[id] = s.runes[id] || []).push(sel.kept);
-  log(`The ${EXP_RUNES[sel.kept].name} is cut into ${u.name} — ${EXP_RUNES[sel.kept].desc}, for the rest of the expedition.`, 'sys');
-  announce('Rune', `${u.name} — ${EXP_RUNES[sel.kept].name}`);   // §7.4.3 the choice is shown
+  const key = sel.kept;
+  sel.flying = true;
+  expClearRunePick();
+  // Where the stone starts from, caught before the re-render clears the casket off the screen.
+  const casket = document.querySelector('.runepane .runeheld .runeart') || document.querySelector('.runepane');
+  const from = casket && typeof casket.getBoundingClientRect === 'function' ? casket.getBoundingClientRect() : null;
+  /* The rune is given HERE, not when the stone lands. Hanging the state change off the end of an
+     animation loses it outright whenever the animation never finishes — a backgrounded tab, reduced
+     motion, a headless run. The flight below is only how the giving is shown. */
+  (s.runes[id] = s.runes[id] || []).push(key);
+  log(`The ${EXP_RUNES[key].name} is cut into ${u.name} — ${EXP_RUNES[key].desc}, for the rest of the expedition.`, 'sys');
+  announce('Rune', `${u.name} — ${EXP_RUNES[key].name}`);   // §7.4.3 the choice is shown
   s.pendingRune = null;
   expRenderDecision();
+  expRuneFly(u, key, from, () => expRuneLight(u, key));
 }
 
 // §7.3: the clock ran out with the warband still arguing. Two separate seeded rolls — one of the
@@ -10263,7 +10955,7 @@ function expMinorDrop(n) {
   if (n === 1) {
     expRuneOffer('casket');   // §7.1.1 the drop half of the two rune selections
   } else {
-    const g = 80, k = pick(ITEM_KEYS);
+    const g = 80, k = pick(LOOT_ITEMS);
     profile.gold += g; s.gold += g; profile.stats.earned += g;
     if ((profile.items[k] || 0) < SATCHEL_MAX) profile.items[k] = (profile.items[k] || 0) + 1;
     log(`The minor boss falls and drops loot: +${g} gold and a ${ITEMS[k].name}.`, 'sys');
@@ -10463,36 +11155,60 @@ function expPrepHTML() {
   if (!p) {
     // No fight was won on the way in, so there is nothing to spend — but the warband's state
     // and its runes are still worth showing before the next decision.
-    const rows = expMembers().map((u) => {
+    const band = expMembers().map((u) => {
       const c = s.carry[u.id];
-      return `<li><span class="pname">${u.name}</span>${c ? `<span class="pstat">${c.hp}/${u.maxHp} HP</span>` : ''}${fxChips(c)}${chips(u.id)}</li>`;
+      return `<button class="wchip spent" type="button" data-sheet="${u.id}">
+        <span class="wn">${u.name}</span>
+        <span class="ws">${c ? `${c.hp}/${u.maxHp} HP` : 'ready'}</span>
+        ${fxChips(c)}${chips(u.id)}</button>`;
     }).join('');
-    return `<div class="expPrep"><h4>The warband</h4><ul class="plist">${rows}</ul>
+    return `<div class="wband">${band}</div>
+      <p class="note">No Preparation Turns here — they are earned by winning a fight, and only once per chamber (§4.4).</p>`;
+  }
+  /* With turns to spend, the shared screen still shows only who is with you and how they are. The
+     spending happens on a champion's own sheet — nobody tends to anyone but their own. */
+  const band = expMembers().map((u) => {
+    const c = s.carry[u.id], left = expPrepLeft(u.id);
+    return `<button class="wchip${left ? '' : ' spent'}" type="button" data-sheet="${u.id}">
+      <span class="wn">${u.name}</span>
+      <span class="ws">${c ? `${c.hp}/${u.maxHp} HP${u.maxMp ? ` · ${c.mp}/${u.maxMp} MP` : ''}` : 'ready'}</span>
+      <span class="wt">${p.hall ? 'free' : `${left} turn${left === 1 ? '' : 's'}`}${p.extraTo === u.id ? ' · extra' : ''}</span>
+      ${fxChips(c)}${chips(u.id)}</button>`;
+  }).join('');
+  const note = p.hall
+    ? 'The Entrance Hall holds no monsters. Prepare as you like, with no turns counted and no clock, then choose a road. Coming back here later gives nothing.'
+    : `${p.extraTo ? 'The extra turn is given, and it does not carry past this chamber.' : 'The Captain may give one member a second turn (§4.3.2).'} Unspent turns are lost when the warband moves.`;
+  return `<div class="wband">${band}</div><p class="note">${note}</p>`;
+}
+
+/* A CHAMPION'S OWN SHEET — a screen of its own, not a panel beside the map, and that is the whole
+   point of it. Everything on it is drawn from this one champion's state and every button it carries
+   acts only on them, so when an expedition becomes something several people run together this is
+   the screen that moves to their own device while the map stays up where the party can all see it.
+   Nothing here may reach for another champion: the day this renders on someone else's phone, that
+   would be reaching across the table. */
+function expSheetHTML(u) {
+  const s = expState(), p = s.prep, c = s.carry[u.id];
+  const chips = (s.runes[u.id] || []).map((k) => `<span class="rchip" title="${EXP_RUNES[k].desc}">${EXP_RUNES[k].name}</span>`).join('');
+  const fx = (c?.fx || []).map((f) => `<span class="fxchip ${FX[f.id].kind}">${FX[f.id].icon} ${f.turns}</span>`).join('');
+  const head = `<div class="pbar"><span class="pname">${u.name}</span>
+    <span class="pstat">${c ? `${c.hp}/${u.maxHp} HP${u.maxMp ? ` · ${c.mp}/${u.maxMp} MP` : ''}` : ''}</span>${fx}${chips}</div>`;
+  if (!p) {
+    return `<div class="expPrep">${head}
       <p class="note">No Preparation Turns here — they are earned by winning a fight, and only once per chamber (§4.4).</p></div>`;
   }
-  const rows = expMembers().map((u) => {
-    const c = s.carry[u.id], left = expPrepLeft(u.id);
-    const acts = [['mend', `Bind wounds +${Math.round(EXP_PREP_HEAL * 100)}%`],
-                  ['focus', u.maxMp ? `Gather mana +${EXP_PREP_MP}` : 'Work the gear −1 cd'],
-                  ['cleanse', 'Cleanse'], ['brace', 'Brace']];
-    const actBtns = acts.map(([a, label]) => `<button class="btn tiny" type="button" data-prep="${u.id}:${a}"${left < 1 ? ' disabled' : ''}>${label}</button>`).join('');
-    const packed = (k) => packOf(u.id).filter((x) => x === k).length;
-    const itemBtns = EXP_PREP_ITEMS.filter((k) => packed(k) > 0 && !(k === 'tonic' && !u.maxMp))
-      .map((k) => `<button class="btn tiny" type="button" data-prepitem="${u.id}:${k}"${left < 1 ? ' disabled' : ''}>${ITEMS[k].name} ×${packed(k)}</button>`).join('');
-    const extraBtn = !p.extraTo && !p.hall ? `<button class="btn tiny extra" type="button" data-extra="${u.id}">Give the extra turn</button>` : '';
-    return `<li class="prow${left ? ' has' : ''}">
-      <div class="pbar"><span class="pname">${u.name}</span>
-        <span class="pstat">${c ? `${c.hp}/${u.maxHp} HP` : ''}${c && u.maxMp ? ` · ${c.mp}/${u.maxMp} MP` : ''}</span>
-        ${fxChips(c)}${chips(u.id)}
-        <span class="pturns">${p.hall ? 'free' : `${left} turn${left === 1 ? '' : 's'}`}${p.extraTo === u.id ? ' (Captain\'s extra)' : ''}</span></div>
-      <div class="pacts">${actBtns}${itemBtns}${extraBtn}</div></li>`;
-  }).join('');
-  if (p.hall) {
-    return `<div class="expPrep"><h4>Prepare</h4><ul class="plist">${rows}</ul>
-      <p class="note">The Entrance Hall holds no monsters. Prepare as you like, with no turns counted and no clock, then choose a road. Coming back here later gives nothing.</p></div>`;
-  }
-  return `<div class="expPrep"><h4>Preparation Turns</h4><ul class="plist">${rows}</ul>
-    <p class="note">${p.extraTo ? 'The extra turn is given, and it does not carry past this chamber.' : 'The Captain may give one member a second turn (§4.3.2).'} Unspent turns are lost when the warband moves.</p></div>`;
+  const left = expPrepLeft(u.id);
+  const acts = [['mend', `Bind wounds +${Math.round(EXP_PREP_HEAL * 100)}%`],
+                ['focus', u.maxMp ? `Gather mana +${EXP_PREP_MP}` : 'Work the gear −1 cd'],
+                ['cleanse', 'Cleanse'], ['brace', 'Brace']];
+  const actBtns = acts.map(([a, label]) => `<button class="btn tiny" type="button" data-prep="${u.id}:${a}"${left < 1 ? ' disabled' : ''}>${label}</button>`).join('');
+  const packed = (k) => packOf(u.id).filter((x) => x === k).length;
+  const itemBtns = EXP_PREP_ITEMS.filter((k) => packed(k) > 0 && !(k === 'tonic' && !u.maxMp))
+    .map((k) => `<button class="btn tiny" type="button" data-prepitem="${u.id}:${k}"${left < 1 ? ' disabled' : ''}>${ITEMS[k].name} ×${packed(k)}</button>`).join('');
+  const extraBtn = !p.extraTo && !p.hall ? `<button class="btn tiny extra" type="button" data-extra="${u.id}">Give the extra turn</button>` : '';
+  return `<div class="expPrep">${head}
+    <p class="note">${p.hall ? 'Free in the Entrance Hall — spend as much as you like.' : `${left} turn${left === 1 ? '' : 's'} left${p.extraTo === u.id ? ", including the Captain's extra" : ''}.`}</p>
+    <div class="pacts">${actBtns}${itemBtns}${extraBtn}</div></div>`;
 }
 
 // The rune selection (§7.1-7.2): three cut runes, one kept, one bearer. Nothing moves until it
@@ -10502,21 +11218,118 @@ function expRuneHTML() {
   const sel = expState().pendingRune;
   if (!sel) return '';
   if (!sel.kept) {
-    const cards = sel.offer.map((k) => `<li><button class="btn" type="button" data-rune="${k}"><span>${EXP_RUNES[k].name}</span><span class="etype">${EXP_RUNES[k].desc}</span></button></li>`).join('');
+    const cards = sel.offer.map((k) => `<li><button class="btn" type="button" data-rune="${k}">${expRuneArt(k)}`
+      + `<span class="rtext"><span class="rname">${EXP_RUNES[k].name}</span><span class="etype">${EXP_RUNES[k].desc}</span></span></button></li>`).join('');
     return `<div class="expRunes"><h4>${sel.source === 'casket' ? 'The rune-casket' : 'The carving room'} — keep one of three</h4>
-      <ul class="expExits">${cards}</ul><p class="note">The other two are left behind. If the clock runs out the vault keeps one for you.</p></div>`;
+      <ul class="expExits">${cards}</ul></div>`;
   }
   const who = expMembers().map((u) => `<li><button class="btn" type="button" data-runeto="${u.id}"><span>${u.name}</span><span class="etype">cut it into them</span></button></li>`).join('');
-  return `<div class="expRunes"><h4>${EXP_RUNES[sel.kept].name} — who carries it?</h4>
-    <p class="note">${EXP_RUNES[sel.kept].desc}, for the rest of the expedition.</p><ul class="expExits">${who}</ul></div>`;
+  return `<div class="expRunes"><h4>Who carries it?</h4>
+    <div class="runeheld">${expRuneArt(sel.kept)}<span class="rtext"><span class="rname">${EXP_RUNES[sel.kept].name}</span>
+      <span class="etype">${EXP_RUNES[sel.kept].desc}, for the rest of the expedition</span></span></div>
+    <ul class="expExits">${who}</ul></div>`;
+}
+
+/* The arena's box, measured and published for the CSS. It has to be measured: the arena is sized by
+   aspect-ratio against a fluid column, so nothing in the stylesheet can say where it ended up. The
+   panes are position:fixed, so this must run again whenever the page scrolls or resizes under them. */
+function expDockToArena() {
+  const a = $('#arena'), ov = $('#overlay');
+  if (!a || !ov || !ov.classList.contains('exproom')) return;
+  const r = a.getBoundingClientRect();
+  ov.style.setProperty('--ax', `${r.left}px`);
+  ov.style.setProperty('--ay', `${r.top}px`);
+  ov.style.setProperty('--aw', `${r.width}px`);
+  ov.style.setProperty('--ah', `${r.height}px`);
+  // How far the arena's right edge sits from the viewport's. The panes hang off THIS rather than off
+  // left+width, so they stay pinned to the right of the field however the arena is sized.
+  ov.style.setProperty('--ar', `${Math.max(0, innerWidth - r.right)}px`);
+}
+/* The panes are position:fixed, so they must be re-placed whenever the page moves under them. Bound
+   on first use rather than at the top level: this script is also run headless by tests/harness.js, in
+   a sandbox with no window to listen on, and a bare addEventListener out here brings the whole file
+   down before a single check runs. Everything global in this codebase is bound from inside a function
+   for the same reason (see buildVillage). */
+let expDockBound = false;
+function expBindDock() {
+  if (expDockBound || typeof addEventListener !== 'function') return;
+  expDockBound = true;
+  addEventListener('resize', expDockToArena);
+  addEventListener('scroll', expDockToArena, { passive: true });
+  /* The window's resize event is not enough on its own. The arena is sized by aspect-ratio against a
+     fluid column, so its box also changes when the chronicle is hidden, a font lands, or the layout
+     reflows for any other reason — and the window event can arrive before the new layout exists, which
+     leaves the panes measuring the OLD arena and hanging off its right edge. Watching the arena itself
+     catches every one of those, resize included. */
+  const arena = $('#arena');
+  if (arena && typeof ResizeObserver === 'function') new ResizeObserver(expDockToArena).observe(arena);
+}
+// Everything the in-room layout left behind. The panes are fixed-position and would otherwise hang
+// over whatever the overlay is used for next — a fight's end card, say — long after the map is gone.
+function expUndock() {
+  const ov = $('#overlay');
+  ov.classList.remove('exproom', 'docked', 'casketopen');
+  const pane = ov.querySelector('.runepane');
+  if (pane) pane.remove();
+  expClearRunePick();   // no champion is left standing lit for a casket that has closed
+}
+
+// The rune-casket stands in its own pane beside the map, not inside it (see .runepane).
+function expSyncRunePane(html) {
+  const ov = $('#overlay');
+  let pane = ov.querySelector('.runepane');
+  if (!html) { if (pane) pane.remove(); return; }
+  if (!pane) { pane = document.createElement('div'); pane.className = 'runepane'; ov.appendChild(pane); }
+  pane.innerHTML = html;
+  /* With the map stood down, abandoning the vault would have nowhere to be asked from — and §15 says
+     it is always available. So it rides along on the casket for as long as the casket is the screen. */
+  if (ov.classList.contains('casketopen')) {
+    const quit = document.createElement('button');
+    quit.type = 'button'; quit.className = 'btn tiny'; quit.style.marginTop = '10px';
+    quit.textContent = 'Abandon the expedition';
+    quit.addEventListener('click', expAbandon);
+    pane.appendChild(quit);
+  }
+  pane.querySelectorAll('[data-rune]').forEach((b) => b.addEventListener('click', () => expRuneKeep(b.dataset.rune)));
+  pane.querySelectorAll('[data-runeto]').forEach((b) => b.addEventListener('click', () => expRuneAssign(b.dataset.runeto)));
 }
 
 function expRenderDecision() {
   const e = expRun(), ch = expChamber(), s = expState();
   const exits = ch.exits || [], timed = s.deadline != null, held = !!s.pendingRune;
+  const hasMap = expHasMap();
+  /* A champion's sheet has the screen to itself while it is open — the map is not behind it, it is
+     elsewhere. Keeps the two screens honest about being two screens (see expSheetHTML). The clock,
+     if one is running, still shows: stepping aside to tend to someone does not stop the vault. */
+  const sheetOf = s.sheet ? expMembers().find((m) => m.id === s.sheet) : null;
+  if (s.sheet && !sheetOf) s.sheet = null;
   $('#ovKick').textContent = `${e.name} · ${EXP_ENVIRONMENTS[e.env] || 'Expedition'}`;
+  if (sheetOf) {
+    $('#ovTitle').textContent = sheetOf.name;
+    const timerBar = timed
+      ? `<div class="expTimer"><span id="expTimerFill" style="width:100%"></span></div><div class="expTimerTxt" id="expTimerTxt">${EXP_DECISION_SECS}s to decide</div>` : '';
+    $('#ovBody').innerHTML = `${timerBar}${expSheetHTML(sheetOf)}`;
+    const btns = $('#ovBtns'); btns.innerHTML = '';
+    const back = document.createElement('button');
+    back.type = 'button'; back.className = 'btn primary'; back.textContent = 'Back to the map';
+    back.addEventListener('click', () => { s.sheet = null; expRenderDecision(); });
+    btns.appendChild(back);
+    const body = $('#ovBody');
+    body.querySelectorAll('[data-prep]').forEach((b) => b.addEventListener('click', () => { const [id, act] = b.dataset.prep.split(':'); expPrepAct(id, act); }));
+    body.querySelectorAll('[data-prepitem]').forEach((b) => b.addEventListener('click', () => { const [id, key] = b.dataset.prepitem.split(':'); expPrepItem(id, key); }));
+    body.querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', () => expPrepExtra(b.dataset.extra)));
+    $('#overlay').classList.remove('docked');
+    $('#overlay').classList.add('exproom');
+    $('#overlay').classList.remove('casketopen');   // a sheet is never the hidden screen
+    expSyncRunePane('');   // a champion's sheet is their own screen — the casket is not on it
+    $('#overlay').hidden = false;
+    expBindDock(); expDockToArena();
+    return;
+  }
   $('#ovTitle').textContent = held ? `${ch.name} — runes` : exits.length ? `${ch.name} — where to?` : `${ch.name} — a dead end`;
-  const exitRows = exits.map((id) => {
+  // With a map in hand the roads ARE the map: the rooms you can reach are the buttons. Without one
+  // the warband only knows the doors in front of them, so those still get listed.
+  const exitRows = hasMap ? '' : exits.map((id) => {
     const c = e.chambers[id], blocked = s.visited.has(id) && (s.reentry[id] || 0) >= EXP_REENTRY_CAP;
     const tag = blocked ? 'sealed · already re-entered' : s.visited.has(id) ? 'back through here' : expTypeLabel(c.type);
     return `<li><button class="btn" type="button" data-exp="${id}"${blocked || held ? ' disabled' : ''}><span>${c.name}</span><span class="etype">${tag}</span></button></li>`;
@@ -10525,12 +11338,14 @@ function expRenderDecision() {
     ? `<p class="loot">Found: +${s.lastLoot.gold} gold${s.lastLoot.items?.length ? `, ${s.lastLoot.items.join(', ')}` : ''}</p>` : '';
   const timerHTML = timed
     ? `<div class="expTimer"><span id="expTimerFill" style="width:100%"></span></div><div class="expTimerTxt" id="expTimerTxt">${EXP_DECISION_SECS}s to decide</div>`
-    : s.prep?.hall ? '<p class="note">No clock in the Entrance Hall. Take your time.</p>'
+    : s.prep?.hall ? ''   // the Entrance Hall has no clock, and says so by showing none
     : '<p class="note">The decision timer has stopped. Retreat or abandon the expedition.</p>';
-  $('#ovBody').innerHTML = `${loot}${timerHTML}${expRuneHTML()}${expPrepHTML()}
-    ${exits.length ? `<ul class="expExits">${exitRows}</ul>` : '<p class="note">No road leads on from here. The only way is back.</p>'}
+  $('#ovBody').innerHTML = `${loot}${timerHTML}
+    ${hasMap ? expMapHTML() : '<p class="note">No map for this dungeon — you see only the roads out of this chamber.</p>'}
+    ${!hasMap && exits.length ? `<ul class="expExits">${exitRows}</ul>` : ''}
+    ${!exits.length ? '<p class="note">No road leads on from here. The only way is back.</p>' : ''}
     ${held ? '<p class="note">Settle the rune before the warband moves on.</p>' : ''}
-    ${expHasMap() ? expMapHTML() : '<p class="note">No map for this dungeon — you see only the roads out of this chamber.</p>'}
+    ${expPrepHTML()}
     <p class="note">This run so far: <b>${s.gold} gold</b>, <b>${s.xp} XP</b>${expDepth(e.id) ? ` · <b>Descent ${expDepth(e.id)}</b>` : ''}. Moving between chambers never heals.</p>`;
   const back = s.path.length ? s.path[s.path.length - 1] : null;
   const canRetreat = back != null && (s.reentry[back] || 0) < EXP_REENTRY_CAP && !held;
@@ -10540,28 +11355,95 @@ function expRenderDecision() {
   mk('Abandon the expedition', false, expAbandon);   // §15 always available, rune or no rune
   const body = $('#ovBody');
   body.querySelectorAll('[data-exp]').forEach((b) => b.addEventListener('click', () => expChoose(b.dataset.exp)));
+  body.querySelectorAll('[data-sheet]').forEach((b) => b.addEventListener('click', () => { s.sheet = b.dataset.sheet; expRenderDecision(); }));
   body.querySelectorAll('[data-prep]').forEach((b) => b.addEventListener('click', () => { const [id, act] = b.dataset.prep.split(':'); expPrepAct(id, act); }));
   body.querySelectorAll('[data-prepitem]').forEach((b) => b.addEventListener('click', () => { const [id, key] = b.dataset.prepitem.split(':'); expPrepItem(id, key); }));
   body.querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', () => expPrepExtra(b.dataset.extra)));
   body.querySelectorAll('[data-rune]').forEach((b) => b.addEventListener('click', () => expRuneKeep(b.dataset.rune)));
   body.querySelectorAll('[data-runeto]').forEach((b) => b.addEventListener('click', () => expRuneAssign(b.dataset.runeto)));
-  $('#overlay').classList.toggle('docked', !!s.prep?.hall);
+  $('#overlay').classList.remove('docked');
+  $('#overlay').classList.add('exproom');
+  $('#overlay').classList.toggle('casketopen', !!s.pendingRune?.kept);
+  expSyncRunePane(expRuneHTML());
   $('#overlay').hidden = false;
+  expBindDock(); expDockToArena(); expSyncRunePick();
 }
 
+/* Laid out from the chamber graph itself, so a newly authored expedition draws its own map with no
+   hand-placed coordinates to keep in step with it.
+
+   Rooms are layered by their LONGEST path from the entrance, not their shortest. Shortest paths put
+   the Drowned Transept — one step from the Abbot's Nave, three by way of the side crypt — ABOVE one
+   of the rooms that feeds it, and the passage in then has to double back up the page. Longest-path
+   layering puts every room below everything that leads to it, so every passage runs downhill. */
+function expMapLayout(e) {
+  const ids = Object.keys(e.chambers);
+  const exitsOf = (id) => (e.chambers[id].exits || []).filter((x) => e.chambers[x]);
+  const depth = {}; ids.forEach((id) => { depth[id] = 0; });
+  // Relax until it settles, capped at one pass per room: an authored cycle can then never hang this.
+  for (let pass = 0; pass < ids.length; pass++) {
+    let moved = false;
+    for (const id of ids) for (const x of exitsOf(id)) if (depth[x] < depth[id] + 1) { depth[x] = depth[id] + 1; moved = true; }
+    if (!moved) break;
+  }
+  const rows = [];
+  for (const id of ids) (rows[depth[id]] = rows[depth[id]] || []).push(id);
+  // Then pull each room toward whatever feeds it, so the passages cross as little as they can.
+  const parents = {}; ids.forEach((id) => { parents[id] = []; });
+  for (const id of ids) for (const x of exitsOf(id)) parents[x].push(id);
+  const xs = {};
+  const spread = (row) => row.forEach((id, i) => { xs[id] = (i + 1) / (row.length + 1); });
+  rows.forEach((row) => row && spread(row));
+  for (let pass = 0; pass < 2; pass++) {
+    rows.forEach((row) => {
+      if (!row) return;
+      const mid = (id) => (parents[id].length ? parents[id].reduce((t, p) => t + xs[p], 0) / parents[id].length : xs[id]);
+      row.sort((a, b) => mid(a) - mid(b));
+      spread(row);
+    });
+  }
+  const H = rows.length || 1, pos = {};
+  rows.forEach((row, d) => row && row.forEach((id) => { pos[id] = { x: xs[id] * 100, y: ((d + 0.5) / H) * 100 }; }));
+  return { pos, rowCount: H };
+}
+
+// Shape AND colour per room type: either alone and two kinds of room read the same at a glance.
+const EXP_MARK = { start: ['⌂', 'm-start'], combat: ['●', 'm-fight'], treasure: ['◆', 'm-loot'],
+                   rune: ['✦', 'm-rune'], boss: ['★', 'm-boss'], deadend: ['✕', 'm-dead'] };
+
 function expMapHTML() {
-  const e = expRun(), s = expState();
-  const rows = Object.entries(e.chambers).map(([id, c]) => {
-    const here = id === s.current, done = s.cleared.has(id) || (c.type === 'treasure' && s.looted.has(id));
-    const to = (c.exits || []).map((x) => e.chambers[x].name).join(', ') || '—';
-    return `<li class="${here ? 'here' : done ? 'done' : ''}">${c.name} <small>→ ${to}</small></li>`;
+  const e = expRun(), s = expState(), ch = expChamber();
+  const { pos, rowCount } = expMapLayout(e);
+  const exits = ch.exits || [], held = !!s.pendingRune;
+  const rowPx = 52, off = 13000 / (rowCount * rowPx);   // half a room's height, in the 0–1000 space
+  let paths = '';
+  for (const [id, c] of Object.entries(e.chambers)) for (const x of (c.exits || [])) {
+    const A = pos[id], B = pos[x]; if (!A || !B) continue;
+    const ax = A.x * 10, ay = A.y * 10 + off, bx = B.x * 10, by = B.y * 10 - off, m = (ay + by) / 2;
+    paths += `<path d="M${ax.toFixed(0)} ${ay.toFixed(0)} C${ax.toFixed(0)} ${m.toFixed(0)} ${bx.toFixed(0)} ${m.toFixed(0)} ${bx.toFixed(0)} ${by.toFixed(0)}"/>`;
+  }
+  const rooms = Object.entries(e.chambers).map(([id, c]) => {
+    const p = pos[id]; if (!p) return '';
+    const here = id === s.current;
+    const sealed = s.visited.has(id) && (s.reentry[id] || 0) >= EXP_REENTRY_CAP;
+    const open = exits.includes(id) && !held && !sealed;
+    const done = s.cleared.has(id) || (c.type === 'treasure' && s.looted.has(id));
+    const mark = EXP_MARK[c.type] || ['·', ''];
+    const cls = ['vroom', here ? 'here' : '', open ? 'go' : '', done ? 'done' : '', c.type === 'deadend' ? 'dead' : ''].filter(Boolean).join(' ');
+    const title = here ? 'the warband stands here' : sealed ? 'sealed — already re-entered' : open ? (s.visited.has(id) ? 'back through here' : expTypeLabel(c.type)) : expTypeLabel(c.type);
+    return `<button class="${cls}" type="button" style="left:${p.x.toFixed(1)}%;top:${p.y.toFixed(1)}%" title="${title}"${open ? ` data-exp="${id}"` : ' disabled'}>`
+      + `<span class="vm ${mark[1]}">${mark[0]}</span><span>${c.name}</span></button>`;
   }).join('');
-  return `<div class="expMap"><h4>Vault map</h4><ul>${rows}</ul></div>`;
+  return `<div class="vmap" style="height:${rowCount * rowPx}px">
+      <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>${rooms}</div>
+    <div class="vkey"><span><span class="vm m-fight">●</span> fight</span><span><span class="vm m-loot">◆</span> hoard</span>
+      <span><span class="vm m-rune">✦</span> rune</span><span><span class="vm m-boss">★</span> the lair</span>
+      <span><span class="vm m-dead">✕</span> dead end</span></div>`;
 }
 
 function expEndOverlay(outcome) {
   expClearTimer();
-  $('#overlay').classList.remove('docked');
+  expUndock();
   const e = expRun(), s = expState();
   // §7.2.5-6: no rune leaves the vault — not in victory, not in defeat, not when the warband
   // walks out. They are cut for this expedition and they end with it.
@@ -10677,8 +11559,18 @@ const ITEMS = {
   firebomb: { name: 'Firebomb', price: 50, target: 'allEnemies', desc: 'Scorch every enemy for 10% of their max HP and set them Burning.' },
   horn:     { name: 'War Horn', price: 40, target: 'allAllies', desc: 'Every other ally surges 30% along the speed bar.' },
   mirage:   { name: 'Mirror Dust', price: 55, target: 'self', desc: 'Conjure an uncontrolled double of yourself. It fights for 75% of your damage, then fades after 3 of its turns or 8 blows.' },
+  // The only item that looks past the living (target: 'deadAlly', the same marks as Second Burial).
+  candle:   { name: 'Vigil Candle', price: 120, target: 'deadAlly', desc: 'Raise a fallen ally with 25% of their HP. Until their own turn comes they are Veiled: nothing can harm them, single them out or catch them in an area attack.' },
+  /* The one piece of the satchel that is not spent when it is used (reusable, below). It stays in the
+     backpack battle after battle and winds once per fight — so it is dear, and it is still the turn's
+     one item. The War Horn's 30% to the whole warband, the user included. */
+  metronome:{ name: 'Brass Metronome', price: 200, target: 'allAllies', reusable: true, desc: 'Every ally, you among them, surges 30% along the speed bar. The brass is not spent — it winds again next battle, but only once a fight.' },
 };
 const ITEM_KEYS = Object.keys(ITEMS);
+/* What a chest or a boss may hand out. Reusable pieces are deliberately left out: owning one is
+   owning it for good, so a second is dead weight in the satchel and a wasted chest slot. They are
+   bought from the Market on purpose, which is what their price is for. */
+const LOOT_ITEMS = ITEM_KEYS.filter((k) => !ITEMS[k].reusable);
 
 /* BACKPACKS — every champion carries their own PACK_SLOTS slots, one item in each. The satchel is the
    warband's supply between fights; you load a backpack from it in the Arena (tap an empty slot and
@@ -10745,6 +11637,10 @@ const ITEM_ICON = {
   firebomb: `<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="19" r="9" fill="#2a2f3f" stroke="#7a8296" stroke-width="1.2"/><rect x="11.5" y="8" width="5" height="4" rx="1" fill="#4a5164"/><path d="M14 8q2-4 6-4" stroke="#c9b28a" stroke-width="1.6" fill="none"/><path d="M21 4.5q-1.5-3.5 1.5-3.5q-.5 2 2 2.5q-1 2.5-3.5 1z" fill="#ff8a3d"/><circle cx="11" cy="16" r="2.2" fill="#fff" opacity=".18"/></svg>`,
   horn: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 22Q8 10 22 7L27 4V15L23 13Q12 14 9 24Z" fill="#d8c8a8"/><path d="M18 8.5L19.5 13.8M13 11L15 16" stroke="#b07d3e" stroke-width="2.2"/><ellipse cx="27" cy="9.5" rx="2" ry="5.5" fill="#6b4f32"/><path d="M4 22L9 24L6 27Z" fill="#b07d3e"/></svg>`,
   mirage: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 27V9a5 5 0 0 1 5-5h1v23z" fill="#8a6fd0"/><path d="M24 27V9a5 5 0 0 0-5-5h-1v23z" fill="#5a4698" opacity=".85"/><path d="M11 8v16" stroke="#e9e0ff" stroke-width="1.3" stroke-linecap="round" opacity=".7"/><path d="M26 6l.9 2.1 2.1.9-2.1.9L26 12l-.9-2.1L23 9l2.1-.9z" fill="#e9e0ff"/><circle cx="6" cy="20" r="1.2" fill="#e9e0ff"/></svg>`,
+  // Pale wax on a brass dish, and a flame with the Pale Host's grave-light at its heart.
+  candle: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 27h14l-1.5 3h-11z" fill="#8a6a3a"/><path d="M7 30h18v1.5H7z" fill="#6b4f32"/><rect x="13" y="11" width="6" height="16" rx="1" fill="#e6dcc4"/><path d="M13.6 12h1.8v14h-1.8z" fill="#fff" opacity=".4"/><path d="M16 9.2v2" stroke="#3a3442" stroke-width="1.2" stroke-linecap="round"/><path d="M16 1q3.2 4.4 3.2 6.4a3.2 3.2 0 0 1-6.4 0Q12.8 5.4 16 1z" fill="#f0c23a"/><ellipse cx="16" cy="6.6" rx="1.5" ry="2.1" fill="#9fe08a"/></svg>`,
+  // Brass case, a rod leaning off the beat, and the bob part way up it.
+  metronome: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 10h6l5 18H8z" fill="#b07d3e"/><path d="M19 10l5 18h-4z" fill="#8a5a28"/><path d="M6 28h20v3H6z" fill="#6b4f32"/><path d="M11 16h8" stroke="#6b4f32" stroke-width="1" opacity=".5"/><path d="M16 25L22 6" stroke="#3a3442" stroke-width="1.5" stroke-linecap="round"/><rect x="19.2" y="12.4" width="5" height="3.2" rx="1.2" fill="#e8c86a" transform="rotate(-18 21.7 14)"/><circle cx="16" cy="25" r="1.5" fill="#e8c86a"/></svg>`,
 };
 const COIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#e8a548"/><circle cx="12" cy="12" r="7" fill="none" stroke="#2a1a05" stroke-width="1.2" opacity=".45"/><path d="M12 7.5v9M9.5 10h5" stroke="#2a1a05" stroke-width="1.6" stroke-linecap="round" opacity=".6"/></svg>';
 
@@ -15523,6 +16419,54 @@ function unitCardHTML(u) {
 /* Status overlays: characters/animations/status/<id>.webp are looping transparent clips drawn in the
    champion art's own 100x100 space, so they sit straight over .upic (see .stfx in the CSS).
    Soaked follows soaked(u), so wet weather drips on everyone too. */
+/* BURN. The fire catches on the champion, not in a tidy row at their boots: a few tongues scattered
+   over the body — a shoulder, a sleeve, the small of the back. Where they land is drawn from the
+   unit's own uid rather than Math.random, for two reasons. No two burning champions standing side by
+   side carry the same pattern, which is the whole complaint about one shared clip; and a champion's
+   own fire stays put instead of leaping to new spots every time some unrelated status comes or goes
+   and the overlay is rebuilt. Same uid, same fire, every time. */
+const BURN_TONGUES = 4;
+// A cheap deterministic 0..1 from the uid and a counter — FNV-1a, enough to scatter four flames.
+const burnRand = (uid, n) => {
+  let h = 2166136261;
+  const s = `${uid}:${n}`;
+  for (let i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 16777619); }
+  return ((h >>> 0) % 10000) / 10000;
+};
+function burnFlamesSVG(u) {
+  const n1 = (v) => Math.round(v * 10) / 10;
+  let flames = '', smoke = '';
+  for (let i = 0; i < BURN_TONGUES; i++) {
+    const x = 30 + burnRand(u.uid, i * 4) * 40;       // across the body, shoulder to shoulder
+    const y = 42 + burnRand(u.uid, i * 4 + 1) * 44;   // chest down to the boots
+    const h = 7 + burnRand(u.uid, i * 4 + 2) * 9;     // how tall this one stands
+    const w = h * 0.42;
+    const lean = (burnRand(u.uid, i * 4 + 3) - 0.5) * w;  // which way the tip is licking
+    const d = -i * 0.17;                              // each tongue on its own beat
+    /* Not a teardrop: the left edge climbs and pinches in, the tip leans off centre, and the right
+       edge sweeps back down. The asymmetry is what makes it read as fire rather than a drip.
+       The base closes on a curve that bellies out BELOW y rather than a straight line across it —
+       a flat bottom reads as a flame standing on a shelf, and there is no shelf on a shoulder.
+       Rounded, it reads as fire wrapped around whatever it has caught on. */
+    flames += `<path class="flame" style="animation-delay:${n1(d)}s" fill="#ff8a3d" opacity=".92"`
+       + ` d="M${n1(x - w)} ${n1(y)}Q${n1(x - w * .9)} ${n1(y - h * .5)} ${n1(x - w * .3)} ${n1(y - h * .62)}`
+       + `Q${n1(x + lean * .5)} ${n1(y - h * .85)} ${n1(x + lean)} ${n1(y - h)}`
+       + `Q${n1(x + w * .55)} ${n1(y - h * .5)} ${n1(x + w)} ${n1(y)}`
+       + `Q${n1(x)} ${n1(y + h * .26)} ${n1(x - w)} ${n1(y)}Z"/>`
+       + `<path class="flame" style="animation-delay:${n1(d - .2)}s" fill="#ffd166"`
+       + ` d="M${n1(x - w * .45)} ${n1(y)}Q${n1(x - w * .4)} ${n1(y - h * .3)} ${n1(x - w * .12)} ${n1(y - h * .4)}`
+       + `Q${n1(x + lean * .5)} ${n1(y - h * .52)} ${n1(x + lean * .8)} ${n1(y - h * .62)}`
+       + `Q${n1(x + w * .3)} ${n1(y - h * .3)} ${n1(x + w * .45)} ${n1(y)}`
+       + `Q${n1(x)} ${n1(y + h * .13)} ${n1(x - w * .45)} ${n1(y)}Z"/>`;
+    // A wisp off every other tongue — four would be a bonfire, two is something smouldering.
+    if (i % 2 === 0) {
+      smoke += `<ellipse class="smoke" style="animation-delay:${n1(-i * 1.3)}s" fill="#aeb4bf"`
+        + ` cx="${n1(x + lean)}" cy="${n1(y - h - w * .6)}" rx="${n1(w * .9)}" ry="${n1(w * .78)}"/>`;
+    }
+  }
+  return `<svg class="burnfx" viewBox="0 0 100 100" aria-hidden="true">${smoke}<g class="burnlit">${flames}</g></svg>`;
+}
+
 const STATUS_FX = ['stride', 'taunt', 'roots', 'soaked', 'poison', 'bleed', 'burn', 'stun'];
 const ROOTS_GROW_MS = 585;  // roots-grow.webp plays once (13 frames x 45 ms), then the looping roots.webp takes over
 // 'stride' = a breeze at the feet of everyone sped up by Elowen's Forest Stride (same test as barAgi).
@@ -15540,6 +16484,8 @@ function syncStatusFx(el, u) {
   // Freshly entangled: the roots burst out of the ground first, then settle into their idle sway.
   const sprout = on.includes('roots') && !was.includes('roots') && !reduced;
   host.innerHTML = on.map((id) => {
+    // Burn is drawn rather than played: one shared clip put the same flames on every body.
+    if (id === 'burn') return burnFlamesSVG(u);
     const src = id === 'roots' && sprout ? `roots-grow.webp?t=${Date.now()}` : `${id}.webp`;
     return `<img src="${ANIM_DIR}status/${src}" alt="" draggable="false" data-fx="${id}">`;
   }).join('');
@@ -15569,8 +16515,10 @@ function syncGroundFire() {
   const spots = state.groundFire?.spots || null;
   if (spots === gfDrawn) return;   // the same fire still burning: leave the flames alone
   gfDrawn = spots;
+  // --gset deals the tongues into three sets that gut and flare in turn (see .gf svg / gfCycle).
+  // Dealt by position along the ground, so neighbours never share a set and the movement travels.
   host.innerHTML = !spots ? '' : spots.map((f, i) =>
-    `<i class="gf" style="left:${f.x}%; top:${f.y}%; --gs:${f.s}; --fd:${f.d}s; animation-delay:${(i * 0.045).toFixed(2)}s; z-index:${Math.round(f.y)}">${GF_ART}</i>`).join('');
+    `<i class="gf" style="left:${f.x}%; top:${f.y}%; --gs:${f.s}; --fd:${f.d}s; --gset:${i % 3}; animation-delay:${(i * 0.045).toFixed(2)}s; z-index:${Math.round(f.y)}">${GF_ART}</i>`).join('');
 }
 
 function tokenHTML(u) {
@@ -15581,7 +16529,184 @@ function tokenHTML(u) {
     </div>`;
 }
 
+/* ==================================================================
+   THE BATTLEFIELD
+   Where an overland battle is actually fought. Each field is one inline SVG laid over the arena's own
+   sky-and-ground gradient (the palettes, and the four depth colours used below, are in the CSS).
+   The viewBox is 160x80 — the arena's own 16:8 — so the scene's skyline sits exactly on the 34% line
+   the gradient already puts the horizon on. Nothing here is an image file, for the same reason the
+   cave ceiling is conic-gradients: one file, no loading, and the whole thing recolours from four vars.
+   Caves, dungeons and expeditions never carry a field; they have their own look (data-wx / data-dg).
+   ================================================================== */
+const HZ = 27.2, GND = 28.8;   // the skyline, and where the ground begins
+const FIELDS = {
+  forest:  { name: 'Woodland', flavor: 'Old trees standing close. Little light gets in and less gets back out.' },
+  village: { name: 'Village',  flavor: 'Somebody lived here this morning. The hearths are still going.' },
+  ruins:   { name: 'Old Ruins', flavor: 'Whoever cut these stones is long past caring who fights over them.' },
+};
+/* A FIXED scatter. Math.random() here would re-deal the whole wood on every render() — trees would
+   crawl around between turns — so each field is dealt once from its own seed and looks the same
+   every battle. Plain LCG: it only has to be varied, not unguessable. */
+const fieldRnd = (seed) => { let s = seed; return () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff; };
+const fx1 = (n) => n.toFixed(1);
+const sceneSVG = (body) => `<svg viewBox="0 0 160 80" preserveAspectRatio="none" aria-hidden="true">${body}</svg>`;
+
+const FIELD_SCENE = {
+  // WOODLAND — a treeline on the skyline, big trunks framing the shot, roots and litter underfoot.
+  forest() {
+    const r = fieldRnd(7);
+    let far = '', mid = '', near = '', lit = '';
+    for (let x = -6; x < 168; x += 4 + r() * 3.5) {        // conifers, overlapping into one dark mass
+      const h = 8 + r() * 12, w = 3 + r() * 2.2;
+      far += `<path d="M${fx1(x)} ${fx1(HZ + 1)} L${fx1(x + w)} ${fx1(HZ - h)} L${fx1(x + w * 2)} ${fx1(HZ + 1)} Z"/>`;
+    }
+    // Three big trunks, and only at the edges: they frame the fight without standing in the middle
+    // of it. Wide, and wider at the foot than at the canopy — a narrow one reads as a pole.
+    for (const [x, w, lean] of [[7, 13, -2.4], [151, 14, 2.6], [27, 7, 1.1]]) {
+      const foot = w * .66;
+      mid += `<path d="M${fx1(x - w / 2)} -1 L${fx1(x + w / 2)} -1 L${fx1(x + foot / 2 + lean)} ${fx1(GND + 8)} L${fx1(x - foot / 2 + lean)} ${fx1(GND + 8)} Z"/>`;
+      lit += `<path d="M${fx1(x - w * .2)} 1 L${fx1(x - foot * .2 + lean)} ${fx1(GND + 6)}"/>`;   // one bark seam, so it is not a flat slab
+    }
+    // Grass in thin blades rather than chevrons, and thickest toward the near edge where the eye is
+    // (the pow() biases the scatter downward instead of spreading it evenly over the whole floor).
+    for (let i = 0; i < 46; i++) {
+      const x = -2 + r() * 164, y = GND + 4 + Math.pow(r(), .62) * 46, s = .6 + r() * .7;
+      near += `<path d="M${fx1(x)} ${fx1(y)} l-.7 0 l${fx1(-1.2 * s)} ${fx1(-3.4 * s)} Z`
+           + `M${fx1(x + 1)} ${fx1(y)} l-.7 0 l${fx1(.3 * s)} ${fx1(-4.3 * s)} Z`
+           + `M${fx1(x + 2)} ${fx1(y)} l-.7 0 l${fx1(1.6 * s)} ${fx1(-3 * s)} Z"/>`;
+    }
+    for (let i = 0; i < 7; i++) {                           // roots breaking the surface
+      const x = 6 + r() * 148, y = GND + 10 + r() * 38, w = 7 + r() * 11;
+      lit += `<path d="M${fx1(x)} ${fx1(y)} q${fx1(w / 2)} ${fx1(-2 - r() * 2)} ${fx1(w)} 0"/>`;
+    }
+    let leaves = '';                                        // the one moving thing: leaves coming down
+    for (let i = 0; i < 5; i++) {
+      const x = 14 + r() * 132, y = 4 + r() * 18;
+      leaves += `<ellipse class="drift" cx="${fx1(x)}" cy="${fx1(y)}" rx="1.1" ry=".6" fill="var(--f-near)" opacity=".5"/>`;
+    }
+    return sceneSVG(
+      `<g fill="var(--f-far)">${far}</g><g fill="var(--f-mid)">${mid}</g>`
+      + `<g fill="var(--f-near)" opacity=".72">${near}</g>`
+      + `<g fill="none" stroke="var(--f-line)" stroke-width=".45" opacity=".34" stroke-linecap="round">${lit}</g>${leaves}`);
+  },
+
+  // VILLAGE — rooflines and a lit window or two on the skyline, a fence, and a rutted road underfoot.
+  village() {
+    const r = fieldRnd(23);
+    let far = '', mid = '', near = '', lit = '', warm = '', smoke = '';
+    let x = -8;
+    while (x < 168) {                                       // a street of gabled houses, seen end-on
+      const w = 15 + r() * 13, h = 8 + r() * 7, ridge = 5 + r() * 4;
+      const top = HZ - h, apex = top - ridge;
+      far += `<path d="M${fx1(x)} ${fx1(HZ + 1)} V${fx1(top)} L${fx1(x + w / 2)} ${fx1(apex)} L${fx1(x + w)} ${fx1(top)} V${fx1(HZ + 1)} Z"/>`;
+      lit += `<path d="M${fx1(x)} ${fx1(top)} L${fx1(x + w / 2)} ${fx1(apex)} L${fx1(x + w)} ${fx1(top)}"/>`;
+      if (r() > .45) {                                      // a window still burning
+        const wx0 = x + w * (.3 + r() * .4);
+        warm += `<rect x="${fx1(wx0)}" y="${fx1(top + 2.4)}" width="2.4" height="2.8" rx=".4"/>`;
+      }
+      if (r() > .55) {
+        // Stood ON the roof, not floating above the ridge: the slope at 0.72 across is apex-ward of
+        // the eave by this much, and the stack is drawn down through it so it always meets tile.
+        const cx = x + w * .72, roofY = top - ridge * .56;
+        far += `<rect x="${fx1(cx)}" y="${fx1(roofY - 5)}" width="2.6" height="7"/>`;
+        for (let i = 0; i < 3; i++) {
+          smoke += `<circle class="drift" cx="${fx1(cx + 1.3)}" cy="${fx1(roofY - 7 - i * 3)}" r="${fx1(1.1 + i * .7)}" fill="var(--f-mid)" opacity="${(.38 - i * .1).toFixed(2)}"/>`;
+        }
+      }
+      x += w + 1 + r() * 3;
+    }
+    // A paling fence with the gap the road comes through. Thin, low and leaning — a continuous
+    // waist-high band of posts stops reading as a fence and starts reading as a town wall.
+    for (let px = 2; px < 160; px += 6.5 + r() * 3) {
+      if (px > 58 && px < 84) continue;                     // the way in
+      const lean = (r() - .5) * 2.4, h = 4.4 + r() * 1.8;
+      mid += `<path d="M${fx1(px)} ${fx1(GND + 2)} l${fx1(lean)} ${fx1(-h)} l1.2 0 l${fx1(-lean)} ${fx1(h)} Z"/>`;
+    }
+    lit += `<path d="M2 ${fx1(GND - 1.4)} h56M84 ${fx1(GND - 1.4)} h74"/>`;   // its rail, where it still stands
+    for (let i = 0; i < 3; i++) {                           // the road's ruts, running off into the distance
+      lit += `<path d="M${fx1(26 + i * 46)} 80 q${fx1(14 + i * 4)} -26 ${fx1(26 + i * 6)} ${fx1(-(50 - GND))}"/>`;
+    }
+    for (let i = 0; i < 26; i++) {                          // trodden straw
+      const sx = 2 + r() * 156, sy = GND + 4 + r() * 46, a = r() * 60 - 30;
+      near += `<rect x="${fx1(sx)}" y="${fx1(sy)}" width="${fx1(2 + r() * 2.4)}" height=".55" transform="rotate(${fx1(a)} ${fx1(sx)} ${fx1(sy)})"/>`;
+    }
+    return sceneSVG(
+      `<g fill="var(--f-far)">${far}</g><g fill="var(--f-mid)">${mid}</g>`
+      + `<g fill="var(--f-near)" opacity=".7">${near}</g>`
+      + `<g fill="none" stroke="var(--f-line)" stroke-width=".45" opacity=".3" stroke-linecap="round">${lit}</g>`
+      + `<g fill="rgba(255, 196, 96, .8)">${warm}</g>${smoke}`);
+  },
+
+  // OLD RUINS — a broken colonnade on the skyline, stumps and a toppled column across the ground.
+  ruins() {
+    const r = fieldRnd(101);
+    let far = '', mid = '', near = '', lit = '';
+    far += `<path d="M0 ${fx1(HZ + 1)} V${fx1(HZ - 15)} h22 v15 Z"/>`;          // the standing end of a wall
+    for (let i = 0; i < 2; i++) {                                                // ...with arches knocked through it
+      const ax = 4 + i * 10;
+      far += `<path d="M${fx1(ax)} ${fx1(HZ + 1)} V${fx1(HZ - 7)} a3 3.4 0 0 1 6 0 V${fx1(HZ + 1)} Z" fill="var(--sky-now)"/>`;
+    }
+    /* The colonnade. Every column is snapped off at its own height with a ragged top and a little
+       lean — a row of identical rectangles reads as a picket fence, not as something that fell down. */
+    for (let cx = 30; cx < 162; cx += 8 + r() * 10) {
+      const h = 6 + r() * 16, w = 2.6 + r() * 3.6, lean = (r() - .5) * 1.8, nick = w * (.25 + r() * .4);
+      far += `<path d="M${fx1(cx + lean)} ${fx1(HZ - h)} l${fx1(nick)} ${fx1(-1.3 - r() * 2)} l${fx1(w - nick)} ${fx1(1.1 + r() * 1.2)} `
+           + `L${fx1(cx + w)} ${fx1(HZ + 1)} L${fx1(cx)} ${fx1(HZ + 1)} Z"/>`;
+      if (r() > .58) far += `<rect x="${fx1(cx - 1)}" y="${fx1(HZ - h - 2.4)}" width="${fx1(w + 2)}" height="1.7"/>`;   // a capital still on
+      lit += `<path d="M${fx1(cx + w)} ${fx1(HZ - h + 1.5)} V${fx1(HZ)}"/>`;
+    }
+    for (const lx of [60, 82]) far += `<rect x="${fx1(lx)}" y="${fx1(HZ - 19)}" width="4.6" height="20"/>`;   // the pair that still stand...
+    far += `<path d="M57 ${fx1(HZ - 22)} h32 v3 h-32 Z"/>`;                      // ...and the lintel they still carry
+    for (const [sx, sw, sh] of [[16, 7, 9], [138, 8, 7]]) {                      // column stumps behind the lines
+      mid += `<rect x="${fx1(sx)}" y="${fx1(GND + 2 - sh)}" width="${fx1(sw)}" height="${fx1(sh)}"/>`;
+      mid += `<rect x="${fx1(sx - 1.2)}" y="${fx1(GND + 2 - sh)}" width="${fx1(sw + 2.4)}" height="1.8"/>`;
+    }
+    // A fallen column lying across the ground, come apart into drums.
+    const fy = GND + 30;
+    mid += `<rect x="40" y="${fx1(fy)}" width="74" height="7.5" rx="3.2"/>`;
+    for (let i = 1; i < 5; i++) lit += `<path d="M${fx1(40 + i * 14.8)} ${fx1(fy + .6)} v6.3"/>`;
+    for (let i = 0; i < 5; i++) {                                                // cracked paving
+      const px = r() * 150, py = GND + 8 + r() * 40;
+      lit += `<path d="M${fx1(px)} ${fx1(py)} l${fx1(10 + r() * 20)} ${fx1(r() * 5 - 2.5)}"/>`;
+    }
+    for (let i = 0; i < 20; i++) {                                               // rubble
+      const bx = 2 + r() * 156, by = GND + 4 + r() * 46, s = 1 + r() * 2.4;
+      near += `<path d="M${fx1(bx)} ${fx1(by)} l${fx1(s)} ${fx1(-s * .8)} l${fx1(s * 1.3)} ${fx1(s * .5)} l${fx1(-s * .5)} ${fx1(s * .7)} Z"/>`;
+    }
+    return sceneSVG(
+      `<g fill="var(--f-far)">${far}</g><g fill="var(--f-mid)">${mid}</g>`
+      + `<g fill="var(--f-near)" opacity=".75">${near}</g>`
+      + `<g fill="none" stroke="var(--f-line)" stroke-width=".45" opacity=".32" stroke-linecap="round">${lit}</g>`);
+  },
+};
+
+/* Which ground a battle is fought on. A faction is met on its own land, so a run looks different as
+   it moves from one enemy to the next — and the same enemy always looks like itself. Easy to re-cut:
+   it is this one table. Underground there is no field at all; data-wx / data-dg already say where. */
+const FIELD_BY_FACTION = {
+  stone: 'forest', orc: 'forest',            // the deep wood, and the steppe treeline
+  human: 'village', mech: 'village',         // Aldmere's holdings and the Union's works
+  tide: 'ruins', crimson: 'ruins', undead: 'ruins',   // drowned, abandoned and grave-cold
+};
+function fieldNow() {
+  if (huntDepth() || dungeonRun() || expRun()) return '';   // a cave has its own ceiling
+  if (sparring() || state.mode === 'duel') return 'village';   // both are fought at the town's own grounds
+  return FIELD_BY_FACTION[state.order?.[state.battle]] || 'forest';
+}
+/* Built once per change of ground, not once per render: render() runs constantly, and re-writing a
+   few hundred SVG nodes every frame would cost more than everything else in the arena put together. */
+function syncScene() {
+  const el = $('#scene');
+  if (!el) return;
+  const key = fieldNow();
+  $('#arena').dataset.field = key;
+  if (el.dataset.field === key) return;
+  el.dataset.field = key;
+  el.innerHTML = key && FIELD_SCENE[key] ? FIELD_SCENE[key]() : '';
+}
+
 function buildArena() {
+  clearCastFeeds();   // each fight keeps its own record, not the last one's
   for (const side of ['p', 'e']) $(`#side-${side}`).innerHTML = state.teams[side].map(unitCardHTML).join('');
   $('#acts').dataset.uid = '';
   const track = $('#track');
@@ -16252,7 +17377,7 @@ const PROJ_ATTACK = {
   arclight: { kind: 'spark' }, howitzer: { kind: 'shell', arc: true }, drekka: { kind: 'bomb', arc: true, impact: 'smoke' },
   aldous: { kind: 'ember', impact: 'fire' }, seraphine: { kind: 'bubble' }, octavia: { kind: 'inkball' },
   patchwork: { kind: 'rivet' }, elowen: { kind: 'leaf' }, maren: { kind: 'pearl' }, faelan: { kind: 'xbolt' },
-  scrapbot: { kind: 'rivet' }, illusion: { kind: 'inkball' },
+  scrapbot: { kind: 'laser' }, illusion: { kind: 'inkball' },   // the turret fires light, not rivets (.proj-laser)
   mara: { kind: 'silver' },   // a thin silver round, out of a barrel that flashes fire and smoke (MUZZLE)
   cadris: { kind: 'firefly', wander: true },   // his basic attack sends a small green grave-firefly, drifting every which way before it strikes
 };
@@ -16262,7 +17387,7 @@ const PROJ_SKILL = {
   'Flak Burst': { kind: 'flak', arc: true, impact: 'flak' },
   'Siege Shell': { kind: 'rocket', arc: 'curve', impact: 'boom' },
   'AP Round': { kind: 'missile', impact: 'fire' },
-  'Rivet Burst': { kind: 'rivet' },
+  'Beam Burst': { kind: 'laser' },   // the Scrapbot's three-round burst (keyed by skill name)
   // Bloodtusk Horde
   "Hunter's Mark": { kind: 'dart' },
   'Gutpiercer': { kind: 'javelin' },
@@ -16289,6 +17414,7 @@ const PROJ_SKILL = {
   "Siren's Hush": { kind: 'note', upright: true },
   'Lure Song': { kind: 'heartnote', upright: true },
   'Dirge of the Deep': { kind: 'dirge', upright: true, impact: 'curse' },
+  'Rimefall': { kind: 'shard', arc: 'curve', impact: 'ice' },   // lobbed high and comes down point-first
   'Ink Cloud': { kind: 'inkcloud', arc: true, impact: 'ink' },
   'Tentacle Snare': { kind: 'inkjet' },
   // The Crimson Court
@@ -16362,6 +17488,12 @@ const PROJ_ART = {
   venombolt: [24, 8, boltArt('#8ce05a', '#3f7a4f', `<circle class="pk" cx="21" cy="7.5" r="1.2" fill="#8ce05a"/>`)],
   toxarrow: [32, 8, arrowArt('#9a4ad0', '#5a1f7a', '#3a2a3a', `<circle class="pk" cx="28" cy="7.5" r="1.3" fill="#c48aff"/>`)],
   thorn: [32, 8, arrowArt('#8ce05a', '#9ac46b', '#4c7a2a', `<path d="M8 4 L9 1.5 L10 4 M14 4 L15 6.5 L16 4 M19 4 L20 1.5 L21 4" fill="#9ac46b" stroke="#2f5a1a" stroke-width=".5"/>`)],
+  /* Rimefall's shard: a splinter of frozen spray, pointing the way it flies. Pale blue with a white
+     highlight down one facet and a cold glint at the tip, so it reads against both sky and ground. */
+  shard: [22, 9, `<path d="M0 4.5 L6 1 L21 4.5 L6 8 Z" fill="#aee4f5" ${PI_}/>
+    <path d="M6 1 L21 4.5 L6 4.5 Z" fill="#eafaff"/>
+    <path d="M2 4.5 L7 3 L7 6 Z" fill="#6fc6e4" opacity=".9"/>
+    <circle cx="20" cy="4.5" r="1.3" fill="#fff"/>`],
   vine: [32, 9, `<path d="M0 4.5 Q5 0 10 4.5 T20 4.5 T27 4.5" fill="none" stroke="#4c9a28" stroke-width="2"/>
     <path d="M12 4.5 C13 1.5 16 1 17 2 C16 4 14 4.5 12 4.5 Z" fill="#7ac74f"/><circle cx="28.5" cy="4.5" r="3" fill="#8a5a32" ${PI_}/>`],
   inkjet: [34, 10, `<path d="M1 5 Q6 0 12 5 T24 5 L33 5" fill="none" stroke="#4b3d6e" stroke-width="3.6" stroke-linecap="round"/>
@@ -17106,6 +18238,7 @@ function renderBattle() {
   $('#arena').dataset.omen = !under && state.nextWeather === 'brim' && left <= 2 ? left : '';
   $('#arena').dataset.dg = dg ? (dg.roomLooks?.[state.dg.room] || dg.look) : exp ? exp.look : '';
   $('#arena').classList.toggle('quake', quaking());
+  syncScene();        // the ground this battle is fought on (see THE BATTLEFIELD)
   syncGroundFire();   // Molotov: the flames left burning across one side's ground
   const wxName = quake ? WEATHER.quake.name : hz ? hz.name : cond ? cond.name : under ? (dg ? dg.name : exp ? exp.name : 'Underground') : W.name;
   const wxLeft = quake ? (state.quake === 1 ? 'Last round' : `${state.quake} rounds`) : under ? '' : left === 1 ? 'Last round' : `${left} rounds`;
@@ -17182,6 +18315,7 @@ function renderBattle() {
     el.classList.toggle('misted', !!has(u, 'evade')?.mist && u.hp > 0);   // Vesper, gone to mist
     el.classList.toggle('bearing', !!has(u, 'shieldbearer') && u.hp > 0);  // Garrick, shield up for a ward
     syncWardArt(el, u);                                                     // ...and his shield is drawn lit
+    syncHeldWeapon(el, u);                                                  // ...and everyone holds the weapon they racked
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
@@ -17267,7 +18401,7 @@ function renderBattle() {
     mpc.textContent = blood ? `${Math.round((s.sig ? BLOOD_COST.sig : BLOOD_COST.skill) * 100)}%` : s.mp ? s.mp : '';
     mpc.classList.toggle('short', !blood && broke);
     mpc.classList.toggle('blood', blood);
-    b.querySelector('.cdn').textContent = hushed ? '🔇' : cd ? cd : s.kind === 'execute' && !warbandWhole(d) ? '💀' : '';
+    b.querySelector('.cdn').textContent = hushed ? '🔇' : cd ? cdText(cd) : s.kind === 'execute' && !warbandWhole(d) ? '💀' : '';
     b.disabled = !(state.phase === 'choose' && orders && usable(act, s));
     b.classList.toggle('armed', state.pending === s.id);
     const combo = b.querySelector('.combo');
@@ -17275,7 +18409,16 @@ function renderBattle() {
     combo.textContent = `Discipline +${Math.round(disciplineBonus() * 100)}%`;
   });
   $('#prompt').hidden = !pending;
-  if (pending) $('#promptTxt').textContent = `${pending.name}: click a highlighted ${pending.target === 'ally' ? 'ally' : pending.target === 'deadAlly' ? 'fallen ally' : 'enemy'}.`;
+  if (pending) {
+    // Say WHY the field is down to one mark, or the lone lit enemy looks like a bug.
+    // The one ACTING, not `d` — d follows the inspect panel and can be an enemy you are reading.
+    // Same test onSkill used, so the words and the lit marks can never disagree.
+    const caster = unitBy(state.active);
+    const held = !!caster && tauntHeld(pending, validTargets(caster, pending));
+    $('#promptTxt').textContent = held
+      ? `${pending.name}: you are taunted — click the taunting enemy, or Esc to pick another skill.`
+      : `${pending.name}: click a highlighted ${pending.target === 'ally' ? 'ally' : pending.target === 'deadAlly' ? 'fallen ally' : 'enemy'}.`;
+  }
 }
 
 // A skill's details, opened by its (i): name, what kind it is, cooldown and cost, and what it does.
@@ -17308,11 +18451,18 @@ function renderSatchel(act) {
   $('#satchelHint').textContent = !pack.some(Boolean) ? 'Backpack empty' : state.itemUsed ? 'Item used' : 'One item a turn';
   // The backpack's slots as they are packed: an item where one is, an outline where none is.
   const open = '<span class="item open" aria-hidden="true"></span>';
-  $('#items').innerHTML = pack.map((k, i) => (!k ? open : `
-    <button class="item${state.pending === `item:${k}` ? ' armed' : ''}" type="button" data-item="${k}"
-      title="${escHTML(`${ITEMS[k].name}: ${ITEMS[k].desc}`)}" aria-label="${escHTML(`${ITEMS[k].name}. ${ITEMS[k].desc}`)}"${ready ? '' : ' disabled'}>
+  // A reusable piece stays in its slot once used, so it has to SAY it is spent: it reads as wound
+  // down for the rest of the fight and cannot be tapped again until the next one (see itemWound).
+  $('#items').innerHTML = pack.map((k, i) => {
+    if (!k) return open;
+    const wound = itemWound(act, k);
+    const note = wound ? ' Wound down — it winds again next battle.' : '';
+    return `
+    <button class="item${state.pending === `item:${k}` ? ' armed' : ''}${wound ? ' spent' : ''}" type="button" data-item="${k}"
+      title="${escHTML(`${ITEMS[k].name}: ${ITEMS[k].desc}${note}`)}" aria-label="${escHTML(`${ITEMS[k].name}. ${ITEMS[k].desc}${note}`)}"${ready && !wound ? '' : ' disabled'}>
       <kbd>${i + 6}</kbd><span class="ico">${ITEM_ICON[k]}</span>
-    </button>`)).join('');
+    </button>`;
+  }).join('');
 }
 
 // XP bar for your champion: level, progress to the next level.

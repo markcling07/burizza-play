@@ -888,19 +888,28 @@ def _():
 
 
 # ---- Summons
-@icon('Rivet Shot')
-def _():
-    rivet = ('<rect x="-8" y="-3" width="16" height="6" fill="url(#steel)"/>'
-             '<path d="M8 -7 Q15 -7 15 0 Q15 7 8 7 Z" fill="url(#iron)"/>')
-    return speed_lines(8, 32, 3, 12, 6, '#8be28b') + g(rivet, 34, 32, 0, 1.4)
+# The Scrapbot's turret fires light, so both glyphs are beams rather than the steel rivets they
+# used to draw: a green hairline with a white core, and the flare where it lands. Green is #8be28b,
+# the bot's own trim (SUMMONS.scrapbot.look), the same colour as .proj-laser in flight.
+def _beam(x1, y1, x2, y2, w=2.0):
+    return (poly(f'M{x1} {y1} L{x2} {y2}', '#5ac46e', w)
+            + f'<path d="M{x1 + 2} {y1} L{x2} {y2}" stroke="#f2fff2" stroke-width="{w * .55}" stroke-linecap="round"/>')
 
 
-@icon('Rivet Burst')
+@icon('Beam Shot')
 def _():
-    rivet = ('<rect x="-8" y="-3" width="16" height="6" fill="url(#steel)"/>'
-             '<path d="M8 -7 Q15 -7 15 0 Q15 7 8 7 Z" fill="url(#iron)"/>')
-    return (speed_lines(6, 32, 3, 9, 7, '#8be28b')
-            + g(rivet, 34, 18, -18, .95) + g(rivet, 38, 32, 0, .95) + g(rivet, 34, 46, 18, .95))
+    return (_beam(9, 32, 45, 32, 2.4)
+            + burst(49, 32, 2.4, 8.5, 8, '#eaffea')
+            + twinkle(15, 21, .5, '#8be28b'))
+
+
+@icon('Beam Burst')
+def _():
+    # Three at once, fanned out of the one barrel.
+    return (_beam(9, 32, 43, 17) + _beam(9, 32, 45, 32) + _beam(9, 32, 43, 47)
+            + burst(46, 16, 1.7, 6.2, 7, '#eaffea')
+            + burst(48, 32, 1.7, 6.2, 7, '#eaffea')
+            + burst(46, 48, 1.7, 6.2, 7, '#eaffea'))
 
 
 @icon('Ink Lash')
@@ -1660,6 +1669,25 @@ def _():
             + burst(32, 32, 3, 8, 8, '#e0e6ff'))
 
 
+@icon('Jump Start')
+def _():
+    # Her bolt leaping into a cog that is already turning — the ally kicked into motion ahead of its time.
+    return (g(gear(11, 9, '#9aa3b5'), 40, 38)
+            + poly('M26 8 L14 32 H24 L18 54 L38 28 H27 Z', 'url(#bolt)', 2.2)
+            + arc_lines(40, 38, 17, 3, 70, '#7fe3ff', -90, 2)
+            + twinkle(52, 16, .8, '#a6ecff'))
+
+
+@icon('Turncoat Verse')
+def _():
+    # Her note, and a blade swung back along the line it came down — the song turns it round.
+    return (g(note('#f2c6d8'), 21, 22, -8, .95)
+            + g(sword('url(#steel)'), 45, 34, 205, .78)
+            + '<path d="M18 50 q14 9 28 -1" fill="none" stroke="#7fe3d8" stroke-width="3.2"/>'
+            + '<path d="M20 44 l-3 7 l8 1 Z" fill="#7fe3d8"/>'
+            + g(drop(), 52, 50, 0, .5))
+
+
 # ---- monster passives
 @icon('Hardened Crust')
 def _():
@@ -1963,6 +1991,7 @@ CATALOG = {
         ('Toughness', 'Any champion', 'passive'), ('Might', 'Any champion', 'passive'), ('Swiftness', 'Any champion', 'passive'),
         ('Keen Edge', 'Any champion', 'passive'), ('Deep Well', 'Any champion', 'passive'), ('Second Wind', 'Any champion', 'passive')]),
     'mech': ('Ironclad Union', [
+        ('Jump Start', 'Arclight', 'skill'),
         ('Built to Hold', 'Bulwark-7 · Nature', 'passive'), ('Flywheel', 'Sawtooth · Nature', 'passive'),
         ('Arc Transfer', 'Arclight · Nature', 'passive'), ('Dug In', 'Howitzer · Nature', 'passive'),
         ('Oil Can', 'Patchwork · Nature', 'passive'),
@@ -1971,8 +2000,8 @@ CATALOG = {
         ('Arc Bolt', 'Arclight', 'skill'), ('Discharge', 'Arclight', 'skill'), ('Chain Surge', 'Arclight', 'sig'), ('Overload Coil', 'Arclight', 'skill'), ('Static Field', 'Arclight', 'skill'), ('Feedback Loop', 'Arclight', 'passive'),
         ('Flak Burst', 'Howitzer', 'skill'), ('AP Round', 'Howitzer', 'skill'), ('Siege Shell', 'Howitzer', 'sig'), ('Mortar Walk', 'Howitzer', 'skill'), ('Shell Shock', 'Howitzer', 'skill'), ('Big Guns', 'Howitzer', 'passive'),
         ('Field Weld', 'Patchwork', 'skill'), ('Overclock', 'Patchwork', 'skill'), ('Assemble Scrapbot', 'Patchwork', 'sig'), ('Jury Rig', 'Patchwork', 'skill'), ('Coolant Flush', 'Patchwork', 'skill'), ('Maintenance Drone', 'Patchwork', 'passive'),
-        ('Rivet Shot', 'Scrapbot (summon)', 'skill'),
-        ('Rivet Burst', 'Scrapbot (summon)', 'skill'),
+        ('Beam Shot', 'Scrapbot (summon)', 'skill'),
+        ('Beam Burst', 'Scrapbot (summon)', 'skill'),
     ]),
     'orc': ('Bloodtusk Horde', [
         ('Molotov', 'Drekka Firegut', 'skill'),
@@ -2009,6 +2038,7 @@ CATALOG = {
     ]),
     'tide': ('The Tideborn', [
         ('Anchor Chain', 'Tharos Razorfin', 'skill'), ('Stinging Veil', 'Octavia Inkveil', 'skill'),
+        ('Turncoat Verse', 'Seraphine Wavecaller', 'skill'),
         ('Tide-Runner', 'Tharos · Nature', 'passive'), ('Snapback', 'Grubblefin · Nature', 'passive'),
         ('Sea-Sung', 'Seraphine · Nature', 'passive'), ('Vanish in Ink', 'Octavia · Nature', 'passive'),
         ('Gift of the Reef', 'Maren · Nature', 'passive'),
@@ -2016,7 +2046,7 @@ CATALOG = {
         ('Nibble Flurry', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Gurgle Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Choking Bite', 'Grubblefin', 'skill'), ('Tiny Target', 'Grubblefin', 'passive'),
         ("Siren's Hush", 'Seraphine Wavecaller', 'skill'), ('Dirge of the Deep', 'Seraphine Wavecaller', 'skill'), ('Lure Song', 'Seraphine Wavecaller', 'sig'), ('Drowning Chorus', 'Seraphine Wavecaller', 'skill'), ('Song of the Depths', 'Seraphine Wavecaller', 'skill'), ('Echo', 'Seraphine Wavecaller', 'passive'),
         ('Ink Double', 'Octavia Inkveil', 'skill'), ('Tentacle Snare', 'Octavia Inkveil', 'skill'), ('Ink Cloud', 'Octavia Inkveil', 'sig'), ('Ink Whip', 'Octavia Inkveil', 'skill'), ('Crushing Grip', 'Octavia Inkveil', 'skill'), ('Ink Sac', 'Octavia Inkveil', 'passive'),
-        ('Healing Tide', 'Maren Pearlheart', 'skill'), ('Tide Pool', 'Maren Pearlheart', 'skill'), ('Pearl Barrier', 'Maren Pearlheart', 'sig'), ('Reef Bloom', 'Maren Pearlheart', 'skill'), ('Riptide Crash', 'Maren Pearlheart', 'skill'), ('Backwash', 'Maren Pearlheart', 'passive'), ('Tidecaller', 'Maren Pearlheart', 'passive'),
+        ('Healing Tide', 'Maren Pearlheart', 'skill'), ('Tide Pool', 'Maren Pearlheart', 'skill'), ('Pearl Barrier', 'Maren Pearlheart', 'sig'), ('Reef Bloom', 'Maren Pearlheart', 'skill'), ('Riptide Crash', 'Maren Pearlheart', 'skill'), ('Rimefall', 'Maren Pearlheart', 'skill'), ('Backwash', 'Maren Pearlheart', 'passive'), ('Tidecaller', 'Maren Pearlheart', 'passive'),
         ('Ink Lash', 'Ink Illusion (summon)', 'skill'),
     ]),
     'crimson': ('The Crimson Court', [
@@ -2464,6 +2494,22 @@ def _():
             + poly('M8 50 Q22 38 34 48 Q46 56 58 44', '#b4f4ff', 2.6)
             + burst(44, 20, 3.4, 9, 9, '#e9e4d8')
             + g(drop('url(#water)'), 16, 18, 0, 1.0))
+
+@icon('Rimefall')
+def _():
+    # Splinters of frozen spray coming down, and the ground breaking white where they land.
+    def shard(x, y, sc, rot):
+        return g('<path d="M0 -12 L5 2 L0 12 L-5 2 Z" fill="#aee4f5" stroke="#15121d" stroke-width="1.7"/>'
+                 '<path d="M0 -12 L5 2 L0 2 Z" fill="#eafaff"/>', x, y, rot, sc)
+    return (speed_lines(30, 6, 3, 9, 11, '#cdf3ff', 8, .55)
+            + shard(17, 24, .82, 12)
+            + shard(33, 17, 1.0, -7)
+            + shard(49, 27, .76, 19)
+            + poly('M9 52 Q32 43 55 52', '#b4f4ff', 2.6)
+            + burst(32, 50, 2.6, 7.5, 8, '#ffffff')
+            + twinkle(22, 10, .72, '#eafaff')
+            + twinkle(53, 12, .62, '#eafaff'))
+
 
 
 # ---- The Crimson Court

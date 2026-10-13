@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Vashka Spearthrower (ranged) - Ashfall Road art v2. Javelin hunter of the steppe.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="36,19">
   <defs>
     <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fbb90"/><stop offset=".5" stop-color="#5f8a62"/><stop offset="1" stop-color="#3b5e3f"/></linearGradient>
     <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#557c58"/><stop offset="1" stop-color="#2f4a33"/></linearGradient>
@@ -50,10 +50,10 @@
     <path d="M45.2 29 Q44 20 53 19.6 Q59.5 19.4 62 23 Q54.5 22.4 49 27 Q47 28.5 46.5 32 Z" fill="url(#hair)"/>
     <!-- javelin -->
     <g transform="rotate(-10 36 19)">
-      <rect x="15" y="17.6" width="72" height="2.8" rx="1" fill="url(#wood)"/>
-      <path d="M86 15.2 L97.5 19 L86 22.8 L87.5 19 Z" fill="url(#steel)"/>
-      <rect x="82" y="16.8" width="4.5" height="4.4" rx="1" fill="url(#fur)"/>
-      <path d="M15 19 L11 15.5 L18 17.6 Z M15 19 L11 22.5 L18 20.4 Z" fill="#b3271e"/>
+      <rect class="wpn" x="15" y="17.6" width="72" height="2.8" rx="1" fill="url(#wood)"/>
+      <path class="wpn" d="M86 15.2 L97.5 19 L86 22.8 L87.5 19 Z" fill="url(#steel)"/>
+      <rect class="wpn" x="82" y="16.8" width="4.5" height="4.4" rx="1" fill="url(#fur)"/>
+      <path class="wpn" d="M15 19 L11 15.5 L18 17.6 Z M15 19 L11 22.5 L18 20.4 Z" fill="#b3271e"/>
     </g>
     <circle cx="36" cy="19" r="3.5" fill="url(#skinD)"/>
     <!-- front arm (aiming) -->
@@ -73,5 +73,5 @@
   <!-- highlights -->
   <path d="M38 50 Q41 47.5 44 47" stroke="#fff" stroke-width="1.2" fill="none" opacity=".55" stroke-linecap="round"/>
   <path d="M57.5 43.5 Q60 41.2 63.5 41" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8" stroke-linecap="round"/>
-  <path d="M88 17.5 L94 18.6" transform="rotate(-10 36 19)" stroke="#fff" stroke-width="1" opacity=".9" stroke-linecap="round"/>
+  <path class="wpn" d="M88 17.5 L94 18.6" transform="rotate(-10 36 19)" stroke="#fff" stroke-width="1" opacity=".9" stroke-linecap="round"/>
 </svg>
