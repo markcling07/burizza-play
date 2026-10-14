@@ -1133,6 +1133,11 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    property, so it never fights the transform-based lunges and hurt shakes. */
 .unit .upic { transition: translate .6s ease-in, clip-path .6s ease-in; }
 .unit.buried .upic { translate: 0 100%; clip-path: inset(0 0 100% 0); }
+/* Come Apart: the Gorehound himself is nowhere while his halves run. The card keeps its place in
+   the line (visibility, not display) so the warband does not reshuffle and snap back on the merge. */
+.unit.apart .upic { visibility: hidden; }
+.unit.apart { opacity: .35; }
+.unit.apart .plate, .unit.apart .chips { opacity: .5; }
 .body > .mound { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3;
   transform-origin: bottom center; transform: scaleY(0); opacity: 0; transition: transform .45s ease-out .25s, opacity .3s ease .25s; }
 .unit.buried .body > .mound { transform: none; opacity: 1; filter: drop-shadow(0 0 6px rgba(126, 230, 150, .3)) drop-shadow(0 3px 3px rgba(0, 0, 0, .5)); }
@@ -3695,6 +3700,12 @@ const R = (name, desc, cd, pct, o = {}) => ({ name, desc, cd, pct, o, kind: 'rev
    floats = hovers above the battlefield: melee runs become flights (dashTo) and Stagger,
    a footing effect, can never take hold (addFx) — part of her Nature, so no loadout swaps it away
    ================================================================== */
+/* Gorehound's Come Apart — the numbers the living split is built on. Both halves are
+   counted in BLOWS rather than health (countBlows), so a poke and a crit cost the same. */
+const GORE_SPLIT_BLOWS = 8;      // hits any one half takes before it is put down
+const GORE_SPLIT_TURNS = 2;      // turns each half takes before the two fold back together
+const GORE_SPLIT_SPEED = 1.5;    // bar speed a loose half runs at
+
 /* Resh's tuning numbers — every figure his stones and his burden are built on,
    in one place so they can be moved in the sim rather than hunted through the file. */
 const TOTEM_MAX = 2;             // stones standing at once
@@ -4068,7 +4079,8 @@ const ROSTER = [
              D('Hellhound Howl', '50% to all enemies and slows them.', 4, 0.5, { aoe: true, fx: [['slow', 2]] }),
              D('Savage Maul', '110% bite. Exposes the target: it takes 25% more damage for 2 turns.', 3, 1.1, { fx: [['exposed', 3]] }),
              D('Hamstring', '100% bite. Slows the target and causes Bleed.', 2, 1.0, { fx: [['slow', 2], ['bleed', 3, 0.3]] }),
-             D('Feral Lunge', '190% bite. Gorehound is Exposed until its next turn.', 4, 1.9, { selfFx: [['exposed', 1]] })],
+             D('Feral Lunge', '190% bite. Gorehound is Exposed until its next turn.', 4, 1.9, { selfFx: [['exposed', 1]] }),
+             { name: 'Come Apart', desc: `Both heads tear loose and run as two hounds — ${GORE_SPLIT_SPEED}× speed on the bar, ${GORE_SPLIT_BLOWS} blows each to put down whatever size they come in, and neither takes orders. While they run there is no Gorehound to aim at: nothing can be singled out, area attacks wash past, and anything thrown or queued at him finds nothing where he stood. Once each hound still standing has taken ${GORE_SPLIT_TURNS} turns they fold back together, at the health he left with. Put both hounds down and there is nothing left to come back.`, cd: 5, kind: 'split', target: 'self', o: {} }],
     passive: P('Tear Apart', 'When Gorehound falls, both heads tear free as a pair of Hell Pups — 100 HP each, 1.5× faster on the speed bar, still yours to command, and each has a 40% chance to throw itself in front of a melee blow meant for an ally.', {}) },
   { id: 'morwenna', name: 'Morwenna Bloodweaver', short: 'Morwenna', faction: 'crimson', role: 'support', bio: 'Blood witch of the Court.',
     mods: {},
@@ -4338,6 +4350,18 @@ const SUMMONS = {
     look: { body: 'beast', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
     leave: (u) => `${u.name} is put down.`,
     stats: (o) => ({ maxHp: 100, atk: o.atk, def: o.def, agi: o.agi, crit: o.crit || 0.06, dodge: o.dodge || 0 }),
+    skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' }],
+  },
+  // A living half of a Gorehound who has come apart on purpose (see splitHounds). Not a Hell Pup:
+  // a Pup is what is left when he dies, while this is him, still fighting, in two places. Counted
+  // in BLOWS, not health — maxHp IS the blow budget, the way the totems do it — and it takes no
+  // orders from anyone. Both halves fold back into him once each has had its turns.
+  splithalf: {
+    name: 'Split Hound', plural: 'Split Hounds', role: 'melee', life: null,
+    desc: `Half of the Gorehound, run loose: ${GORE_SPLIT_SPEED}× speed on the bar and ${GORE_SPLIT_BLOWS} blows to put down, whatever size they come in.`,
+    look: { body: 'beast', main: '#5a2626', trim: '#ff7a2f', eye: '#ffd166' },
+    leave: (u) => `${u.name} folds back together.`,
+    stats: (o) => ({ maxHp: GORE_SPLIT_BLOWS, atk: o.atk, def: o.def, agi: o.agi, crit: o.crit || 0.06, dodge: o.dodge || 0 }),
     skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' }],
   },
   // ATTACHMENTS — Tharos's Anchor and Octavia's Jellyfish (see spawnAttachment). Inert units that
@@ -7028,7 +7052,11 @@ const buried = (u) => !!has(u, 'burrowed');
 // no single blow, no area attack, and no mending or blessing either — they are not wholly on the
 // field until their own turn comes round. strikeOnce turns aside anything that reaches them anyway.
 const veiled = (u) => !!has(u, 'veiled');
-const outOfReach = (u) => inBox(u) || buried(u) || veiled(u);
+// Come Apart: while a Gorehound is running as two hounds there is no Gorehound to aim at. He is
+// out of reach the way the burrowed and the coffined are, which is what makes the thrown and the
+// queued — Execute's torrent, Mara's shot — find nothing where he was.
+const apart = (u) => !!u.apart;
+const outOfReach = (u) => inBox(u) || buried(u) || veiled(u) || apart(u);
 const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
@@ -7325,6 +7353,7 @@ function fell(v, by) {
   }
   feastOfTheFallen(v);
   if (v.splitOnDeath && !v.summon && !v.splitDone) { v.splitDone = true; splitGorehound(v); }
+  if (v.splitOf) splitHalfDown(v);   // the last half down takes the Gorehound with it
   const owner = by && by.summon ? unitBy(by.owner) : null;
   const killer = owner && alive(owner) ? owner : by;
   if (!killer || !killer.you || killer.side === v.side) return;
@@ -7398,6 +7427,12 @@ function strikeOnce(u, t, mult, label, o) {
   if (veiled(t)) {
     float(t, 'Untouched', 'miss');
     log(`${u.name}'s ${label} passes through ${t.name} — they are not wholly here yet.`, u.side);
+    return { miss: true };
+  }
+  // Come Apart: the same backstop for a Gorehound who is currently two hounds and nowhere.
+  if (apart(t)) {
+    float(t, 'Miss', 'miss');
+    log(`${u.name}'s ${label} finds nothing — ${t.name} is running as two hounds.`, u.side);
     return { miss: true };
   }
   // Heroic (Wren, Garrick — their opt-in passive): a melee blow swung at an ally may be met by a
@@ -7813,7 +7848,7 @@ async function executeFalls(u) {
   await bloodTorrent(t);   // the blow lands only once the torrent has reached them
   if (outOfReach(t)) {
     float(t, 'Hidden', 'miss');
-    log(`${u.name}'s Execute pours down on ${buried(t) ? 'the grave mound' : 'the coffin lid'} — ${t.name} is out of its reach.`, u.side);
+    log(`${u.name}'s Execute pours down on ${buried(t) ? 'the grave mound' : apart(t) ? 'bare ground' : 'the coffin lid'} — ${t.name} is out of its reach.`, u.side);
   } else {
     log(`${u.name}'s blood comes down on ${t.name}!`, u.side);
     // noGuard: the rite promises only a grave mound or a coffin lid turns it aside. A sworn
@@ -7919,7 +7954,7 @@ async function fireAim(u) {
     float(u, `${sk.name}!`, 'fx');
     await powderShotFires(u, first, sk, { endAt: (e, to, from) => ({ x: from.x + (to.x - from.x) * 1.7, y: from.y + (to.y - from.y) * 1.7 }) });
     float(first, 'Hidden', 'miss');
-    log(`${u.name}'s ${sk.name} goes off — but ${first.name} is ${buried(first) ? 'under the earth' : 'sealed in the coffin'}, and the shot finds nothing.`, u.side);
+    log(`${u.name}'s ${sk.name} goes off — but ${first.name} is ${buried(first) ? 'under the earth' : apart(first) ? 'running loose as two hounds' : 'sealed in the coffin'}, and the shot finds nothing.`, u.side);
     render();
     await wait(320);
     return;
@@ -8954,6 +8989,7 @@ async function doAction(u, sk, t) {
   }
   else if (sk.kind === 'execute') await executeSkill(u, t, sk);
   else if (sk.kind === 'burrow') await burrowSkill(u);
+  else if (sk.kind === 'split') await splitSkill(u);
   else if (sk.kind === 'anchor') await anchorSkill(u, t, sk);
   else if (sk.kind === 'jelly') await jellySkill(u, t, sk);
   else if (sk.kind === 'revive') {
@@ -9061,6 +9097,8 @@ function aiChoose(u) {
     if (s.kind === 'coffin') w = allies.some((a) => a.hp / a.maxHp < 0.3) ? 5 : 0.4;
     // Burrow is a way out from under a beating, not an opener.
     if (s.kind === 'burrow') w = u.hp / u.maxHp < 0.4 ? 4 : 0.25;
+    // Come Apart is an escape before it is an attack: worth most when the bites are landing on him.
+    if (s.kind === 'split') w = u.hp / u.maxHp < 0.5 ? 5 : 1;
     if (s.o?.recall) w = u.swords === 0 ? 8 : u.swords <= 2 ? 4 : 0;
     // Harvest is worth reaching for when a body is full of his blades and his hands are not.
     if (s.o?.swordHarvest) { const best = Math.max(0, ...foesOf(u).filter((f) => f.hp > 0).map((f) => f.lodged || 0)); w = best && u.swords < u.maxSwords ? 3 + best : 0; }
@@ -9921,6 +9959,76 @@ function splitGorehound(g) {
   log(`${g.name} is cut down — both heads tear free, smaller and faster!`, g.side);
 }
 
+/* COME APART — the living split, and the twin of splitGorehound above: that one is what is left
+   when he dies, this one is him choosing it. He is not removed from the warband, he is set aside —
+   off the speed bar (inert) and out of every target list (apart → outOfReach), which is what makes
+   a thrown or queued shot find nothing where he stood. Two halves take his turns instead: fast,
+   counted in blows rather than health, and under nobody's command. They fold back together once
+   each half still standing has had its turns, at the health he left with.
+   The halves are built by hand rather than through summonUnit, because that one keeps a hero to a
+   single servant and would put the first half down to make room for the second. */
+const livingHalves = (g) => state.teams[g.side].filter((x) => x.splitOf === g.uid && x.hp > 0);
+
+async function splitSkill(g) {
+  await castPose(g, true);
+  const def = SUMMONS.splithalf;
+  g.apart = true;
+  g.splitHp = g.hp;    // what he folds back together at — the halves' wounds are their own
+  g.inert = true;      // the halves take his turns; he takes none while he is in two places
+  for (let i = 0; i < 2; i++) {
+    const st = def.stats(g);
+    state.summonSeq = (state.summonSeq || 0) + 1;
+    const u = {
+      uid: `${g.uid}x${state.summonSeq}`, id: 'splithalf', art: 'splithound',
+      side: g.side, summon: true, owner: g.uid, splitOf: g.uid,
+      spdMult: GORE_SPLIT_SPEED, actsLeft: GORE_SPLIT_TURNS,
+      name: def.name, level: g.level, faction: g.faction, race: null, role: def.role, floats: false,
+      ...st, hp: st.maxHp, mp: 0, maxMp: 0, effects: [], cooldowns: {}, heat: 0, stacks: 0,
+      hitSince: false, lastAction: null, combo: false,
+      pos: clamp((g.pos || 300) + (i === 0 ? -60 : 60), 0, 820), expires: null,
+    };
+    countBlows(u);   // eight blows, and a crit costs exactly what a poke costs
+    state.teams[g.side].push(u);
+    addUnitDom(u);
+    burst(u, 'hit');
+    float(u, 'Comes apart', 'fx');
+  }
+  burst(g, 'smoke');
+  log(`${g.name} comes apart — two hounds run loose, and there is no Gorehound left to aim at.`, g.side);
+  render();
+}
+
+// Both halves fold back together once every half still standing has taken its turns.
+function mergeIfDone(h) {
+  const g = unitBy(h.splitOf);
+  if (!g || !g.apart) return;
+  const halves = livingHalves(g);
+  if (!halves.length || halves.some((x) => (x.actsLeft || 0) > 0)) return;
+  g.pos = halves[halves.length - 1].pos;   // he comes back where his last half stood on the bar
+  for (const x of halves) removeUnit(x);
+  g.apart = false;
+  g.inert = false;
+  g.hp = g.splitHp;
+  burst(g, 'hit');
+  float(g, 'Whole again', 'fx');
+  log(`The hounds fold back together — ${g.name} is whole.`, g.side);
+  render();
+}
+
+/* A half put down. While one still stands he can still fold back together; when the last of them
+   falls there is nothing left to fold back into, and he goes down with them. Tear Apart does not
+   fire here — these hounds ARE the heads it would have torn free. */
+function splitHalfDown(h) {
+  const g = unitBy(h.splitOf);
+  if (!g || !g.apart || livingHalves(g).length) return;
+  g.apart = false;
+  g.inert = false;
+  g.hp = 0;
+  g.splitDone = true;   // he already came apart; there is nothing left to tear free
+  log(`Both hounds are down — ${g.name} has nothing left to come back to.`, 'sys');
+  fell(g, null);
+}
+
 function spawnDeathBot(mech) {
   const def = SUMMONS.deathbot;
   const st = def.stats(mech);
@@ -10507,6 +10615,8 @@ async function nextTurn() {
     if (token !== state.token || checkEnd()) return;
     // A Mirror Dust double is good for three of its own turns; the third spent, it frays away.
     if (u.id === 'mirage' && --u.actsLeft <= 0 && u.hp > 0) u.spent = u.spent || 'faded';
+    // A Gorehound's half has had one of its turns; when every half still standing is spent, they fold back.
+    if (u.splitOf && u.hp > 0 && --u.actsLeft <= 0) mergeIfDone(u);
     endTurn(u);
     await wait(250);
   }
@@ -10733,15 +10843,26 @@ const usesSatchel = (u) => u.side === 'p' && !u.you && !u.summon && !u.monster &
 /* ==================================================================
    GAUNTLET FLOW
    ================================================================== */
+/* Who can be LINED UP AGAINST you. A faction needs TEAM_SIZE champions to field
+   a band; the Cogbound are playable with two, but cannot be made into four, and
+   the old picker filled the gap with undefined and threw on the next line. A
+   function, not a const: ROSTER is built further down this file. */
+const canFieldBand = (f) => ROSTER.filter((c) => c.faction === f).length >= TEAM_SIZE;
+const gauntletFactions = () => FACTION_KEYS.filter(canFieldBand);
+
 function pickEnemyTeam(fac) {
   const pool = ROSTER.filter((c) => c.faction === fac);
-  const melee = pick(pool.filter((c) => c.role === 'melee'));
-  // Factions without ranged fighters (Crimson Court) field a second melee instead.
-  const rangedPool = pool.filter((c) => c.role === 'ranged');
-  const ranged = pick(rangedPool.length ? rangedPool : pool.filter((c) => c.role === 'melee' && c !== melee));
-  // Then more of the faction until the band matches your warband's size.
-  const band = [melee, ranged];
-  while (band.length < TEAM_SIZE) band.push(pick(pool.filter((c) => !band.includes(c))));
+  // Never silently short: a thin faction is a programming error here, not a band.
+  if (pool.length < TEAM_SIZE) throw new Error(`${fac} cannot field a band of ${TEAM_SIZE}`);
+  const band = [];
+  // Someone to hold the front, someone to shoot over them, then whoever is left.
+  // Each take is a preference, not a requirement: a faction with no ranged
+  // (Crimson Court) fields a second melee, and one with no melee still fills up.
+  const take = (cands) => { const c = pick(cands.filter((x) => !band.includes(x))); if (c) band.push(c); };
+  take(pool.filter((c) => c.role === 'melee'));
+  take(pool.filter((c) => c.role === 'ranged'));
+  take(pool.filter((c) => c.role === 'melee'));
+  for (const c of shuffle(pool)) { if (band.length >= TEAM_SIZE) break; if (!band.includes(c)) band.push(c); }
   return band.map((c) => c.id).sort((a, b) => ['melee', 'support', 'ranged'].indexOf(charById(a).role) - ['melee', 'support', 'ranged'].indexOf(charById(b).role));
 }
 
@@ -10750,7 +10871,7 @@ function startGauntlet() {
   state.mode = 'gauntlet';
   state.level = heroLevel();
   state.battle = 0;
-  state.order = shuffle(FACTION_KEYS);
+  state.order = shuffle(gauntletFactions());   // only factions that can field four
   state.runPending = false;
   profile.stats.runs++;
   saveProfile();
@@ -13106,7 +13227,7 @@ const BOUNTY_REROLL = 25;   // gold to have a fresh set posted today
 const BOUNTY_TYPES = {
   win:      { roll: () => ({ n: pick([2, 3]) }), gold: (b) => 15 * b.n + 10, text: (b) => `Win ${b.n} battles.`,
               count: (b, t) => (t === 'win' ? 1 : 0) },
-  winvs:    { roll: () => ({ n: 1, p: pick(FACTION_KEYS) }), gold: () => 45, text: (b) => `Defeat ${theFaction(FACTIONS[b.p])} in battle.`,
+  winvs:    { roll: () => ({ n: 1, p: pick(gauntletFactions()) }), gold: () => 45, text: (b) => `Defeat ${theFaction(FACTIONS[b.p])} in battle.`,
               count: (b, t, i) => (t === 'win' && i.vs === b.p ? 1 : 0) },
   flawless: { roll: () => ({ n: 1 }), gold: () => 60, text: () => 'Win a battle without losing a champion.',
               count: (b, t, i) => (t === 'win' && i.flawless ? 1 : 0) },
@@ -15890,7 +16011,7 @@ const PLACE_BODY = {
       <div class="btns"><button class="btn" type="button" data-k="rumor">Hear another rumor</button></div>
       <p class="label">Tales told of you</p>
       <div class="stats">${statHTML(s.runs, 'Gauntlets begun')}${statHTML(s.clears, 'Gauntlets cleared')}${statHTML(s.wins, 'Battles won')}
-        ${statHTML(s.best ? `${s.best} / ${FACTION_KEYS.length}` : '–', 'Furthest battle won')}${statHTML(s.earned, 'Gold earned')}</div>`;
+        ${statHTML(s.best ? `${s.best} / ${gauntletFactions().length}` : '–', 'Furthest battle won')}${statHTML(s.earned, 'Gold earned')}</div>`;
   },
 };
 
@@ -19581,6 +19702,7 @@ function renderBattle() {
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
     el.classList.toggle('buried', buried(u));
+    el.classList.toggle('apart', apart(u));   // Come Apart: he is not on the field to be seen or struck
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
     el.classList.toggle('grudge', !!u.grudge);   // Grudge Axe: on 0 HP, outlined in red, one throw left
     // Barrow's Graveyard Fence is the very railing he carries: while it stands before anyone on his
