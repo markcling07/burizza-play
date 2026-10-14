@@ -3174,11 +3174,23 @@ async function netBoot() {
       NET.token = tok;
       try {
         const got = await netApi('GET', '/api/profile');
+        /* A returning player signs in with a stored token, never through the
+           sign-in form, so this is the only place their own name is learned.
+           Without it NET.name stays undefined, the pill reads "signed in", and
+           a hosted party can never match them to their seat (hostedAdopt and
+           the captain test both compare usernames) - they would sit in their
+           own expedition as a spectator. */
+        NET.name = (got.account && got.account.username) || NET.user;
         NET.version = got.version; netAdopt(got.profile);
         netBadge();
         return;
       } catch (e) {
-        if (e.code === 'not_found') { await netSeed(); netBadge(); return; }
+        if (e.code === 'not_found') {
+          await netSeed();   // no profile yet: make one, then learn the name the same way
+          try { const me = await netApi('GET', '/api/profile'); NET.name = (me.account && me.account.username) || NET.user; }
+          catch (err) { NET.name = NET.user; }
+          netBadge(); return;
+        }
         NET.token = null; netStoreToken(null);   // expired or revoked: sign in again
       }
     }
@@ -4043,7 +4055,7 @@ const ROSTER = [
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
-             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two turns later — whoever takes them — it comes down on them as a single Magic blow that cannot miss and ignores armor - sooner if their own turn comes first, before they can act. Only a mark that has gone to ground or into a coffin escapes it - a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
+             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two Revs later — whoever takes them — it comes down on them as a single Magic blow that cannot miss and ignores armor. Only a mark that has gone to ground or into a coffin escapes it - a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
              D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
@@ -6607,6 +6619,11 @@ let FFWD = false;
 // runs hands-off from the first turn. Off in the real game — only bootTest ever sets it. It also runs the
 // whole fight AUTO_SPEED× faster (both the action beats and the speed bar) so results come in early.
 let AUTO_PLAY = false;
+/* free=1 (sim only): the sandbox switch. Every unit starts each of its turns with
+   no cooldowns and a full mana pool, so every skill it owns can be cast every
+   turn — including the signature, which normally opens a battle two turns away.
+   Nothing else changes: costs, gates and conditions all still apply. */
+let SIM_FREE = false;
 const AUTO_SPEED = 10;
 const autoFast = () => (AUTO_PLAY ? AUTO_SPEED : 1);
 const youDown = () => { const y = state?.teams?.p?.find((x) => x.you); return !!y && y.hp <= 0; };
@@ -7827,7 +7844,7 @@ async function executeSkill(u, t, sk) {
   u.bloodRite = { revs: 2, target: t.uid, pool };
   bloodCloud(u);
   float(t, '🩸 Marked', 'fx');
-  log(`${u.name} throws ${pool} HP of the warband's blood into the sky over ${t.name}. It comes down in 2 turns, whoever takes them — or as their own turn comes.`, u.side);
+  log(`${u.name} throws ${pool} HP of the warband's blood into the sky over ${t.name}. It comes down 2 Revs from now, whoever takes them.`, u.side);
   render();
   await wait(420);
 }
@@ -8736,6 +8753,8 @@ function addFx(u, id, turns, value = 0, quiet = false) {
 // Start of a unit's turn: damage/heal over time, faction upkeep, durations and cooldowns tick down.
 // (Stun is handled on the speed bar: a stunned unit never reaches the end while frozen.)
 async function beginTurn(u) {
+  // The sim's sandbox switch: come to this turn with everything ready.
+  if (SIM_FREE) { u.cooldowns = {}; if (u.maxMp) u.mp = u.maxMp; }
   releaseRites(u, `is released from ${u.name}'s Last Rites.`);   // his turn has come round: the crosses lift
   unburrow(u);   // Burrow: if his turn comes before the round is out, he comes up to take it
   // Evergreen (Elowen's Nature): each of her turns, the oldest curse falls away like a dead leaf —
@@ -10487,12 +10506,12 @@ async function turnPulse() {
     await fireLoadedThrow(m);
     if (checkEnd()) return true;
   }
-  // Execute: the blood thrown into the sky comes down two Revs later, whoever's turn it is - or the
-  // moment the mark's own turn comes up, if that is sooner: it lands before they can act.
+  // Execute: the blood thrown into the sky comes down two Revs later, whoever's turn it is.
+  // It hangs there for both of them — the mark's own turn coming round does NOT pull it down early,
+  // so the mark has one turn under the cloud to do something about it.
   for (const v of allUnits()) {
     if (!v.bloodRite) continue;
-    const marksTurn = state.active === v.bloodRite.target;
-    if (--v.bloodRite.revs > 0 && !marksTurn) continue;
+    if (--v.bloodRite.revs > 0) continue;
     await executeFalls(v);
     if (checkEnd()) return true;
   }
@@ -20117,6 +20136,7 @@ document.addEventListener('keydown', (ev) => {
 function bootTest(params) {
   TEST_MODE = true;
   AUTO_PLAY = params.has('auto') && params.get('auto') !== '0';   // auto=1: the AI plays your champion too
+  SIM_FREE = params.has('free') && params.get('free') !== '0';     // free=1: no cooldowns, full mana, every turn
   if (params.has('nolog')) setLogHidden(true);                    // nolog=1: all field, no chronicle
   /* The Sim Deck runs these fights in frames and needs to know when one is decided so it can deal the
      next. It cannot simply read `state`: that is a module-scope binding and invisible from outside the
@@ -20135,8 +20155,13 @@ function bootTest(params) {
   // team isn't TEAM_SIZE, which would defeat the whole point of skipping the village.
   const asked = (params.get('team') || '').split(',').map((s) => s.trim()).filter(Boolean).filter((id) => charById(id));
   const band = (asked.length ? asked : ['wren', 'garrick', 'aelira', 'maren']).slice(0, TEAM_SIZE);
-  for (const id of ['wren', 'garrick', 'aelira', 'maren']) { if (band.length >= TEAM_SIZE) break; if (!band.includes(id)) band.push(id); }
-  for (const c of ROSTER) { if (band.length >= TEAM_SIZE) break; if (!band.includes(c.id)) band.push(c.id); }
+  /* An explicit team= is taken at the size given. A bout of two against one is a
+     legitimate thing to want to watch, and padding it up to four defeats the point
+     of asking. Only the DEFAULT band is filled out to a full warband. */
+  if (!asked.length) {
+    for (const id of ['wren', 'garrick', 'aelira', 'maren']) { if (band.length >= TEAM_SIZE) break; if (!band.includes(id)) band.push(id); }
+    for (const c of ROSTER) { if (band.length >= TEAM_SIZE) break; if (!band.includes(c.id)) band.push(c.id); }
+  }
   profile.hero = { id: band[0], name: shortName(charById(band[0])) };
   profile.recruits = band.slice(1);
 
@@ -20155,7 +20180,20 @@ function bootTest(params) {
   const vs = (params.get('vs') || '').split(',').map((s) => s.trim()).filter(Boolean).filter((id) => charById(id));
   if (vs.length) {
     const eband = vs.slice(0, TEAM_SIZE);
-    for (const c of ROSTER) { if (eband.length >= TEAM_SIZE) break; if (!eband.includes(c.id)) eband.push(c.id); }
+    // vs= is always explicit, so it is taken at the size given too — one Gorehound
+    // alone is a bout, not an under-filled warband waiting to be padded out.
+    /* ctl= hands the bout to the Sparring ring's rules instead of a duel's, so you
+       can command more than slot 0: 'all' means BOTH warbands stop and wait for your
+       orders (hot-seat, either side), 'side' your side only, 'you' just your champion.
+       A spar also wins and loses nothing, which is what you want from a test bout. */
+    const ctl = params.get('ctl');
+    if (ctl && SPAR_CTL.some(([k]) => k === ctl)) {
+      state.mode = 'spar';
+      state.spar = { p: [...band], e: [...eband], lv: profile.level, ctl };
+      state.enemyIds = eband;
+      startBattle(true);
+      return;
+    }
     state.mode = 'duel';
     state.enemyIds = eband;
     state.duel = { name: 'Sim bout', tier: 1, ids: eband, band: `${shortName(charById(eband[0]))}'s warband`,
