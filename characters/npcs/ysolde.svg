@@ -19,7 +19,7 @@
   <!-- charm glow -->
   <circle cx="64.5" cy="22.5" r="5" fill="#c48be0" opacity=".65" filter="url(#ysolde-glow)"/>
   <circle cx="67.4" cy="26" r="4" fill="#9fe08a" opacity=".55" filter="url(#ysolde-glow)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- feet -->
     <path d="M44 88.5 h8 v5 h-9.5 z" fill="#4a3020"/>
     <path d="M54.5 88.5 h8 l2.5 5 h-10.5 z" fill="#6a4529"/>
@@ -75,9 +75,9 @@
   <g fill="#e3c26a"><circle cx="44.5" cy="51.8" r=".6"/><circle cx="51.5" cy="52.3" r=".6"/><circle cx="58.5" cy="52.3" r=".6"/></g>
   <!-- hanging charms -->
   <path d="M64.6 14.5 v5.9 M67.1 14.9 l.3 9 M75.6 19.6 l.4 3.6" stroke="#2a2232" stroke-width=".7" fill="none" stroke-linecap="round"/>
-  <circle cx="64.6" cy="22.5" r="2.1" fill="url(#ysolde-purple)" stroke="#15121d" stroke-width=".9"/>
-  <circle cx="67.4" cy="25.8" r="1.8" fill="url(#ysolde-green)" stroke="#15121d" stroke-width=".9"/>
-  <path d="M76 23 Q79.2 27 76.6 33 Q73.4 28.2 76 23 Z" fill="#efe6d2" stroke="#15121d" stroke-width=".9" stroke-linejoin="round"/>
+  <circle cx="64.6" cy="22.5" r="2.1" fill="url(#ysolde-purple)" stroke="none" stroke-width=".9"/>
+  <circle cx="67.4" cy="25.8" r="1.8" fill="url(#ysolde-green)" stroke="none" stroke-width=".9"/>
+  <path d="M76 23 Q79.2 27 76.6 33 Q73.4 28.2 76 23 Z" fill="#efe6d2" stroke="none" stroke-width=".9" stroke-linejoin="round"/>
   <path d="M76.1 24.5 Q76.6 28.5 76.5 32.2 M76.4 27.5 l1.4 -1 M76.5 29.8 l-1.4 -.9" stroke="#9a8a70" stroke-width=".6" fill="none" stroke-linecap="round"/>
   <circle cx="63.9" cy="21.8" r=".6" fill="#fff"/>
   <!-- drifting motes -->

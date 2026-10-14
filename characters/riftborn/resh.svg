@@ -18,7 +18,7 @@
   <ellipse cx="49" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
   <!-- the hum around the instrument -->
   <circle class="wpn" cx="70" cy="31" r="17" fill="url(#rs-aura)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- hair: behind him, streaming to the ground in long tendrils -->
     <path d="M42 22 Q33 26 30 38 Q27 50 20 58 Q14 66 13 78 Q17 70 22 66 Q20 75 22 86 Q26 74 30 66 Q30 76 34 84 Q35 70 38 58 Q42 44 46 34 Z" fill="url(#rs-hair)"/>
     <path d="M55 24 Q61 30 62 42 Q63 54 68 64 Q73 74 74 88 Q69 79 66 72 Q66 81 63 89 Q62 76 60 66 Q57 54 56 44 Z" fill="url(#rs-hair)"/>
@@ -50,22 +50,22 @@
     <path d="M49.5 17.6 Q50.5 11.5 56 10.5 Q52.5 13.5 52.5 17.4" fill="none" stroke-width="1.6"/>
   </g>
   <!-- face: sunken eye with a teal glint, and that wide grin -->
-  <path d="M53.6 27.6 Q56.4 26.4 58.6 28" stroke="#15121d" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M53.6 27.6 Q56.4 26.4 58.6 28" stroke="none" stroke-width="1.1" fill="none" stroke-linecap="round"/>
   <ellipse cx="56.2" cy="29.4" rx="1.9" ry="1.5" fill="#2a2236"/>
   <circle cx="56.5" cy="29.4" r=".8" fill="#5fcad1"/>
   <circle cx="56.5" cy="29.4" r="2.2" fill="#5fcad1" opacity=".35" filter="url(#rs-glow)"/>
-  <path d="M51.5 33.2 Q55 35.6 58.8 33" stroke="#15121d" stroke-width="1.2" fill="#2a1a22" stroke-linejoin="round"/>
+  <path d="M51.5 33.2 Q55 35.6 58.8 33" stroke="none" stroke-width="1.2" fill="#2a1a22" stroke-linejoin="round"/>
   <path d="M52.6 33.7 l.5 1.2 M54 34.2 l.4 1.3 M55.5 34.4 l.3 1.3 M57 34.1 l.2 1.2" stroke="#f4f0e6" stroke-width=".8" stroke-linecap="round"/>
   <path d="M49.8 31.4 Q50.6 33 50.4 35" stroke="#7d728c" stroke-width=".8" fill="none" stroke-linecap="round"/>
   <!-- coat details: a button, a pinned flower, the stitches of old repairs -->
-  <circle cx="49.6" cy="52" r="1.1" fill="#c9a14a" stroke="#15121d" stroke-width=".6"/>
+  <circle cx="49.6" cy="52" r="1.1" fill="#c9a14a" stroke="none" stroke-width=".6"/>
   <path d="M44.8 46 l1.2 -1 l.4 1.4 z" fill="#7fd08a"/>
   <path d="M60.2 50 l1.6 .4 M60 52 l1.6 .4 M60.4 54 l1.6 .3" stroke="#a89bbf" stroke-width=".7" stroke-linecap="round"/>
   <path d="M36.6 52 l1.4 .6 M36.4 54 l1.4 .6" stroke="#a89bbf" stroke-width=".7" stroke-linecap="round"/>
   <!-- a few loose strands in front -->
-  <path d="M46 30 Q44 42 46.5 50 M47.4 30.4 Q46.6 40 49 46" stroke="#0a0f14" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M46 30 Q44 42 46.5 50 M47.4 30.4 Q46.6 40 49 46" stroke="none" stroke-width="1.4" fill="none" stroke-linecap="round"/>
   <!-- the violin, playing itself at his shoulder -->
-  <g class="wpn" stroke="#15121d" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-16 66 33) translate(66.5 33) scale(1.45) translate(-65.5 -33)">
+  <g class="wpn" stroke="none" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-16 66 33) translate(66.5 33) scale(1.45) translate(-65.5 -33)">
     <path d="M59.5 33 Q59 28.2 62.8 28.4 Q64.4 29.6 66 28.6 Q68.6 27 70.4 29.8 Q71.4 31.2 71.4 33 Q71.4 34.8 70.4 36.2 Q68.6 39 66 37.4 Q64.4 36.4 62.8 37.6 Q59 37.8 59.5 33 Z" fill="url(#rs-wood)"/>
     <path d="M63 31 q1 .6 0 1.2 M63 34.4 q1 .6 0 1.2" stroke-width=".7" fill="none"/>
     <rect x="71" y="32" width="12" height="2" rx=".6" fill="#2a1a14"/>
@@ -76,10 +76,10 @@
   </g>
   <!-- the bow, drawn across the strings -->
   <g class="wpn" stroke-linecap="round">
-    <path d="M45 50 L92 24" stroke="#15121d" stroke-width="2.6"/>
+    <path d="M45 50 L92 24" stroke="none" stroke-width="2.6"/>
     <path d="M45 50 L92 24" stroke="#6e3a24" stroke-width="1.4"/>
     <path d="M46.6 51.6 L91.6 26.6" stroke="#e8e2d6" stroke-width=".8"/>
-    <rect x="43.4" y="48.6" width="3.4" height="2.4" rx=".6" fill="#c9a14a" stroke="#15121d" stroke-width=".7" transform="rotate(-29 45 50)"/>
+    <rect x="43.4" y="48.6" width="3.4" height="2.4" rx=".6" fill="#c9a14a" stroke="none" stroke-width=".7" transform="rotate(-29 45 50)"/>
   </g>
   <!-- the music, rolling off toward the enemy -->
   <g class="wpn" fill="none" stroke="#5fcad1" stroke-linecap="round">
@@ -87,7 +87,7 @@
     <path d="M90 37 Q96 44 90 51" stroke-width="1.4" opacity=".65"/>
     <path d="M94 34 Q101 44 94 54" stroke-width="1.2" opacity=".4"/>
   </g>
-  <g class="wpn" fill="#5fcad1" stroke="#15121d" stroke-width=".6">
+  <g class="wpn" fill="#5fcad1" stroke="none" stroke-width=".6">
     <ellipse cx="78" cy="15.5" rx="1.6" ry="1.2" transform="rotate(-20 78 15.5)"/>
     <path d="M79.4 15 L79.4 9 L82 10" fill="none" stroke="#5fcad1" stroke-width="1"/>
     <ellipse cx="91" cy="27" rx="1.3" ry="1" transform="rotate(-20 91 27)"/>

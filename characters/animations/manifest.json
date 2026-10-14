@@ -742,9 +742,9 @@
       "hitMs": 675
     }
   },
-  "thassor": {
+  "thurgan": {
     "idle": {
-      "src": "thassor-idle.webp",
+      "src": "thurgan-idle.webp",
       "w": 350,
       "h": 280,
       "footX": 150,
@@ -754,7 +754,7 @@
       "ms": 1350
     },
     "attack": {
-      "src": "thassor-attack.webp",
+      "src": "thurgan-attack.webp",
       "w": 350,
       "h": 280,
       "footX": 150,

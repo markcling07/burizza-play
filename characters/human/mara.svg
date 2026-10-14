@@ -11,7 +11,7 @@
     <linearGradient id="hat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4058"/><stop offset="1" stop-color="#1c1f2c"/></linearGradient>
   </defs>
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- ponytail -->
     <path d="M43 27 Q34 30 35 42 Q39 37 44 34 Z" fill="#5a3520"/>
     <!-- legs + boots -->
@@ -37,7 +37,7 @@
   </g>
   <!-- hat trim + feather -->
   <path d="M38.5 23.5 Q50 16.5 64.5 22.6" stroke="url(#gold)" stroke-width="1.3" fill="none"/>
-  <path d="M46 15 Q36 9 29 15 Q37 13.5 45 18 Z" fill="#e9e4d8" stroke="#15121d" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M46 15 Q36 9 29 15 Q37 13.5 45 18 Z" fill="#e9e4d8" stroke="none" stroke-width="1.1" stroke-linejoin="round"/>
   <path d="M45 16.5 Q38 13 32 14.5" stroke="#c9c2b2" stroke-width=".8" fill="none"/>
   <!-- face -->
   <circle cx="57.5" cy="30.5" r="1.5" fill="#1d2130"/>
@@ -45,11 +45,11 @@
   <path d="M57.5 36 h3" stroke="#8a5a40" stroke-width=".9" stroke-linecap="round"/>
   <!-- coat details -->
   <path d="M55 44 L58 62" stroke="url(#gold)" stroke-width="1.5"/>
-  <g fill="url(#gold)" stroke="#15121d" stroke-width=".6"><circle cx="56.6" cy="48" r="1.1"/><circle cx="57.2" cy="53" r="1.1"/><circle cx="57.8" cy="58" r="1.1"/></g>
+  <g fill="url(#gold)" stroke="none" stroke-width=".6"><circle cx="56.6" cy="48" r="1.1"/><circle cx="57.2" cy="53" r="1.1"/><circle cx="57.8" cy="58" r="1.1"/></g>
   <g fill="url(#gold)"><rect x="43.3" y="47.2" width="1.8" height="2.6" rx=".4" transform="rotate(43 44.2 48.5)"/><rect x="47.3" y="51" width="1.8" height="2.6" rx=".4" transform="rotate(43 48.2 52.3)"/><rect x="51.3" y="54.8" width="1.8" height="2.6" rx=".4" transform="rotate(43 52.2 56.1)"/></g>
   <path d="M33.5 79 Q40 80 45.5 75.5" stroke="url(#gold)" stroke-width="1.3" fill="none"/>
   <!-- musket -->
-  <g transform="rotate(-5 56 50)" stroke="#15121d" stroke-width="1.3" stroke-linejoin="round">
+  <g transform="rotate(-5 56 50)" stroke="none" stroke-width="1.3" stroke-linejoin="round">
     <path class="wpn" d="M45 46.5 L59 48.5 L59 52.5 L47.5 56 Q43.5 52.5 45 46.5 Z" fill="url(#wood)"/>
     <rect class="wpn" x="59" y="50.8" width="24" height="2.8" fill="url(#wood)"/>
     <rect class="wpn" x="59" y="47.8" width="35" height="3.4" rx=".8" fill="url(#iron)"/>
@@ -59,9 +59,9 @@
     <path class="wpn" d="M60 53 q1.5 3 3.5 1" fill="none" stroke-width="1"/>
   </g>
   <!-- hands -->
-  <circle cx="70" cy="49" r="2.7" fill="#c68f6a" stroke="#15121d" stroke-width="1.2"/>
-  <path d="M56 44 L63 47 L62 56 L56 55 Z" fill="url(#coat)" stroke="#15121d" stroke-width="1.4" stroke-linejoin="round"/>
-  <circle cx="60.5" cy="55" r="2.5" fill="#c68f6a" stroke="#15121d" stroke-width="1.2"/>
+  <circle cx="70" cy="49" r="2.7" fill="#c68f6a" stroke="none" stroke-width="1.2"/>
+  <path d="M56 44 L63 47 L62 56 L56 55 Z" fill="url(#coat)" stroke="none" stroke-width="1.4" stroke-linejoin="round"/>
+  <circle cx="60.5" cy="55" r="2.5" fill="#c68f6a" stroke="none" stroke-width="1.2"/>
   <!-- muzzle wisp -->
   <path class="wpn" d="M94 44.5 q2 -2 1 -4.5 q2.5 1 2.5 -2" stroke="#c9c2b2" stroke-width="1.2" fill="none" opacity=".7" stroke-linecap="round"/>
 </svg>

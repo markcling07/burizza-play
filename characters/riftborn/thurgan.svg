@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Thurgan (melee, Gravity) - Burizza art v3. A red-skinned orc bruiser in a low power stance, a
+     three-headed stone maul reared back over his shoulder to swing at the enemy. Leather harness and a
+     war-chain across a bare muscled chest, plated war-kilt, greaves and bracers. Canvas 100x100, faces
+     right, feet on y=93. The maul is his weapon (class="wpn"): a racked weapon hides it and draws at data-hand. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="56,49">
+  <defs>
+    <linearGradient id="th-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d85644"/><stop offset=".55" stop-color="#bb3e30"/><stop offset="1" stop-color="#8f2a20"/></linearGradient>
+    <linearGradient id="th-skin2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8463700"/><stop offset="0" stop-color="#c04535"/><stop offset="1" stop-color="#7d2318"/></linearGradient>
+    <linearGradient id="th-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5636"/><stop offset=".6" stop-color="#543a22"/><stop offset="1" stop-color="#352414"/></linearGradient>
+    <linearGradient id="th-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2c8d0"/><stop offset=".5" stop-color="#8b919b"/><stop offset="1" stop-color="#565c66"/></linearGradient>
+    <linearGradient id="th-stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ca0a6"/><stop offset=".5" stop-color="#73777e"/><stop offset="1" stop-color="#4c4f55"/></linearGradient>
+    <linearGradient id="th-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a6038"/><stop offset="1" stop-color="#5a3c22"/></linearGradient>
+  </defs>
+
+  <ellipse cx="50" cy="93" rx="27" ry="3.4" fill="#000" opacity=".32"/>
+
+  <!-- THE MAUL, reared back over his shoulder (class="wpn") -->
+  <g class="wpn" stroke="none" stroke-width="1.4" stroke-linejoin="round">
+    <path d="M55 48 L24 22" stroke="url(#th-wood)" stroke-width="4.2" stroke-linecap="round"/>
+    <path d="M56 50 l3.5 3" stroke="url(#th-wood)" stroke-width="4.2" stroke-linecap="round"/>
+    <!-- a forged three-faced maul head: beveled metal blocks, corner bolts, weathered -->
+    <g fill="url(#th-stone)">
+      <rect x="9" y="7" width="15" height="13" rx="1.6"/>
+      <rect x="22" y="9" width="15" height="13" rx="1.6"/>
+      <rect x="15" y="20" width="16" height="13" rx="1.6"/>
+    </g>
+    <!-- lighter beveled top faces -->
+    <g fill="#b4b9c0" stroke="none" opacity=".85">
+      <path d="M10.5 8 L22.5 8 L21 10 L12 10 Z"/><path d="M23.5 10 L35.5 10 L34 12 L25 12 Z"/><path d="M16.5 21 L29.5 21 L28 23 L18 23 Z"/></g>
+    <!-- corner bolts (not centred — reads as rivets, not pips) -->
+    <g fill="#474a50" stroke="none"><circle cx="11.5" cy="10" r=".8"/><circle cx="21.5" cy="10" r=".8"/><circle cx="11.5" cy="17.5" r=".8"/><circle cx="21.5" cy="17.5" r=".8"/><circle cx="24.5" cy="12" r=".8"/><circle cx="34.5" cy="12" r=".8"/><circle cx="24.5" cy="19.5" r=".8"/><circle cx="34.5" cy="19.5" r=".8"/><circle cx="17.5" cy="23" r=".8"/><circle cx="28.5" cy="23" r=".8"/><circle cx="17.5" cy="30.5" r=".8"/><circle cx="28.5" cy="30.5" r=".8"/></g>
+    <!-- weathering cracks -->
+    <path d="M14 13 l3 2 l-2 2 M27 14 l2 2 M21 25 l3 2 l-1 2" stroke="#3f4247" stroke-width=".6" fill="none" opacity=".8"/>
+  </g>
+
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back (far) leg, bent under him -->
+    <path d="M44 58 Q40 70 34 78 Q31 84 34 90 L41 90 Q40 83 43 77 Q48 68 50 60 Z" fill="url(#th-skin)"/>
+    <!-- front (lead) leg, driving forward -->
+    <path d="M55 59 Q62 68 66 80 L64 90 L57 90 Q58 80 54 72 Q51 66 50 60 Z" fill="url(#th-skin)"/>
+    <!-- bare orc feet -->
+    <path d="M31 88 Q29 93 33 93.5 L43 93 L42 88 Z" fill="url(#th-skin)"/>
+    <path d="M56 88 L65 88 Q70 89 70 92.5 L56 93 Z" fill="url(#th-skin)"/>
+    <!-- shin greaves -->
+    <path d="M33 78 Q37 76 42 78 L41 87 Q37 88.5 33 87 Z" fill="url(#th-metal)"/>
+    <path d="M57 78 Q62 76 66 80 L65 88 Q60 89 56 87 Z" fill="url(#th-metal)"/>
+    <path d="M33.5 82 Q37.5 83 41 82 M57 83 Q61 84 65 83" fill="none" stroke-width="1"/>
+
+    <!-- war-kilt: leather with a plated apron -->
+    <path d="M40 54 L60 54 Q62 64 58 72 L54 69 L51 73 L47 69 L43 72 Q39 64 40 54 Z" fill="url(#th-leather)"/>
+    <path d="M44 57 L56 57 L55 67 L50 70 L45 67 Z" fill="url(#th-metal)"/>
+    <path d="M47 60 L53 60 M46.5 63 L53.5 63" fill="none" stroke="#3f4247" stroke-width=".9"/>
+
+    <!-- thick torso: bare muscled chest -->
+    <path d="M38 31 Q50 26 62 31 Q64 44 60 55 Q50 59 40 55 Q36 44 38 31 Z" fill="url(#th-skin)"/>
+    <!-- muscle shading -->
+    <path d="M50 33 L50 54 M42 40 Q50 44 58 40 M43 47 Q50 50 57 47" fill="none" stroke="#7d2318" stroke-width="1.1" opacity=".75"/>
+    <path d="M44 34 Q47 38 46 42 M56 34 Q53 38 54 42" fill="none" stroke="#e86a55" stroke-width="1" opacity=".55"/>
+
+    <!-- the big buckle belt -->
+    <path d="M39 53 Q50 57 61 53 L61 58 Q50 62 39 58 Z" fill="url(#th-leather)"/>
+    <path d="M45 52.5 L55 52.5 L56.5 57.5 L50 60 L43.5 57.5 Z" fill="url(#th-metal)"/>
+    <path d="M50 54 L50 58.5 M47 55.5 L53 55.5" fill="none" stroke="#3f4247" stroke-width=".9"/>
+
+    <!-- leather harness straps + war-chain across the chest -->
+    <path d="M40 32 L58 52 M60 33 L44 53" fill="none" stroke="url(#th-leather)" stroke-width="3"/>
+    <path d="M42 36 Q50 42 59 38" fill="none" stroke="#8b919b" stroke-width="2.2" stroke-dasharray="2.2 1.6"/>
+
+    <!-- back (far) arm, fist clenched low and forward -->
+    <path d="M40 34 Q33 40 32 49 Q33 54 38 54 Q40 47 44 41 Z" fill="url(#th-skin)"/>
+    <path d="M31 48 Q29 53 32 56 Q37 57 39 53 Q38 49 37 47 Z" fill="url(#th-skin)"/>
+    <path d="M30.5 50.5 Q33 51 35 50.5" fill="none" stroke-width="1"/>
+    <!-- forearm bracer -->
+    <path d="M32 44 Q37 43 40.5 46 L38.5 51 Q34 52 31.5 49 Z" fill="url(#th-metal)"/>
+
+    <!-- head: red orc, brow, tusks -->
+    <path d="M44 14 Q50 9 57 13 Q62 17 61 24 Q60 30 53 31 Q46 31 43 25 Q42 18 44 14 Z" fill="url(#th-skin)"/>
+    <!-- pointed ear + earring -->
+    <path d="M43 20 L38 17 L41 24 Z" fill="url(#th-skin)"/>
+    <circle cx="40" cy="25" r="1.3" fill="#d9a93a" stroke="#8a6b22" stroke-width=".7"/>
+    <!-- brow ridge + jaw -->
+    <path d="M45 19 Q50 17 57 19" fill="none" stroke="#7d2318" stroke-width="1.2"/>
+
+    <!-- lead (near) arm gripping the haft, bracer + fist over the handle -->
+    <path d="M58 33 Q64 37 62 46 Q58 49 54 47 Q55 40 53 35 Z" fill="url(#th-skin)"/>
+    <path d="M53 45 Q58 44 61 47 L59 52 Q54 53 52 50 Z" fill="url(#th-skin)"/>
+    <path d="M55.5 46.5 L59 49 M54.5 48.5 L58 51" fill="none" stroke-width="1"/>
+    <path d="M57 39 Q62 39 63.5 43 L61 48 Q56.5 48.5 55 45 Z" fill="url(#th-metal)"/>
+  </g>
+
+  <!-- face: scowling eyes + lower tusks -->
+  <path d="M46.5 22 Q48.5 21 50.5 22.3" stroke="none" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M53.5 22 Q55.5 21 57.5 22.3" stroke="none" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <circle cx="48.4" cy="23.4" r="1" fill="#ffd54a"/>
+  <circle cx="55.4" cy="23.4" r="1" fill="#ffd54a"/>
+  <path d="M48 27 Q52 28.5 56 27" stroke="#5a1a12" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M47.5 28 L46 24.5 L48.8 27 Z" fill="#f2ecd8" stroke="none" stroke-width=".6" stroke-linejoin="round"/>
+  <path d="M56.5 28 L58 24.5 L55.2 27 Z" fill="#f2ecd8" stroke="none" stroke-width=".6" stroke-linejoin="round"/>
+</svg>

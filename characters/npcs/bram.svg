@@ -18,7 +18,7 @@
   <ellipse cx="51" cy="94" rx="26" ry="3.8" fill="#000" opacity=".38"/>
   <!-- lantern light -->
   <circle cx="33.5" cy="73" r="10" fill="#ffd28a" opacity=".6" filter="url(#bram-glow)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- back arm -->
     <path d="M41 46 Q32.5 49 31.5 61 L35.5 62 Q36.5 53 44 50 Z" fill="url(#bram-blueD)"/>
     <!-- legs -->
@@ -76,7 +76,7 @@
   <path d="M46.5 21 Q49.5 16.8 55 16.6" stroke="#fff" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/>
   <path d="M55.5 20.6 q1.6 1.4 3.2 .3 M48.5 25 q1.2 1 2.6 .2" stroke="#4a5367" stroke-width=".9" fill="none" stroke-linecap="round"/>
   <path d="M55.6 19.8 q1.4 -.6 2.8 .1" stroke="#fff" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".7"/>
-  <g fill="#e6eaf2" stroke="#15121d" stroke-width=".5"><circle cx="41" cy="28.6" r=".6"/><circle cx="47" cy="27.4" r=".6"/><circle cx="60" cy="27.4" r=".6"/><circle cx="66" cy="28.6" r=".6"/></g>
+  <g fill="#e6eaf2" stroke="none" stroke-width=".5"><circle cx="41" cy="28.6" r=".6"/><circle cx="47" cy="27.4" r=".6"/><circle cx="60" cy="27.4" r=".6"/><circle cx="66" cy="28.6" r=".6"/></g>
   <path d="M70.2 6.5 Q69 10 69.6 14" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".85"/>
   <!-- quilting -->
   <path d="M44 47 L43.5 63.5 M50 45 V65.2 M56 45.5 L56.5 64.8 M43.2 69.5 L42.6 80.6 M50 70.4 V82.4 M57 69.8 L57.6 81.6 M37.6 55 Q50 58 62.8 55 M37.2 75 Q50 78 63.8 75" stroke="#243a60" stroke-width=".9" fill="none" stroke-linecap="round"/>

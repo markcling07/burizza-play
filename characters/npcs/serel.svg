@@ -14,7 +14,7 @@
     <linearGradient id="serel-iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e6e78"/><stop offset="1" stop-color="#2e2e36"/></linearGradient>
   </defs>
   <ellipse cx="51" cy="94" rx="25" ry="3.8" fill="#000" opacity=".38"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- back arm, hand on hip -->
     <path d="M42 48 Q33 52 34 64 Q35.5 68 39.5 66.5 Q38 57 45 53 Z" fill="url(#serel-tunicD)"/>
     <!-- legs: braced, one forward -->
@@ -51,7 +51,7 @@
   <path d="M51.4 31.8 q1.8 -.9 3.4 .1" stroke="#1d2130" stroke-width="1" fill="none" stroke-linecap="round" opacity=".8"/>
   <path d="M55.8 39.6 q2.6 .4 4.6 -.8" stroke="#8a5a44" stroke-width="1.1" fill="none" stroke-linecap="round"/>
   <path d="M59.6 28.8 L57.2 38.4" stroke="#c98a6a" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".85"/>
-  <path d="M60.8 32.4 Q64.4 34.8 62 37.6 Q60.6 38.2 59.6 37.2 Z" fill="url(#serel-skin)" stroke="#15121d" stroke-width="1"/>
+  <path d="M60.8 32.4 Q64.4 34.8 62 37.6 Q60.6 38.2 59.6 37.2 Z" fill="url(#serel-skin)" stroke="none" stroke-width="1"/>
   <!-- hair highlights and stubbled nape -->
   <path d="M46.4 25.4 Q49.6 22.4 54.4 22.3" stroke="#e4ded6" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
   <path d="M44.6 29.2 q1.6 -2.4 4 -3.2 M58.4 25 q2.2 1.4 2.8 4" stroke="#6b645c" stroke-width=".8" fill="none" stroke-linecap="round"/>

@@ -18,7 +18,7 @@
   <ellipse cx="50" cy="94" rx="28" ry="3.9" fill="#000" opacity=".38"/>
   <!-- forge glow from the front -->
   <circle cx="90" cy="68" r="24" fill="url(#brann-forge)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- back arm (bare, hanging) -->
     <path d="M35 45 Q28 53 27.5 65 L34.5 67 Q35 58 41 51 Z" fill="url(#brann-skinD)"/>
     <circle cx="31" cy="67" r="4" fill="url(#brann-skinD)"/>

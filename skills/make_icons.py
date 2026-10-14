@@ -2080,11 +2080,11 @@ CATALOG = {
         ('Clawing Grasp', 'Shambler (summon)', 'skill'),
     ]),
     'riftborn': ('The Riftborn', [
-        ('Fixed Point', 'Thassor · Nature', 'passive'), ('Unblinking', 'Vharo · Nature', 'passive'),
+        ('Fixed Point', 'Thurgan · Nature', 'passive'), ('Unblinking', 'Vharo · Nature', 'passive'),
         ('Finisher', 'Nyx · Nature', 'passive'),
-        ('Dead Weight', 'Thassor', 'skill'), ('Deadfall', 'Thassor', 'sig'), ('Event Horizon', 'Thassor', 'skill'),
-        ('Collapsing Fist', 'Thassor', 'skill'), ('Graviton Guard', 'Thassor', 'skill'), ('Singularity', 'Thassor', 'skill'),
-        ('Crushing Field', 'Thassor', 'passive'),
+        ('Dead Weight', 'Thurgan', 'skill'), ('Deadfall', 'Thurgan', 'sig'), ('Event Horizon', 'Thurgan', 'skill'),
+        ('Collapsing Fist', 'Thurgan', 'skill'), ('Graviton Guard', 'Thurgan', 'skill'), ('Singularity', 'Thurgan', 'skill'),
+        ('Crushing Field', 'Thurgan', 'passive'),
         ('Ray', 'Vharo', 'skill'), ('Prism Lance', 'Vharo', 'skill'), ('Starfire', 'Vharo', 'skill'),
         ('Glare', 'Vharo', 'skill'), ('Focus', 'Vharo', 'skill'), ('Recall', 'Vharo', 'skill'),
         ('Clarion', 'Resh', 'skill'), ('Quickening Chord', 'Resh', 'skill'), ('Thrum', 'Resh', 'skill'),
@@ -3049,10 +3049,10 @@ def sound_wave(cx, cy, n=3, r0=8, spread=120, rot=0, color='#5fcad1'):
     return arc_lines(cx, cy, r0, n, spread, color, rot, 2.4, 6)
 
 
-# --- Thassor (gravity melee) ---
+# --- Thurgan (gravity melee) ---
 @icon('Fixed Point')
 def _():
-    # An anchor driven into the ground: Thassor cannot be moved.
+    # An anchor driven into the ground: Thurgan cannot be moved.
     return ('<rect x="29" y="10" width="6" height="36" rx="2" fill="url(#gravity)"/>'
             '<path d="M22 38 L32 48 L42 38" fill="none" stroke="url(#gravity)" stroke-width="4"/>'
             '<circle cx="32" cy="12" r="5" fill="url(#gravity)"/>'

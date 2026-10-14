@@ -15,7 +15,7 @@
   <!-- exhaust heat -->
   <circle cx="33" cy="17" r="6" fill="url(#heat)" filter="url(#glow)"/>
   <circle cx="40.5" cy="20" r="5" fill="url(#heat)" filter="url(#glow)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- exhaust stacks -->
     <rect x="30" y="18" width="6" height="22" rx="1" fill="url(#iron)"/>
     <rect x="37.5" y="21" width="5.5" height="18" rx="1" fill="url(#iron)"/>
@@ -51,10 +51,10 @@
   <!-- vent glow -->
   <rect x="41.5" y="49.5" width="15" height="8" rx="1" fill="#ff9a3a" opacity=".8" filter="url(#glow)"/>
   <path d="M42 51.5 h14 M42 54 h14 M42 56.5 h14" stroke="#ffd58e" stroke-width="1.2" stroke-linecap="round"/>
-  <path d="M42 51.5 h14 M42 54 h14 M42 56.5 h14" stroke="#241f2c" stroke-width=".6" stroke-linecap="round" transform="translate(0 1.25)"/>
+  <path d="M42 51.5 h14 M42 54 h14 M42 56.5 h14" stroke="none" stroke-width=".6" stroke-linecap="round" transform="translate(0 1.25)"/>
   <!-- visor -->
   <rect x="50" y="30" width="11" height="4" rx="1.5" fill="#ffb347" filter="url(#glow)"/>
-  <rect x="50.5" y="30.5" width="10" height="3" rx="1.2" fill="#ffe2a0" stroke="#15121d" stroke-width=".9"/>
+  <rect x="50.5" y="30.5" width="10" height="3" rx="1.2" fill="#ffe2a0" stroke="none" stroke-width=".9"/>
   <!-- stack rims -->
   <path d="M30 18.5 h6 M37.5 21.5 h5.5" stroke="#ffb347" stroke-width="1.6" stroke-linecap="round"/>
   <!-- rivets -->

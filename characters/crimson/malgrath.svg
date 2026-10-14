@@ -17,9 +17,9 @@
   </defs>
   <ellipse cx="50" cy="94" rx="29" ry="3.9" fill="#000" opacity=".4"/>
   <!-- tail -->
-  <path d="M38 74 Q22 72 19 82 Q17 89 10.5 86.5" fill="none" stroke="#15121d" stroke-width="5.4" stroke-linecap="round"/>
+  <path d="M38 74 Q22 72 19 82 Q17 89 10.5 86.5" fill="none" stroke="none" stroke-width="5.4" stroke-linecap="round"/>
   <path d="M38 74 Q22 72 19 82 Q17 89 10.5 86.5" fill="none" stroke="#8c2a31" stroke-width="2.6" stroke-linecap="round"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <path d="M12.5 88 L8.5 89.5 Q4 86 4.5 78.5 Q10 80 13 84 Z" fill="url(#horn)"/>
     <!-- back horn -->
     <path d="M48 23 Q37 21 35.5 12.5 Q35 8.5 37.5 5.5 Q39.5 12 45 14.5 Q49 16 53 17.5 Z" fill="url(#horn)"/>
@@ -75,24 +75,24 @@
   </g>
   <!-- chains -->
   <g fill="none" stroke-linecap="round">
-    <g stroke="#15121d" stroke-width="2.8"><ellipse cx="22.3" cy="67.5" rx="1.3" ry="2"/><path d="M21.9 70.6 L21.5 73.4"/><ellipse cx="21.2" cy="76.4" rx="1.3" ry="2"/><path d="M20.8 79.5 L20.4 82"/></g>
+    <g stroke="none" stroke-width="2.8"><ellipse cx="22.3" cy="67.5" rx="1.3" ry="2"/><path d="M21.9 70.6 L21.5 73.4"/><ellipse cx="21.2" cy="76.4" rx="1.3" ry="2"/><path d="M20.8 79.5 L20.4 82"/></g>
     <g stroke="#9a96a8" stroke-width="1.2"><ellipse cx="22.3" cy="67.5" rx="1.3" ry="2"/><path d="M21.9 70.6 L21.5 73.4"/><ellipse cx="21.2" cy="76.4" rx="1.3" ry="2"/><path d="M20.8 79.5 L20.4 82"/></g>
-    <g stroke="#15121d" stroke-width="2.8"><ellipse cx="60.2" cy="65.6" rx="1.3" ry="2"/><path d="M60 68.7 L59.8 71.5"/><ellipse cx="59.6" cy="74.5" rx="1.3" ry="2"/><path d="M59.4 77.6 L59.1 80.3"/></g>
+    <g stroke="none" stroke-width="2.8"><ellipse cx="60.2" cy="65.6" rx="1.3" ry="2"/><path d="M60 68.7 L59.8 71.5"/><ellipse cx="59.6" cy="74.5" rx="1.3" ry="2"/><path d="M59.4 77.6 L59.1 80.3"/></g>
     <g stroke="#b3afc0" stroke-width="1.2"><ellipse cx="60.2" cy="65.6" rx="1.3" ry="2"/><path d="M60 68.7 L59.8 71.5"/><ellipse cx="59.6" cy="74.5" rx="1.3" ry="2"/><path d="M59.4 77.6 L59.1 80.3"/></g>
   </g>
   <!-- ember cracks -->
   <path d="M37 49 l4 4 l-1.5 4 l4 3 M53 45.5 l-2.5 4.5 l3 3 M60.5 75 l2 3 l-1 3.5 M42.5 75.5 l-1.5 4.5 M26 54 l2 4 M52.5 24 l2 3" fill="none" stroke="#ff6a1f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".85" filter="url(#glow)"/>
   <path d="M37 49 l4 4 l-1.5 4 l4 3 M53 45.5 l-2.5 4.5 l3 3 M60.5 75 l2 3 l-1 3.5 M42.5 75.5 l-1.5 4.5 M26 54 l2 4 M52.5 24 l2 3" fill="none" stroke="#ffd166" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round"/>
   <!-- hoof clefts, studs, buckle sigil -->
-  <path d="M42.5 89.5 v4 M65.5 89.5 l.5 4" stroke="#15121d" stroke-width="1.2" stroke-linecap="round"/>
-  <g fill="#ffe08a" stroke="#15121d" stroke-width=".6"><circle cx="58" cy="41.5" r="1"/><circle cx="51" cy="50.5" r="1"/><circle cx="44" cy="59.5" r="1"/><circle cx="36" cy="68.8" r=".9"/><circle cx="64" cy="68.8" r=".9"/></g>
-  <circle cx="50" cy="69" r="1.7" fill="#ff6a1f" stroke="#15121d" stroke-width=".8"/><circle cx="49.5" cy="68.5" r=".5" fill="#fff3b0"/>
+  <path d="M42.5 89.5 v4 M65.5 89.5 l.5 4" stroke="none" stroke-width="1.2" stroke-linecap="round"/>
+  <g fill="#ffe08a" stroke="none" stroke-width=".6"><circle cx="58" cy="41.5" r="1"/><circle cx="51" cy="50.5" r="1"/><circle cx="44" cy="59.5" r="1"/><circle cx="36" cy="68.8" r=".9"/><circle cx="64" cy="68.8" r=".9"/></g>
+  <circle cx="50" cy="69" r="1.7" fill="#ff6a1f" stroke="none" stroke-width=".8"/><circle cx="49.5" cy="68.5" r=".5" fill="#fff3b0"/>
   <!-- face -->
-  <path d="M57 23 L66.5 25.5" stroke="#15121d" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M57 23 L66.5 25.5" stroke="none" stroke-width="2.8" stroke-linecap="round"/>
   <circle cx="62" cy="27.8" r="4.4" fill="url(#eye)"/>
   <circle cx="62" cy="27.8" r="1.6" fill="#fff3b0"/>
-  <path d="M58 36 Q63 37.2 69.6 34.2" stroke="#15121d" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-  <path d="M60.3 36.6 L60.4 31.6 L62.7 36.2 Z M65.8 35.6 L67.2 30.6 L68.3 35 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".9" stroke-linejoin="round"/>
+  <path d="M58 36 Q63 37.2 69.6 34.2" stroke="none" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M60.3 36.6 L60.4 31.6 L62.7 36.2 Z M65.8 35.6 L67.2 30.6 L68.3 35 Z" fill="#f1ead6" stroke="none" stroke-width=".9" stroke-linejoin="round"/>
   <path d="M38 9 Q37.3 12 39 15 M58 11.5 Q59.5 9.5 62 8.6" stroke="#8a7d8a" stroke-width="1" fill="none" stroke-linecap="round" opacity=".9"/>
   <path d="M56 16.5 l5.5 -.6 M58.5 12 l4.5 .8 M40.5 18 l2 -4 M37 12.5 l3.2 -2" stroke="#4a404a" stroke-width=".9" fill="none" stroke-linecap="round"/>
   <!-- highlights -->

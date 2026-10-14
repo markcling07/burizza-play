@@ -10,7 +10,7 @@
     <linearGradient id="ella-boot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3e28"/><stop offset="1" stop-color="#3a2618"/></linearGradient>
   </defs>
   <ellipse cx="50" cy="94" rx="21" ry="3.8" fill="#000" opacity=".38"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- boots and legs -->
     <path d="M42 76 h7 v13 h-8 z" fill="#4a3a30"/>
     <path d="M53 76 h7 v13 h-7 z" fill="#4a3a30"/>

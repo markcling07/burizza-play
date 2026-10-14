@@ -16,7 +16,7 @@
   <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
   <!-- fuse glow -->
   <circle class="wpn" cx="82" cy="19" r="9" fill="#ff8a3d" opacity=".6" filter="url(#glow)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- back arm + firepot -->
     <path d="M35 45 Q29 53 29 62 L35.5 63.5 Q36 56 42 50 Z" fill="url(#skinD)"/>
     <path d="M27 66 Q26 61 32 61 Q38 61 37 66 Q38.5 72 32 73 Q25.5 72 27 66 Z" fill="url(#clay)"/>
@@ -40,7 +40,7 @@
     <path d="M44 30 Q42.5 18 52.5 17 Q62.5 16.5 64 25 L66.5 30 L64.8 32 Q66.5 37.5 61 40.5 Q54 43 47.5 40 Q44 36 44 30 Z" fill="url(#skin)"/>
     <!-- leather cap + goggles -->
     <path d="M44.3 27 Q43 17.5 52.5 17 Q61.5 16.5 63.5 23.5 Q53 20.5 44.3 27 Z" fill="url(#leatherD)"/>
-    <path d="M45 24.5 Q53 19.5 63.8 23" fill="none" stroke="#2a1a16" stroke-width="3.2"/>
+    <path d="M45 24.5 Q53 19.5 63.8 23" fill="none" stroke="none" stroke-width="3.2"/>
     <circle cx="53" cy="20.8" r="3.3" fill="url(#amber)"/>
     <circle cx="60.2" cy="21.2" r="3.1" fill="url(#amber)"/>
     <!-- front arm raised with bomb -->
@@ -53,7 +53,7 @@
     <path d="M55 45 Q56 38.5 63.5 38.5 Q70 40 69.5 47.5 L58.5 51 Z" fill="url(#leather)"/>
   </g>
   <!-- bandolier pots -->
-  <g stroke="#15121d" stroke-width="1.2" stroke-linejoin="round">
+  <g stroke="none" stroke-width="1.2" stroke-linejoin="round">
     <circle cx="58.5" cy="50" r="3.3" fill="url(#clay)"/>
     <circle cx="52" cy="57.8" r="3.3" fill="url(#clay)"/>
     <circle cx="45.5" cy="65.5" r="3.3" fill="url(#clay)"/>
@@ -66,10 +66,10 @@
   <circle class="wpn" cx="82" cy="19" r="1.6" fill="#fff6c2"/>
   <g class="wpn" fill="#ffb347"><circle cx="88" cy="12" r=".9"/><circle cx="90" cy="22" r=".7"/><circle cx="85" cy="9" r=".6"/></g>
   <!-- face -->
-  <path d="M54.5 26 L63.5 27.8" stroke="#15121d" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M54.5 26 L63.5 27.8" stroke="none" stroke-width="2.4" stroke-linecap="round"/>
   <circle cx="59.8" cy="29.8" r="1.4" fill="#ffcf5a"/>
-  <path d="M56.5 37 Q60.5 38.2 64.5 36" stroke="#15121d" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-  <path d="M58 38.6 L57.8 33.4 L60.6 37.8 Z M62.6 37.2 L63.3 32.4 L64.8 36.1 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".85" stroke-linejoin="round"/>
+  <path d="M56.5 37 Q60.5 38.2 64.5 36" stroke="none" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M58 38.6 L57.8 33.4 L60.6 37.8 Z M62.6 37.2 L63.3 32.4 L64.8 36.1 Z" fill="#f1ead6" stroke="none" stroke-width=".85" stroke-linejoin="round"/>
   <path d="M47.5 36 q2.5 1 4 .2" stroke="#3d5126" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/>
   <!-- goggle shine + highlights -->
   <path d="M51.5 19.6 q1 -1 2.2 -.9 M58.8 20 q1 -1 2.2 -.8" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".9"/>

@@ -17,7 +17,7 @@
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
   <!-- pearl light -->
   <circle class="wpn" cx="67" cy="17.5" r="12.5" fill="#fff7e6" opacity=".7" filter="url(#glow)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- fin tresses -->
     <path d="M44 25 Q35 35 36 54 Q41 50 46 45 L49 31 Z" fill="url(#fin)"/>
     <path d="M44.5 30 Q39 39 38.5 50 M47 34 Q43 41 42 47" stroke="#c07e9c" stroke-width=".9" fill="none"/>
@@ -57,7 +57,7 @@
   <path d="M51 65.8 V60 M48.8 65.3 L49.2 60.6 M53.2 65.3 L52.8 60.6" stroke="#b48a62" stroke-width=".8" stroke-linecap="round"/>
   <path d="M59.5 49.5 V42 M56.5 48.8 L57 42.6 M62.5 48.8 L62 42.6" stroke="#b48a62" stroke-width=".8" stroke-linecap="round"/>
   <!-- pearl necklace -->
-  <g fill="#fff7e6" stroke="#15121d" stroke-width=".6"><circle cx="47" cy="44.4" r="1"/><circle cx="49.2" cy="45.6" r="1"/><circle cx="51.5" cy="46" r="1.2"/><circle cx="53.8" cy="45.5" r="1"/></g>
+  <g fill="#fff7e6" stroke="none" stroke-width=".6"><circle cx="47" cy="44.4" r="1"/><circle cx="49.2" cy="45.6" r="1"/><circle cx="51.5" cy="46" r="1.2"/><circle cx="53.8" cy="45.5" r="1"/></g>
   <!-- face -->
   <circle cx="57.8" cy="29.8" r="1.5" fill="#1d2130"/>
   <circle cx="58.3" cy="29.3" r=".45" fill="#fff"/>

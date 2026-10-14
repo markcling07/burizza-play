@@ -14,7 +14,7 @@
   <ellipse cx="50" cy="94" rx="28" ry="3.8" fill="#000" opacity=".38"/>
   <!-- muzzle heat + smoke -->
   <circle class="wpn" cx="91" cy="17" r="7" fill="url(#heat)" filter="url(#glow)"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- back legs -->
     <path d="M31 70 h12 l-1 17 h-11 z" fill="url(#hullD)"/>
     <path d="M26 86.5 h18 v7 h-19 z" fill="#2a3022"/>
@@ -48,14 +48,14 @@
   <!-- muzzle bore glow -->
   <circle class="wpn" cx="91.5" cy="16.5" r="2.4" fill="#ffd2a8" opacity=".9" transform="rotate(-24 91.5 16.5)"/>
   <!-- body vents -->
-  <rect x="35" y="55" width="16" height="9" rx="1.5" fill="#1d1a22" stroke="#15121d" stroke-width="1.2"/>
+  <rect x="35" y="55" width="16" height="9" rx="1.5" fill="#1d1a22" stroke="none" stroke-width="1.2"/>
   <rect x="36.5" y="56.5" width="13" height="6" rx="1" fill="#ff7a45" opacity=".85" filter="url(#glow)"/>
   <path d="M37 58 h12 M37 61 h12" stroke="#ffcfa8" stroke-width="1" stroke-linecap="round"/>
   <!-- cabin visor -->
   <rect x="64" y="41" width="10" height="4.4" rx="1.5" fill="#ff7a45" filter="url(#glow)"/>
-  <rect x="64.5" y="41.5" width="9" height="3.4" rx="1.2" fill="#ffd2a8" stroke="#15121d" stroke-width=".9"/>
+  <rect x="64.5" y="41.5" width="9" height="3.4" rx="1.2" fill="#ffd2a8" stroke="none" stroke-width=".9"/>
   <!-- shells in the drum -->
-  <g fill="url(#brass)" stroke="#15121d" stroke-width=".8"><rect x="20.5" y="46" width="2.4" height="4" rx="1"/><rect x="24.3" y="46" width="2.4" height="4" rx="1"/><rect x="28.1" y="46" width="2.4" height="4" rx="1"/></g>
+  <g fill="url(#brass)" stroke="none" stroke-width=".8"><rect x="20.5" y="46" width="2.4" height="4" rx="1"/><rect x="24.3" y="46" width="2.4" height="4" rx="1"/><rect x="28.1" y="46" width="2.4" height="4" rx="1"/></g>
   <!-- rivets -->
   <g fill="#2d3426"><circle cx="31.5" cy="52" r=".9"/><circle cx="55" cy="66" r=".9"/><circle cx="31.5" cy="64" r=".9"/><circle cx="61" cy="78.5" r=".8"/></g>
   <!-- smoke wisp -->

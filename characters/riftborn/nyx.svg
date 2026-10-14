@@ -1,84 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Nyx (Riftborn, ranged, Void) - Burizza art v2. A pale, porcelain-white figure under a thin halo, eyes
-     lit with the void, a scarf streaming on the wind and a long spear held low across her. Below the waist
-     she comes apart into drifting white motes over a black orb of void that drips into nothing.
-     Outlined in white, not ink - weapon included - so she reads as a figure of light against the void.
-     Canvas 100x100, faces right, the orb hangs above y=94. The spear is her weapon (class="wpn"): a
-     racked weapon hides it and is drawn in her hand at data-hand. -->
+<!-- Nyx (melee, Void) - Burizza art v3. A samurai in dark blue lacquered armour: a horned kabuto and
+     a scowling menpo mask, layered sode and a laced cuirass, a plated war-skirt and shin guards, a
+     katana held low in the lead hand and a second blade sheathed at the hip. Canvas 100x100, faces
+     right, feet on y=93. The katana is the weapon (class="wpn"): a racked weapon hides it, drawn at data-hand. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="58,55">
   <defs>
-    <linearGradient id="nx-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#e6e2ef"/><stop offset="1" stop-color="#a9a2bd"/></linearGradient>
-    <linearGradient id="nx-cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2eef8"/><stop offset="1" stop-color="#b7aecb"/></linearGradient>
-    <linearGradient id="nx-scarf" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#e9e3f4"/><stop offset="1" stop-color="#b9a8db" stop-opacity=".85"/></linearGradient>
-    <linearGradient id="nx-shaft" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9e7f0"/><stop offset="1" stop-color="#8f8aa4"/></linearGradient>
-    <linearGradient id="nx-blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#b8b2cc"/></linearGradient>
-    <radialGradient id="nx-orb" cx=".38" cy=".32" r=".7"><stop offset="0" stop-color="#3a2a52"/><stop offset=".6" stop-color="#140d20"/><stop offset="1" stop-color="#05030a"/></radialGradient>
-    <radialGradient id="nx-orbGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#8a5ad6" stop-opacity=".6"/><stop offset="1" stop-color="#8a5ad6" stop-opacity="0"/></radialGradient>
-    <filter id="nx-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.2"/></filter>
+    <linearGradient id="ny-plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b7a9c"/><stop offset=".5" stop-color="#404e70"/><stop offset="1" stop-color="#242e48"/></linearGradient>
+    <linearGradient id="ny-cloth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#36425f"/><stop offset="1" stop-color="#1b2338"/></linearGradient>
+    <linearGradient id="ny-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0cf6b"/><stop offset=".55" stop-color="#d1a238"/><stop offset="1" stop-color="#8f6a18"/></linearGradient>
+    <linearGradient id="ny-blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset=".5" stop-color="#c3c9d6"/><stop offset="1" stop-color="#8e94a4"/></linearGradient>
+    <linearGradient id="ny-dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3148"/><stop offset="1" stop-color="#14192a"/></linearGradient>
   </defs>
-  <!-- the faintest shadow: she does not stand on anything -->
-  <ellipse cx="50" cy="94" rx="12" ry="2.2" fill="#000" opacity=".25"/>
-  <!-- scarf, streaming back on the wind -->
-  <path d="M46 34 Q38 31 30 34 Q24 36 18 33 Q23 38 31 38.5 Q24 41 20 46 Q28 43 35 41 Q41 39.6 47 38 Z" fill="url(#nx-scarf)" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round"/>
-  <!-- the void orb she hangs above, dripping -->
-  <circle cx="50" cy="84" r="10" fill="url(#nx-orbGlow)"/>
-  <g stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M46 88.6 Q45.6 91.6 46.4 93 Q47.2 91.6 46.8 88.6 M50.6 89.8 Q50.2 92.8 51 94.4 Q51.8 92.8 51.4 89.8 M54.2 88.4 Q54 90.8 54.6 92 Q55.2 90.8 55 88.4" fill="#140d20" stroke-width=".8"/>
-    <circle cx="50" cy="83.6" r="6.2" fill="url(#nx-orb)"/>
+
+  <ellipse cx="50" cy="93" rx="25" ry="3.4" fill="#000" opacity=".32"/>
+
+  <!-- sheathed blade (saya) slung back at the hip -->
+  <g stroke="none" stroke-width="1.3" stroke-linejoin="round">
+    <path d="M58 56 L86 70 L85 73 L57 59 Z" fill="url(#ny-dark)"/>
+    <path d="M84 69 L88 71 L87 74 L83 72 Z" fill="url(#ny-gold)"/>
   </g>
-  <path d="M45.4 81 Q47.4 78.6 50.6 78.4" stroke="#b48af0" stroke-width="1" fill="none" stroke-linecap="round"/>
-  <path d="M44.6 85.6 Q47.6 89.6 52.6 89.4" stroke="#8a5ad6" stroke-width=".8" fill="none" opacity=".8" stroke-linecap="round"/>
-  <g stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- below the waist she unravels: a tapering column of white -->
-    <path d="M44.5 59 L55.5 59 Q55 66 52.6 72 Q51.4 75.6 50.4 77.4 Q49.4 75.4 48 71.4 Q45.4 65.6 44.5 59 Z" fill="url(#nx-skin)"/>
-    <!-- back arm, hanging -->
-    <path d="M42.5 37.5 Q38.5 44 39.5 53 Q39.8 57 41 58.6 L43.8 57.8 Q43 52 44.6 46 Z" fill="url(#nx-skin)"/>
-    <path d="M39.8 57.6 Q39 61 40.2 62.6 Q42.2 62.8 43.4 61 L43.6 57.6 Z" fill="url(#nx-skin)" stroke-width="1.1"/>
-    <!-- slender torso -->
-    <path d="M42.5 36.5 Q50 33.5 57.5 36.5 Q58.2 44 55.6 50 Q55.2 55 55.8 59.2 L44.2 59.2 Q45 54 44.4 49.4 Q42 43.6 42.5 36.5 Z" fill="url(#nx-skin)"/>
-    <!-- waist wrap -->
-    <path d="M44 56 Q50 54.4 56.2 56 L56.6 60.4 Q55 66 53 70.4 L51.4 64 L49.2 71.2 L47.2 64.4 Q45 62.6 44 60 Z" fill="url(#nx-cloth)"/>
-    <!-- neck, head, and the wrap of scarf at the throat -->
-    <path d="M47.8 31.6 L52.6 31.6 L52.8 35.6 L47.6 35.6 Z" fill="url(#nx-skin)"/>
-    <ellipse cx="50.6" cy="25.6" rx="6.8" ry="7.6" fill="url(#nx-skin)"/>
-    <path d="M45.4 34.6 Q50.4 37.6 55.6 34.6 L55.4 37.6 Q50.4 40.4 45.6 37.6 Z" fill="url(#nx-scarf)"/>
-    <!-- front arm, gripping the spear at the hip -->
-    <path d="M55.5 37.5 Q60.2 43 59.6 51.6 L56 53 Q56.4 46.6 53.6 41.6 Z" fill="url(#nx-skin)"/>
+
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back (far) leg -->
+    <path d="M45 62 Q42 74 40 84 L39 91 L46 91 Q47 82 49 73 Q50 67 51 63 Z" fill="url(#ny-cloth)"/>
+    <!-- front (lead) leg, stepping -->
+    <path d="M53 63 Q58 73 61 83 L61 91 L54 91 Q54 82 51 74 Q49 68 49 63 Z" fill="url(#ny-cloth)"/>
+    <!-- shin guards (suneate) -->
+    <path d="M38 78 Q43 76 47 78 L46 88 Q42 89 38 88 Z" fill="url(#ny-plate)"/>
+    <path d="M53 79 Q58 77 62 80 L61 88 Q56 89 53 88 Z" fill="url(#ny-plate)"/>
+    <path d="M38.5 82 L46.5 82 M53.5 83 L61 83" fill="none" stroke-width=".9"/>
+    <!-- feet (boots) -->
+    <path d="M37 88 L47 88 L47 91.5 Q42 93.5 36 92 Z" fill="url(#ny-dark)"/>
+    <path d="M53 88 L62 88 Q64 90 62 92.5 L53 92 Z" fill="url(#ny-dark)"/>
+
+    <!-- kusazuri: the armoured war-skirt, hanging plates -->
+    <path d="M39 51 L61 51 L63 63 Q50 67 37 63 Z" fill="url(#ny-plate)"/>
+    <path d="M43 52 L43 65 M50 52 L50 66 M57 52 L57 65" fill="none" stroke-width="1"/>
+    <path d="M38 57 Q50 60 62 57" fill="none" stroke="#c9d0dd" stroke-width=".7" stroke-dasharray="1.8 1.6"/>
+
+    <!-- obi sash + cord knot -->
+    <path d="M39 48 Q50 52 61 48 L61 53 Q50 57 39 53 Z" fill="url(#ny-dark)"/>
+    <path d="M47 50 Q50 54 53 50 Q55 52 52 54 Q50 52 48 54 Q45 52 47 50 Z" fill="#8a2630" stroke-width=".8"/>
+
+    <!-- do: laced cuirass with a central crest -->
+    <path d="M40 33 Q50 30 60 33 L62 50 Q50 54 38 50 Z" fill="url(#ny-plate)"/>
+    <path d="M39.5 38 Q50 41 60.5 38 M39.3 43 Q50 46 60.7 43" fill="none" stroke="#c9d0dd" stroke-width=".7" stroke-dasharray="1.8 1.6"/>
+    <path d="M50 35 L54 40 L50 45 L46 40 Z" fill="url(#ny-gold)" stroke-width="1"/>
+
+    <!-- back (far) sode shoulder guard -->
+    <path d="M34 34 Q38 31 44 33 L44 45 Q38 47 34 44 Z" fill="url(#ny-plate)"/>
+    <path d="M34.5 38 L43.5 38 M34.5 41.5 L43.5 41.5" fill="none" stroke-width=".9"/>
+
+    <!-- back (far) arm -->
+    <path d="M37 36 Q31 42 32 51 L37 52 Q37 44 41 39 Z" fill="url(#ny-cloth)"/>
+    <path d="M31 50 Q29 55 33 57 L38 55 Q37 51 36 50 Z" fill="url(#ny-plate)"/>
+
+    <!-- neck guard + menpo mask (scowling) -->
+    <path d="M46 26 L56 26 L57 32 L45 32 Z" fill="url(#ny-dark)"/>
+    <path d="M45.5 25 Q51 23 56.5 25 Q58 30 51 32 Q44 30 45.5 25 Z" fill="url(#ny-dark)"/>
+
+    <!-- kabuto helmet bowl -->
+    <path d="M43 20 Q44 10 51 9 Q59 9 59.5 19 Q60 24 51 25 Q44 25 43 20 Z" fill="url(#ny-plate)"/>
+    <path d="M44 20 Q51 22 59 20" fill="none" stroke="#c9d0dd" stroke-width=".8"/>
+    <!-- fukigaeshi + a little gold boss -->
+    <circle cx="51" cy="14" r="1.8" fill="url(#ny-gold)"/>
+
+    <!-- lead (near) arm, reaching down to the hilt -->
+    <path d="M58 35 Q64 40 62 50 L57 51 Q57 43 53 38 Z" fill="url(#ny-cloth)"/>
+    <path d="M57 49 Q62 50 62 55 Q58 58 54 55 Q54 51 54 49 Z" fill="url(#ny-plate)"/>
+
+    <!-- front (near) sode shoulder guard, over the arm -->
+    <path d="M56 33 Q61 30 67 33 L67 45 Q61 47 56 44 Z" fill="url(#ny-plate)"/>
+    <path d="M56.5 38 L66.5 38 M56.5 41.5 L66.5 41.5" fill="none" stroke-width=".9"/>
   </g>
-  <!-- the spear, held low across her, point toward the enemy -->
-  <g class="wpn" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M13 25.6 L84.6 73" stroke="#ffffff" stroke-width="2.8"/>
-    <path d="M13 25.6 L84.6 73" stroke="url(#nx-shaft)" stroke-width="1.4"/>
-    <path d="M83 70.4 L94.6 80.4 L86.4 74.6 Z" fill="url(#nx-blade)" stroke="#ffffff" stroke-width="1.1"/>
-    <path d="M82.2 72 L95 80.6 L84.8 76.2 Z" fill="url(#nx-blade)" stroke="#ffffff" stroke-width="1.1"/>
-    <path d="M84 72.6 L94.6 80.4" stroke="#8a5ad6" stroke-width=".9"/>
-    <path d="M94.6 80.6 Q95.4 83.6 94.8 86" stroke="#140d20" stroke-width="1.1" fill="none"/>
-    <circle cx="94.8" cy="86.6" r=".9" fill="#140d20"/>
-    <rect x="80.4" y="69" width="3.4" height="2.2" rx=".6" fill="#8a5ad6" stroke="#ffffff" stroke-width=".7" transform="rotate(33.5 82 70)"/>
+
+  <!-- the golden horns (kuwagata) of the kabuto -->
+  <g stroke="#7a5a14" stroke-width="1" stroke-linejoin="round">
+    <path d="M47 11 Q40 6 36 9 Q42 8 46 14 Z" fill="url(#ny-gold)"/>
+    <path d="M55 11 Q62 6 66 9 Q60 8 56 14 Z" fill="url(#ny-gold)"/>
+    <path d="M48.5 12 Q45 4 50 2 Q52 7 52.5 12 Z" fill="url(#ny-gold)"/>
   </g>
-  <!-- the gripping hand, over the shaft -->
-  <path class="wpn" d="M55.2 51.8 Q58.6 51 60.6 53.4 Q60.2 57 57.2 57.6 Q55 56.4 55.2 51.8 Z" fill="url(#nx-skin)" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round"/>
-  <!-- body shading and the line of the ribs -->
-  <path d="M46 42 Q50 40.6 54 42 M46.4 45 Q50 43.8 53.6 45" stroke="#b7aecb" stroke-width=".8" fill="none" stroke-linecap="round"/>
-  <path d="M52.6 59.6 Q52.4 66.6 50.6 75" stroke="#b7aecb" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <!-- face: the void looking out of her -->
-  <path d="M51.6 23 Q54.2 22 56.4 23.2" stroke="#9a92ae" stroke-width="1" fill="none" stroke-linecap="round"/>
-  <g fill="#8a5ad6" filter="url(#nx-glow)"><circle cx="54" cy="25.4" r="1.9"/><circle cx="57" cy="25.4" r="1.5"/></g>
-  <ellipse cx="54" cy="25.4" rx="1.3" ry=".9" fill="#140d20"/>
-  <ellipse cx="57" cy="25.4" rx="1" ry=".8" fill="#140d20"/>
-  <circle cx="54.3" cy="25.2" r=".45" fill="#e6d4ff"/><circle cx="57.2" cy="25.2" r=".35" fill="#e6d4ff"/>
-  <path d="M54.4 29.6 Q55.8 30 57 29.4" stroke="#9a92ae" stroke-width=".8" fill="none" stroke-linecap="round"/>
-  <!-- the halo, and the dust it sheds on her -->
-  <ellipse cx="50.6" cy="14.6" rx="8.4" ry="2.2" fill="none" stroke="#ffffff" stroke-width="2.2"/>
-  <ellipse cx="50.6" cy="14.6" rx="8.4" ry="2.2" fill="none" stroke="#f4eeff" stroke-width="1.1"/>
-  <ellipse cx="50.6" cy="14.6" rx="8.4" ry="2.2" fill="none" stroke="#b48af0" stroke-width="2.6" opacity=".35" filter="url(#nx-glow)"/>
-  <g fill="#e6e2ef"><circle cx="47" cy="17.6" r=".5"/><circle cx="50.4" cy="16.8" r=".6"/><circle cx="53.6" cy="17.4" r=".45"/><circle cx="48.8" cy="18.6" r=".35"/></g>
-  <!-- where she comes apart: motes drifting off the column and falling toward the orb -->
-  <g fill="#f4f2f8" stroke="#ffffff" stroke-width=".5">
-    <rect x="42.4" y="66" width="1.6" height="1.6" transform="rotate(20 43 66.8)"/><rect x="57" y="64.6" width="1.4" height="1.4" transform="rotate(-15 57.7 65.3)"/>
-    <rect x="44.2" y="71.4" width="1.3" height="1.3"/><rect x="55.2" y="70" width="1.2" height="1.2" transform="rotate(35 55.8 70.6)"/>
-    <rect x="46.4" y="75.4" width="1.1" height="1.1" transform="rotate(10 47 76)"/><rect x="53.4" y="74.6" width="1" height="1"/>
-    <rect x="40.6" y="62" width="1" height="1" transform="rotate(30 41 62.5)"/><rect x="59" y="60.4" width=".9" height=".9"/>
+
+  <!-- menpo scowl: shadowed eyes + a dull gleam -->
+  <path d="M46.5 27.3 Q48.6 26.4 50.5 27.4 M52.5 27.4 Q54.4 26.4 56.5 27.3" stroke="none" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <circle cx="48.3" cy="27.9" r=".7" fill="#9fb4d6"/><circle cx="54.6" cy="27.9" r=".7" fill="#9fb4d6"/>
+
+  <!-- THE KATANA, held low in the lead hand (class="wpn") -->
+  <g class="wpn" stroke="none" stroke-width="1.1" stroke-linejoin="round">
+    <!-- blade, sweeping down-forward with a gentle curve -->
+    <path d="M58.5 52 Q74 64 82 84 L80.5 85 Q70 66 56.5 55 Z" fill="url(#ny-blade)"/>
+    <path d="M59.5 53.5 Q72 64 80 82" fill="none" stroke="#ffffff" stroke-width=".6" opacity=".7"/>
+    <!-- tsuba guard -->
+    <ellipse cx="56.5" cy="53.5" rx="3.4" ry="2.2" transform="rotate(38 56.5 53.5)" fill="url(#ny-gold)"/>
+    <!-- tsuka handle, dark wrapped -->
+    <path d="M50 46 L56 51.5 L54 54 L48 48.5 Z" fill="url(#ny-dark)"/>
+    <path d="M50.5 48 L52.5 49.8 M52 46.8 L54 48.6" stroke="#9aa2b6" stroke-width=".7"/>
+    <!-- gripping hand -->
+    <path d="M53 50 Q57 50 58.5 53 Q57 56 53.5 55 Q51.5 52.5 53 50 Z" fill="url(#ny-plate)"/>
   </g>
-  <g fill="#cfc8de"><circle cx="48.6" cy="79" r=".5"/><circle cx="51.8" cy="78.6" r=".45"/><circle cx="42" cy="69" r=".4"/><circle cx="58.4" cy="67.6" r=".4"/></g>
 </svg>

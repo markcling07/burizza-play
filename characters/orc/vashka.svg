@@ -13,12 +13,12 @@
     <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e3424"/><stop offset="1" stop-color="#1c110b"/></linearGradient>
   </defs>
   <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
-  <g stroke="#15121d" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- quiver of javelins -->
     <g transform="rotate(-24 33 62)">
       <path d="M30.8 37 L32 31 L33.2 37 Z M35.3 39 L36.5 33 L37.7 39 Z M26.3 39 L27.5 33 L28.7 39 Z" fill="url(#steel)"/>
       <path d="M32 37 v12 M36.5 39 v10 M27.5 39 v10" fill="none" stroke="#8a6040" stroke-width="2.2"/>
-      <path d="M32 37 v12 M36.5 39 v10 M27.5 39 v10" fill="none" stroke="#15121d" stroke-width="2.2" opacity="0"/>
+      <path d="M32 37 v12 M36.5 39 v10 M27.5 39 v10" fill="none" stroke="none" stroke-width="2.2" opacity="0"/>
       <rect x="25.5" y="47" width="13.5" height="27" rx="2.5" fill="url(#leatherD)"/>
       <rect x="25.5" y="50" width="13.5" height="3" fill="url(#fur)"/>
     </g>
@@ -63,11 +63,11 @@
     <path d="M55 46 Q56 40 63 40 Q68.5 41 68 47.5 L58.5 50 Z" fill="url(#fur)"/>
   </g>
   <!-- face -->
-  <path d="M55 27 L63 28.6" stroke="#15121d" stroke-width="2.3" stroke-linecap="round"/>
+  <path d="M55 27 L63 28.6" stroke="none" stroke-width="2.3" stroke-linecap="round"/>
   <circle cx="59.6" cy="30.6" r="1.4" fill="#ffcf5a"/>
   <path d="M54.5 33.5 L58 34.3 M54.5 35.8 L57.5 36.4" stroke="#f1e6cc" stroke-width="1.3" stroke-linecap="round" opacity=".9"/>
-  <path d="M57.5 37.6 Q61 38.6 64.2 36.8" stroke="#15121d" stroke-width="1" fill="none" stroke-linecap="round"/>
-  <path d="M58.8 39.2 L58.6 34.6 L61 38.6 Z M62.9 37.8 L63.5 33.6 L64.8 37 Z" fill="#f1ead6" stroke="#15121d" stroke-width=".8" stroke-linejoin="round"/>
+  <path d="M57.5 37.6 Q61 38.6 64.2 36.8" stroke="none" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M58.8 39.2 L58.6 34.6 L61 38.6 Z M62.9 37.8 L63.5 33.6 L64.8 37 Z" fill="#f1ead6" stroke="none" stroke-width=".8" stroke-linejoin="round"/>
   <!-- bone necklace -->
   <path d="M46.5 52 l1 3 M50.5 53 v3.2 M54.5 52 l-1 3" stroke="#f1ead6" stroke-width="1.6" stroke-linecap="round"/>
   <!-- highlights -->

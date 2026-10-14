@@ -2955,6 +2955,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 const FACTIONS = {
   mech:  { name: 'Ironclad Union',     mechanic: 'Heat',
            rule: 'Every action builds Heat, filling the overheat bar in quarters (25 / 50 / 75 / 100) and adding up to 40% damage. Each quarter sears anyone who closes to melee with it — a melee attacker striking the Mech, or a melee Mech striking home — for 10 / 20 / 30 / 40. Ranged units trade fire from a safe distance and are never seared. At 100 Heat the unit overheats and skips its next turn; Guard vents 50 Heat. Water douses it: a Soaked unit (from Tideborn hits or a Downpour) drops to 0 Heat and cannot build any until the Soaked wears off. A destroyed Ironclad champion leaves a Salvage Bot behind. Machines don\'t bleed: Ironclad units are immune to Bleed.' },
+  cog:   { name: 'The Cogbound',       mechanic: 'Heat',
+           rule: 'Cast out of the Ironclad foundries and still running on their fire. The Cogbound build Heat exactly as the Union does — every action fills the overheat bar in quarters, adding up to 40% damage, searing whoever closes to melee, and costing a turn at 100. What they did with their exile is ride: a Cogbound bolts onto someone else\'s back, friend or enemy, and makes that body the weapon.' },
   orc:   { name: 'Bloodtusk Horde',    mechanic: 'Rage',
            rule: 'Deals more damage the more hurt it is, up to +50% near death.' },
   human: { name: 'Kingdom of Aldmere', mechanic: 'Discipline',
@@ -2967,8 +2969,8 @@ const FACTIONS = {
            rule: 'The Court keeps no mana — it pays in blood. A skill costs 15% of the caster\'s current HP and a ★ signature 20%, and no toll can take their last point: they are left standing on 1 HP at worst. Attack and Guard are free. Every hit drains 20% of the damage dealt as HP, and every attack drinks a further 5% of the victim\'s maximum HP on top of whatever the skill itself steals. The Court has no ranged fighters: four melee and a support who Hexes enemies so they heal for half.' },
   undead: { name: 'The Pale Host',     mechanic: 'Undying',
            rule: 'A fallen Pale Host does not stop. When a blow would end one it keeps its feet, lit by a pale green light and already dead: nothing can heal it, and it stands and fights until one more instance of damage lands — a blow, a tick, anything — and that one is the end. Grave-flesh mends poorly besides, so all healing it takes from spells and potions is halved. Raise one again and the pact holds — it will stand past its death a second time. The dead are in no hurry: the whole Host crosses the speed bar 5% slower. And the dead have no blood to spill: nothing can make the Pale Host Bleed.' },
-  riftborn: { name: 'The Riftborn',   mechanic: 'Resonance',
-           rule: 'The Riftborn bend the four forces between the stars — Gravity, Light, Sound and Void. Every hit a Riftborn lands carries its champion\'s Force and leaves a Charge of it on the enemy. When a DIFFERENT Force then strikes a charged enemy, the charge detonates into a Resonance: Gravity + Light lenses a searing burst, Gravity + Void collapses them and Bashes them off the bar, Gravity + Sound quakes them backward, Light + Void annihilates through shields, Light + Sound flashes Blind and Stagger, Sound + Void Silences. Weak striking alone, they are deadly in concert — the warband sets off each other\'s charges.' },
+  riftborn: { name: 'The Riftborn',   mechanic: 'Standing Stones',
+           rule: 'What is left of the Riftborn is one sound-shaper and the stones he raises. A Riftborn plants cairns that think: each takes its turn like anything else, and its turn is its work — taxing enemy spellcraft, carrying the warband along the speed bar, unweaving enemy wards, loosing shocks, or standing between the warband and a blow and throwing it back. Two may stand at once, and raising a third pulls down the oldest. A stone is counted in blows, not wounds: six hits of any size bring one down, and the shield-stone only two. Their shaper carries a share of every ally\'s casting cost in his own pool, and pays what he has when it runs low.' },
 };
 // Factions held out of play without deleting them: their FACTIONS entry, ROSTER champions, code and
 // art all stay, but they are kept out of the gauntlet, the codex, quests, recruitment and the
@@ -2983,7 +2985,7 @@ const theFaction = (f, start = false) => `${start ? 'The' : 'the'} ${f.name.repl
    the role's base pool × the faction's multiplier. Skills and ultimates cost mana;
    it regenerates every turn, Attack restores a little and Guard restores more. */
 const MANA = {
-  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0, riftborn: 1 },
+  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0, riftborn: 1, cog: 0 },   // Heat-runners carry no mana, as the Union does not
   skillCost: 20, skill2Cost: 25, ultCost: 40,   // default costs; a skill can override with o.mp
   poolScale: 0.9,                       // champions' own pool runs 10% leaner (gear and passives add on top, in full)
   spellExtra: 10, healExtra: 20,        // every spell costs 10 MP over its listed price; a healing skill 20 more on top of that
@@ -3488,6 +3490,10 @@ const ROLES = {
    ================================================================== */
 const FX = {
   burn:     { icon: '🔥', label: 'Burn',      kind: 'bad',  verb: 'is burning' },
+  shock:    { icon: '⚡', label: 'Shocked',   kind: 'bad',  verb: 'is shocked: the current runs through it' },
+  disarmed: { icon: '🚫', label: 'Disarmed',  kind: 'bad',  verb: 'is disarmed: something is clamped over its weapon' },
+  ridden:   { icon: '⚙️', label: 'Ridden',    kind: 'good', verb: 'carries a Cogbound on their back, and runs the quicker for it' },
+  clamped:  { icon: '🗜️', label: 'Clamped',   kind: 'bad',  verb: 'has a Cogbound clamped to it, grinding' },
   poison:   { icon: '🧪', label: 'Poison',    kind: 'bad',  verb: 'is poisoned' },
   bleed:    { icon: '🩸', label: 'Bleed',     kind: 'bad',  verb: 'is bleeding' },
   stun:     { icon: '💫', label: 'Stunned',   kind: 'bad',  verb: 'is stunned' },
@@ -3612,7 +3618,7 @@ const WEATHER = {
   dusk:  { name: 'Nightfall',    favors: null,    desc: 'Night comes down over the field. In the dark, ranged attacks miss 15% more often; close quarters are as they ever were. A Blood Moon rises after it.' },
   moon:  { name: 'Blood Moon',   favors: 'crimson', desc: 'The Crimson Court deal 20% more damage. All lifesteal is doubled.' },
   pall:  { name: 'Grave Pall',   favors: 'undead', desc: 'The Pale Host deal 20% more damage. A grey pall settles over the field and every mending anyone receives — spell, potion or regeneration — is a quarter weaker.' },
-  starfall: { name: 'Starfall',  favors: 'riftborn', desc: 'The sky tears open and the forces pour through. The Riftborn deal 20% more damage, and every Resonance reaction lands harder.' },
+  starfall: { name: 'Starfall',  favors: 'riftborn', desc: 'The sky tears open and the forces pour through. The Riftborn deal 20% more damage, and the stones they raise stand brighter for it.' },
   // Emberhollow Cave only: no sky, but the rock moves. Rolled by tickQuake, never by rollWeather.
   quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. Again and again the floor bucks and everyone on the speed bar is thrown back a step — they catch their footing and press on toward their turn. Flyers feel nothing.' },
 };
@@ -3689,6 +3695,48 @@ const R = (name, desc, cd, pct, o = {}) => ({ name, desc, cd, pct, o, kind: 'rev
    floats = hovers above the battlefield: melee runs become flights (dashTo) and Stagger,
    a footing effect, can never take hold (addFx) — part of her Nature, so no loadout swaps it away
    ================================================================== */
+/* Resh's tuning numbers — every figure his stones and his burden are built on,
+   in one place so they can be moved in the sim rather than hunted through the file. */
+const TOTEM_MAX = 2;             // stones standing at once
+const TOTEM_BLOWS = 6;           // hits any one stone takes before it breaks
+const TOTEM_TAUNT_BLOWS = 2;     // the shield-stone is deliberately brittle
+const TOTEM_MANA_STEP = 10;      // +10% to enemy mana costs per pulse
+const TOTEM_WARD_STEP = 0.06;    // -6% off enemy magic ward per pulse
+const TOTEM_HASTE_PUSH = 80;     // bar ground handed to each ally per pulse
+const TOTEM_SHOCK_REVS = 3;      // the storm-stone fires every third Rev
+const TOTEM_SHOCK_PCT = 0.02;    // 2% of max HP, as magic
+const RESH_MANA_SHARE = 0.30;    // the share of an ally's cost Resh carries
+const RESH_HOLD_BASE = 100;      // one round of the field clock (ROUND_TIME)
+const RESH_HOLD_PER_TOTEM = 25;  // ...plus a quarter round per stone standing
+const RESH_SHOCK_REVS = 2;
+const RESH_BATTERY_PCT = 0.5;
+
+/* Orin's numbers (The Cogbound). He rides a body rather than fighting beside it:
+   on an ally that body runs quicker and he swings after it; on an enemy he clamps
+   over the weapon and grinds. The two rides are deliberately asymmetric — riding
+   a friend hides him from every single blow, riding a foe leaves him in the open
+   where anyone can pull him off. */
+const ORIN_RIDE_TURNS = 3;    // turns bolted to an ally
+const ORIN_RIDE_PUSH = 60;    // bar ground the host gains each turn he rides
+const ORIN_GRIP_TURNS = 1;    // a clamp on an enemy is brief
+const ORIN_GRIP_DMG = 15;     // ...and grinds this much every Rev it holds
+const ORIN_RUSH_PUSH = 120;   // the bar shove a Rush Bot hands its ally
+const ORIN_WELD_MULT = 2.0;    // a weld laid on flesh: he is no healer
+const ORIN_WELD_METAL = 1.6;   // ...but on plate and gearing he is one, and it shows
+const ORIN_WELD_RIDE = 1.25;   // ...and best of all on the back he is already bolted to
+const ORIN_WELD_VENT = 50;     // Heat bled out of the mark while its panels are open
+/* What a Cogbound weld actually bites on: anything cast rather than born — the hot
+   factions, and any welded bot. A summoned stone is masonry, not machinery. */
+const weldMetal = (u) => runsHot(u) || (!!u.summon && SUMMONS[u.id]?.look?.body === 'bot');
+
+/* Vharo's numbers. He is an ammunition economy wearing a champion: five blades,
+   every throw spends one into a body, and everything he does is worth less with
+   emptier hands (the damage scale already lives in strikeOnce). */
+const VHARO_BURST_MULT = 0.55;   // each blade's share when he throws the fistful at one mark
+const VHARO_CMD_MULT = 0.5;      // each commanded blade's share when they tear free and fly
+const VHARO_RECALL_TURNS = 2;
+const VHARO_HARVEST_MULT = 0.6;   // each blade's share when it tears back out the way it went in
+
 const ROSTER = [
   // ---- Ironclad Union (Mech) ----
   { id: 'bulwark', name: 'Bulwark-7', faction: 'mech', role: 'melee', bio: 'Hulking frontline war machine.',
@@ -4091,55 +4139,39 @@ const ROSTER = [
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
 
   // ---- The Riftborn (cosmic forces; Resonance) ----
-  { id: 'thassor', name: 'Thassor', faction: 'riftborn', role: 'melee', force: 'g', bio: 'A gravity-bound bulwark who drags the field toward him.',
-    mods: { hp: 1.2, def: 1.2, atk: 0.95, agi: 0.85 },
-    look: { body: 'golem', main: '#2a2440', trim: '#6b74c8', eye: '#6b74c8' },
-    nature: { name: 'Fixed Point', desc: 'Nothing can shove him along the speed bar.', anchor: 1 },
-    skills: [D('Dead Weight', '120% crushing blow.', 2, 1.2, { force: 'g', quake: true }),
-             D('Deadfall', 'Lifts an enemy high into the air on a well of gravity, then smashes it down: 200% hit that Bashes it off the speed bar.', 5, 2.0, { force: 'g', fx: [['bash', 2]], deadfall: true }),
-             D('Event Horizon', '180% hit that drags the target back down the speed bar.', 4, 1.8, { force: 'g', knockback: 180, gravpull: true }),
-             D('Collapsing Fist', '140% hit.', 3, 1.4, { force: 'g', slash: true }),
-             B('Graviton Guard', 'Braces behind his own weight: shielded for 2 turns.', 3, 'self', [['shield', 2]]),
-             D('Singularity', '90% to all enemies, each left charged with Gravity.', 4, 0.9, { aoe: true, force: 'g', quake: true })],
-    passive: P('Crushing Field', 'Any champion that attacks him is Bashed off the speed bar.', { onHitTaken: { chance: 1, fx: [['bash', 2]] } }) },
-  { id: 'vharo', name: 'Vharo', faction: 'riftborn', role: 'ranged', force: 'l', bio: 'A light-channeler who burns holes in the dark.',
-    mods: { atk: 1.15, hp: 0.9, agi: 1.05 },
-    look: { body: 'wraith', main: '#2a2440', trim: '#e8d26a', eye: '#e8d26a' },
-    nature: { name: 'Unblinking', desc: 'His basic attacks never miss. Attacks throw a sword that lodges in the target — killing it returns the blade. Damage scales with swords held.', breathless: 1, swords: 5 },
-    skills: [D('Ray', '120% beam of light.', 2, 1.2, { force: 'l', magic: true, mp: 15 }),
-             D('Prism Lance', '200% light that pierces armor.', 4, 2.0, { force: 'l', magic: true, pierce: true, mp: 35 }),
-             D('Starfire', '70% light to enemies equal to swords held.', 4, 0.7, { force: 'l', magic: true, mp: 30, swordTargets: true }),
-             D('Glare', '90% light with a 50% chance to Blind.', 3, 0.9, { force: 'l', magic: true, chanceFx: [['blind', 2, 0.5]], mp: 20 }),
-             B('Focus', 'Gathers the light: +30% damage for 2 turns.', 4, 'self', [['empower', 3]], { mp: 20 }),
-             B('Recall', 'Calls all swords back. Costs a turn.', 0, 'self', [], { recall: true, noBlood: true })],
-    passive: P('Keen Edge', '+8% critical hit chance.', { stat: { crit: 0.08 } }) },
-  { id: 'resh', name: 'Resh', faction: 'riftborn', role: 'support', force: 's', bio: 'A sound-shaper who moves the war to his own time.',
+  { id: 'vharo', name: 'Vharo', faction: 'cog', role: 'ranged', bio: 'A light-channeler who throws his blades away and calls them home.',
+    mods: { atk: 1.2, hp: 0.85, agi: 1.05 },
+    look: { body: 'wraith', main: '#3a3326', trim: '#ffd166', eye: '#ffe489' },
+    skills: [D('Lightlance', '115% light, thrown flat and fast.', 2, 1.15, { magic: true, attackType: 'horizontal' }),
+             B('Recall Swords', `Every blade on the field tears free and floats home. Costs the turn, and the returning light runs through him: ${VHARO_RECALL_TURNS} turns of striking harder.`, 4, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
+             D('Starfire', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands.', 4, 0.8, { magic: true, swordTargets: true, attackType: 'horizontal' }),
+             D('Sunburst', 'Throws every blade he is holding into one body at once — the fewer he has, the less there is to throw.', 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, attackType: 'horizontal' }),
+             D('Command the Fallen', 'Every blade already buried in an enemy tears itself out and flies at one mark.', 3, VHARO_CMD_MULT, { magic: true, swordCommand: true, attackType: 'horizontal' }),
+             D('Blade Harvest', 'Every blade standing in one body rips back out the way it went in — and comes home to his hand.', 3, VHARO_HARVEST_MULT, { magic: true, swordHarvest: true, attackType: 'horizontal' })],
+    nature: { name: 'Unblinking', desc: `His throws never miss. Each one spends a blade into the body it finds, and killing that body gives the blade back. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all.`, breathless: 1, swords: 5 },
+    passive: P('Sunforged', '+8% critical hit chance.', { stat: { crit: 0.08 } }) },
+  { id: 'orin', name: 'Orin', faction: 'cog', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
+    mods: { atk: 0.95, hp: 0.9, agi: 1.15 },
+    look: { body: 'bot', main: '#6d7482', trim: '#e8a548', eye: '#ffcf6b' },
+    skills: [D('Spanner Swing', '100% hit with whatever is to hand.', 2, 1.0, {}),
+             B('Piggyback Rig', `Orin bolts onto an ally's back for ${ORIN_RIDE_TURNS} turns: they run ${ORIN_RIDE_PUSH} further along the bar at every turn of theirs, and he swings in straight after every attack they make. No single blow can find him while he rides, though area attacks still catch him.`, 5, 'ally', [], { ride: true, notSelf: true, aiTarget: 'lowest' }),
+             B('Seize the Arm', `Orin clamps onto an enemy and disarms them for ${ORIN_GRIP_TURNS} turn, grinding ${ORIN_GRIP_DMG} off them every Rev he holds on. He is in the open while he does it — anyone can pull him off, and it will kill him.`, 4, 'enemy', [], { grip: true }),
+             S('Rush Bot', 'Welds a bot that charges the moment it lands: it strikes an enemy at random, then runs to a random ally and shoves them up the speed bar.', 4, 'rushbot', {}),
+             B('Overclock', 'Runs an ally\'s gears past their rating: they are driven up the speed bar and strike 30% harder for 2 turns.', 3, 'ally', [['empower', 3]], { overclock: true, aiTarget: 'lowest' }),
+             H('Hammer Weld', `Beats an ally back into shape with his own fire. On anything cast rather than born — a bot, a hot hull — the weld takes properly and mends ${Math.round((ORIN_WELD_METAL - 1) * 100)}% more, and ${ORIN_WELD_VENT} Heat is bled out while the panels are open. Best of all on the back he is already bolted to.`, 3, ORIN_WELD_MULT, { weld: true })],
+    passive: P('Foundry-Cast', 'Built in the Union\'s own moulds: +10% Heat damage and the overheat bar fills a little slower.', { stat: { heatMult: 0.1 } }) },
+  { id: 'resh', name: 'Resh', faction: 'riftborn', role: 'support', bio: 'A sound-shaper who moves the war to his own time.',
     mods: { atk: 0.9, hp: 1.0, agi: 1.1 },
     look: { body: 'wraith', main: '#2a2440', trim: '#5fcad1', eye: '#5fcad1' },
-    skills: [D('Clarion', '110% sonic blast.', 2, 1.1, { force: 's', magic: true, mp: 15 }),
-             B('Quickening Chord', 'An ally is Hastened for 3 turns: the bar runs quicker under them.', 4, 'ally', [['haste', 4]], { mp: 30, aiTarget: 'lowest' }),
-             D('Thrum', '100% sonic that pushes the target back.', 3, 1.0, { force: 's', magic: true, knockback: 120, mp: 20 }),
-             D('Discord', '80% sonic to all enemies with a 50% chance to Stagger.', 4, 0.8, { aoe: true, force: 's', magic: true, chanceFx: [['stagger', 1, 0.5]], mp: 30 }),
-             H('Steady Tone', 'A sustaining note heals an ally.', 3, 1.4, { mp: 20 })],
-    passive: P('Deep Well', '+25 max MP and +3 MP every turn.', { stat: { mp: 25, mpRegen: 3 } }) },
-  { id: 'nyx', name: 'Nyx', faction: 'riftborn', role: 'ranged', force: 'v', bio: 'A void-caller who unmakes what she touches.',
-    mods: { atk: 1.2, hp: 0.85, agi: 1.15 },
-    look: { body: 'wraith', main: '#241b33', trim: '#8a5ad6', eye: '#8a5ad6' },
-    skills: [D('Null Bolt', '120% void that never misses.', 2, 1.2, { force: 'v', magic: true, noDodge: true, mp: 15 }),
-             D('Unmake', '210% void that ignores shields.', 5, 2.1, { force: 'v', magic: true, ignoreShield: true, mp: 40 }),
-             D('Silencing Gyre', '90% void with a 50% chance to Silence.', 4, 0.9, { force: 'v', magic: true, chanceFx: [['silence', 2, 0.5]], mp: 30 }),
-             B('Phase', 'Slips half out of the world: attacks that can miss her will until her next turn.', 4, 'self', [['evade', 1]], { mp: 25 }),
-             D('Collapse Point', '70% void to all enemies.', 4, 0.7, { aoe: true, force: 'v', magic: true, mp: 30 })],
-    passive: P('Finisher', 'Deals 15% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.15 } }) },
-  { id: 'orin', name: 'Orin', faction: 'riftborn', role: 'support', bio: 'The Conductor: carries no force of his own, and so can lay any of them.',
-    mods: { atk: 0.85, hp: 1.0, agi: 1.0 },
-    look: { body: 'wraith', main: '#2a2440', trim: '#b9c0e0', eye: '#b9c0e0' },
-    skills: [D('Attune: Gravity', '80% hit that charges the target with Gravity.', 2, 0.8, { force: 'g', magic: true, mp: 15 }),
-             D('Grand Chord', '60% to all enemies, charging each with Sound for the warband to set off.', 4, 0.6, { aoe: true, force: 's', magic: true, mp: 35 }),
-             D('Attune: Light', '80% hit that charges the target with Light.', 2, 0.8, { force: 'l', magic: true, mp: 15 }),
-             D('Attune: Void', '80% hit that charges the target with Void.', 2, 0.8, { force: 'v', magic: true, mp: 15 }),
-             B('Conduct', 'An ally is Empowered for 2 turns: +30% damage.', 3, 'ally', [['empower', 3]], { mp: 20, aiTarget: 'lowest' })],
-    passive: P('Deep Well', '+25 max MP and +3 MP every turn.', { stat: { mp: 25, mpRegen: 3 } }) },
+    skills: [D('Clarion', '110% sonic blast.', 2, 1.1, { magic: true, mp: 15 }),
+             S('Mana Cairn', 'Raises a cairn. Every turn it stands, enemy spells cost another 10%. Two stones may stand; a third pulls down the oldest.', 3, 'tot_mana', { mp: 25 }),
+             S('Quickening Stone', 'Raises a stone that carries the whole warband forward along the speed bar every turn it stands.', 3, 'tot_haste', { mp: 25 }),
+             S('Unweaving Stone', 'Raises a stone that thins enemy magic wards by another 6% every turn it stands.', 3, 'tot_ward', { mp: 25 }),
+             S('Storm Cairn', 'Raises a cairn that looses a shock at the soundest enemy every third Rev, for 2% of their health.', 4, 'tot_shock', { mp: 30 }),
+             S('Bulwark Stone', 'Raises a brittle stone that draws every enemy blow and throws it back, split evenly among them. Two blows and it breaks.', 4, 'tot_taunt', { mp: 30 }),
+             B('Binding Chord', 'Pins an enemy for a turn, and a quarter-turn more for every stone of his standing. Shocks them while they are held. Bash, Stun or Silence on Resh snaps the note.', 5, 'enemy', [], { reshHold: true, mp: 35 }),
+             B('Mana Battery', 'Hands half of what Resh is holding to an ally.', 4, 'ally', [], { battery: true, mp: 0, aiTarget: 'lowest' })],
+    passive: P('Shared Burden', `Carries ${Math.round(RESH_MANA_SHARE * 100)}% of every ally's casting cost from his own pool; when he runs dry the caster covers the rest. +25 max MP and +3 MP every turn.`, { stat: { mp: 25, mpRegen: 3 } }) },
 ];
 // The champions that appear in play — the full roster minus any shelved faction (see HIDDEN_FACTIONS).
 // charById and makeUnit still read the whole ROSTER, so nothing breaks; only who you can recruit, roll
@@ -4157,6 +4189,146 @@ const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One
    their summoner falls, and never count toward winning or losing.
    copy: true → looks like its summoner (illusions).
    ================================================================== */
+/* RESH'S TOTEMS (Riftborn) — a sound-shaper's standing stones.
+   They are real units: targetable, strikable, caught in sweeps. Unlike Mordrek's
+   cross they are NOT inert — a totem takes its turn like anything else, and its
+   turn IS its effect (totemPulse). Two may stand at once; raising a third kills
+   the oldest, whichever kind it is, so protection costs a ramping stone.
+   Durability is counted in BLOWS, not damage: countBlows turns hp into "hits
+   left", so a 2-damage poke and a 400-damage crit each cost exactly one.
+   The two ramping auras are read where they bite (riftManaTax / riftWardCut)
+   rather than written onto enemies, so they undo themselves the moment the
+   stone falls — no bookkeeping, no stuck debuffs. */
+
+// The price of a skill for this caster, all the world's thumbs on the scale:
+// Seraphine's tide halves it, enemy Mana Cairns tax it, Resh shoulders his share.
+function mpCost(u, sk) {
+  let cost = sk.mp || 0;
+  if (!cost) return 0;
+  if (charNat(u).seasung && highTide()) cost = Math.ceil(cost / 2);
+  const tax = riftManaTax(u.side);
+  if (tax) cost = Math.ceil(cost * (1 + tax));
+  return reshSplit(u, cost).self;
+}
+
+const RESH_BREAKERS = { bash: true, stun: true, silence: true };
+const isTotem = (u) => !!u && !!u.summon && !!SUMMONS[u.id]?.totem;
+
+/* RESH'S BURDEN — a share of every ally's casting cost is drawn from Resh
+   instead. He pays what he has and the caster covers the remainder, so a drained
+   Resh makes his warband poorer but never stops them casting. Returns the split
+   so both the affordability check and the payment read the same arithmetic —
+   two places disagreeing about a price is how a spell becomes free. */
+function reshSplit(u, cost) {
+  if (!cost || u.summon) return { self: cost, burden: 0, bearer: null };
+  const bearer = alliesOf(u).find((a) => a.id === 'resh' && a.uid !== u.uid && a.hp > 0 && !a.summon);
+  if (!bearer) return { self: cost, burden: 0, bearer: null };
+  const want = Math.ceil(cost * RESH_MANA_SHARE);
+  const burden = Math.min(want, bearer.mp || 0);
+  return { self: cost - burden, burden, bearer };
+}
+const totemsOf = (side) => state.teams[side].filter((u) => isTotem(u) && alive(u));
+// Sum of a stone-kind's ramp across a side's standing stones, read at the point of use.
+const totemRamp = (side, kind) => totemsOf(side).filter((u) => u.id === kind).reduce((n, u) => n + (u.stacks || 0), 0);
+// What the OTHER side's stones do to you: costlier spells, thinner wards.
+const riftManaTax = (side) => totemRamp(side === 'p' ? 'e' : 'p', 'tot_mana') * TOTEM_MANA_STEP / 100;
+const riftWardCut = (side) => totemRamp(side === 'p' ? 'e' : 'p', 'tot_ward') * TOTEM_WARD_STEP;
+
+/* A stone's turn. It does not move or swing; it simply does what it is for, and
+   the two ramping kinds grow a step stronger for having stood another turn. */
+/* THE SIGNATURE — Resh pins an enemy where they stand. The hold runs one round
+   of the field clock, and a quarter-round longer for every stone of his standing:
+   the more he has built, the longer he can keep someone out of the fight. It is
+   HIS note holding them, so breaking him breaks it — Bash, Stun or Silence on
+   Resh frees the mark early (reshHoldBreaks, called where those land). */
+async function reshBattery(u, t) {
+  await castPose(u, true);
+  if (!t || t.hp <= 0) return;
+  const give = Math.floor((u.mp || 0) * RESH_BATTERY_PCT);
+  if (give <= 0) { log(`${u.name} has nothing left to give.`, u.side); return; }
+  u.mp -= give;
+  t.mp = Math.min(t.maxMp || t.mp + give, (t.mp || 0) + give);
+  float(u, `-${give} MP`, 'fx');
+  float(t, `+${give} MP`, 'good');
+  log(`${u.name} pours ${give} MP into ${t.name}.`, u.side);
+  render();
+  await wait(380);
+}
+
+async function reshHold(u, t) {
+  await castPose(u, true);
+  if (!t || t.hp <= 0) return;
+  const stones = totemsOf(u.side).length;
+  const span = RESH_HOLD_BASE + RESH_HOLD_PER_TOTEM * stones;
+  addFx(t, 'stun', 1);
+  const held = has(t, 'stun');
+  if (held) { held.until = state.time + span; held.reshHold = u.uid; }
+  addFx(t, 'shock', RESH_SHOCK_REVS);
+  const quarters = Math.round((span / RESH_HOLD_BASE) * 4) / 4;
+  log(`${u.name} pins ${t.name} for ${quarters} turn${quarters === 1 ? '' : 's'}${stones ? ` — ${stones} stone${stones === 1 ? '' : 's'} standing` : ''}.`, u.side);
+  float(t, 'Held', 'fx');
+  burst(t, 'spark');
+  render();
+  await wait(420);
+}
+
+// Bash, Stun or Silence on Resh cuts the note: anyone he was holding goes free.
+function reshHoldBreaks(u) {
+  if (!u || u.id !== 'resh') return;
+  for (const f of foesOf(u)) {
+    const held = f.effects.find((e) => e.id === 'stun' && e.reshHold === u.uid);
+    if (!held) continue;
+    f.effects = f.effects.filter((e) => e !== held);
+    log(`${u.name}'s hold on ${f.name} snaps.`, f.side);
+    float(f, 'Freed', 'good');
+  }
+}
+
+async function totemPulse(u) {
+  const def = SUMMONS[u.id];
+  const foes = state.teams[u.side === 'p' ? 'e' : 'p'].filter((x) => alive(x) && !x.inert);
+  const kin = state.teams[u.side].filter((x) => alive(x) && !x.summon);
+  if (u.id === 'tot_mana' || u.id === 'tot_ward') {
+    u.stacks = (u.stacks || 0) + 1;
+    float(u, u.id === 'tot_mana' ? `Mana +${u.stacks * TOTEM_MANA_STEP}%` : `Ward -${Math.round(u.stacks * TOTEM_WARD_STEP * 100)}%`, 'fx');
+    log(`${u.name} thrums: ${u.id === 'tot_mana' ? `enemy spells cost ${u.stacks * TOTEM_MANA_STEP}% more` : `enemy magic wards are ${Math.round(u.stacks * TOTEM_WARD_STEP * 100)}% thinner`}.`, u.side);
+  } else if (u.id === 'tot_haste') {
+    for (const a of kin) a.pos = (a.pos || 0) + TOTEM_HASTE_PUSH;   // higher pos = nearer its turn
+    float(u, 'Quickened', 'good');
+    log(`${u.name} quickens the warband along the bar.`, u.side);
+  } else if (u.id === 'tot_shock') {
+    u.stacks = (u.stacks || 0) + 1;
+    if (u.stacks % TOTEM_SHOCK_REVS === 0) {
+      const mark = foes.slice().sort((a, b) => b.hp - a.hp)[0];
+      if (mark) {
+        const dmg = Math.max(1, Math.round(mark.maxHp * TOTEM_SHOCK_PCT));
+        mark.hp -= dmg;
+        float(mark, `${dmg}`, 'hit');
+        burst(mark, 'spark');
+        log(`${u.name} looses a shock at ${mark.name} for ${dmg}.`, u.side);
+      }
+    }
+  }
+  render();
+  await wait(320);
+}
+
+/* The shield-stone eats a blow for the warband and passes the hurt on: whatever
+   it took is split evenly across every LIVING enemy. One enemy left means that
+   one wears all of it — not because it is singled out, but because an even split
+   of one share is the whole. Recomputed per blow, so a thinning enemy line
+   makes each remaining share heavier. */
+function totemReflect(u, dmg) {
+  const foes = state.teams[u.side === 'p' ? 'e' : 'p'].filter((x) => alive(x) && !x.inert);
+  if (!foes.length || dmg <= 0) return;
+  const share = Math.max(1, Math.round(dmg / foes.length));
+  for (const f of foes) {
+    f.hp -= share;
+    float(f, `${share}`, 'hit');
+  }
+  log(`${u.name} throws the blow back: ${share} to ${foes.length === 1 ? foes[0].name : `each of ${foes.length}`}.`, u.side);
+}
+
 const SUMMONS = {
   // A single head torn free of a slain Gorehound (see splitGorehound). 100 HP, 1.5× speed,
   // and on the player's side still yours to command. No mana, just a bite and Guard.
@@ -4262,6 +4434,62 @@ const SUMMONS = {
   // shrugs off every effect but its Taunt, and counts blows rather than damage — its HP is the
   // number of blows it has left (see countBlows). Broken, it leaves no body: it flies back to
   // Mordrek's hand (crossFliesHome), and while it stands he has no weapon to Attack with.
+  // Orin's Rush Bot: a one-errand machine. It lands swinging (strikesOnSpawn),
+  // then spends itself shoving an ally up the bar — see rushBotErrand.
+  rushbot: {
+    name: 'Rush Bot', role: 'melee', life: 120, strikesOnSpawn: true, errand: 'rush',
+    desc: 'A welded scrap-charger. Strikes an enemy at random the moment it lands, then runs to an ally and shoves them up the speed bar.',
+    look: { body: 'bot', main: '#7a828f', trim: '#e8a548' },
+    stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.25), atk: Math.round(o.atk * 0.8), def: Math.round(o.def * 0.5), agi: 16, crit: 0.05, dodge: 0 }),
+    leave: (u) => `${u.name} clatters apart.`,
+    skills: [{ ...ATTACK, name: 'Ram', desc: '100% hit.' }],
+  },
+  // Resh's five stones. Planted things that think: they take turns (see totemPulse).
+  tot_mana: {
+    name: 'Mana Cairn', role: 'melee', life: null, totem: true,
+    desc: 'A humming cairn. Every turn it stands, enemy spells cost another 10%. Takes 6 blows of any size.',
+    look: { body: 'marker', main: '#2a2440', trim: '#5fcad1' },
+    stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 9, crit: 0, dodge: 0 }),
+    onSpawn: (s) => { countBlows(s); },
+    leave: (u) => `${u.name} goes quiet.`,
+    skills: [],
+  },
+  tot_haste: {
+    name: 'Quickening Stone', role: 'melee', life: null, totem: true,
+    desc: 'Every turn it stands, the whole warband is carried forward along the speed bar. Takes 6 blows of any size.',
+    look: { body: 'marker', main: '#243a44', trim: '#7fe3d0' },
+    stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 13, crit: 0, dodge: 0 }),
+    onSpawn: (s) => { countBlows(s); },
+    leave: (u) => `${u.name} falls still.`,
+    skills: [],
+  },
+  tot_ward: {
+    name: 'Unweaving Stone', role: 'melee', life: null, totem: true,
+    desc: 'Every turn it stands, enemy magic wards thin by another 6%. Takes 6 blows of any size.',
+    look: { body: 'marker', main: '#2e2440', trim: '#b98ae6' },
+    stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 9, crit: 0, dodge: 0 }),
+    onSpawn: (s) => { countBlows(s); },
+    leave: (u) => `${u.name} unravels.`,
+    skills: [],
+  },
+  tot_shock: {
+    name: 'Storm Cairn', role: 'melee', life: null, totem: true,
+    desc: 'Every third Rev it looses a shock at the soundest enemy for 2% of their health. Takes 6 blows of any size.',
+    look: { body: 'marker', main: '#1f2b40', trim: '#8fd2ff' },
+    stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 11, crit: 0, dodge: 0 }),
+    onSpawn: (s) => { countBlows(s); },
+    leave: (u) => `${u.name} earths itself.`,
+    skills: [],
+  },
+  tot_taunt: {
+    name: 'Bulwark Stone', role: 'melee', life: null, totem: true, reflect: true,
+    desc: 'Draws every enemy blow and throws it back, split evenly among them. Brittle: two blows and it breaks.',
+    look: { body: 'marker', main: '#3a2f24', trim: '#e8b65a' },
+    stats: () => ({ maxHp: TOTEM_TAUNT_BLOWS, atk: 0, def: 0, agi: 7, crit: 0, dodge: 0 }),
+    onSpawn: (s) => { countBlows(s); addFx(s, 'taunt', 99, 0, true); },
+    leave: (u) => `${u.name} cracks and falls.`,
+    skills: [],
+  },
   gravecross: {
     name: 'Grave Cross', role: 'melee', life: null, inert: true, plant: true,
     desc: 'Mordrek\'s cross, driven into the ground. Taunts every enemy and takes 6 blows of any size, then flies back to him.',
@@ -5466,7 +5694,7 @@ function dirPose(deg) {
    Switch ART_EXT to 'png' once your art is PNG. If a file is missing,
    the built-in placeholder drawing below is used instead. */
 const ART_EXT = 'svg';
-const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead', riftborn: 'riftborn' };
+const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead', riftborn: 'riftborn', cog: 'cog' };
 
 /* ==================================================================
    MONSTERS — the wild things of Emberhollow Cave. They fight with the
@@ -6635,6 +6863,8 @@ function makeUnit(c, lv, side, slot, scale = 1) {
     hpRegen: (gear.hpRegen || 0) + Math.round(maxHp * (st.hpRegenPct || 0)),
     atk: Math.round(r.atk * (m.atk || 1) * g * scale * wg * (1 + (st.atkPct || 0))), def: Math.round(r.def * (m.def || 1) * g * ag),
     agi: Math.round(r.agi * (m.agi || 1)) + (lv - 1) + (gear.agi || 0) + (st.agi || 0),
+    // Foundry-Cast (Orin): a better return on the Heat he carries, and a bar that fills slower.
+    heatMult: st.heatMult || 0,
     crit: (m.crit ?? 0.08) + (st.crit || 0) + (gear.crit || 0), dodge: r.dodge + (ps.dodge || 0),
     // Weapon affixes (see THE ARMORY): harder crits, a second swing, and the three drains.
     critMult: gear.critMult || 0, double: gear.double || 0,
@@ -6723,7 +6953,7 @@ function skillsOf(u) {
   }
   if (u.monster) return MONSTERS[u.id].skills.map((s, i) => ({ ...s, id: i === 0 ? 'attack' : `s${i}` }));
   const c = charById(u.id);
-  const guard = u.faction === 'mech' ? { ...GUARD, desc: 'Take 50% less damage until your next turn. Vents 50 Heat.' }
+  const guard = runsHot(u) ? { ...GUARD, desc: 'Take 50% less damage until your next turn. Vents 50 Heat.' }
     : u.maxMp ? { ...GUARD, desc: `${GUARD.desc} Restores ${MANA.guardGain} MP.` } : GUARD;
   const attack = u.maxMp ? { ...ATTACK, desc: `${ATTACK.desc} Restores ${MANA.attackGain} MP.` } : ATTACK;
   // Mana cost: the skill's own o.mp, else the default; champions with no mana (mechs) cast for free.
@@ -6888,7 +7118,9 @@ function usable(u, sk) {
   // can still cast a non-attack skill or Guard.
   if (has(u, 'protected') && u.role === 'melee' && sk.kind === 'damage' && !sk.o?.hurl && !sk.o?.gust) return false;
   // Sea-Sung (Seraphine's Nature): at High Tide her songs cost half their mana.
-  if ((charNat(u).seasung && highTide() ? Math.ceil((sk.mp || 0) / 2) : (sk.mp || 0)) > (u.mp || 0)) return false;
+  // What this costs AFTER the sea's mercy, the enemy cairns' tax and Resh's burden.
+  if (mpCost(u, sk) > (u.mp || 0)) return false;
+  if (sk.id === 'attack' && has(u, 'disarmed')) return false;   // something is clamped over the weapon
   if (['enemy', 'ally', 'deadAlly'].includes(sk.target) && !validTargets(u, sk).length) return false;
   if (sk.target === 'allEnemies' && !openFoes(u).length) return false;
   return true;
@@ -6914,7 +7146,7 @@ const killXpOf = (v) => (v.summon ? 0 : Math.max(1, Math.round(v.monster
 // Burn, Poison and Bleed can land the killing blow turns after the hit that lit them, so each
 // remembers whose it was. Anything applied with no striker behind it — a dungeon's Grave Damp,
 // a monster's own aura — simply has no owner, and pays nobody.
-const DOT_IDS = ['burn', 'poison', 'bleed'];
+const DOT_IDS = ['burn', 'poison', 'bleed', 'shock'];
 function ownFx(by, t, id) { const e = DOT_IDS.includes(id) && has(t, id); if (e) e.by = by.uid; }
 
 // A share of a blow that someone else is carrying: Soul Link's split, Malgrath's Blood Pact,
@@ -7118,7 +7350,7 @@ const isMagic = (o = {}) => !!(o.magic || o.element || o.manaDamage || o.manaBur
 function powerMult(u) {
   let m = 1;
   if (u.faction === 'orc') m *= 1 + 0.5 * (1 - u.hp / u.maxHp);
-  if (u.faction === 'mech') m *= 1 + u.heat / 250;
+  if (runsHot(u)) m *= 1 + (u.heat / 250) * (1 + (u.heatMult || 0));
   if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus() + (charNat(u).rhythm ? 0.05 : 0);   // Wren: Spellblade's Rhythm
   if (u.faction === 'tide' && highTide()) m *= 1.25;
   if (pv(u).deadScale) m *= 1 + pv(u).deadScale * deadCount();   // Cadris: Toll of the Dead
@@ -7138,8 +7370,11 @@ function powerMult(u) {
    the hull runs hotter, so an enemy that trades blows with a Mech is seared for more.
    At 100 Heat the Mech overheats and skips its next turn (handled on the speed bar). */
 const HEAT_TIERS = [25, 50, 75, 100];
-const heatTier = (u) => (u.faction === 'mech' ? HEAT_TIERS.filter((h) => u.heat >= h).length : 0);
-const contactBurn = (u) => heatTier(u) * 10;   // 10 / 20 / 30 / 40 seared per contact
+// Who runs on Heat and bleeds nothing: the Union, and the Cogbound cast in their moulds.
+// One predicate so a new foundry faction never half-inherits the mechanic.
+const runsHot = (u) => u.faction === 'mech' || u.faction === 'cog';
+const heatTier = (u) => (runsHot(u) ? HEAT_TIERS.filter((h) => u.heat >= h).length : 0);
+const contactBurn = (u) => Math.round(heatTier(u) * 10 * (1 + (u.heatMult || 0)));   // 10 / 20 / 30 / 40 seared per contact
 
 // A hot Mech sears any enemy it trades blows with — whoever it strikes, and whoever strikes it.
 // Summons (including Salvage Bots) never build Heat, so this is a no-op for them.
@@ -7155,50 +7390,6 @@ function searContact(mech, foe) {
 }
 
 // One hit: dodge → damage = ATK × mult × (±10%) × 50/(50+DEF) → crit, status and faction modifiers.
-/* ==================================================================
-   THE RIFTBORN — Resonance (see FACTIONS.riftborn). Every Riftborn hit carries one Force: the
-   champion's own `force`, or a skill's o.force. A landed hit leaves a Charge of that force on the
-   target (rcg/rcl/rcs/rcv, kept straight on u.effects as neutral marks, so cleanse and ward leave
-   them be). When a DIFFERENT force strikes a charged target the charge is spent and detonates into
-   a reaction — a bonus hit for a share of the detonator's attack, plus the status the pair carries.
-   ================================================================== */
-const RIFT_FORCE = { g: { name: 'Gravity', icon: '🕳️' }, l: { name: 'Light', icon: '✨' }, s: { name: 'Sound', icon: '🔊' }, v: { name: 'Void', icon: '🟣' } };
-const isRiftChip = (e) => e.id[0] === 'r' && e.id[1] === 'c' && !!RIFT_FORCE[e.id[2]];
-const riftGet = (t) => t.effects.find(isRiftChip);
-function riftSet(t, f) {
-  t.effects = t.effects.filter((e) => !isRiftChip(e));
-  t.effects.push({ id: 'rc' + f, turns: 2, force: f });
-}
-const RIFT_REACT = {
-  gl: { name: 'Lensing',      mult: 1.6, burst: 'fire' },
-  gv: { name: 'Collapse',     mult: 1.3, burst: 'smoke', fx: [['bash', 2]] },
-  gs: { name: 'Quake',        mult: 1.1, burst: 'roar',  knock: 200 },
-  lv: { name: 'Annihilation', mult: 1.9, burst: 'fire' },
-  ls: { name: 'Flash',        mult: 0.6, burst: 'buff',  fx: [['blind', 2], ['stagger', 2]] },
-  sv: { name: 'Silence',      mult: 0.9, burst: 'smoke', fx: [['silence', 2]] },
-};
-function riftDetonate(u, t, a, b) {
-  const r = RIFT_REACT[[a, b].sort().join('')];
-  if (!r) return;
-  let dmg = Math.max(1, Math.round(u.atk * r.mult));
-  if (favored(u)) dmg = Math.round(dmg * 1.25);   // Starfall: every reaction lands harder
-  t.hp = Math.max(0, t.hp - dmg);
-  burst(t, r.burst);
-  float(t, `${dmg}`, 'dmg');
-  float(t, `✦ ${r.name}`, 'fx');
-  log(`Resonance on ${t.name}: ${RIFT_FORCE[a].name} and ${RIFT_FORCE[b].name} meet — ${r.name} for ${dmg}.`, u.side);
-  if (r.knock && t.hp > 0) { t.pos = Math.max(0, (t.pos || 0) - r.knock); t.recoil = true; }
-  if (t.hp <= 0) { fell(t, u); return; }
-  for (const [id, n] of r.fx || []) addFx(t, id, n);
-}
-// Every Riftborn hit that lands runs through here: charge the target, or set off what is on it.
-function riftStrike(u, t, force) {
-  if (!force || t.hp <= 0) return;
-  const cur = riftGet(t);
-  if (cur && cur.force !== force) { t.effects = t.effects.filter((e) => e !== cur); riftDetonate(u, t, cur.force, force); }
-  else riftSet(t, force);
-}
-
 function strikeOnce(u, t, mult, label, o) {
   if (t.hp <= 0) return { miss: true };
   // Veiled: a champion a Vigil Candle has just called back takes nothing until their own turn comes.
@@ -7276,7 +7467,8 @@ function strikeOnce(u, t, mult, label, o) {
   if (t.race === 'dwarf') dmg *= 1 - 0.08 * t.stacks;
   if (charNat(t).mound && deadCount() > 0) dmg *= 0.92;   // Barrow: the dead crowd round their lord
   // Worn kit: a ward turns aside its share of the blow, physical or magic, whichever this was.
-  const ward = Math.min(magic ? t.blockMagic || 0 : t.blockPhys || 0, 0.9);
+  // An Unweaving Stone on the far side thins this ward while it stands.
+  const ward = Math.min(Math.max(0, (magic ? t.blockMagic || 0 : t.blockPhys || 0) - (magic ? riftWardCut(t.side) : 0)), 0.9);
   if (ward) dmg *= 1 - ward;
   dmg = Math.max(1, Math.round(dmg));
   // Soul Link: a third of the blow is divided among the holder's living teammates.
@@ -7359,6 +7551,9 @@ function strikeOnce(u, t, mult, label, o) {
       taken = 0;
     }
   }
+  // A Bulwark Stone passes on what it was dealt — read here, because countBlows
+  // is about to reduce this whole blow to "one hit" and the amount would be lost.
+  if (SUMMONS[t.id]?.reflect && taken > 0) totemReflect(t, taken);
   t.hp = Math.max(0, t.hp - taken);
   if (t.hp <= 0 && TP.lastStand && !t.lastStandUsed) {
     t.hp = 1; t.lastStandUsed = true;
@@ -7447,8 +7642,8 @@ function strikeOnce(u, t, mult, label, o) {
   // Ironclad heat sears on contact — a living Mech burns whoever actually gets near it.
   // Only melee brings bodies together: a melee Mech closes in to strike, and a melee attacker
   // closes in to strike a Mech. Ranged units trade fire from afar and are never seared.
-  if (u.faction === 'mech' && u.role === 'melee') searContact(u, t);   // a melee Mech's blow sears the enemy it struck
-  if (t.faction === 'mech' && u.role === 'melee') searContact(t, u);   // striking a hot Mech up close burns the attacker
+  if (runsHot(u) && u.role === 'melee') searContact(u, t);   // a melee Mech's blow sears the enemy it struck
+  if (runsHot(t) && u.role === 'melee') searContact(t, u);   // striking a hot Mech up close burns the attacker
   return { dmg, crit };
 }
 
@@ -7497,8 +7692,6 @@ function applyHitEffects(u, t, o) {
   if (o.roots && has(t, 'slow')) has(t, 'slow').roots = true;
   for (const [id, turns, p] of o.chanceFx || []) if (chance(p)) { addFx(t, id, turns); ownFx(u, t, id); }
   // THE RIFTBORN: this hit carries a Force (the skill's, or the champion's own) — charge or detonate.
-  const rforce = o.force || (u.faction === 'riftborn' ? charById(u.id)?.force : null);
-  if (rforce && RIFT_FORCE[rforce] && t.hp > 0) riftStrike(u, t, rforce);
   if (o.knockback && t.hp > 0) {
     // Dug In (Howitzer) and The Slow March (Mordrek): some things refuse to be moved.
     if (charNat(t).anchor || charNat(t).march) {
@@ -7881,11 +8074,48 @@ async function damageSkill(u, t, sk) {
     }
   }
   let targets = sk.target === 'allEnemies' ? openFoes(u) : [t];
+  // Sunburst: the fistful. One strike per blade he is holding, all into the same
+  // body, and his hands are empty after — the blades are in the mark, not lost.
+  if (o.swordBurst && u.maxSwords) targets = Array(Math.max(1, u.swords)).fill(t);
   if (o.swordTargets && u.maxSwords) {
     const pool = openFoes(u).filter((f) => f !== t);
     const extra = Math.min(u.swords - 1, pool.length);
     for (let i = 0; i < extra; i++) { const r = Math.floor(Math.random() * (pool.length - i)) + i; [pool[i], pool[r]] = [pool[r], pool[i]]; }
     targets = [t, ...pool.slice(0, extra)];
+  }
+  /* Blade Harvest: everything standing in ONE body tears back out the way it
+     went in. Counted up front like Command, but the blades come HOME rather than
+     flying on — this is how a committed Sunburst turns back into ammunition.
+     Capped by what his hands can hold; a sixth blade has nowhere to go. */
+  if (o.swordHarvest && u.maxSwords) {
+    const blades = t && t.hp > 0 ? (t.lodged || 0) : 0;
+    if (!blades) {
+      log(`${u.name} pulls, and nothing comes — no blade of his is standing in ${t ? t.name : 'that one'}.`, u.side);
+      return;
+    }
+    t.lodged = 0;
+    clearLodgedSwords(t);
+    const home = Math.min(blades, u.maxSwords - u.swords);
+    u.swords += home;
+    returnSwordFx(t, u);
+    float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
+    log(`${u.name} harvests ${blades} blade${blades === 1 ? '' : 's'} out of ${t.name}${home < blades ? ` — his hands take ${home}, the rest fall` : ''}.`, u.side);
+    targets = Array(blades).fill(t);
+  }
+  /* Command the Fallen: every blade already buried in an enemy rips itself out
+     and flies at one mark. Counted BEFORE the strikes, because the first of them
+     may kill the body a later blade is still standing in — and a blade that
+     leaves a corpse is given back by fell(), not thrown twice. */
+  if (o.swordCommand && u.maxSwords) {
+    const buried = foesOf(u).filter((f) => f.hp > 0 && (f.lodged || 0) > 0);
+    const blades = buried.reduce((n, f) => n + f.lodged, 0);
+    if (!blades) {
+      log(`${u.name} calls, and nothing answers — no blade of his is buried in anything.`, u.side);
+      return;
+    }
+    for (const f of buried) { f.lodged = 0; clearLodgedSwords(f); }
+    log(`${u.name} calls the fallen: ${blades} blade${blades === 1 ? '' : 's'} tear free and turn on ${t.name}.`, u.side);
+    targets = Array(blades).fill(t);
   }
   // Front line: every melee this attack goes for counts toward their side's two, hit or miss.
   for (const tg of targets) markAttacked(tg);
@@ -8067,6 +8297,14 @@ async function damageSkill(u, t, sk) {
   };
   drain(total);
   if (u.maxSwords && sk.id === 'attack' && lastHit) { lastHit.lodged = (lastHit.lodged || 0) + 1; if (lastHit.hp > 0) lodgeSwordFx(lastHit); }
+  // Sunburst and Command both end with blades standing in the mark; only Sunburst
+  // spends what he was holding, since the commanded ones were already out there.
+  if (u.maxSwords && (o.swordBurst || o.swordCommand) && !o.swordHarvest && t) {
+    const thrown = o.swordBurst ? Math.max(1, u.swords) : targets.length;
+    t.lodged = (t.lodged || 0) + thrown;
+    if (t.hp > 0) for (let i = 0; i < thrown; i++) lodgeSwordFx(t);
+    if (o.swordBurst) { u.swords = 0; float(u, `⚔ 0/${u.maxSwords}`, 'fx'); }
+  }
   render();
   await wait(160);
   await resolveCounters();   // defenders strike back before the attacker runs home
@@ -8140,7 +8378,7 @@ function healUnit(src, t, amount, label, o = {}) {
   log(src === t ? `${t.name} recovers ${got} HP from ${label}.` : `${src.name}'s ${label} heals ${t.name} for ${got}.`, src.side);
   // Oil Can (Patchwork's Nature): every mend he gives carries a little maintenance with it.
   if (charNat(src).oilcan && src !== t) {
-    if (t.faction === 'mech' && t.heat > 0) { t.heat = Math.max(0, t.heat - 15); float(t, 'Vented', 'fx'); }
+    if (runsHot(t) && t.heat > 0) { t.heat = Math.max(0, t.heat - 15); float(t, 'Vented', 'fx'); }
     else if (t.maxMp) gainMp(t, 5);
   }
   // Overflowing Cup (Morwenna's Nature): what she cannot hold pours into her most hurt ally.
@@ -8163,7 +8401,7 @@ function cleanse(u) {
    Mara's held aim, a champion standing Undying, somebody sealed in the coffin or dug in underground,
    and Krug held upright by his grudge. Dispel passes over all of them, and so does the block it leaves
    behind — being bolted to an ally is not a blessing anyone can refuse you. */
-const NOT_A_BUFF = ['bloodpact', 'bloodward', 'bolted', 'patchrig', 'aiming', 'undying', 'coffin', 'burrowed', 'grudge', 'veiled'];
+const NOT_A_BUFF = ['bloodpact', 'bloodward', 'bolted', 'patchrig', 'aiming', 'undying', 'coffin', 'burrowed', 'grudge', 'veiled', 'ridden', 'clamped'];
 const isBlessing = (id) => FX[id].kind === 'good' && !NOT_A_BUFF.includes(id);
 
 // The mirror of cleanse: every blessing comes off, and the machinery above is left where it stands.
@@ -8181,9 +8419,23 @@ async function healSkill(u, t, sk) {
   for (const a of targets) {
     if (o.lightbeam) await sacredLight(a);   // Sacred Light: the shaft lands before the mend pops
     burst(a, 'heal');
-    healUnit(u, a, healPower(u, sk.mult, o), sk.name);
+    /* Hammer Weld: a crude weld, worth far more on plate than on flesh, and worth more
+       again on the back he is already bolted to — his hands are on it before he starts. */
+    let mult = sk.mult;
+    if (o.weld) {
+      if (weldMetal(a)) mult *= ORIN_WELD_METAL;
+      if (u.rideHost === a.uid && u.attachedTo === a.uid) mult *= ORIN_WELD_RIDE;
+    }
+    healUnit(u, a, healPower(u, mult, o), sk.name);
     if (o.cleanse) cleanse(a);
     if (o.manaRestore) gainMp(a, o.manaRestore);
+    // The weld runs hot, so the boiler is bled down while it is open. Summons build no
+    // Heat at all, so there is nothing in a bot to let out.
+    if (o.weld && runsHot(a) && !a.summon && a.heat > 0) {
+      a.heat = Math.max(0, a.heat - ORIN_WELD_VENT);
+      float(a, 'Vented', 'fx');
+      log(`${u.name} bleeds ${a.name}'s boiler down.`, u.side);
+    }
     for (const [id, turns, val] of o.fx || []) {
       if (id === 'shield') burst(a, 'shield');
       addFx(a, id, turns, val ? Math.round(u.atk * val) : 0);
@@ -8207,6 +8459,9 @@ async function buffSkill(u, t, sk) {
     float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
     log(`${u.name} calls every blade home.`, u.side);
     burst(u, 'light');
+    // Recall takes the early road out of buffSkill, so whatever the skill itself
+    // carries has to be laid on here — otherwise the buff is written and never lands.
+    for (const [id, turns, val] of sk.fx || []) addFx(u, id, turns, val ? Math.round(u.atk * val) : 0);
     render();
     await wait(450);
     return;
@@ -8214,9 +8469,7 @@ async function buffSkill(u, t, sk) {
   const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
   await castPose(u, true);
   const ids = sk.fx.map(([id]) => id);
-  const forceBurst = { g: 'gravity', l: 'light', s: 'sound', v: 'void' };
-  const look = ids.includes('taunt') ? 'roar' : ids.some((id) => id === 'shield' || id === 'ward') ? 'shield'
-    : (u.faction === 'riftborn' && forceBurst[charById(u.id)?.force]) || 'buff';
+  const look = ids.includes('taunt') ? 'roar' : ids.some((id) => id === 'shield' || id === 'ward') ? 'shield' : 'buff';
   for (const a of targets) {
     burst(a, look);
     if (o.cleanse) cleanse(a);
@@ -8287,6 +8540,32 @@ async function buffSkill(u, t, sk) {
     log(`${u.name} bolts onto ${t.name}'s back: ${u.latchHeal} HP at each of the next 4 turns, and no single blow can find him.`, u.side);
     settleLatch();
   }
+  /* ORIN'S TWO RIDES. Both ride a body, and the difference between them is the
+     whole character: on an ally he is bolted on and hidden (attachedTo keeps him
+     out of every single-target list, exactly as Bolt-On does), and he swings in
+     after each attack his host makes. On an enemy he is clamped in the OPEN —
+     deliberately not attachedTo, so he can still be picked off the moment he
+     tries it. Clamped hands are disarmed hands; the grinding is counted in Revs. */
+  if (o.ride && t && t.hp > 0 && u.hp > 0) {
+    if (u.attachedTo) detachLatch(u, 'recast');
+    u.attachedTo = t.uid;
+    u.latchLeft = ORIN_RIDE_TURNS;
+    u.latchHeal = 0;                    // he is no medic; he rides to hit, not to mend
+    u.rideHost = t.uid;
+    addFx(u, 'bolted', 99, 0, true);
+    addFx(t, 'ridden', ORIN_RIDE_TURNS, 0, true);
+    log(`${u.name} bolts onto ${t.name}'s back: ${ORIN_RIDE_PUSH} further along the bar at each of their turns, and his swing follows every one of theirs.`, u.side);
+    settleLatch();
+  }
+  // Overclock: the ally is driven up the bar as well as empowered.
+  if (o.overclock && t && t.hp > 0) { t.pos = (t.pos || 0) + ORIN_RIDE_PUSH; float(t, 'Overclocked', 'good'); }
+  if (o.grip && t && t.hp > 0 && u.hp > 0) {
+    u.gripOn = t.uid;
+    u.gripLeft = ORIN_GRIP_TURNS;
+    addFx(t, 'disarmed', ORIN_GRIP_TURNS);
+    addFx(t, 'clamped', ORIN_GRIP_TURNS, 0, true);
+    log(`${u.name} clamps onto ${t.name}'s arm — it cannot swing, and the gears are already grinding.`, u.side);
+  }
   /* Shieldbearer (Garrick): he crosses the field and plants himself in front of the ward, and the
      mark goes on HIM — u.wardUid names who he is covering, so the damage path finds exactly one
      knight for exactly one ally (see the redirect in strikeOnce's damage). He holds the spot he
@@ -8328,7 +8607,7 @@ const TIMED_FX = { stun: 100, overheat: 100, stagger: 150, burrowed: 100 };   //
 // last; FEAR only shoves it back (FEAR_BACK of the 1000-long track, about two turns of ground).
 // FLEE (Grave Cross) is the slow fear: no shove, but each Rev the unit runs a step back, reaching
 // the start line on the last one, and it is held off the bar until then (revHeld).
-const REV_FX = { bash: true, fear: true, coffin: true, flee: true, unblessed: true };
+const REV_FX = { bash: true, fear: true, coffin: true, flee: true, unblessed: true, shock: true };   // shock runs on the field clock, as Resh counts it
 const FEAR_BACK = 500, FEAR_REVS = 2, COFFIN_REVS = 2;
 // Turncoat Verse: the same half of the bar FEAR takes, because it is the same idea — ground lost, not
 // a turn stolen. The charmed champion still acts when it comes round; it just comes round later.
@@ -8336,6 +8615,8 @@ const TURNCOAT_BACK = 500;
 
 function addFx(u, id, turns, value = 0, quiet = false) {
   if (u.inert && id !== 'taunt') return;   // a planted Grave Cross takes nothing but its own Taunt
+  // Resh holding someone is Resh concentrating: break him and the note stops.
+  if (RESH_BREAKERS[id] && u.id === 'resh' && !u.summon) reshHoldBreaks(u);
   // Bone Charm (immune) and Thick Skull (passive immune list) stop new debuffs.
   if (FX[id].kind === 'bad' && id !== 'overheat' && (has(u, 'immune') || pv(u).immune?.includes(id))) {
     if (!quiet) { float(u, 'Resisted', 'fx'); log(`${u.name} resists ${FX[id].label}.`, u.side); }
@@ -8374,10 +8655,10 @@ function addFx(u, id, turns, value = 0, quiet = false) {
   }
   // Machines don't bleed, and the dead have no blood to spill: every Ironclad unit (champions and
   // their Salvage Bots) and the whole Pale Host are immune to Bleed.
-  if (id === 'bleed' && (u.faction === 'mech' || u.faction === 'undead')) {
+  if (id === 'bleed' && (runsHot(u) || u.faction === 'undead')) {
     if (!quiet) {
       float(u, 'No blood', 'fx');
-      log(u.faction === 'mech' ? `${u.name} is a machine — the Bleed finds no blood.`
+      log(runsHot(u) ? `${u.name} is a machine — the Bleed finds no blood.`
                                : `${u.name} is long dead — the Bleed finds no blood to spill.`, u.side);
     }
     return;
@@ -8603,7 +8884,17 @@ async function doAction(u, sk, t) {
   if (sk.cd) u.cooldowns[sk.id] = cdFor(u, sk);   // a champion's CDR is a share off the declared turns
   // Mana: remember the pool before paying (mana-scaling damage uses it), pay the cost, then any leak.
   u.castMp = u.mp || 0;
-  if (sk.mp) u.mp -= charNat(u).seasung && highTide() ? Math.ceil(sk.mp / 2) : sk.mp;   // Seraphine: the sea carries the song
+  if (sk.mp) {
+    let gross = charNat(u).seasung && highTide() ? Math.ceil(sk.mp / 2) : sk.mp;   // Seraphine: the sea carries the song
+    const tax = riftManaTax(u.side);
+    if (tax) gross = Math.ceil(gross * (1 + tax));   // an enemy Mana Cairn makes every word dearer
+    const split = reshSplit(u, gross);
+    u.mp -= split.self;
+    if (split.burden) {
+      split.bearer.mp -= split.burden;
+      float(split.bearer, `-${split.burden} MP`, 'fx');
+    }
+  }
   // The Crimson Court pay in blood instead of mana — their own price comes off first, before any
   // toll an enemy has laid on them, so a Courtier is never taxed on blood they have already spent.
   bloodCost(u, sk);
@@ -8630,7 +8921,13 @@ async function doAction(u, sk, t) {
   if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Revs later (fireAim)
   else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Rev (fireLoadedThrow)
   else if (sk.o?.turncoat) await turncoatVerse(u, t);   // the mark is made to swing at its own
-  else if (sk.kind === 'damage') await damageSkill(u, t, sk);
+  else if (sk.o?.reshHold) await reshHold(u, t);        // Resh pins the mark, longer per stone standing
+  else if (sk.o?.battery) await reshBattery(u, t);      // half of what Resh holds, handed over
+  else if (sk.kind === 'damage') {
+    await damageSkill(u, t, sk);
+    // Whatever this body does, its rider does after it (riderFollowUp).
+    if (u.hp > 0) await riderFollowUp(u);
+  }
   else if (sk.kind === 'heal') await healSkill(u, t, sk);
   else if (sk.kind === 'buff') await buffSkill(u, t, sk);
   else if (sk.kind === 'summon' && SUMMONS[sk.summon].plant) await plantMarker(u, sk);
@@ -8680,7 +8977,7 @@ async function doAction(u, sk, t) {
     burst(u, 'shield');
     addFx(u, 'guard', 1);
     u.boardSwung = false;   // Tusk and Board: each fresh Guard answers one more blow
-    if (u.faction === 'mech' && u.heat > 0) log(`${u.name} vents Heat.`, u.side);
+    if (runsHot(u) && u.heat > 0) log(`${u.name} vents Heat.`, u.side);
     render();
     await wait(380);
   }
@@ -8691,9 +8988,10 @@ async function doAction(u, sk, t) {
   if (sk.id === 'guard') gainMp(u, MANA.guardGain);
   u.lastAction = sk.id;
   u.combo = false;
-  if (u.faction === 'mech' && u.hp > 0 && !u.summon) {
+  if (runsHot(u) && u.hp > 0 && !u.summon) {
     let heat = sk.o?.heat ?? 25;
     if (heat > 0 && wx() === 'storm') heat = Math.round(heat / 2);
+    if (heat > 0 && u.heatMult) heat = Math.round(heat * (1 - u.heatMult));   // Foundry-Cast: the bar fills slower
     if (heat < 0 && sk.id !== 'guard' && u.heat > 0) { float(u, 'Vented', 'fx'); log(`${u.name} vents Heat.`, u.side); }
     // Soaked (the status or a Downpour): the Heat was doused to 0 and can't build until it dries.
     if (soaked(u)) heat = Math.min(heat, 0);
@@ -8714,7 +9012,7 @@ function aiChoose(u) {
   const hurt = allies.filter((a) => a.hp / a.maxHp < 0.55).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
   const skills = skillsOf(u).filter((s) => usable(u, s));
   const guard = skills.find((s) => s.id === 'guard');
-  if (u.faction === 'mech' && u.heat >= 70 && chance(0.7)) return { sk: guard, t: u };
+  if (runsHot(u) && u.heat >= 70 && chance(0.7)) return { sk: guard, t: u };
 
   const scored = skills.map((s) => {
     let w = s.id === 'attack' ? 1 : s.id === 'guard' ? 0 : s.sig ? 3 : 2;
@@ -8764,6 +9062,8 @@ function aiChoose(u) {
     // Burrow is a way out from under a beating, not an opener.
     if (s.kind === 'burrow') w = u.hp / u.maxHp < 0.4 ? 4 : 0.25;
     if (s.o?.recall) w = u.swords === 0 ? 8 : u.swords <= 2 ? 4 : 0;
+    // Harvest is worth reaching for when a body is full of his blades and his hands are not.
+    if (s.o?.swordHarvest) { const best = Math.max(0, ...foesOf(u).filter((f) => f.hp > 0).map((f) => f.lodged || 0)); w = best && u.swords < u.maxSwords ? 3 + best : 0; }
     return { s, w };
   }).filter((x) => x.w > 0);
   if (!scored.length) return { sk: guard, t: u };   // e.g. Mordrek with his cross planted and every skill cooling down
@@ -8882,7 +9182,7 @@ function staggerSwitchIn(u) {
 const wetWeather = () => wx() === 'rain' || wx() === 'storm';
 const soaked = (u) => !!has(u, 'soaked') || wetWeather() || dgCondIs('damp');
 function douse(u, by) {
-  if (u.faction !== 'mech' || u.summon || u.hp <= 0 || u.heat <= 0) return;
+  if (!runsHot(u) || u.summon || u.hp <= 0 || u.heat <= 0) return;
   u.heat = 0;
   float(u, 'Doused', 'fx');
   log(`${by} douses ${u.name}'s Heat.`, u.side);
@@ -9159,8 +9459,16 @@ function summonUnit(owner, kind) {
   const def = SUMMONS[kind];
   // Recasting replaces the servant you still have standing. A corpse from an earlier one is left
   // alone to finish lying there — the new summon simply takes the next spot beside the caster.
-  const old = summonOf(owner);
-  if (old) removeUnit(old);
+  // Stones keep their own count: TOTEM_MAX may stand, and raising one more
+  // pulls down the oldest — whichever kind it is. Everything else still
+  // replaces the single servant it had standing.
+  if (def.totem) {
+    const standing = state.teams[owner.side].filter((x) => x.summon && x.owner === owner.uid && SUMMONS[x.id]?.totem && alive(x));
+    while (standing.length >= TOTEM_MAX) removeUnit(standing.shift());
+  } else {
+    const old = summonOf(owner);
+    if (old) removeUnit(old);
+  }
   const st = def.stats(owner);
   state.summonSeq = (state.summonSeq || 0) + 1;
   const u = {
@@ -9387,6 +9695,42 @@ async function strikeOnSpawn(s) {
   await damageSkill(s, t, sk);
   cleanupSummons();
   render();
+  if (SUMMONS[s.id]?.errand === 'rush') await rushBotErrand(s);
+}
+
+/* A ridden host drags its rider's swing along behind it: whenever the host lands
+   an attacking action, Orin follows in. Guarded against recursion — his own
+   follow-up must not itself trigger another. */
+async function riderFollowUp(host) {
+  const rider = allUnits().find((x) => x.rideHost === host.uid && x.attachedTo === host.uid && x.hp > 0);
+  if (!rider || rider.following) return;
+  const sk = skillsOf(rider).find((s) => s.id === 'attack') || ATTACK;
+  const opts = validTargets(rider, sk);
+  if (!opts.length) return;
+  rider.following = true;
+  try {
+    log(`${rider.name} swings in behind ${host.name}.`, rider.side);
+    await damageSkill(rider, pick(opts), sk);
+  } finally { rider.following = false; }
+  render();
+}
+
+/* A Rush Bot has exactly one errand after its charge: find an ally and shove them
+   up the speed bar. It spends itself doing it — the whole machine was the delivery. */
+async function rushBotErrand(bot) {
+  if (bot.hp <= 0) return;
+  const kin = state.teams[bot.side].filter((a) => a.hp > 0 && !a.summon && !a.inert);
+  const mark = pick(kin);
+  if (!mark) return;
+  await wait(260);
+  mark.pos = (mark.pos || 0) + ORIN_RUSH_PUSH;
+  float(mark, 'Shoved', 'good');
+  burst(mark, 'buff');
+  log(`${bot.name} slams into ${mark.name} and shoves them ${ORIN_RUSH_PUSH} up the bar, coming apart as it does.`, bot.side);
+  bot.hp = 0;
+  removeUnit(bot);
+  render();
+  await wait(300);
 }
 
 /* SECOND BURIAL — Mortessa's ★ signature, and the only skill in the game that targets the dead.
@@ -9600,7 +9944,7 @@ function spawnDeathBot(mech) {
 // After damage resolves, any Ironclad champion that just fell leaves one Salvage Bot.
 function sweepDeathBots() {
   for (const u of allUnits()) {
-    if (u.faction === 'mech' && !u.summon && u.hp <= 0 && !u.botSpawned) {
+    if (u.faction === 'mech' && !u.summon && u.hp <= 0 && !u.botSpawned) /* an Ironclad rite, not a Cogbound one */ {
       u.botSpawned = true;
       spawnDeathBot(u);
     }
@@ -9936,6 +10280,25 @@ async function turnPulse() {
       if (gf.turns <= 0) extinguishGroundFire('dies down');
     }
   }
+  /* Orin's clamp grinds every Rev it holds, and lets go when its turn is spent
+     or either of them falls. The ride's bar-shove is handled where the host's own
+     turn comes round (see the rider's push below). */
+  for (const p of allUnits()) {
+    if (!p.gripOn) continue;
+    const host = unitBy(p.gripOn);
+    if (p.hp <= 0 || !host || host.hp <= 0) { if (p.hp > 0 && host) log(`${p.name} lets go of ${host.name}.`, p.side); p.gripOn = null; p.gripLeft = 0; continue; }
+    host.hp = Math.max(0, host.hp - ORIN_GRIP_DMG);
+    float(host, `${ORIN_GRIP_DMG}`, 'dot');
+    log(`${p.name}'s clamp grinds ${host.name} for ${ORIN_GRIP_DMG}.`, p.side);
+    if (host.hp <= 0) { fell(host, p); p.gripOn = null; p.gripLeft = 0; continue; }
+    if (--p.gripLeft <= 0) {
+      p.gripOn = null;
+      host.effects = host.effects.filter((e) => e.id !== 'clamped');
+      log(`${p.name} drops off ${host.name}.`, p.side);
+    }
+    render();
+    await wait(260);
+  }
   // Bolt-On: every turn anyone takes is one of the weld's four.
   for (const p of allUnits()) {
     if (!p.attachedTo) continue;
@@ -10102,6 +10465,9 @@ async function nextTurn() {
     // a Grudge Axe) may have killed - or sent running - the very unit whose turn it is. Then there is
     // no turn: never start one for a corpse, whose turn-start regen would stand it back up.
     if (u.hp <= 0 || !allUnits().includes(u)) { endTurn(u); continue; }
+    // Carrying a Cogbound is worth ground: the host is shoved up the bar as their turn opens.
+    const rider = allUnits().find((x) => x.rideHost === u.uid && x.attachedTo === u.uid && x.hp > 0);
+    if (rider) { u.pos = (u.pos || 0) + ORIN_RIDE_PUSH; float(u, 'Driven', 'good'); }
     const s = await beginTurn(u);
     if (token !== state.token || checkEnd()) return;
     await scrapBotRites();   // a burn or a toll may have left a bot on its last sparks
@@ -10110,6 +10476,8 @@ async function nextTurn() {
     if (shouldFlee(u)) { await flee(u); continue; }
     // Your heroes wait for you; summons (on either side) act on their own.
     // Only your champion waits for your orders; recruits and summons act on their own.
+    // A standing stone's turn is its effect — it has nothing to swing.
+    if (isTotem(u)) { await totemPulse(u); if (token !== state.token) return; endTurn(u); continue; }
     if (commandable(u) && !AUTO_PLAY) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
     await wait(450);
     // A recruit may spend one satchel item before acting, just as you can on your turn.
@@ -10271,7 +10639,7 @@ async function useItem(u, key, t) {
   else if (key === 'tonic') {
     burst(t, 'buff');
     if (t.maxMp) gainMp(t, 40);
-    else if (t.faction === 'mech') { t.heat = Math.max(0, t.heat - 50); float(t, 'Vented', 'fx'); log(`${t.name} vents Heat.`, t.side); }
+    else if (runsHot(t)) { t.heat = Math.max(0, t.heat - 50); float(t, 'Vented', 'fx'); log(`${t.name} vents Heat.`, t.side); }
   } else if (key === 'salts') { burst(t, 'buff'); cleanse(t); log(`${t.name} is purified.`, t.side); }
   else if (key === 'firebomb') {
     for (const f of openFoes(u)) {
@@ -10343,7 +10711,7 @@ function aiItemPlan(u) {
   }
   // 3. A caster who cannot pay for their own skills, or an Ironclad about to overheat.
   if (have('tonic')) {
-    const dry = allies.find((a) => (a.maxMp && a.mp < 25) || (a.faction === 'mech' && a.heat >= 75));
+    const dry = allies.find((a) => (a.maxMp && a.mp < 25) || (runsHot(a) && a.heat >= 75));
     if (dry) return { key: 'tonic', t: dry };
   }
   // 4. The Firebomb earns its 50 gold when it finishes someone off, or when a crowd is
@@ -14064,7 +14432,7 @@ function buildSelect() {
       </button>`).join('');
     return `<section class="faction" data-faction="${k}">
       <header><h2>${f.name}</h2>
-        <p class="fmeta"><span>${f.mechanic}</span><span>Favored by ${Object.values(WEATHER).find((w) => w.favors === k).name}</span><span>Mana: ${poolLabel(k)}</span></p></header>
+        <p class="fmeta"><span>${f.mechanic}</span><span>${(() => { const w = Object.values(WEATHER).find((x) => x.favors === k); return w ? `Favored by ${w.name}` : 'No sky favours them'; })()}</span><span>Mana: ${poolLabel(k)}</span></p></header>
       <div class="roster">${tiles}</div>
       <div class="rdetail" hidden></div>
     </section>`;
@@ -17184,7 +17552,7 @@ function unitCardHTML(u) {
         <div class="who"><strong>${u.attach === 'anchor' ? '' : u.name}</strong><span class="lvl"></span></div>
         <div class="bar hp"><div class="fill"></div><span></span></div>
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
-        ${u.faction === 'mech' && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
+        ${runsHot(u) && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
       <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
     </div>`;
@@ -18438,8 +18806,8 @@ async function leapPose(u) {
   await sleep(beat(340));
 }
 
-/* Thassor's Deadfall: he lifts the target on a well of gravity (the target bobs up, hangs, then
-   crashes down) while Thassor himself drives his fist into the floor. The hit resolves on impact. */
+/* Thurgan's Deadfall: he lifts the target on a well of gravity (the target bobs up, hangs, then
+   crashes down) while Thurgan himself drives his fist into the floor. The hit resolves on impact. */
 async function deadfallLift(u, t) {
   const d = facing(u);
   pose(u, [{ transform: 'none' },
@@ -18460,7 +18828,7 @@ async function deadfallLift(u, t) {
   await sleep(beat(140));
 }
 
-/* Thassor's Event Horizon: a gravity vortex yanks the target — a brief purple inward spiral. */
+/* Thurgan's Event Horizon: a gravity vortex yanks the target — a brief purple inward spiral. */
 function gravPullFx(t) {
   const b = bodyEl(t);
   if (reduced || !b) return;
@@ -19046,7 +19414,7 @@ function passiveText(u) {
 
 function factionPassive(u) {
   const f = FACTIONS[u.faction];
-  if (u.faction === 'mech') {
+  if (runsHot(u)) {
     const sear = contactBurn(u);
     if (soaked(u)) return `<b>Heat ${u.heat}/100 · Soaked:</b> the water keeps the Heat doused at 0 until the Soaked wears off.`;
     return `<b>Heat ${u.heat}/100:</b> +${Math.round(u.heat / 2.5)}% damage. Overheat bar ${heatTier(u)}/4${sear ? `, sears contact for ${sear}` : ''}. Overheats at 100.`;
@@ -19059,7 +19427,6 @@ function factionPassive(u) {
   if (u.race === 'elf') return `<b>Precision ${u.stacks}/${stackCap(u)}:</b> +${u.stacks * 10}% crit. ${charNat(u).line ? 'A hit costs one stack.' : 'Resets when hit.'}`;
   if (u.race === 'dwarf') return `<b>Fortify ${u.stacks}/${stackCap(u)}:</b> −${u.stacks * 8}% damage taken.`;
   if (u.faction === 'tide') return highTide() ? '<b>High Tide:</b> +25% damage and healing this round.' : '<b>Low Tide.</b> High Tide arrives next round.';
-  if (u.faction === 'riftborn') { const f = charById(u.id)?.force; return `<b>Resonance:</b> hits carry ${f ? RIFT_FORCE[f].name : 'a Force'}; a second, different Force on a charged enemy sets off a reaction.`; }
   if (u.faction === 'crimson') return courtStarved(u) ? '<b>Bloodthirst, starved:</b> no lifesteal under Clear Skies.'
     : `<b>Bloodthirst:</b> every hit drains ${wx() === 'moon' ? 40 : 20}% of the damage dealt as HP.`;
   if (u.faction === 'undead') {
@@ -19173,7 +19540,7 @@ function renderBattle() {
       heat.querySelector('span').textContent = `Heat ${u.heat}`;
     }
     // Heat aura: a red-orange glow that grows and reddens as a Mech builds Heat (0 for everyone else).
-    const hot = (u.faction === 'mech' && !u.summon && u.hp > 0) ? u.heat : 0;
+    const hot = (runsHot(u) && !u.summon && u.hp > 0) ? u.heat : 0;
     el.style.setProperty('--heat-glow', (hot / 100).toFixed(2));
     el.classList.toggle('overheating', hot >= 75);
     const mpBar = el.querySelector('.bar.mp');
