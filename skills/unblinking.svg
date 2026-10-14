@@ -29,6 +29,7 @@
 <linearGradient id="gravity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9da6e0"/><stop offset="1" stop-color="#3a3870"/></linearGradient>
 <radialGradient id="gravR" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#d0d4ff"/><stop offset=".5" stop-color="#6b74c8"/><stop offset="1" stop-color="#2a2440"/></radialGradient>
 <linearGradient id="lightG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8d0"/><stop offset=".5" stop-color="#e8d26a"/><stop offset="1" stop-color="#a88a20"/></linearGradient>
+<linearGradient id="blade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe0"/><stop offset=".5" stop-color="#ffe489"/><stop offset="1" stop-color="#e8b23a"/></linearGradient>
 <radialGradient id="lightR" cx=".45" cy=".35" r=".6"><stop offset="0" stop-color="#fffef0"/><stop offset=".4" stop-color="#ffe680"/><stop offset="1" stop-color="#c8a030" stop-opacity="0"/></radialGradient>
 <linearGradient id="sound" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8eef4"/><stop offset="1" stop-color="#2a7a8a"/></linearGradient>
 <linearGradient id="void" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c89eff"/><stop offset="1" stop-color="#3a1a5c"/></linearGradient>
@@ -36,9 +37,9 @@
 <linearGradient id="cosmic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d0d4ff"/><stop offset=".5" stop-color="#8a7ec8"/><stop offset="1" stop-color="#3a2860"/></linearGradient>
 <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
 <filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.4" stdDeviation="1" flood-color="#000" flood-opacity=".55"/></filter>
-<radialGradient id="bg" cx=".5" cy=".3" r=".85"><stop offset="0" stop-color="#2a2440"/><stop offset="1" stop-color="#0e0c1a"/></radialGradient></defs>
+<radialGradient id="bg" cx=".5" cy=".3" r=".85"><stop offset="0" stop-color="#5a4028"/><stop offset="1" stop-color="#180f08"/></radialGradient></defs>
 <circle cx="32" cy="32" r="30" fill="url(#bg)"/>
-<circle cx="32" cy="32" r="26" fill="none" stroke="#b9c0e0" stroke-width="1" stroke-dasharray="2 3" opacity=".55"/>
+<circle cx="32" cy="32" r="26" fill="none" stroke="#ffa64d" stroke-width="1" stroke-dasharray="2 3" opacity=".55"/>
 <g filter="url(#ds)" stroke="#15121d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" transform="translate(32 32) scale(.86) translate(-32 -32)"><path d="M12 32 Q22 18 32 18 Q42 18 52 32 Q42 46 32 46 Q22 46 12 32 Z" fill="url(#lightG)"/><circle cx="32" cy="32" r="8" fill="#a88a20"/><circle cx="32" cy="32" r="4" fill="#15121d"/><circle cx="33" cy="31" r="1.5" fill="#fffef0" stroke="none"/><g filter="url(#blur)" opacity="0.3" stroke="none"><circle cx="32" cy="32" r="12" fill="#ffe680"/></g></g>
-<circle cx="32" cy="32" r="30" fill="none" stroke="#b9c0e0" stroke-width="2.2"/>
+<circle cx="32" cy="32" r="30" fill="none" stroke="#ffa64d" stroke-width="2.2"/>
 </svg>

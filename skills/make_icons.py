@@ -30,6 +30,9 @@ PAL = {
     'crimson': ('#5c1a2d', '#18060d', '#e0455a'),
     'undead':  ('#3f5244', '#0e1510', '#8ee696'),
     'riftborn': ('#2a2440', '#0e0c1a', '#b9c0e0'),
+    # The Cogbound: cast out of the Ironclad foundries and still running on their fire. Warmer and
+    # dirtier than the Union's steel blue, so the two read as kin without reading as the same.
+    'cog':     ('#5a4028', '#180f08', '#ffa64d'),
     'monster': ('#4a4038', '#16110d', '#c0a080'),
 }
 
@@ -61,6 +64,7 @@ DEFS = f'''
 <linearGradient id="gravity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9da6e0"/><stop offset="1" stop-color="#3a3870"/></linearGradient>
 <radialGradient id="gravR" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#d0d4ff"/><stop offset=".5" stop-color="#6b74c8"/><stop offset="1" stop-color="#2a2440"/></radialGradient>
 <linearGradient id="lightG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8d0"/><stop offset=".5" stop-color="#e8d26a"/><stop offset="1" stop-color="#a88a20"/></linearGradient>
+<linearGradient id="blade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe0"/><stop offset=".5" stop-color="#ffe489"/><stop offset="1" stop-color="#e8b23a"/></linearGradient>
 <radialGradient id="lightR" cx=".45" cy=".35" r=".6"><stop offset="0" stop-color="#fffef0"/><stop offset=".4" stop-color="#ffe680"/><stop offset="1" stop-color="#c8a030" stop-opacity="0"/></radialGradient>
 <linearGradient id="sound" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8eef4"/><stop offset="1" stop-color="#2a7a8a"/></linearGradient>
 <linearGradient id="void" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c89eff"/><stop offset="1" stop-color="#3a1a5c"/></linearGradient>
@@ -2001,6 +2005,138 @@ def _():
             + arc_lines(24, 30, 13, 3, 80, '#8ee696', 180, 2))
 
 
+# ---- The Cogbound --------------------------------------------------------
+# Vharo throws light and must fetch it back, so every one of his reads as a blade with a direction:
+# out, home, or out of a body. Orin rides and clamps, so his read as a machine getting hold of
+# something. Both reuse the shared helpers rather than new primitives.
+
+def lightblade(fill='url(#blade)', length=26):
+    """A slim blade of light, point to the right, centred on its own origin."""
+    h = length / 2
+    return (f'<path d="M{-h} -2.6 L{h - 7} -2.6 L{h} 0 L{h - 7} 2.6 L{-h} 2.6 Z" fill="{fill}"/>'
+            f'<rect x="{-h - 4.5}" y="-1.3" width="5" height="2.6" rx="1" fill="url(#gold)"/>')
+
+
+@icon('Lightlance')
+def _():
+    # One blade thrown flat and fast — the speed lines are behind it, where it has been.
+    return (speed_lines(8, 32, 3, 13, 7, '#ffe489', 0, .75)
+            + g(lightblade(), 36, 32, 0, 1.15)
+            + twinkle(54, 20, .8, '#fffbe0'))
+
+
+@icon('Recall Swords')
+def _():
+    # Every blade on the field turning for home: four points aimed inward at his open hand.
+    return (burst(32, 32, 3, 9, 8, '#ffe489')
+            + g(lightblade('url(#blade)', 17), 12, 14, 38, .8)
+            + g(lightblade('url(#blade)', 17), 52, 14, 142, .8)
+            + g(lightblade('url(#blade)', 17), 12, 50, -38, .8)
+            + g(lightblade('url(#blade)', 17), 52, 50, -142, .8))
+
+
+@icon('Sunburst')
+def _():
+    # The whole fistful thrown into one body at once. The blades are pushed clear of the core and
+    # pointed outward, or the cluster reads as a cog — which is Orin's language, not his.
+    out = ''
+    for a in (0, 60, 120, 180, 240, 300):
+        rad = math.radians(a)
+        out += g(lightblade('url(#blade)', 21), 32 + 16 * math.cos(rad), 32 + 16 * math.sin(rad), a, .95)
+    return (glow('<circle cx="32" cy="32" r="9" fill="#ffd166"/>', .6)
+            + out
+            + '<circle cx="32" cy="32" r="5.5" fill="url(#holy)"/>')
+
+
+@icon('Command the Fallen')
+def _():
+    # Blades already buried in a body tearing themselves out and flying at one mark.
+    return (g(jaws('#6b4f32'), 18, 44, 0, .62)
+            + g(lightblade('url(#blade)', 20), 34, 26, -32, .95)
+            + g(lightblade('url(#blade)', 16), 44, 42, -18, .8)
+            + poly('M20 36 l10 -7 M24 44 l9 -3', '#ffe489', 1.8)
+            + twinkle(52, 16, .75, '#fffbe0'))
+
+
+@icon('Blade Harvest')
+def _():
+    # Every blade standing in one body ripping back out the way it went in — and coming home.
+    return (g(jaws('#6b4f32'), 44, 42, 180, .62)
+            + g(lightblade('url(#blade)', 20), 30, 28, 196, .95)
+            + g(lightblade('url(#blade)', 16), 20, 42, 206, .8)
+            + g(drop('url(#blood)'), 46, 54, 0, .5)
+            + speed_lines(40, 26, 2, 9, 6, '#ffe489', 0, .6))
+
+
+@icon('Sunforged')
+def _():
+    # The passive: a blade standing in a sun — what he was made in, and what it sharpened.
+    return (glow('<circle cx="32" cy="34" r="14" fill="#ffb43d"/>', .5)
+            + burst(32, 34, 9, 16, 12, 'url(#fireR)')
+            + g(sword('url(#blade)'), 32, 33, 0, .72))
+
+
+@icon('Spanner Swing')
+def _():
+    # Whatever is to hand: the spanner, swung, with the arc it travelled.
+    return (poly('M14 46 Q22 20 46 14', '#ffa64d', 2.2)
+            + g(wrench(), 36, 36, 35, 1.05)
+            + twinkle(18, 20, .7, '#ffd9a8'))
+
+
+@icon('Piggyback Rig')
+def _():
+    # He bolts onto someone else's back and makes that body the weapon: a small rig riding a big one.
+    return ('<path d="M18 52 V34 a10 10 0 0 1 20 0 V52 Z" fill="url(#iron)"/>'
+            + '<circle cx="28" cy="24" r="8" fill="url(#steel)"/>'
+            + '<rect x="38" y="22" width="15" height="15" rx="3" fill="#ffa64d"/>'
+            + '<circle cx="45.5" cy="29.5" r="3.4" fill="#2a2a33"/>'
+            + poly('M38 30 L33 30', '#ffd9a8', 2.0)
+            + g(gear(5, 7, '#ffd9a8'), 49, 45, 0, 1))
+
+
+@icon('Seize the Arm')
+def _():
+    # The clamp closing on an arm — disarmed, and ground down for as long as he holds on.
+    return ('<rect x="10" y="28" width="26" height="9" rx="4" fill="url(#iron)"/>'
+            + '<path d="M34 20 h8 v10 h-8 Z M34 36 h8 v10 h-8 Z" fill="url(#steel)"/>'
+            + '<path d="M42 23 h9 v8 h-9 Z M42 35 h9 v8 h-9 Z" fill="#ffa64d"/>'
+            + poly('M48 33 h7', '#ffd9a8', 2.0)
+            + burst(38, 33, 2, 6, 8, '#ff7a2f'))
+
+
+@icon('Rush Bot')
+def _():
+    # A welded bot that charges the moment it lands.
+    return (speed_lines(8, 32, 3, 11, 7, '#ffd9a8', 0, .7)
+            + '<rect x="24" y="24" width="20" height="18" rx="4" fill="url(#iron)"/>'
+            + '<circle cx="31" cy="31" r="3" fill="#ffa64d"/><circle cx="39" cy="31" r="3" fill="#ffa64d"/>'
+            + '<path d="M28 42 v6 M40 42 v6" stroke="url(#steel)" stroke-width="3.4" stroke-linecap="round"/>'
+            + '<path d="M32 24 v-6" stroke="url(#steel)" stroke-width="2.4"/>'
+            + twinkle(32, 15, .7, '#ffd9a8'))
+
+
+@icon('Hammer Weld')
+def _():
+    # A mend, but struck rather than prayed: his hammer coming down on a seam, the weld sparking
+    # green where it takes. Best on anything cast rather than born.
+    return (glow('<circle cx="30" cy="40" r="11" fill="#7ef09a"/>', .45)
+            + g(hammer('url(#iron)'), 38, 26, 38, .92)
+            + poly('M18 46 L30 38 L42 46', '#9dffb4', 2.4)
+            + burst(30, 40, 2.5, 7, 8, '#d4ffb0')
+            + twinkle(16, 30, .7, '#d4ffb0'))
+
+
+@icon('Foundry-Cast')
+def _():
+    # Built in the Union's own moulds: the mould, and the heat still in it.
+    return (glow('<rect x="20" y="30" width="24" height="14" rx="2" fill="#ff7a2f"/>', .55)
+            + '<path d="M16 26 h32 l-4 20 h-24 Z" fill="url(#iron)"/>'
+            + '<path d="M22 32 h20 l-2.5 10 h-15 Z" fill="url(#fireR)"/>'
+            + arc_lines(32, 24, 10, 3, 60, '#ffa64d', -90, 2)
+            + g(gear(5.5, 7, '#ffd9a8'), 50, 48, 0, 1))
+
+
 # ---------------------------------------------------------------- catalog (for the frame + gallery)
 # kind: "skill", "sig" (★ signature, gold frame), "passive" or "neutral" (round frame).
 # Per champion: skill, second skill, ★ signature, passive. Mirrors ROSTER / SUMMONS in index.html.
@@ -2090,19 +2226,34 @@ CATALOG = {
         ('Clawing Grasp', 'Shambler (summon)', 'skill'),
     ]),
     'riftborn': ('The Riftborn', [
-        ('Fixed Point', 'Thurgan · Nature', 'passive'), ('Unblinking', 'Vharo · Nature', 'passive'),
+        ('Fixed Point', 'Thurgan · Nature', 'passive'),
         ('Finisher', 'Nyx · Nature', 'passive'),
         ('Dead Weight', 'Thurgan', 'skill'), ('Deadfall', 'Thurgan', 'sig'), ('Event Horizon', 'Thurgan', 'skill'),
         ('Collapsing Fist', 'Thurgan', 'skill'), ('Graviton Guard', 'Thurgan', 'skill'), ('Singularity', 'Thurgan', 'skill'),
         ('Crushing Field', 'Thurgan', 'passive'),
-        ('Ray', 'Vharo', 'skill'), ('Prism Lance', 'Vharo', 'skill'), ('Starfire', 'Vharo', 'skill'),
-        ('Glare', 'Vharo', 'skill'), ('Focus', 'Vharo', 'skill'), ('Recall', 'Vharo', 'skill'),
+        # Vharo's and Orin's Riftborn-era kits. Both champions are Cogbound now (see the 'cog'
+        # section) and these skills are gone from the ROSTER; the glyphs are kept against the day
+        # the faction is brought back, and are listed here so the coverage check stays honest.
+        ('Ray', 'Vharo (retired)', 'skill'), ('Prism Lance', 'Vharo (retired)', 'skill'),
+        ('Glare', 'Vharo (retired)', 'skill'), ('Focus', 'Vharo (retired)', 'skill'),
+        ('Recall', 'Vharo (retired)', 'skill'),
         ('Clarion', 'Resh', 'skill'), ('Quickening Chord', 'Resh', 'skill'), ('Thrum', 'Resh', 'skill'),
         ('Discord', 'Resh', 'skill'), ('Steady Tone', 'Resh', 'skill'),
         ('Null Bolt', 'Nyx', 'skill'), ('Unmake', 'Nyx', 'sig'), ('Silencing Gyre', 'Nyx', 'skill'),
         ('Phase', 'Nyx', 'skill'), ('Collapse Point', 'Nyx', 'skill'),
-        ('Attune: Gravity', 'Orin', 'skill'), ('Grand Chord', 'Orin', 'skill'),
-        ('Attune: Light', 'Orin', 'skill'), ('Attune: Void', 'Orin', 'skill'), ('Conduct', 'Orin', 'skill'),
+        ('Attune: Gravity', 'Orin (retired)', 'skill'), ('Grand Chord', 'Orin (retired)', 'skill'),
+        ('Attune: Light', 'Orin (retired)', 'skill'), ('Attune: Void', 'Orin (retired)', 'skill'),
+        ('Conduct', 'Orin (retired)', 'skill'),
+    ]),
+    'cog': ('The Cogbound', [
+        ('Unblinking', 'Vharo · Nature', 'passive'), ('Sunforged', 'Vharo', 'passive'),
+        ('Lightlance', 'Vharo', 'skill'), ('Recall Swords', 'Vharo', 'sig'),
+        ('Starfire', 'Vharo', 'skill'), ('Sunburst', 'Vharo', 'skill'),
+        ('Command the Fallen', 'Vharo', 'skill'), ('Blade Harvest', 'Vharo', 'skill'),
+        ('Foundry-Cast', 'Orin', 'passive'),
+        ('Spanner Swing', 'Orin', 'skill'), ('Piggyback Rig', 'Orin', 'sig'),
+        ('Seize the Arm', 'Orin', 'skill'), ('Rush Bot', 'Orin', 'skill'),
+        ('Overclock', 'Orin', 'skill'), ('Hammer Weld', 'Orin', 'skill'),
     ]),
     'monster': ('Monsters of Ashfall Road', [
         ('Hardened Crust', 'Magma Slime', 'passive'), ('Reassemble', 'Bone Rattler', 'passive'),

@@ -29,6 +29,7 @@
 <linearGradient id="gravity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9da6e0"/><stop offset="1" stop-color="#3a3870"/></linearGradient>
 <radialGradient id="gravR" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#d0d4ff"/><stop offset=".5" stop-color="#6b74c8"/><stop offset="1" stop-color="#2a2440"/></radialGradient>
 <linearGradient id="lightG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8d0"/><stop offset=".5" stop-color="#e8d26a"/><stop offset="1" stop-color="#a88a20"/></linearGradient>
+<linearGradient id="blade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe0"/><stop offset=".5" stop-color="#ffe489"/><stop offset="1" stop-color="#e8b23a"/></linearGradient>
 <radialGradient id="lightR" cx=".45" cy=".35" r=".6"><stop offset="0" stop-color="#fffef0"/><stop offset=".4" stop-color="#ffe680"/><stop offset="1" stop-color="#c8a030" stop-opacity="0"/></radialGradient>
 <linearGradient id="sound" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8eef4"/><stop offset="1" stop-color="#2a7a8a"/></linearGradient>
 <linearGradient id="void" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c89eff"/><stop offset="1" stop-color="#3a1a5c"/></linearGradient>
