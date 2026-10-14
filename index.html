@@ -4712,6 +4712,43 @@ const WEAPONS = {
   coffin: (a, x, y) => `<g transform="rotate(-12 22 58)"><path d="M10 28 L22 22 L34 28 L32 88 L13 90 Z" fill="${WOOD}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 36 h16 M14 47 h17" stroke="${a.trim}" stroke-width="1.8" opacity=".75"/><path d="M18 62 h9 M22.5 57 v14" stroke="${a.trim}" stroke-width="2.4" stroke-linecap="round"/></g><rect x="${x - 1.5}" y="${y - 30}" width="3" height="40" rx="1" fill="${WOOD}"/><circle cx="${x}" cy="${y - 34}" r="8" fill="${a.orb}" opacity=".25"/><circle cx="${x}" cy="${y - 34}" r="4.5" fill="${a.orb}"/>`,
 };
 
+/* WORN ARMOR (see VISIBLE ARMOR). Model B — accent pieces: the equipped kit is drawn as added gear
+   over the champion's own clothing, keyed by the kit's `look` (EQUIPMENT[eq].look) so each piece is
+   drawn once and rides onto anyone who wears it. Positioned around the chest anchor (cx, cy): a human
+   torso puts shoulders at ~cy-9 (±12 across), the neck at ~cy-16 and the waist at ~cy+14. Material
+   colours are fixed (steel / leather / dark cloth) so the piece reads as equipment, not a recolour,
+   with the champion's own trim as the accent. Cloak hangs BEHIND the body (ARMOR_BEHIND). */
+const PLATE = '#bcc4d4', PLATE_HI = '#d2d8e2', LEATHER = '#6e4a2e', LEATHER_D = '#523623', CAPE = '#3a4152';
+const ARMOR = {
+  // Steel: a pauldron on each shoulder, a gorget at the throat, a chest plate with the champion's device.
+  plate: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M${cx - 18} ${cy - 6} q-3 -11 7 -12 q7 0 9 7 q-9 -2 -16 5 z" fill="${PLATE}"/>
+    <path d="M${cx + 18} ${cy - 6} q3 -11 -7 -12 q-7 0 -9 7 q9 -2 16 5 z" fill="${PLATE}"/>
+    <path d="M${cx - 8} ${cy - 15} q8 5 16 0 l-1.5 5 q-6.5 3 -13 0 z" fill="${PLATE_HI}"/>
+    <path d="M${cx - 5} ${cy - 6} q5 3 10 0 l-1 12 q-4 2 -8 0 z" fill="${PLATE}"/>
+    <circle cx="${cx}" cy="${cy}" r="2.3" fill="${a.trim}" stroke="none"/></g>`,
+  // Cloth: a collar V and a longer draping hem below the tunic.
+  robe: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M${cx - 11} ${cy + 7} q11 6 22 0 l4 15 q-15 5 -30 0 z" fill="${a.trim}" opacity=".9"/>
+    <path d="M${cx - 6} ${cy - 14} l6 11 l6 -11 l-2 -1 q-4 2 -8 0 z" fill="${a.trim}"/>
+    <path d="M${cx} ${cy - 3} v20" stroke="${INK}" stroke-width="1" opacity=".45"/></g>`,
+  // A cape hanging from the shoulders, drawn behind the body, with a clasp at the throat.
+  cloak: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M${cx - 14} ${cy - 11} q-9 21 -6 36 l20 0 q3 -15 -6 -36 q-4 3 -8 0 z" fill="${CAPE}"/>
+    <circle cx="${cx}" cy="${cy - 12}" r="2.4" fill="${a.trim}"/></g>`,
+  // Leather: shoulder straps crossing the chest, a belt and a buckle.
+  jerkin: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M${cx - 11} ${cy - 9} l6 22 M${cx + 11} ${cy - 9} l-6 22" stroke="${LEATHER}" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="${cx - 12}" y="${cy + 9}" width="24" height="5" rx="1.5" fill="${LEATHER_D}"/>
+    <rect x="${cx - 2.5}" y="${cy + 9.5}" width="5" height="4" rx="1" fill="${a.trim}"/></g>`,
+};
+const ARMOR_BEHIND = new Set(['cloak', 'mantle']);
+// Torso centre per body archetype (where worn armor sits). A re-authored file can override with
+// data-chest; otherwise the body's own chest point is used. Starts with the human proof.
+const CHEST_BY_BODY = { human: [50, 56] };
+// Champions already drawn with a flowing cape: a cloak accent would double up, so it is suppressed.
+const DRAWN_CAPE = new Set(['wren']);
+
 /* ==================================================================
    FACING — THE EIGHT BEARINGS
 
@@ -6003,16 +6040,47 @@ function handOf(id, svg) {
   const a = lookOf(id);
   return (a && BODIES[a.body] && BODIES[a.body](a).hand) || [62, 44];
 }
+// The worn kit's look to draw, or null — mirrors heldWeapon. Only looks we have armor art for show,
+// and a cloak is suppressed on a champion already drawn with a cape (DRAWN_CAPE), to avoid doubling.
+function wornArmor(id) {
+  const g = gearRaw(id);
+  if (!g.eq || !EQUIPMENT[g.eq] || !fitsKit(g.eq, id)) return null;
+  const look = EQUIPMENT[g.eq].look;
+  if (ARMOR_BEHIND.has(look) && DRAWN_CAPE.has(id)) return null;
+  return look && ARMOR[look] ? look : null;
+}
+// Where worn armor sits (the torso centre). data-chest on a re-authored file wins, else the body's own.
+function chestOf(id, svg) {
+  const d = svg?.getAttribute('data-chest');
+  if (d) { const [x, y] = d.split(',').map(Number); if (isFinite(x) && isFinite(y)) return [x, y]; }
+  const a = lookOf(id);
+  return (a && CHEST_BY_BODY[a.body]) || [50, 56];
+}
+// Hang the armor piece on an inline art node: cloaks behind the body, everything else over the torso.
+function overlayArmor(node, id, a, look) {
+  if (!node || !ARMOR[look]) return;
+  node.querySelector('.wornarmor')?.remove();
+  const [cx, cy] = chestOf(id, node);
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('class', 'armor wornarmor');
+  g.innerHTML = ARMOR[look](a, cx, cy);
+  if (ARMOR_BEHIND.has(look)) node.insertBefore(g, node.firstChild);
+  else node.appendChild(g);
+}
+/* Draw what a champion has racked onto their battle art — the weapon in hand AND the kit on the
+   torso, both over their own file art, in one pass (one fetch, one cache key). Your champions only. */
 async function syncHeldWeapon(el, u) {
   const host = el.querySelector('.upic');
   if (!host) return;
-  // Only your own champions carry gear: summons, monsters and every enemy have none.
-  const want = (u.side === 'p' && !u.summon && !u.monster && !u.inert && heldWeapon(u.id)) || '';
-  if ((host.dataset.held || '') === want) return;
-  host.dataset.held = want;
+  const mine = u.side === 'p' && !u.summon && !u.monster && !u.inert;
+  const wpn = (mine && heldWeapon(u.id)) || '';
+  const arm = (mine && wornArmor(u.id)) || '';
+  const want = `${wpn}|${arm}`;
+  if ((host.dataset.gear || '') === want) return;
+  host.dataset.gear = want;
   const a = lookOf(u.id);
   const cur = () => host.querySelector('.art');
-  if (!want) {   // back to the weapon they are drawn with: the plain linked art, as before
+  if (!wpn && !arm) {   // nothing worn: back to the plain linked art, as before
     const c = cur();
     if (c && c.tagName !== 'IMG') c.outerHTML = spriteSVG(artOf(u));
     return;
@@ -6020,25 +6088,33 @@ async function syncHeldWeapon(el, u) {
   const folder = charById(u.id) ? ART_FOLDER[charById(u.id).faction] : null;
   const file = folder ? `characters/${folder}/${artOf(u)}.${ART_EXT}` : null;
   const txt = file ? await fetchArt(file) : null;
-  if (host.dataset.held !== want) return;   // the rack changed again while the fetch was in flight
+  if (host.dataset.gear !== want) return;   // the rack changed again while the fetch was in flight
   if (!txt) {
     // No art file (the Pale Host): the built-in drawing holds its weapon in its own group already.
-    const look = { ...a, weapon: want };
+    const look = { ...a, weapon: wpn || a.weapon };
     const c = cur();
-    if (c && BODIES[look.body]) c.outerHTML = spriteFrame(look, gearUp(look, BODIES[look.body](look)));
+    if (c && BODIES[look.body]) {
+      c.outerHTML = spriteFrame(look, gearUp(look, BODIES[look.body](look)));
+      if (arm) overlayArmor(host.querySelector('svg.art'), u.id, a, arm);
+    }
     return;
   }
   const c = cur();
-  if (c) c.outerHTML = txt.replace(/<\?xml[\s\S]*?\?>/, '').trim().replace('<svg', '<svg class="art held"');
+  // `held` (which hides the painted weapon) only when a weapon is actually being swapped — armor
+  // alone must not blank out the weapon the champion is drawn holding.
+  if (c) c.outerHTML = txt.replace(/<\?xml[\s\S]*?\?>/, '').trim().replace('<svg', `<svg class="art${wpn ? ' held' : ''}"`);
   const node = host.querySelector('svg.art');
   if (!node) return;
   node.querySelector('.heldwpn')?.remove();
-  const [hx, hy] = handOf(u.id, node);
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  g.setAttribute('class', 'wpn heldwpn');          // .wpn so the strike poses still swing it
-  g.style.transformOrigin = `${hx}px ${hy}px`;
-  g.innerHTML = WEAPONS[want](a, hx, hy);
-  node.appendChild(g);
+  if (wpn) {
+    const [hx, hy] = handOf(u.id, node);
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'wpn heldwpn');          // .wpn so the strike poses still swing it
+    g.style.transformOrigin = `${hx}px ${hy}px`;
+    g.innerHTML = WEAPONS[wpn](a, hx, hy);
+    node.appendChild(g);
+  }
+  if (arm) overlayArmor(node, u.id, a, arm);
 }
 
 const lookOf = (id) => charById(id)?.look || SUMMONS[id]?.look || MONSTERS[id]?.look;
