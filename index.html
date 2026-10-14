@@ -2970,7 +2970,12 @@ const FACTIONS = {
   riftborn: { name: 'The Riftborn',   mechanic: 'Resonance',
            rule: 'The Riftborn bend the four forces between the stars — Gravity, Light, Sound and Void. Every hit a Riftborn lands carries its champion\'s Force and leaves a Charge of it on the enemy. When a DIFFERENT Force then strikes a charged enemy, the charge detonates into a Resonance: Gravity + Light lenses a searing burst, Gravity + Void collapses them and Bashes them off the bar, Gravity + Sound quakes them backward, Light + Void annihilates through shields, Light + Sound flashes Blind and Stagger, Sound + Void Silences. Weak striking alone, they are deadly in concert — the warband sets off each other\'s charges.' },
 };
-const FACTION_KEYS = Object.keys(FACTIONS);
+// Factions held out of play without deleting them: their FACTIONS entry, ROSTER champions, code and
+// art all stay, but they are kept out of the gauntlet, the codex, quests, recruitment and the
+// roster. The Riftborn are shelved here for now. To bring a faction back, take it out of this set —
+// FACTION_KEYS and PLAY_ROSTER both derive from it, so that one line is the whole switch.
+const HIDDEN_FACTIONS = new Set(['riftborn']);
+const FACTION_KEYS = Object.keys(FACTIONS).filter((k) => !HIDDEN_FACTIONS.has(k));
 // "the Bloodtusk Horde", "the Tideborn": names that already start with "The" don't get a second one.
 const theFaction = (f, start = false) => `${start ? 'The' : 'the'} ${f.name.replace(/^The /, '')}`;
 
@@ -3254,8 +3259,9 @@ function netBadge() {
   pill.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:80;display:flex;gap:8px;align-items:center;'
     + 'padding:5px 10px;border:1px solid var(--line,#2a2d3e);border-radius:999px;background:#0b0d14cc;'
     + 'color:var(--muted,#8b8fa3);font-size:.76rem;';
-  pill.innerHTML = `<span>⛨ ${NET.name || 'signed in'}</span><button type="button" style="background:none;border:none;color:inherit;font:inherit;cursor:pointer;text-decoration:underline">Sign out</button>`;
-  pill.querySelector('button').addEventListener('click', async () => {
+  pill.innerHTML = `<span>⛨ ${NET.name || 'signed in'}</span><button type="button" data-np="party" style="background:none;border:none;color:inherit;font:inherit;cursor:pointer;text-decoration:underline">Party</button><button type="button" data-np="out" style="background:none;border:none;color:inherit;font:inherit;cursor:pointer;text-decoration:underline">Sign out</button>`;
+  pill.querySelector('[data-np="party"]').addEventListener('click', hostedTogglePanel);
+  pill.querySelector('[data-np="out"]').addEventListener('click', async () => {
     try { await netApi('POST', '/api/logout'); } catch (err) { /* the token dies locally regardless */ }
     netStoreToken(null);
     try { localStorage.removeItem(SAVE_KEY); } catch (err) { /* nothing to forget */ }
@@ -3293,6 +3299,117 @@ function walletSpend(n, why = 'spend', items = null) {
 // job, would take back what the vault never heard was given.
 function netLootItem(k, qty = 1) {
   if (NET.on && NET.token) NET.txns.push({ kind: 'earn', why: 'loot', gold: 0, xp: 0, items: [{ id: k, qty }] });
+}
+
+/* HOSTED EXPEDITIONS (Phase 5). A party's run lives on the SERVER, inside the
+   same rules this file holds — four humans, one authoritative game. This tab
+   becomes a window onto it: snapshots arrive over the socket and are rendered
+   with the game's own renderers; your clicks on your own turn are sent as
+   requests, never executed here. Nothing in this block runs offline. */
+const HOSTED = { on: false, ws: null, runId: null, myUid: null, seats: [], party: null, reN: 0, acks: new Map(), battleToken: null };
+
+function hostedSend(t, fields = {}, cb = null) {
+  if (!HOSTED.ws || HOSTED.ws.readyState !== 1) return;
+  const re = `r${++HOSTED.reN}`;
+  if (cb) HOSTED.acks.set(re, cb);
+  HOSTED.ws.send(JSON.stringify({ t, re, ...fields }));
+}
+
+function hostedConnect() {
+  if (HOSTED.ws || !NET.on || !NET.token) return;
+  const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws?token=${encodeURIComponent(NET.token)}`);
+  HOSTED.ws = ws;
+  ws.onmessage = (ev) => {
+    let msg; try { msg = JSON.parse(ev.data); } catch (err) { return; }
+    if (msg.t === 'ack') { const cb = HOSTED.acks.get(msg.re); HOSTED.acks.delete(msg.re); if (cb) cb(msg); return; }
+    if (msg.t === 'hello') { hostedSend('party:state', {}, (a) => hostedParty(a.party || null)); return; }
+    if (msg.t === 'party:state') { hostedParty(msg.party || null); return; }
+    if (msg.t === 'exp:resume') { HOSTED.on = true; HOSTED.runId = msg.runId; return; }
+    if (msg.t === 'exp:state') { hostedAdopt(msg); return; }
+    if (msg.t === 'exp:over') { hostedOver(msg); return; }
+  };
+  ws.onclose = () => { HOSTED.ws = null; setTimeout(hostedConnect, 2500); };   // the run waits on the server
+}
+
+/* The whole truth, every time: the server's state replaces ours, my own unit
+   keeps the `you` mark (so the deck appears on MY turn and no one else's), and
+   the game's own builders draw it. No local battle loop ever starts. */
+function hostedAdopt(msg) {
+  HOSTED.on = true; HOSTED.runId = msg.runId; HOSTED.seats = msg.seats || [];
+  const mine = HOSTED.seats.find((s) => s.username === NET.name);
+  HOSTED.myUid = mine ? mine.uid : null;
+  const snap = msg.state;
+  for (const u of (snap.teams && snap.teams.p) || []) u.you = u.uid === HOSTED.myUid;
+  const fresh = snap.token !== HOSTED.battleToken;
+  state = snap;
+  state.moving = false;
+  // The wire flattens Sets to arrays; the expedition code expects real Sets.
+  if (state.exp) {
+    for (const k of ['visited', 'cleared', 'looted', 'encGranted', 'runesOffered']) {
+      if (Array.isArray(state.exp[k])) state.exp[k] = new Set(state.exp[k]);
+    }
+  }
+  // A decision is pending whenever the expedition stands still: Preparation
+  // Turns granted, a rune waiting, or no fight running. Otherwise: the arena.
+  const standing = state.exp && !state.exp.done
+    && (state.exp.prep || state.exp.pendingRune || ['won', 'cleared', 'lost'].includes(state.phase));
+  if (standing) {
+    if (fresh) { HOSTED.battleToken = state.token; buildArena(); }
+    try { expRenderDecision(); } catch (err) { /* between overlays */ }
+    render();
+  } else if (state.screen === 'battle') {
+    $('#overlay').hidden = true;
+    if (fresh) { HOSTED.battleToken = state.token; buildArena(); }
+    render();
+  }
+}
+
+async function hostedOver(msg) {
+  HOSTED.on = false; HOSTED.runId = null; HOSTED.battleToken = null;
+  announce(msg.cleared ? 'The vault is cleared' : 'The expedition ends', `${msg.gold || 0} gold, banked to every member`);
+  try { const got = await netApi('GET', '/api/profile'); NET.version = got.version; netAdopt(got.profile); } catch (err) { /* next boot syncs */ }
+  render();
+}
+
+/* The party panel — create, join by code, set out together. */
+function hostedParty(party) {
+  HOSTED.party = party;
+  let el = document.getElementById('partyPanel');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'partyPanel';
+    el.style.cssText = 'position:fixed;left:10px;bottom:48px;z-index:81;width:230px;padding:12px;border:1px solid var(--line,#2a2d3e);'
+      + 'border-radius:12px;background:#0b0d14ee;color:var(--text,#e7e9f4);font-size:.8rem;display:none';
+    document.body.appendChild(el);
+  }
+  const isCaptain = party && HOSTED.seats.length === 0 && party.captainId && party.members && party.members[0] && party.members[0].username === NET.name
+    || (party && party.members.find((m) => m.username === NET.name && m.role === 'captain'));
+  el.innerHTML = !party
+    ? `<b>No party</b><div style="display:grid;gap:6px;margin-top:8px">
+         <button class="btn small" type="button" data-hp="create">Create a party</button>
+         <div style="display:flex;gap:4px"><input id="hpCode" placeholder="code" maxlength="8" style="width:90px;padding:4px 6px;border-radius:6px;border:1px solid var(--line,#2a2d3e);background:#0b0d14;color:inherit">
+         <button class="btn small" type="button" data-hp="join">Join</button></div></div>`
+    : `<b>Party ${party.code}</b> <span style="color:var(--muted,#8b8fa3)">(share the code)</span>
+       <ul style="list-style:none;margin:8px 0;padding:0;display:grid;gap:3px">
+         ${party.members.map((m) => `<li>${m.role === 'captain' ? '★' : '·'} ${m.username} — ${m.heroId || 'no champion'} <small>Lv ${m.level}</small></li>`).join('')}
+       </ul>
+       <div style="display:grid;gap:6px">
+         ${isCaptain ? `<button class="btn small primary" type="button" data-hp="start">Set out: The Proving Vault</button>` : '<span style="color:var(--muted,#8b8fa3)">The Captain gives the word.</span>'}
+         <button class="btn small" type="button" data-hp="leave">Leave the party</button>
+       </div>`;
+  el.querySelectorAll('[data-hp]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.hp;
+    if (k === 'create') hostedSend('party:create', {}, (a) => hostedParty(a.party || null));
+    if (k === 'join') hostedSend('party:join', { code: (document.getElementById('hpCode') || {}).value || '' }, (a) => { if (a.ok) hostedParty(a.party); else alert(a.message || a.error); });
+    if (k === 'leave') hostedSend('party:leave', {}, () => hostedParty(null));
+    if (k === 'start') hostedSend('exp:start', { expedition: 'proving' }, (a) => { if (!a.ok) alert(a.error); });
+  }));
+}
+function hostedTogglePanel() {
+  const el = document.getElementById('partyPanel');
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  if (!HOSTED.ws) hostedConnect();
+  hostedSend('party:state', {}, (a) => hostedParty(a.party || null));
 }
 /* PROGRESSION — you are one champion (profile.hero) who levels up for good.
    Recruits are AI-controlled allies who fight beside you at your level.
@@ -4024,6 +4141,10 @@ const ROSTER = [
              B('Conduct', 'An ally is Empowered for 2 turns: +30% damage.', 3, 'ally', [['empower', 3]], { mp: 20, aiTarget: 'lowest' })],
     passive: P('Deep Well', '+25 max MP and +3 MP every turn.', { stat: { mp: 25, mpRegen: 3 } }) },
 ];
+// The champions that appear in play — the full roster minus any shelved faction (see HIDDEN_FACTIONS).
+// charById and makeUnit still read the whole ROSTER, so nothing breaks; only who you can recruit, roll
+// or be matched against is drawn from here.
+const PLAY_ROSTER = ROSTER.filter((c) => !HIDDEN_FACTIONS.has(c.faction));
 
 const ATTACK = { id: 'attack', name: 'Attack', desc: 'Basic hit for 100%.', cd: 0, kind: 'damage', target: 'enemy', mult: 1, o: { heat: 10 } };
 const GUARD  = { id: 'guard',  name: 'Guard',  desc: 'Take 50% less damage until your next turn.', cd: 0, kind: 'guard', target: 'self', o: { heat: -50 } };
@@ -4741,8 +4862,31 @@ const ARMOR = {
     <path d="M${cx - 11} ${cy - 9} l6 22 M${cx + 11} ${cy - 9} l-6 22" stroke="${LEATHER}" stroke-width="4" fill="none" stroke-linecap="round"/>
     <rect x="${cx - 12}" y="${cy + 9}" width="24" height="5" rx="1.5" fill="${LEATHER_D}"/>
     <rect x="${cx - 2.5}" y="${cy + 9.5}" width="5" height="4" rx="1" fill="${a.trim}"/></g>`,
+  // A surgeon's sash wrapped across the chest, with the mender's red cross.
+  sash: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round">
+    <path d="M${cx - 14} ${cy - 9} l5 -2.5 l18 31 l-5 2.5 z" fill="#e8e2d4"/>
+    <g transform="rotate(29 ${cx + 1} ${cy + 5})" stroke="none">
+      <rect x="${cx - 0.5}" y="${cy + 1}" width="3" height="9" rx=".6" fill="#c0303f"/>
+      <rect x="${cx - 3.5}" y="${cy + 4}" width="9" height="3" rx=".6" fill="#c0303f"/></g></g>`,
+  // A leather baldric slung across the chest, each pocket holding a whetstone.
+  harness: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round">
+    <path d="M${cx - 14} ${cy - 10} l4.5 -2 l17 31 l-4.5 2 z" fill="${LEATHER}"/>
+    <circle cx="${cx - 7}" cy="${cy - 5}" r="2" fill="#9aa0ad"/>
+    <circle cx="${cx - 1.5}" cy="${cy + 4}" r="2" fill="#9aa0ad"/>
+    <circle cx="${cx + 4}" cy="${cy + 13}" r="2" fill="#9aa0ad"/></g>`,
+  // A mail yoke of riveted rings over the shoulders.
+  mail: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round">
+    <path d="M${cx - 15} ${cy - 7} q15 -9 30 0 l-2.5 10 q-12.5 -6 -25 0 z" fill="#9aa0ad"/>
+    <g fill="none" stroke="#5f6675" stroke-width=".7">
+      <circle cx="${cx - 9}" cy="${cy - 3}" r="1.6"/><circle cx="${cx - 3}" cy="${cy - 4.5}" r="1.6"/><circle cx="${cx + 3}" cy="${cy - 4.5}" r="1.6"/><circle cx="${cx + 9}" cy="${cy - 3}" r="1.6"/>
+      <circle cx="${cx - 6}" cy="${cy + 0.5}" r="1.6"/><circle cx="${cx}" cy="${cy - 0.5}" r="1.6"/><circle cx="${cx + 6}" cy="${cy + 0.5}" r="1.6"/></g></g>`,
+  // Living wood grown across the shoulders — a leafy green mantle, an open collar draped over both shoulders.
+  mantle: (a, cx, cy) => `<g class="armorpc" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round">
+    <path d="M${cx - 16} ${cy + 1} Q${cx} ${cy - 15} ${cx + 16} ${cy + 1} Q${cx} ${cy - 4} ${cx - 16} ${cy + 1} z" fill="#4a8a3a"/>
+    <path d="M${cx - 10} ${cy - 5} l-1.5 -5 l2.5 1 l1 -4 l1 4 l2.5 -1 l-1.5 5 z M${cx + 10} ${cy - 5} l-1.5 -5 l2.5 1 l1 -4 l1 4 l2.5 -1 l-1.5 5 z" fill="#5fa84a"/>
+    <circle cx="${cx}" cy="${cy - 6}" r="1.8" fill="#caa23a" stroke="none"/></g>`,
 };
-const ARMOR_BEHIND = new Set(['cloak', 'mantle']);
+const ARMOR_BEHIND = new Set(['cloak']);
 // Torso centre per body archetype (where worn armor sits). A re-authored file can override with
 // data-chest; otherwise the body's own chest point is used. Starts with the human proof.
 const CHEST_BY_BODY = { human: [50, 56] };
@@ -8448,6 +8592,8 @@ function clearCastFeeds() {
 }
 
 async function doAction(u, sk, t) {
+  // Hosted: my click is a request to the server's game, not an order to this one.
+  if (HOSTED.on) { hostedSend('exp:action', { skill: sk.id, target: t ? t.uid : null }, (a) => { if (!a.ok && a.error) log(`The vault refuses: ${a.error}`, 'sys'); }); return; }
   state.phase = u.side === 'p' ? 'busy' : 'enemy';
   state.pending = null;
   noteCast(u, sk);
@@ -10419,7 +10565,7 @@ const sparring = () => state.mode === 'spar';
 // Does this unit wait for your orders? Your champion always; in a spar, whoever the matchup says.
 const commandable = (u) => !!u && (!u.summon || u.controllable) && (!!u.you || (sparring() && !u.monster
   && (state.spar.ctl === 'all' || (state.spar.ctl === 'side' && u.side === 'p'))));
-const randomBand = () => shuffle(ROSTER.map((c) => c.id)).slice(0, TEAM_SIZE);
+const randomBand = () => shuffle(PLAY_ROSTER.map((c) => c.id)).slice(0, TEAM_SIZE);
 
 // The matchup on the yard's board, set up the first time you look: your warband against a random band.
 function sparSetup() {
@@ -10612,7 +10758,7 @@ const CHART_COLS = [['hp', 'HP', (u) => u.maxHp], ['atk', 'Attack', (u) => u.atk
   ['agi', 'Agility', (u) => u.agi], ['mp', 'Mana', (u) => u.maxMp || 0], ['crit', 'Crit %', (u) => Math.round((u.crit || 0) * 100)]];
 function chartHTML() {
   const lv = state.chartLv || heroLevel(), fac = state.chartFac || 'all', sort = state.chartSort || { k: 'hp', dir: -1 };
-  const all = ROSTER.map((c) => ({ c, u: makeUnit(c, lv, 'e', 0) }));
+  const all = PLAY_ROSTER.map((c) => ({ c, u: makeUnit(c, lv, 'e', 0) }));
   const max = Object.fromEntries(CHART_COLS.map(([k, , f]) => [k, Math.max(1, ...all.map((r) => f(r.u)))]));
   const val = (r, k) => (k === 'name' ? r.c.name : CHART_COLS.find((x) => x[0] === k)[2](r.u));
   const rows = all.filter((r) => fac === 'all' || r.c.faction === fac)
@@ -10662,7 +10808,7 @@ const BAND_NAMES = ['Raiders', 'Blades', 'Vanguard', 'Wolves', 'Free Company', '
 // A fresh set of challengers: one band per tier, any mix of factions.
 function rollDuels() {
   state.duels = DUEL_TIERS.map((t, i) => {
-    const ids = shuffle(ROSTER.map((c) => c.id)).slice(0, TEAM_SIZE)
+    const ids = shuffle(PLAY_ROSTER.map((c) => c.id)).slice(0, TEAM_SIZE)
       .sort((a, b) => ['melee', 'support', 'ranged'].indexOf(charById(a).role) - ['melee', 'support', 'ranged'].indexOf(charById(b).role));
     return { ...t, tier: i, ids, band: `${shortName(charById(ids[0]))}'s ${pick(BAND_NAMES)}` };
   });
@@ -11246,6 +11392,7 @@ function expPrepExtra(id) {
 // the units in front of us are about to be rebuilt from scratch for the next chamber — the carry
 // is the only thing that survives the walk.
 function expPrepAct(id, act) {
+  if (HOSTED.on) return hostedSend('exp:decision', { kind: 'prep', arg: act });
   const s = expState(), p = s.prep;
   if (!p || expPrepLeft(id) < 1) return;
   const u = expMembers().find((x) => x.id === id);
@@ -11281,6 +11428,7 @@ function expPrepAct(id, act) {
 // §4.3.9 "Using consumable items": each member drinks from their own backpack (§13: four battle
 // slots each, see BACKPACKS), and a drink taken here is gone from it, exactly as in a fight.
 function expPrepItem(id, key) {
+  if (HOSTED.on) return hostedSend('exp:decision', { kind: 'prep-item', arg: key });
   const s = expState(), p = s.prep;
   if (!p || expPrepLeft(id) < 1 || !EXP_PREP_ITEMS.includes(key) || !packHas(id, key)) return;
   const u = expMembers().find((x) => x.id === id), c = s.carry[id];
@@ -11323,6 +11471,7 @@ function expRuneOffer(source) {
 }
 
 function expRuneKeep(key) {
+  if (HOSTED.on) return hostedSend('exp:decision', { kind: 'rune-keep', arg: key });
   const s = expState(), sel = s.pendingRune;
   if (!sel || sel.kept || !sel.offer.includes(key)) return;
   sel.kept = key;
@@ -11389,6 +11538,7 @@ function expRuneLight(u, key) {
 }
 
 function expRuneAssign(id) {
+  if (HOSTED.on) return hostedSend('exp:decision', { kind: 'rune-assign', arg: id });
   const s = expState(), sel = s.pendingRune;
   if (!sel?.kept || sel.flying) return;   // one stone, one bearer — not two while it is in the air
   const u = expMembers().find((x) => x.id === id);
@@ -11699,9 +11849,10 @@ function expNoForward() {
   expRenderDecision();
 }
 
-function expChoose(id) { expClearTimer(); $('#overlay').hidden = true; expEnterChamber(id); }
+function expChoose(id) { if (HOSTED.on) return hostedSend('exp:decision', { kind: 'go', arg: id }); expClearTimer(); $('#overlay').hidden = true; expEnterChamber(id); }
 
 function expRetreat() {
+  if (HOSTED.on) return hostedSend('exp:decision', { kind: 'retreat', arg: '' });
   const s = expState();
   if (!s.path.length) return;
   const back = s.path.pop();
@@ -11710,7 +11861,7 @@ function expRetreat() {
   expEnterChamber(back, { retreat: true });
 }
 
-function expAbandon() { expEndOverlay('abandon'); }   // §15
+function expAbandon() { if (HOSTED.on) return hostedSend('exp:decision', { kind: 'abandon', arg: '' }); expEndOverlay('abandon'); }   // §15
 
 // The Preparation panel (§4.2): who is carrying what, what each of them still has the time to
 // do, and the Captain's one extra turn to hand out. Everything reads from the carry, because the
@@ -13936,8 +14087,8 @@ function buildSelect() {
     const me = state.team[0];
     if (!me) { $('#trayNote').textContent = 'Pick your own champion first.'; return; }
     const roles = ['melee', 'ranged', 'support'].filter((r) => r !== charById(me).role);
-    const team = [me, ...roles.map((r) => pick(ROSTER.filter((c) => c.role === r && c.id !== me)).id)];
-    while (team.length < TEAM_SIZE) team.push(pick(ROSTER.filter((c) => !team.includes(c.id))).id);
+    const team = [me, ...roles.map((r) => pick(PLAY_ROSTER.filter((c) => c.role === r && c.id !== me)).id)];
+    while (team.length < TEAM_SIZE) team.push(pick(PLAY_ROSTER.filter((c) => !team.includes(c.id))).id);
     state.team = team;
     $('#trayNote').textContent = '';
     renderSelect();
@@ -15827,7 +15978,7 @@ function sheetHTML(which) {
     // Recruits can be swapped out right here: Swap opens a grid of champion models to pick the replacement.
     const swap = you ? '' : `<button class="btn small wswap" type="button" data-k="swap:${i}" aria-pressed="${state.swapSlot === i}" aria-label="Swap out ${ch.name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13l-3-3M20 16H7l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Swap</span></button>`;
     const picker = !you && state.swapSlot === i ? `<div class="wpicker" role="group" aria-label="Choose who replaces ${ch.name}">${
-      ROSTER.filter((x) => !state.team.includes(x.id)).map((x) =>
+      PLAY_ROSTER.filter((x) => !state.team.includes(x.id)).map((x) =>
         `<button class="wpick" type="button" data-k="recruit:${i}:${x.id}" title="${escHTML(x.name)}" aria-label="Recruit ${escHTML(x.name)}">${spriteSVG(x.id)}</button>`).join('')}</div>` : '';
     return `<div class="wcard${you ? ' you' : ''}"><span class="wpic">${spriteSVG(id)}<span class="wlvl">Lv ${lv}</span></span>
       <span class="wname"><b>${you ? heroName() : ch.name}</b></span>
