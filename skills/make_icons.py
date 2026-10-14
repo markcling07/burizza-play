@@ -1670,6 +1670,16 @@ def _():
             + g(drop(), 32, 44, 0, .7))
 
 
+@icon('Come Apart')
+def _():
+    # Tear Apart's living twin: the same two jaws, but run APART on purpose — dashes trailing
+    # the sprint, and in the middle only a crimson flicker where the Gorehound has stopped being.
+    return (burst(32, 32, 2.2, 6, 8, '#e0455a')
+            + poly('M25 27 l-6 -4 M27 36 l-8 1', '#c86a6a', 2.0)
+            + poly('M39 37 l6 4 M37 28 l8 -1', '#c86a6a', 2.0)
+            + g(jaws('#8a3a3a'), 16, 19, 195, .72) + g(jaws('#8a3a3a'), 48, 45, 15, .72))
+
+
 @icon('Dispel')
 def _():
     return ('<circle cx="32" cy="32" r="15" fill="none" stroke="#bfa0ff" stroke-width="3" opacity=".9"/>'
@@ -2065,7 +2075,7 @@ CATALOG = {
         ('Crimson Lunge', 'Vesper Nightshade', 'skill'), ('Night Waltz', 'Vesper Nightshade', 'skill'), ('Execute', 'Vesper Nightshade', 'sig'), ('Exsanguinate', 'Vesper Nightshade', 'skill'), ('Throat Tear', 'Vesper Nightshade', 'skill'), ('Mist Form', 'Vesper Nightshade', 'skill'), ('Riposte', 'Vesper Nightshade', 'passive'),
         ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Blood Pact', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'),
         ('Kiss of Ruin', 'Seraxa Thornwing', 'skill'), ('Shadowstep', 'Seraxa Thornwing', 'skill'), ('Dance of Knives', 'Seraxa Thornwing', 'sig'), ('Wing Carve', 'Seraxa Thornwing', 'skill'), ("Predator's Grace", 'Seraxa Thornwing', 'skill'), ('Flurry', 'Seraxa Thornwing', 'passive'),
-        ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Bloodhound', 'Gorehound', 'passive'),
+        ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Come Apart', 'Gorehound', 'skill'), ('Bloodhound', 'Gorehound', 'passive'),
         ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Quickened Blood', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
     ]),
     'undead': ('The Pale Host', [

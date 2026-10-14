@@ -3907,7 +3907,7 @@ const ROSTER = [
     nature: { name: 'Covering Fire', desc: 'Every five turns taken on the field — friend or foe — she snaps off a free shot at a random enemy, taunters first.' },
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#c68f6a', hair: '#5a3520', weapon: 'gun' },
     skills: [D('Aimed Shot', '140% shot, +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
-             D('Powder Shot', 'Mara takes aim: 2 turns later the shot goes off on its own, whoever takes them — 220%, +70% crit chance. While she aims she is Exposed, and her Covering Fire holds. A Silence, stun or bash breaks her aim and the shot is lost. A mark that has gone to ground or into a coffin is simply not there, and a graveyard fence turns the round aside.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
+             D('Powder Shot', 'Mara takes aim: 2 turns later the shot goes off on its own, whoever takes them — 220%, +70% crit chance. While she aims she is Exposed, and her Covering Fire holds. A Silence, stun or bash breaks her aim and the shot is lost. A mark that is simply not there — gone to ground, into a coffin, or come apart into two hounds — cannot be found by it, and a graveyard fence turns the round aside.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
              D('Ricochet', '90% shot that ricochets into another enemy for 60%.', 3, 0.9, { bounce: 0.6 }),
              D('Pistol Whip', '100% hit with a 40% chance to Stagger.', 2, 1.0, { chanceFx: [['stagger', 1, 0.4]] }),
              D('Volley Fire', '55% to all enemies, +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 })],
@@ -4055,7 +4055,7 @@ const ROSTER = [
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
     skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
-             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two Revs later — whoever takes them — it comes down on them as a single Magic blow that cannot miss and ignores armor. Only a mark that has gone to ground or into a coffin escapes it - a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
+             { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two Revs later — whoever takes them — it comes down on them as a single Magic blow that cannot miss and ignores armor. Only a mark that is simply not there when it falls escapes it — gone to ground, sealed in a coffin, or come apart into two hounds; a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
              D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
              D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
@@ -4172,7 +4172,7 @@ const ROSTER = [
              D('Sunburst', 'Throws every blade he is holding into one body at once — the fewer he has, the less there is to throw.', 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, attackType: 'horizontal' }),
              D('Command the Fallen', 'Every blade already buried in an enemy tears itself out and flies at one mark.', 3, VHARO_CMD_MULT, { magic: true, swordCommand: true, attackType: 'horizontal' }),
              D('Blade Harvest', 'Every blade standing in one body rips back out the way it went in — and comes home to his hand.', 3, VHARO_HARVEST_MULT, { magic: true, swordHarvest: true, attackType: 'horizontal' })],
-    nature: { name: 'Unblinking', desc: `His throws never miss. Each one spends a blade into the body it finds, and killing that body gives the blade back. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all.`, breathless: 1, swords: 5 },
+    nature: { name: 'Unblinking', desc: `His throws never miss. Each one spends a blade into the body it finds, and killing that body gives the blade back. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
     passive: P('Sunforged', '+8% critical hit chance.', { stat: { crit: 0.08 } }) },
   { id: 'orin', name: 'Orin', faction: 'cog', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
     mods: { atk: 0.95, hp: 0.9, agi: 1.15 },
@@ -7418,7 +7418,11 @@ function powerMult(u) {
 const HEAT_TIERS = [25, 50, 75, 100];
 // Who runs on Heat and bleeds nothing: the Union, and the Cogbound cast in their moulds.
 // One predicate so a new foundry faction never half-inherits the mechanic.
-const runsHot = (u) => u.faction === 'mech' || u.faction === 'cog';
+// The foundry factions run on fire — except where a Nature says otherwise. Vharo is Cogbound by
+// address, not by build: his blades are his gauge, spent one per throw, so he carries no overheat
+// bar and no Heat ramp. coldlight takes the whole mechanic away with it, rather than leaving him a
+// bar-less stat nobody can see.
+const runsHot = (u) => (u.faction === 'mech' || u.faction === 'cog') && !charNat(u).coldlight;
 const heatTier = (u) => (runsHot(u) ? HEAT_TIERS.filter((h) => u.heat >= h).length : 0);
 const contactBurn = (u) => Math.round(heatTier(u) * 10 * (1 + (u.heatMult || 0)));   // 10 / 20 / 30 / 40 seared per contact
 
