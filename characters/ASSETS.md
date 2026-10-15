@@ -64,8 +64,13 @@ file, with no interface change (roadmap Phase 6's completion condition).
 ## Coverage (not a requirement — the rest fall back)
 
 Counts drift as art is drawn; `node tests/assets.js` prints the live figures.
-At the time of writing: 33/38 champions and 15/31 monsters have bespoke art; the
-remaining ids render from their `look` recipe. 196/213 champion-skill icons are
-drawn — the newest skills (the Cogbound kit: Lightlance, Recall Swords, Sunburst,
-Command the Fallen, Blade Harvest, Hammer Weld, and the rest) have none yet and
-show without an icon until one is added.
+At the time of writing: **40/40 champions** and 15/31 monsters have bespoke art —
+every champion is now drawn, so none fall back to a `look` recipe in play. The
+monster ids that remain still render from theirs. 206/225 champion-skill icons
+are drawn — the newest skills (Shazrak's cairn kit: Mana Cairn, Quickening Stone,
+Unweaving Stone, Storm Cairn, Bulwark Stone, Binding Chord, Mana Battery, and the
+rest) have none yet and show without an icon until one is added.
+
+The fallback contract above still holds and is still tested: full coverage is a
+snapshot, not a new requirement. Deleting any champion SVG must still leave that
+champion playable on its `look.body` recipe.

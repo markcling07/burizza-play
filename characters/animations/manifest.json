@@ -765,9 +765,9 @@
       "hitMs": 520
     }
   },
-  "vharo": {
+  "riven": {
     "idle": {
-      "src": "vharo-idle.webp",
+      "src": "riven-idle.webp",
       "w": 350,
       "h": 265,
       "footX": 150,
@@ -777,7 +777,7 @@
       "ms": 1350
     },
     "attack": {
-      "src": "vharo-attack.webp",
+      "src": "riven-attack.webp",
       "w": 350,
       "h": 265,
       "footX": 150,
@@ -788,9 +788,9 @@
       "hitMs": 480
     }
   },
-  "resh": {
+  "shazrak": {
     "idle": {
-      "src": "resh-idle.webp",
+      "src": "shazrak-idle.webp",
       "w": 350,
       "h": 265,
       "footX": 150,
@@ -800,7 +800,7 @@
       "ms": 1350
     },
     "attack": {
-      "src": "resh-attack.webp",
+      "src": "shazrak-attack.webp",
       "w": 350,
       "h": 265,
       "footX": 150,
@@ -809,6 +809,52 @@
       "frameMs": 40,
       "ms": 1200,
       "hitMs": 520
+    }
+  },
+  "zulkan": {
+    "idle": {
+      "src": "zulkan-idle.webp",
+      "w": 400,
+      "h": 290,
+      "footX": 155,
+      "footY": 275,
+      "frames": 18,
+      "frameMs": 75,
+      "ms": 1350
+    },
+    "attack": {
+      "src": "zulkan-attack.webp",
+      "w": 400,
+      "h": 290,
+      "footX": 155,
+      "footY": 275,
+      "frames": 32,
+      "frameMs": 40,
+      "ms": 1280,
+      "hitMs": 680
+    }
+  },
+  "ryuunosuke": {
+    "idle": {
+      "src": "ryuunosuke-idle.webp",
+      "w": 370,
+      "h": 275,
+      "footX": 150,
+      "footY": 260,
+      "frames": 18,
+      "frameMs": 75,
+      "ms": 1350
+    },
+    "attack": {
+      "src": "ryuunosuke-attack.webp",
+      "w": 370,
+      "h": 275,
+      "footX": 150,
+      "footY": 260,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 360
     }
   },
   "nyx": {
@@ -834,9 +880,9 @@
       "hitMs": 520
     }
   },
-  "orin": {
+  "automatonx": {
     "idle": {
-      "src": "orin-idle.webp",
+      "src": "automatonx-idle.webp",
       "w": 350,
       "h": 265,
       "footX": 150,
@@ -846,7 +892,7 @@
       "ms": 1296
     },
     "attack": {
-      "src": "orin-attack.webp",
+      "src": "automatonx-attack.webp",
       "w": 350,
       "h": 265,
       "footX": 150,

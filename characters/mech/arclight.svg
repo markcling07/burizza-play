@@ -1,102 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Arclight (ranged) - Burizza art v2. Tesla-coil sniper unit.
+<!-- Arclight (ranged) - Burizza art v3. Tesla-coil sniper unit.
      Domed visor helm, coil-pylon backpack, ringed tesla rifle at the hip.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="51.5,58.5">
   <defs>
-    <linearGradient id="hull" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a9c0dc"/><stop offset=".5" stop-color="#5a7aa2"/><stop offset="1" stop-color="#2f4462"/></linearGradient>
-    <linearGradient id="hullD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a6587"/><stop offset="1" stop-color="#23334a"/></linearGradient>
-    <linearGradient id="iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#666d82"/><stop offset="1" stop-color="#262a38"/></linearGradient>
-    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe3a0"/><stop offset="1" stop-color="#b3742a"/></linearGradient>
-    <radialGradient id="arc" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#bff4ff"/><stop offset="1" stop-color="#3fc8ff" stop-opacity="0"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2"/></filter>
+    <linearGradient id="al-hull" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c2d6ec"/><stop offset=".3" stop-color="#8aa8c8"/><stop offset=".7" stop-color="#5a7aa2"/><stop offset="1" stop-color="#2f4462"/></linearGradient>
+    <linearGradient id="al-hullD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a7a9a"/><stop offset=".4" stop-color="#3e5872"/><stop offset="1" stop-color="#1e2d40"/></linearGradient>
+    <linearGradient id="al-iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8892a5"/><stop offset=".35" stop-color="#5c6478"/><stop offset=".7" stop-color="#3d4458"/><stop offset="1" stop-color="#1e2230"/></linearGradient>
+    <linearGradient id="al-brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe8b0"/><stop offset=".3" stop-color="#d4a84e"/><stop offset=".7" stop-color="#b3742a"/><stop offset="1" stop-color="#7a4e18"/></linearGradient>
+    <linearGradient id="al-piston" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ccd6e0"/><stop offset=".5" stop-color="#8090a5"/><stop offset="1" stop-color="#4a5568"/></linearGradient>
+    <radialGradient id="al-arc" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#d4faff"/><stop offset=".6" stop-color="#7fe3ff"/><stop offset="1" stop-color="#3fc8ff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="al-core" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".25" stop-color="#bff4ff"/><stop offset=".6" stop-color="#4dc8e8"/><stop offset="1" stop-color="#1a6080" stop-opacity=".6"/></radialGradient>
+    <filter id="al-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="al-glowS" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1"/></filter>
   </defs>
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <!-- coil, muzzle + ring glow -->
-  <rect class="wpn" x="68" y="44" width="18" height="14" rx="3" fill="#3fc8ff" opacity=".7" filter="url(#glow)"/>
-  <circle cx="33.5" cy="13" r="7" fill="url(#arc)" filter="url(#glow)"/>
-  <circle class="wpn" cx="96" cy="51" r="8" fill="url(#arc)" filter="url(#glow)"/>
-  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- back tesla pylon -->
-    <rect x="31.7" y="16" width="3.6" height="24" fill="url(#iron)"/>
-    <rect x="27.5" y="35" width="12" height="3.2" rx="1.5" fill="url(#brass)"/>
-    <rect x="28.5" y="28.5" width="10" height="3" rx="1.5" fill="url(#brass)"/>
-    <rect x="29.5" y="22" width="8" height="2.8" rx="1.4" fill="url(#brass)"/>
-    <circle cx="33.5" cy="14" r="3.4" fill="#d9f8ff"/>
-    <!-- backpack -->
-    <rect x="31" y="37" width="13" height="19" rx="3" fill="url(#hullD)"/>
-    <!-- far arm reaching for the barrel -->
-    <path d="M51 56 L67 54.5 L67.5 60 L52.5 61.5 Z" fill="url(#hullD)"/>
-    <rect class="wpn" x="65.5" y="52" width="7" height="8" rx="2" fill="#2a3850"/>
-    <!-- back leg -->
-    <path d="M43 63 L52 63 L50.5 76 L42 75.5 Z" fill="url(#hullD)"/>
-    <path d="M41 78 L50 78 L50.5 88.5 L39.5 88.5 Z" fill="url(#hullD)"/>
-    <circle cx="45.8" cy="77" r="4" fill="#2f4462"/>
+  <!-- glow halos -->
+  <rect class="wpn" x="68" y="44" width="18" height="14" rx="3" fill="#3fc8ff" opacity=".6" filter="url(#al-glow)"/>
+  <circle cx="33.5" cy="13" r="7.5" fill="url(#al-arc)" filter="url(#al-glow)"/>
+  <circle class="wpn" cx="96" cy="51" r="8" fill="url(#al-arc)" filter="url(#al-glow)"/>
+  <g stroke="none">
+    <!-- tesla pylon shaft + insulator rings -->
+    <rect x="31.2" y="15" width="4.6" height="25" rx=".5" fill="url(#al-iron)"/>
+    <rect x="27" y="35" width="13" height="3.2" rx="1.5" fill="url(#al-brass)"/><rect x="27.6" y="35.8" width="11.8" height=".9" rx=".4" fill="#7a4e18" opacity=".4"/>
+    <rect x="28" y="29" width="11" height="2.8" rx="1.4" fill="url(#al-brass)"/><rect x="28.6" y="29.7" width="9.8" height=".8" rx=".4" fill="#7a4e18" opacity=".4"/>
+    <rect x="29" y="23" width="9" height="2.6" rx="1.3" fill="url(#al-brass)"/>
+    <!-- coil windings + discharge prongs -->
+    <path d="M31.5 17 l4 1.5 M31.5 19.5 l4 1.5 M31.5 22 l4 1" stroke="#9aa8b8" stroke-width=".6" opacity=".65"/>
+    <path d="M30.5 15.5 l-1.5 -3 M36.5 15.5 l1.5 -3" stroke="#5c6478" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="29" cy="12" r="1" fill="#bff4ff" filter="url(#al-glowS)"/><circle cx="38" cy="12" r="1" fill="#bff4ff" filter="url(#al-glowS)"/>
+    <circle cx="33.5" cy="14" r="3.8" fill="#c8f0ff"/><path d="M31 13 Q33.5 11 36 13" stroke="#fff" stroke-width=".8" fill="none" opacity=".85"/>
+    <!-- backpack body + panel seams -->
+    <rect x="30" y="37" width="14" height="20" rx="3" fill="url(#al-hullD)"/>
+    <path d="M31 42 h12 M31 48 h12 M37 38 v18" stroke="#1a2535" stroke-width=".45" opacity=".55"/>
+    <!-- pipe, valve, cable conduits -->
+    <path d="M31 44 l-3 2 v6 l3 2" stroke="#5a6a7a" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="28" cy="49" r="1.2" fill="url(#al-brass)"/>
+    <path d="M34 57 Q32 62 34 65" stroke="#3e5060" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M38 57 Q37 61 38 64" stroke="#3e5060" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <!-- far arm -->
+    <path d="M51 56 L67 54.5 L67.5 60 L52.5 61.5 Z" fill="url(#al-hullD)"/><rect class="wpn" x="65.5" y="52" width="7" height="8" rx="2" fill="#2a3850"/>
+    <!-- back leg + piston + knee -->
+    <path d="M43 63 L52 63 L50.5 76 L42 75.5 Z" fill="url(#al-hullD)"/><rect x="44" y="70" width="5" height="1.4" rx=".5" fill="url(#al-piston)" opacity=".7"/>
+    <path d="M41 78 L50 78 L50.5 88.5 L39.5 88.5 Z" fill="url(#al-hullD)"/>
+    <circle cx="45.8" cy="77" r="4" fill="#2f4462"/><circle cx="45.8" cy="77" r="1.8" fill="url(#al-iron)"/>
     <path d="M34 87.5 h15.5 v6 h-16.5 z" fill="#1f2636"/>
-    <!-- front leg -->
-    <path d="M52 63 L61 63 L63 76 L54.5 76.5 Z" fill="url(#hull)"/>
-    <path d="M54 78.5 L63.5 78 L65.5 88.5 L54.5 88.5 Z" fill="url(#hull)"/>
-    <circle cx="58.8" cy="77.2" r="4.4" fill="url(#hull)"/>
-    <path d="M53 87.5 h13.5 l4 6 h-17.5 z" fill="#2c3448"/>
+    <!-- front leg + pistons -->
+    <path d="M52 63 L61 63 L63 76 L54.5 76.5 Z" fill="url(#al-hull)"/>
+    <rect x="55" y="67" width="6" height="1.4" rx=".5" fill="url(#al-piston)"/><rect x="56" y="71" width="5" height="1.2" rx=".4" fill="url(#al-piston)" opacity=".8"/>
+    <path d="M54 78.5 L63.5 78 L65.5 88.5 L54.5 88.5 Z" fill="url(#al-hull)"/>
+    <!-- knee joint articulation -->
+    <circle cx="58.8" cy="77.2" r="4.4" fill="url(#al-hull)"/><circle cx="58.8" cy="77.2" r="2.2" fill="url(#al-iron)"/><circle cx="58.8" cy="77.2" r=".9" fill="#5a7090"/>
+    <path d="M53 87.5 h13.5 l4 6 h-17.5 z" fill="#2c3448"/><path d="M54 91.5 h11" stroke="#1a2030" stroke-width=".6" opacity=".5"/>
     <!-- far pauldron -->
-    <circle cx="40.5" cy="40" r="6" fill="url(#hullD)"/>
-    <!-- chunky torso -->
-    <path d="M39 38 Q51 31.5 63 38 L62 58 Q51 62 40 58 Z" fill="url(#hull)"/>
-    <path class="wpn" d="M43 57 h16 v5 h-16 z" fill="url(#iron)"/>
-    <rect x="40.5" y="60.5" width="21" height="4.5" rx="1.2" fill="url(#hullD)"/>
-    <rect x="48.5" y="60" width="5" height="5.5" rx="1" fill="url(#brass)"/>
-    <!-- neck + domed helm -->
-    <rect x="47" y="30" width="9" height="7" rx="1" fill="url(#iron)"/>
-    <path d="M42.5 25.5 Q42 13 52 13 Q62 13 62 24 L61 30.5 Q52 34.5 43.5 31 Z" fill="url(#hull)"/>
-    <path d="M45 15.5 L38.5 9.5 L41 8.8 L49 13.5 Z" fill="url(#hullD)"/>
-    <path d="M49 21 h14.5 q3 0 3 3.5 q0 3.5 -3 3.5 h-14.5 z" fill="#1d2433"/>
-    <circle cx="46.5" cy="25" r="3.2" fill="url(#iron)"/>
-    <!-- front upper arm (behind the rifle) -->
-    <path d="M56 41 L64 42 L57 59 L50 56 Z" fill="url(#hull)"/>
-    <!-- tesla rifle -->
-    <path d="M36 50 L46 48.5 L46 56 L39.5 59.5 L35.5 57 Z" fill="url(#iron)"/>
-    <path d="M57 55 L63 55 L61.5 62 L56 62 Z" fill="url(#iron)"/>
-    <rect class="wpn" x="47" y="42.5" width="10" height="4" rx="1" fill="url(#hullD)"/>
-    <rect class="wpn" x="44" y="46" width="22" height="10" rx="2" fill="url(#hull)"/>
-    <path class="wpn" d="M52 53 h9" stroke-width="1.2"/>
-    <rect class="wpn" x="65" y="48" width="22" height="6" fill="url(#iron)"/>
-    <rect class="wpn" x="69.5" y="44.5" width="3.6" height="13" rx="1.3" fill="url(#brass)"/>
-    <rect class="wpn" x="75" y="44.5" width="3.6" height="13" rx="1.3" fill="url(#brass)"/>
-    <rect class="wpn" x="80.5" y="44.5" width="3.6" height="13" rx="1.3" fill="url(#brass)"/>
-    <rect class="wpn" x="86" y="45" width="7.5" height="12" rx="1.8" fill="url(#brass)"/>
-    <path class="wpn" d="M93.5 46.5 L97 47.8 L97 54.2 L93.5 55.5 Z" fill="url(#iron)"/>
-    <!-- front forearm + hand on the grip -->
-    <path d="M50 55.5 L58 55 L59 61 L51.5 61.5 Z" fill="url(#hull)"/>
-    <circle cx="51.5" cy="58.5" r="3.2" fill="url(#iron)"/>
-    <rect x="56.5" y="54" width="7" height="7.5" rx="2" fill="url(#hullD)"/>
-    <!-- front pauldron -->
-    <path d="M54 41 Q54 32 62 32 Q70.5 32.5 70.5 40.5 L69 45 L55.5 45 Z" fill="url(#hull)"/>
-    <path d="M55 42.5 Q62.5 40 70 42.5 L69 45 L55.5 45 Z" fill="url(#hullD)"/>
+    <circle cx="40.5" cy="40" r="6" fill="url(#al-hullD)"/><path d="M36 39 Q40.5 35.5 45 39" stroke="#1a2535" stroke-width=".5" opacity=".5" fill="none"/>
+    <!-- torso + panel seams + wear -->
+    <path d="M39 38 Q51 31.5 63 38 L62 58 Q51 62 40 58 Z" fill="url(#al-hull)"/>
+    <path d="M44 38 v18 M58 38 v18 M42 47 h18" stroke="#2a4060" stroke-width=".4" opacity=".45"/>
+    <path d="M56 50 l2 1 l-1 2" fill="#4a5a6a" opacity=".3"/><path d="M44 54 l1.5 .5 l-.5 1.5" fill="#4a5a6a" opacity=".25"/>
+    <!-- belt + buckle -->
+    <path class="wpn" d="M43 57 h16 v5 h-16 z" fill="url(#al-iron)"/>
+    <rect x="40.5" y="60.5" width="21" height="4.5" rx="1.2" fill="url(#al-hullD)"/><rect x="48.5" y="60" width="5" height="5.5" rx="1" fill="url(#al-brass)"/>
+    <!-- neck + ventilation grille -->
+    <rect x="47" y="30" width="9" height="7" rx="1" fill="url(#al-iron)"/><path d="M48.5 31.5 h6 M48.5 33 h6 M48.5 34.5 h6" stroke="#1e2230" stroke-width=".5" opacity=".55"/>
+    <!-- domed helm + face plate seams -->
+    <path d="M42.5 25.5 Q42 13 52 13 Q62 13 62 24 L61 30.5 Q52 34.5 43.5 31 Z" fill="url(#al-hull)"/>
+    <path d="M47 18 Q52 15 57 18 M44 23 Q52 20 60 23" stroke="#2a4060" stroke-width=".4" opacity=".5" fill="none"/>
+    <!-- antenna / scope mount -->
+    <path d="M45 15.5 L38.5 9.5 L41 8.8 L49 13.5 Z" fill="url(#al-hullD)"/><circle cx="38.5" cy="9.5" r="1" fill="#5a7090"/>
+    <!-- visor housing -->
+    <path d="M49 21 h14.5 q3 0 3 3.5 q0 3.5 -3 3.5 h-14.5 z" fill="#1d2433"/><circle cx="46.5" cy="25" r="3.2" fill="url(#al-iron)"/>
+    <!-- front upper arm -->
+    <path d="M56 41 L64 42 L57 59 L50 56 Z" fill="url(#al-hull)"/>
+    <!-- tesla rifle body -->
+    <path d="M36 50 L46 48.5 L46 56 L39.5 59.5 L35.5 57 Z" fill="url(#al-iron)"/>
+    <path d="M57 55 L63 55 L61.5 62 L56 62 Z" fill="url(#al-iron)"/>
+    <rect class="wpn" x="47" y="42.5" width="10" height="4" rx="1" fill="url(#al-hullD)"/>
+    <rect class="wpn" x="44" y="46" width="22" height="10" rx="2" fill="url(#al-hull)"/>
+    <!-- cooling fins + conductor rails -->
+    <path class="wpn" d="M46 46.5 v-2 M49 46.5 v-2 M52 46.5 v-2" stroke="#5c6478" stroke-width="1" stroke-linecap="round"/>
+    <path class="wpn" d="M52 53 h9" stroke="#5a7090" stroke-width="1.4" stroke-linecap="round"/><path class="wpn" d="M52 53 h9" stroke="#8aa0b5" stroke-width=".5" stroke-linecap="round"/>
+    <!-- barrel + brass ring capacitors with inset grooves -->
+    <rect class="wpn" x="65" y="48" width="22" height="6" fill="url(#al-iron)"/>
+    <rect class="wpn" x="69.5" y="44.5" width="3.6" height="13" rx="1.3" fill="url(#al-brass)"/><rect class="wpn" x="70.2" y="46" width="2.2" height="2" rx=".6" fill="#7a4e18" opacity=".35"/>
+    <rect class="wpn" x="75" y="44.5" width="3.6" height="13" rx="1.3" fill="url(#al-brass)"/><rect class="wpn" x="75.7" y="46" width="2.2" height="2" rx=".6" fill="#7a4e18" opacity=".35"/>
+    <rect class="wpn" x="80.5" y="44.5" width="3.6" height="13" rx="1.3" fill="url(#al-brass)"/><rect class="wpn" x="81.2" y="46" width="2.2" height="2" rx=".6" fill="#7a4e18" opacity=".35"/>
+    <path class="wpn" d="M73.1 50.5 h1.9 M78.6 50.5 h1.9" stroke="#b3742a" stroke-width=".5" opacity=".65"/>
+    <!-- muzzle + charge indicators -->
+    <rect class="wpn" x="86" y="45" width="7.5" height="12" rx="1.8" fill="url(#al-brass)"/><rect class="wpn" x="87" y="47" width="5.5" height="2" rx=".6" fill="#7a4e18" opacity=".3"/>
+    <path class="wpn" d="M93.5 46.5 L97 47.8 L97 54.2 L93.5 55.5 Z" fill="url(#al-iron)"/>
+    <circle class="wpn" cx="88" cy="55" r=".7" fill="#7fe3ff" filter="url(#al-glowS)"/><circle class="wpn" cx="90.5" cy="55" r=".7" fill="#7fe3ff" filter="url(#al-glowS)"/>
+    <!-- front forearm + hand -->
+    <path d="M50 55.5 L58 55 L59 61 L51.5 61.5 Z" fill="url(#al-hull)"/><circle cx="51.5" cy="58.5" r="3.2" fill="url(#al-iron)"/>
+    <rect x="56.5" y="54" width="7" height="7.5" rx="2" fill="url(#al-hullD)"/>
+    <!-- front pauldron + rivets -->
+    <path d="M54 41 Q54 32 62 32 Q70.5 32.5 70.5 40.5 L69 45 L55.5 45 Z" fill="url(#al-hull)"/>
+    <path d="M55 42.5 Q62.5 40 70 42.5 L69 45 L55.5 45 Z" fill="url(#al-hullD)"/>
+    <circle cx="62.5" cy="37" r=".7" fill="#3a5070"/><circle cx="66" cy="38" r=".7" fill="#3a5070"/>
   </g>
-  <!-- visor slit + scope lens -->
-  <rect x="50.5" y="23" width="13" height="3" rx="1.5" fill="#7fe3ff" filter="url(#glow)"/>
-  <rect x="51" y="23.4" width="12" height="2.2" rx="1.1" fill="#e8fcff" stroke="none" stroke-width=".7"/>
-  <circle cx="65" cy="24.5" r="2.8" fill="#7fe3ff" filter="url(#glow)"/>
-  <circle cx="65" cy="24.5" r="1.8" fill="#e8fcff" stroke="none" stroke-width=".8"/>
-  <!-- chest core + elbow node -->
-  <circle cx="47" cy="42.5" r="3.6" fill="#7fe3ff" filter="url(#glow)"/>
-  <circle cx="47" cy="42.5" r="2.3" fill="#e8fcff" stroke="none" stroke-width=".9"/>
-  <circle cx="51.5" cy="58.5" r="1.5" fill="#bff4ff"/>
-  <!-- barrel conduit + rivets -->
-  <path class="wpn" d="M66 51 h20" stroke="#7fe3ff" stroke-width="2" stroke-linecap="round"/>
-  <path class="wpn" d="M66 51 h20" stroke="#e8fcff" stroke-width=".7" stroke-linecap="round"/>
-  <path class="wpn" d="M70.6 46.5 v4 M76.1 46.5 v4 M81.6 46.5 v4 M87.5 47 h4.5" stroke="#fff" stroke-width=".9" opacity=".75" stroke-linecap="round"/>
+  <!-- emissive glow layer -->
+  <rect x="50.5" y="23" width="13" height="3" rx="1.5" fill="#7fe3ff" filter="url(#al-glow)"/><rect x="51" y="23.4" width="12" height="2.2" rx="1.1" fill="#e8fcff"/>
+  <circle cx="65" cy="24.5" r="2.8" fill="#7fe3ff" filter="url(#al-glow)"/><circle cx="65" cy="24.5" r="1.8" fill="#e8fcff"/><circle cx="64.2" cy="23.8" r=".5" fill="#fff" opacity=".9"/>
+  <!-- chest core reactor -->
+  <circle cx="47" cy="42.5" r="4.2" fill="#1a4060" opacity=".5"/><circle cx="47" cy="42.5" r="3.6" fill="#7fe3ff" filter="url(#al-glow)"/>
+  <circle cx="47" cy="42.5" r="2.8" fill="url(#al-core)"/><circle cx="47" cy="42.5" r="1.6" fill="#e8fcff"/><circle cx="47" cy="42.5" r=".6" fill="#fff"/>
+  <circle cx="51.5" cy="58.5" r="1.5" fill="#bff4ff"/><circle cx="58.8" cy="77.2" r="1.3" fill="#7fe3ff" filter="url(#al-glowS)"/>
+  <!-- barrel conduit + capacitor sparks -->
+  <path class="wpn" d="M66 51 h20" stroke="#7fe3ff" stroke-width="2" stroke-linecap="round"/><path class="wpn" d="M66 51 h20" stroke="#e8fcff" stroke-width=".7" stroke-linecap="round"/>
+  <path class="wpn" d="M70.6 46.5 v3.5 M76.1 46.5 v3.5 M81.6 46.5 v3.5 M87.5 47 h4.5" stroke="#fff" stroke-width=".8" opacity=".7" stroke-linecap="round"/>
   <rect class="wpn" x="49" y="43.8" width="6" height="1.5" rx=".6" fill="#7fe3ff"/>
-  <g fill="#7fe3ff"><circle cx="58.8" cy="77.2" r="1.3"/><circle cx="62.5" cy="37.5" r=".9"/><circle cx="66.5" cy="38.5" r=".9"/></g>
-  <g fill="#23334a"><circle cx="47" cy="51" r=".8"/><circle cx="63" cy="51" r=".8"/></g>
-  <!-- crackling arcs -->
-  <path class="wpn" d="M97.5 49 l1.5 -3 l-1.2 -.5 l1.5 -3.5" stroke="#bff4ff" stroke-width="1.2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-  <path class="wpn" d="M97.5 53 l1.5 1.5 l-1 1.5 l1.2 2" stroke="#bff4ff" stroke-width="1.1" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M33.5 10 l-2 -3 l1.5 -.5 l-1.5 -3 M36 11 l2.5 -2 l-.5 -1.5 l2.5 -1" stroke="#bff4ff" stroke-width="1.1" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-  <!-- highlights -->
+  <g fill="#23334a"><circle cx="47" cy="51" r=".8"/><circle cx="63" cy="51" r=".8"/><circle cx="43" cy="62" r=".6"/><circle cx="59" cy="62" r=".6"/></g>
+  <!-- forked electric arcs - muzzle -->
+  <path class="wpn" d="M97.5 49 l1.2 -2.5 l-1 -.8 l1.8 -3.2 M98.7 46.5 l1.5 -1" stroke="#bff4ff" stroke-width="1.1" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <path class="wpn" d="M97.5 53 l1.3 1.8 l-1.2 1.2 l1.5 2.5 M98.8 54.8 l1.2 .5" stroke="#bff4ff" stroke-width="1" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- forked electric arcs - pylon -->
+  <path d="M33.5 10 l-2.2 -3 l1.8 -.8 l-1.8 -3.2 M31.3 7 l-1.5 -1.5" stroke="#bff4ff" stroke-width="1" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M36 11 l2.8 -2.2 l-.7 -1.8 l2.5 -1.5 M38.8 8.8 l1 -2" stroke="#bff4ff" stroke-width=".9" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M31 12 l-3 .5 l-.5 -1.5" stroke="#bff4ff" stroke-width=".7" fill="none" opacity=".6" stroke-linecap="round"/>
+  <!-- specular highlights -->
   <path d="M45 19 Q47 14.8 52 14.6" stroke="#fff" stroke-width="1.3" fill="none" opacity=".85" stroke-linecap="round"/>
-  <path d="M56.5 37 Q58 34 62 33.8" stroke="#fff" stroke-width="1.3" fill="none" opacity=".85" stroke-linecap="round"/>
-  <path d="M42.5 39.5 Q45 36.5 49 35.8" stroke="#fff" stroke-width="1.2" fill="none" opacity=".7" stroke-linecap="round"/>
-  <path class="wpn" d="M47 47.8 h8" stroke="#fff" stroke-width="1" opacity=".7" stroke-linecap="round"/>
-  <path d="M54 65.5 l1 8.5" stroke="#fff" stroke-width="1" opacity=".6" stroke-linecap="round"/>
+  <path d="M56.5 37 Q58 34 62 33.8" stroke="#fff" stroke-width="1.2" fill="none" opacity=".75" stroke-linecap="round"/>
+  <path d="M42.5 39.5 Q45 36.5 49 35.8" stroke="#fff" stroke-width="1" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path class="wpn" d="M47 47.8 h8" stroke="#fff" stroke-width=".9" opacity=".6" stroke-linecap="round"/>
+  <path d="M54 65.5 l1 8.5" stroke="#fff" stroke-width=".9" opacity=".5" stroke-linecap="round"/>
+  <path class="wpn" d="M66 48.5 h20" stroke="#fff" stroke-width=".6" opacity=".35" stroke-linecap="round"/>
+  <path d="M57 35 Q60 33 65 34" stroke="#fff" stroke-width=".8" fill="none" opacity=".55" stroke-linecap="round"/>
+  <!-- scratch / dent marks -->
+  <path d="M60 42 l1.5 2" stroke="#2a3a50" stroke-width=".5" opacity=".45" stroke-linecap="round"/>
+  <path d="M48 52 l2 .5" stroke="#8aa0b5" stroke-width=".4" opacity=".35" stroke-linecap="round"/>
 </svg>

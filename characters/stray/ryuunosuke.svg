@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ryuunosuke (Stray Banner, melee assassin, Samurai) - Burizza art placeholder. A dark-armored
+     masterless samurai in a low ready stance. Steel mempo mask, heavy layered plates, crimson accents.
+     Katana drawn in lead hand, slightly crouched. Canvas 100x100, faces right, feet on y=94.
+     The katana blade is his weapon (class="wpn"): data-hand marks the grip. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="56,58">
+  <defs>
+    <linearGradient id="ry-armor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3a44"/><stop offset=".5" stop-color="#22222c"/><stop offset="1" stop-color="#14141a"/></linearGradient>
+    <linearGradient id="ry-plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a4a56"/><stop offset="1" stop-color="#2a2a34"/></linearGradient>
+    <linearGradient id="ry-crimson" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c04848"/><stop offset="1" stop-color="#6a1a1a"/></linearGradient>
+    <linearGradient id="ry-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4c4a8"/><stop offset="1" stop-color="#a89880"/></linearGradient>
+    <linearGradient id="ry-blade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8e8f0"/><stop offset=".3" stop-color="#c8c8d4"/><stop offset=".7" stop-color="#a8a8b8"/><stop offset="1" stop-color="#d0d0dc"/></linearGradient>
+    <linearGradient id="ry-wrap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1a1a"/><stop offset="1" stop-color="#1a0a0a"/></linearGradient>
+    <linearGradient id="ry-mask" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a5a66"/><stop offset="1" stop-color="#2a2a34"/></linearGradient>
+    <linearGradient id="ry-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a1a24"/><stop offset="1" stop-color="#0a0a10"/></linearGradient>
+    <linearGradient id="ry-glow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff4444"/><stop offset="1" stop-color="#c04848" stop-opacity=".3"/></linearGradient>
+    <linearGradient id="ry-lace" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a03030"/><stop offset="1" stop-color="#601818"/></linearGradient>
+    <linearGradient id="ry-steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#888898"/><stop offset="1" stop-color="#58586a"/></linearGradient>
+    <radialGradient id="ry-shadow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0a0a14" stop-opacity=".6"/><stop offset="1" stop-color="#0a0a14" stop-opacity="0"/></radialGradient>
+    <linearGradient id="ry-sandal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3820"/><stop offset="1" stop-color="#2a1a0e"/></linearGradient>
+  </defs>
+  <!-- ground shadow -->
+  <ellipse cx="48" cy="94" rx="20" ry="3.2" fill="#000" opacity=".35"/>
+  <!-- dust particles at feet -->
+  <circle cx="30" cy="92" r=".7" fill="#555" opacity=".3"/><circle cx="65" cy="93" r=".5" fill="#555" opacity=".25"/>
+  <circle cx="35" cy="93.5" r=".4" fill="#666" opacity=".2"/><circle cx="62" cy="91.5" r=".6" fill="#555" opacity=".2"/>
+  <!-- dark energy wisps -->
+  <path d="M28 88 Q24 82 26 76" stroke="#1a1a2e" stroke-width=".5" fill="none" opacity=".4"/><path d="M68 86 Q72 80 70 74" stroke="#1a1a2e" stroke-width=".4" fill="none" opacity=".3"/>
+  <path d="M32 90 Q28 86 30 80" stroke="#2a1a2e" stroke-width=".3" fill="none" opacity=".25"/>
+  <path d="M42 70 Q38 64 40 58" stroke="#14141e" stroke-width=".4" fill="none" opacity=".2"/><path d="M56 68 Q60 62 58 56" stroke="#14141e" stroke-width=".3" fill="none" opacity=".15"/>
+  <g stroke="none">
+    <!-- legs: crouched stance, knee plates, shin guards, greave rivets -->
+    <path d="M40 76 L45 74 L44 88 L39 89 Z" fill="url(#ry-armor)"/><path d="M50 74 L56 73 L58 88 L52 89 Z" fill="url(#ry-armor)"/>
+    <path d="M40 75 Q42 73 45 74 L44 77 Q42 78 40 77 Z" fill="url(#ry-plate)"/><path d="M50 73 Q53 72 56 73 L55.5 76 Q53 77 50.5 76 Z" fill="url(#ry-plate)"/>
+    <path d="M39 79 L45 77 L44.5 87 L39.5 88 Z" fill="url(#ry-plate)"/><path d="M51 77 L56 76 L57 87 L52 88 Z" fill="url(#ry-plate)"/>
+    <line x1="40" y1="80" x2="44" y2="79" stroke="#58586a" stroke-width=".4"/><line x1="40.2" y1="83" x2="44.2" y2="82" stroke="#58586a" stroke-width=".4"/>
+    <line x1="52" y1="79" x2="56" y2="78" stroke="#58586a" stroke-width=".4"/><line x1="52.2" y1="82" x2="56.2" y2="81" stroke="#58586a" stroke-width=".4"/>
+    <circle cx="42" cy="78" r=".5" fill="#6a6a7a"/><circle cx="42.5" cy="85" r=".5" fill="#6a6a7a"/><circle cx="54" cy="77" r=".5" fill="#6a6a7a"/><circle cx="54.5" cy="84" r=".5" fill="#6a6a7a"/>
+    <!-- greave strapping -->
+    <path d="M40 85 Q42 84.5 44.5 85" stroke="#3a2a1a" stroke-width=".5" fill="none"/><path d="M52 84 Q54 83.5 56.5 84" stroke="#3a2a1a" stroke-width=".5" fill="none"/>
+    <!-- sandals with toe guards and straps -->
+    <path d="M37 88 h9 v5.5 h-12 Q33.5 90 37 88 Z" fill="url(#ry-sandal)"/>
+    <path d="M50 88 h10 l3 5.5 h-14 Z" fill="url(#ry-sandal)"/>
+    <path d="M34 92 Q35 90 38 89" stroke="#5a4830" stroke-width=".6" fill="none"/><path d="M60 89 Q63 90 63 92" stroke="#5a4830" stroke-width=".6" fill="none"/>
+    <line x1="38" y1="89" x2="43" y2="91" stroke="#4a3820" stroke-width=".5"/><line x1="52" y1="89" x2="57" y2="91" stroke="#4a3820" stroke-width=".5"/>
+    <!-- sandal sole edges -->
+    <path d="M34 93 h12" stroke="#2a1a0e" stroke-width=".4"/><path d="M50 93 h13" stroke="#2a1a0e" stroke-width=".4"/>
+    <!-- hakama (wide trousers) with pleats and movement folds -->
+    <path d="M36 64 Q34 70 36 76 L46 76 Q48 70 47 64 Z" fill="url(#ry-armor)"/><path d="M47 64 Q46 70 48 76 L60 75 Q62 69 60 64 Z" fill="url(#ry-armor)"/>
+    <line x1="39" y1="65" x2="38" y2="75" stroke="#2a2a34" stroke-width=".4" opacity=".6"/><line x1="43" y1="65" x2="43" y2="75" stroke="#2a2a34" stroke-width=".4" opacity=".6"/>
+    <line x1="51" y1="65" x2="52" y2="74" stroke="#2a2a34" stroke-width=".4" opacity=".6"/><line x1="55" y1="65" x2="57" y2="74" stroke="#2a2a34" stroke-width=".4" opacity=".6"/>
+    <path d="M44 68 Q45 71 44 74" stroke="#1a1a24" stroke-width=".3" fill="none" opacity=".5"/><path d="M49 67 Q48 70 49 73" stroke="#1a1a24" stroke-width=".3" fill="none" opacity=".5"/>
+    <!-- hakama hem detail -->
+    <path d="M36 75.5 L46 75.5" stroke="#1a1a24" stroke-width=".3" opacity=".4"/><path d="M48 74.5 L60 74.5" stroke="#1a1a24" stroke-width=".3" opacity=".4"/>
+    <!-- crimson obi sash with knot -->
+    <path d="M36 62 L60 62 Q62 65 60 67 L36 67 Q34 65 36 62 Z" fill="url(#ry-crimson)"/>
+    <rect x="45" y="61.5" width="5" height="6" rx="1" fill="#8a2a2a"/>
+    <path d="M45 63 Q43 64 42 67 L44 67 Q45 65 45 63 Z" fill="#7a2222" opacity=".8"/><path d="M50 63 Q52 64 53 67 L51 67 Q50 65 50 63 Z" fill="#7a2222" opacity=".8"/>
+    <line x1="37" y1="64" x2="44" y2="64" stroke="#a03030" stroke-width=".4"/><line x1="51" y1="64" x2="59" y2="64" stroke="#a03030" stroke-width=".4"/>
+    <!-- torso: layered do (chest armor) -->
+    <path d="M36 36 Q34 44 34 52 Q34 60 36 64 L60 64 Q62 60 62 52 Q62 44 60 36 Z" fill="url(#ry-armor)"/>
+    <path d="M37 40 L59 40 L58.5 44 L37.5 44 Z" fill="url(#ry-plate)" opacity=".7"/>
+    <path d="M37.5 44 L58.5 44 L58 48 L38 48 Z" fill="url(#ry-plate)" opacity=".65"/>
+    <path d="M38 48 L58 48 L57.5 52 L38.5 52 Z" fill="url(#ry-plate)" opacity=".6"/>
+    <path d="M38.5 52 L57.5 52 L57 56 L39 56 Z" fill="url(#ry-plate)" opacity=".55"/>
+    <path d="M39 56 L57 56 L56 60 L39.5 60 Z" fill="url(#ry-plate)" opacity=".5"/>
+    <!-- crimson lacing, cross lacing, rivets, battle scratches -->
+    <line x1="48" y1="38" x2="48" y2="62" stroke="#c04848" stroke-width=".8" opacity=".5"/>
+    <line x1="41" y1="41" x2="41" y2="59" stroke="url(#ry-lace)" stroke-width=".4" opacity=".4"/><line x1="55" y1="41" x2="55" y2="59" stroke="url(#ry-lace)" stroke-width=".4" opacity=".4"/>
+    <path d="M42 42 L46 44 M42 46 L46 48 M42 50 L46 52" stroke="#a03030" stroke-width=".3" fill="none" opacity=".4"/>
+    <path d="M50 42 L54 44 M50 46 L54 48 M50 50 L54 52" stroke="#a03030" stroke-width=".3" fill="none" opacity=".4"/>
+    <line x1="44" y1="43" x2="52" y2="47" stroke="#555" stroke-width=".3" opacity=".4"/><line x1="40" y1="50" x2="44" y2="53" stroke="#555" stroke-width=".25" opacity=".35"/>
+    <circle cx="38" cy="42" r=".4" fill="#6a6a7a"/><circle cx="58" cy="42" r=".4" fill="#6a6a7a"/><circle cx="38.5" cy="50" r=".4" fill="#6a6a7a"/><circle cx="57.5" cy="50" r=".4" fill="#6a6a7a"/>
+    <!-- shoulder guards (sode) - left, layered plates -->
+    <path d="M30 34 Q28 36 30 40 L38 40 Q40 36 38 34 Z" fill="url(#ry-plate)"/>
+    <path d="M30.5 35 L37.5 35 L37 37 L31 37 Z" fill="url(#ry-plate)" opacity=".7"/><path d="M31 37 L37 37 L36.5 39 L31.5 39 Z" fill="url(#ry-plate)" opacity=".6"/>
+    <line x1="31" y1="36" x2="37" y2="36" stroke="#c04848" stroke-width=".6"/><line x1="31.5" y1="38" x2="36.5" y2="38" stroke="#a03030" stroke-width=".4"/>
+    <line x1="32" y1="35" x2="35" y2="39" stroke="#555" stroke-width=".2" opacity=".35"/>
+    <circle cx="34" cy="35" r=".35" fill="#6a6a7a"/><circle cx="34" cy="39" r=".35" fill="#6a6a7a"/>
+    <!-- shoulder guards (sode) - right, layered plates -->
+    <path d="M58 34 Q56 36 58 40 L66 40 Q68 36 66 34 Z" fill="url(#ry-plate)"/>
+    <path d="M58.5 35 L65.5 35 L65 37 L59 37 Z" fill="url(#ry-plate)" opacity=".7"/><path d="M59 37 L65 37 L64.5 39 L59.5 39 Z" fill="url(#ry-plate)" opacity=".6"/>
+    <line x1="59" y1="36" x2="65" y2="36" stroke="#c04848" stroke-width=".6"/><line x1="59.5" y1="38" x2="64.5" y2="38" stroke="#a03030" stroke-width=".4"/>
+    <circle cx="62" cy="35" r=".35" fill="#6a6a7a"/><circle cx="62" cy="39" r=".35" fill="#6a6a7a"/>
+    <line x1="60" y1="35.5" x2="63" y2="38" stroke="#555" stroke-width=".2" opacity=".3"/>
+    <!-- left arm with plate and kote gauntlet -->
+    <path d="M30 40 Q28 48 30 56 L34 58 Q36 50 34 42 Z" fill="url(#ry-armor)"/><path d="M31 44 L33 43 L33.5 52 L31.5 53 Z" fill="url(#ry-plate)" opacity=".5"/>
+    <path d="M30 53 L34 55 L33.5 57 L30 55 Z" fill="url(#ry-plate)" opacity=".6"/>
+    <circle cx="32" cy="59" r="3" fill="url(#ry-skin)"/><path d="M30 58 Q29 60 30 61" stroke="#b0a088" stroke-width=".8" fill="none"/>
+    <!-- right arm with plate and kote gauntlet -->
+    <path d="M58 40 Q60 46 60 54 L64 56 Q64 48 62 42 Z" fill="url(#ry-armor)"/><path d="M59 44 L63 43 L63.5 52 L59.5 53 Z" fill="url(#ry-plate)" opacity=".5"/>
+    <path d="M60 52 L64 53 L63.5 55.5 L60 54.5 Z" fill="url(#ry-plate)" opacity=".6"/>
+    <path d="M56 56 Q54 54 54 58 Q54 62 56 60 L60 60 Q62 58 60 56 Z" fill="url(#ry-skin)"/><path d="M55 57 Q56 56.5 57 57" stroke="#b0a080" stroke-width=".3" fill="none"/>
+    <!-- neck with gorget and shikoro (neck guard plates) -->
+    <rect x="44" y="30" width="8" height="6" rx="2" fill="url(#ry-skin)"/><path d="M43 31 L53 31 L52 33 L44 33 Z" fill="url(#ry-plate)" opacity=".6"/>
+    <path d="M38 30 L36 32 Q34 33 36 34 L40 33 Z" fill="url(#ry-plate)" opacity=".6"/><path d="M58 30 L60 32 Q62 33 60 34 L56 33 Z" fill="url(#ry-plate)" opacity=".6"/>
+    <!-- head: kabuto helmet -->
+    <path d="M38 12 Q36 18 36 24 Q36 30 40 32 L56 32 Q60 30 60 24 Q60 18 58 12 Q52 8 44 8 Q40 10 38 12 Z" fill="url(#ry-armor)"/>
+    <!-- helmet plate seams and rivets -->
+    <line x1="44" y1="9" x2="42" y2="18" stroke="#2a2a34" stroke-width=".3" opacity=".5"/><line x1="48" y1="8.5" x2="48" y2="18" stroke="#2a2a34" stroke-width=".3" opacity=".5"/><line x1="52" y1="9" x2="54" y2="18" stroke="#2a2a34" stroke-width=".3" opacity=".5"/>
+    <circle cx="43" cy="12" r=".4" fill="#6a6a7a"/><circle cx="48" cy="11" r=".4" fill="#6a6a7a"/><circle cx="53" cy="12" r=".4" fill="#6a6a7a"/>
+    <!-- helmet crest (maedate) - ornate with side flares -->
+    <path d="M48 8 L45 1 Q48 -1 51 1 L48 8 Z" fill="url(#ry-crimson)"/>
+    <path d="M47 5 L46 2 Q48 1 50 2 L49 5 Z" fill="#d05050" opacity=".6"/>
+    <path d="M46 3 L43 1 Q45 0 46 2 Z" fill="url(#ry-crimson)" opacity=".7"/><path d="M50 3 L53 1 Q51 0 50 2 Z" fill="url(#ry-crimson)" opacity=".7"/>
+    <!-- helmet brim with visor edge and scratch -->
+    <path d="M34 18 Q38 16 48 15.5 Q58 16 62 18 Q60 20 48 19 Q36 20 34 18 Z" fill="url(#ry-plate)"/>
+    <path d="M34 18.5 Q38 17 48 16.5 Q58 17 62 18.5" stroke="#888898" stroke-width=".3" fill="none"/><line x1="38" y1="17.5" x2="42" y2="18" stroke="#555" stroke-width=".2" opacity=".4"/>
+    <!-- mempo mask: nose guard, chin/cheek ridges -->
+    <path d="M40 22 Q38 26 40 30 L56 30 Q58 26 56 22 Z" fill="url(#ry-mask)"/>
+    <path d="M47 22 L48 24 L49 22" stroke="#4a4a56" stroke-width=".8" fill="url(#ry-steel)"/><path d="M42 29 Q48 31 54 29" stroke="#4a4a56" stroke-width=".5" fill="none"/>
+    <path d="M40 24 Q41 26 41 28" stroke="#4a4a56" stroke-width=".4" fill="none" opacity=".6"/><path d="M56 24 Q55 26 55 28" stroke="#4a4a56" stroke-width=".4" fill="none" opacity=".6"/>
+    <!-- mask breathing holes -->
+    <circle cx="44" cy="28.5" r=".4" fill="#1a1a24" opacity=".5"/><circle cx="46" cy="29" r=".4" fill="#1a1a24" opacity=".5"/><circle cx="50" cy="29" r=".4" fill="#1a1a24" opacity=".5"/><circle cx="52" cy="28.5" r=".4" fill="#1a1a24" opacity=".5"/>
+    <!-- mask grimacing teeth, dent -->
+    <path d="M42 27 L43 26.3 L44 27 L45 26.3 L46 27 L47 26.3 L48 27 L49 26.3 L50 27 L51 26.3 L52 27 L53 26.3 L54 27" stroke="#1a1a24" stroke-width=".5" fill="none"/>
+    <path d="M43 26.5 v1 M45 26.5 v1 M47 26.5 v1 M49 26.5 v1 M51 26.5 v1 M53 26.5 v1" stroke="#1a1a24" stroke-width=".3"/>
+    <!-- mask jaw edge and battle dent -->
+    <path d="M40 30 L42 29.5 Q48 30.5 54 29.5 L56 30" stroke="#3a3a44" stroke-width=".4" fill="none" opacity=".5"/>
+    <ellipse cx="53" cy="25" rx="1" ry=".6" fill="#3a3a44" opacity=".4"/>
+    <!-- eyes: glowing red slits with ambient glow -->
+    <rect x="41" y="21" width="5" height="2" rx=".8" fill="#1a0a0a"/><rect x="42" y="21.5" width="3" height="1" rx=".5" fill="url(#ry-glow)"/>
+    <rect x="50" y="21" width="5" height="2" rx=".8" fill="#1a0a0a"/><rect x="51" y="21.5" width="3" height="1" rx=".5" fill="url(#ry-glow)"/>
+    <circle cx="43.5" cy="22" r="2" fill="#c04848" opacity=".08"/><circle cx="52.5" cy="22" r="2" fill="#c04848" opacity=".08"/>
+  </g>
+  <!-- WEAPON: katana -->
+  <g class="wpn">
+    <!-- tsuba (hand guard) with inlay ring -->
+    <ellipse cx="57" cy="56" rx="4" ry="1.8" fill="#4a4a56" transform="rotate(-30, 57, 56)"/><ellipse cx="57" cy="56" rx="3" ry="1.2" fill="none" stroke="#3a3a44" stroke-width=".3" transform="rotate(-30, 57, 56)"/>
+    <!-- blade with kissaki tip, shinogi ridge -->
+    <path d="M59 54 L80 24 L83 22 L82 26 L61 56 Z" fill="url(#ry-blade)"/><path d="M60 54 L80.5 24.5" stroke="#c0c0d0" stroke-width=".3" fill="none" opacity=".6"/>
+    <!-- hamon (temper line) with wave detail -->
+    <path d="M60 55 Q65 48 70 40 Q75 32 80 25" stroke="#e0e0ec" stroke-width=".5" fill="none" opacity=".5"/>
+    <path d="M63 50 Q64 49 65 50 Q66 49 67 50" stroke="#e0e0ec" stroke-width=".3" fill="none" opacity=".3"/><path d="M72 37 Q73 36 74 37 Q75 36 76 37" stroke="#e0e0ec" stroke-width=".3" fill="none" opacity=".3"/>
+    <!-- grip (tsuka) with ito wrapping, kashira pommel -->
+    <rect x="53" y="56" width="8" height="3" rx="1" fill="url(#ry-wrap)" transform="rotate(-30, 57, 57.5)"/>
+    <path d="M54 57 L55 58.5 M55.5 57 L56.5 58.5 M57 57 L58 58.5 M58.5 57 L59.5 58.5" stroke="#3a2020" stroke-width=".3" transform="rotate(-30, 57, 57.5)"/>
+    <circle cx="53.5" cy="59" r="1" fill="#3a3a44" transform="rotate(-30, 57, 57.5)"/>
+  </g>
+</svg>

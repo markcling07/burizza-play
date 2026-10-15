@@ -10,60 +10,90 @@
     <linearGradient id="ny-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0cf6b"/><stop offset=".55" stop-color="#d1a238"/><stop offset="1" stop-color="#8f6a18"/></linearGradient>
     <linearGradient id="ny-blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset=".5" stop-color="#c3c9d6"/><stop offset="1" stop-color="#8e94a4"/></linearGradient>
     <linearGradient id="ny-dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3148"/><stop offset="1" stop-color="#14192a"/></linearGradient>
+    <linearGradient id="ny-void" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a2a8a"/><stop offset="1" stop-color="#1a0a2e"/></linearGradient>
+    <linearGradient id="ny-lacquer" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#7888a8"/><stop offset="1" stop-color="#3a4a6c"/></linearGradient>
+    <radialGradient id="ny-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#c8e0ff"/><stop offset="1" stop-color="#6090c0" stop-opacity="0"/></radialGradient>
   </defs>
 
   <ellipse cx="50" cy="93" rx="25" ry="3.4" fill="#000" opacity=".32"/>
 
+  <!-- void energy wisps drifting from the armour -->
+  <path d="M36 45 Q30 38 28 30 Q32 35 35 42" fill="none" stroke="#5a2a8a" stroke-width=".8" opacity=".35"/>
+  <path d="M65 40 Q70 32 73 28 Q71 34 66 41" fill="none" stroke="#4a1e7a" stroke-width=".7" opacity=".3"/>
+  <path d="M42 70 Q36 64 33 58 Q37 62 42 68" fill="none" stroke="#5a2a8a" stroke-width=".6" opacity=".25"/>
+  <circle cx="30" cy="32" r=".8" fill="#4a1e7a" opacity=".3"/><circle cx="71" cy="30" r=".6" fill="#5a2a8a" opacity=".25"/>
+  <circle cx="34" cy="56" r=".5" fill="#3a1260" opacity=".2"/><circle cx="68" cy="46" r=".7" fill="#4a1e7a" opacity=".22"/>
+
   <!-- sheathed blade (saya) slung back at the hip -->
   <g stroke="none" stroke-width="1.3" stroke-linejoin="round">
     <path d="M58 56 L86 70 L85 73 L57 59 Z" fill="url(#ny-dark)"/>
-    <path d="M84 69 L88 71 L87 74 L83 72 Z" fill="url(#ny-gold)"/>
+    <path d="M63 58.5 L65 60.5 M68 61 L70 63 M73 64 L75 66" fill="none" stroke="#36425f" stroke-width=".6"/><!-- sageo cord -->
+    <path d="M57.5 56.5 L59 57.5 L58.5 59 L57 58 Z" fill="url(#ny-gold)"/><!-- koiguchi fitting -->
+    <ellipse cx="65" cy="60" rx="1.2" ry=".8" transform="rotate(30 65 60)" fill="#36425f" stroke="#4a5a7a" stroke-width=".4"/><!-- kurikata knob -->
+    <path d="M84 69 L88 71 L87 74 L83 72 Z" fill="url(#ny-gold)"/><!-- kojiri cap -->
+    <path d="M84.5 70 L87 71.5" fill="none" stroke="#7a5a14" stroke-width=".4"/>
   </g>
 
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- back (far) leg -->
+    <!-- legs -->
     <path d="M45 62 Q42 74 40 84 L39 91 L46 91 Q47 82 49 73 Q50 67 51 63 Z" fill="url(#ny-cloth)"/>
-    <!-- front (lead) leg, stepping -->
     <path d="M53 63 Q58 73 61 83 L61 91 L54 91 Q54 82 51 74 Q49 68 49 63 Z" fill="url(#ny-cloth)"/>
     <!-- shin guards (suneate) -->
     <path d="M38 78 Q43 76 47 78 L46 88 Q42 89 38 88 Z" fill="url(#ny-plate)"/>
     <path d="M53 79 Q58 77 62 80 L61 88 Q56 89 53 88 Z" fill="url(#ny-plate)"/>
-    <path d="M38.5 82 L46.5 82 M53.5 83 L61 83" fill="none" stroke-width=".9"/>
-    <!-- feet (boots) -->
+    <path d="M38.5 82 L46.5 82 M53.5 83 L61 83" fill="none" stroke="#5a6a8c" stroke-width=".9"/>
+    <path d="M38.5 85 L46.5 85 M53.5 86 L61 86" fill="none" stroke="#5a6a8c" stroke-width=".7"/>
+    <circle cx="39.5" cy="80" r=".5" fill="#8090b0"/><circle cx="45.5" cy="80" r=".5" fill="#8090b0"/><circle cx="54.5" cy="81" r=".5" fill="#8090b0"/><circle cx="60.5" cy="81" r=".5" fill="#8090b0"/>
+    <!-- feet (boots) with toe guards -->
     <path d="M37 88 L47 88 L47 91.5 Q42 93.5 36 92 Z" fill="url(#ny-dark)"/>
     <path d="M53 88 L62 88 Q64 90 62 92.5 L53 92 Z" fill="url(#ny-dark)"/>
+    <path d="M37 90 Q39 89 41 90.5 Q39 92 37 91 Z" fill="url(#ny-lacquer)"/>
+    <path d="M55 90 Q57 89 59 91 Q57 92.5 55 91.5 Z" fill="url(#ny-lacquer)"/>
+    <path d="M37 91.5 L46 91.8 M54 91.8 L61 92" fill="none" stroke="#0a0e18" stroke-width=".5"/>
 
-    <!-- kusazuri: the armoured war-skirt, hanging plates -->
+    <!-- kusazuri: armoured war-skirt, hanging plates -->
     <path d="M39 51 L61 51 L63 63 Q50 67 37 63 Z" fill="url(#ny-plate)"/>
-    <path d="M43 52 L43 65 M50 52 L50 66 M57 52 L57 65" fill="none" stroke-width="1"/>
-    <path d="M38 57 Q50 60 62 57" fill="none" stroke="#c9d0dd" stroke-width=".7" stroke-dasharray="1.8 1.6"/>
+    <path d="M41 52 L40 64 M45 52 L44 65.5 M49 52 L49 66 M53 52 L53 65.5 M57 52 L58 64" fill="none" stroke="#2a3650" stroke-width=".8"/>
+    <path d="M38 55 Q50 58 62 55" fill="none" stroke="#c9d0dd" stroke-width=".7" stroke-dasharray="1.8 1.6"/>
+    <path d="M37.5 60 Q50 63 62.5 60" fill="none" stroke="#c9d0dd" stroke-width=".6" stroke-dasharray="1.6 1.4"/>
+    <circle cx="40" cy="64" r=".7" fill="none" stroke="#8090b0" stroke-width=".5"/><circle cx="49" cy="66.5" r=".7" fill="none" stroke="#8090b0" stroke-width=".5"/><circle cx="58" cy="64.5" r=".7" fill="none" stroke="#8090b0" stroke-width=".5"/>
 
     <!-- obi sash + cord knot -->
     <path d="M39 48 Q50 52 61 48 L61 53 Q50 57 39 53 Z" fill="url(#ny-dark)"/>
     <path d="M47 50 Q50 54 53 50 Q55 52 52 54 Q50 52 48 54 Q45 52 47 50 Z" fill="#8a2630" stroke-width=".8"/>
 
-    <!-- do: laced cuirass with a central crest -->
+    <!-- do: laced cuirass with embossed crest -->
     <path d="M40 33 Q50 30 60 33 L62 50 Q50 54 38 50 Z" fill="url(#ny-plate)"/>
-    <path d="M39.5 38 Q50 41 60.5 38 M39.3 43 Q50 46 60.7 43" fill="none" stroke="#c9d0dd" stroke-width=".7" stroke-dasharray="1.8 1.6"/>
-    <path d="M50 35 L54 40 L50 45 L46 40 Z" fill="url(#ny-gold)" stroke-width="1"/>
+    <path d="M39.5 36 Q50 39 60.5 36" fill="none" stroke="#c9d0dd" stroke-width=".7" stroke-dasharray="1.8 1.6"/>
+    <path d="M39.4 40 Q50 43 60.6 40" fill="none" stroke="#c9d0dd" stroke-width=".7" stroke-dasharray="1.8 1.6"/>
+    <path d="M39.3 44 Q50 47 60.7 44" fill="none" stroke="#c9d0dd" stroke-width=".6" stroke-dasharray="1.6 1.4"/>
+    <path d="M50 34 L54.5 40 L50 46 L45.5 40 Z" fill="url(#ny-gold)" stroke-width="1"/><!-- mon crest -->
+    <path d="M50 36.5 L52.5 40 L50 43.5 L47.5 40 Z" fill="url(#ny-void)" stroke="none"/><!-- void core -->
+    <path d="M42 34 Q44 33 46 34" fill="none" stroke="#8898b8" stroke-width=".5" opacity=".5"/><!-- lacquer sheen -->
 
     <!-- back (far) sode shoulder guard -->
     <path d="M34 34 Q38 31 44 33 L44 45 Q38 47 34 44 Z" fill="url(#ny-plate)"/>
-    <path d="M34.5 38 L43.5 38 M34.5 41.5 L43.5 41.5" fill="none" stroke-width=".9"/>
+    <path d="M34.5 37 L43.5 37 M34.5 40 L43.5 40 M34.5 43 L43.5 43" fill="none" stroke="#c9d0dd" stroke-width=".6" stroke-dasharray="1.6 1.4"/>
+    <path d="M34 34 L34 44" fill="none" stroke="#8f6a18" stroke-width=".6"/><!-- gold edge trim -->
 
     <!-- back (far) arm -->
     <path d="M37 36 Q31 42 32 51 L37 52 Q37 44 41 39 Z" fill="url(#ny-cloth)"/>
     <path d="M31 50 Q29 55 33 57 L38 55 Q37 51 36 50 Z" fill="url(#ny-plate)"/>
 
-    <!-- neck guard + menpo mask (scowling) -->
+    <!-- neck guard (nodowa) + menpo mask -->
     <path d="M46 26 L56 26 L57 32 L45 32 Z" fill="url(#ny-dark)"/>
-    <path d="M45.5 25 Q51 23 56.5 25 Q58 30 51 32 Q44 30 45.5 25 Z" fill="url(#ny-dark)"/>
+    <path d="M46 28.5 L56 28.5 M46 30.5 L56 30.5" fill="none" stroke="#3a4a68" stroke-width=".5"/>
+    <path d="M45.5 25 Q51 23 56.5 25 Q58 30 51 32 Q44 30 45.5 25 Z" fill="url(#ny-dark)"/><!-- menpo face -->
+    <path d="M47 30 Q51 32.5 55 30" fill="none" stroke="#3a4a68" stroke-width=".7"/><!-- chin ridge -->
+    <circle cx="49.5" cy="29.2" r=".5" fill="#14192a"/><circle cx="52.5" cy="29.2" r=".5" fill="#14192a"/><!-- nostrils -->
+    <path d="M48 28 L49 28.5 M50 28 L51 28.5 M52 28 L53 28.5" fill="none" stroke="#2a3148" stroke-width=".5"/><!-- mouth grille -->
 
-    <!-- kabuto helmet bowl -->
+    <!-- kabuto helmet bowl with plate segments -->
     <path d="M43 20 Q44 10 51 9 Q59 9 59.5 19 Q60 24 51 25 Q44 25 43 20 Z" fill="url(#ny-plate)"/>
-    <path d="M44 20 Q51 22 59 20" fill="none" stroke="#c9d0dd" stroke-width=".8"/>
-    <!-- fukigaeshi + a little gold boss -->
-    <circle cx="51" cy="14" r="1.8" fill="url(#ny-gold)"/>
+    <path d="M46 11 Q47 17 46 24 M51 9.5 L51 24.5 M56 11 Q55 17 56 24" fill="none" stroke="#5a6a8c" stroke-width=".5"/><!-- suji lines -->
+    <path d="M44 20 Q51 22 59 20 Q60 21 51 23 Q44 22 44 20 Z" fill="url(#ny-lacquer)"/><!-- mabisashi visor -->
+    <circle cx="46" cy="20.5" r=".4" fill="#8090b0"/><circle cx="49" cy="21" r=".4" fill="#8090b0"/><circle cx="53" cy="21" r=".4" fill="#8090b0"/><circle cx="56" cy="20.5" r=".4" fill="#8090b0"/>
+    <circle cx="51" cy="13" r="2" fill="url(#ny-gold)"/><circle cx="51" cy="13" r="1" fill="url(#ny-void)"/><!-- tehen boss -->
 
     <!-- lead (near) arm, reaching down to the hilt -->
     <path d="M58 35 Q64 40 62 50 L57 51 Q57 43 53 38 Z" fill="url(#ny-cloth)"/>
@@ -71,7 +101,8 @@
 
     <!-- front (near) sode shoulder guard, over the arm -->
     <path d="M56 33 Q61 30 67 33 L67 45 Q61 47 56 44 Z" fill="url(#ny-plate)"/>
-    <path d="M56.5 38 L66.5 38 M56.5 41.5 L66.5 41.5" fill="none" stroke-width=".9"/>
+    <path d="M56.5 37 L66.5 37 M56.5 40 L66.5 40 M56.5 43 L66.5 43" fill="none" stroke="#c9d0dd" stroke-width=".6" stroke-dasharray="1.6 1.4"/>
+    <path d="M67 33 L67 45" fill="none" stroke="#8f6a18" stroke-width=".6"/><!-- gold edge trim -->
   </g>
 
   <!-- the golden horns (kuwagata) of the kabuto -->
@@ -79,22 +110,28 @@
     <path d="M47 11 Q40 6 36 9 Q42 8 46 14 Z" fill="url(#ny-gold)"/>
     <path d="M55 11 Q62 6 66 9 Q60 8 56 14 Z" fill="url(#ny-gold)"/>
     <path d="M48.5 12 Q45 4 50 2 Q52 7 52.5 12 Z" fill="url(#ny-gold)"/>
+    <path d="M47.5 12 Q43 8 39 9.5 M54.5 12 Q59 8 63 9.5 M49.5 11.5 Q48 6 50 3.5" fill="none" stroke="#d1a238" stroke-width=".5"/><!-- filigree -->
   </g>
 
-  <!-- menpo scowl: shadowed eyes + a dull gleam -->
-  <path d="M46.5 27.3 Q48.6 26.4 50.5 27.4 M52.5 27.4 Q54.4 26.4 56.5 27.3" stroke="none" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-  <circle cx="48.3" cy="27.9" r=".7" fill="#9fb4d6"/><circle cx="54.6" cy="27.9" r=".7" fill="#9fb4d6"/>
+  <!-- menpo scowl: glowing eyes -->
+  <path d="M46.5 27.3 Q48.6 26.4 50.5 27.4 M52.5 27.4 Q54.4 26.4 56.5 27.3" stroke="#3a4a68" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <circle cx="48.3" cy="27.9" r="2" fill="url(#ny-glow)" opacity=".45"/><circle cx="54.6" cy="27.9" r="2" fill="url(#ny-glow)" opacity=".45"/>
+  <circle cx="48.3" cy="27.9" r=".8" fill="#b8d0f0"/><circle cx="54.6" cy="27.9" r=".8" fill="#b8d0f0"/>
 
   <!-- THE KATANA, held low in the lead hand (class="wpn") -->
   <g class="wpn" stroke="none" stroke-width="1.1" stroke-linejoin="round">
-    <!-- blade, sweeping down-forward with a gentle curve -->
-    <path d="M58.5 52 Q74 64 82 84 L80.5 85 Q70 66 56.5 55 Z" fill="url(#ny-blade)"/>
-    <path d="M59.5 53.5 Q72 64 80 82" fill="none" stroke="#ffffff" stroke-width=".6" opacity=".7"/>
-    <!-- tsuba guard -->
+    <path d="M58.5 52 Q74 64 82 84 L81.2 85.2 L80.5 85 Q70 66 56.5 55 Z" fill="url(#ny-blade)"/><!-- blade -->
+    <path d="M82 84 L83 83.5 L81.2 85.2 Z" fill="#dee4ee"/><!-- kissaki tip -->
+    <path d="M59 53 Q72 64 80.5 83" fill="none" stroke="#d8dde8" stroke-width=".5" opacity=".6"/><!-- shinogi ridge -->
+    <path d="M59.5 53.5 Q62 55 64 57 Q66 58.5 68 61 Q70 63 72 66 Q74 68.5 76 72 Q78 75 80 82" fill="none" stroke="#ffffff" stroke-width=".6" opacity=".7"/><!-- hamon -->
+    <path d="M60 54 Q63 56.5 65.5 59 Q67 60 69 62.5 Q71 64.5 73 67.5 Q75 70 77.5 74 Q79 77 80.5 83" fill="none" stroke="#ffffff" stroke-width=".35" opacity=".4"/>
+    <!-- tsuba guard with inlay -->
     <ellipse cx="56.5" cy="53.5" rx="3.4" ry="2.2" transform="rotate(38 56.5 53.5)" fill="url(#ny-gold)"/>
+    <ellipse cx="56.5" cy="53.5" rx="2" ry="1.2" transform="rotate(38 56.5 53.5)" fill="none" stroke="#7a5a14" stroke-width=".4"/>
     <!-- tsuka handle, dark wrapped -->
     <path d="M50 46 L56 51.5 L54 54 L48 48.5 Z" fill="url(#ny-dark)"/>
-    <path d="M50.5 48 L52.5 49.8 M52 46.8 L54 48.6" stroke="#9aa2b6" stroke-width=".7"/>
+    <path d="M50.5 48 L52.5 49.8 M52 46.8 L54 48.6 M51 49.5 L53 51.3" stroke="#9aa2b6" stroke-width=".7"/><!-- tsuka-ito wrap -->
+    <path d="M48.5 48 Q49 47 50 47.5 L48.5 49 Z" fill="url(#ny-gold)"/><!-- kashira pommel -->
     <!-- gripping hand -->
     <path d="M53 50 Q57 50 58.5 53 Q57 56 53.5 55 Q51.5 52.5 53 50 Z" fill="url(#ny-plate)"/>
   </g>

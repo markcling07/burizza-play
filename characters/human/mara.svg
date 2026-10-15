@@ -1,67 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Mara Holt (ranged) - Ashfall Road art v2. Musketeer with a steady hand.
+<!-- Mara Holt (ranged) - Ashfall Road art v3. Musketeer with a steady hand.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="60.5,55">
   <defs>
-    <linearGradient id="coat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a6c96"/><stop offset="1" stop-color="#1f324b"/></linearGradient>
-    <linearGradient id="coatD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f4a6b"/><stop offset="1" stop-color="#18263a"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ead08e"/><stop offset="1" stop-color="#a77f3a"/></linearGradient>
-    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0714a"/><stop offset="1" stop-color="#5e3f26"/></linearGradient>
-    <linearGradient id="iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b93a6"/><stop offset="1" stop-color="#3a3f4f"/></linearGradient>
-    <linearGradient id="hat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4058"/><stop offset="1" stop-color="#1c1f2c"/></linearGradient>
+    <linearGradient id="mh-coat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a7faa"/><stop offset=".3" stop-color="#4a6c96"/><stop offset=".6" stop-color="#3a5a82"/><stop offset="1" stop-color="#1f324b"/></linearGradient>
+    <linearGradient id="mh-coatD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a5a7a"/><stop offset=".5" stop-color="#2f4a6b"/><stop offset="1" stop-color="#18263a"/></linearGradient>
+    <linearGradient id="mh-lining" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c44040"/><stop offset="1" stop-color="#8a2020"/></linearGradient>
+    <linearGradient id="mh-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0dc9a"/><stop offset=".4" stop-color="#ead08e"/><stop offset="1" stop-color="#a77f3a"/></linearGradient>
+    <linearGradient id="mh-wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b08050"/><stop offset=".5" stop-color="#a0714a"/><stop offset="1" stop-color="#5e3f26"/></linearGradient>
+    <linearGradient id="mh-iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0a8ba"/><stop offset=".4" stop-color="#8b93a6"/><stop offset="1" stop-color="#3a3f4f"/></linearGradient>
+    <linearGradient id="mh-hat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#454b68"/><stop offset=".5" stop-color="#3a4058"/><stop offset="1" stop-color="#1c1f2c"/></linearGradient>
+    <linearGradient id="mh-boot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e4a30"/><stop offset=".6" stop-color="#5a3a26"/><stop offset="1" stop-color="#3a2518"/></linearGradient>
+    <linearGradient id="mh-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4a07a"/><stop offset="1" stop-color="#c68f6a"/></linearGradient>
+    <linearGradient id="mh-hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4428"/><stop offset="1" stop-color="#5a3520"/></linearGradient>
+    <linearGradient id="mh-barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0a8ba"/><stop offset=".3" stop-color="#c8d0e0"/><stop offset=".5" stop-color="#8b93a6"/><stop offset="1" stop-color="#4a5060"/></linearGradient>
   </defs>
-  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- ponytail -->
-    <path d="M43 27 Q34 30 35 42 Q39 37 44 34 Z" fill="#5a3520"/>
-    <!-- legs + boots -->
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/> <!-- ground shadow -->
+  <g stroke="none">
+    <!-- ponytail with strands -->
+    <path d="M43 27 Q34 30 35 42 Q39 37 44 34 Z" fill="url(#mh-hair)"/>
+    <path d="M40 30 Q36 34 36 40" stroke="#4a2a18" stroke-width=".5" fill="none"/><path d="M42 29 Q37 33 37 39" stroke="#6a3c22" stroke-width=".4" fill="none"/>
+    <!-- back leg + boot -->
     <path d="M42 70 h7.5 l-1 12 h-7.5 z" fill="#2a2f3f"/>
-    <path d="M40 80 h9 v8 l1 5.5 h-12 l1 -5.5 z" fill="#5a3a26"/>
+    <path d="M40 80 h9 v3 l-.5 5 l1 5.5 h-12 l1 -5.5 l.5 -5 z" fill="url(#mh-boot)"/>
+    <path d="M40 80 h9 v2.5 l-1 .5 h-7 l-1 -.5 z" fill="#7a5434"/>
+    <rect x="43" y="84" width="3" height="1.8" rx=".4" fill="url(#mh-gold)"/>
+    <path d="M39.5 93.5 h11" stroke="#3a2518" stroke-width=".6"/>
+    <!-- front leg + boot -->
     <path d="M51 70 h7.5 l2 12 h-7.5 z" fill="#353b4f"/>
-    <path d="M53 80 h9 l1 8 l2 5.5 h-12.5 l.5 -5.5 z" fill="#6e4a30"/>
-    <!-- coat with tails -->
-    <path d="M38 43 Q50 39 61 43 L62 66 L61 80 L46 76 Q40 81 33 80 L38 64 Z" fill="url(#coat)"/>
-    <path d="M38 64 L33 80 Q40 81 46 76 L44 66 Z" fill="url(#coatD)"/>
-    <rect x="38" y="62" width="23.5" height="4" rx="1" fill="#5e3f26"/>
-    <rect x="47" y="61.5" width="5" height="5" rx="1" fill="url(#gold)"/>
-    <!-- bandolier -->
+    <path d="M53 80 h9 v3 l.5 5 l2 5.5 h-12.5 l.5 -5.5 l-.5 -5 z" fill="url(#mh-boot)"/>
+    <path d="M53 80 h9 v2.5 l-1 .5 h-7 l-1 -.5 z" fill="#7a5434"/>
+    <rect x="56" y="84" width="3" height="1.8" rx=".4" fill="url(#mh-gold)"/>
+    <path d="M53 93.5 h12.5" stroke="#3a2518" stroke-width=".6"/><path d="M64 88 v5.5" stroke="#5a3a26" stroke-width=".8"/>
+    <!-- coat body -->
+    <path d="M38 43 Q50 39 61 43 L62 66 L61 80 L46 76 Q40 81 33 80 L38 64 Z" fill="url(#mh-coat)"/>
+    <!-- coat tail with red lining and fold lines -->
+    <path d="M38 64 L33 80 Q40 81 46 76 L44 66 Z" fill="url(#mh-coatD)"/>
+    <path d="M35 72 L33.5 79 Q38 80 42 78 L43 70 Z" fill="url(#mh-lining)" opacity=".45"/>
+    <path d="M36 68 L34 77" stroke="#18263a" stroke-width=".4" opacity=".5"/><path d="M41 67 L39 76" stroke="#18263a" stroke-width=".3" opacity=".4"/>
+    <path d="M33.5 79 Q40 80 45.5 75.5" stroke="url(#mh-gold)" stroke-width="1.3" fill="none"/>
+    <!-- coat seams and pocket flap -->
+    <path d="M50 44 L50 66" stroke="#2a4060" stroke-width=".3" opacity=".35"/><path d="M45 44.5 L44 66" stroke="#2a4060" stroke-width=".25" opacity=".3"/>
+    <path d="M42 55 h6 v1.5 h-6 z" fill="#3a5a82" stroke="#2a4060" stroke-width=".3"/><path d="M42.5 57 h5" stroke="#2a4060" stroke-width=".2" opacity=".5"/>
+    <!-- belt, buckle, cartridge pouch, dagger -->
+    <rect x="38" y="62" width="23.5" height="3.5" rx="1" fill="#5e3f26"/><rect x="47" y="61.5" width="5" height="5" rx="1" fill="url(#mh-gold)"/>
+    <path d="M40 65 h5 v4 h-5 z" fill="#4a3020" stroke="#3a2518" stroke-width=".3"/><path d="M40 65 h5 v1.2 h-5 z" fill="#5e3f26"/>
+    <path d="M37 63 l-2.2 5.5" stroke="#8b93a6" stroke-width=".9" stroke-linecap="round"/><path d="M37.2 63 l-.4 2.2" stroke="#5e3f26" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- bandolier with cartridge loops -->
     <path d="M41 44 L60 62 L57 64.5 L38.5 47 Z" fill="#6e4a30"/>
-    <!-- back arm reaching to the barrel -->
-    <path d="M41 45 L68 47 L68 53 L43 53 Z" fill="url(#coatD)"/>
-    <!-- head -->
-    <circle cx="52" cy="31" r="9.5" fill="#c68f6a"/>
-    <path d="M42.5 32 Q41.5 21 51 21 Q59 21 61 27 Q55 24.5 49 26 Q45 28 45 36 Z" fill="#5a3520"/>
-    <!-- tricorn -->
-    <path d="M44 22 Q44.5 12 52.5 12 Q60 12 60.5 21.5 Z" fill="url(#hat)"/>
-    <path d="M37 24 Q50 15 66 23 Q59 21.5 52 22 Q44 22.5 37 24 Z" fill="url(#hat)"/>
+    <path d="M41.5 44.5 L59.5 62.5" stroke="#5a3a20" stroke-width=".35" opacity=".6"/>
+    <g fill="url(#mh-gold)" opacity=".85">
+      <rect x="43.3" y="47.2" width="1.5" height="2.3" rx=".3" transform="rotate(43 44 48.4)"/>
+      <rect x="45.8" y="49.7" width="1.5" height="2.3" rx=".3" transform="rotate(43 46.5 50.9)"/>
+      <rect x="48.3" y="52.2" width="1.5" height="2.3" rx=".3" transform="rotate(43 49 53.4)"/>
+      <rect x="50.8" y="54.7" width="1.5" height="2.3" rx=".3" transform="rotate(43 51.5 55.9)"/>
+      <rect x="53.3" y="57.2" width="1.5" height="2.3" rx=".3" transform="rotate(43 54 58.4)"/>
+    </g>
+    <!-- powder horn -->
+    <path d="M37 47 Q34 50 35 54 Q36 55 37 54 Q36 50 38 48 Z" fill="#d4b080" stroke="#a08050" stroke-width=".3"/><path d="M37.5 47.5 Q35 50 35.5 53" stroke="#c0a060" stroke-width=".2" fill="none" opacity=".5"/>
+    <!-- back arm with cuff -->
+    <path d="M41 45 L68 47 L68 53 L43 53 Z" fill="url(#mh-coatD)"/><path d="M66 47 h2 v6 h-2 z" fill="url(#mh-gold)"/>
+    <!-- epaulette with fringe -->
+    <path d="M59 43 Q63 41 64 44 Q62 45 59 44 Z" fill="url(#mh-gold)"/>
+    <g stroke="#c0a050" stroke-width=".4" fill="none">
+      <path d="M60 44 l1 2.5"/><path d="M61 44 l1.5 2.2"/><path d="M62.5 43.8 l1 2.2"/>
+    </g>
+    <!-- button row -->
+    <path d="M56.3 45 L58 60" stroke="url(#mh-gold)" stroke-width=".5" opacity=".4"/><g fill="url(#mh-gold)"><circle cx="56.6" cy="46" r=".9"/><circle cx="57" cy="50" r=".9"/><circle cx="57.4" cy="54" r=".9"/><circle cx="57.8" cy="58" r=".9"/></g>
+    <!-- head + auburn hair with strands -->
+    <ellipse cx="52" cy="31" rx="9.5" ry="9.5" fill="url(#mh-skin)"/>
+    <path d="M42.5 32 Q41.5 21 51 21 Q59 21 61 27 Q55 24.5 49 26 Q45 28 45 36 Z" fill="url(#mh-hair)"/>
+    <path d="M44 23 Q48 22 52 21.5" stroke="#7a4c2e" stroke-width=".45" fill="none"/><path d="M46 24 Q50 22.5 55 23" stroke="#6a3c22" stroke-width=".35" fill="none"/><path d="M43 26 Q46 24 50 24.5" stroke="#6a3c22" stroke-width=".3" fill="none"/>
+    <!-- tricorn hat: crown, brim -->
+    <path d="M44 22 Q44.5 12 52.5 12 Q60 12 60.5 21.5 Z" fill="url(#mh-hat)"/>
+    <path d="M37 24 Q50 15 66 23 Q59 21.5 52 22 Q44 22.5 37 24 Z" fill="url(#mh-hat)"/><path d="M38 24 Q43 21.5 48 22" stroke="#505878" stroke-width=".35" fill="none" opacity=".4"/>
   </g>
-  <!-- hat trim + feather -->
-  <path d="M38.5 23.5 Q50 16.5 64.5 22.6" stroke="url(#gold)" stroke-width="1.3" fill="none"/>
-  <path d="M46 15 Q36 9 29 15 Q37 13.5 45 18 Z" fill="#e9e4d8" stroke="none" stroke-width="1.1" stroke-linejoin="round"/>
-  <path d="M45 16.5 Q38 13 32 14.5" stroke="#c9c2b2" stroke-width=".8" fill="none"/>
-  <!-- face -->
-  <circle cx="57.5" cy="30.5" r="1.5" fill="#1d2130"/>
-  <path d="M55.4 27.6 l4 -.5" stroke="#3a2214" stroke-width="1.1" stroke-linecap="round"/>
-  <path d="M57.5 36 h3" stroke="#8a5a40" stroke-width=".9" stroke-linecap="round"/>
-  <!-- coat details -->
-  <path d="M55 44 L58 62" stroke="url(#gold)" stroke-width="1.5"/>
-  <g fill="url(#gold)" stroke="none" stroke-width=".6"><circle cx="56.6" cy="48" r="1.1"/><circle cx="57.2" cy="53" r="1.1"/><circle cx="57.8" cy="58" r="1.1"/></g>
-  <g fill="url(#gold)"><rect x="43.3" y="47.2" width="1.8" height="2.6" rx=".4" transform="rotate(43 44.2 48.5)"/><rect x="47.3" y="51" width="1.8" height="2.6" rx=".4" transform="rotate(43 48.2 52.3)"/><rect x="51.3" y="54.8" width="1.8" height="2.6" rx=".4" transform="rotate(43 52.2 56.1)"/></g>
-  <path d="M33.5 79 Q40 80 45.5 75.5" stroke="url(#gold)" stroke-width="1.3" fill="none"/>
+  <!-- hat trim, cockade, feather -->
+  <path d="M38.5 23.5 Q50 16.5 64.5 22.6" stroke="url(#mh-gold)" stroke-width="1.3" fill="none"/>
+  <circle cx="47" cy="17" r="2" fill="#1c1f2c" stroke="url(#mh-gold)" stroke-width=".5"/><circle cx="47" cy="17" r=".7" fill="url(#mh-gold)"/>
+  <path d="M47 16 Q38 10 29 14 Q36 11 46 17 Z" fill="#e9e4d8"/>
+  <path d="M45 16 Q39 13 32 14" stroke="#c9c2b2" stroke-width=".7" fill="none"/><path d="M43 15 Q38 12 33 13.5" stroke="#d8d2c2" stroke-width=".35" fill="none"/>
+  <g stroke="#d0cab8" stroke-width=".3" fill="none" opacity=".55">
+    <path d="M36 12 l-1 1.5"/><path d="M38 11.5 l-.8 1.5"/><path d="M40 11.5 l-.5 1.8"/><path d="M42 12 l-.3 2"/><path d="M34 13 l-1 1"/>
+  </g>
+  <!-- face: eye with iris/pupil/highlight, brow, nose, mouth -->
+  <ellipse cx="57.5" cy="30.2" rx="2" ry="1.4" fill="#f0ece4" stroke="#3a2214" stroke-width=".4"/>
+  <circle cx="58" cy="30.2" r="1" fill="#4a6030"/><circle cx="58.2" cy="30" r=".45" fill="#1d2130"/><circle cx="58.5" cy="29.7" r=".22" fill="#fff" opacity=".7"/>
+  <path d="M55.4 27.8 Q57 27 59.5 27.5" stroke="#3a2214" stroke-width=".9" stroke-linecap="round" fill="none"/>
+  <path d="M60 31.5 Q61 33 60 34" stroke="#aa7a58" stroke-width=".65" fill="none" stroke-linecap="round"/>
+  <path d="M57 36 h3.5" stroke="#8a5a40" stroke-width=".75" stroke-linecap="round"/><path d="M57.2 36.6 h2.6" stroke="#a06848" stroke-width=".35" opacity=".5" stroke-linecap="round"/>
+  <!-- front arm sleeve + cuff -->
+  <path d="M56 44 L63 47 L62 56 L56 55 Z" fill="url(#mh-coat)"/><path d="M56 53.5 L62 55.5 L62 57 L56 56 Z" fill="url(#mh-gold)"/>
   <!-- musket -->
-  <g transform="rotate(-5 56 50)" stroke="none" stroke-width="1.3" stroke-linejoin="round">
-    <path class="wpn" d="M45 46.5 L59 48.5 L59 52.5 L47.5 56 Q43.5 52.5 45 46.5 Z" fill="url(#wood)"/>
-    <rect class="wpn" x="59" y="50.8" width="24" height="2.8" fill="url(#wood)"/>
-    <rect class="wpn" x="59" y="47.8" width="35" height="3.4" rx=".8" fill="url(#iron)"/>
-    <rect class="wpn" x="67" y="48" width="1.8" height="5.4" fill="url(#gold)" stroke-width=".8"/>
-    <rect class="wpn" x="77" y="48" width="1.8" height="5.4" fill="url(#gold)" stroke-width=".8"/>
-    <path class="wpn" d="M59 48.5 l1.5 -3 h2.5 l-.5 3 z" fill="url(#iron)"/>
-    <path class="wpn" d="M60 53 q1.5 3 3.5 1" fill="none" stroke-width="1"/>
+  <g transform="rotate(-5 56 50)" stroke="none">
+    <path class="wpn" d="M45 46.5 L59 48.5 L59 52.5 L47.5 56 Q43.5 52.5 45 46.5 Z" fill="url(#mh-wood)"/>
+    <path class="wpn" d="M48 48 Q52 49 56 50" stroke="#4a2f18" stroke-width=".3" fill="none" opacity=".4"/><path class="wpn" d="M47 50.5 Q51 51.5 55 52" stroke="#4a2f18" stroke-width=".25" fill="none" opacity=".35"/>
+    <rect class="wpn" x="59" y="50.8" width="24" height="2.8" fill="url(#mh-wood)"/>
+    <path class="wpn" d="M60 53 h22" stroke="#7a5030" stroke-width=".45"/>
+    <rect class="wpn" x="59" y="47.8" width="35" height="3.4" rx=".8" fill="url(#mh-barrel)"/>
+    <path class="wpn" d="M62 48.6 h30" stroke="#d8e0f0" stroke-width=".45" opacity=".45"/>
+    <rect class="wpn" x="67" y="47.5" width="1.5" height="6" fill="url(#mh-gold)"/><rect class="wpn" x="77" y="47.5" width="1.5" height="6" fill="url(#mh-gold)"/><rect class="wpn" x="87" y="47.5" width="1.5" height="4" fill="url(#mh-gold)"/>
+    <path class="wpn" d="M59 48.5 l1.5 -3 h3 l-.5 3 z" fill="url(#mh-iron)"/> <!-- lock plate -->
+    <path class="wpn" d="M62 45.5 l1 -2 h1.5 l-.5 2 z" fill="#6a7080"/><path class="wpn" d="M60 45.5 l-.5 -3 l2 .5 l-1 2.5 z" fill="url(#mh-iron)"/>
+    <path class="wpn" d="M56 53 Q58 56.5 61 54" fill="none" stroke="url(#mh-iron)" stroke-width=".8"/><path class="wpn" d="M58.5 53 v2" stroke="#3a3f4f" stroke-width=".55"/>
   </g>
-  <!-- hands -->
-  <circle cx="70" cy="49" r="2.7" fill="#c68f6a" stroke="none" stroke-width="1.2"/>
-  <path d="M56 44 L63 47 L62 56 L56 55 Z" fill="url(#coat)" stroke="none" stroke-width="1.4" stroke-linejoin="round"/>
-  <circle cx="60.5" cy="55" r="2.5" fill="#c68f6a" stroke="none" stroke-width="1.2"/>
-  <!-- muzzle wisp -->
+  <!-- hands with finger lines -->
+  <path d="M69 47.5 Q71 46.5 72 48 Q72 50 70.5 51 Q69 50 69 47.5 Z" fill="url(#mh-skin)"/><path d="M70 48 v2.3 M71 48 v1.8" stroke="#b88060" stroke-width=".3"/>
+  <path d="M59 53.5 Q61 52 63 53 Q63 56 61 57 Q59 56.5 59 53.5 Z" fill="url(#mh-skin)"/><path d="M60 54 v2 M61 53.8 v2.3" stroke="#b88060" stroke-width=".3"/>
   <path class="wpn" d="M94 44.5 q2 -2 1 -4.5 q2.5 1 2.5 -2" stroke="#c9c2b2" stroke-width="1.2" fill="none" opacity=".7" stroke-linecap="round"/>
 </svg>

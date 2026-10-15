@@ -1,78 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Patchwork (support) - Ashfall Road art v2. Repair drone with welding arms.
+<!-- Patchwork (support) - Ashfall Road art v3. Repair drone with welding arms.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="72,72">
   <defs>
-    <linearGradient id="hull" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ece6d6"/><stop offset=".5" stop-color="#ada490"/><stop offset="1" stop-color="#6b6454"/></linearGradient>
-    <linearGradient id="hullD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f8774"/><stop offset="1" stop-color="#504a3e"/></linearGradient>
-    <linearGradient id="patch" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a7765a"/><stop offset="1" stop-color="#5e3d2c"/></linearGradient>
-    <linearGradient id="iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#737888"/><stop offset="1" stop-color="#2b2e3a"/></linearGradient>
-    <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9aa3b5"/></linearGradient>
-    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8ffb0"/><stop offset="1" stop-color="#3fbf5a" stop-opacity="0"/></linearGradient>
-    <radialGradient id="spark" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#c8ffc0"/><stop offset="1" stop-color="#4fdc5f" stop-opacity="0"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2"/></filter>
+    <linearGradient id="pw-hull" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ece6d6"/><stop offset=".25" stop-color="#d5cdb8"/><stop offset=".5" stop-color="#ada490"/><stop offset=".75" stop-color="#8a8270"/><stop offset="1" stop-color="#6b6454"/></linearGradient>
+    <linearGradient id="pw-hullD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f8774"/><stop offset=".6" stop-color="#6a6355"/><stop offset="1" stop-color="#504a3e"/></linearGradient>
+    <linearGradient id="pw-copper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4936a"/><stop offset=".4" stop-color="#b5724a"/><stop offset="1" stop-color="#5e3d2c"/></linearGradient>
+    <linearGradient id="pw-steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b0b8c8"/><stop offset=".5" stop-color="#7a8294"/><stop offset="1" stop-color="#3e4350"/></linearGradient>
+    <linearGradient id="pw-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2c87a"/><stop offset=".5" stop-color="#c4a44e"/><stop offset="1" stop-color="#8a7030"/></linearGradient>
+    <linearGradient id="pw-iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#838998"/><stop offset=".4" stop-color="#5e6270"/><stop offset="1" stop-color="#2b2e3a"/></linearGradient>
+    <linearGradient id="pw-chrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#c0c8d5"/><stop offset="1" stop-color="#8a93a5"/></linearGradient>
+    <linearGradient id="pw-beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d0ffcc"/><stop offset=".3" stop-color="#8be28b"/><stop offset=".7" stop-color="#4fbf5a" stop-opacity=".5"/><stop offset="1" stop-color="#2a9040" stop-opacity="0"/></linearGradient>
+    <radialGradient id="pw-spark" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#e0ffe0"/><stop offset=".6" stop-color="#8be28b" stop-opacity=".6"/><stop offset="1" stop-color="#4fdc5f" stop-opacity="0"/></radialGradient>
+    <radialGradient id="pw-eye" cx=".45" cy=".4" r=".55"><stop offset="0" stop-color="#e8fff0"/><stop offset=".3" stop-color="#8be28b"/><stop offset=".6" stop-color="#3a9a4a"/><stop offset="1" stop-color="#1e5a2a"/></radialGradient>
+    <radialGradient id="pw-flare" cx=".3" cy=".3" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".5" stop-color="#c8ffc0" stop-opacity=".3"/><stop offset="1" stop-color="#4fdc5f" stop-opacity="0"/></radialGradient>
+    <filter id="pw-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="pw-glow-sm" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1"/></filter>
   </defs>
-  <!-- hover shadow + thrust -->
-  <ellipse cx="50" cy="94" rx="18" ry="3" fill="#000" opacity=".3"/>
-  <ellipse cx="50" cy="93.5" rx="9" ry="1.8" fill="#8be28b" opacity=".35" filter="url(#glow)"/>
-  <path d="M44 72 L56 72 L54 89 L46 89 Z" fill="url(#beam)" opacity=".85" filter="url(#glow)"/>
-  <path d="M46.5 72 L53.5 72 L52 83 L48 83 Z" fill="url(#beam)"/>
+  <!-- hover shadow -->
+  <ellipse cx="50" cy="94" rx="19" ry="3.2" fill="#000" opacity=".28"/>
+  <ellipse cx="50" cy="93.5" rx="10" ry="2" fill="#8be28b" opacity=".3" filter="url(#pw-glow)"/>
+  <!-- thruster beam + concentric rings -->
+  <path d="M43 72 L57 72 L54.5 90 L45.5 90Z" fill="url(#pw-beam)" opacity=".7" filter="url(#pw-glow)"/>
+  <path d="M46 72 L54 72 L52.5 84 L47.5 84Z" fill="url(#pw-beam)" opacity=".9"/>
+  <ellipse cx="50" cy="78" rx="4.5" ry="1" fill="#d0ffcc" opacity=".4"/><ellipse cx="50" cy="82" rx="3.5" ry=".8" fill="#8be28b" opacity=".3"/><ellipse cx="50" cy="86" rx="2.5" ry=".6" fill="#4fbf5a" opacity=".2"/>
   <!-- welder spark glow -->
-  <circle cx="89" cy="45" r="8" fill="url(#spark)" filter="url(#glow)"/>
-  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+  <circle cx="89" cy="44" r="9" fill="url(#pw-spark)" filter="url(#pw-glow)"/>
+  <g stroke="none">
     <!-- back clamp arm -->
-    <path d="M36 52 L27 58 L24.5 55 L33.5 48.5 Z" fill="url(#hullD)"/>
-    <path d="M26 56 L19 53 L17 57 L21 59 L17 62 L20 65 L27 60 Z" fill="url(#iron)"/>
-    <!-- antenna -->
-    <path d="M44 33 L40 19" fill="none" stroke-width="2.6"/>
-    <path d="M44 33 L40 19" fill="none" stroke="#a39a86" stroke-width="1.2"/>
-    <!-- thruster nozzle -->
-    <path d="M42 64 h16 l-2 9 h-12 z" fill="url(#iron)"/>
-    <!-- drone shell -->
-    <path d="M32 50 Q32 30 50 30 Q68 30 68 50 L65 63 Q50 70 35 63 Z" fill="url(#hull)"/>
-    <path d="M33.5 58 Q50 64 66.5 58 L65 63 Q50 70 35 63 Z" fill="url(#iron)"/>
-    <!-- bolted patches -->
-    <path d="M35 40 L44 37 L46 47 L36.5 49 Z" fill="url(#patch)"/>
-    <path d="M47 50 L55 50 L55 56 L47 56.5 Z" fill="url(#hullD)"/>
-    <!-- eye housing -->
-    <circle cx="59" cy="43" r="7" fill="url(#iron)"/>
+    <path d="M36 52 L28 57 L25.5 54 L34 48Z" fill="url(#pw-hullD)"/>
+    <circle cx="27" cy="55.5" r="2.2" fill="url(#pw-iron)"/><circle cx="27" cy="55.5" r="1" fill="#50484a"/>
+    <!-- clamp jaw mechanism -->
+    <path d="M26 54 L18.5 51 L16.5 54 L20 57Z" fill="url(#pw-iron)"/>
+    <path d="M26 57 L20 57 L16.5 60 L17 63 L20 64.5 L27 59Z" fill="url(#pw-iron)"/>
+    <!-- jaw grip teeth -->
+    <path d="M17.5 53 l-.8 1 M19 52.2 l-.8 1 M20.5 53 l-.6 .8" stroke="#3e4350" stroke-width=".7" stroke-linecap="round"/>
+    <path d="M17.5 61 l-.5 1 M19 61.8 l-.5 .8 M20.5 62.5 l-.4 .7" stroke="#3e4350" stroke-width=".7" stroke-linecap="round"/>
+    <circle cx="20" cy="57" r=".9" fill="#6a6a6a"/><circle cx="20" cy="57" r=".4" fill="#3a3a3a"/>
+    <!-- antenna: segmented mast + signal lights -->
+    <line x1="44" y1="33" x2="42.5" y2="26" stroke="#8a8270" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="42.5" y1="26" x2="40.5" y2="19" stroke="#7a7260" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="42.5" cy="26" r="1.2" fill="url(#pw-iron)"/>
+    <circle cx="41.5" cy="23" r=".8" fill="#8be28b" filter="url(#pw-glow-sm)"/>
+    <circle cx="40.5" cy="19" r="3" fill="#8be28b" filter="url(#pw-glow)"/><circle cx="40.5" cy="19" r="1.8" fill="#d6ffd0"/><circle cx="40.5" cy="19" r=".7" fill="#fff"/>
+    <!-- thruster nozzle housing -->
+    <path d="M41 64 h18 l-2.5 9.5 h-13Z" fill="url(#pw-iron)"/>
+    <path d="M43 66 h14 l-.5 2 h-13Z" fill="#50484a" opacity=".5"/>
+    <!-- drone shell body -->
+    <path d="M32 50 Q32 30 50 30 Q68 30 68 50 L65 63 Q50 70 35 63Z" fill="url(#pw-hull)"/>
+    <path d="M33.5 58 Q50 64 66.5 58 L65 63 Q50 70 35 63Z" fill="url(#pw-iron)"/>
+    <!-- patch plates: copper -->
+    <path d="M35 39 L44 36 L46.5 47 L36.5 49.5Z" fill="url(#pw-copper)"/>
+    <path d="M35.5 40 l1 1.5 M37.5 39.5 l1 1.5 M39.5 38.8 l1 1.5 M41.5 38 l1 1.5" stroke="#5e3d2c" stroke-width=".8" stroke-linecap="round"/>
+    <!-- patch plates: steel + brass -->
+    <path d="M46 50 L56 49.5 L56.5 57 L46.5 57.5Z" fill="url(#pw-steel)"/>
+    <path d="M54 33 L63 35 L62 42 L53.5 40Z" fill="url(#pw-brass)"/>
+    <!-- dents + grease stain + scratches -->
+    <ellipse cx="40" cy="44" rx="1.8" ry="1" fill="#9a9080" opacity=".5" transform="rotate(-15 40 44)"/>
+    <ellipse cx="57" cy="55" rx="1.5" ry=".8" fill="#6a6a7a" opacity=".4"/>
+    <ellipse cx="44" cy="55" rx="2.5" ry="1.5" fill="#4a4535" opacity=".15" transform="rotate(10 44 55)"/>
+    <path d="M38 53 l3 -.5 M42 52 l2.5 .3 M55 45 l2 .8" stroke="#b0a890" stroke-width=".4" opacity=".6" stroke-linecap="round"/>
+    <!-- tool rack: pliers + spanner shapes -->
+    <path d="M38 60 l-1 3.5 M37.5 62.5 l-1.5 .5 l.3 1 l1.5 -.3 M38.5 62 l1.2 .8 l-.2 1 l-1.3 -.5" stroke="#6a6355" stroke-width=".6" fill="none" stroke-linecap="round"/>
+    <path d="M42 60.5 l0 3 M41.2 63 l1.8 0 M42.8 63 l.5 .5 l-.3 .5 l-.8 0 M41 63 l-.5 .5 l.3 .5 l.8 0" stroke="#7a8294" stroke-width=".5" fill="none" stroke-linecap="round"/>
+    <!-- eye housing + focusing mechanism -->
+    <circle cx="59" cy="43" r="7.5" fill="url(#pw-iron)"/><circle cx="59" cy="43" r="6.5" fill="#2b2e3a"/>
+    <circle cx="59" cy="43" r="5.8" fill="none" stroke="#50505a" stroke-width=".6"/>
+    <circle cx="59" cy="43" r="5" fill="url(#pw-eye)"/>
+    <!-- iris rings + pupil -->
+    <circle cx="59" cy="43" r="3.8" fill="none" stroke="#3a9a4a" stroke-width=".4" opacity=".7"/>
+    <circle cx="59" cy="43" r="2.6" fill="none" stroke="#2a7a3a" stroke-width=".3" opacity=".6"/>
+    <circle cx="59.5" cy="43" r="1.8" fill="#1e5a2a"/><circle cx="59.5" cy="43" r=".9" fill="#0a3018"/>
+    <!-- lens highlight + flare -->
+    <circle cx="57.5" cy="41.2" r="1.2" fill="#fff" opacity=".85"/><circle cx="60.8" cy="44.5" r=".6" fill="#fff" opacity=".5"/>
+    <ellipse cx="59" cy="43" rx="5" ry="5" fill="url(#pw-flare)" opacity=".25"/>
     <!-- lower wrench arm -->
-    <path d="M60 62 L70 70 L67.5 73 L57.5 65 Z" fill="url(#hull)"/>
+    <path d="M59 62 L68 69 L66 72.5 L57 65.5Z" fill="url(#pw-hull)"/>
+    <circle cx="63.5" cy="66" r="1.5" fill="url(#pw-iron)"/>
     <g class="wpn" transform="rotate(-35 72 72)">
-      <rect x="67" y="70.2" width="12" height="3.6" rx="1.2" fill="url(#chrome)"/>
-      <path d="M78 67 Q85 66 85.5 72 Q85 78 78 77 L80 74.5 L83 74.5 L83 69.5 L80 69.5 Z" fill="url(#chrome)"/>
+      <rect x="66.5" y="70" width="13" height="4" rx="1" fill="url(#pw-chrome)"/>
+      <path d="M68 71 l0 2 M69.5 71 l0 2 M71 71 l0 2 M72.5 71 l0 2 M74 71 l0 2 M75.5 71 l0 2" stroke="#8a93a5" stroke-width=".4"/>
+      <path d="M79 67 Q86 66 86.5 72 Q86 78 79 77 L81 74.8 L83.5 74.8 L84 72 L83.5 69.2 L81 69.2Z" fill="url(#pw-chrome)"/>
+      <circle cx="80" cy="72" r="1.2" fill="#9aa3b5"/><circle cx="80" cy="72" r=".5" fill="#6a6a7a"/>
     </g>
-    <!-- front welder arm -->
-    <path d="M63 53 L74 56 L73 60 L62 57.5 Z" fill="url(#hull)"/>
-    <path d="M72 55.5 L81 48 L84 51 L75 59.5 Z" fill="url(#hull)"/>
-    <circle cx="73.5" cy="57.5" r="2.8" fill="url(#iron)"/>
-    <path d="M80 46 L86 43 L88 47 L83 51.5 Z" fill="url(#iron)"/>
-    <circle cx="65" cy="54.5" r="4" fill="url(#hull)"/>
+    <!-- front welder arm + cable conduits -->
+    <path d="M63 52 L73 54.5 L72 58.5 L62 56.5Z" fill="url(#pw-hull)"/>
+    <path d="M64 53.5 Q68 53 72 55.5" stroke="#5e3d2c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+    <path d="M64.5 55.5 Q68 55 71.5 57" stroke="#4a4535" stroke-width=".6" fill="none"/>
+    <!-- elbow joint -->
+    <circle cx="65.5" cy="55" r="3.5" fill="url(#pw-hullD)"/><circle cx="65.5" cy="55" r="2" fill="url(#pw-iron)"/><circle cx="65.5" cy="55" r=".8" fill="#3a3530"/>
+    <!-- forearm + nozzle -->
+    <path d="M72 54 L81 47.5 L84 50.5 L75 58Z" fill="url(#pw-hullD)"/>
+    <path d="M80 46 L86.5 42.5 L89 46 L84 51Z" fill="url(#pw-iron)"/>
+    <path d="M85 43.5 L87.5 42 L89 44 L87 46Z" fill="#50484a"/>
+    <path d="M87.5 43 L90 42 L91 44.5 L89 46Z" fill="url(#pw-brass)"/>
   </g>
-  <!-- eye lens -->
-  <circle cx="59.5" cy="43" r="5" fill="#8be28b" filter="url(#glow)"/>
-  <circle cx="59.5" cy="43" r="4" fill="#c8ffc0" stroke="none" stroke-width="1"/>
-  <circle cx="60.5" cy="43" r="1.8" fill="#1e5a2a"/>
-  <circle cx="58.3" cy="41.6" r=".9" fill="#fff"/>
-  <!-- antenna light -->
-  <circle cx="40" cy="18" r="3.4" fill="#8be28b" filter="url(#glow)"/>
-  <circle cx="40" cy="18" r="2" fill="#d6ffd0" stroke="none" stroke-width="1"/>
+  <!-- rivets: copper (mismatched), steel, brass -->
+  <g fill="#3a2a20"><circle cx="37" cy="41" r=".9"/><circle cx="43.5" cy="38.5" r=".7"/><circle cx="44.8" cy="45.5" r=".85"/><circle cx="37.5" cy="47.5" r=".75"/></g>
+  <g fill="#2e3540"><circle cx="48" cy="51.5" r=".65"/><circle cx="54" cy="51" r=".65"/><circle cx="48" cy="55.5" r=".6"/><circle cx="54.5" cy="55.5" r=".7"/></g>
+  <g fill="#6a5520"><circle cx="55" cy="35" r=".7"/><circle cx="61" cy="36.5" r=".6"/><circle cx="54.5" cy="39" r=".65"/><circle cx="61" cy="40.5" r=".55"/></g>
+  <!-- weld seams: top shell + steel patch edge -->
+  <path d="M46 34 l1.5 2 M49 33.5 l1.5 2 M52 33.5 l1.5 2 M55 34 l1.2 1.8" stroke="#6b6454" stroke-width=".9" stroke-linecap="round"/>
+  <path d="M46.5 51 l0 1.3 M48.5 50.8 l0 1.3 M50.5 50.5 l0 1.3 M52.5 50.3 l0 1.3 M54.5 50 l0 1.3" stroke="#4a5060" stroke-width=".6" stroke-linecap="round"/>
+  <!-- green status lights -->
+  <circle cx="36" cy="55" r=".7" fill="#8be28b" filter="url(#pw-glow-sm)"/><circle cx="61" cy="58" r=".6" fill="#8be28b" filter="url(#pw-glow-sm)"/><circle cx="50" cy="32" r=".5" fill="#8be28b" filter="url(#pw-glow-sm)"/>
+  <!-- vent glow strips -->
+  <path d="M39 62 h4.5 M47.5 63.5 h5 M56 62 h4.5" stroke="#8be28b" stroke-width="1.4" stroke-linecap="round"/>
   <!-- welder flame + sparks -->
-  <path d="M87.5 44 l3 -1.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M88 43.5 l3.5 -1.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M89.5 44 l2 .5" stroke="#d0ffcc" stroke-width="1.2" stroke-linecap="round"/>
   <g fill="#c8ffc0">
-    <path d="M92 37 l.7 2 l2 .7 l-2 .7 l-.7 2 l-.7 -2 l-2 -.7 l2 -.7 z"/>
-    <path d="M95 47 l.5 1.4 l1.4 .5 l-1.4 .5 l-.5 1.4 l-.5 -1.4 l-1.4 -.5 l1.4 -.5 z"/>
-    <path d="M86 36 l.5 1.3 l1.3 .5 l-1.3 .5 l-.5 1.3 l-.5 -1.3 l-1.3 -.5 l1.3 -.5 z"/>
+    <path d="M93 37 l.7 2 l2 .7 l-2 .7 l-.7 2 l-.7-2 l-2-.7 l2-.7z"/>
+    <path d="M96 46 l.5 1.4 l1.4 .5 l-1.4 .5 l-.5 1.4 l-.5-1.4 l-1.4-.5 l1.4-.5z"/>
+    <path d="M86 36 l.5 1.3 l1.3 .5 l-1.3 .5 l-.5 1.3 l-.5-1.3 l-1.3-.5 l1.3-.5z"/>
+    <path d="M90 35 l.3 .9 l.9 .3 l-.9 .3 l-.3 .9 l-.3-.9 l-.9-.3 l.9-.3z"/>
   </g>
-  <path d="M91 48 l2.5 3 M89 49.5 l1 3.5" stroke="#8be28b" stroke-width="1" stroke-linecap="round"/>
-  <!-- rivets -->
-  <g fill="#3a2a20"><circle cx="37" cy="41.5" r=".8"/><circle cx="43" cy="39.5" r=".8"/><circle cx="44.3" cy="45.6" r=".8"/><circle cx="38" cy="47.3" r=".8"/></g>
-  <g fill="#3a3530"><circle cx="48.5" cy="51.5" r=".7"/><circle cx="53.5" cy="51.5" r=".7"/><circle cx="48.5" cy="55" r=".7"/><circle cx="53.5" cy="55" r=".7"/></g>
-  <!-- stitch weld seam -->
-  <path d="M46 34 l1.5 2 M49 33.5 l1.5 2 M52 33.5 l1.5 2" stroke="#6b6454" stroke-width="1" stroke-linecap="round"/>
-  <!-- vent glow band -->
-  <path d="M40 62 h4 M48 63.5 h4 M56 62 h4" stroke="#8be28b" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- highlights -->
-  <path d="M36 45 Q37 35 46 32.5" stroke="#fff" stroke-width="1.4" fill="none" opacity=".8" stroke-linecap="round"/>
-  <path d="M62.5 52.5 q1.5 -1.5 3.5 -1" stroke="#fff" stroke-width="1.1" fill="none" opacity=".75" stroke-linecap="round"/>
+  <!-- trailing ember streaks + particles -->
+  <path d="M91 48 l2.5 3 M89.5 49.5 l1 3.5 M93.5 43 l1.5 2.5 M87.5 48 l.8 2" stroke="#8be28b" stroke-width=".8" stroke-linecap="round"/>
+  <g fill="#e8ffe0" opacity=".7"><circle cx="94" cy="41" r=".4"/><circle cx="91.5" cy="51.5" r=".35"/><circle cx="95.5" cy="48.5" r=".3"/></g>
+  <!-- shell highlights -->
+  <path d="M36 45 Q37 35 47 32" stroke="#fff" stroke-width="1.3" fill="none" opacity=".7" stroke-linecap="round"/>
+  <path d="M63 52 q1.5-1.5 4-1" stroke="#fff" stroke-width="1" fill="none" opacity=".6" stroke-linecap="round"/>
+  <!-- paint chip marks -->
+  <path d="M48 46 l1 .2 l-.3 .8 l-1 -.2z" fill="#ada490" opacity=".5"/><path d="M58 52 l.8 .3 l-.2 .6 l-.8 -.3z" fill="#b0a890" opacity=".4"/>
 </svg>

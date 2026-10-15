@@ -3,69 +3,134 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="68.4,52">
   <defs>
-    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#84b56c"/><stop offset=".5" stop-color="#5e8a4a"/><stop offset="1" stop-color="#36552a"/></linearGradient>
-    <linearGradient id="robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#46693a"/><stop offset="1" stop-color="#26401e"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7eba8"/><stop offset=".5" stop-color="#e3d27a"/><stop offset="1" stop-color="#a6963c"/></linearGradient>
-    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6e07a"/><stop offset=".5" stop-color="#76b04e"/><stop offset="1" stop-color="#3f7a2c"/></linearGradient>
-    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec9a66"/><stop offset=".5" stop-color="#c96a3c"/><stop offset="1" stop-color="#83391b"/></linearGradient>
-    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7550"/><stop offset="1" stop-color="#4a3220"/></linearGradient>
-    <radialGradient id="orb" cx=".4" cy=".38" r=".6"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#dcffd0"/><stop offset=".75" stop-color="#9fe08a"/><stop offset="1" stop-color="#4fae4a"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="ew-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#84b56c"/><stop offset=".5" stop-color="#5e8a4a"/><stop offset="1" stop-color="#36552a"/></linearGradient>
+    <linearGradient id="ew-robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#46693a"/><stop offset="1" stop-color="#26401e"/></linearGradient>
+    <linearGradient id="ew-robeHL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9dc88a" stop-opacity=".5"/><stop offset="1" stop-color="#5e8a4a" stop-opacity="0"/></linearGradient>
+    <linearGradient id="ew-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7eba8"/><stop offset=".5" stop-color="#e3d27a"/><stop offset="1" stop-color="#a6963c"/></linearGradient>
+    <linearGradient id="ew-leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6e07a"/><stop offset=".5" stop-color="#76b04e"/><stop offset="1" stop-color="#3f7a2c"/></linearGradient>
+    <linearGradient id="ew-leafD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8cc94e"/><stop offset="1" stop-color="#2d6620"/></linearGradient>
+    <linearGradient id="ew-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec9a66"/><stop offset=".5" stop-color="#c96a3c"/><stop offset="1" stop-color="#83391b"/></linearGradient>
+    <linearGradient id="ew-hairHL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f4b882" stop-opacity=".7"/><stop offset="1" stop-color="#d47a4a" stop-opacity="0"/></linearGradient>
+    <linearGradient id="ew-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7550"/><stop offset="1" stop-color="#4a3220"/></linearGradient>
+    <linearGradient id="ew-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5dcc4"/><stop offset="1" stop-color="#e8c4a0"/></linearGradient>
+    <radialGradient id="ew-orb" cx=".4" cy=".38" r=".6"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#e8ffe0"/><stop offset=".6" stop-color="#9fe08a"/><stop offset=".85" stop-color="#4fae4a"/><stop offset="1" stop-color="#2d8a28"/></radialGradient>
+    <radialGradient id="ew-orbInner" cx=".35" cy=".35" r=".55"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset=".5" stop-color="#c4ffa8" stop-opacity=".3"/><stop offset="1" stop-color="#6fd060" stop-opacity="0"/></radialGradient>
+    <filter id="ew-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="ew-glowSm" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.5"/></filter>
   </defs>
+  <!-- ground shadow -->
   <ellipse cx="51" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <!-- orb light -->
-  <circle class="wpn" cx="70" cy="16" r="11" fill="#9fe08a" opacity=".6" filter="url(#glow)"/>
+  <!-- orb ambient glow -->
+  <circle class="wpn" cx="70" cy="16" r="14" fill="#9fe08a" opacity=".3" filter="url(#ew-glow)"/>
+  <circle class="wpn" cx="70" cy="16" r="8" fill="#c8ffa0" opacity=".4" filter="url(#ew-glowSm)"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- flowing hair -->
-    <path d="M48 17 Q35 28 37 60 Q43 56 47.5 46 L51 26 Z" fill="url(#hair)"/>
-    <!-- feet -->
+    <!-- flowing hair (back) -->
+    <path d="M48 17 Q35 28 37 60 Q43 56 47.5 46 L51 26 Z" fill="url(#ew-hair)"/>
+    <path d="M46 20 Q36 32 38 55 Q40 50 42 42 L47 24 Z" fill="url(#ew-hairHL)" opacity=".55"/>
+    <path d="M44 25 Q37 38 39 52" stroke="#f4b882" stroke-width=".7" fill="none" opacity=".45"/>
+    <path d="M46 22 Q40 30 40.5 45" stroke="#a04820" stroke-width=".6" fill="none" opacity=".35"/>
+    <!-- feet / sandals -->
     <path d="M45 88 h7.5 v5.5 h-9.5 z" fill="#4a3020"/>
     <path d="M54.5 88 h7.5 l2.5 5.5 h-10.5 z" fill="#6a4529"/>
+    <path d="M45.8 90.2 h6 M46 92 h2.2 M48.8 92 h2.2" stroke="#7a5a38" stroke-width=".6" opacity=".7"/>
+    <path d="M55.5 90.2 h6.5 M55.8 92 h2.2 M58.5 92 h2.5" stroke="#8a6a42" stroke-width=".6" opacity=".7"/>
     <!-- robe -->
-    <path d="M46 35 Q54 32 62 35 L67 89 Q54 92.5 41 89 Z" fill="url(#robe)"/>
-    <path d="M52 36 h5 l3 53.5 q-5.5 1 -11 0 z" fill="url(#robeD)"/>
-    <path d="M41.3 85.5 Q54 89 66.6 85.5 L67 89 Q54 92.5 41 89 Z" fill="url(#gold)"/>
+    <path d="M46 35 Q54 32 62 35 L67 89 Q54 92.5 41 89 Z" fill="url(#ew-robe)"/>
+    <path d="M52 36 h5 l3 53.5 q-5.5 1 -11 0 z" fill="url(#ew-robeD)"/>
+    <path d="M47 38 Q50 36 53 37 L51.5 65 Q49 64 47.5 64 Z" fill="url(#ew-robeHL)"/>
+    <path d="M41.3 85.5 Q54 89 66.6 85.5 L67 89 Q54 92.5 41 89 Z" fill="url(#ew-gold)"/>
+    <!-- robe embroidered vine patterns -->
+    <path d="M44 65 Q47 62 46 58 Q45 54 47 50" stroke="#3f7a2c" stroke-width=".8" fill="none" opacity=".4"/>
+    <path d="M46 58 q2 -1 2.5 1 q-2 1 -2.5 -1 z M47 50 q1.5 -.8 2 .8 q-1.5 .8 -2 -.8 z" fill="#5aa03c" opacity=".3"/>
+    <path d="M60 62 Q63 58 62 53 Q61 48 63 44" stroke="#3f7a2c" stroke-width=".8" fill="none" opacity=".4"/>
+    <path d="M62 53 q2 -.8 2.5 1 q-2 .8 -2.5 -1 z" fill="#5aa03c" opacity=".3"/>
+    <path d="M43 55 Q45 58 43.5 65 M64 50 Q65.5 58 64.5 68" stroke="#2d5520" stroke-width=".55" fill="none" opacity=".3"/>
     <!-- vine sash -->
-    <path d="M45.5 55 Q55 58 63.8 54.5 L64 58.5 Q55 62 45.2 59 Z" fill="url(#gold)"/>
+    <path d="M45.5 55 Q55 58 63.8 54.5 L64 58.5 Q55 62 45.2 59 Z" fill="url(#ew-gold)"/>
+    <path d="M46 56.5 Q55 59.5 63 56" stroke="#a6963c" stroke-width=".5" fill="none" opacity=".55"/>
     <!-- staff -->
-    <path class="wpn" d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke-width="5" fill="none"/>
-    <path class="wpn" d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke="url(#wood)" stroke-width="2.8" fill="none"/>
-    <path class="wpn" d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke-width="4" fill="none"/>
-    <path class="wpn" d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke="url(#wood)" stroke-width="2" fill="none"/>
-    <circle class="wpn" cx="70" cy="16" r="5.6" fill="url(#orb)"/>
+    <path class="wpn" d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke="#3a2515" stroke-width="4.2" fill="none"/>
+    <path class="wpn" d="M68.5 92 Q66 72 69 52 Q71.5 36 68.5 24" stroke="url(#ew-wood)" stroke-width="2.8" fill="none"/>
+    <path class="wpn" d="M68 40 Q69.5 36 68.8 30 M67.5 70 Q68.5 62 69.2 55" stroke="#5a3a20" stroke-width=".4" fill="none" opacity=".45"/>
+    <path class="wpn" d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke="#3a2515" stroke-width="3.5" fill="none"/>
+    <path class="wpn" d="M68.5 25 Q62 20 64.5 9.5 M69 25 Q76.5 20 75 9 M66 17 Q70 22 73 18" stroke="url(#ew-wood)" stroke-width="2" fill="none"/>
+    <ellipse class="wpn" cx="64.5" cy="10" rx="1.2" ry="1.8" fill="#76b04e" transform="rotate(-20 64.5 10)"/>
+    <ellipse class="wpn" cx="75" cy="9.5" rx="1" ry="1.6" fill="#8cc94e" transform="rotate(15 75 9.5)"/>
+    <!-- orb -->
+    <circle class="wpn" cx="70" cy="16" r="5.6" fill="url(#ew-orb)"/>
+    <circle class="wpn" cx="70" cy="16" r="4" fill="url(#ew-orbInner)"/>
+    <path class="wpn" d="M67.5 16.5 Q70 13 72.5 16 Q70 19 67.5 16.5" stroke="#4fae4a" stroke-width=".5" fill="none" opacity=".55"/>
+    <path class="wpn" d="M69 13.5 Q72 15.5 70 18.5" stroke="#9fe08a" stroke-width=".4" fill="none" opacity=".45"/>
+    <path class="wpn" d="M64 14 l-2 -1.5 M76 14 l2 -1.5 M70 9 v-2 M66 20 l-1.5 1.5 M74 20 l1.5 1.5" stroke="#c8ffa0" stroke-width=".55" opacity=".35"/>
+    <circle class="wpn" cx="68.2" cy="14" r="1.6" fill="#fff" opacity=".85"/>
+    <circle class="wpn" cx="69" cy="14.8" r=".6" fill="#fff" opacity=".5"/>
     <!-- head -->
-    <circle cx="55" cy="22" r="8.5" fill="#f0d2b4"/>
-    <path d="M46.5 26 Q45.5 12.5 55.5 12.5 Q64 12.5 64 20 Q58 16.8 52.5 18.5 Q50 20 50 29 Z" fill="url(#hair)"/>
+    <circle cx="55" cy="22" r="8.5" fill="url(#ew-skin)"/>
+    <path d="M46.5 26 Q45.5 12.5 55.5 12.5 Q64 12.5 64 20 Q58 16.8 52.5 18.5 Q50 20 50 29 Z" fill="url(#ew-hair)"/>
+    <path d="M48 14 Q52 12.5 56 13" stroke="#f4b882" stroke-width=".8" fill="none" opacity=".45"/>
+    <path d="M50 16 Q54 14.5 57 15.5" stroke="#a04820" stroke-width=".5" fill="none" opacity=".35"/>
+    <path d="M47 18 Q43 16 40 17 M46.5 21 Q42 20 39 22" stroke="url(#ew-hair)" stroke-width="1.1" fill="none" opacity=".6"/>
     <!-- long ear -->
-    <path d="M48.5 22.5 Q42 17 36 12 Q41 21.5 48.5 27 Z" fill="#f0d2b4"/>
+    <path d="M48.5 22.5 Q42 17 36 12 Q41 21.5 48.5 27 Z" fill="url(#ew-skin)"/>
+    <path d="M45 20 Q41 17 38 14.5" stroke="#e0b898" stroke-width=".5" fill="none" opacity=".55"/>
     <!-- leaf crown -->
-    <path d="M51 15.5 Q48 11 50 7.5 Q54 11 51 15.5 Z" fill="url(#leaf)" stroke-width="1.1"/>
-    <path d="M55 14 Q55.5 8.5 59.5 7 Q60 12 55 14 Z" fill="url(#leaf)" stroke-width="1.1"/>
+    <path d="M51 15.5 Q48 11 50 7.5 Q54 11 51 15.5 Z" fill="url(#ew-leaf)"/>
+    <path d="M50.5 12 L51 8.5" stroke="#3f7a2c" stroke-width=".4" opacity=".65"/>
+    <path d="M55 14 Q55.5 8.5 59.5 7 Q60 12 55 14 Z" fill="url(#ew-leaf)"/>
+    <path d="M57 11 L58.5 8" stroke="#3f7a2c" stroke-width=".4" opacity=".65"/>
+    <path d="M48 17 Q44 14 43 10 Q47 13 48 17 Z" fill="url(#ew-leafD)" opacity=".75"/>
+    <path d="M53 13.5 Q54 10 56.5 9.5 Q55 12 53 13.5 Z" fill="url(#ew-leafD)" opacity=".6"/>
     <!-- leafy mantle -->
-    <path d="M44.5 35 Q54 30 63 34 L65 42 L61.5 45.5 L59 42 L55.5 46.5 L52.5 42.5 L48.5 46.5 L46.5 42 L43 44.5 Z" fill="url(#leaf)"/>
+    <path d="M44.5 35 Q54 30 63 34 L65 42 L61.5 45.5 L59 42 L55.5 46.5 L52.5 42.5 L48.5 46.5 L46.5 42 L43 44.5 Z" fill="url(#ew-leaf)"/>
+    <path d="M45.5 36 Q54 32 62 35 L63.5 40 L61 42.5 L58.5 39.5 L56 43 L53 39.5 L50 43 L47.5 39.5 L44.5 41.5 Z" fill="url(#ew-leafD)" opacity=".45"/>
+    <path d="M47 36.5 l1.3 5.5 M49 37 l-.5 2.5 M50 37 l.5 2.5" stroke="#3f7a2c" stroke-width=".5" opacity=".45"/>
+    <path d="M52.5 35.5 v5 M54.5 35 v3.5 M56 35 v3" stroke="#3f7a2c" stroke-width=".5" opacity=".45"/>
+    <path d="M58.5 35.5 l.7 4.5 M60.5 36 l-.3 3 M62 37 l-.5 3" stroke="#3f7a2c" stroke-width=".5" opacity=".45"/>
+    <path d="M47 36.5 Q50 34 54 33.4" stroke="#e8f8c8" stroke-width="1.2" fill="none" opacity=".7"/>
     <!-- front arm -->
-    <path d="M58 37 Q65 40 69 50 L65 53 Q61 47 56.5 44 Z" fill="url(#robe)"/>
-    <circle cx="68.4" cy="52" r="2.7" fill="#f0d2b4"/>
+    <path d="M58 37 Q65 40 69 50 L65 53 Q61 47 56.5 44 Z" fill="url(#ew-robe)"/>
+    <path d="M60 39 Q64 42 67 48" stroke="#3a6028" stroke-width=".5" fill="none" opacity=".3"/>
+    <circle cx="68.4" cy="52" r="2.7" fill="url(#ew-skin)"/>
+    <path d="M66.5 51 Q68.4 49.5 70.3 51" stroke="#e0b898" stroke-width=".5" fill="none" opacity=".45"/>
   </g>
   <!-- vines on staff -->
-  <path class="wpn" d="M67.4 88 Q71 84 67.4 80 Q64.5 76 68 72 M68.4 64 Q72 60 69 56" stroke="#5aa03c" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-  <path class="wpn" d="M68 72 q3 -1 4 1.5 q-3 1 -4 -1.5 z M67.4 80 q-3.2 -.6 -4 2 q3 .6 4 -2 z M69 56 q3 -1.6 4.5 .8 q-3 1.4 -4.5 -.8 z" fill="url(#leaf)" stroke="none" stroke-width=".7" stroke-linejoin="round"/>
-  <!-- mantle veins -->
-  <path d="M47 41 l1.3 3 M52.5 40.5 v3.5 M58.5 40 l.7 3.2 M62.5 39.5 l-.5 3" stroke="#3f7a2c" stroke-width=".9" stroke-linecap="round"/>
-  <path d="M47 36.5 Q50 34 54 33.4" stroke="#e8f8c8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path class="wpn" d="M67.4 88 Q71 84 67.4 80 Q64.5 76 68 72 M68.4 64 Q72 60 69 56 M68 48 Q72 44 69.5 40" stroke="#5aa03c" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M67.4 88 Q71 84 67.4 80 Q64.5 76 68 72 M68.4 64 Q72 60 69 56" stroke="#3f7a2c" stroke-width=".5" fill="none" stroke-linecap="round" opacity=".4"/>
+  <path class="wpn" d="M68 72 q3 -1 4 1.5 q-3 1 -4 -1.5 z M67.4 80 q-3.2 -.6 -4 2 q3 .6 4 -2 z M69 56 q3 -1.6 4.5 .8 q-3 1.4 -4.5 -.8 z M69.5 40 q2.5 -1.2 3.5 1 q-2.5 1.2 -3.5 -1 z" fill="url(#ew-leaf)" stroke="none"/>
+  <path class="wpn" d="M70 76 l1.5 -.8 M66 84 l-1.2 -.8 M71 60 l1.2 -.6" stroke="#3f7a2c" stroke-width=".6" stroke-linecap="round"/>
+  <!-- vine flowers -->
+  <circle class="wpn" cx="65.5" cy="68" r="1.2" fill="#f0b8d0" opacity=".75"/>
+  <path class="wpn" d="M65.5 68 m-1 -.4 q1 -1.2 2 0 q-1 1.2 -2 0 z M65.5 68 m-.4 -1 q-1.2 1 0 2 q1.2 -1 0 -2 z" fill="#f5c8d8" opacity=".65"/>
+  <circle class="wpn" cx="65.5" cy="68" r=".4" fill="#f7e88a"/>
   <!-- face -->
   <path d="M58.4 22.6 q1.4 -1 2.8 0 q-1.4 1 -2.8 0 z" fill="#1d2130" stroke="#1d2130" stroke-width="1.2" stroke-linejoin="round"/>
+  <circle cx="59.8" cy="22.2" r=".45" fill="#4a7a3c" opacity=".65"/>
   <path d="M57.8 20.2 q1.8 -.9 3.8 -.1" stroke="#9a4a26" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M58.2 20.5 l-.5 -.8 M61.5 20.3 l.5 -.8" stroke="#6a3018" stroke-width=".4" stroke-linecap="round" opacity=".55"/>
   <path d="M59.5 27.2 q1.3 .6 2.6 -.1" stroke="#b97a64" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M60 27.8 q.8 .3 1.6 .1" stroke="#c4887a" stroke-width=".45" fill="none" stroke-linecap="round" opacity=".45"/>
   <circle cx="60.3" cy="25" r="1.2" fill="#f2a08a" opacity=".45"/>
+  <circle cx="57.2" cy="25" r=".8" fill="#f2a08a" opacity=".25"/>
   <!-- robe trim -->
-  <path d="M52 37 L49 88.5 M57 37 L60 88.5" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M52 37 L49 88.5 M57 37 L60 88.5" stroke="url(#ew-gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M46 45 Q54 48 62 45" stroke="url(#ew-gold)" stroke-width=".7" stroke-linecap="round" opacity=".55"/>
   <path d="M40.5 30 Q39.5 42 41 52" stroke="#f3a674" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".7"/>
-  <!-- orb shine + floating leaves -->
-  <circle class="wpn" cx="68.2" cy="14" r="1.4" fill="#fff"/>
-  <g class="wpn" fill="url(#leaf)" stroke="none" stroke-width=".8" stroke-linejoin="round">
+  <!-- floating leaves -->
+  <g class="wpn" fill="url(#ew-leaf)" stroke="none">
     <path d="M82 30 q3 -3 6 -1 q-3 3 -6 1 z"/>
     <path d="M80 46 q2 -3.5 5 -2.5 q-2 3.5 -5 2.5 z"/>
+    <path d="M34 40 q2.5 -2 4.5 0 q-2.5 2 -4.5 0 z" opacity=".55"/>
+    <path d="M86 38 q1.5 -2.5 3.5 -1 q-1.5 2.5 -3.5 1 z" opacity=".45"/>
   </g>
-  <g class="wpn" fill="#c8f5b0"><circle cx="81" cy="12" r="1"/><circle cx="58" cy="5" r=".8"/><circle cx="85" cy="22" r=".7"/><circle cx="77" cy="38" r=".8"/></g>
+  <!-- floating pollen / seeds -->
+  <g class="wpn" fill="#c8f5b0">
+    <circle cx="81" cy="12" r="1"/><circle cx="58" cy="5" r=".8"/><circle cx="85" cy="22" r=".7"/>
+    <circle cx="77" cy="38" r=".8"/><circle cx="33" cy="35" r=".55" opacity=".5"/><circle cx="88" cy="44" r=".5" opacity=".45"/>
+  </g>
+  <g class="wpn" fill="#f7e88a" opacity=".45">
+    <circle cx="78" cy="8" r=".5"/><circle cx="84" cy="16" r=".4"/><circle cx="75" cy="28" r=".5"/>
+    <circle cx="90" cy="30" r=".3"/><circle cx="36" cy="28" r=".4"/><circle cx="82" cy="50" r=".4"/>
+  </g>
+  <!-- nature aura -->
+  <ellipse class="wpn" cx="55" cy="50" rx="22" ry="30" fill="none" stroke="#9fe08a" stroke-width=".4" opacity=".12" filter="url(#ew-glowSm)"/>
 </svg>

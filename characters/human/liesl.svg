@@ -1,54 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Sister Liesl (support) - Ashfall Road art v2. Cleric of the dawn chapel.
+<!-- Sister Liesl (support) - Ashfall Road art v3. Cleric of the dawn chapel.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66.7,58">
   <defs>
-    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset=".55" stop-color="#e9e4d8"/><stop offset="1" stop-color="#b3aa96"/></linearGradient>
-    <linearGradient id="veil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#c9c1ad"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe490"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
-    <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b25a"/><stop offset="1" stop-color="#c8673a"/></linearGradient>
-    <radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#fff1b8"/><stop offset="1" stop-color="#f2c45a"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="li-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffef8"/><stop offset=".25" stop-color="#faf5e8"/><stop offset=".55" stop-color="#ede6d4"/><stop offset=".8" stop-color="#d8d0be"/><stop offset="1" stop-color="#b3aa96"/></linearGradient>
+    <linearGradient id="li-robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8e0cc"/><stop offset="1" stop-color="#a89e8a"/></linearGradient>
+    <linearGradient id="li-veil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#f5f0e6"/><stop offset="1" stop-color="#c9c1ad"/></linearGradient>
+    <linearGradient id="li-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe490"/><stop offset=".4" stop-color="#f0c85a"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
+    <linearGradient id="li-dawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b25a"/><stop offset=".5" stop-color="#e89040"/><stop offset="1" stop-color="#c8673a"/></linearGradient>
+    <linearGradient id="li-staff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f0c85a"/><stop offset=".3" stop-color="#ffe490"/><stop offset=".7" stop-color="#daa830"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
+    <linearGradient id="li-book" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8c3040"/><stop offset="1" stop-color="#5a1a25"/></linearGradient>
+    <radialGradient id="li-sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".25" stop-color="#fffcf0"/><stop offset=".5" stop-color="#fff1b8"/><stop offset=".75" stop-color="#f5d878"/><stop offset="1" stop-color="#f2c45a"/></radialGradient>
+    <radialGradient id="li-warm" cx=".3" cy=".3" r=".7"><stop offset="0" stop-color="#fff8e0" stop-opacity=".3"/><stop offset="1" stop-color="#fff8e0" stop-opacity="0"/></radialGradient>
+    <filter id="li-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="li-sglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.5"/></filter>
   </defs>
+  <!-- ground shadow -->
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <!-- holy light -->
-  <circle class="wpn" cx="67" cy="19" r="12" fill="#fff1b8" opacity=".6" filter="url(#glow)"/>
-  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- veil back -->
-    <path d="M42 24 Q34 38 35 58 Q41 54 46 47 L48 30 Z" fill="url(#veil)"/>
-    <!-- feet -->
-    <path d="M42 88 h8 v5.5 h-10 z" fill="#6e4a30"/>
-    <path d="M52 88 h8 l2.5 5.5 h-11 z" fill="#7d5636"/>
-    <!-- robe -->
-    <path d="M40 42 Q50 38 61 42 L65 89 Q51 92.5 36 89 Z" fill="url(#robe)"/>
-    <path d="M47 43 h8 l2 47 q-6 1 -12 0 z" fill="url(#dawn)"/>
-    <rect x="39" y="60" width="24" height="3.6" rx="1" fill="url(#gold)"/>
-    <!-- hanging book -->
-    <path d="M38 64 h7 v9 h-7 z" fill="#7a2e3a"/>
-    <!-- staff -->
-    <rect class="wpn" x="65.2" y="27" width="3" height="65" rx="1" fill="url(#gold)"/>
-    <!-- head + veil -->
+  <!-- holy light ambient -->
+  <circle class="wpn" cx="67" cy="19" r="14" fill="#fff1b8" opacity=".5" filter="url(#li-glow)"/>
+  <circle class="wpn" cx="67" cy="19" r="8" fill="#fffcf0" opacity=".3" filter="url(#li-sglow)"/>
+
+  <g stroke="none">
+    <!-- veil back drape -->
+    <path d="M42 24 Q34 38 35 58 Q37 55 40 50 Q41 54 46 47 L48 30 Z" fill="url(#li-veil)"/>
+    <path d="M36 48 Q38 44 40 50" stroke="#d8d0be" stroke-width=".7" fill="none"/>
+    <!-- sandals under hem -->
+    <path d="M42 89 h8 v4.5 h-10 z" fill="#6e4a30"/><path d="M44 91 v2.5 M47 91 v2.5" stroke="#5a3a22" stroke-width=".6"/>
+    <path d="M52 89 h8 l2 4.5 h-11 z" fill="#7d5636"/><path d="M55 91 v2.5 M58 91 v2.5" stroke="#6a4028" stroke-width=".6"/>
+    <!-- robe body -->
+    <path d="M40 42 Q50 38 61 42 L65 89 Q51 92.5 36 89 Z" fill="url(#li-robe)"/>
+    <path d="M44 50 Q43 65 41 85" stroke="#d5ccb8" stroke-width=".8" fill="none"/>
+    <path d="M56 48 Q58 68 60 85" stroke="#d5ccb8" stroke-width=".7" fill="none"/>
+    <path d="M48 55 Q47 72 46 88" stroke="#ddd4c2" stroke-width=".5" fill="none"/>
+    <!-- layered hem -->
+    <path d="M36 86 Q51 89 65 86 Q63 90 51 92.5 Q39 90 36 86 Z" fill="url(#li-robeD)"/>
+    <path d="M37 88 Q51 91 64 88" stroke="url(#li-gold)" stroke-width=".8" fill="none"/>
+    <!-- warm light cast from sun disc -->
+    <ellipse cx="58" cy="50" rx="10" ry="14" fill="url(#li-warm)"/>
+    <!-- dawn vestment panel -->
+    <path d="M47 43 h8 l2 47 Q53 91 51 91 Q49 91 45 90 z" fill="url(#li-dawn)"/>
+    <path d="M51 48 v8 M48 51 h6" stroke="#fff4d6" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M51 62 v6 M49 64.5 h4" stroke="#fff4d6" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M51 76 v5 M49.5 78 h3" stroke="#fff4d6" stroke-width="1" stroke-linecap="round"/>
+    <!-- vestment gold edge trim -->
+    <path d="M47 43 L45 90" stroke="url(#li-gold)" stroke-width="1" fill="none"/>
+    <path d="M55 43 L57 90" stroke="url(#li-gold)" stroke-width="1" fill="none"/>
+    <!-- belt with scrollwork -->
+    <rect x="39" y="60" width="24" height="3.6" rx="1" fill="url(#li-gold)"/>
+    <path d="M41 61 q1.5 1.5 3 0 q1.5-1.5 3 0 q1.5 1.5 3 0 q1.5-1.5 3 0 q1.5 1.5 3 0" stroke="#b8861f" stroke-width=".6" fill="none"/>
+    <!-- rosary beads -->
+    <path d="M43 63.6 v4" stroke="#c9a25e" stroke-width=".6"/>
+    <g fill="url(#li-gold)"><circle cx="43" cy="68" r=".8"/><circle cx="43" cy="70" r=".8"/><circle cx="43" cy="72" r=".8"/><path d="M42 73.5 h2 v2.5 h-2 z"/></g>
+    <!-- herb pouch + holy water vial -->
+    <path d="M56 63.6 Q57 66 58.5 67 Q56 68 55 67 Q54 66 56 63.6 Z" fill="#5a6b3a"/>
+    <path d="M55.5 65.5 h3" stroke="#7a8b4a" stroke-width=".5"/>
+    <path d="M60 63.6 v3.5" stroke="#b8861f" stroke-width=".8"/>
+    <ellipse cx="60" cy="68.5" rx="1.3" ry="2" fill="#8ab8d8" opacity=".7"/>
+    <ellipse cx="60" cy="68.5" rx="1.3" ry="2" fill="none" stroke="#b8861f" stroke-width=".5"/>
+    <!-- prayer book: cover, pages, clasp, bookmark, cross -->
+    <path d="M36.5 64 h8 v10 h-8 z" fill="url(#li-book)"/>
+    <path d="M37 65 h1.5 v8 h-1.5 z" fill="#f0e8d8"/><path d="M37 65 v8" stroke="#5a1a25" stroke-width=".4"/>
+    <rect x="42.5" y="67.5" width="1.5" height="2" rx=".3" fill="url(#li-gold)"/>
+    <path d="M40 64 v-2 q1 1 2 0" stroke="#c8673a" stroke-width=".7" fill="none"/>
+    <path d="M40.5 66 v4 M39 68 h3" stroke="url(#li-gold)" stroke-width=".8" stroke-linecap="round"/>
+    <!-- staff: twisted golden shaft -->
+    <rect class="wpn" x="65" y="27" width="3.4" height="65" rx="1" fill="url(#li-staff)"/>
+    <path class="wpn" d="M65.5 32 q1.7 2 3 0 M65.5 38 q1.7 2 3 0 M65.5 44 q1.7 2 3 0 M65.5 50 q1.7 2 3 0 M65.5 56 q1.7 2 3 0 M65.5 62 q1.7 2 3 0 M65.5 68 q1.7 2 3 0 M65.5 74 q1.7 2 3 0 M65.5 80 q1.7 2 3 0" stroke="#b8861f" stroke-width=".6" fill="none"/>
+    <!-- staff filigree + gem mount -->
+    <path class="wpn" d="M64 26 q2.7-2 5.4 0" stroke="url(#li-gold)" stroke-width="1" fill="none"/>
+    <path class="wpn" d="M64.5 25 q2.2-1.5 4.4 0" stroke="#f0c85a" stroke-width=".6" fill="none"/>
+    <circle class="wpn" cx="66.7" cy="28" r="1.8" fill="url(#li-gold)"/><circle class="wpn" cx="66.7" cy="28" r="1" fill="#e04040"/>
+    <rect class="wpn" x="64.5" y="90" width="4.4" height="2" rx=".5" fill="url(#li-gold)"/>
+    <!-- head -->
     <circle cx="52.5" cy="30" r="9" fill="#f0c9a6"/>
-    <path d="M42.5 34 Q40 17 52.5 17 Q63 17 63 27 Q60 22 54 22.5 Q48.5 23 47.5 31 L48 40 Q44 40 42.5 34 Z" fill="url(#veil)"/>
-    <!-- front arm -->
-    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#robe)"/>
+    <!-- veil/wimple with fabric folds -->
+    <path d="M42.5 34 Q40 17 52.5 17 Q63 17 63 27 Q60 22 54 22.5 Q48.5 23 47.5 31 L48 40 Q44 40 42.5 34 Z" fill="url(#li-veil)"/>
+    <path d="M44 28 Q45 24 48 23" stroke="#ddd6c6" stroke-width=".6" fill="none"/>
+    <path d="M43 33 Q44 30 46 28" stroke="#ddd6c6" stroke-width=".5" fill="none"/>
+    <!-- gold circlet + gem -->
+    <path d="M47.6 31 Q48.5 23 54 22.5 Q60 22 63 27" stroke="url(#li-gold)" stroke-width="1.8" fill="none"/>
+    <circle cx="55" cy="22.5" r="1" fill="#e04040"/>
+    <!-- wimple under chin -->
+    <path d="M48 37 Q50 40 55 39 Q53 41 48 40 Z" fill="url(#li-veil)"/>
+    <!-- face: hair, eye, brow, nose, smile, blush -->
+    <path d="M51 23.5 Q55 22 58.5 24.5 Q55 24.6 53 27 Q52 25 51 23.5 Z" fill="#c9a25e"/>
+    <ellipse cx="57.6" cy="30" rx="1.6" ry="1.5" fill="#fff"/>
+    <circle cx="58" cy="30.2" r="1" fill="#6b4a20"/><circle cx="58.2" cy="29.9" r=".4" fill="#fff"/>
+    <path d="M55.5 27.6 q2.5-1 4 0" stroke="#a07b3e" stroke-width=".8" fill="none" stroke-linecap="round"/>
+    <path d="M59.5 32 q.5 1 0 2" stroke="#d4a88a" stroke-width=".6" fill="none" stroke-linecap="round"/>
+    <path d="M57.5 35 q2 1.5 3.5 .5" stroke="#b97a64" stroke-width=".8" fill="none" stroke-linecap="round"/>
+    <circle cx="60" cy="33" r="1.6" fill="#f2a08a" opacity=".4"/>
+    <!-- front arm + sleeve detail -->
+    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#li-robe)"/>
+    <path d="M62 59 Q60 55 58 52" stroke="#e8d8b8" stroke-width="1.2" fill="none"/>
+    <path d="M56 44 Q54 49 54 50" stroke="url(#li-gold)" stroke-width=".8" fill="none"/>
+    <path d="M43 46 Q45 44 48 43.5" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <!-- hand -->
     <circle cx="66.7" cy="58" r="2.8" fill="#f0c9a6"/>
-    <!-- sun disc -->
-    <circle class="wpn" cx="66.7" cy="19" r="6.5" fill="url(#sun)"/>
+    <!-- sun disc: outer ring, main, inner ring, face -->
+    <circle class="wpn" cx="66.7" cy="19" r="7.5" fill="none" stroke="#f2c45a" stroke-width="1.2"/>
+    <circle class="wpn" cx="66.7" cy="19" r="6.5" fill="url(#li-sun)"/>
+    <circle class="wpn" cx="66.7" cy="19" r="4" fill="none" stroke="#f5d878" stroke-width=".7"/>
+    <circle class="wpn" cx="66.7" cy="19" r="2.2" fill="#fffcf0"/>
+    <path class="wpn" d="M65.5 18.5 q1.2 .6 2.4 0" stroke="#f0c85a" stroke-width=".6" fill="none" stroke-linecap="round"/>
   </g>
-  <!-- veil trim, fringe, face -->
-  <path d="M47.6 31 Q48.5 23 54 22.5 Q60 22 63 27" stroke="url(#gold)" stroke-width="1.6" fill="none"/>
-  <path d="M51 23.5 Q55 22 58.5 24.5 Q55 24.6 53 27 Q52 25 51 23.5 Z" fill="#c9a25e"/>
-  <circle cx="57.6" cy="30.2" r="1.4" fill="#1d2130"/>
-  <path d="M56 27.6 q2 -.8 3.8 0" stroke="#a07b3e" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <path d="M58 35 q1.5 1 3 0" stroke="#b97a64" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <circle cx="60" cy="33" r="1.4" fill="#f2a08a" opacity=".5"/>
   <!-- sun rays -->
-  <path class="wpn" d="M66.7 8.5 v3.2 M66.7 26.3 v3.2 M56.2 19 h3.2 M74 19 h3.2 M59.3 11.6 l2.2 2.2 M71.9 24.2 l2.2 2.2 M59.3 26.4 l2.2 -2.2 M71.9 13.8 l2.2 -2.2" stroke="#f2c45a" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- robe + book details -->
-  <path d="M51 48 v8 M48 51 h6" stroke="#fff4d6" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M39.5 65.5 h4 M41.5 64 v9" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
-  <path d="M43 46 Q45 44 48 43.5" stroke="#fff" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-  <!-- light motes -->
-  <g class="wpn" fill="#fff1b8"><circle cx="78" cy="31" r="1"/><circle cx="57" cy="9" r=".8"/><circle cx="80" cy="10" r=".7"/><circle cx="74" cy="38" r=".7"/></g>
+  <g class="wpn" stroke="#f2c45a" stroke-linecap="round">
+    <path d="M66.7 7 v4" stroke-width="1.8"/><path d="M66.7 27 v4" stroke-width="1.8"/>
+    <path d="M55 19 h4" stroke-width="1.8"/><path d="M74.4 19 h4" stroke-width="1.8"/>
+    <path d="M58.5 11 l2.5 2.5" stroke-width="1.6"/><path d="M72.4 24.5 l2.5 2.5" stroke-width="1.6"/>
+    <path d="M58.5 27 l2.5-2.5" stroke-width="1.6"/><path d="M72.4 13.5 l2.5-2.5" stroke-width="1.6"/>
+    <path d="M62 9.5 l1.5 1.5" stroke-width="1"/><path d="M71.5 9.5 l-1.5 1.5" stroke-width="1"/>
+    <path d="M62 28.5 l1.5-1.5" stroke-width="1"/><path d="M71.5 28.5 l-1.5-1.5" stroke-width="1"/>
+  </g>
+  <!-- light motes with ray-cross variations -->
+  <g class="wpn" fill="#fff1b8">
+    <circle cx="78" cy="31" r="1"/><circle cx="57" cy="9" r=".9"/><circle cx="80" cy="10" r=".7"/><circle cx="74" cy="38" r=".7"/><circle cx="82" cy="22" r=".6"/>
+    <g stroke="#fff1b8" stroke-width=".5" stroke-linecap="round">
+      <circle cx="76" cy="6" r=".5"/><path d="M76 4.8 v2.4 M74.8 6 h2.4"/>
+      <circle cx="83" cy="16" r=".5"/><path d="M83 14.8 v2.4 M81.8 16 h2.4"/>
+    </g>
+  </g>
 </svg>

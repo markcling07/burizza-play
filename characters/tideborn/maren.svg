@@ -3,73 +3,134 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66.8,58">
   <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b0d9d0"/><stop offset=".5" stop-color="#7fb3a8"/><stop offset="1" stop-color="#56877d"/></linearGradient>
-    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b9a90"/><stop offset="1" stop-color="#436f67"/></linearGradient>
-    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset=".55" stop-color="#e9e4d8"/><stop offset="1" stop-color="#b3aa96"/></linearGradient>
-    <linearGradient id="robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d3ccbb"/><stop offset="1" stop-color="#9c937f"/></linearGradient>
-    <linearGradient id="fin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe3ec"/><stop offset=".5" stop-color="#f2c6d8"/><stop offset="1" stop-color="#cf8eaa"/></linearGradient>
-    <linearGradient id="coral" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f7a296"/><stop offset="1" stop-color="#c24f5c"/></linearGradient>
-    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fb8c2"/><stop offset="1" stop-color="#2a7f8f"/></linearGradient>
-    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4dc"/><stop offset="1" stop-color="#e3b98f"/></linearGradient>
-    <radialGradient id="pearl" cx=".38" cy=".35" r=".65"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#fff7e6"/><stop offset="1" stop-color="#dcc6a2"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="mp-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b0d9d0"/><stop offset=".5" stop-color="#7fb3a8"/><stop offset="1" stop-color="#56877d"/></linearGradient>
+    <linearGradient id="mp-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b9a90"/><stop offset="1" stop-color="#436f67"/></linearGradient>
+    <linearGradient id="mp-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset=".55" stop-color="#e9e4d8"/><stop offset="1" stop-color="#b3aa96"/></linearGradient>
+    <linearGradient id="mp-robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d3ccbb"/><stop offset="1" stop-color="#9c937f"/></linearGradient>
+    <linearGradient id="mp-fin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe3ec"/><stop offset=".5" stop-color="#f2c6d8"/><stop offset="1" stop-color="#cf8eaa"/></linearGradient>
+    <linearGradient id="mp-finT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe3ec" stop-opacity=".8"/><stop offset="1" stop-color="#cf8eaa" stop-opacity=".4"/></linearGradient>
+    <linearGradient id="mp-coral" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f7a296"/><stop offset="1" stop-color="#c24f5c"/></linearGradient>
+    <linearGradient id="mp-coralD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4756a"/><stop offset="1" stop-color="#943844"/></linearGradient>
+    <linearGradient id="mp-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fb8c2"/><stop offset="1" stop-color="#2a7f8f"/></linearGradient>
+    <linearGradient id="mp-shell" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4dc"/><stop offset="1" stop-color="#e3b98f"/></linearGradient>
+    <radialGradient id="mp-pearl" cx=".38" cy=".35" r=".65"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#fff7e6"/><stop offset=".7" stop-color="#f0dfc8"/><stop offset="1" stop-color="#dcc6a2"/></radialGradient>
+    <radialGradient id="mp-pearlGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff7e6" stop-opacity=".9"/><stop offset=".5" stop-color="#ffe8cc" stop-opacity=".4"/><stop offset="1" stop-color="#5fb8c2" stop-opacity="0"/></radialGradient>
+    <radialGradient id="mp-irid" cx=".3" cy=".25" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".4" stop-color="#e8f0ff" stop-opacity=".3"/><stop offset="1" stop-color="#ffe8f8" stop-opacity="0"/></radialGradient>
+    <filter id="mp-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="mp-glowSm" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.5"/></filter>
   </defs>
+  <!-- ground shadow -->
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <!-- pearl light -->
-  <circle class="wpn" cx="67" cy="17.5" r="12.5" fill="#fff7e6" opacity=".7" filter="url(#glow)"/>
-  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- fin tresses -->
-    <path d="M44 25 Q35 35 36 54 Q41 50 46 45 L49 31 Z" fill="url(#fin)"/>
-    <path d="M44.5 30 Q39 39 38.5 50 M47 34 Q43 41 42 47" stroke="#c07e9c" stroke-width=".9" fill="none"/>
-    <!-- feet -->
-    <path d="M42 88 h8 v5.5 h-10 z" fill="url(#skinD)"/>
-    <path d="M52 88 h8 l2.5 5.5 h-11 z" fill="url(#skin)"/>
-    <!-- back sleeve -->
-    <path d="M40 44 Q33 54 34 66 L42 64 Q41 55 44 49 Z" fill="url(#robeD)"/>
-    <!-- robe -->
-    <path d="M40 42 Q50 38 61 42 L65 89 Q51 92.5 36 89 Z" fill="url(#robe)"/>
-    <path d="M47 43 h8 l2 47 q-6 1 -12 0 z" fill="url(#fin)"/>
-    <path d="M36.4 85 Q51 88.5 65.6 85 L66 89 Q51 92.5 36 89 Z" fill="url(#sea)"/>
-    <rect x="39" y="60" width="24" height="3.6" rx="1" fill="url(#sea)"/>
-    <!-- scallop shell buckle -->
-    <path d="M47 65.5 Q46.5 59.5 51 59 Q55.5 59.5 55 65.5 Q51 67 47 65.5 Z" fill="url(#shell)"/>
-    <!-- coral staff -->
-    <rect class="wpn" x="65.3" y="25" width="3" height="67" rx="1" fill="url(#coral)"/>
-    <path class="wpn" d="M66 29 Q60.5 27 59.5 19 L62.3 18.6 Q63.3 24 67 25.5 Z" fill="url(#coral)"/>
-    <path class="wpn" d="M67.6 29 Q73.2 27 74.4 18.6 L71.6 18.2 Q70.6 24 66.6 25.5 Z" fill="url(#coral)"/>
-    <path class="wpn" d="M68 43 Q72 42 72.5 38 L70.5 37.6 Q70 40 67.8 40.5 Z" fill="url(#coral)"/>
-    <!-- head -->
-    <path d="M48.5 36 h7 v8 h-7 z" fill="url(#skin)"/>
-    <circle cx="52.5" cy="30" r="9" fill="url(#skin)"/>
-    <!-- fin crest -->
-    <path d="M43.5 29 Q40 18 46 11 L48.5 16 L51 8.5 L53.5 15 L57 10.5 L58 17 L62 15 Q62.5 20 60.5 22.5 Q52 19 43.5 29 Z" fill="url(#fin)"/>
-    <path d="M48 28.5 L40 25.5 L42 30 L39 34 L48 33 Z" fill="url(#fin)"/>
-    <!-- front arm + shell pauldron -->
-    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#robe)"/>
-    <circle cx="66.8" cy="58" r="2.8" fill="url(#skin)"/>
-    <path d="M53.5 48.5 Q53 41.5 59.5 41 Q66 41.5 65.5 48 Q59.5 50.5 53.5 48.5 Z" fill="url(#shell)"/>
-    <!-- pearl -->
-    <circle class="wpn" cx="67" cy="17.5" r="6" fill="url(#pearl)"/>
+  <!-- pearl outer glow + light rays -->
+  <circle class="wpn" cx="67" cy="17.5" r="14" fill="url(#mp-pearlGlow)" filter="url(#mp-glow)"/>
+  <g class="wpn" stroke="#fff7e6" stroke-width=".7" opacity=".35" stroke-linecap="round">
+    <line x1="67" y1="17.5" x2="58" y2="6"/><line x1="67" y1="17.5" x2="76" y2="5"/>
+    <line x1="67" y1="17.5" x2="79" y2="14"/><line x1="67" y1="17.5" x2="56" y2="12"/>
   </g>
-  <!-- fin ribs -->
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- fin tresses - layered translucent strands -->
+    <path d="M44 25 Q35 35 36 54 Q41 50 46 45 L49 31 Z" fill="url(#mp-fin)"/>
+    <path d="M45 27 Q37 38 38 56 Q42 52 45 47 L47 33 Z" fill="url(#mp-finT)" opacity=".6"/>
+    <path d="M43 28 Q33 40 35 58 Q39 53 43 47 L46 33 Z" fill="url(#mp-finT)" opacity=".4"/>
+    <path d="M44.5 30 Q39 39 38.5 50 M47 34 Q43 41 42 47 M45.5 32 Q41 40 40 48" stroke="#c07e9c" stroke-width=".7" fill="none"/>
+    <path d="M47 32 Q43 34 41 38 Q44 36 47 35 Z" fill="url(#mp-fin)" opacity=".7"/><!-- ear fin -->
+    <!-- feet with webbing -->
+    <path d="M42 88 h8 v5.5 h-10 z" fill="url(#mp-skinD)"/>
+    <path d="M52 88 h8 l2.5 5.5 h-11 z" fill="url(#mp-skin)"/>
+    <path d="M44 93 v-3 M46 93 v-2.5 M48 93 v-2" stroke="#436f67" stroke-width=".5" fill="none" opacity=".5"/>
+    <path d="M54 93 v-3 M56 93 v-2.5 M58 93 v-2" stroke="#56877d" stroke-width=".5" fill="none" opacity=".5"/>
+    <!-- back sleeve -->
+    <path d="M40 44 Q33 54 34 66 L42 64 Q41 55 44 49 Z" fill="url(#mp-robeD)"/>
+    <path d="M37 56 Q39 54 41 56" stroke="#9c937f" stroke-width=".6" fill="none" opacity=".5"/>
+    <!-- robe body + centre panel -->
+    <path d="M40 42 Q50 38 61 42 L65 89 Q51 92.5 36 89 Z" fill="url(#mp-robe)"/>
+    <path d="M47 43 h8 l2 47 q-6 1 -12 0 z" fill="url(#mp-fin)" opacity=".55"/>
+    <!-- wave embroidery on robe -->
+    <path d="M39 70 q3 -2 6 0 q3 2 6 0 q3 -2 6 0" stroke="#5fb8c2" stroke-width=".7" fill="none" opacity=".5"/>
+    <path d="M40 75 q2.5 -1.5 5 0 q2.5 1.5 5 0 q2.5 -1.5 5 0 q2.5 1.5 5 0" stroke="#5fb8c2" stroke-width=".6" fill="none" opacity=".4"/>
+    <!-- seaweed trim at hem -->
+    <path d="M36.4 85 Q51 88.5 65.6 85 L66 89 Q51 92.5 36 89 Z" fill="url(#mp-sea)"/>
+    <path d="M38 86 q1 -2 2 0 q1 2 2 0 M44 86.5 q1 -1.5 2 0 q1 1.5 2 0 M56 86 q1 -2 2 0 q1 2 2 0 M62 85.5 q1 -1.5 2 0" stroke="#2a7f8f" stroke-width=".5" fill="none"/>
+    <!-- sash + stitch detail -->
+    <rect x="39" y="60" width="24" height="3.6" rx="1" fill="url(#mp-sea)"/>
+    <path d="M41 61.8 h20" stroke="#2a7f8f" stroke-width=".4" fill="none" opacity=".5"/>
+    <!-- shell buttons -->
+    <circle cx="51" cy="52" r="1.1" fill="url(#mp-shell)"/><circle cx="51" cy="56" r="1" fill="url(#mp-shell)"/>
+    <circle cx="51" cy="52" r=".4" fill="#e3b98f"/><circle cx="51" cy="56" r=".35" fill="#e3b98f"/>
+    <!-- scallop shell buckle -->
+    <path d="M47 65.5 Q46.5 59.5 51 59 Q55.5 59.5 55 65.5 Q51 67 47 65.5 Z" fill="url(#mp-shell)"/>
+    <path d="M51 65.8 V60 M48.8 65.3 L49.2 60.6 M53.2 65.3 L52.8 60.6 M47.6 64 L48 61.5 M54.4 64 L54 61.5" stroke="#b48a62" stroke-width=".7" stroke-linecap="round"/>
+    <path d="M48 65 Q51 66.5 54 65" stroke="#d4a86a" stroke-width=".6" fill="none"/>
+    <!-- coral staff - shaft with growth rings -->
+    <rect class="wpn" x="65.3" y="25" width="3" height="67" rx="1" fill="url(#mp-coral)"/>
+    <path class="wpn" d="M65.8 35 Q66.5 34 67.8 35 M65.8 50 Q66.5 49 67.8 50 M65.8 65 Q66.5 64 67.8 65" stroke="#943844" stroke-width=".5" fill="none"/>
+    <!-- barnacles on shaft -->
+    <ellipse class="wpn" cx="66" cy="45" rx="1.2" ry=".8" fill="#c8b8a0" opacity=".7"/><ellipse class="wpn" cx="67.5" cy="55" rx="1" ry=".7" fill="#c8b8a0" opacity=".6"/>
+    <!-- upper coral branches -->
+    <path class="wpn" d="M66 29 Q60.5 27 59.5 19 L62.3 18.6 Q63.3 24 67 25.5 Z" fill="url(#mp-coral)"/>
+    <path class="wpn" d="M67.6 29 Q73.2 27 74.4 18.6 L71.6 18.2 Q70.6 24 66.6 25.5 Z" fill="url(#mp-coral)"/>
+    <!-- small secondary branches -->
+    <path class="wpn" d="M60.5 21 Q58.5 18.5 59 16 L60.5 16.5 Q60.2 18 61 19.5 Z" fill="url(#mp-coralD)"/>
+    <path class="wpn" d="M73 21 Q75 18 74.5 15.5 L73 16 Q73.5 18 72.5 19.5 Z" fill="url(#mp-coralD)"/>
+    <!-- lower branch -->
+    <path class="wpn" d="M68 43 Q72 42 72.5 38 L70.5 37.6 Q70 40 67.8 40.5 Z" fill="url(#mp-coral)"/>
+    <!-- anemone tufts at branch tips -->
+    <g class="wpn" stroke="#f7a296" stroke-width=".6" fill="none" stroke-linecap="round" opacity=".7">
+      <path d="M59.5 16 Q58.5 14 59 12.5 M60 16.5 Q59.5 14.5 60.5 13 M60.5 16 Q61 14 60 12"/>
+      <path d="M73.5 16 Q74.5 14 74 12 M73 16 Q73 14 74 12.5 M74 15.5 Q75 14 74.5 12"/>
+    </g>
+    <!-- seahorse near staff -->
+    <path class="wpn" d="M73 32 Q74.5 30 74 28 Q73 27 72.5 28.5 Q72 30 73 31 L72.5 33 Q71.5 34 72 34.5" stroke="#f2c6d8" stroke-width=".7" fill="none" stroke-linecap="round"/>
+    <!-- head -->
+    <path d="M48.5 36 h7 v8 h-7 z" fill="url(#mp-skin)"/>
+    <circle cx="52.5" cy="30" r="9" fill="url(#mp-skin)"/>
+    <!-- fin crest with membrane detail -->
+    <path d="M43.5 29 Q40 18 46 11 L48.5 16 L51 8.5 L53.5 15 L57 10.5 L58 17 L62 15 Q62.5 20 60.5 22.5 Q52 19 43.5 29 Z" fill="url(#mp-fin)"/>
+    <path d="M45 14 Q47 15 48.5 16 M49.5 11 Q51 13 51.5 15 M54 12 Q55.5 14 56.5 16 M58 13 Q59 15 60 17" stroke="#fbe3ec" stroke-width=".5" fill="none" opacity=".4"/>
+    <!-- ear fin -->
+    <path d="M48 28.5 L40 25.5 L42 30 L39 34 L48 33 Z" fill="url(#mp-fin)"/>
+    <!-- front arm + hand -->
+    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#mp-robe)"/>
+    <circle cx="66.8" cy="58" r="2.8" fill="url(#mp-skin)"/>
+    <!-- scallop pauldron with ridges -->
+    <path d="M53.5 48.5 Q53 41.5 59.5 41 Q66 41.5 65.5 48 Q59.5 50.5 53.5 48.5 Z" fill="url(#mp-shell)"/>
+    <path d="M59.5 49.5 V42 M56.5 48.8 L57 42.6 M62.5 48.8 L62 42.6 M55 47.5 L55.5 43.5 M64 47 L63.5 43" stroke="#b48a62" stroke-width=".7" stroke-linecap="round"/>
+    <path d="M55 48 Q59.5 50 64 47.5" stroke="#d4a86a" stroke-width=".5" fill="none"/>
+    <!-- pearl orb + iridescent shimmer -->
+    <circle class="wpn" cx="67" cy="17.5" r="6" fill="url(#mp-pearl)"/>
+    <circle class="wpn" cx="67" cy="17.5" r="5.5" fill="url(#mp-irid)" opacity=".5"/>
+  </g>
+  <!-- fin crest ribs -->
   <path d="M47 23 L46.5 13 M51 20.5 L51 10.5 M55 19.5 L57 12.5 M58.5 20 L61 16.5 M46.5 31 L41 27 M46.5 32 L40.5 33" stroke="#a8607e" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <!-- shell ridges -->
-  <path d="M51 65.8 V60 M48.8 65.3 L49.2 60.6 M53.2 65.3 L52.8 60.6" stroke="#b48a62" stroke-width=".8" stroke-linecap="round"/>
-  <path d="M59.5 49.5 V42 M56.5 48.8 L57 42.6 M62.5 48.8 L62 42.6" stroke="#b48a62" stroke-width=".8" stroke-linecap="round"/>
-  <!-- pearl necklace -->
-  <g fill="#fff7e6" stroke="none" stroke-width=".6"><circle cx="47" cy="44.4" r="1"/><circle cx="49.2" cy="45.6" r="1"/><circle cx="51.5" cy="46" r="1.2"/><circle cx="53.8" cy="45.5" r="1"/></g>
+  <!-- pearl necklace - beads with lustre -->
+  <g fill="#fff7e6" stroke="#e3d5b8" stroke-width=".4">
+    <circle cx="46" cy="44" r="1"/><circle cx="47.8" cy="44.8" r="1.1"/><circle cx="49.8" cy="45.5" r="1.2"/>
+    <circle cx="51.8" cy="45.8" r="1.3"/><circle cx="53.8" cy="45.3" r="1.1"/><circle cx="55.5" cy="44.5" r="1"/>
+  </g>
+  <g fill="#fff" opacity=".6"><!-- pearl lustre highlights -->
+    <circle cx="47.4" cy="44.4" r=".35"/><circle cx="49.4" cy="45.1" r=".4"/><circle cx="51.4" cy="45.4" r=".45"/><circle cx="53.4" cy="44.9" r=".35"/>
+  </g>
   <!-- face -->
-  <circle cx="57.8" cy="29.8" r="1.5" fill="#1d2130"/>
-  <circle cx="58.3" cy="29.3" r=".45" fill="#fff"/>
-  <path d="M56 27 q2 -.9 3.9 0" stroke="#3f6b63" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <path d="M58 35 q1.5 1 3 0" stroke="#3f6b63" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <path d="M50.5 38 q-1 2 0 4 M52.5 38 q-1 2 0 4" stroke="#436f67" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <circle cx="57.8" cy="29.8" r="1.5" fill="#1d2130"/><circle cx="58.3" cy="29.3" r=".45" fill="#fff"/><circle cx="57.5" cy="30.2" r=".25" fill="#3a4a60" opacity=".5"/>
+  <path d="M56 27 q2 -.9 3.9 0" stroke="#3f6b63" stroke-width=".9" fill="none" stroke-linecap="round"/><!-- eyebrow -->
+  <path d="M58 35 q1.5 1.2 3.2 .3" stroke="#3f6b63" stroke-width=".8" fill="none" stroke-linecap="round"/><!-- serene smile -->
+  <path d="M50.5 38 q-1 2 0 4 M52.5 38 q-1 2 0 4 M54.2 37.5 q-.8 1.5 0 3" stroke="#436f67" stroke-width=".8" fill="none" stroke-linecap="round"/><!-- gills -->
+  <circle cx="56" cy="33" r="1.8" fill="#f2c6d8" opacity=".25"/><!-- cheek tint -->
   <!-- robe trim + highlights -->
   <path d="M43 46 Q45 44 48 43.5" stroke="#fff" stroke-width="1.3" fill="none" stroke-linecap="round"/>
   <path d="M46 24.5 Q50 20.5 55 20.5" stroke="#fff" stroke-width="1.1" fill="none" opacity=".7" stroke-linecap="round"/>
-  <path d="M51 70 q-3 4.5 0 6.5 q3 -2 0 -6.5 z" fill="#fff7e6" stroke="#a8607e" stroke-width=".9" stroke-linejoin="round"/>
-  <path d="M47.5 80 q1.75 -1.5 3.5 0 q1.75 1.5 3.5 0" stroke="#fff7e6" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-  <circle class="wpn" cx="64.7" cy="15.4" r="1.6" fill="#fff"/>
-  <!-- bubbles -->
-  <g class="wpn" fill="none" stroke="#bfeee6" stroke-width="1"><circle cx="78" cy="28" r="1.7"/><circle cx="57" cy="7" r="1.2"/><circle cx="79.5" cy="11" r="1.1"/><circle cx="75" cy="37" r="1"/></g>
+  <!-- shell motif embroidery -->
+  <path d="M51 70 q-3 4.5 0 6.5 q3 -2 0 -6.5 z" fill="#fff7e6" stroke="#a8607e" stroke-width=".8" stroke-linejoin="round"/>
+  <path d="M47.5 80 q1.75 -1.5 3.5 0 q1.75 1.5 3.5 0" stroke="#fff7e6" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M49 83 q1 -1 2 0 q1 1 2 0" stroke="#fff7e6" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".6"/>
+  <!-- pearl specular highlights -->
+  <circle class="wpn" cx="64.7" cy="15.4" r="1.8" fill="#fff" opacity=".9"/><circle class="wpn" cx="65.5" cy="16" r=".6" fill="#fff"/>
+  <!-- tiny fish near staff -->
+  <g class="wpn" fill="#bfeee6" opacity=".6"><path d="M77 22 L79.5 23 L77 24 Z"/><ellipse cx="76" cy="23" rx="1.8" ry="1"/><circle cx="75" cy="22.8" r=".3" fill="#1d2130"/></g>
+  <!-- ambient bubbles -->
+  <g class="wpn" fill="none" stroke="#bfeee6" stroke-width=".9">
+    <circle cx="78" cy="28" r="1.7"/><circle cx="57" cy="7" r="1.2"/><circle cx="79.5" cy="11" r="1.1"/><circle cx="75" cy="37" r="1"/>
+    <circle cx="81" cy="20" r=".8"/><circle cx="55" cy="3" r=".7"/><circle cx="73" cy="42" r=".6"/>
+  </g>
+  <g class="wpn" fill="#fff" opacity=".5"><circle cx="77.5" cy="27.2" r=".35"/><circle cx="79" cy="10.3" r=".25"/></g><!-- bubble highlights -->
 </svg>

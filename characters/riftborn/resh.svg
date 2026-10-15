@@ -12,85 +12,128 @@
     <linearGradient id="rs-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4cdd9"/><stop offset="1" stop-color="#9a91a6"/></linearGradient>
     <linearGradient id="rs-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8603a"/><stop offset=".55" stop-color="#7a3420"/><stop offset="1" stop-color="#4a1c12"/></linearGradient>
     <linearGradient id="rs-trousers" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a3a46"/><stop offset="1" stop-color="#22222c"/></linearGradient>
+    <linearGradient id="rs-grin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0a12"/><stop offset="1" stop-color="#0a0408"/></linearGradient>
+    <linearGradient id="rs-shoe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5236"/><stop offset="1" stop-color="#3a2416"/></linearGradient>
     <radialGradient id="rs-aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#5fcad1" stop-opacity=".45"/><stop offset="1" stop-color="#5fcad1" stop-opacity="0"/></radialGradient>
+    <radialGradient id="rs-wisp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#5fcad1" stop-opacity=".22"/><stop offset="1" stop-color="#5fcad1" stop-opacity="0"/></radialGradient>
     <filter id="rs-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.4"/></filter>
   </defs>
   <ellipse cx="49" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- spectral wisps drifting around the figure -->
+  <ellipse cx="30" cy="60" rx="10" ry="5" fill="url(#rs-wisp)" transform="rotate(-18 30 60)"/>
+  <ellipse cx="62" cy="72" rx="8" ry="4" fill="url(#rs-wisp)" transform="rotate(12 62 72)"/>
+  <path d="M24 78 Q28 70 22 62 Q18 68 24 78 Z" fill="#5fcad1" opacity=".08"/>
+  <path d="M66 82 Q70 74 64 68 Q62 74 66 82 Z" fill="#5fcad1" opacity=".06"/>
   <!-- the hum around the instrument -->
   <circle class="wpn" cx="70" cy="31" r="17" fill="url(#rs-aura)"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- hair: behind him, streaming to the ground in long tendrils -->
     <path d="M42 22 Q33 26 30 38 Q27 50 20 58 Q14 66 13 78 Q17 70 22 66 Q20 75 22 86 Q26 74 30 66 Q30 76 34 84 Q35 70 38 58 Q42 44 46 34 Z" fill="url(#rs-hair)"/>
     <path d="M55 24 Q61 30 62 42 Q63 54 68 64 Q73 74 74 88 Q69 79 66 72 Q66 81 63 89 Q62 76 60 66 Q57 54 56 44 Z" fill="url(#rs-hair)"/>
-    <!-- trousers and shoes -->
+    <path d="M44 23 Q36 30 33 44 Q30 58 26 68 Q24 76 25 84 Q28 72 32 64 Q34 72 36 80 Q37 68 40 56 Q44 42 47 32 Z" fill="url(#rs-hair)" opacity=".7"/>
+    <path d="M16 72 Q12 80 10 90 M20 80 Q16 86 14 92 M72 78 Q76 84 78 92" stroke="url(#rs-hair)" stroke-width=".9" fill="none"/>
+    <!-- trousers, shoes with worn soles and buckles -->
     <path d="M42 74 L47 74 L45.5 89 L41 89 Z" fill="url(#rs-trousers)"/>
     <path d="M51 74 L56 74 L59 89 L54.5 89 Z" fill="url(#rs-trousers)"/>
-    <path d="M39 88.5 h7.5 v5 h-9.5 Q36.5 90 39 88.5 Z" fill="#5a3a26"/>
-    <path d="M53.5 88.5 h7 l4 5 h-12 Z" fill="#6e4a30"/>
-    <!-- the long coat, tattered at the hem -->
-    <path d="M38 40 Q48 35.5 59 40 L62 58 L66 79 L63.5 76.5 L62 81 L59.5 77 L57.5 82 L55 77.5 L53 75 L50 75 L46 76 L44 81 L42 76.5 L39.5 81.5 L38 76 L35.5 79.5 L35 75 L32.5 77 L35 58 Z" fill="url(#rs-coat)"/>
-    <!-- waistcoat and shirt in the open front -->
+    <path d="M43.5 78 l1.8 .3 M43 82 l2 .2 M44 86 l1.4 .3 M53.5 79 l1.6 .3 M54 83 l1.4 .2" stroke="#2a2a34" stroke-width=".5" fill="none"/>
+    <path d="M39 88.5 h7.5 v5 h-9.5 Q36.5 90 39 88.5 Z" fill="url(#rs-shoe)"/>
+    <path d="M53.5 88.5 h7 l4 5 h-12 Z" fill="url(#rs-shoe)"/>
+    <path d="M37 93.5 h8 M53 93.5 h11" stroke="#2a1610" stroke-width=".5" fill="none"/>
+    <rect x="42" y="89.5" width="2" height="1.6" rx=".4" fill="#c9a14a" opacity=".7"/><rect x="58" y="89.5" width="2" height="1.6" rx=".4" fill="#c9a14a" opacity=".7"/>
+    <!-- the long coat, tattered at the hem with ragged points -->
+    <path d="M38 40 Q48 35.5 59 40 L62 58 L66 79 L63.5 76.5 L62 81 L60.5 77.5 L59.5 82.5 L57.5 77 L56 80 L54.5 76 L53 75 L50 75 L47.5 76.5 L46 80.5 L44 76 L42.5 81 L41 77 L39.5 82 L38 76 L36 80 L35.5 76 L34 78.5 L32.5 77 L35 58 Z" fill="url(#rs-coat)"/>
+    <path d="M63 74 l.8 2 M58 75 l.6 2.4 M40 74.5 l-.6 2.2 M36 75 l-.8 2" stroke="#1c1427" stroke-width=".6" fill="none"/>
+    <path d="M55 62 Q54.5 66 56 70 M43 60 Q43.5 64 42 68" stroke="#2a1f36" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- waistcoat, shirt, buttons, pocket watch chain -->
     <path d="M45 40 Q50 38.5 55 40.5 L54 62 L49.5 64.5 L46 62 Z" fill="url(#rs-vest)"/>
     <path d="M47 40 L50.2 46.5 L53 40.6 Q50 39.4 47 40 Z" fill="#d9d4e0"/>
+    <path d="M48 41 L50.2 44 L52.2 41.2" stroke="#c4bdd0" stroke-width=".4" fill="none"/>
+    <circle cx="50" cy="48" r=".7" fill="#c9a14a"/><circle cx="50" cy="53" r=".7" fill="#c9a14a"/><circle cx="50.2" cy="58" r=".7" fill="#c9a14a"/>
+    <path d="M50 53 Q53 54.5 54.5 53 Q55.5 52 55 50.5" stroke="#c9a14a" stroke-width=".5" fill="none"/><circle cx="55" cy="50.5" r=".6" fill="#c9a14a"/>
     <!-- lapels -->
     <path d="M45 40 L49 52 L44 58 L42 42 Z" fill="#2a1f36"/>
     <path d="M55 40.5 L52 52 L56.5 57 L58 42 Z" fill="#2a1f36"/>
-    <!-- back arm: sleeve hanging, ragged cuff, long pale hand -->
+    <path d="M44.5 42 L48 50 M55.5 42 L53 50" stroke="#1c1427" stroke-width=".4" fill="none"/>
+    <!-- back arm: sleeve, ragged cuff, long pale hand with fingertips -->
     <path d="M38.5 41 Q34 48 34 60 L38.5 62 Q39 52 41.5 45 Z" fill="url(#rs-coat)"/>
     <path d="M33.6 60 l1.2 3 l1.4 -2 l1.2 3 l1.4 -2.4 l.6 1.6 L38.5 62 Z" fill="url(#rs-coat)" stroke-width="1"/>
     <path d="M34.5 63.5 Q33.5 67 34 70 M35.8 63.8 Q35.6 67.6 36.6 70.6 M37.2 63.6 Q37.6 67 38.8 69.4" fill="none" stroke="url(#rs-skin)" stroke-width="1.8"/>
-    <!-- front arm -->
+    <path d="M34 70 l-.4 1.4 M36.6 70.6 l-.2 1.6 M38.8 69.4 l.2 1.2" stroke="url(#rs-skin)" stroke-width="1" fill="none"/>
+    <!-- front arm, ragged cuff, hand with fingertips -->
     <path d="M57.5 40.5 Q63 46 63.5 60 L58.5 61.5 Q58 52 55.5 46 Z" fill="url(#rs-coat)"/>
     <path d="M58.2 61 l1 3.2 l1.3 -2.2 l1.3 3 l1.2 -2.6 l1 1.8 L63.5 60 Z" fill="url(#rs-coat)" stroke-width="1"/>
     <path d="M59.4 64.5 Q59 68 59.6 71 M60.8 64.8 Q61 68.6 62.2 71.4 M62.2 64.4 Q63 67.8 64.4 70" fill="none" stroke="url(#rs-skin)" stroke-width="1.9"/>
+    <path d="M59.6 71 l-.3 1.5 M62.2 71.4 l.1 1.4 M64.4 70 l.4 1.2" stroke="url(#rs-skin)" stroke-width="1" fill="none"/>
     <!-- head, bowed forward, half hidden in the hair -->
     <circle cx="50.5" cy="28" r="8.2" fill="url(#rs-skin)"/>
     <path d="M41.5 29 Q40 18.5 49.5 17.5 Q58.5 17 60 25 Q56 21.5 52 23.5 Q49 28 46 30.5 Q45 36 43 40 Q41.5 34 41.5 29 Z" fill="url(#rs-hair)"/>
     <path d="M52.6 23.2 Q57.8 23.4 59.4 29 Q57.8 26.6 55.4 26.4 Z" fill="url(#rs-hair)" stroke-width="1.1"/>
-    <path d="M49.5 17.6 Q50.5 11.5 56 10.5 Q52.5 13.5 52.5 17.4" fill="none" stroke-width="1.6"/>
+    <path d="M49.5 17.6 Q50.5 11.5 56 10.5 Q52.5 13.5 52.5 17.4" fill="none" stroke="#15202a" stroke-width="1.6"/>
   </g>
-  <!-- face: sunken eye with a teal glint, and that wide grin -->
-  <path d="M53.6 27.6 Q56.4 26.4 58.6 28" stroke="none" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <!-- face: brow ridge, sunken eye with teal glint, cheekbone, nose, sinister grin -->
+  <path d="M53.2 27.2 Q55.4 26 58.8 27.4" stroke="#2a1a22" stroke-width=".8" fill="none" stroke-linecap="round"/>
+  <path d="M53.6 27.6 Q56.4 26.4 58.6 28" stroke="#2a1a22" stroke-width="1.1" fill="none" stroke-linecap="round"/>
   <ellipse cx="56.2" cy="29.4" rx="1.9" ry="1.5" fill="#2a2236"/>
   <circle cx="56.5" cy="29.4" r=".8" fill="#5fcad1"/>
   <circle cx="56.5" cy="29.4" r="2.2" fill="#5fcad1" opacity=".35" filter="url(#rs-glow)"/>
-  <path d="M51.5 33.2 Q55 35.6 58.8 33" stroke="none" stroke-width="1.2" fill="#2a1a22" stroke-linejoin="round"/>
-  <path d="M52.6 33.7 l.5 1.2 M54 34.2 l.4 1.3 M55.5 34.4 l.3 1.3 M57 34.1 l.2 1.2" stroke="#f4f0e6" stroke-width=".8" stroke-linecap="round"/>
+  <ellipse cx="48.8" cy="30" rx="1.2" ry="1" fill="#1a1220" opacity=".5"/>
+  <path d="M54 31 Q55.5 30.5 56.8 31.5" stroke="#8a7e96" stroke-width=".5" fill="none" opacity=".6"/>
+  <path d="M52.4 28 Q53 30 52.2 31.8" stroke="#8a7e96" stroke-width=".6" fill="none" opacity=".5"/>
   <path d="M49.8 31.4 Q50.6 33 50.4 35" stroke="#7d728c" stroke-width=".8" fill="none" stroke-linecap="round"/>
-  <!-- coat details: a button, a pinned flower, the stitches of old repairs -->
+  <!-- wide sinister grin with individual teeth -->
+  <path d="M51.5 33.2 Q55 35.6 58.8 33" stroke="none" stroke-width="1.2" fill="url(#rs-grin)" stroke-linejoin="round"/>
+  <path d="M52.2 33.6 l.4 1.1 M53.2 34 l.35 1.2 M54.2 34.3 l.3 1.3 M55.2 34.5 l.25 1.2 M56.2 34.4 l.3 1.2 M57.2 34.1 l.35 1.1 M58.2 33.6 l.3 .9" stroke="#f4f0e6" stroke-width=".65" stroke-linecap="round"/>
+  <path d="M51.8 33.2 Q51.2 33.8 51 33.2 M58.6 33 Q59.2 33.6 59.4 33" stroke="#2a1a22" stroke-width=".5" fill="none"/>
+  <!-- coat details: pinned flower with leaves, button, stitches of old repairs -->
   <circle cx="49.6" cy="52" r="1.1" fill="#c9a14a" stroke="none" stroke-width=".6"/>
-  <path d="M44.8 46 l1.2 -1 l.4 1.4 z" fill="#7fd08a"/>
+  <path d="M44.8 46 l1.2 -1 l.4 1.4 z" fill="#7fd08a"/><circle cx="45.4" cy="45.6" r=".4" fill="#e8d44a"/>
+  <path d="M44.2 46.4 l-.6 .8 M45.8 45.2 l.4 -.8 M44.4 45.4 l-.8 -.2" stroke="#5a9a64" stroke-width=".4" fill="none"/>
   <path d="M60.2 50 l1.6 .4 M60 52 l1.6 .4 M60.4 54 l1.6 .3" stroke="#a89bbf" stroke-width=".7" stroke-linecap="round"/>
-  <path d="M36.6 52 l1.4 .6 M36.4 54 l1.4 .6" stroke="#a89bbf" stroke-width=".7" stroke-linecap="round"/>
+  <path d="M36.6 52 l1.4 .6 M36.4 54 l1.4 .6 M36.8 56 l1.2 .5" stroke="#a89bbf" stroke-width=".7" stroke-linecap="round"/>
+  <path d="M40 62 Q42 61 44 62.5 M56 60 Q58 59 60 60.5" stroke="#352845" stroke-width=".5" fill="none" opacity=".6"/>
   <!-- a few loose strands in front -->
-  <path d="M46 30 Q44 42 46.5 50 M47.4 30.4 Q46.6 40 49 46" stroke="none" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M46 30 Q44 42 46.5 50 M47.4 30.4 Q46.6 40 49 46" stroke="#15202a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M45.2 31 Q43.5 38 44.5 44" stroke="url(#rs-hair)" stroke-width="1" fill="none" opacity=".6"/>
   <!-- the violin, playing itself at his shoulder -->
   <g class="wpn" stroke="none" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-16 66 33) translate(66.5 33) scale(1.45) translate(-65.5 -33)">
     <path d="M59.5 33 Q59 28.2 62.8 28.4 Q64.4 29.6 66 28.6 Q68.6 27 70.4 29.8 Q71.4 31.2 71.4 33 Q71.4 34.8 70.4 36.2 Q68.6 39 66 37.4 Q64.4 36.4 62.8 37.6 Q59 37.8 59.5 33 Z" fill="url(#rs-wood)"/>
-    <path d="M63 31 q1 .6 0 1.2 M63 34.4 q1 .6 0 1.2" stroke-width=".7" fill="none"/>
+    <path d="M62.4 30.6 q.6 .4 .2 1 q-.4 .5 -.2 1.2 M62.4 34 q.6 .4 .2 1 q-.4 .5 -.2 1.2" stroke="#2a1a14" stroke-width=".55" fill="none"/>
+    <path d="M59.8 34.5 Q59 35 59.2 36.5 Q59.4 37 60 37" stroke="#2a1a14" stroke-width=".6" fill="#3a2418"/>
+    <circle cx="84.6" cy="31.6" r=".5" fill="#2a1a14"/><circle cx="85.2" cy="32.4" r=".5" fill="#2a1a14"/><circle cx="85.2" cy="33.6" r=".5" fill="#2a1a14"/><circle cx="84.6" cy="34.4" r=".5" fill="#2a1a14"/>
     <rect x="71" y="32" width="12" height="2" rx=".6" fill="#2a1a14"/>
     <path d="M83 31.2 Q86.6 30.6 86.8 33 Q86.6 35.4 83 34.8 Z" fill="url(#rs-wood)"/>
-    <circle cx="85.4" cy="33" r=".9" fill="#2a1a14" stroke-width=".6"/>
-    <path d="M60.6 33 L83 33" stroke="#e6dccf" stroke-width=".5"/>
+    <path d="M86.4 33 Q87.2 31.8 86.4 31 Q85.6 30.4 85 31" stroke="#4a2c18" stroke-width=".5" fill="none"/>
+    <path d="M60.6 32.2 L83 32.2 M60.6 32.8 L83 32.8 M60.6 33.2 L83 33.2 M60.6 33.8 L83 33.8" stroke="#e6dccf" stroke-width=".3"/>
     <rect x="64.6" y="31.4" width="1" height="3.2" fill="#2a1a14" stroke-width=".5"/>
+    <path d="M64.6 31.8 l.5 -.3 l.5 .3" stroke="#2a1a14" stroke-width=".35" fill="none"/>
   </g>
   <!-- the bow, drawn across the strings -->
   <g class="wpn" stroke-linecap="round">
-    <path d="M45 50 L92 24" stroke="none" stroke-width="2.6"/>
+    <path d="M45 50 L92 24" stroke="#2a1a14" stroke-width="2.6"/>
     <path d="M45 50 L92 24" stroke="#6e3a24" stroke-width="1.4"/>
     <path d="M46.6 51.6 L91.6 26.6" stroke="#e8e2d6" stroke-width=".8"/>
+    <path d="M47.8 51 L90.4 26" stroke="#e8e2d6" stroke-width=".35" opacity=".5"/>
+    <path d="M91.6 23.4 l1.2 -.6 l.4 1.2 l-1.2 .6 Z" fill="#f0ead8" stroke="none"/>
     <rect x="43.4" y="48.6" width="3.4" height="2.4" rx=".6" fill="#c9a14a" stroke="none" stroke-width=".7" transform="rotate(-29 45 50)"/>
+    <path d="M44 49.6 l1.6 -.8" stroke="#a8841a" stroke-width=".4" transform="rotate(-29 45 50)"/>
   </g>
   <!-- the music, rolling off toward the enemy -->
   <g class="wpn" fill="none" stroke="#5fcad1" stroke-linecap="round">
+    <path d="M84 42 Q87 44 84 46" stroke-width="1.2" opacity=".55"/>
     <path d="M86 40 Q90 44 86 48" stroke-width="1.6" opacity=".9"/>
     <path d="M90 37 Q96 44 90 51" stroke-width="1.4" opacity=".65"/>
     <path d="M94 34 Q101 44 94 54" stroke-width="1.2" opacity=".4"/>
+    <path d="M97 32 Q105 44 97 56" stroke-width="1" opacity=".2"/>
+  </g>
+  <!-- resonance ripples and floating musical notes -->
+  <g class="wpn" fill="none" stroke="#5fcad1" stroke-linecap="round" opacity=".3">
+    <circle cx="74" cy="28" r="2" stroke-width=".6"/><circle cx="78" cy="38" r="1.6" stroke-width=".5"/>
   </g>
   <g class="wpn" fill="#5fcad1" stroke="none" stroke-width=".6">
-    <ellipse cx="78" cy="15.5" rx="1.6" ry="1.2" transform="rotate(-20 78 15.5)"/>
-    <path d="M79.4 15 L79.4 9 L82 10" fill="none" stroke="#5fcad1" stroke-width="1"/>
-    <ellipse cx="91" cy="27" rx="1.3" ry="1" transform="rotate(-20 91 27)"/>
-    <path d="M92.2 26.6 L92.2 21.6" fill="none" stroke="#5fcad1" stroke-width=".9"/>
+    <ellipse cx="78" cy="15.5" rx="1.6" ry="1.2" transform="rotate(-20 78 15.5)"/><path d="M79.4 15 L79.4 9 L82 10" fill="none" stroke="#5fcad1" stroke-width="1"/>
+    <ellipse cx="91" cy="27" rx="1.3" ry="1" transform="rotate(-20 91 27)"/><path d="M92.2 26.6 L92.2 21.6" fill="none" stroke="#5fcad1" stroke-width=".9"/>
+    <ellipse cx="84" cy="20" rx="1" ry=".8" transform="rotate(-15 84 20)"/><path d="M84.8 19.6 L84.8 14.6 L87 15.6" fill="none" stroke="#5fcad1" stroke-width=".7"/>
+    <ellipse cx="96" cy="42" rx=".9" ry=".7" transform="rotate(-10 96 42)" opacity=".5"/><path d="M96.7 41.8 L96.7 38" fill="none" stroke="#5fcad1" stroke-width=".6" opacity=".5"/>
+    <path d="M74 10 Q75 8 76 10 Q77 13 75 15 Q73 17 75 19 Q77 20 76.5 17" stroke="#5fcad1" stroke-width=".8" fill="none" opacity=".6"/>
   </g>
 </svg>

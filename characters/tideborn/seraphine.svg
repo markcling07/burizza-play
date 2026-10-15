@@ -3,63 +3,128 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="69.5,47.3">
   <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cdeee8"/><stop offset=".5" stop-color="#9fd0c8"/><stop offset="1" stop-color="#6da59c"/></linearGradient>
-    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86b9b1"/><stop offset="1" stop-color="#55877f"/></linearGradient>
-    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5f95d8"/><stop offset=".5" stop-color="#3d6fb0"/><stop offset="1" stop-color="#22426f"/></linearGradient>
-    <linearGradient id="dress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43a6b4"/><stop offset=".55" stop-color="#2a7f8f"/><stop offset="1" stop-color="#16505d"/></linearGradient>
-    <linearGradient id="pale" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#e9e4d8"/><stop offset="1" stop-color="#b6ae9a"/></linearGradient>
-    <radialGradient id="orb" cx=".4" cy=".4" r=".6"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#f2c6d8"/><stop offset="1" stop-color="#d887ad"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="sw-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cdeee8"/><stop offset=".5" stop-color="#9fd0c8"/><stop offset="1" stop-color="#6da59c"/></linearGradient>
+    <linearGradient id="sw-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86b9b1"/><stop offset="1" stop-color="#55877f"/></linearGradient>
+    <linearGradient id="sw-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5f95d8"/><stop offset=".5" stop-color="#3d6fb0"/><stop offset="1" stop-color="#22426f"/></linearGradient>
+    <linearGradient id="sw-hairHi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fc4f0"/><stop offset="1" stop-color="#5f95d8" stop-opacity="0"/></linearGradient>
+    <linearGradient id="sw-dress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43a6b4"/><stop offset=".55" stop-color="#2a7f8f"/><stop offset="1" stop-color="#16505d"/></linearGradient>
+    <linearGradient id="sw-shimmer" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#6dd4d8" stop-opacity=".4"/><stop offset=".5" stop-color="#43a6b4" stop-opacity="0"/><stop offset="1" stop-color="#8ee4d0" stop-opacity=".3"/></linearGradient>
+    <linearGradient id="sw-fin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a7f8f"/><stop offset="1" stop-color="#16505d" stop-opacity=".6"/></linearGradient>
+    <linearGradient id="sw-pale" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#e9e4d8"/><stop offset="1" stop-color="#b6ae9a"/></linearGradient>
+    <radialGradient id="sw-orb" cx=".4" cy=".4" r=".6"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#fce0eb"/><stop offset=".7" stop-color="#f2c6d8"/><stop offset="1" stop-color="#d887ad"/></radialGradient>
+    <radialGradient id="sw-orbCore" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff9ec2" stop-opacity=".8"/><stop offset="1" stop-color="#d887ad" stop-opacity="0"/></radialGradient>
+    <linearGradient id="sw-earFin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9e4d8" stop-opacity=".8"/><stop offset="1" stop-color="#c8f0e8" stop-opacity=".4"/></linearGradient>
+    <linearGradient id="sw-shell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e8d0"/><stop offset="1" stop-color="#d4b896"/></linearGradient>
+    <filter id="sw-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="sw-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.5"/></filter>
+    <filter id="sw-ambient" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5"/></filter>
   </defs>
+  <!-- ground shadow + ambient water-light aura -->
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <!-- song glow -->
-  <circle class="wpn" cx="77" cy="45" r="12" fill="#f2c6d8" opacity=".65" filter="url(#glow)"/>
+  <ellipse cx="52" cy="68" rx="28" ry="34" fill="#6dd4d8" opacity=".06" filter="url(#sw-ambient)"/>
+  <!-- song glow halos -->
+  <circle class="wpn" cx="77" cy="45" r="14" fill="#f2c6d8" opacity=".5" filter="url(#sw-glow)"/>
+  <circle class="wpn" cx="77" cy="45" r="9" fill="#fce0eb" opacity=".25" filter="url(#sw-soft)"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- long flowing hair -->
-    <path d="M45 21 Q33 26 35 42 Q34 54 26 64 Q37 66 43 57 Q47 49 47 40 L52 26 Z" fill="url(#hair)"/>
-    <!-- back arm -->
-    <path d="M43 45 Q36 50 33 58 L37 60 Q41 53 46 50 Z" fill="url(#skinD)"/>
-    <circle cx="34.5" cy="60" r="2.6" fill="url(#skinD)"/>
-    <!-- mermaid gown with fin hem -->
-    <path d="M40 43 Q50 39 60 43 L60.5 64 Q60 76 64 84 Q70 89 73 93.5 Q63 92 56 93.5 Q48 92 42 93.5 Q35 92 28 93 Q33 88 37 84 Q41 76 40 64 Z" fill="url(#dress)"/>
-    <path d="M40 43 Q50 39 60 43 L59.6 49.5 Q50 47 40.4 49.5 Z" fill="url(#pale)"/>
-    <rect x="39.6" y="59.5" width="21.2" height="3.4" rx="1" fill="url(#pale)"/>
+    <!-- flowing hair - main cascade + second strand -->
+    <path d="M45 21 Q33 26 35 42 Q34 54 26 64 Q37 66 43 57 Q47 49 47 40 L52 26 Z" fill="url(#sw-hair)"/>
+    <path d="M44 22 Q30 30 32 48 Q30 58 24 66 Q27 67 30 63 Q33 55 34 45 Q35 33 45 25 Z" fill="url(#sw-hair)" opacity=".7"/>
+    <!-- hair wave highlights -->
+    <path d="M43 28 Q38 34 37 42 Q36 48 33 55" stroke="url(#sw-hairHi)" stroke-width="1.1" fill="none" opacity=".5"/>
+    <path d="M45 24 Q40 30 39 38 Q38 44 36 50" stroke="#8fc4f0" stroke-width=".7" fill="none" opacity=".4"/>
+    <!-- back arm + shell bracelet -->
+    <path d="M43 45 Q36 50 33 58 L37 60 Q41 53 46 50 Z" fill="url(#sw-skinD)"/>
+    <circle cx="34.5" cy="60" r="2.6" fill="url(#sw-skinD)"/>
+    <path d="M33 58.5 Q35 57.5 37 58.5" stroke="url(#sw-shell)" stroke-width="1" fill="none"/>
+    <circle cx="35" cy="57.8" r=".7" fill="#f7e8d0"/>
+    <!-- mermaid gown + iridescent shimmer -->
+    <path d="M40 43 Q50 39 60 43 L60.5 64 Q60 76 64 84 Q70 89 73 93.5 Q63 92 56 93.5 Q48 92 42 93.5 Q35 92 28 93 Q33 88 37 84 Q41 76 40 64 Z" fill="url(#sw-dress)"/>
+    <path d="M40 43 Q50 39 60 43 L60.5 64 Q60 76 64 84 Q70 89 73 93.5 Q63 92 56 93.5 Q48 92 42 93.5 Q35 92 28 93 Q33 88 37 84 Q41 76 40 64 Z" fill="url(#sw-shimmer)"/>
+    <!-- scale-like texture rows -->
+    <path d="M43 55 Q46 53 49 55 Q52 53 55 55 Q58 53 60 55" stroke="#5bc4c8" stroke-width=".5" fill="none" opacity=".35"/>
+    <path d="M41.5 61 Q44.5 59 47.5 61 Q50.5 59 53.5 61 Q56.5 59 59.5 61" stroke="#5bc4c8" stroke-width=".5" fill="none" opacity=".3"/>
+    <path d="M40.5 67 Q43.5 65 46.5 67 Q49.5 65 52.5 67 Q55.5 65 58.5 67 Q61 65.5 62 67" stroke="#5bc4c8" stroke-width=".5" fill="none" opacity=".25"/>
+    <path d="M39 73 Q42 71 45 73 Q48 71 51 73 Q54 71 57 73 Q60 71.5 63 73" stroke="#5bc4c8" stroke-width=".45" fill="none" opacity=".2"/>
+    <path d="M37 80 Q40 78 43 80 Q46 78 49 80 Q52 78 55 80 Q58 78 61 80 Q64 78.5 66 80" stroke="#5bc4c8" stroke-width=".4" fill="none" opacity=".15"/>
+    <!-- bodice + neckline scallops -->
+    <path d="M40 43 Q50 39 60 43 L59.6 49.5 Q50 47 40.4 49.5 Z" fill="url(#sw-pale)"/>
+    <path d="M43 45.5 Q46 47 50 44 Q54 47 57 45.5" stroke="#b6ae9a" stroke-width=".9" fill="none"/>
+    <path d="M44 44.5 Q47 46 50 43.5 Q53 46 56 44.5" stroke="#d4cbb8" stroke-width=".5" fill="none" opacity=".5"/>
+    <!-- sash belt + shell cameo -->
+    <rect x="39.6" y="59.5" width="21.2" height="3.4" rx="1" fill="url(#sw-pale)"/>
+    <circle cx="50.2" cy="61.2" r="1.7" fill="#f2c6d8" stroke="#d4b896" stroke-width=".5"/>
+    <path d="M49 61.2 Q50.2 60 51.4 61.2 Q50.2 60.5 49 61.2" fill="#fce0eb" opacity=".6"/>
+    <path d="M50.5 63 L51 84" stroke="#e9e4d8" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
     <!-- head -->
-    <path d="M48 36 h7 v8 h-7 z" fill="url(#skin)"/>
-    <circle cx="52" cy="30" r="9" fill="url(#skin)"/>
-    <path d="M42 33 Q40 18.5 52 18.5 Q62 18.5 62.3 27 Q57 22.5 51 24.5 Q47.5 26 47.5 33 Q46.5 39 43.5 40.5 Z" fill="url(#hair)"/>
-    <!-- ear fin -->
-    <path d="M48 28.5 L37 22.5 L39.5 28 L34.5 31 L39 33.5 L35.5 37.5 L48 34 Z" fill="url(#pale)"/>
-    <!-- front arm reaching to the orb -->
-    <path d="M55 45 Q62 43 69 44.5 L68.5 50 Q61 50 56 52 Z" fill="url(#skin)"/>
-    <circle cx="69.5" cy="47.3" r="2.8" fill="url(#skin)"/>
+    <path d="M48 36 h7 v8 h-7 z" fill="url(#sw-skin)"/>
+    <circle cx="52" cy="30" r="9" fill="url(#sw-skin)"/>
+    <path d="M42 33 Q40 18.5 52 18.5 Q62 18.5 62.3 27 Q57 22.5 51 24.5 Q47.5 26 47.5 33 Q46.5 39 43.5 40.5 Z" fill="url(#sw-hair)"/>
+    <path d="M55 22 Q58 23.5 60 26" stroke="#5f95d8" stroke-width="1" fill="none" opacity=".5"/>
+    <!-- ear fin with membrane + ribs -->
+    <path d="M48 28.5 L37 22.5 L39.5 28 L34.5 31 L39 33.5 L35.5 37.5 L48 34 Z" fill="url(#sw-earFin)"/>
+    <path d="M48 29 L40 24.5 L41 28 L36.5 31 L40.5 33 L37.5 36 L48 33.5 Z" fill="#c8f0e8" opacity=".2"/>
+    <path d="M47.5 29.5 L39 25 M47 31 L36.5 31 M47 32.8 L38 36" stroke="#b6ae9a" stroke-width=".7" fill="none" stroke-linecap="round"/>
+    <path d="M47.5 30.2 L41 27 M47 32 L38 33.5" stroke="#c8e0d8" stroke-width=".4" fill="none" stroke-linecap="round" opacity=".5"/>
+    <!-- front arm + coral ring -->
+    <path d="M55 45 Q62 43 69 44.5 L68.5 50 Q61 50 56 52 Z" fill="url(#sw-skin)"/>
+    <circle cx="69.5" cy="47.3" r="2.8" fill="url(#sw-skin)"/>
+    <circle cx="69.5" cy="47.3" r="3.2" fill="none" stroke="#d4b896" stroke-width=".6" opacity=".7"/>
     <!-- siren orb -->
-    <circle class="wpn" cx="77.5" cy="45" r="6.2" fill="url(#orb)"/>
+    <circle class="wpn" cx="77.5" cy="45" r="7.8" fill="none" stroke="#f2c6d8" stroke-width=".5" opacity=".35"/>
+    <circle class="wpn" cx="77.5" cy="45" r="6.2" fill="url(#sw-orb)"/>
+    <circle class="wpn" cx="77" cy="44" r="3" fill="url(#sw-orbCore)"/>
+    <path class="wpn" d="M75 43 Q77 41 79 43.5" stroke="#fff" stroke-width=".5" fill="none" opacity=".6"/>
+    <path class="wpn" d="M76 46 Q78 44.5 80 46" stroke="#fce0eb" stroke-width=".4" fill="none" opacity=".5"/>
   </g>
-  <!-- fin ribs, gown details -->
-  <path d="M46 30 L39 25 M46 31.5 L37 31 M46 33 L38.5 36" stroke="#b6ae9a" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <path d="M38 86 L32.5 92 M44 86.5 L42.5 92.5 M51 86.5 L51.5 92.5 M57.5 86 L60 92 M62 84.5 L68 91.5" stroke="#16505d" stroke-width="1" fill="none" stroke-linecap="round"/>
-  <path d="M50.5 63 L51 84" stroke="#e9e4d8" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>
-  <path d="M43 45.5 Q46 47 50 44 Q54 47 57 45.5" stroke="#b6ae9a" stroke-width=".9" fill="none"/>
-  <circle cx="50.2" cy="61.2" r="1.7" fill="#f2c6d8" stroke="none" stroke-width=".8"/>
-  <!-- starfish clip -->
-  <path d="M47 18.5 l1 2.4 l2.6 .2 l-2 1.7 l.7 2.5 l-2.3 -1.4 l-2.3 1.4 l.7 -2.5 l-2 -1.7 l2.6 -.2 z" fill="#f2a6c0" stroke="none" stroke-width=".8" stroke-linejoin="round"/>
-  <!-- face: singing -->
+  <!-- fin hem rays -->
+  <path d="M37 84 L31 92.5 M34 86 L29 93" stroke="url(#sw-fin)" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M38 86 L32.5 92 M41 86 L38 93" stroke="#16505d" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M44 86.5 L42.5 92.5 M48 86.5 L47 93 M51 86.5 L51.5 92.5 M54 86 L55.5 93" stroke="#16505d" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M57.5 86 L60 92 M62 84.5 L68 91.5 M65 84 L71.5 92" stroke="#16505d" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <!-- translucent membrane between fin tips -->
+  <path d="M31 92.5 Q36 90 42.5 92.5 M47 93 Q51 91 55.5 93 M60 92 Q64 89 71.5 92" stroke="#43a6b4" stroke-width=".5" fill="none" opacity=".3"/>
+  <!-- coral ankle chain -->
+  <path d="M39 85 Q43 83.5 47 85 Q51 83.5 55 85" stroke="#d4b896" stroke-width=".6" fill="none" opacity=".6"/>
+  <circle cx="43" cy="84.2" r=".5" fill="#f7e8d0" opacity=".7"/><circle cx="49" cy="84.2" r=".5" fill="#f2c6d8" opacity=".7"/>
+  <!-- starfish hair clip -->
+  <path d="M47 18.5 l1 2.4 l2.6 .2 l-2 1.7 l.7 2.5 l-2.3 -1.4 l-2.3 1.4 l.7 -2.5 l-2 -1.7 l2.6 -.2 z" fill="#f2a6c0" stroke="#d8879f" stroke-width=".5" stroke-linejoin="round"/>
+  <circle cx="47" cy="20.5" r=".6" fill="#d8879f"/>
+  <path d="M47 18.8 L47 19.8 M48.8 20.6 L48 20.5 M46.5 22.6 L46.8 21.8 M44.8 20.3 L45.7 20.4 M47.5 19.2 L47.8 20" stroke="#d8879f" stroke-width=".35" fill="none" opacity=".6"/>
+  <!-- face: singing expression -->
   <circle cx="57.3" cy="29.3" r="1.4" fill="#1d2130"/>
+  <circle cx="57.7" cy="28.9" r=".4" fill="#fff" opacity=".8"/>
   <path d="M55.3 26.6 q2 -1 4 .1" stroke="#22426f" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M55.5 28.5 L54.5 27.8 M56 28 L55.5 27" stroke="#22426f" stroke-width=".5" fill="none" stroke-linecap="round" opacity=".7"/>
   <ellipse cx="59.6" cy="35" rx="1.2" ry="1.6" fill="#5a2340"/>
+  <path d="M58.6 34 Q59.6 33.5 60.6 34" stroke="#d887ad" stroke-width=".4" fill="none"/>
   <circle cx="57" cy="32.6" r="1.3" fill="#f2a6c0" opacity=".55"/>
+  <circle cx="56.5" cy="33" r=".8" fill="#f2a6c0" opacity=".3"/>
   <!-- highlights -->
   <path d="M44.5 23.5 Q47 20 52 19.6" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M43 27 Q45 23 49 21.5" stroke="#8fc4f0" stroke-width=".8" fill="none" opacity=".4" stroke-linecap="round"/>
   <path d="M42 51 Q42.5 47.5 45 46.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+  <!-- orb specular highlights -->
   <circle class="wpn" cx="75.6" cy="43" r="1.5" fill="#fff" opacity=".9"/>
-  <!-- song ripples + notes -->
-  <path class="wpn" d="M86.5 37 Q90.5 45 86.5 53 M91 33 Q97 45 91 57" stroke="#f2c6d8" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".9"/>
-  <path d="M63.5 32 q2 3 0 6 M66.3 30.5 q3 4.5 0 9" stroke="#f2c6d8" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/>
-  <g fill="#f2c6d8" stroke="none" stroke-width=".8" stroke-linejoin="round">
+  <circle class="wpn" cx="76.5" cy="42.5" r=".6" fill="#fff" opacity=".6"/>
+  <!-- song ripples from orb -->
+  <path class="wpn" d="M86.5 37 Q90.5 45 86.5 53" stroke="#f2c6d8" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path class="wpn" d="M91 33 Q97 45 91 57" stroke="#f2c6d8" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path class="wpn" d="M94 30 Q101 45 94 60" stroke="#fce0eb" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".4"/>
+  <!-- vocal ripples from singing -->
+  <path d="M63.5 32 q2 3 0 6" stroke="#f2c6d8" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/>
+  <path d="M66.3 30.5 q3 4.5 0 9" stroke="#f2c6d8" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M68.5 29 q3.5 5.5 0 11" stroke="#fce0eb" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".45"/>
+  <!-- music notes -->
+  <g class="wpn" fill="#f2c6d8" stroke="none" stroke-linejoin="round">
     <ellipse cx="70" cy="24" rx="2.2" ry="1.6" transform="rotate(-20 70 24)"/>
     <path d="M71.6 23.4 V15.5 q3.5 1 3.8 4.6 q-1.6 -1.8 -2.6 -1.6 V23.4 Z"/>
     <ellipse cx="83" cy="27" rx="1.7" ry="1.25" transform="rotate(-20 83 27)"/>
     <path d="M84.2 26.6 V21 h1 V26.6 Z"/>
   </g>
+  <!-- smaller harmonic notes -->
+  <g class="wpn" fill="#f2c6d8" opacity=".6"><ellipse cx="88" cy="38" rx="1.2" ry=".9" transform="rotate(-15 88 38)"/><path d="M88.9 37.7 V34 h.7 V37.7 Z"/></g>
+  <g class="wpn" fill="#fce0eb" opacity=".45"><ellipse cx="76" cy="18" rx="1" ry=".7" transform="rotate(-25 76 18)"/><path d="M76.7 17.7 V15 h.6 V17.7 Z"/></g>
+  <!-- ambient sparkles -->
+  <circle cx="30" cy="50" r=".6" fill="#8fc4f0" opacity=".4"/><circle cx="25" cy="62" r=".5" fill="#c8f0e8" opacity=".35"/>
+  <circle cx="72" cy="60" r=".5" fill="#f2c6d8" opacity=".4"/><circle cx="65" cy="72" r=".4" fill="#8fc4f0" opacity=".3"/>
 </svg>

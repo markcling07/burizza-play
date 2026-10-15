@@ -3,67 +3,135 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="79,41">
   <defs>
-    <linearGradient id="tunic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fa070"/><stop offset=".5" stop-color="#3f7a4f"/><stop offset="1" stop-color="#23472d"/></linearGradient>
-    <linearGradient id="tunicD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f5e3c"/><stop offset="1" stop-color="#18321f"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e9b8"/><stop offset=".5" stop-color="#d9c58a"/><stop offset="1" stop-color="#9d8a52"/></linearGradient>
-    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf3cf"/><stop offset=".5" stop-color="#e8d9a0"/><stop offset="1" stop-color="#b3a065"/></linearGradient>
-    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c08a56"/><stop offset="1" stop-color="#6e4826"/></linearGradient>
-    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#93683f"/><stop offset="1" stop-color="#4f3420"/></linearGradient>
-    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f5fa"/><stop offset="1" stop-color="#7d8698"/></linearGradient>
+    <linearGradient id="as-tunic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fa070"/><stop offset=".5" stop-color="#3f7a4f"/><stop offset="1" stop-color="#23472d"/></linearGradient>
+    <linearGradient id="as-tunicD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f5e3c"/><stop offset="1" stop-color="#18321f"/></linearGradient>
+    <linearGradient id="as-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e9b8"/><stop offset=".5" stop-color="#d9c58a"/><stop offset="1" stop-color="#9d8a52"/></linearGradient>
+    <linearGradient id="as-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf3cf"/><stop offset=".5" stop-color="#e8d9a0"/><stop offset="1" stop-color="#b3a065"/></linearGradient>
+    <linearGradient id="as-hairHL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe8"/><stop offset="1" stop-color="#e2cd8a"/></linearGradient>
+    <linearGradient id="as-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c08a56"/><stop offset="1" stop-color="#6e4826"/></linearGradient>
+    <linearGradient id="as-woodHL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#daa86a"/><stop offset="1" stop-color="#8a5c30"/></linearGradient>
+    <linearGradient id="as-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#93683f"/><stop offset="1" stop-color="#4f3420"/></linearGradient>
+    <linearGradient id="as-steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f5fa"/><stop offset="1" stop-color="#7d8698"/></linearGradient>
+    <linearGradient id="as-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5dcc4"/><stop offset="1" stop-color="#e0be9a"/></linearGradient>
+    <linearGradient id="as-gem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8ffd4"/><stop offset=".4" stop-color="#7fe0a0"/><stop offset="1" stop-color="#3a9960"/></linearGradient>
+    <linearGradient id="as-boot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a4529"/><stop offset="1" stop-color="#3a2210"/></linearGradient>
+    <radialGradient id="as-gemGlow" cx=".35" cy=".35" r=".65"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#7fe0a0" stop-opacity="0"/></radialGradient>
   </defs>
+  <!-- ground shadow -->
   <ellipse cx="52" cy="94" rx="22" ry="3.6" fill="#000" opacity=".35"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- flowing hair -->
-    <path d="M48 17 Q37 25 38.5 52 Q44 48 47.5 41 L51 26 Z" fill="url(#hair)"/>
-    <!-- quiver -->
+    <!-- flowing hair - back layer with strand detail -->
+    <path d="M48 17 Q37 25 38.5 52 Q44 48 47.5 41 L51 26 Z" fill="url(#as-hair)"/>
+    <path d="M46 20 Q36 30 37 48 Q38 44 40 38" stroke="url(#as-hairHL)" stroke-width=".8" fill="none" opacity=".6"/>
+    <path d="M47.5 18 Q39 27 39.5 44" stroke="#fffbe8" stroke-width=".5" fill="none" opacity=".5"/>
+    <!-- wind-blown wisp strands -->
+    <path d="M38.5 50 Q34 54 30 53" stroke="url(#as-hair)" stroke-width="1.2" fill="none"/>
+    <path d="M39 46 Q35 50 32 50.5" stroke="url(#as-hairHL)" stroke-width=".8" fill="none" opacity=".7"/>
+    <path d="M40 43 Q37 46 34 46.5" stroke="#e8d9a0" stroke-width=".6" fill="none" opacity=".5"/>
+    <!-- quiver with fletching -->
     <g transform="rotate(-20 42 46)">
-      <path d="M40 28.5 l-1.5 -5 l3 2.5 l3 -2.5 l-1.5 5 z" fill="#f2efe4" stroke-width="1.1"/>
-      <rect x="38" y="30" width="8" height="24" rx="2" fill="url(#leather)"/>
-      <rect x="37.6" y="33" width="8.8" height="2.6" fill="url(#gold)" stroke-width="1"/>
+      <path d="M39 28.5 l-1 -6 l2 2.5 l1.5 -2 l-.5 5.5 z" fill="#f2efe4" stroke-width=".8"/>
+      <path d="M41 28.5 l-.5 -5.5 l1.5 2 l2 -2.5 l-1 6 z" fill="#e8e2d0" stroke-width=".8"/>
+      <path d="M40 29 l-1.2 -5 l1.8 1.8 l1.8 -1.8 l-1.2 5 z" fill="#ddd8c6" stroke-width=".7"/>
+      <rect x="38" y="30" width="8" height="24" rx="2" fill="url(#as-leather)"/>
+      <rect x="37.6" y="33" width="8.8" height="2.6" fill="url(#as-gold)" stroke-width="1"/>
+      <rect x="37.8" y="44" width="8.4" height="1.8" fill="url(#as-gold)" stroke-width=".8"/>
+      <path d="M39 36 v7 M42 36 v7" stroke="#3a2010" stroke-width=".4" fill="none" opacity=".6"/>
     </g>
-    <!-- legs + boots -->
+    <!-- legs -->
     <path d="M48 64 h5.5 l-.5 24 h-5 z" fill="#3b3a2c"/>
-    <path d="M45.5 87.5 h7.5 v6 h-9 z" fill="#4a3020"/>
     <path d="M55 64 h5.5 l1.5 24 h-5.5 z" fill="#4c4a38"/>
-    <path d="M56 87.5 h6.5 l3.5 6 h-10.5 z" fill="#6a4529"/>
-    <!-- tunic -->
-    <path d="M46 35 Q54 32 62 35 L63 57 L65.5 71 Q54 74 43.5 71 L46 57 Z" fill="url(#tunic)"/>
-    <path d="M44.5 67.5 Q54 70.5 65 67.5 L65.5 71 Q54 74 43.5 71 Z" fill="url(#gold)"/>
-    <rect x="45.5" y="54" width="18" height="3.6" rx="1" fill="url(#gold)"/>
+    <!-- boots with lacing -->
+    <path d="M45.5 87.5 h7.5 v6 h-9 z" fill="url(#as-boot)"/>
+    <path d="M56 87.5 h6.5 l3.5 6 h-10.5 z" fill="url(#as-boot)"/>
+    <path d="M45.5 87.5 h7.5" stroke="#8a6030" stroke-width="1.2"/>
+    <path d="M56 87.5 h6.5" stroke="#8a6030" stroke-width="1.2"/>
+    <path d="M48 88.5 l2 1 l-2 1 l2 1" stroke="#c0a060" stroke-width=".5" fill="none"/>
+    <path d="M58.5 88.5 l2 1 l-2 1 l2 1" stroke="#c0a060" stroke-width=".5" fill="none"/>
+    <path d="M44.5 93.5 h8 M55.5 93.5 h10" stroke="#2a1508" stroke-width=".6"/>
+    <!-- tunic body -->
+    <path d="M46 35 Q54 32 62 35 L63 57 L65.5 71 Q54 74 43.5 71 L46 57 Z" fill="url(#as-tunic)"/>
+    <path d="M44.5 67.5 Q54 70.5 65 67.5 L65.5 71 Q54 74 43.5 71 Z" fill="url(#as-gold)"/>
+    <rect x="45.5" y="54" width="18" height="3.6" rx="1" fill="url(#as-gold)"/>
+    <!-- embroidered leaf motifs -->
+    <path d="M50 46 Q52 43 54 46 Q52 44.5 50 46 z" fill="#4a9a60" opacity=".5"/>
+    <path d="M56 50 Q58 47 60 50 Q58 48.5 56 50 z" fill="#4a9a60" opacity=".5"/>
+    <path d="M48 52 Q49.5 50 51 52 Q49.5 51 48 52 z" fill="#4a9a60" opacity=".45"/>
+    <path d="M58 58 Q60 56 62 58 Q60 57 58 58 z" fill="#4a9a60" opacity=".4"/>
+    <!-- tunic vine embroidery -->
+    <path d="M48 40 Q50 38 53 40 Q55 42 57 40" stroke="#60b878" stroke-width=".5" fill="none" opacity=".5"/>
+    <path d="M47 62 Q50 60 54 62 Q57 64 60 62" stroke="#60b878" stroke-width=".5" fill="none" opacity=".45"/>
+    <!-- tunic center seam -->
+    <path d="M54.5 36 V54" stroke="url(#as-gold)" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M52 35 Q54 33.5 56 35" stroke="url(#as-gold)" stroke-width=".8" fill="none"/>
+    <!-- tunic shadow folds -->
+    <path d="M48 42 Q49 50 47 58" stroke="#1a3a22" stroke-width=".6" fill="none" opacity=".35"/>
+    <path d="M60 42 Q61 50 63 58" stroke="#1a3a22" stroke-width=".6" fill="none" opacity=".3"/>
     <!-- head -->
-    <circle cx="55" cy="22" r="8.5" fill="#f0d2b4"/>
-    <path d="M46.5 25 Q45.5 12.5 55.5 12.5 Q64 12.5 64 20 Q58 16.8 52.5 18.5 Q50 20 50 28.5 Z" fill="url(#hair)"/>
-    <!-- long ear -->
-    <path d="M48.5 22.5 Q42 17 36 12 Q41 21.5 48.5 27 Z" fill="#f0d2b4"/>
-    <!-- bow arm (far) -->
-    <path d="M57 37 L78 39 L78 43.5 L57 43.5 Z" fill="url(#tunicD)"/>
+    <circle cx="55" cy="22" r="8.5" fill="url(#as-skin)"/>
+    <path d="M46.5 25 Q45.5 12.5 55.5 12.5 Q64 12.5 64 20 Q58 16.8 52.5 18.5 Q50 20 50 28.5 Z" fill="url(#as-hair)"/>
+    <path d="M48 16 Q52 13 58 14" stroke="#fffbe8" stroke-width=".5" fill="none" opacity=".6"/>
+    <path d="M47 19 Q50 15.5 55 15" stroke="#fffbe8" stroke-width=".4" fill="none" opacity=".5"/>
+    <!-- pointed ear -->
+    <path d="M48.5 22.5 Q42 17 36 12 Q41 21.5 48.5 27 Z" fill="url(#as-skin)"/>
+    <path d="M47 23 Q43 19 39 15" stroke="#e0be9a" stroke-width=".5" fill="none" opacity=".5"/>
+    <!-- bow arm with bracer -->
+    <path d="M57 37 L78 39 L78 43.5 L57 43.5 Z" fill="url(#as-tunicD)"/>
+    <path d="M73 38 L78 39 L78 43.5 L73 43" fill="url(#as-leather)" opacity=".85"/>
+    <path d="M73 39.5 h5 M73 42 h5" stroke="url(#as-gold)" stroke-width=".5" fill="none" opacity=".7"/>
   </g>
   <!-- longbow -->
-  <path class="wpn" d="M71 6 Q91 41 71 77" stroke="none" stroke-width="4.6" fill="none" stroke-linecap="round"/>
-  <path class="wpn" d="M71 6 Q91 41 71 77" stroke="url(#wood)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M71 6 Q91 41 71 77" stroke="#3a2210" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M71 6 Q91 41 71 77" stroke="url(#as-wood)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
   <path class="wpn" d="M73.5 12 Q80 22 82 30" stroke="#ecc590" stroke-width="1" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path class="wpn" d="M73 52 Q79 62 74 72" stroke="#ecc590" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".6"/>
+  <!-- carved runes on limbs -->
+  <path class="wpn" d="M73 16 l1.5 2 l-1 2 l1 2" stroke="#daa050" stroke-width=".6" fill="none" opacity=".7"/>
+  <path class="wpn" d="M75 62 l1 -2 l-1 -2 l1.5 -2" stroke="#daa050" stroke-width=".6" fill="none" opacity=".7"/>
+  <!-- bow nocks -->
+  <path class="wpn" d="M70 7 l2.5 -1.5" stroke="url(#as-woodHL)" stroke-width=".8" stroke-linecap="round"/>
+  <path class="wpn" d="M70 76 l2.5 1.5" stroke="url(#as-woodHL)" stroke-width=".8" stroke-linecap="round"/>
+  <!-- bowstring -->
   <path class="wpn" d="M71.3 7 L57.5 41 L71.3 76" stroke="#f2ecdc" stroke-width=".9" fill="none" stroke-linejoin="round"/>
   <!-- arrow -->
-  <path class="wpn" d="M53 41 H90" stroke="none" stroke-width="2.6" stroke-linecap="round"/>
-  <path class="wpn" d="M53 41 H90" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
-  <path class="wpn" d="M89 38.3 L95.5 41 L89 43.7 Z" fill="url(#steel)" stroke="none" stroke-width="1.1" stroke-linejoin="round"/>
+  <path class="wpn" d="M53 41 H90" stroke="#4f3420" stroke-width="2.6" stroke-linecap="round"/>
+  <path class="wpn" d="M53 41 H90" stroke="url(#as-gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <path class="wpn" d="M89 38.3 L95.5 41 L89 43.7 Z" fill="url(#as-steel)" stroke="none" stroke-width="1.1" stroke-linejoin="round"/>
+  <path class="wpn" d="M90 39.5 L93.5 41 L90 42.5" stroke="#fff" stroke-width=".3" fill="none" opacity=".5"/>
   <path class="wpn" d="M51 38 h5 l2 3 l-2 3 h-5 l2 -3 z" fill="#f2efe4" stroke="none" stroke-width="1" stroke-linejoin="round"/>
+  <path class="wpn" d="M52 39.5 l3 1.5 l-3 1.5" stroke="#d0c8a8" stroke-width=".4" fill="none" opacity=".6"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- bow hand -->
-    <rect x="76.5" y="37.6" width="5" height="7" rx="2.4" fill="#f0d2b4"/>
-    <!-- draw arm (near) -->
-    <path d="M52.5 35.5 Q45 36.5 44.5 41 Q46.5 45.5 58 44 L58 39 Z" fill="url(#tunic)"/>
-    <circle cx="58.3" cy="41.2" r="2.6" fill="#f0d2b4"/>
+    <rect x="76.5" y="37.6" width="5" height="7" rx="2.4" fill="url(#as-skin)"/>
+    <path d="M77.5 39 v4.5 M79 38.5 v5" stroke="#e0be9a" stroke-width=".4" fill="none" opacity=".5"/>
+    <!-- draw arm -->
+    <path d="M52.5 35.5 Q45 36.5 44.5 41 Q46.5 45.5 58 44 L58 39 Z" fill="url(#as-tunic)"/>
+    <path d="M48 39 Q49.5 36.5 52 35.8" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/>
+    <!-- draw hand with nocking fingers -->
+    <circle cx="58.3" cy="41.2" r="2.6" fill="url(#as-skin)"/>
+    <path d="M57 40 l-1 1.5 M57.2 42.5 l-1 1" stroke="#e0be9a" stroke-width=".4" opacity=".5"/>
   </g>
-  <!-- circlet + face -->
-  <path d="M50.5 18 Q56 15.5 63.5 18" stroke="url(#gold)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <circle cx="57" cy="16.6" r="1.1" fill="#7fe0a0" stroke="none" stroke-width=".6"/>
+  <!-- circlet -->
+  <path d="M50.5 18 Q56 15.5 63.5 18" stroke="url(#as-gold)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M51 17.2 Q56 15 63 17.2" stroke="#f6e9b8" stroke-width=".5" fill="none" opacity=".5"/>
+  <!-- gem with facets and glow -->
+  <circle cx="57" cy="16.6" r="1.4" fill="url(#as-gem)"/>
+  <circle cx="57" cy="16.6" r="1.4" fill="url(#as-gemGlow)"/>
+  <path d="M56.2 16 l.8 1.2 l.8 -1.2" stroke="#fff" stroke-width=".3" fill="none" opacity=".6"/>
+  <circle cx="56.5" cy="16.2" r=".3" fill="#fff" opacity=".8"/>
+  <circle cx="52.5" cy="17" r=".4" fill="#d9c58a"/>
+  <circle cx="61.5" cy="17" r=".4" fill="#d9c58a"/>
+  <!-- face -->
   <path d="M58.4 22.6 q1.4 -1 2.8 0 q-1.4 1 -2.8 0 z" fill="#1d2130" stroke="#1d2130" stroke-width="1.2" stroke-linejoin="round"/>
+  <circle cx="60.2" cy="22.3" r=".5" fill="#3a6e4a"/>
+  <circle cx="60.4" cy="22" r=".2" fill="#fff" opacity=".7"/>
   <path d="M57.8 20.2 q1.8 -.9 3.8 -.1" stroke="#a89452" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M62 24 l.5 1.5" stroke="#e8c4a4" stroke-width=".5" fill="none" opacity=".5"/>
   <path d="M59.5 27.2 q1.3 .6 2.6 -.1" stroke="#b97a64" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <circle cx="60.3" cy="25" r="1.2" fill="#f2a08a" opacity=".45"/>
-  <!-- tunic details -->
-  <path d="M54.5 36 V54" stroke="url(#gold)" stroke-width="1.3" stroke-linecap="round"/>
-  <path d="M48 39 Q49.5 36.5 52 35.8" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/>
-  <path d="M40.5 30 Q40 40 41.5 47" stroke="#fffbe6" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".75"/>
+  <path d="M60 27 q1 .3 1.8 0" stroke="#c89080" stroke-width=".4" fill="none" opacity=".5"/>
+  <circle cx="60.3" cy="25" r="1.2" fill="#f2a08a" opacity=".4"/>
+  <path d="M62 28 Q64 25 63 22" stroke="#fff" stroke-width=".4" fill="none" opacity=".2"/>
+  <!-- hair highlights -->
+  <path d="M40.5 30 Q40 40 41.5 47" stroke="#fffbe6" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M41.5 32 Q41 39 42.5 44" stroke="#f5ecc8" stroke-width=".6" fill="none" opacity=".5"/>
 </svg>

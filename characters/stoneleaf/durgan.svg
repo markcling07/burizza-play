@@ -3,73 +3,138 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66,62">
   <defs>
-    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a7650"/><stop offset=".5" stop-color="#6b4f32"/><stop offset="1" stop-color="#3d2c1b"/></linearGradient>
-    <linearGradient id="leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5c442b"/><stop offset="1" stop-color="#2e2116"/></linearGradient>
-    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f5fa"/><stop offset=".5" stop-color="#b4bccb"/><stop offset="1" stop-color="#6a7285"/></linearGradient>
-    <linearGradient id="steelD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa3b5"/><stop offset="1" stop-color="#4c5366"/></linearGradient>
-    <linearGradient id="beard" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e07a44"/><stop offset=".55" stop-color="#b5562b"/><stop offset="1" stop-color="#7c3517"/></linearGradient>
-    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6b42"/><stop offset="1" stop-color="#5a3b22"/></linearGradient>
-    <linearGradient id="bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf5e4"/><stop offset="1" stop-color="#c2b08a"/></linearGradient>
+    <linearGradient id="dg-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a7650"/><stop offset=".5" stop-color="#6b4f32"/><stop offset="1" stop-color="#3d2c1b"/></linearGradient>
+    <linearGradient id="dg-leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5c442b"/><stop offset="1" stop-color="#2e2116"/></linearGradient>
+    <linearGradient id="dg-steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f5fa"/><stop offset=".5" stop-color="#b4bccb"/><stop offset="1" stop-color="#6a7285"/></linearGradient>
+    <linearGradient id="dg-steelD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa3b5"/><stop offset="1" stop-color="#4c5366"/></linearGradient>
+    <linearGradient id="dg-beard" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e07a44"/><stop offset=".55" stop-color="#b5562b"/><stop offset="1" stop-color="#7c3517"/></linearGradient>
+    <linearGradient id="dg-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6b42"/><stop offset="1" stop-color="#5a3b22"/></linearGradient>
+    <linearGradient id="dg-bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf5e4"/><stop offset="1" stop-color="#c2b08a"/></linearGradient>
+    <linearGradient id="dg-ironCap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a919e"/><stop offset="1" stop-color="#4a5060"/></linearGradient>
   </defs>
   <ellipse cx="50" cy="94" rx="26" ry="3.8" fill="#000" opacity=".38"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- back horn -->
-    <path d="M44 35 Q34 33 31 22 Q38 27 46 30 Z" fill="url(#bone)"/>
-    <!-- back pauldron -->
-    <circle cx="35" cy="57" r="6.5" fill="url(#steelD)"/>
-    <!-- legs + boots -->
-    <path d="M39 79 h10 l-.5 9 h-10 z" fill="url(#leatherD)"/>
+    <!-- back horn + ridges -->
+    <path d="M44 35 Q34 33 31 22 Q38 27 46 30 Z" fill="url(#dg-bone)"/>
+    <path d="M42 33 Q36 31.5 34 25" stroke="#c2b08a" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M43.5 34 Q38.5 33 36.5 28" stroke="#c2b08a" stroke-width=".5" fill="none" opacity=".5"/>
+    <!-- back pauldron + rivets -->
+    <circle cx="35" cy="57" r="6.5" fill="url(#dg-steelD)"/>
+    <circle cx="33.5" cy="55.5" r=".7" fill="#6a7285"/><circle cx="36.5" cy="55.5" r=".7" fill="#6a7285"/>
+    <!-- legs + knee patches -->
+    <path d="M39 79 h10 l-.5 9 h-10 z" fill="url(#dg-leatherD)"/>
+    <path d="M51 79 h10 l1 9 h-10 z" fill="url(#dg-leather)"/>
+    <ellipse cx="44" cy="82" rx="3" ry="2" fill="#4a351f" opacity=".5"/>
+    <ellipse cx="56" cy="82" rx="3" ry="2" fill="#7a5a3a" opacity=".4"/>
+    <!-- boots + iron toe caps -->
     <path d="M34 87 h15 v6.5 h-16.5 z" fill="#3a2a1e"/>
-    <path d="M51 79 h10 l1 9 h-10 z" fill="url(#leather)"/>
     <path d="M51 87 h14 l2.5 6.5 h-16.5 z" fill="#5a4029"/>
-    <!-- torso -->
-    <path d="M31 55 Q50 47 69 55 L70 81 Q50 86 30 81 Z" fill="url(#leather)"/>
-    <rect x="30.5" y="70" width="39.5" height="6" rx="1" fill="url(#leatherD)"/>
-    <rect x="45.5" y="68.8" width="9" height="8.4" rx="1.5" fill="url(#steel)"/>
-    <!-- head -->
+    <path d="M34 90 h6 v3.5 h-7.5 z" fill="url(#dg-ironCap)"/>
+    <path d="M51 90 h7 l1.5 3.5 h-8.5 z" fill="url(#dg-ironCap)"/>
+    <path d="M35 91.5 h4 M52 91.5 h5" stroke="#aab3c2" stroke-width=".5" fill="none" opacity=".6"/>
+    <!-- boot lacing -->
+    <path d="M44 88 v4 M46 88 v4 M57 88 v4 M59 88 v4" stroke="#2e2116" stroke-width=".6" fill="none" opacity=".5"/>
+    <!-- torso + muscle definition -->
+    <path d="M31 55 Q50 47 69 55 L70 81 Q50 86 30 81 Z" fill="url(#dg-leather)"/>
+    <path d="M42 58 Q47 56 52 58 M53 57 Q58 55.5 62 58" stroke="#5a3f28" stroke-width=".8" fill="none" opacity=".3"/>
+    <!-- armor stitching -->
+    <path d="M35 62 h4 M41 62 h4 M47 62 h4 M53 62 h4 M59 62 h4" stroke="#3d2c1b" stroke-width=".6" stroke-dasharray="1.2 1" fill="none" opacity=".5"/>
+    <path d="M34 67 h30" stroke="#3d2c1b" stroke-width=".5" stroke-dasharray="1 1.5" fill="none" opacity=".4"/>
+    <!-- belt + buckle -->
+    <rect x="30.5" y="70" width="39.5" height="6" rx="1" fill="url(#dg-leatherD)"/>
+    <rect x="45.5" y="68.8" width="9" height="8.4" rx="1.5" fill="url(#dg-steel)"/>
+    <rect x="47" y="70.2" width="6" height="5.6" rx=".8" fill="none" stroke="#4c5366" stroke-width=".8"/>
+    <path d="M50 70.5 v5" stroke="#6a7285" stroke-width=".9"/>
+    <!-- belt pouches -->
+    <rect x="35" y="72.5" width="5" height="4.5" rx="1" fill="#4a351f"/>
+    <path d="M36 72.5 v-1.2 h3 v1.2" stroke="#3d2c1b" stroke-width=".6" fill="#5c442b"/>
+    <rect x="60" y="72.5" width="4.5" height="4" rx="1" fill="#4a351f"/>
+    <path d="M61 72.5 v-1 h2.5 v1" stroke="#3d2c1b" stroke-width=".6" fill="#5c442b"/>
+    <!-- belt knife -->
+    <rect x="57" y="71.5" width="1.2" height="5" rx=".3" fill="#6a7285"/>
+    <rect x="56.7" y="71" width="1.8" height="1.5" rx=".3" fill="#5c442b"/>
+    <!-- head + weathering -->
     <circle cx="52" cy="42" r="9.5" fill="#e0ae86"/>
-    <!-- helm -->
-    <path d="M42 41 Q41.5 29.5 52.5 29.5 Q63.5 29.5 63 41 Z" fill="url(#steel)"/>
-    <rect x="41" y="38" width="23" height="4" rx="1.5" fill="url(#steelD)"/>
-    <!-- front horn -->
-    <path d="M59.5 32 Q66 29 66 19 Q71.5 29 62.5 36.5 Z" fill="url(#bone)"/>
-    <!-- beard + braids -->
-    <path d="M46 64 h5 v14 h-5 z" fill="url(#beard)"/>
-    <path d="M53.5 64 h5 v14 h-5 z" fill="url(#beard)"/>
-    <path d="M44 42 Q40.5 58 45 67 Q52 72.5 59.5 67 Q66.5 58 64.5 47.5 Q60 49.5 56 48.5 Q51 49 48.5 45 Q47.5 43 44 42 Z" fill="url(#beard)"/>
-    <rect x="45.4" y="73" width="6.2" height="3" rx="1" fill="url(#steel)"/>
-    <rect x="52.9" y="73" width="6.2" height="3" rx="1" fill="url(#steel)"/>
+    <path d="M56 39 l1.5 .5" stroke="#c89470" stroke-width=".5" fill="none" opacity=".5"/>
+    <path d="M48 44 l1 .8" stroke="#c89470" stroke-width=".4" fill="none" opacity=".4"/>
+    <!-- helm + nose guard -->
+    <path d="M42 41 Q41.5 29.5 52.5 29.5 Q63.5 29.5 63 41 Z" fill="url(#dg-steel)"/>
+    <rect x="41" y="38" width="23" height="4" rx="1.5" fill="url(#dg-steelD)"/>
+    <path d="M62 38 l2 4.5 l-1.5 1 l-2 -4 z" fill="url(#dg-steelD)"/>
+    <!-- helm dents -->
+    <ellipse cx="48" cy="34" rx="2" ry="1.2" fill="#9aa3b5" opacity=".3"/><ellipse cx="55" cy="32.5" rx="1.5" ry="1" fill="#8a919e" opacity=".25"/>
+    <!-- helm rivets + crest -->
+    <g fill="#e8ecf3"><circle cx="44.5" cy="40" r=".9"/><circle cx="48.5" cy="40" r=".9"/><circle cx="52.5" cy="40" r=".9"/><circle cx="56.5" cy="40" r=".9"/><circle cx="60.5" cy="40" r=".9"/></g>
+    <path d="M46 30 Q52 28 58 30" stroke="#fff" stroke-width=".6" fill="none" opacity=".35"/>
+    <!-- front horn + ridges + chip -->
+    <path d="M59.5 32 Q66 29 66 19 Q71.5 29 62.5 36.5 Z" fill="url(#dg-bone)"/>
+    <path d="M61 33 Q64 30 64.5 25" stroke="#c2b08a" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M60 34 Q62.5 31.5 63 27" stroke="#c2b08a" stroke-width=".5" fill="none" opacity=".5"/>
+    <path d="M65 22 l1.5 1 l-1 1.5 z" fill="#d4c8a8" opacity=".7"/>
+    <!-- beard main mass -->
+    <path d="M44 42 Q40.5 58 45 67 Q52 72.5 59.5 67 Q66.5 58 64.5 47.5 Q60 49.5 56 48.5 Q51 49 48.5 45 Q47.5 43 44 42 Z" fill="url(#dg-beard)"/>
+    <!-- left braid + weave strands -->
+    <path d="M46 64 h5 v14 h-5 z" fill="url(#dg-beard)"/>
+    <path d="M47 65 q1.5 1.5 0 3 q-1.5 1.5 0 3 q1.5 1.5 0 3 q-1.5 1.5 0 3" stroke="#e07a44" stroke-width=".8" fill="none" opacity=".6"/>
+    <path d="M49.5 65 q-1.5 1.5 0 3 q1.5 1.5 0 3 q-1.5 1.5 0 3 q1.5 1.5 0 3" stroke="#d06830" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- right braid + weave strands -->
+    <path d="M53.5 64 h5 v14 h-5 z" fill="url(#dg-beard)"/>
+    <path d="M54.5 65 q1.5 1.5 0 3 q-1.5 1.5 0 3 q1.5 1.5 0 3 q-1.5 1.5 0 3" stroke="#e07a44" stroke-width=".8" fill="none" opacity=".6"/>
+    <path d="M57 65 q-1.5 1.5 0 3 q1.5 1.5 0 3 q-1.5 1.5 0 3 q1.5 1.5 0 3" stroke="#d06830" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- braid steel clasps + detail -->
+    <rect x="45.4" y="73" width="6.2" height="3" rx="1" fill="url(#dg-steel)"/>
+    <rect x="52.9" y="73" width="6.2" height="3" rx="1" fill="url(#dg-steel)"/>
+    <path d="M46.5 74 h4 M46.5 75.2 h4 M54 74 h4 M54 75.2 h4" stroke="#6a7285" stroke-width=".5" fill="none"/>
+    <!-- braid beads -->
+    <circle cx="48.5" cy="77.5" r="1.2" fill="#c87830"/><circle cx="48.5" cy="77.5" r=".5" fill="#e0a060" opacity=".7"/>
+    <circle cx="56" cy="77.5" r="1.2" fill="#c87830"/><circle cx="56" cy="77.5" r=".5" fill="#e0a060" opacity=".7"/>
+    <!-- beard texture strands -->
+    <path d="M48.5 53 Q47.5 59 50 65 M55 54 Q55.5 60 57.5 64.5" stroke="#f0965f" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6"/>
+    <path d="M51 52 Q50 58 51.5 63 M58 52 Q59 57 59.5 62" stroke="#e88040" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".4"/>
+    <!-- braid cross-hatching -->
+    <path d="M46.5 66.5 h4 M46.5 69 h4 M46.5 71.5 h4 M54 66.5 h4 M54 69 h4 M54 71.5 h4" stroke="#7c3517" stroke-width=".8" stroke-linecap="round" opacity=".5"/>
     <!-- nose + moustache -->
-    <circle cx="62.8" cy="46.6" r="2.3" fill="#e0ae86"/>
+    <ellipse cx="62.8" cy="46.6" rx="2.5" ry="2.3" fill="#e0ae86"/>
+    <path d="M61 46.8 q1.8 2 3.5 0" stroke="#c89470" stroke-width=".5" fill="none" opacity=".5"/>
     <path d="M53 50.5 Q58 46.5 65 49.5 Q61.5 53 57.5 51.5 Q55 53 53 50.5 Z" fill="#8f3e1d" stroke-width="1.1"/>
+    <path d="M55 50 Q58 48 62 49" stroke="#a85525" stroke-width=".6" fill="none" opacity=".5"/>
     <!-- great hammer -->
     <g transform="rotate(22 66 62)">
-      <rect class="wpn" x="64.3" y="25" width="3.6" height="57" rx="1" fill="url(#wood)"/>
+      <rect class="wpn" x="64.3" y="25" width="3.6" height="57" rx="1" fill="url(#dg-wood)"/>
+      <path class="wpn" d="M65.3 30 v50 M67 32 v48" stroke="#4a2e15" stroke-width=".4" fill="none" opacity=".3"/>
+      <path class="wpn" d="M64.3 55 l3.6 2 M64.3 58 l3.6 2 M64.3 61 l3.6 2 M64.3 64 l3.6 2" stroke="#3d2c1b" stroke-width=".7" fill="none" opacity=".5"/>
       <rect class="wpn" x="63.8" y="74" width="4.6" height="5" rx="1" fill="#3a2a1e"/>
-      <path class="wpn" d="M56 15 h20 v14 h-20 z" fill="url(#steel)"/>
-      <rect class="wpn" x="56" y="20" width="20" height="4" fill="url(#steelD)"/>
-      <rect class="wpn" x="54" y="13.5" width="3.5" height="17" rx="1" fill="url(#steelD)"/>
-      <rect class="wpn" x="74.5" y="13.5" width="3.5" height="17" rx="1" fill="url(#steelD)"/>
-      <circle class="wpn" cx="66.1" cy="83.5" r="2.4" fill="url(#steel)"/>
+      <path class="wpn" d="M56 15 h20 v14 h-20 z" fill="url(#dg-steel)"/>
+      <rect class="wpn" x="56" y="20" width="20" height="4" fill="url(#dg-steelD)"/>
+      <rect class="wpn" x="54" y="13.5" width="3.5" height="17" rx="1" fill="url(#dg-steelD)"/>
+      <rect class="wpn" x="74.5" y="13.5" width="3.5" height="17" rx="1" fill="url(#dg-steelD)"/>
+      <!-- rune engravings -->
+      <path class="wpn" d="M60 17 v4 l2 -2 v4" stroke="#d4dae6" stroke-width=".7" fill="none" opacity=".5"/>
+      <path class="wpn" d="M65 17 l1.5 2 l1.5 -2 v4" stroke="#d4dae6" stroke-width=".7" fill="none" opacity=".5"/>
+      <path class="wpn" d="M71 17 v4 h2" stroke="#d4dae6" stroke-width=".7" fill="none" opacity=".5"/>
+      <!-- impact marks + pommel cap -->
+      <path class="wpn" d="M58 26 l1.5 -1 M73 15 l-1 1.5" stroke="#8a919e" stroke-width=".6" fill="none" opacity=".4"/>
+      <circle class="wpn" cx="66.1" cy="83.5" r="2.4" fill="url(#dg-steel)"/>
+      <circle class="wpn" cx="66.1" cy="83.5" r="1" fill="url(#dg-steelD)"/>
     </g>
     <!-- lower fist -->
     <circle cx="61.6" cy="73.2" r="3.1" fill="#e0ae86"/>
-    <!-- front arm + pauldron -->
-    <path d="M61 57 L70.5 57.5 L69 64.5 L61.5 64 Z" fill="url(#leather)"/>
+    <path d="M59.5 72 q2 1.5 4 0" stroke="#c89470" stroke-width=".5" fill="none" opacity=".4"/>
+    <!-- front arm + muscle line -->
+    <path d="M61 57 L70.5 57.5 L69 64.5 L61.5 64 Z" fill="url(#dg-leather)"/>
+    <path d="M63 58.5 Q65 61 64 64" stroke="#5a3f28" stroke-width=".6" fill="none" opacity=".3"/>
     <circle cx="65.6" cy="64.2" r="3.2" fill="#e0ae86"/>
-    <path d="M58.5 56 Q61 50.5 67.5 51.5 Q73.5 53.5 72 59.5 L60.5 60.5 Z" fill="url(#steel)"/>
+    <!-- front pauldron + rivets -->
+    <path d="M58.5 56 Q61 50.5 67.5 51.5 Q73.5 53.5 72 59.5 L60.5 60.5 Z" fill="url(#dg-steel)"/>
+    <circle cx="62" cy="54" r=".6" fill="#d4dae6"/><circle cx="65" cy="53.5" r=".6" fill="#d4dae6"/><circle cx="68" cy="54.5" r=".6" fill="#d4dae6"/>
   </g>
-  <!-- face -->
-  <circle cx="58.7" cy="44.6" r="1.5" fill="#1d2130"/>
-  <path d="M56 42.6 l5.2 .4" stroke="#7c3517" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- beard strands -->
-  <path d="M48.5 53 Q47.5 59 50 65 M55 54 Q55.5 60 57.5 64.5" stroke="#f0965f" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".8"/>
-  <path d="M48.5 67 h2 M48.5 70.5 h2 M56 67 h2 M56 70.5 h2" stroke="#7c3517" stroke-width="1" stroke-linecap="round"/>
-  <!-- helm details -->
-  <g fill="#e8ecf3" stroke="none" stroke-width=".6"><circle cx="45" cy="40" r=".9"/><circle cx="52.5" cy="40" r=".9"/><circle cx="60" cy="40" r=".9"/></g>
+  <!-- eye + highlight -->
+  <circle cx="58.7" cy="44.6" r="1.5" fill="#1d2130"/><circle cx="59.1" cy="44.2" r=".4" fill="#fff" opacity=".7"/>
+  <!-- bushy eyebrow -->
+  <path d="M55.5 42.2 Q58 41.5 61.5 42.8" stroke="#7c3517" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M56 42.8 l1 -.8 M59 42.2 l1 .3" stroke="#9a4a20" stroke-width=".6" stroke-linecap="round" opacity=".5"/>
+  <!-- helm / pauldron / torso highlights -->
   <path d="M45 35.5 Q47 31.8 52 31.2" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".9"/>
   <path d="M61 54.5 q3 -1.6 6.5 -.4" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
   <path d="M34 56 Q47 50.5 57 51" stroke="#c49a6a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/>
-  <!-- belt buckle -->
-  <rect x="47.8" y="71" width="4.4" height="4" rx=".6" fill="none" stroke="#4c5366" stroke-width="1.1"/>
 </svg>

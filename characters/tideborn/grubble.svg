@@ -3,70 +3,129 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="64.8,68.4">
   <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#93cdb4"/><stop offset=".5" stop-color="#5fa38a"/><stop offset="1" stop-color="#3a7360"/></linearGradient>
-    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8f78"/><stop offset="1" stop-color="#2e5c4d"/></linearGradient>
-    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e4efc4"/><stop offset="1" stop-color="#a9c48e"/></linearGradient>
-    <linearGradient id="fin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f9fc4"/><stop offset=".5" stop-color="#2f6f8f"/><stop offset="1" stop-color="#1c455c"/></linearGradient>
-    <linearGradient id="orange" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcc7a"/><stop offset="1" stop-color="#c07a22"/></linearGradient>
-    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7048"/><stop offset="1" stop-color="#5a3c24"/></linearGradient>
-    <linearGradient id="flint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3e9f0"/><stop offset="1" stop-color="#7d8a9c"/></linearGradient>
+    <linearGradient id="gb-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#93cdb4"/><stop offset=".5" stop-color="#5fa38a"/><stop offset="1" stop-color="#3a7360"/></linearGradient>
+    <linearGradient id="gb-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8f78"/><stop offset="1" stop-color="#2e5c4d"/></linearGradient>
+    <linearGradient id="gb-belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e4efc4"/><stop offset="1" stop-color="#a9c48e"/></linearGradient>
+    <linearGradient id="gb-fin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f9fc4"/><stop offset=".5" stop-color="#2f6f8f"/><stop offset="1" stop-color="#1c455c"/></linearGradient>
+    <linearGradient id="gb-finMem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6fbfdf" stop-opacity=".6"/><stop offset="1" stop-color="#2a5f7f" stop-opacity=".35"/></linearGradient>
+    <linearGradient id="gb-orange" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcc7a"/><stop offset="1" stop-color="#c07a22"/></linearGradient>
+    <linearGradient id="gb-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7048"/><stop offset=".4" stop-color="#7a5434"/><stop offset="1" stop-color="#5a3c24"/></linearGradient>
+    <linearGradient id="gb-flint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3e9f0"/><stop offset=".4" stop-color="#b0bac8"/><stop offset="1" stop-color="#7d8a9c"/></linearGradient>
+    <linearGradient id="gb-iris" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4e94e"/><stop offset=".6" stop-color="#8fb825"/><stop offset="1" stop-color="#4a7a10"/></linearGradient>
+    <linearGradient id="gb-tongue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e87888"/><stop offset="1" stop-color="#a84050"/></linearGradient>
+    <linearGradient id="gb-barnacle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8d0c0"/><stop offset="1" stop-color="#8a8070"/></linearGradient>
+    <radialGradient id="gb-sheen" cx=".3" cy=".3" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
   </defs>
   <ellipse cx="50" cy="94" rx="20" ry="3.4" fill="#000" opacity=".35"/>
   <g transform="translate(50 94) scale(.8) translate(-50 -94)">
     <g stroke="none" stroke-width="1.85" stroke-linejoin="round" stroke-linecap="round">
-      <!-- spiky fin crest -->
-      <path d="M60 23 L59.5 6 L53 17 L46.5 5 L44 19 L35 11 L37.5 26 L26.5 24 L36.5 35 L28.5 41 L40 43 Z" fill="url(#fin)"/>
+      <!-- spiky fin crest with membrane + spine veins -->
+      <path d="M60 23 L59.5 6 L53 17 L46.5 5 L44 19 L35 11 L37.5 26 L26.5 24 L36.5 35 L28.5 41 L40 43 Z" fill="url(#gb-fin)"/>
+      <path d="M59.5 6 L53 17 L56.5 12 Z M46.5 5 L44 19 L45.5 11 Z M35 11 L37.5 26 L36 17 Z" fill="url(#gb-finMem)"/>
+      <path d="M26.5 24 L36.5 35 L30 28 Z M28.5 41 L40 43 L33 41.5 Z" fill="url(#gb-finMem)"/>
+      <path d="M58 10 L54 16 M46 9 L45 17 M36 15 L37 24 M30 27 L35 33" stroke="#1c455c" stroke-width=".8" fill="none" opacity=".5"/>
       <!-- back arm -->
-      <path d="M39 53 Q33 60 33 67 L38.5 68 Q38.5 61 43 56 Z" fill="url(#skinD)"/>
-      <path d="M31 66.5 L30.5 73 L33.5 70.5 L35.5 74 L37.5 70.5 L40 72 L39.5 66.5 Z" fill="url(#skinD)"/>
-      <!-- legs + webbed feet -->
-      <path d="M43 76 h7 l-1 12.5 h-7 z" fill="url(#skinD)"/>
+      <path d="M39 53 Q33 60 33 67 L38.5 68 Q38.5 61 43 56 Z" fill="url(#gb-skinD)"/>
+      <!-- back webbed hand -->
+      <path d="M31 66.5 L30.5 73 L33.5 70.5 L35.5 74 L37.5 70.5 L40 72 L39.5 66.5 Z" fill="url(#gb-skinD)"/>
+      <path d="M31.5 69 L33.5 70.5 M34 69 L35.5 71.5 M37 69 L38.5 71" stroke="#2e5c4d" stroke-width=".6" fill="none" opacity=".5"/>
+      <!-- legs -->
+      <path d="M43 76 h7 l-1 12.5 h-7 z" fill="url(#gb-skinD)"/>
+      <path d="M52 76 h7 l2 12.5 h-7 z" fill="url(#gb-skin)"/>
+      <!-- webbed feet with membrane -->
       <path d="M35.5 93.5 L37 89 Q42 86 49 88.5 L49.5 93.5 Z" fill="#2e5c4d"/>
-      <path d="M52 76 h7 l2 12.5 h-7 z" fill="url(#skin)"/>
+      <path d="M37.5 90 L39 93.5 M41 89 L42 93.5 M44.5 88.5 L45.5 93.5" stroke="#245648" stroke-width=".6" fill="none" opacity=".45"/>
       <path d="M52.5 93.5 L53 88.5 Q60 86 65 89 L68.5 93.5 Z" fill="#3a7360"/>
+      <path d="M55 89 L56 93.5 M58.5 88 L59.5 93.5 M62 88.5 L63.5 93.5" stroke="#2e5c4d" stroke-width=".6" fill="none" opacity=".45"/>
       <!-- pot-bellied body -->
-      <path d="M38 50 Q33 66 40 79 Q50 84 61 79 Q67 65 62 50 Q50 45 38 50 Z" fill="url(#skin)"/>
-      <path d="M47 55 Q54 53 59 57 Q62 68 57 78 Q51 80 47 77 Q43 66 47 55 Z" fill="url(#belly)"/>
-      <path d="M39.5 72 Q50 77 61.5 72 L61 77 Q50 81.5 40 77 Z" fill="url(#fin)"/>
-      <path d="M47 78.5 L54 78.5 L52.5 86 L48.5 85 Z" fill="url(#fin)"/>
-      <path d="M58.5 50.5 L42 71 L44.5 73 L61 52.5 Z" fill="url(#orange)"/>
+      <path d="M38 50 Q33 66 40 79 Q50 84 61 79 Q67 65 62 50 Q50 45 38 50 Z" fill="url(#gb-skin)"/>
+      <!-- belly with scale texture -->
+      <path d="M47 55 Q54 53 59 57 Q62 68 57 78 Q51 80 47 77 Q43 66 47 55 Z" fill="url(#gb-belly)"/>
+      <g stroke="#9ab880" stroke-width=".45" fill="none" opacity=".4">
+        <path d="M49 58 q3 -1 6 0 M48 61 q4 -1 8 0 M47 64 q5 -1 9 0 M46 67 q5 0 10 0 M46.5 70 q4 .5 9 0 M47 73 q4 .5 8 0 M48.5 76 q3 .5 6 0"/>
+      </g>
+      <!-- loincloth / belt-fin -->
+      <path d="M39.5 72 Q50 77 61.5 72 L61 77 Q50 81.5 40 77 Z" fill="url(#gb-fin)"/>
+      <path d="M47 78.5 L54 78.5 L52.5 86 L48.5 85 Z" fill="url(#gb-fin)"/>
+      <!-- bandolier strap -->
+      <path d="M58.5 50.5 L42 71 L44.5 73 L61 52.5 Z" fill="url(#gb-orange)"/>
+      <path d="M53 57 l.6 1.5 M49 62 l.6 1.5 M45 67 l.6 1.5" stroke="#a06818" stroke-width=".7" fill="none"/>
+      <!-- barnacles on body -->
+      <g fill="url(#gb-barnacle)" stroke="#6a6050"><ellipse cx="40" cy="63" rx="1.8" ry="1.4" stroke-width=".4"/><ellipse cx="41.5" cy="61.5" rx="1.1" ry=".9" stroke-width=".3"/><circle cx="37" cy="56" r="1" stroke-width=".3"/></g>
       <!-- big head -->
-      <path d="M38 38 Q37 22 53 21 Q68 21 70 33 Q71 41 66 45 Q58 51 48 50 Q39 48 38 38 Z" fill="url(#skin)"/>
+      <path d="M38 38 Q37 22 53 21 Q68 21 70 33 Q71 41 66 45 Q58 51 48 50 Q39 48 38 38 Z" fill="url(#gb-skin)"/>
+      <ellipse cx="52" cy="30" rx="12" ry="10" fill="url(#gb-sheen)"/>
+      <!-- scale texture on head -->
+      <g stroke="#3a7360" stroke-width=".4" fill="none" opacity=".35">
+        <path d="M43 26 q2 -1 4 0 M42 29 q3 -1 5 0 M44 32 q2 -1 4 0 M50 23 q2 -.5 4 0"/>
+      </g>
+      <!-- mouth cavity -->
       <path d="M70 33.5 Q62 37.5 53 37 Q58 48 66.5 44.5 Q70.5 40 70 33.5 Z" fill="#3a1420"/>
-      <circle cx="61" cy="27" r="5.2" fill="#f4f1e2"/>
-      <!-- crude spear -->
+      <!-- tongue -->
+      <path d="M56 40.5 Q61 46.5 66 43.5 Q63 41 56 40.5 Z" fill="url(#gb-tongue)"/>
+      <path d="M58 41.5 Q62 44 64 43" stroke="#c05060" stroke-width=".5" fill="none"/>
+      <!-- crude spear with leather wrapping -->
       <g transform="rotate(40 68.5 62)">
-        <rect class="wpn" x="67.2" y="14" width="2.6" height="61" rx="1" fill="url(#wood)"/>
-        <path class="wpn" d="M68.5 1 L72.8 9 L71.2 15 L65.8 15 L64.2 9 Z" fill="url(#flint)"/>
-        <rect class="wpn" x="66" y="14" width="5" height="4.6" rx="1" fill="url(#orange)"/>
+        <rect class="wpn" x="67.2" y="14" width="2.6" height="61" rx="1" fill="url(#gb-wood)"/>
+        <path class="wpn" d="M68 56 l.3 1.5 M68 50 l.3 1.5 M68 44 l.3 1.5 M68 38 l.3 1.5 M68 32 l.3 1.5" stroke="#4a2c14" stroke-width=".5"/>
+        <path class="wpn" d="M68.5 1 L73 8.5 L71.5 12 L68.5 14 L65.5 12 L64 8.5 Z" fill="url(#gb-flint)"/>
+        <path class="wpn" d="M68.5 3 L70.5 7 M68.5 5 L66.5 8 M68.5 8 L70 11" stroke="#9aa8b8" stroke-width=".4" fill="none" opacity=".6"/>
+        <rect class="wpn" x="66" y="14" width="5" height="4.6" rx="1" fill="url(#gb-orange)"/>
+        <path class="wpn" d="M66.5 15 l4 1 M66.5 17 l4 -1" stroke="#a06818" stroke-width=".5" fill="none"/>
       </g>
       <!-- front arm -->
-      <path d="M57 54 L68 59 L66 64.5 L55 60 Z" fill="url(#skin)"/>
-      <circle cx="68.5" cy="62" r="3.5" fill="url(#skin)"/>
+      <path d="M57 54 L68 59 L66 64.5 L55 60 Z" fill="url(#gb-skin)"/>
+      <!-- front hand (grip) -->
+      <circle cx="68.5" cy="62" r="3.5" fill="url(#gb-skin)"/>
+      <path d="M66 61 q1 2 0 3.5 M68 60.5 q.5 2 0 3.5 M70 61.5 q.5 1.5 -.5 3" stroke="#3a7360" stroke-width=".5" fill="none" opacity=".5"/>
     </g>
-    <!-- mouth: tongue + teeth -->
-    <path d="M56 40.5 Q61 46.5 66 43.5 Q63 41 56 40.5 Z" fill="#d0606e"/>
+    <!-- teeth: upper row varied sizes -->
     <g fill="#fff">
-      <path d="M67.3 34.7 l1.8 -.6 l-.4 2.2 z"/>
-      <path d="M63.5 35.9 l2 -.4 l-.7 2.1 z"/>
-      <path d="M59.6 36.7 l2 -.2 l-1 2 z"/>
-      <path d="M59 44.2 l2 .3 l-1.2 -2 z"/>
-      <path d="M63 45.1 l2 -.3 l-1.3 -1.9 z"/>
+      <path d="M67.3 34.7 l2 -.5 l-.5 2.5 z M65 35.3 l1.6 -.3 l-.3 1.8 z M63.5 35.9 l2 -.4 l-.7 2.1 z"/>
+      <path d="M61 36.3 l1.4 -.2 l-.5 1.6 z M59.6 36.7 l2 -.2 l-1 2 z M57.8 37.2 l1.3 0 l-.6 1.4 z"/>
     </g>
-    <!-- eye -->
-    <circle cx="62.3" cy="27.3" r="2.7" fill="#15121d"/>
-    <circle cx="61.3" cy="26.1" r="1" fill="#fff"/>
-    <path d="M55.5 21.8 Q61 19.5 66.5 23" stroke="none" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-    <!-- gills, spots, fin ribs -->
-    <path d="M45 34 q-2 3.5 0 7 M48.5 33.5 q-2 3.5 0 7" stroke="#2f6f8f" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    <g fill="#3a7360" opacity=".85"><circle cx="46" cy="27" r="1.6"/><circle cx="50.5" cy="24.5" r="1.1"/><circle cx="42" cy="40" r="1.2"/><circle cx="41" cy="60" r="1.3"/></g>
+    <!-- teeth: lower row varied -->
+    <g fill="#f0ece0">
+      <path d="M57.5 43.8 l1.8 .4 l-1 -1.8 z M59 44.2 l2 .3 l-1.2 -2 z M61.5 44.8 l1.4 .1 l-.8 -1.6 z"/>
+      <path d="M63 45.1 l2 -.3 l-1.3 -1.9 z M65.5 44.5 l1.5 -.4 l-.9 -1.5 z"/>
+    </g>
+    <!-- eye: sclera, iris, pupil, highlight, brow -->
+    <circle cx="61" cy="27" r="5.2" fill="#f4f1e2"/>
+    <circle cx="62.3" cy="27.3" r="3.2" fill="url(#gb-iris)"/>
+    <circle cx="62.8" cy="27" r="1.6" fill="#15121d"/>
+    <circle cx="61.8" cy="26" r=".8" fill="#fff"/>
+    <circle cx="63.2" cy="27.8" r=".35" fill="#fff" opacity=".6"/>
+    <path d="M55.5 22.5 Q59 20 65 22 Q67 23 68 24.5" stroke="#2e5c4d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M56 24.5 Q59 22.5 64 23.5" stroke="#1c3a2e" stroke-width="1" fill="none" stroke-linecap="round"/>
+    <!-- gills with flesh-toned slits -->
+    <g stroke="#2f6f8f" stroke-width="1.4" fill="none" stroke-linecap="round">
+      <path d="M44 33.5 q-2 2 -1 4.5 q1 2.5 1 4 M47 33 q-2 2 -1 4.5 q1 2.5 1 4 M49.5 32.5 q-1.5 2 -.5 4 q1 2 .5 3.5"/>
+    </g>
+    <path d="M43.5 35 q-1 1.5 0 3 M46.5 34.5 q-1 1.5 0 3 M49 34 q-.8 1.2 0 2.5" stroke="#c44060" stroke-width=".5" fill="none" opacity=".45"/>
+    <!-- spots and scales -->
+    <g fill="#3a7360" opacity=".8">
+      <circle cx="46" cy="27" r="1.6"/><circle cx="50.5" cy="24.5" r="1.1"/>
+      <circle cx="42" cy="40" r="1.2"/><circle cx="41" cy="60" r="1.3"/>
+      <circle cx="56" cy="52" r=".9"/><circle cx="38.5" cy="50" r="1"/>
+      <circle cx="44" cy="68" r=".8"/><circle cx="58" cy="72" r=".7"/>
+    </g>
+    <!-- fin spine ribs -->
     <path d="M56 22 L58.8 9.5 M48 21 L47 8.5 M40.5 27 L36.5 14.5 M38 33 L30 26.5" stroke="#e8a548" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".9"/>
-    <path d="M57.5 90 l1.5 3.5 M61.5 89.5 l2 4" stroke="none" stroke-width="1" stroke-linecap="round"/>
-    
-    <!-- highlights -->
-    <path d="M42 30 Q44 24 50 22.5" stroke="#fff" stroke-width="1.5" fill="none" opacity=".7" stroke-linecap="round"/>
-    <path d="M38 58 Q39 53 42 51" stroke="#fff" stroke-width="1.3" fill="none" opacity=".6" stroke-linecap="round"/>
+    <!-- toe claws -->
+    <path d="M36.5 93.5 l-.5 1 M42 93.5 l0 1 M49 93.5 l.5 .8 M53.5 93.5 l-.3 1 M59 93.5 l.3 1 M65 93.5 l.5 .8 M68 93.5 l.8 .5" stroke="#2e5c4d" stroke-width=".8" fill="none" stroke-linecap="round"/>
+    <!-- mucus sheen highlights -->
+    <path d="M42 30 Q44 24 50 22.5" stroke="#fff" stroke-width="1.5" fill="none" opacity=".65" stroke-linecap="round"/>
+    <path d="M38 58 Q39 53 42 51" stroke="#fff" stroke-width="1.2" fill="none" opacity=".5" stroke-linecap="round"/>
+    <g stroke="#fff" fill="none" stroke-linecap="round" opacity=".4">
+      <path d="M54 55 Q56 53 58 54" stroke-width=".8"/><path d="M43 76 Q45 75 47 76" stroke-width=".7" opacity=".35"/>
+    </g>
+    <!-- water drips -->
+    <g fill="#bfeee6"><ellipse cx="72" cy="47" rx=".7" ry="1.4" opacity=".5"/><ellipse cx="35" cy="72" rx=".5" ry="1.1" opacity=".4"/><ellipse cx="69" cy="55" rx=".4" ry=".9" opacity=".35"/></g>
     <!-- bubbles -->
-    <g fill="none" stroke="#bfeee6" stroke-width="1.2"><circle cx="76" cy="38" r="1.8"/><circle cx="80" cy="31" r="1.2"/><circle cx="73" cy="30" r=".9"/></g>
+    <g fill="none" stroke="#bfeee6" stroke-width="1.1">
+      <circle cx="76" cy="38" r="1.8"/><circle cx="80" cy="31" r="1.2"/>
+      <circle cx="73" cy="30" r=".9"/><circle cx="78" cy="24" r=".6"/>
+    </g>
+    <g fill="#fff" opacity=".4"><circle cx="75.3" cy="37" r=".4"/><circle cx="79.3" cy="30" r=".3"/></g>
   </g>
 </svg>

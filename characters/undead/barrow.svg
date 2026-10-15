@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Barrow, Lord of the Mound (melee tank) - Burizza art v2. A barrow-wight in the
+     grave-plate of a lord nobody remembers: corroded green iron, moss in every
+     crevice, barrow earth packed in the joints, a burial shroud hanging in rags.
+     Main hand hoists a cracked HEADSTONE as a club - class="wpn".
+     Off hand carries a torn-off section of iron GRAVEYARD FENCE - class="wpn2".
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="68,60">
+  <defs>
+    <linearGradient id="bo-iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#848c72"/><stop offset=".5" stop-color="#5c6350"/><stop offset="1" stop-color="#343a2c"/></linearGradient>
+    <linearGradient id="bo-ironD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e5543"/><stop offset="1" stop-color="#21261b"/></linearGradient>
+    <linearGradient id="bo-bone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe3b7"/><stop offset=".5" stop-color="#c7b98a"/><stop offset="1" stop-color="#8a7e52"/></linearGradient>
+    <linearGradient id="bo-shroud" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3d4439"/><stop offset=".55" stop-color="#2b302a"/><stop offset="1" stop-color="#0f1209"/></linearGradient>
+    <linearGradient id="bo-skin" x1=".3" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#d4dac2"/><stop offset=".5" stop-color="#b9c0a6"/><stop offset="1" stop-color="#8b9279"/></linearGradient>
+    <linearGradient id="bo-stone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#adaf9f"/><stop offset=".55" stop-color="#83867a"/><stop offset="1" stop-color="#53564d"/></linearGradient>
+    <linearGradient id="bo-rail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#929a87"/><stop offset=".45" stop-color="#4e5446"/><stop offset="1" stop-color="#242820"/></linearGradient>
+    <linearGradient id="bo-moss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ebb6d"/><stop offset=".6" stop-color="#7f9a55"/><stop offset="1" stop-color="#4f6430"/></linearGradient>
+    <linearGradient id="bo-earth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f5e40"/><stop offset="1" stop-color="#2d2517"/></linearGradient>
+    <radialGradient id="bo-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f0fff0"/><stop offset=".4" stop-color="#8ee696"/><stop offset="1" stop-color="#2e7a3c" stop-opacity="0"/></radialGradient>
+    <radialGradient id="bo-mist" cx=".5" cy=".85" r=".6"><stop offset="0" stop-color="#8ee696" stop-opacity=".28"/><stop offset="1" stop-color="#8ee696" stop-opacity="0"/></radialGradient>
+    <filter id="bo-glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="1.3"/></filter>
+    <filter id="bo-haze" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4"/></filter>
+  </defs>
+  <!-- ground shadow + grave mist (he is enormous) -->
+  <ellipse cx="50" cy="94" rx="36" ry="4.8" fill="#000" opacity=".42"/>
+  <ellipse cx="50" cy="92" rx="28" ry="4.2" fill="url(#bo-mist)" filter="url(#bo-haze)"/>
+  <!-- the opened mound he clawed out of -->
+  <path d="M8 95 Q17 86 28 88 Q38 81.5 50 86 Q63 81 74 87 Q85 85 93 95 Z" fill="url(#bo-earth)"/>
+  <path d="M15 91 q5-3 10-1 M33 87.5 q6-3 12 -.5 M57 85.5 q7-3 13 .5 M78 88 q5-2 9 1.5" stroke="#8a7550" stroke-width=".7" fill="none" opacity=".45"/>
+  <path d="M12.5 94.5 q3-7 1-13 M18 93.5 q5-6 4.5-11.5 M86 94.5 q-3-6 -1.5-12 M91 93.5 q-5-5 -4.5-10.5" stroke="#4a3b24" stroke-width=".85" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M24 86 q4-4 9-3 M66 84.5 q5-4 10-2" stroke="#7f9a55" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".55"/>
+  <g stroke="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- burial shroud, hanging in rags -->
+    <path d="M33 48 Q14 57 10 94 L16 85 L21 94 L27 84 L33 92.5 L39 82 L46 91.5 L52 81 L59 91.5 L65 82 L72 92.5 L78 83 L84 92 L89.5 84 L90 57 Q77 47 60 46 Z" fill="url(#bo-shroud)"/>
+    <path d="M23 61 Q19 77 17 89 M40 55 Q36 73 34 88 M58 53 Q58 71 57 87 M77 56 Q80 73 82 88" stroke="#121509" stroke-width=".85" fill="none" opacity=".75"/>
+    <path d="M28 70 q5 2 9 0 M63 65 q5 2 9 -1 M45 79 q5 2 9 0 M15 76 q4 2 7 0" stroke="#464d41" stroke-width=".6" fill="none" opacity=".5"/>
+    <path d="M20 73 q4-3 6 1 q-3 4 -6 1 Z M74 62 q4-3 6 1 q-3 4 -6 1 Z M86 79 q4-3 5 1 q-3 3 -5 0 Z" fill="url(#bo-moss)" opacity=".5"/>
+    <!-- back pauldron + off arm -->
+    <path d="M19 59 Q18 45 31 43.5 Q43 45 44 57 L29 64 Z" fill="url(#bo-ironD)"/>
+    <path d="M22 50 Q30 46 39 49.5" stroke="#6b7360" stroke-width=".8" fill="none" opacity=".55"/>
+    <path d="M26 59 Q21 67 23 77 L34 78 Q32 68 39 62 Z" fill="url(#bo-ironD)"/>
+    <!-- short bowed legs -->
+    <path d="M30 71 h17 l-1 11 l-1 8 h-14.5 l1.5 -8 z" fill="url(#bo-ironD)"/>
+    <path d="M53 71 h17.5 l2 11 l1 8 h-15 l-2 -8 z" fill="url(#bo-iron)"/>
+    <path d="M31 78 h15 M32 83 h14 M54 78 h17.5 M55 83 h17.5" stroke="#262b1e" stroke-width=".7" opacity=".55"/>
+    <!-- sabatons, planted -->
+    <path d="M26 86.5 h20 q3 0 3.5 7.5 h-26 q0-7.5 2.5-7.5 z" fill="url(#bo-ironD)"/>
+    <path d="M54 86.5 h19 q4.5 0 5.5 7.5 h-27 q0-7.5 2.5-7.5 z" fill="url(#bo-iron)"/>
+    <path d="M34 88.5 v5.5 M41 88.5 v5.5 M62 88.5 v5.5 M70 88.5 v5.5" stroke="#21261b" stroke-width=".75" opacity=".7"/>
+    <path d="M27 91 q5-2 9 1 M56 91 q6-2 10 1" stroke="#5a4a2e" stroke-width="1.2" fill="none" opacity=".5"/>
+    <!-- broad corroded cuirass -->
+    <path d="M26 57 Q34 47 50 46 Q68 46 75.5 56 L73 73 Q50 79.5 27 73 Z" fill="url(#bo-iron)"/>
+    <path d="M29.5 59 Q50 53 72 58 M28.5 64.5 Q50 59 73 63.5" stroke="#3a4131" stroke-width=".85" fill="none" opacity=".6"/>
+    <path d="M30 60 q6-2 11 -.5 M56 62.5 q7-2 13 .5 M34 69.5 q8-2 14 .5" stroke="#5a4a2e" stroke-width="1.1" fill="none" opacity=".45"/>
+    <path d="M33 62 q5-3 8 0 q-4 4 -8 1 Z M63 67 q5-3 8 0 q-4 4 -8 1 Z M44 73.5 q5-2 8 1 q-4 3 -8 0 Z" fill="url(#bo-moss)" opacity=".6"/>
+    <!-- the forgotten lord's breast sigil -->
+    <path d="M50 53.5 l7.5 4.5 v7 l-7.5 5 l-7.5 -5 v-7 z" fill="url(#bo-bone)" opacity=".85"/>
+    <path d="M50 58 v8 M46 60.5 h8 M47 64 h6" stroke="#6f6440" stroke-width=".7" fill="none" opacity=".7"/>
+    <!-- rivet-studded belt -->
+    <rect x="25" y="67" width="50" height="7" rx="1.8" fill="url(#bo-ironD)"/>
+    <g fill="#8d8257"><circle cx="30" cy="70.5" r=".8"/><circle cx="36.5" cy="70.5" r=".8"/><circle cx="43" cy="70.5" r=".8"/><circle cx="57" cy="70.5" r=".8"/><circle cx="63.5" cy="70.5" r=".8"/><circle cx="70" cy="70.5" r=".8"/></g>
+    <path d="M45.5 65.5 h9 l-1 9.5 l-3.5 2.5 l-3.5 -2.5 z" fill="url(#bo-bone)"/>
+    <path d="M47.5 69 h5 M48 72.5 h4" stroke="#6f6440" stroke-width=".6" opacity=".7"/>
+    <!-- fauld over the hips -->
+    <path d="M28 74 h44 l-2 7.5 q-20 4 -40 0 z" fill="url(#bo-ironD)"/>
+    <path d="M38 74.5 v6.5 M50 74.5 v7 M62 74.5 v6.5" stroke="#21261b" stroke-width=".7" opacity=".6"/>
+    <!-- what little corpse flesh shows, then the thick gorget -->
+    <path d="M47 42 Q56 39 65 42 L65 49 Q56 52 47 49 Z" fill="url(#bo-skin)"/>
+    <path d="M50 45.5 q3-1.5 6 0 M51 48 q3-1.2 5 0" stroke="#8b9279" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M39.5 46 Q56 39.5 71.5 46 L70.5 54.5 Q56 61 40.5 54.5 Z" fill="url(#bo-ironD)"/>
+    <path d="M42.5 48 Q56 43 68.5 48 M43 52 Q56 47.5 68 52" stroke="#6b7360" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- horned great-helm -->
+    <path d="M46 44.5 L45.5 28 Q45.5 16.5 56.5 16 Q68 16.5 68.5 28 L69 42.5 Q58 49 46 44.5 Z" fill="url(#bo-iron)"/>
+    <path d="M45.5 28 L45.6 17.5 Q48.5 16.2 51.5 16.2 L50.5 45.8 Q47.5 45.4 46 44.5 Z" fill="#262b20" opacity=".5"/><path d="M50 25.8 Q57.5 20.8 66.5 25.2" stroke="#8e977c" stroke-width=".8" fill="none" opacity=".45"/>
+    <path d="M46.5 38 q4-3 7 0 q-3 4 -7 1 Z" fill="url(#bo-moss)" opacity=".5"/>
+    <!-- crown band of a lord nobody remembers -->
+    <path d="M48 22 l2.2 -4 l2.2 4 M55 21.5 l2.2 -4.5 l2.2 4.5 M62 22 l2.2 -4 l2.2 4" fill="url(#bo-bone)"/><rect x="44.8" y="21.5" width="24.4" height="3.8" rx="1.2" fill="url(#bo-bone)"/>
+    <g fill="#6f6440"><circle cx="48" cy="23.4" r=".55"/><circle cx="54" cy="23.4" r=".55"/><circle cx="60" cy="23.4" r=".55"/><circle cx="66" cy="23.4" r=".55"/></g>
+    <!-- grave-horns -->
+    <path d="M46.5 28.5 Q37 26 33 16 Q32 12 34 9.5 Q35.5 17.5 42 21.5 Q45 23.5 48 25 Z M68 27.5 Q76 24.5 79 15.5 Q80 11.5 78 9 Q77 17 71 21 Q68.5 23 66.5 24.5 Z" fill="url(#bo-bone)"/>
+    <path d="M38 19 Q35.5 16 34.5 12 M43 22.5 Q40 20.5 38 16.5 M73 18.5 Q76 15.5 77 11.5 M69.5 22 Q72.5 19.5 74.5 15.5" stroke="#7d7249" stroke-width=".55" fill="none" opacity=".7"/>
+  </g>
+  <!-- dark visor slot + breath slits -->
+  <path d="M50 30.6 Q58.5 27.4 69 29 L69 36.2 Q58.5 38 50.5 35.4 Z" fill="#10140e"/>
+  <path d="M50.6 31.4 Q58.5 28.7 68.4 30.2" stroke="#3a4134" stroke-width=".6" fill="none" opacity=".8"/>
+  <path d="M61.5 40 h5.5 M61 42.4 h6 M63 37.6 h4" stroke="#1a1f16" stroke-width=".9" stroke-linecap="round" opacity=".85"/>
+  <!-- two grave-green eyes burning inside the helm -->
+  <g fill="url(#bo-eye)" opacity=".95"><ellipse cx="56.4" cy="32.5" rx="3.8" ry="3.3"/><ellipse cx="63" cy="32.7" rx="4.2" ry="3.5"/></g>
+  <circle cx="56.4" cy="32.5" r="1.4" fill="#8ee696" filter="url(#bo-glow)"/><circle cx="63" cy="32.7" r="1.6" fill="#8ee696" filter="url(#bo-glow)"/>
+  <circle cx="56.4" cy="32.5" r=".65" fill="#eaffea"/><circle cx="63" cy="32.7" r=".75" fill="#eaffea"/>
+  <g stroke="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- huge front pauldron -->
+    <path d="M58 57 Q58 43 70 41.5 Q83 43 83 56.5 L68 64 Z" fill="url(#bo-iron)"/>
+    <path d="M61 48.5 Q70.5 44.5 80 48.5" stroke="#8e977c" stroke-width=".9" fill="none" opacity=".5"/>
+    <path d="M62 54 q5-3 9 0 q-4 4 -9 1 Z" fill="url(#bo-moss)" opacity=".55"/>
+    <g fill="#8d8257"><circle cx="63" cy="51.5" r=".7"/><circle cx="70" cy="50" r=".7"/><circle cx="77" cy="51.5" r=".7"/></g>
+    <!-- front arm -->
+    <path d="M61 55 Q74 55 78.5 62.5 L72 69.5 L59 62 Z" fill="url(#bo-iron)"/>
+    <path d="M65 58.5 q5.5 .5 8.5 3.5" stroke="#3a4131" stroke-width=".7" fill="none" opacity=".5"/>
+  </g>
+  <!-- MAIN HAND: a cracked HEADSTONE hoisted to come down -->
+  <g transform="rotate(28 68 60)">
+    <rect class="wpn" x="65.2" y="37" width="5.8" height="26" rx="1.8" fill="url(#bo-stone)"/>
+    <path class="wpn" d="M60 43 L60 24 Q60 11 68 11 Q76 11 76 24 L76 43 Q68 46.5 60 43 Z" fill="url(#bo-stone)"/>
+    <path class="wpn" d="M60.6 24.5 Q60.6 12 68 12" fill="none" stroke="#c3c5b6" stroke-width=".9" opacity=".45"/>
+    <path class="wpn" d="M63.5 18 h9 M62.8 21.5 h10.4 M63.5 25 h8.6 M62.8 28.5 h10.4 M64.5 32 h7.5" stroke="#5f6359" stroke-width=".8" stroke-linecap="round" opacity=".5"/>
+    <path class="wpn" d="M60 34 l5 -3.5 l4 4.5 l7 -5" fill="none" stroke="#4a4e45" stroke-width="1" stroke-linejoin="round"/><path class="wpn" d="M60 34.6 l5 -3.5 l4 4.5 l7 -5" fill="none" stroke="#a9ab9c" stroke-width=".4" stroke-linejoin="round" opacity=".5"/>
+    <path class="wpn" d="M60 19 q3 3 2.4 8 q-.6 6 -2.4 10 Z M60 38.5 q4-3 8 .5 q4 3.5 8 -1 l0 5 q-8 3.5 -16 0 Z" fill="url(#bo-moss)" opacity=".6"/>
+    <path class="wpn" d="M73.8 11.8 l2.2 2.8 l-2.8 1 Z" fill="#4a4e45" opacity=".7"/><path class="wpn" d="M66 44 q2 2.5 4.5 .3" fill="none" stroke="#3f4239" stroke-width=".7" opacity=".6"/>
+    <path class="wpn" d="M65.6 46 h5 M65.4 51 h5.4 M65.6 56 h5" stroke="#4a4e45" stroke-width=".8" opacity=".5"/>
+  </g>
+  <!-- gauntlet fist clenched on the headstone at data-hand -->
+  <circle cx="68.5" cy="60.5" r="5.4" fill="url(#bo-ironD)"/><path d="M65.5 56.5 q4-2 7.5 0" stroke="#9aa38c" stroke-width=".6" fill="none" opacity=".4"/>
+  <path d="M64.4 58 q4.2-2 8.2 .2 M64.4 61 q4.2-2 8.2 .2 M64.9 64 q3.7-2 7.2 .2" stroke="#6b7360" stroke-width=".75" fill="none" stroke-linecap="round" opacity=".65"/>
+  <!-- OFF HAND: a torn-off section of iron GRAVEYARD FENCE, carried as a shield -->
+  <g class="wpn2" transform="rotate(-6 27 62)">
+    <path class="wpn2" d="M16.2 30.5 L18.7 40 L13.7 40 Z M23.7 29 L26.2 38.5 L21.2 38.5 Z M31.2 28.5 L33.7 38 L28.7 38 Z M38.7 29.5 L41.2 39 L36.2 39 Z" fill="url(#bo-rail)"/>
+    <path class="wpn2" d="M16.2 30.5 l1.3 5 h-2.6 z M23.7 29 l1.3 5 h-2.6 z M31.2 28.5 l1.3 5 h-2.6 z M38.7 29.5 l1.3 5 h-2.6 z" fill="#8ee696" filter="url(#bo-glow)"/><path class="wpn2" d="M16.2 31.5 l.8 3 h-1.6 z M23.7 30 l.8 3 h-1.6 z M31.2 29.5 l.8 3 h-1.6 z M38.7 30.5 l.8 3 h-1.6 z" fill="#e8ffe8"/>
+    <rect class="wpn2" x="14.9" y="39" width="2.6" height="47" rx=".6" fill="url(#bo-rail)"/><rect class="wpn2" x="22.4" y="37.5" width="2.6" height="48.5" rx=".6" fill="url(#bo-rail)"/>
+    <rect class="wpn2" x="29.9" y="37" width="2.6" height="49" rx=".6" fill="url(#bo-rail)"/><rect class="wpn2" x="37.4" y="38" width="2.6" height="48" rx=".6" fill="url(#bo-rail)"/>
+    <rect class="wpn2" x="11.5" y="45.5" width="32" height="3.2" rx="1" fill="url(#bo-rail)"/><rect class="wpn2" x="11.5" y="71.5" width="32" height="3.2" rx="1" fill="url(#bo-rail)"/>
+    <path class="wpn2" d="M19 62.5 q0-7.5 8-7.5 q8 0 8 7.5 q0 6 -6 6 q-5 0 -5 -4.5 q0-3.5 3.6-3.5" fill="none" stroke="url(#bo-rail)" stroke-width="2.3" stroke-linecap="round"/>
+    <path class="wpn2" d="M19 62.5 q-1.5 6 3.5 8.5 M35 62.5 q1.5 6 -3.5 8.5" fill="none" stroke="url(#bo-rail)" stroke-width="1.8" stroke-linecap="round"/>
+    <path class="wpn2" d="M11.5 46 h32 M11.5 72 h32" stroke="#9aa38c" stroke-width=".5" opacity=".35"/>
+    <path class="wpn2" d="M15 54 q2.4 3 0 6 M30 78 q2.4 3 0 5.5 M22.5 42 q2.4 2.5 0 5" stroke="#6b5230" stroke-width="1.3" fill="none" opacity=".45"/>
+    <path class="wpn2" d="M21.6 78 q3.4-2.5 5.4 1 q-3 3.4 -5.4 .4 Z M36.6 55.5 q3.4-2.5 5.4 1 q-3 3.4 -5.4 .4 Z M13.2 66 q3-2 4.8 1 q-2.6 3 -4.8 .3 Z" fill="url(#bo-moss)" opacity=".6"/>
+    <path class="wpn2" d="M14.9 86 l1.3 2.5 l1.3 -2.5 M29.9 86 l1.3 2.8 l1.3 -2.8" fill="#2b302a"/>
+  </g>
+  <!-- off gauntlet clenched round a bar -->
+  <circle cx="29.5" cy="70" r="5" fill="url(#bo-ironD)"/><path d="M25.7 67.6 q3.8-2 7.6 .2 M25.7 70.5 q3.8-2 7.6 .2 M26.2 73.4 q3.4-2 6.6 .2" stroke="#6b7360" stroke-width=".75" fill="none" stroke-linecap="round" opacity=".65"/>
+  <!-- Lord of the Mound: the dead crowd round their lord -->
+  <path d="M13.5 94 l-.8 -6 M15.8 94 l-.2 -7 M18 93.5 l1 -6.5 M20.2 94 l1.6 -5.5 M84 94 l-1.2 -5.5 M86.2 94 l-.5 -6.5 M88.4 93.5 l.6 -6 M90.5 94 l1.6 -5" stroke="#b9c0a6" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M12.8 89 q3.5-2.2 8 -1 M83.4 89.5 q3.6-2.2 7.8 -.8" stroke="#b9c0a6" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".8"/>
+  <!-- grave-light motes -->
+  <g fill="#8ee696"><circle cx="21" cy="29" r=".8" opacity=".7"/><circle cx="85" cy="55" r=".7" opacity=".6"/><circle cx="11" cy="52" r=".6" opacity=".55"/><circle cx="44" cy="19" r=".55" opacity=".5"/><circle cx="92" cy="68" r=".6" opacity=".5"/><circle cx="7" cy="38" r=".5" opacity=".45"/><circle cx="52" cy="84" r=".5" opacity=".4"/></g>
+  <!-- highlights -->
+  <path d="M50 24 Q53 17.8 59.5 17.4" stroke="#fff" stroke-width="1.3" fill="none" opacity=".5" stroke-linecap="round"/>
+  <path d="M61 47.5 Q69.5 43.5 78.5 48" stroke="#fff" stroke-width="1.3" fill="none" opacity=".45" stroke-linecap="round"/><path d="M29.5 54 Q34.5 47 42 46" stroke="#fff" stroke-width="1.1" fill="none" opacity=".32" stroke-linecap="round"/>
+  <path class="wpn" d="M61.5 14.5 Q60.3 26 61.3 38" transform="rotate(28 68 60)" stroke="#fff" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round"/>
+</svg>

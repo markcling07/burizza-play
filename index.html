@@ -558,6 +558,7 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .tok.e.summon { bottom: 4px; }
 .tok.summon .face { border-style: dashed; }
 .tok.illusion .face, .unit.illusion .upic { opacity: .6; filter: hue-rotate(160deg) saturate(1.4); }
+.unit.cloned .upic > :is(.art, svg, .anim) { filter: brightness(0.7) saturate(0.6); opacity: 0.6; }
 .tok .st {
   position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap;
   font-size: .6rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
@@ -2960,8 +2961,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 const FACTIONS = {
   mech:  { name: 'Ironclad Union',     mechanic: 'Heat',
            rule: 'Every action builds Heat, filling the overheat bar in quarters (25 / 50 / 75 / 100) and adding up to 40% damage. Each quarter sears anyone who closes to melee with it — a melee attacker striking the Mech, or a melee Mech striking home — for 10 / 20 / 30 / 40. Ranged units trade fire from a safe distance and are never seared. At 100 Heat the unit overheats and skips its next turn; Guard vents 50 Heat. Water douses it: a Soaked unit (from Tideborn hits or a Downpour) drops to 0 Heat and cannot build any until the Soaked wears off. A destroyed Ironclad champion leaves a Salvage Bot behind. Machines don\'t bleed: Ironclad units are immune to Bleed.' },
-  cog:   { name: 'The Cogbound',       mechanic: 'Heat',
-           rule: 'Cast out of the Ironclad foundries and still running on their fire. The Cogbound build Heat exactly as the Union does — every action fills the overheat bar in quarters, adding up to 40% damage, searing whoever closes to melee, and costing a turn at 100. What they did with their exile is ride: a Cogbound bolts onto someone else\'s back, friend or enemy, and makes that body the weapon.' },
+  stray: { name: 'The Stray Banner',   mechanic: 'Mixed',
+           rule: 'A flag nobody recognises — five fighters who left everything behind. No unified resource: each carries whatever kept them alive on the road. The sword-thrower spends blades, the mech still runs on foundry heat, the rest hold mana. What they share is not a system but a direction.' },
   orc:   { name: 'Bloodtusk Horde',    mechanic: 'Rage',
            rule: 'Deals more damage the more hurt it is, up to +50% near death.' },
   human: { name: 'Kingdom of Aldmere', mechanic: 'Discipline',
@@ -2990,7 +2991,7 @@ const theFaction = (f, start = false) => `${start ? 'The' : 'the'} ${f.name.repl
    the role's base pool × the faction's multiplier. Skills and ultimates cost mana;
    it regenerates every turn, Attack restores a little and Guard restores more. */
 const MANA = {
-  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0, riftborn: 1, cog: 0 },   // Heat-runners carry no mana, as the Union does not
+  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0, riftborn: 1, stray: 1 },   // Stray Banner uses mana by default; Riven runs on swords, Automaton X on heat
   skillCost: 20, skill2Cost: 25, ultCost: 40,   // default costs; a skill can override with o.mp
   poolScale: 0.9,                       // champions' own pool runs 10% leaner (gear and passives add on top, in full)
   spellExtra: 10, healExtra: 20,        // every spell costs 10 MP over its listed price; a healing skill 20 more on top of that
@@ -3760,6 +3761,16 @@ const VHARO_CMD_MULT = 0.5;      // each commanded blade's share when they tear 
 const VHARO_RECALL_TURNS = 2;
 const VHARO_HARVEST_MULT = 0.6;   // each blade's share when it tears back out the way it went in
 
+const ZULKAN_RETALIATORY = 0.5;   // 50% chance to bash anyone who swings at him
+const ZULKAN_RED_HP = 0.3;        // Red Blood threshold
+const ZULKAN_RED_BONUS = 0.2;     // +20% damage below that line
+const ZULKAN_AIRBORNE = 2;        // turns the target hangs in the air
+
+const RYUU_CLONE_MULT = 1.0;     // clone strikes at 100% of his base damage
+const RYUU_MARK_TURNS = 3;       // Mark of Death duration
+const RYUU_MARK_BONUS = 0.15;    // +15% damage against a marked target
+const RYUU_KILL_SPEED = 250;     // bar ground gained on a kill (Shadow Step)
+
 const ROSTER = [
   // ---- Ironclad Union (Mech) ----
   { id: 'bulwark', name: 'Bulwark-7', faction: 'mech', role: 'melee', bio: 'Hulking frontline war machine.',
@@ -4162,8 +4173,8 @@ const ROSTER = [
              B('Stolen Hours', 'The grave pockets an enemy\'s hours: they are dragged a quarter of the way back down the speed bar and left Leaden for 2 turns — their cooldowns do not run down.', 5, 'enemy', [['leaden', 2]], { dragBack: 250 })],
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
 
-  // ---- The Riftborn (cosmic forces; Resonance) ----
-  { id: 'vharo', name: 'Vharo', faction: 'cog', role: 'ranged', bio: 'A light-channeler who throws his blades away and calls them home.',
+  // ---- The Stray Banner (no unified resource; each carries their own) ----
+  { id: 'riven', name: 'Riven', faction: 'stray', role: 'ranged', bio: 'A light-channeler who throws his blades away and calls them home.',
     mods: { atk: 1.2, hp: 0.85, agi: 1.05 },
     look: { body: 'wraith', main: '#3a3326', trim: '#ffd166', eye: '#ffe489' },
     skills: [D('Lightlance', '115% light, thrown flat and fast.', 2, 1.15, { magic: true, attackType: 'horizontal' }),
@@ -4174,17 +4185,18 @@ const ROSTER = [
              D('Blade Harvest', 'Every blade standing in one body rips back out the way it went in — and comes home to his hand.', 3, VHARO_HARVEST_MULT, { magic: true, swordHarvest: true, attackType: 'horizontal' })],
     nature: { name: 'Unblinking', desc: `His throws never miss. Each one spends a blade into the body it finds, and killing that body gives the blade back. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
     passive: P('Sunforged', '+8% critical hit chance.', { stat: { crit: 0.08 } }) },
-  { id: 'orin', name: 'Orin', faction: 'cog', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
+  { id: 'automatonx', name: 'Automaton X', faction: 'stray', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
     mods: { atk: 0.95, hp: 0.9, agi: 1.15 },
     look: { body: 'bot', main: '#6d7482', trim: '#e8a548', eye: '#ffcf6b' },
     skills: [D('Spanner Swing', '100% hit with whatever is to hand.', 2, 1.0, {}),
-             B('Piggyback Rig', `Orin bolts onto an ally's back for ${ORIN_RIDE_TURNS} turns: they run ${ORIN_RIDE_PUSH} further along the bar at every turn of theirs, and he swings in straight after every attack they make. No single blow can find him while he rides, though area attacks still catch him.`, 5, 'ally', [], { ride: true, notSelf: true, aiTarget: 'lowest' }),
-             B('Seize the Arm', `Orin clamps onto an enemy and disarms them for ${ORIN_GRIP_TURNS} turn, grinding ${ORIN_GRIP_DMG} off them every Rev he holds on. He is in the open while he does it — anyone can pull him off, and it will kill him.`, 4, 'enemy', [], { grip: true }),
+             B('Piggyback Rig', `Automaton X bolts onto an ally's back for ${ORIN_RIDE_TURNS} turns: they run ${ORIN_RIDE_PUSH} further along the bar at every turn of theirs, and he swings in straight after every attack they make. No single blow can find him while he rides, though area attacks still catch him.`, 5, 'ally', [], { ride: true, notSelf: true, aiTarget: 'lowest' }),
+             B('Seize the Arm', `Automaton X clamps onto an enemy and disarms them for ${ORIN_GRIP_TURNS} turn, grinding ${ORIN_GRIP_DMG} off them every Rev he holds on. He is in the open while he does it — anyone can pull him off, and it will kill him.`, 4, 'enemy', [], { grip: true }),
              S('Rush Bot', 'Welds a bot that charges the moment it lands: it strikes an enemy at random, then runs to a random ally and shoves them up the speed bar.', 4, 'rushbot', {}),
              B('Overclock', 'Runs an ally\'s gears past their rating: they are driven up the speed bar and strike 30% harder for 2 turns.', 3, 'ally', [['empower', 3]], { overclock: true, aiTarget: 'lowest' }),
              H('Hammer Weld', `Beats an ally back into shape with his own fire. On anything cast rather than born — a bot, a hot hull — the weld takes properly and mends ${Math.round((ORIN_WELD_METAL - 1) * 100)}% more, and ${ORIN_WELD_VENT} Heat is bled out while the panels are open. Best of all on the back he is already bolted to.`, 3, ORIN_WELD_MULT, { weld: true })],
+    nature: { name: 'Foundry-Cast', desc: 'Built in the Union\'s own moulds. Runs on Heat, not mana — every action fills the overheat bar.', heat: 1 },
     passive: P('Foundry-Cast', 'Built in the Union\'s own moulds: +10% Heat damage and the overheat bar fills a little slower.', { stat: { heatMult: 0.1 } }) },
-  { id: 'resh', name: 'Resh', faction: 'riftborn', role: 'support', bio: 'A sound-shaper who moves the war to his own time.',
+  { id: 'shazrak', name: 'Fin-Keeper Shazrak', faction: 'stray', role: 'support', bio: 'A sound-shaper who moves the war to his own time.',
     mods: { atk: 0.9, hp: 1.0, agi: 1.1 },
     look: { body: 'wraith', main: '#2a2440', trim: '#5fcad1', eye: '#5fcad1' },
     skills: [D('Clarion', '110% sonic blast.', 2, 1.1, { magic: true, mp: 15 }),
@@ -4193,9 +4205,32 @@ const ROSTER = [
              S('Unweaving Stone', 'Raises a stone that thins enemy magic wards by another 6% every turn it stands.', 3, 'tot_ward', { mp: 25 }),
              S('Storm Cairn', 'Raises a cairn that looses a shock at the soundest enemy every third Rev, for 2% of their health.', 4, 'tot_shock', { mp: 30 }),
              S('Bulwark Stone', 'Raises a brittle stone that draws every enemy blow and throws it back, split evenly among them. Two blows and it breaks.', 4, 'tot_taunt', { mp: 30 }),
-             B('Binding Chord', 'Pins an enemy for a turn, and a quarter-turn more for every stone of his standing. Shocks them while they are held. Bash, Stun or Silence on Resh snaps the note.', 5, 'enemy', [], { reshHold: true, mp: 35 }),
-             B('Mana Battery', 'Hands half of what Resh is holding to an ally.', 4, 'ally', [], { battery: true, mp: 0, aiTarget: 'lowest' })],
+             B('Binding Chord', 'Pins an enemy for a turn, and a quarter-turn more for every stone of his standing. Shocks them while they are held. Bash, Stun or Silence on Shazrak snaps the note.', 5, 'enemy', [], { reshHold: true, mp: 35 }),
+             B('Mana Battery', 'Hands half of what Shazrak is holding to an ally.', 4, 'ally', [], { battery: true, mp: 0, aiTarget: 'lowest' })],
     passive: P('Shared Burden', `Carries ${Math.round(RESH_MANA_SHARE * 100)}% of every ally's casting cost from his own pool; when he runs dry the caster covers the rest. +25 max MP and +3 MP every turn.`, { stat: { mp: 25, mpRegen: 3 } }) },
+  { id: 'zulkan', name: "Zul'kan", faction: 'stray', role: 'melee', bio: 'Red orc exile. Controls the battlefield through bash and displacement.',
+    mods: { hp: 1.2, def: 1.2, atk: 0.95, agi: 0.85 },
+    look: { body: 'orc', main: '#8a2a1a', trim: '#c47a3a', skin: '#a04030', weapon: 'hammer' },
+    nature: { name: 'Red Blood', desc: `Below ${Math.round(ZULKAN_RED_HP * 100)}% HP his bash lasts a turn longer and he hits ${Math.round(ZULKAN_RED_BONUS * 100)}% harder — the redder the blood, the harder the fist.`, redblood: 1 },
+    skills: [D('Ground Slam', '140% blow that lifts the target and smashes them into the dirt. Every other enemy is bashed for 1 turn by the shock.', 4, 1.4, { fx: [['bash', 1]], splashBash: 1, mp: 25 }),
+             D('Skyward Smash', `160% uppercut that launches the target out of the fight for ${ZULKAN_AIRBORNE} turns. Untargetable during the first.`, 4, 1.6, { fx: [['bash', ZULKAN_AIRBORNE]], mp: 25 }),
+             B('War Cry', 'Taunts all enemies for 1 turn. Forced swings trigger Retaliatory Bash.', 4, 'self', [['taunt', 2]], { mp: 20 }),
+             D('Seismic Toss', '120% — grabs a bashed enemy and hurls them at another. Both are bashed for 1 turn.', 3, 1.2, { requireFx: 'bash', bounce: 1.0, fx: [['bash', 1]], mp: 20 }),
+             B('Iron Stance', `Braces: takes 50% less damage for 2 turns and Retaliatory Bash becomes a certainty.`, 4, 'self', [['ward', 2]], { ironStance: true, mp: 20 }),
+             D('Tremor', '55% to all enemies. Drags every one of them back along the speed bar.', 3, 0.55, { aoe: true, dragBack: 150, mp: 25 })],
+    passive: P('Retaliatory Bash', `Enemies that strike him have a ${Math.round(ZULKAN_RETALIATORY * 100)}% chance to be bashed for 1 turn.`, { retaliatory: { chance: ZULKAN_RETALIATORY, fx: ['bash', 1] } }) },
+  { id: 'ryuunosuke', name: 'Ryuunosuke', faction: 'stray', role: 'melee', bio: 'Masterless samurai with a permanent shadow clone.',
+    mods: { atk: 1.15, hp: 0.9, agi: 1.2 },
+    look: { body: 'wraith', main: '#1a1a2a', trim: '#c04848', eye: '#c04848' },
+    nature: { name: 'Invulnerable Clone', desc: `A shadow walks behind him. Whenever he attacks or casts, the clone strikes a random enemy from behind for ${Math.round(RYUU_CLONE_MULT * 100)}% of his base damage. The clone is untouchable.`, clone: 1 },
+    skills: [D('Shadow Matrix', 'Replicas appear behind every enemy. Ryuunosuke vanishes. Next turn: all replicas slash. Cannot be dodged.', 5, 0.8, { aoe: true, noDodge: true, shadowMatrix: true, mp: 35 }),
+             D('Iaijutsu', 'Lightning draw. If the clone hits the same target this turn, both strikes deal 30% more.', 2, 1.3, { iaijutsu: true, mp: 10 }),
+             B('Mark of Death', `Marks an enemy for ${RYUU_MARK_TURNS} turns: the clone targets only them, and they take ${Math.round(RYUU_MARK_BONUS * 100)}% more damage from Ryuunosuke.`, 4, 'enemy', [['deathmark', RYUU_MARK_TURNS]], { aiTarget: 'highest', mp: 20 }),
+             B('Smoke Veil', 'Vanishes for 1 turn. Untargetable, but his clone keeps striking.', 4, 'self', [['cloak', 1]], { mp: 20 }),
+             D('Twin Slash', '180% — Ryuunosuke and his clone coordinate a simultaneous strike. Guaranteed critical hit.', 4, 1.8, { autoCrit: true, mp: 25 }),
+             D('Blade Dance', '50% twice to every enemy — Ryuunosuke dashes through the warband while the clone mirrors from the other side.', 4, 0.5, { aoe: true, hits: 2, mp: 30 })],
+    passive: P('Shadow Step', `Defeating an enemy fills his speed bar by ${Math.round(RYUU_KILL_SPEED / 10)}%.`, { killSpeed: RYUU_KILL_SPEED }),
+    passiveAlt: P('Killing Intent', '+5% damage for every dead enemy, up to +20%.', { killStack: { per: 0.05, max: 0.2 } }) },
 ];
 // The champions that appear in play — the full roster minus any shelved faction (see HIDDEN_FACTIONS).
 // charById and makeUnit still read the whole ROSTER, so nothing breaks; only who you can recruit, roll
@@ -4245,7 +4280,7 @@ const isTotem = (u) => !!u && !!u.summon && !!SUMMONS[u.id]?.totem;
    two places disagreeing about a price is how a spell becomes free. */
 function reshSplit(u, cost) {
   if (!cost || u.summon) return { self: cost, burden: 0, bearer: null };
-  const bearer = alliesOf(u).find((a) => a.id === 'resh' && a.uid !== u.uid && a.hp > 0 && !a.summon);
+  const bearer = alliesOf(u).find((a) => a.id === 'shazrak' && a.uid !== u.uid && a.hp > 0 && !a.summon);
   if (!bearer) return { self: cost, burden: 0, bearer: null };
   const want = Math.ceil(cost * RESH_MANA_SHARE);
   const burden = Math.min(want, bearer.mp || 0);
@@ -4298,7 +4333,7 @@ async function reshHold(u, t) {
 
 // Bash, Stun or Silence on Resh cuts the note: anyone he was holding goes free.
 function reshHoldBreaks(u) {
-  if (!u || u.id !== 'resh') return;
+  if (!u || u.id !== 'shazrak') return;
   for (const f of foesOf(u)) {
     const held = f.effects.find((e) => e.id === 'stun' && e.reshHold === u.uid);
     if (!held) continue;
@@ -5730,7 +5765,7 @@ function dirPose(deg) {
    Switch ART_EXT to 'png' once your art is PNG. If a file is missing,
    the built-in placeholder drawing below is used instead. */
 const ART_EXT = 'svg';
-const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead', riftborn: 'riftborn', cog: 'cog' };
+const ART_FOLDER = { mech: 'mech', orc: 'orc', human: 'human', stone: 'stoneleaf', tide: 'tideborn', crimson: 'crimson', undead: 'undead', riftborn: 'riftborn', stray: 'stray' };
 
 /* ==================================================================
    MONSTERS — the wild things of Emberhollow Cave. They fight with the
@@ -7364,8 +7399,8 @@ function fell(v, by) {
   }
   log(`${v.name} is down.`, 'sys');
   if (v.lodged) {
-    const vharo = [...state.teams.p, ...state.teams.e].find((a) => a.maxSwords && a.hp > 0 && a.side !== v.side);
-    if (vharo) { vharo.swords = Math.min(vharo.maxSwords, vharo.swords + v.lodged); float(vharo, `⚔ ${vharo.swords}/${vharo.maxSwords}`, 'fx'); returnSwordFx(v, vharo); }
+    const swordUser = [...state.teams.p, ...state.teams.e].find((a) => a.maxSwords && a.hp > 0 && a.side !== v.side);
+    if (swordUser) { swordUser.swords = Math.min(swordUser.maxSwords, swordUser.swords + v.lodged); float(swordUser, `⚔ ${swordUser.swords}/${swordUser.maxSwords}`, 'fx'); returnSwordFx(v, swordUser); }
     v.lodged = 0;
   }
   feastOfTheFallen(v);
@@ -7422,7 +7457,7 @@ const HEAT_TIERS = [25, 50, 75, 100];
 // address, not by build: his blades are his gauge, spent one per throw, so he carries no overheat
 // bar and no Heat ramp. coldlight takes the whole mechanic away with it, rather than leaving him a
 // bar-less stat nobody can see.
-const runsHot = (u) => (u.faction === 'mech' || u.faction === 'cog') && !charNat(u).coldlight;
+const runsHot = (u) => (u.faction === 'mech' || charNat(u).heat) && !charNat(u).coldlight;
 const heatTier = (u) => (runsHot(u) ? HEAT_TIERS.filter((h) => u.heat >= h).length : 0);
 const contactBurn = (u) => Math.round(heatTier(u) * 10 * (1 + (u.heatMult || 0)));   // 10 / 20 / 30 / 40 seared per contact
 
@@ -8671,8 +8706,8 @@ const TURNCOAT_BACK = 500;
 
 function addFx(u, id, turns, value = 0, quiet = false) {
   if (u.inert && id !== 'taunt') return;   // a planted Grave Cross takes nothing but its own Taunt
-  // Resh holding someone is Resh concentrating: break him and the note stops.
-  if (RESH_BREAKERS[id] && u.id === 'resh' && !u.summon) reshHoldBreaks(u);
+  // Shazrak holding someone is Shazrak concentrating: break him and the note stops.
+  if (RESH_BREAKERS[id] && u.id === 'shazrak' && !u.summon) reshHoldBreaks(u);
   // Bone Charm (immune) and Thick Skull (passive immune list) stop new debuffs.
   if (FX[id].kind === 'bad' && id !== 'overheat' && (has(u, 'immune') || pv(u).immune?.includes(id))) {
     if (!quiet) { float(u, 'Resisted', 'fx'); log(`${u.name} resists ${FX[id].label}.`, u.side); }
@@ -18460,6 +18495,97 @@ const WEAPON_STRIKES = {
 // Mordrek's other named cross swing shares his basic-attack arc (strikePose looks skills up by name).
 WEAPON_STRIKES['mordrek:Bonebreaker'] = WEAPON_STRIKES.mordrek;
 
+WEAPON_STRIKES.zulkan = {
+  ms: 1100, hit: 0.72,
+  wpn: [
+    { transform: 'translate(0px, 0px) rotate(0deg)' },
+    { transform: 'translate(-10px, -32px) rotate(-24deg)', offset: 0.35, easing: 'ease-in' },
+    { transform: 'translate(-12px, -36px) rotate(-28deg)', offset: 0.55, easing: 'cubic-bezier(.6,0,1,.5)' },
+    { transform: 'translate(6px, 8px) rotate(130deg)', offset: 0.72 },
+    { transform: 'translate(5px, 8px) rotate(126deg)', offset: 0.86 },
+    { transform: 'translate(0px, 0px) rotate(0deg)' }
+  ],
+  body: (d) => [
+    { transform: 'none' },
+    { transform: `translateX(${-d * 4}px) rotate(${-d * 6}deg)`, offset: 0.35 },
+    { transform: `translateX(${-d * 5}px) translateY(-3px) rotate(${-d * 7}deg)`, offset: 0.55 },
+    { transform: `translateX(${d * 14}px) translateY(4px) rotate(${d * 10}deg)`, offset: 0.72 },
+    { transform: `translateX(${d * 12}px) translateY(4px) rotate(${d * 9}deg)`, offset: 0.86 },
+    { transform: 'none' }
+  ]
+};
+WEAPON_STRIKES['zulkan:Ground Slam'] = {
+  ms: 950, hit: 0.65,
+  wpn: [
+    { transform: 'translate(0px, 0px) rotate(0deg)' },
+    { transform: 'translate(-6px, -38px) rotate(-14deg)', offset: 0.4, easing: 'ease-in' },
+    { transform: 'translate(8px, 12px) rotate(85deg)', offset: 0.65 },
+    { transform: 'translate(8px, 12px) rotate(82deg)', offset: 0.82 },
+    { transform: 'translate(0px, 0px) rotate(0deg)' }
+  ],
+  body: (d) => [
+    { transform: 'none' },
+    { transform: `translateY(-5px) scaleY(1.05) rotate(${-d * 4}deg)`, offset: 0.4 },
+    { transform: `translateX(${d * 10}px) translateY(5px) rotate(${d * 12}deg)`, offset: 0.65 },
+    { transform: `translateX(${d * 9}px) translateY(5px) rotate(${d * 11}deg)`, offset: 0.82 },
+    { transform: 'none' }
+  ]
+};
+WEAPON_STRIKES['zulkan:Skyward Smash'] = {
+  ms: 900, hit: 0.58,
+  wpn: [
+    { transform: 'translate(0px, 0px) rotate(0deg)' },
+    { transform: 'translate(6px, 6px) rotate(45deg)', offset: 0.3, easing: 'ease-in' },
+    { transform: 'translate(-8px, -30px) rotate(-110deg)', offset: 0.58 },
+    { transform: 'translate(-6px, -28px) rotate(-105deg)', offset: 0.75 },
+    { transform: 'translate(0px, 0px) rotate(0deg)' }
+  ],
+  body: (d) => [
+    { transform: 'none' },
+    { transform: `translateX(${d * 4}px) translateY(3px) rotate(${d * 5}deg)`, offset: 0.3 },
+    { transform: `translateX(${d * 8}px) translateY(-6px) rotate(${-d * 8}deg)`, offset: 0.58 },
+    { transform: `translateX(${d * 6}px) translateY(-4px) rotate(${-d * 6}deg)`, offset: 0.75 },
+    { transform: 'none' }
+  ]
+};
+
+WEAPON_STRIKES.ryuunosuke = {
+  ms: 680, hit: 0.48,
+  wpn: [
+    { transform: 'rotate(0deg)' },
+    { transform: 'translate(-4px, -6px) rotate(-80deg)', offset: 0.25, easing: 'ease-in' },
+    { transform: 'translate(14px, 2px) rotate(95deg)', offset: 0.48 },
+    { transform: 'translate(12px, 3px) rotate(88deg)', offset: 0.65 },
+    { transform: 'rotate(0deg)' }
+  ],
+  body: (d) => [
+    { transform: 'none' },
+    { transform: `translateX(${-d * 4}px) rotate(${-d * 6}deg)`, offset: 0.25 },
+    { transform: `translateX(${d * 16}px) rotate(${d * 12}deg)`, offset: 0.48 },
+    { transform: `translateX(${d * 14}px) rotate(${d * 10}deg)`, offset: 0.65 },
+    { transform: 'none' }
+  ]
+};
+WEAPON_STRIKES['ryuunosuke:Shadow Matrix'] = {
+  ms: 900, hit: 0.3,
+  wpn: [
+    { transform: 'rotate(0deg)' },
+    { transform: 'translate(12px, -4px) rotate(90deg)', offset: 0.3 },
+    { transform: 'translate(-6px, 4px) rotate(-70deg)', offset: 0.5 },
+    { transform: 'translate(14px, 0px) rotate(100deg)', offset: 0.7 },
+    { transform: 'translate(12px, 1px) rotate(95deg)', offset: 0.85 },
+    { transform: 'rotate(0deg)' }
+  ],
+  body: (d) => [
+    { transform: 'none' },
+    { transform: `translateX(${d * 14}px) rotate(${d * 10}deg)`, offset: 0.3 },
+    { transform: `translateX(${-d * 6}px) rotate(${-d * 8}deg)`, offset: 0.5 },
+    { transform: `translateX(${d * 16}px) rotate(${d * 12}deg)`, offset: 0.7 },
+    { transform: `translateX(${d * 14}px) rotate(${d * 10}deg)`, offset: 0.85 },
+    { transform: 'none' }
+  ]
+};
+
 /* The grave-light climbing the iron: 0 = plain cold metal, 1 = full Pale Host green. The same
    filter functions appear at every stop so the keyframes interpolate instead of snapping. */
 const GRAVE_IRON = (n) => `sepia(${n}) saturate(${(1 + 4 * n).toFixed(2)}) hue-rotate(${(62 * n).toFixed(0)}deg) `
@@ -18667,7 +18793,7 @@ const PROJ_ATTACK = {
   scrapbot: { kind: 'laser' }, illusion: { kind: 'inkball' },   // the turret fires light, not rivets (.proj-laser)
   mara: { kind: 'silver' },   // a thin silver round, out of a barrel that flashes fire and smoke (MUZZLE)
   cadris: { kind: 'firefly', wander: true },   // his basic attack sends a small green grave-firefly, drifting every which way before it strikes
-  vharo: { kind: 'lightsword', impact: 'light', swordThrow: true }, resh: { kind: 'sonicpulse' }, nyx: { kind: 'voidbolt' }, orin: { kind: 'orb', color: '#b9c0e0' },
+  riven: { kind: 'lightsword', impact: 'light', swordThrow: true }, shazrak: { kind: 'sonicpulse' }, nyx: { kind: 'voidbolt' }, automatonx: { kind: 'orb', color: '#b9c0e0' },
 };
 const PROJ_SKILL = {
   // Ironclad Union
@@ -18990,8 +19116,8 @@ const LODGE_BOTTOMS = [45, 55, 35, 60, 42];
 function lodgeSwordFx(t) {
   const b = bodyEl(t);
   if (reduced || !b) return;
-  const vharo = [...state.teams.p, ...state.teams.e].find(a => a.maxSwords && a.hp > 0);
-  const vEl = vharo ? bodyEl(vharo) : null;
+  const swordUser = [...state.teams.p, ...state.teams.e].find(a => a.maxSwords && a.hp > 0);
+  const vEl = swordUser ? bodyEl(swordUser) : null;
   const tr = b.getBoundingClientRect(), vr = vEl ? vEl.getBoundingClientRect() : tr;
   const dx = (tr.left + tr.width / 2) - (vr.left + vr.width / 2);
   const dy = (tr.top + tr.height / 2) - (vr.top + vr.height / 2);
@@ -19010,8 +19136,8 @@ function lodgeSwordFx(t) {
   ], { duration: 300, fill: 'forwards' });
 }
 
-function returnSwordFx(v, vharo) {
-  const vEl = bodyEl(v), hEl = bodyEl(vharo);
+function returnSwordFx(v, swordOwner) {
+  const vEl = bodyEl(v), hEl = bodyEl(swordOwner);
   if (reduced || !vEl || !hEl) { clearLodgedSwords(v); return; }
   const swords = vEl.querySelectorAll('.lodged-sword');
   const vr = vEl.getBoundingClientRect(), hr = hEl.getBoundingClientRect();

@@ -1,54 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Aldous Emberfall (ranged) - Ashfall Road art v2. Pyromancer of the royal college.
+<!-- Aldous Emberfall (ranged) - Ashfall Road art v3. Pyromancer of the royal college.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66.5,58">
   <defs>
-    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8424f"/><stop offset=".55" stop-color="#7a2e3a"/><stop offset="1" stop-color="#4a1a24"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#c27d1f"/></linearGradient>
-    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6a44"/><stop offset="1" stop-color="#5a3a24"/></linearGradient>
-    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f0e6"/><stop offset="1" stop-color="#b9b3a4"/></linearGradient>
-    <radialGradient id="fire" cx=".5" cy=".7" r=".6"><stop offset="0" stop-color="#fff6c2"/><stop offset=".45" stop-color="#ffb347"/><stop offset="1" stop-color="#e5482c"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="ae-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b84a58"/><stop offset=".2" stop-color="#a04050"/><stop offset=".45" stop-color="#8a3040"/><stop offset=".7" stop-color="#6e2434"/><stop offset="1" stop-color="#4a1a24"/></linearGradient>
+    <linearGradient id="ae-lining" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1218"/><stop offset="1" stop-color="#1a0c10"/></linearGradient>
+    <linearGradient id="ae-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe8a0"/><stop offset=".3" stop-color="#ffd27a"/><stop offset=".7" stop-color="#d4941f"/><stop offset="1" stop-color="#a06a10"/></linearGradient>
+    <linearGradient id="ae-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a07050"/><stop offset=".3" stop-color="#8a5a3a"/><stop offset=".6" stop-color="#6a4028"/><stop offset="1" stop-color="#4a2a18"/></linearGradient>
+    <linearGradient id="ae-hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8f4ec"/><stop offset=".4" stop-color="#e8e2d4"/><stop offset="1" stop-color="#b0a898"/></linearGradient>
+    <linearGradient id="ae-skin" x1=".3" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8c0a0"/><stop offset=".5" stop-color="#d4a880"/><stop offset="1" stop-color="#c09070"/></linearGradient>
+    <linearGradient id="ae-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#999"/><stop offset=".5" stop-color="#ccc"/><stop offset="1" stop-color="#777"/></linearGradient>
+    <radialGradient id="ae-fire" cx=".5" cy=".7" r=".55"><stop offset="0" stop-color="#fffae0"/><stop offset=".2" stop-color="#fff0a0"/><stop offset=".5" stop-color="#ffb347"/><stop offset=".8" stop-color="#e85030"/><stop offset="1" stop-color="#a82010"/></radialGradient>
+    <radialGradient id="ae-core" cx=".5" cy=".6" r=".4"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#fffac0"/><stop offset="1" stop-color="#ffd060"/></radialGradient>
+    <filter id="ae-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="ae-warm" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.5"/></filter>
   </defs>
+  <!-- ground shadow -->
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
-  <!-- flame glow -->
-  <circle class="wpn" cx="67" cy="20" r="11" fill="#ff8a3d" opacity=".55" filter="url(#glow)"/>
-  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- feet -->
-    <path d="M41 88 h9 v5.5 h-11 z" fill="#3a2a2a"/>
-    <path d="M52 88 h9 l3 5.5 h-12 z" fill="#4a3434"/>
-    <!-- robe -->
-    <path d="M40 42 Q50 38 61 42 L66 89 Q51 92.5 35 89 Z" fill="url(#robe)"/>
-    <path d="M35.6 85 Q51 88.5 65.6 85 L66 89 Q51 92.5 35 89 Z" fill="url(#gold)"/>
-    <path d="M51 43 L54 89" fill="none"/>
-    <rect x="39" y="60" width="24" height="4" rx="1" fill="url(#gold)"/>
-    <path d="M44 64 l-1.5 10 h3 z" fill="url(#gold)"/>
-    <!-- staff -->
-    <rect class="wpn" x="65" y="25" width="3.2" height="67" rx="1" fill="url(#wood)"/>
-    <path class="wpn" d="M62 27 Q66.6 33 71 27 L70 24 Q66.6 27 63 24 Z" fill="url(#gold)"/>
-    <!-- head + beard -->
-    <circle cx="52" cy="30" r="9" fill="#e2b48f"/>
-    <path d="M43 30 Q41 38 44 41 L47 32 Z" fill="url(#hair)"/>
-    <path d="M47 33 Q48 47 56 50 Q62 43 61 33 Q57 36 53 35 Q50 34.5 47 33 Z" fill="url(#hair)"/>
-    <!-- wizard hat -->
-    <path d="M43.5 23 Q47 11 38 3 Q52 6 59 22.5 Z" fill="url(#robe)"/>
-    <path d="M36 24.5 Q51 18 67 23.5 Q59 26.5 51 26 Q43 26 36 24.5 Z" fill="url(#robe)"/>
-    <!-- front arm -->
-    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#robe)"/>
-    <circle cx="66.5" cy="58" r="2.8" fill="#e2b48f"/>
+  <!-- flame glow (two-layer) + warm light spill on robe/face -->
+  <circle class="wpn" cx="67" cy="18" r="14" fill="#ff6a20" opacity=".25" filter="url(#ae-glow)"/>
+  <circle class="wpn" cx="67" cy="18" r="8" fill="#ffb050" opacity=".3" filter="url(#ae-glow)"/>
+  <ellipse cx="60" cy="35" rx="8" ry="12" fill="#ff8040" opacity=".07" filter="url(#ae-warm)"/>
+  <g stroke="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- boots -->
+    <path d="M41 88 h9 v5.5 h-11 z" fill="#3a2a2a"/><path d="M41 88 h9 v1.5 h-9.5 z" fill="#4a3232" opacity=".6"/>
+    <path d="M52 88 h9 l3 5.5 h-12 z" fill="#4a3434"/><path d="M52 88 h9 l.5 1.5 h-9.5 z" fill="#5a4040" opacity=".6"/>
+    <!-- robe body + fold lines -->
+    <path d="M40 42 Q50 38 61 42 L66 89 Q51 92.5 35 89 Z" fill="url(#ae-robe)"/>
+    <path d="M47 45 Q46 65 44 89" stroke="#5a2028" stroke-width=".7" fill="none" opacity=".5"/>
+    <path d="M53 43 Q54 60 56 89" stroke="#5a2028" stroke-width=".6" fill="none" opacity=".4"/>
+    <path d="M43 50 Q44 70 40 89" stroke="#5a2028" stroke-width=".5" fill="none" opacity=".35"/>
+    <!-- lining visible at front split -->
+    <path d="M50 43 Q51 44 52 43 L54 85 Q52 86 50 85 Z" fill="url(#ae-lining)" opacity=".7"/>
+    <!-- gold hem + runic marks -->
+    <path d="M35.6 84 Q51 87.5 65.6 84 L66 89 Q51 92.5 35 89 Z" fill="url(#ae-gold)"/>
+    <g stroke="#a06a10" stroke-width=".45" fill="none" opacity=".55"><path d="M40 86.5 l1-1.5 1 1.5 M44 87 l.5-2 .5 2 M48 86.5 l1-1 0 2 M52 87 l1-1.5 1 1 M56 86.5 l.7-1.5 .7 1.5 M60 87 l.5-2 .5 1.5"/></g>
+    <!-- sash belt + buckle -->
+    <rect x="38" y="59" width="25" height="4.5" rx="1.2" fill="url(#ae-gold)"/>
+    <rect x="49" y="59.5" width="4" height="3.5" rx=".8" fill="#c07a10" stroke="#a06010" stroke-width=".4"/><circle cx="51" cy="61.2" r=".8" fill="#ffe8a0"/>
+    <!-- hanging pouch -->
+    <path d="M43 63.5 Q42 65 42.5 68 Q44 69 45.5 68 Q46 65 45 63.5 Z" fill="#6a3a24" stroke="#4a2818" stroke-width=".4"/><path d="M43 63.5 h2.5" stroke="#a06a10" stroke-width=".5"/>
+    <!-- scroll case + potion vial -->
+    <rect x="47" y="63.5" width="2" height="7" rx=".8" fill="#8a6a44" stroke="#5a4028" stroke-width=".3"/><ellipse cx="48" cy="63.8" rx="1" ry=".5" fill="#a07a50"/>
+    <path d="M53 63.5 Q52.5 65 52.8 68 Q53.5 69 54.2 68 Q54.5 65 54 63.5 Z" fill="#4a7090" opacity=".7" stroke="#3a5a70" stroke-width=".3"/>
+    <path d="M52.8 64 h1.4" stroke="#888" stroke-width=".4"/><ellipse cx="53.5" cy="66.5" rx=".5" ry="1" fill="#80c0e0" opacity=".5"/>
+    <!-- gold collar + arcane symbols -->
+    <path d="M42 43 Q50 40 60 43" stroke="url(#ae-gold)" stroke-width="1.8" fill="none"/>
+    <g stroke="#c08a20" stroke-width=".4" fill="none" opacity=".5"><path d="M46 42 l.5-1 .5 1 M50 41.5 l.3-.8 .3.8 M54 42 l.5-1 .5 1"/></g>
+    <!-- staff: gnarled wood + grain -->
+    <rect class="wpn" x="64.8" y="25" width="3.5" height="67" rx="1.2" fill="url(#ae-wood)"/>
+    <g class="wpn" stroke="#4a2a14" stroke-width=".35" fill="none" opacity=".45">
+      <path d="M65.5 30 Q66 38 65.8 46 Q66.5 54 66 62"/><path d="M67.2 28 Q67.5 42 67 56 Q67.3 68 67 80"/><path d="M66 64 Q66.5 74 66.2 84 Q66.6 88 66.4 92"/>
+    </g>
+    <!-- bark knots + carved runes -->
+    <ellipse class="wpn" cx="66.5" cy="48" rx="1" ry=".7" fill="#5a3820" opacity=".4"/><ellipse class="wpn" cx="66.8" cy="72" rx=".8" ry=".6" fill="#5a3820" opacity=".35"/>
+    <g class="wpn" stroke="#c09030" stroke-width=".4" fill="none" opacity=".55"><path d="M65.5 36 l1-1.5 1 1.5 M65.5 40 l1-1 0 2 M65.5 52 l1.5-1 0 2 M65.5 57 l1-1.5 1 1"/></g>
+    <!-- metal ferrule at base -->
+    <rect class="wpn" x="64.5" y="89" width="4" height="3" rx=".5" fill="url(#ae-metal)"/><path class="wpn" d="M64.5 89.8 h4" stroke="#ddd" stroke-width=".3" opacity=".5"/>
+    <!-- staff crown (flame cradle) -->
+    <path class="wpn" d="M62 27 Q66.6 34 71 27 L70 24 Q66.6 28 63 24 Z" fill="url(#ae-gold)"/>
+    <path class="wpn" d="M63.5 25.5 Q66.6 30 69.5 25.5" stroke="#a06a10" stroke-width=".4" fill="none"/>
+    <!-- head + warm highlight -->
+    <circle cx="52" cy="30" r="9" fill="url(#ae-skin)"/><circle cx="55" cy="29" r="5" fill="#ffaa60" opacity=".07"/>
+    <!-- beard: back layer + main body -->
+    <path d="M43 30 Q40 38 43 43 Q44 46 46 44 L47 32 Z" fill="url(#ae-hair)"/>
+    <path d="M47 33 Q46 42 48 48 Q50 52 56 50 Q62 44 61 33 Q57 36 53 35 Q50 34.5 47 33 Z" fill="url(#ae-hair)"/>
+    <!-- strand groups -->
+    <g stroke="#c8c0b0" stroke-width=".5" fill="none" opacity=".45"><path d="M48 36 Q47 42 48 47"/><path d="M50 35.5 Q50 44 52 49"/><path d="M53 35 Q54 43 56 48"/><path d="M56 34 Q58 40 60 38"/></g>
+    <!-- braided section + tie bead -->
+    <path d="M49 47 Q50 50 51 53 Q52 50 50 47" stroke="#d0c8b8" stroke-width=".6" fill="none"/>
+    <path d="M50 48 l.5 1-.5 1 .5 1-.5 1" stroke="#b8b0a0" stroke-width=".5" fill="none"/><circle cx="50.5" cy="53.5" r=".7" fill="#c08a20"/>
+    <!-- wizard hat: bent tip + crease lines -->
+    <path d="M43.5 23 Q47 14 44 8 Q42 4 38 3 Q45 5 48 8 Q50 6 46 2 Q52 6 59 22.5 Z" fill="url(#ae-robe)"/>
+    <path d="M46 20 Q47 14 45 8" stroke="#5a2028" stroke-width=".5" fill="none" opacity=".4"/><path d="M50 21 Q51 15 49 9" stroke="#5a2028" stroke-width=".4" fill="none" opacity=".3"/>
+    <!-- hat brim + underline -->
+    <path d="M36 24.5 Q51 18 67 23.5 Q59 26.5 51 26 Q43 26 36 24.5 Z" fill="url(#ae-robe)"/>
+    <path d="M36 25 Q51 19 67 24" stroke="#6e2434" stroke-width=".5" fill="none" opacity=".4"/>
+    <!-- hat band + star + moon emblems -->
+    <path d="M44.5 21.6 Q51 19.5 58.5 21.3" stroke="url(#ae-gold)" stroke-width="2" fill="none"/>
+    <path d="M48 14 l.5-1.5.5 1.5-1.3-.9h1.6z" fill="#ffe8a0" opacity=".7"/><path d="M52 11 Q54 9 53 7 Q51 8 52 11 Z" fill="#ffe8a0" opacity=".5"/>
+    <!-- face: heavy brow + eye -->
+    <path d="M53.5 28 Q56 26.5 59 27.5" stroke="#c09070" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="57" cy="29.8" rx="1.6" ry="1.3" fill="#f8f0e0"/><circle cx="57.4" cy="29.8" r=".9" fill="#1d2130"/><circle cx="57.7" cy="29.5" r=".3" fill="#555"/>
+    <!-- wrinkles + prominent nose -->
+    <path d="M54 27.5 Q53.5 28.5 54 29" stroke="#b88060" stroke-width=".35" fill="none" opacity=".5"/><path d="M59.5 28 Q60 29 59.5 30" stroke="#b88060" stroke-width=".3" fill="none" opacity=".4"/>
+    <path d="M56 31 Q58 32 59 34 Q57 34.5 56 34" stroke="#c09070" stroke-width=".8" fill="none" stroke-linecap="round"/>
+    <!-- mustache + mouth -->
+    <path d="M54 35.5 Q56 34 58 35.5 Q57 36.5 56 36 Q55 36.5 54 35.5 Z" fill="#e0d8c8" opacity=".8"/>
+    <path d="M55 36.5 Q56 37 57 36.5" stroke="#a07060" stroke-width=".4" fill="none"/>
+    <!-- front arm + sleeve fold + cuff -->
+    <path d="M56 44 Q64 46 67 57 L62 60 Q57 52 54 50 Z" fill="url(#ae-robe)"/>
+    <path d="M58 46 Q62 49 64 54" stroke="#5a2028" stroke-width=".5" fill="none" opacity=".35"/>
+    <path d="M62 58 Q65 57 67 57" stroke="url(#ae-gold)" stroke-width="1.4" fill="none"/>
+    <!-- hand with knobby fingers -->
+    <path d="M64 56 Q63.5 57 64.5 58.5 Q65 59 66 58.5 Q67 58 67.5 57 Q68 56.5 67.5 55.5 Q67 55 66 55.5 Q65 56 64 56 Z" fill="url(#ae-skin)"/>
+    <g stroke="#b88060" stroke-width=".3" fill="none" opacity=".5"><path d="M65 56.5 Q65.5 57 65.5 58"/><path d="M66.5 56 Q67 57 66.8 58"/></g>
   </g>
-  <!-- hat band + face -->
-  <path d="M44.5 21.6 Q51 19.5 58.5 21.3" stroke="url(#gold)" stroke-width="2" fill="none"/>
-  <path d="M54 28.6 q2.4 -1.4 5 -.4" stroke="#f4f0e6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <circle cx="57" cy="30.6" r="1.4" fill="#1d2130"/>
-  <path d="M55 34.5 q3 -1.6 6 .2" stroke="#f4f0e6" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <path d="M51 38 q2 5 5 7" stroke="#b9b3a4" stroke-width=".9" fill="none" stroke-linecap="round"/>
-  <!-- robe trim -->
-  <path d="M55.5 44 L58.5 85" stroke="url(#gold)" stroke-width="1.6"/>
-  <path d="M43 46 Q45 44 48 43.5" stroke="#d06a76" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-  <!-- flame -->
-  <path class="wpn" d="M66.6 25 Q59 21 62.5 13 Q63.5 17 65.5 16.5 Q64 10 69 5 Q68.5 11 72 13.5 Q74.5 20 66.6 25 Z" fill="url(#fire)" stroke="#a8301c" stroke-width="1" stroke-linejoin="round"/>
-  <path class="wpn" d="M66.6 23.5 Q63.5 21 65.5 17.5 Q67 19.5 68 18 Q70.5 21 66.6 23.5 Z" fill="#fff6c2"/>
-  <!-- embers -->
-  <g class="wpn" fill="#ffb347"><circle cx="75" cy="9" r="1.1"/><circle cx="60" cy="9.5" r=".8"/><circle cx="78" cy="19" r=".8"/><circle cx="72" cy="3.5" r=".6"/></g>
+  <!-- robe front trim -->
+  <path d="M51 43 L53 85" stroke="url(#ae-gold)" stroke-width="1.2"/>
+  <!-- flame: outer corona -->
+  <path class="wpn" d="M66.6 26 Q58 22 61 12 Q62 16 64 15 Q62.5 9 67 3 Q66 10 70 12 Q73 8 72 4 Q75 10 74 16 Q76 20 66.6 26 Z" fill="url(#ae-fire)" stroke="#a82010" stroke-width=".6" stroke-linejoin="round" opacity=".75"/>
+  <!-- flame: main body -->
+  <path class="wpn" d="M66.6 25 Q60 21 63 14 Q64 17.5 66 16 Q64.5 10 69 5 Q68 12 72 14 Q75 20 66.6 25 Z" fill="url(#ae-fire)" stroke="#a82818" stroke-width=".6" stroke-linejoin="round"/>
+  <!-- flame: inner core + hot white center -->
+  <path class="wpn" d="M66.6 23 Q64 21 65.5 17 Q66.5 19 67.5 18 Q70 21 66.6 23 Z" fill="url(#ae-core)"/>
+  <path class="wpn" d="M66.6 22 Q65.5 21 66 19.5 Q67 20.5 66.6 22 Z" fill="#fff" opacity=".7"/>
+  <!-- heat distortion waves -->
+  <g class="wpn" stroke="#ff8040" stroke-width=".3" fill="none" opacity=".18"><path d="M64 8 Q66 6 68 8"/><path d="M63 5 Q66 3 69 5"/><path d="M65 2 Q67 0 69 2"/></g>
+  <!-- arcane sigils near flame -->
+  <g class="wpn" stroke="#ffc040" stroke-width=".4" fill="none" opacity=".35">
+    <circle cx="60" cy="14" r="1.5"/><path d="M59.2 14 h1.6 M60 13.2 v1.6"/><path d="M73 11 l1-1.5 1 1.5-1 .5z"/><circle cx="71" cy="7" r="1"/><path d="M70.3 7 h1.4"/>
+  </g>
+  <!-- embers: varied sizes + trailing sparks + distant fading -->
+  <g class="wpn" fill="#ffb347"><circle cx="75" cy="9" r="1.1"/><circle cx="59" cy="8" r=".9"/><circle cx="78" cy="18" r=".8"/><circle cx="72" cy="3" r=".6"/><circle cx="62" cy="4" r=".5"/><circle cx="76" cy="13" r=".7"/></g>
+  <g class="wpn" fill="#ff6030" opacity=".55"><circle cx="77" cy="7" r=".4"/><circle cx="74" cy="5" r=".35"/><circle cx="80" cy="15" r=".3"/><circle cx="58" cy="5" r=".35"/></g>
+  <g class="wpn" fill="#ffd080" opacity=".25"><circle cx="81" cy="12" r=".5"/><circle cx="56" cy="3" r=".4"/><circle cx="79" cy="4" r=".35"/></g>
 </svg>

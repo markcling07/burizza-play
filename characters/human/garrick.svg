@@ -1,63 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Sir Garrick Vane (melee) - Ashfall Road art v2. Heavily armored paladin.
+<!-- Sir Garrick Vane (melee) - Ashfall Road art v3. Heavily armored paladin.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66,60">
   <defs>
-    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#d7dbe4"/><stop offset="1" stop-color="#8c94a6"/></linearGradient>
-    <linearGradient id="plateD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8afbf"/><stop offset="1" stop-color="#5d6578"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
-    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5c80c4"/><stop offset="1" stop-color="#28407a"/></linearGradient>
-    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fbf8f0"/><stop offset="1" stop-color="#cfc7b4"/></linearGradient>
+    <linearGradient id="gv-plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".18" stop-color="#f0f2f7"/><stop offset=".4" stop-color="#dde1ec"/><stop offset=".6" stop-color="#c5cad8"/><stop offset=".8" stop-color="#a8afc2"/><stop offset="1" stop-color="#8c94a6"/></linearGradient>
+    <linearGradient id="gv-plateD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8afbf"/><stop offset=".4" stop-color="#7d869a"/><stop offset="1" stop-color="#5d6578"/></linearGradient>
+    <linearGradient id="gv-plateH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#eef0f5"/><stop offset="1" stop-color="#c8cdd9"/></linearGradient>
+    <linearGradient id="gv-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe999"/><stop offset=".3" stop-color="#f5d56b"/><stop offset=".6" stop-color="#d4a832"/><stop offset="1" stop-color="#b8861f"/></linearGradient>
+    <linearGradient id="gv-goldD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4a832"/><stop offset="1" stop-color="#8a6318"/></linearGradient>
+    <linearGradient id="gv-blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b8fd4"/><stop offset=".4" stop-color="#5c80c4"/><stop offset="1" stop-color="#28407a"/></linearGradient>
+    <linearGradient id="gv-plume" x1=".3" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#7ba0e0"/><stop offset=".3" stop-color="#5c80c4"/><stop offset=".7" stop-color="#3d5da0"/><stop offset="1" stop-color="#28407a"/></linearGradient>
+    <linearGradient id="gv-cloth" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fbf8f0"/><stop offset=".5" stop-color="#f0ece0"/><stop offset="1" stop-color="#cfc7b4"/></linearGradient>
+    <linearGradient id="gv-leather" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6b4630"/><stop offset=".5" stop-color="#8a5c3c"/><stop offset="1" stop-color="#5a3a24"/></linearGradient>
+    <linearGradient id="gv-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8faae0"/><stop offset="1" stop-color="#1e3060"/></linearGradient>
   </defs>
   <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
-  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- plume -->
-    <path d="M47 15 Q38 3 25 9 Q31 10 34 14 Q28 15 26 20 Q36 15 44 21 Z" fill="url(#blue)"/>
-    <!-- back pauldron -->
-    <path d="M33 50 Q33 41 41 40 L46 46 L38 54 Z" fill="url(#plateD)"/>
-    <!-- legs -->
-    <path d="M40 71 h10 l-1 17 h-10 z" fill="url(#plateD)"/>
+  <g stroke="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Plume with feather strands -->
+    <path d="M47 15 Q38 3 25 9 Q31 10 34 14 Q28 15 26 20 Q36 15 44 21 Z" fill="url(#gv-plume)"/>
+    <path d="M30 12 Q36 10 42 16" fill="none" stroke="#7ba0e0" stroke-width=".6" opacity=".7"/>
+    <path d="M28 15 Q34 12 40 18 M27 17 Q33 14 39 19" fill="none" stroke="#4a6da8" stroke-width=".5" opacity=".55"/>
+    <path d="M32 11 Q38 8 44 15" fill="none" stroke="#8fb4e8" stroke-width=".5" opacity=".5"/>
+    <!-- Back pauldron -->
+    <path d="M33 50 Q33 41 41 40 L46 46 L38 54 Z" fill="url(#gv-plateD)"/>
+    <path d="M35 44 Q38 42 42 42" fill="none" stroke="#a8afbf" stroke-width=".6"/>
+    <circle cx="37" cy="46" r=".7" fill="#8c94a6" stroke="#5d6578" stroke-width=".3"/>
+    <!-- Back leg greave + boot -->
+    <path d="M40 71 h10 l-1 17 h-10 z" fill="url(#gv-plateD)"/>
+    <path d="M40 73 Q45 71 50 73" fill="none" stroke="#7d869a" stroke-width=".7"/>
+    <path d="M44 76 v9" stroke="#a8afbf" stroke-width=".5" opacity=".6"/>
     <path d="M36 87.5 h13.5 v6 h-14.5 z" fill="#5d6578"/>
-    <path d="M51 71 h10 l2 17 h-10 z" fill="url(#plate)"/>
+    <path d="M37 87.5 h12 v1.5 h-12.5 z" fill="url(#gv-goldD)" opacity=".7"/>
+    <!-- Front leg greave + boot -->
+    <path d="M51 71 h10 l2 17 h-10 z" fill="url(#gv-plate)"/>
+    <path d="M51 73 Q56 70.5 61 73" fill="none" stroke="#c5cad8" stroke-width=".8"/>
+    <ellipse cx="56" cy="72" rx="2.5" ry="1.8" fill="url(#gv-plateH)"/>
+    <path d="M56 75 v10" stroke="#dde1ec" stroke-width=".6" opacity=".7"/>
     <path d="M52 87.5 h13 l2 6 h-15 z" fill="#8c94a6"/>
-    <path d="M51 77 h10.5 l.4 3 h-10.9 z" fill="url(#gold)"/>
-    <!-- torso -->
-    <path d="M35 45 Q50 38 65 45 L63 72 Q50 77 37 72 Z" fill="url(#plate)"/>
-    <path d="M44 46 h12 l1 31 l-7 4.5 l-7 -4.5 z" fill="url(#cloth)"/>
-    <rect x="36" y="66" width="28" height="5" rx="1" fill="url(#gold)"/>
-    <!-- great helm -->
-    <path d="M40 22 Q40 15 51 15 Q62.5 15 62.5 22 L62.5 37 Q51 41.5 40 37.5 Z" fill="url(#plate)"/>
-    <path d="M40 34.5 Q51 39 62.5 34.5 L62.5 37 Q51 41.5 40 37.5 Z" fill="url(#gold)"/>
-    <!-- warhammer -->
+    <path d="M52.5 87.5 h12 l.3 1.5 h-12.5 z" fill="url(#gv-gold)"/>
+    <path d="M55 92 h9 l1.5 1.5 h-10 z" fill="#a8afc2"/>
+    <path d="M51 77 h10.5 l.4 3 h-10.9 z" fill="url(#gv-gold)"/>
+    <path d="M52.5 78.5 l1.5-1 1.5 1 1.5-1 1.5 1 1.5-1 1 1" fill="none" stroke="url(#gv-goldD)" stroke-width=".4" opacity=".6"/>
+    <!-- Torso breastplate + gorget -->
+    <path d="M35 45 Q50 38 65 45 L63 72 Q50 77 37 72 Z" fill="url(#gv-plate)"/>
+    <path d="M50 42 v24" stroke="#f0f2f7" stroke-width=".6" opacity=".5"/>
+    <path d="M40 40 Q50 36 60 40 Q50 43 40 40 Z" fill="url(#gv-plateH)"/>
+    <path d="M42 39 Q50 36.5 58 39" fill="none" stroke="url(#gv-gold)" stroke-width=".7"/>
+    <!-- Tabard with fold lines -->
+    <path d="M44 46 h12 l1 31 l-7 4.5 l-7 -4.5 z" fill="url(#gv-cloth)"/>
+    <path d="M47 48 v27 M53 48 v27 M45 50 v24" stroke="#d8d2c4" stroke-width=".35" opacity=".5"/>
+    <!-- Belt with buckle + pouch -->
+    <rect x="36" y="66" width="28" height="5" rx="1" fill="url(#gv-gold)"/>
+    <path d="M38 68.5 l1.5-1 1.5 1 1.5-1 1.5 1 1.5-1 1.5 1 1.5-1 1.5 1 1.5-1 1.5 1 1.5-1 1 1" fill="none" stroke="url(#gv-goldD)" stroke-width=".35" opacity=".5"/>
+    <rect x="48" y="66.5" width="4" height="4" rx=".5" fill="none" stroke="#8a6318" stroke-width=".8"/>
+    <circle cx="50" cy="68.5" r=".8" fill="#ffe999"/>
+    <path d="M42 71 v3 h3.5 v-3 z" fill="#5a3a24" opacity=".7"/><path d="M42 71 h3.5" stroke="#8a6318" stroke-width=".4"/>
+    <!-- Great helm -->
+    <path d="M40 22 Q40 15 51 15 Q62.5 15 62.5 22 L62.5 37 Q51 41.5 40 37.5 Z" fill="url(#gv-plate)"/>
+    <path d="M41 22 Q41 16.5 51 16.5 Q61 16.5 61.5 22" fill="none" stroke="#fff" stroke-width=".7" opacity=".5"/>
+    <path d="M40 34.5 Q51 39 62.5 34.5 L62.5 37 Q51 41.5 40 37.5 Z" fill="url(#gv-gold)"/>
+    <path d="M44 36 l1.5-.8 1.5.8 1.5-.8 1.5.8 1.5-.8 1.5.8 1.5-.8 1.5.8 1.5-.8 1.5.8" fill="none" stroke="url(#gv-goldD)" stroke-width=".35" opacity=".5"/>
+    <!-- Visor slit + nasal bar -->
+    <rect x="50" y="26" width="12.5" height="3.2" rx=".5" fill="#0d0a15"/>
+    <rect x="50.3" y="26.3" width="11.9" height="1" fill="#1a1525" opacity=".7"/>
+    <path d="M51 15.5 v19" stroke="url(#gv-gold)" stroke-width="2.2"/>
+    <path d="M51 15.5 v19" stroke="#ffe999" stroke-width=".5" opacity=".4"/>
+    <!-- Breathing holes -->
+    <g fill="#15121d"><circle cx="59" cy="31" r=".6"/><circle cx="59" cy="33" r=".6"/><circle cx="59" cy="35" r=".6"/><circle cx="56.5" cy="31" r=".6"/><circle cx="56.5" cy="33" r=".6"/><circle cx="56.5" cy="35" r=".6"/><circle cx="54" cy="31" r=".6"/><circle cx="54" cy="33" r=".6"/><circle cx="54" cy="35" r=".6"/></g>
+    <!-- Helm specular highlights -->
+    <path d="M43 19.5 Q46 17 50 16.8" stroke="#fff" stroke-width="1.4" fill="none" opacity=".9"/>
+    <path d="M43 24 Q46 22.5 50 22" stroke="#fff" stroke-width=".6" fill="none" opacity=".4"/>
+    <!-- Warhammer -->
     <g transform="rotate(14 66 60)">
-      <rect class="wpn" x="64.6" y="25" width="3.2" height="47" rx="1" fill="#6b4630"/>
-      <path class="wpn" d="M58 19 h16 v12 h-16 z" fill="url(#plate)"/>
-      <rect class="wpn" x="58" y="23.5" width="16" height="3" fill="url(#gold)"/>
-      <path class="wpn" d="M74 21.5 l5 3.5 l-5 3.5 z" fill="url(#plateD)"/>
-      <path class="wpn" d="M64.5 19 l1.7 -5 l1.7 5 z" fill="url(#plateD)"/>
-      <circle class="wpn" cx="66.2" cy="73.5" r="2.2" fill="url(#gold)"/>
+      <rect class="wpn" x="64.6" y="25" width="3.2" height="47" rx="1" fill="url(#gv-leather)"/>
+      <path class="wpn" d="M64.6 42 l3.2 2 M64.6 45 l3.2 2 M64.6 48 l3.2 2 M64.6 51 l3.2 2 M64.6 54 l3.2 2 M64.6 57 l3.2 2 M64.6 60 l3.2 2 M64.6 63 l3.2 2" stroke="#4a2e1a" stroke-width=".4" opacity=".6"/>
+      <path class="wpn" d="M58 19 h16 v12 h-16 z" fill="url(#gv-plate)"/>
+      <path class="wpn" d="M58 22 h16 M58 28 h16" stroke="#c5cad8" stroke-width=".4" opacity=".5"/>
+      <rect class="wpn" x="58" y="23.5" width="16" height="3" fill="url(#gv-gold)"/>
+      <path class="wpn" d="M59 20 h14" stroke="#fff" stroke-width=".5" opacity=".5"/>
+      <path class="wpn" d="M74 21.5 l6 3.5 l-6 3.5 z" fill="url(#gv-plateD)"/>
+      <path class="wpn" d="M74 24.5 l5.5.5" stroke="#dde1ec" stroke-width=".3" opacity=".6"/>
+      <path class="wpn" d="M64.5 19 l1.7 -6 l1.7 6 z" fill="url(#gv-plateD)"/>
+      <path class="wpn" d="M66.2 13.5 v5" stroke="#c5cad8" stroke-width=".3" opacity=".5"/>
+      <circle class="wpn" cx="66.2" cy="73.5" r="2.5" fill="url(#gv-gold)"/>
+      <circle class="wpn" cx="66.2" cy="73.5" r="1.2" fill="#3050a0"/><circle class="wpn" cx="65.8" cy="73" r=".5" fill="#7ba0e0" opacity=".7"/>
     </g>
-    <!-- front arm + pauldron -->
-    <path d="M60 50 L68 57 L64 62.5 L57 56 Z" fill="url(#plate)"/>
-    <circle cx="66" cy="60" r="3.8" fill="url(#plateD)"/>
-    <path d="M55 44 Q57 38 64 39 Q70 41 69 50 L58 52 Z" fill="url(#plate)"/>
-    <path d="M57 47.5 Q63 45.5 69 49" fill="none"/>
-    <!-- kite shield -->
-    <path d="M27 49 h22 v14 q0 12.5 -11 18 q-11 -5.5 -11 -18 z" fill="url(#blue)"/>
-    <path d="M29.6 51.6 h16.8 v11.4 q0 10.4 -8.4 15 q-8.4 -4.6 -8.4 -15 z" fill="none" stroke="url(#gold)" stroke-width="1.6"/>
+    <!-- Front arm + gauntlet fingers -->
+    <path d="M60 50 L68 57 L64 62.5 L57 56 Z" fill="url(#gv-plate)"/>
+    <path d="M61 52 L67 58" stroke="#c5cad8" stroke-width=".4" opacity=".5"/>
+    <circle cx="66" cy="60" r="3.8" fill="url(#gv-plateD)"/>
+    <path d="M64 58 l1.5 1.5 1 0 1.5-1.5 M63.5 60 l1 1 1 0 1 0 1-1" fill="none" stroke="#7d869a" stroke-width=".38"/>
+    <!-- Front pauldron with rivets -->
+    <path d="M55 44 Q57 38 64 39 Q70 41 69 50 L58 52 Z" fill="url(#gv-plate)"/>
+    <path d="M57 42 Q63 40 68 44 M57 46 Q63 44 69 47.5" fill="none" stroke="#c5cad8" stroke-width=".5"/>
+    <path d="M55 44 Q57 38 64 39" fill="none" stroke="url(#gv-gold)" stroke-width=".8"/>
+    <circle cx="59" cy="43" r=".6" fill="#d4d8e2" stroke="#8c94a6" stroke-width=".25"/><circle cx="63" cy="41.5" r=".6" fill="#d4d8e2" stroke="#8c94a6" stroke-width=".25"/><circle cx="67" cy="44" r=".6" fill="#d4d8e2" stroke="#8c94a6" stroke-width=".25"/>
+    <path d="M58 44 Q61 42 64 41" stroke="#fff" stroke-width=".8" fill="none" opacity=".6"/>
+    <!-- Kite shield with bevel -->
+    <path d="M26 48.5 h23 v14.5 q0 13 -11.5 18.5 q-11.5 -5.5 -11.5 -18.5 z" fill="url(#gv-bevel)"/>
+    <path d="M27.5 49.5 h20.5 v13.5 q0 12 -10.25 17 q-10.25 -5 -10.25 -17 z" fill="url(#gv-blue)"/>
+    <path d="M29.5 51.5 h16.5 v11.5 q0 10.5 -8.25 15 q-8.25 -4.5 -8.25 -15 z" fill="none" stroke="url(#gv-gold)" stroke-width="1.5"/>
+    <!-- Shield boss -->
+    <circle cx="38" cy="61" r="5" fill="url(#gv-gold)" stroke="url(#gv-goldD)" stroke-width=".6"/>
+    <circle cx="38" cy="61" r="3.2" fill="url(#gv-goldD)"/><circle cx="38" cy="61" r="1.8" fill="url(#gv-gold)"/>
+    <!-- Heraldic sun rays -->
+    <g stroke="url(#gv-gold)" stroke-width="1.2" stroke-linecap="round">
+      <path d="M38 53.5 v3 M38 65.5 v3 M30.5 61 h3 M42.5 61 h3 M33 56 l2 2 M41 64 l2 2 M33 66 l2-2 M41 58 l2-2"/>
+    </g>
+    <g stroke="url(#gv-gold)" stroke-width=".7" stroke-linecap="round" opacity=".7">
+      <path d="M34.5 54.5 l1.2 1.2 M40.3 65.3 l1.2 1.2 M31.5 57.5 l1.5.8 M43 62.7 l1.5.8 M31.5 64.5 l1.5-.8 M43 58.5 l1.5-.8 M34.5 67.5 l1.2-1.2 M40.3 56.7 l1.2-1.2"/>
+    </g>
+    <path d="M30 52 h6" stroke="#9cb6ea" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+    <!-- Tabard sun emblem -->
+    <circle cx="50" cy="56" r="3.5" fill="url(#gv-gold)" stroke="url(#gv-goldD)" stroke-width=".6"/>
+    <g stroke="#c99a2e" stroke-width="1" stroke-linecap="round">
+      <path d="M50 50.5 v2 M50 59.5 v2 M44.5 56 h2 M53.5 56 h2 M46 52 l1.3 1.3 M52.7 58.7 l1.3 1.3 M46 60 l1.3-1.3 M52.7 53.3 l1.3-1.3"/>
+    </g>
+    <!-- Armor specular highlights -->
+    <path d="M38.5 48 Q41 45 45 44" stroke="#fff" stroke-width="1.3" fill="none" opacity=".7"/>
+    <path d="M36 50 Q37 60 38 68 M64 50 Q63 60 62 68" stroke="#fff" stroke-width=".5" fill="none" opacity=".3"/>
   </g>
-  <!-- helm details -->
-  <path d="M50.5 26.5 h12 v2.8 h-12 z" fill="#15121d"/>
-  <path d="M57.5 29.3 v6.5" stroke="none" stroke-width="1.6" stroke-linecap="round"/>
-  <g fill="#15121d"><circle cx="60" cy="32" r=".7"/><circle cx="60" cy="34.2" r=".7"/><circle cx="55" cy="32" r=".7"/><circle cx="55" cy="34.2" r=".7"/></g>
-  <path d="M43 19.5 Q46 17 50 16.8" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".9"/>
-  <path d="M51 15.5 v10.5" stroke="url(#gold)" stroke-width="2.2"/>
-  <!-- tabard sun -->
-  <circle cx="50" cy="56" r="3.2" fill="url(#gold)" stroke="none" stroke-width=".9"/>
-  <path d="M50 50 v2 M50 60 v2 M44 56 h2 M54 56 h2 M45.8 51.8 l1.4 1.4 M52.8 58.8 l1.4 1.4 M45.8 60.2 l1.4 -1.4 M52.8 53.2 l1.4 -1.4" stroke="#c99a2e" stroke-width="1.1" stroke-linecap="round"/>
-  <path d="M38.5 48.5 Q41 45 45 44" stroke="#fff" stroke-width="1.3" fill="none" opacity=".8" stroke-linecap="round"/>
-  <!-- shield sun -->
-  <circle cx="38" cy="61" r="4" fill="url(#gold)" stroke="none" stroke-width="1"/>
-  <path d="M38 53.5 v2.5 M38 66 v2.5 M30.5 61 h2.5 M43 61 h2.5 M32.8 55.8 l1.7 1.7 M41.5 64.5 l1.7 1.7 M32.8 66.2 l1.7 -1.7 M41.5 57.5 l1.7 -1.7" stroke="url(#gold)" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M30 52.5 h6" stroke="#9cb6ea" stroke-width="1.2" stroke-linecap="round" opacity=".8"/>
 </svg>

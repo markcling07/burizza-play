@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cadris Gravecall (ranged) - Burizza art v2. Undead faction necromancer. Raises what the
+     road leaves behind, and spends it freely. A gaunt revenant - parchment skin drawn tight
+     over a lipless skull - in layered bone-white burial wrappings and a dark-green mantle, hung
+     with bone-thrift trophies: finger-bone necklace, rib shoulder pieces, belt darts.
+     Weapon: fused-vertebrae bone staff with grave-cloth grip, finger-bone cradle and pale-green
+     soul orb - shaft, vertebrae, wrapping, cradle, orb, glow and motes all class="wpn",
+     grip drawn at data-hand. Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="67,55">
+  <defs>
+    <linearGradient id="cd-bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efe9d4"/><stop offset=".5" stop-color="#d6cfb6"/><stop offset="1" stop-color="#9c9479"/></linearGradient>
+    <linearGradient id="cd-boneD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8b096"/><stop offset="1" stop-color="#726b55"/></linearGradient>
+    <linearGradient id="cd-wrap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e4decb"/><stop offset=".55" stop-color="#d6cfb6"/><stop offset="1" stop-color="#8b8469"/></linearGradient>
+    <linearGradient id="cd-wrapD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8a186"/><stop offset="1" stop-color="#696249"/></linearGradient>
+    <linearGradient id="cd-mantle" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#577059"/><stop offset=".5" stop-color="#3f5244"/><stop offset="1" stop-color="#1e2d26"/></linearGradient>
+    <linearGradient id="cd-mantleD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#354539"/><stop offset="1" stop-color="#14201a"/></linearGradient>
+    <linearGradient id="cd-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ebe4cc"/><stop offset=".6" stop-color="#cdc4a6"/><stop offset="1" stop-color="#948a70"/></linearGradient>
+    <linearGradient id="cd-shaft" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8e2ca"/><stop offset=".45" stop-color="#cfc8ad"/><stop offset="1" stop-color="#7f7760"/></linearGradient>
+    <radialGradient id="cd-orb" cx=".38" cy=".34" r=".68"><stop offset="0" stop-color="#ffffff"/><stop offset=".26" stop-color="#dcffe4"/><stop offset=".58" stop-color="#8ee6a0"/><stop offset=".84" stop-color="#3f9c62"/><stop offset="1" stop-color="#19452c"/></radialGradient>
+    <radialGradient id="cd-orbCore" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#eaffee" stop-opacity=".7"/><stop offset="1" stop-color="#8ee6a0" stop-opacity="0"/></radialGradient>
+    <filter id="cd-glow" x="-90%" y="-90%" width="280%" height="280%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="cd-glowSm" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="1.4"/></filter>
+    <filter id="cd-eye" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation=".85"/></filter>
+  </defs>
+  <ellipse cx="52" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/><ellipse cx="52" cy="92.5" rx="19" ry="4" fill="#8ee6a0" opacity=".12" filter="url(#cd-glow)"/><!-- ground shadow + grave-light pooling at his feet -->
+  <!-- Shambling Rise: a skeletal hand claws up out of the turned earth -->
+  <path d="M25.5 94 Q29.5 90.2 35 90.8 Q40 91.2 42.5 94 Z" fill="#231f18" opacity=".85"/>
+  <path d="M30.6 89.4 Q29 85.2 30.2 82.2 M33 88 Q32.2 83.4 33.6 80.6 M35.5 88 Q35.8 83.6 37.4 81.2 M37.8 89 Q38.8 85.4 40.4 83.8" stroke="#6e684f" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+  <path d="M29.8 93.4 q.8 -4.4 3.6 -5.6 q2.9 -1.2 4.9 1.3 l.7 4.3 z" fill="url(#cd-boneD)"/>
+  <path d="M30.6 89.4 Q29 85.2 30.2 82.2 M33 88 Q32.2 83.4 33.6 80.6 M35.5 88 Q35.8 83.6 37.4 81.2 M37.8 89 Q38.8 85.4 40.4 83.8" stroke="url(#cd-bone)" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M30.2 85.6 h1.4 M33 84.4 h1.3 M35.9 84.6 h1.3" stroke="#6e684f" stroke-width=".4" opacity=".7"/><!-- knuckles -->
+  <circle class="wpn" cx="69" cy="13.5" r="12.5" fill="#8ee6a0" opacity=".3" filter="url(#cd-glow)"/><circle class="wpn" cx="69" cy="13.5" r="7.2" fill="#dcffe4" opacity=".22" filter="url(#cd-glowSm)"/><!-- soul orb halo -->
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- hood shoved back off the skull -->
+    <path d="M50.2 15.4 Q44.6 14.6 41.6 20.4 Q39.6 25.6 41 31 Q41.8 37.6 45.4 40.2 L51.4 34.4 Q46 29.4 47.2 21.4 Q48.2 17.6 50.2 15.4 Z" fill="url(#cd-mantleD)"/>
+    <path d="M46.8 19.2 Q42.8 23.8 43.5 30.6 Q43.9 35.2 45.8 37.6" stroke="#14201a" stroke-width=".6" fill="none" opacity=".65"/>
+    <!-- back arm, calling the dead up out of the road -->
+    <path d="M47 38.6 Q40 44.6 36.4 55.6 L41 58 Q44.4 48.8 50.2 43.4 Z" fill="url(#cd-wrapD)"/>
+    <path d="M38.2 56.8 q-2.4 1.8 -2.8 4.4 q1.8 1.6 4.3 .8 q2 -.8 2.3 -2.8 z" fill="url(#cd-skin)"/><path d="M36.2 61.6 q-1.8 1.2 -2.8 2.8 M38 62.8 q-1.4 1.6 -2 3.2 M40.2 63 q-.6 1.8 -.6 3.2" stroke="#b8b096" stroke-width=".85" fill="none" stroke-linecap="round"/>
+    <path d="M36 62.6 q-1.4 7 -2.2 14 q-.6 5 -.4 9" stroke="#8ee6a0" stroke-width=".9" fill="none" opacity=".4" filter="url(#cd-glowSm)"/>
+    <!-- wrapped feet -->
+    <path d="M45 87.4 h7.4 v6.5 h-8.9 z" fill="url(#cd-wrapD)"/><path d="M54.6 87.4 h7.4 l3.2 6.5 h-10.6 z" fill="url(#cd-wrap)"/>
+    <path d="M44.4 89.8 h7.6 M44.6 91.8 h7.4 M54.8 89.8 h7.2 M55 91.8 h8" stroke="#8b8469" stroke-width=".5" opacity=".65"/>
+    <!-- burial wrappings / robe -->
+    <path d="M45 36 Q54.5 32.4 63 36 L66.6 89 Q54 93 41.2 89 Z" fill="url(#cd-wrap)"/>
+    <path d="M50 37 h8.6 l3.2 52.4 q-8 1.2 -16 0 z" fill="url(#cd-wrapD)"/>
+    <path d="M42.5 62 Q54.4 66.4 65.2 62 M42 70 Q54.4 74.6 65.8 70 M41.6 78 Q54.4 82.6 66.2 78" stroke="#8b8469" stroke-width=".65" fill="none" opacity=".55"/><path d="M43.5 58 Q54.4 62.4 64.6 58 M42.2 66 Q54.4 70.6 65.5 66 M41.8 74 Q54.4 78.6 66 74" stroke="#efe9d4" stroke-width=".5" fill="none" opacity=".4"/><!-- layered strip seams -->
+    <path d="M41.2 89 q2.6 2.2 3.2 -1 q2.4 2.6 3.6 -.6 q2.8 2.8 4 -.4 q3 2.6 4.4 -.5 q2.8 2.4 4 -.6 q2.6 2.2 3.4 -.7 l2.8 3.8 q-12.6 4 -25.4 0 z" fill="url(#cd-wrapD)"/>
+    <!-- grave-light leaking between the ribs -->
+    <path d="M50.2 49.6 q4.4 1.8 8.6 .4 M50 53.2 q4.4 1.8 8.8 .4 M50.4 56.8 q4.2 1.7 8.4 .3" stroke="#8ee6a0" stroke-width=".95" fill="none" stroke-linecap="round" opacity=".8" filter="url(#cd-glowSm)"/>
+    <path d="M50.4 48 q4.4 1.8 8.6 .4 M50.2 51.6 q4.4 1.8 8.8 .4 M50.6 55.2 q4.2 1.7 8.4 .3 M50.8 58.4 q4 1.6 8 .3" stroke="#b8b096" stroke-width="1" fill="none" opacity=".75" stroke-linecap="round"/><!-- rib bones -->
+    <path d="M50.2 49.6 q4.4 1.8 8.6 .4 M50 53.2 q4.4 1.8 8.8 .4 M50.4 56.8 q4.2 1.7 8.4 .3" stroke="#dcffe4" stroke-width=".4" fill="none" opacity=".8" stroke-linecap="round"/>
+    <!-- dark-green mantle -->
+    <path d="M44 36.2 Q54.5 30.6 63.6 36.2 L66 45.4 Q54.5 49.8 42 45.4 Z" fill="url(#cd-mantle)"/>
+    <path d="M45.6 37.4 Q54.5 33 62.2 37.4 L63.8 43.6 Q54.5 47.4 44.4 43.6 Z" fill="url(#cd-mantleD)" opacity=".5"/>
+    <path d="M47.4 45.2 l-1.6 35.4 l4.4 .4 l1.4 -35 z M57.6 44.8 l1.8 35.4 l-4.4 .5 l-1.2 -35.2 z" fill="url(#cd-mantleD)"/><path d="M46.2 78.6 l4.2 .4 l-.2 2.6 l-4.2 -.4 z M55.4 78.6 l4.2 -.4 l.3 2.6 l-4.3 .4 z" fill="url(#cd-boneD)"/><!-- stole + bone-weighted tips -->
+    <!-- rib fragments worked into the shoulders -->
+    <path d="M60.4 35.4 q5.6 .6 6.8 5.6 M59.8 38.2 q5.4 1 6.4 5.4 M59.4 41 q4.8 1.2 5.6 5 M48.4 35.4 q-5.2 .8 -6.2 5.4 M48.8 38.2 q-4.8 1.2 -5.6 5.2" stroke="#8b8469" stroke-width="1.7" fill="none"/>
+    <path d="M60.4 35.4 q5.6 .6 6.8 5.6 M59.8 38.2 q5.4 1 6.4 5.4 M59.4 41 q4.8 1.2 5.6 5 M48.4 35.4 q-5.2 .8 -6.2 5.4 M48.8 38.2 q-4.8 1.2 -5.6 5.2" stroke="url(#cd-bone)" stroke-width=".9" fill="none"/>
+    <!-- finger-bone necklace -->
+    <path d="M47.8 40.4 Q54.8 49.8 62.4 40.2" stroke="#6e684f" stroke-width=".5" fill="none"/>
+    <g fill="url(#cd-bone)" stroke="#8b8469" stroke-width=".22">
+      <rect x="49.2" y="42.4" width="1.5" height="3.6" rx=".7" transform="rotate(-30 49.9 44.2)"/><rect x="52" y="44.8" width="1.5" height="4" rx=".7" transform="rotate(-13 52.7 46.8)"/><rect x="55" y="45.6" width="1.5" height="4.2" rx=".7" transform="rotate(4 55.7 47.7)"/><rect x="58" y="44.4" width="1.5" height="4" rx=".7" transform="rotate(19 58.7 46.4)"/><rect x="60.5" y="42.2" width="1.5" height="3.6" rx=".7" transform="rotate(31 61.2 44)"/>
+    </g>
+    <!-- belt hung with throwing splinters (Bone Dart) -->
+    <path d="M43.6 59 Q54.5 63.4 65 59 L65.4 63.2 Q54.5 67.8 43.2 63.2 Z" fill="url(#cd-mantleD)"/>
+    <path d="M52.8 61 h4.2 v4 h-4.2 z" fill="url(#cd-boneD)"/><path d="M53.6 62 h2.6 v2 h-2.6 z" fill="#8ee6a0" opacity=".7"/>
+    <path d="M44.6 64.2 l1.9 .5 l-.8 8.4 l-1.4 1.4 z M50.6 65.6 l1.9 .4 l-.7 7 l-1.4 1.3 z M57 65.8 l1.9 -.3 l1 7.2 l-1.1 1.4 z M63 64 l1.9 -.5 l1.3 8.2 l-1.1 1.5 z" fill="url(#cd-bone)" stroke="#8b8469" stroke-width=".25"/>
+    <!-- neck vertebrae -->
+    <path d="M52.9 28 q2.3 -.7 4.4 0 l.6 10 q-2.9 .8 -5.6 0 z" fill="url(#cd-skin)"/><path d="M52.9 28 q1 -.3 1.9 -.2 l-.4 10.4 q-1.1 -.1 -2.1 -.2 z" fill="#948a70" opacity=".45"/><path d="M52.5 31.4 q2.6 .8 5.1 0 M52.6 34.2 q2.6 .8 5.2 0" stroke="#948a70" stroke-width=".5" fill="none" opacity=".75"/>
+    <!-- skull: gaunt, turned three-quarter to the right -->
+    <ellipse cx="54.4" cy="21.8" rx="7.7" ry="8" fill="url(#cd-skin)"/><path d="M47.4 16.4 Q45.4 23.4 48.8 29.4 Q46.6 22.8 48.6 16 Z" fill="#948a70" opacity=".35"/>
+    <path d="M51.4 26.6 Q52.4 32.8 56.8 34.4 Q61.4 34 62.6 28.6 Q58.8 31.6 54.8 30.2 Z" fill="url(#cd-skin)"/><path d="M52.8 27.8 Q56.8 31.4 62.4 28.4" stroke="#948a70" stroke-width=".55" fill="none" opacity=".6"/><!-- mandible + jaw seam -->
+    <path d="M52.6 18.8 Q57.8 16.6 62.9 19.4 L62.5 21.5 Q57.8 18.8 53 20.9 Z" fill="#efe9d4" opacity=".55"/><path d="M58.8 26.8 Q61 27.6 62.7 26.2 Q62.2 29.6 59.7 30.8 Z" fill="#948a70" opacity=".3"/><!-- brow ridge + hollow cheek -->
+    <path d="M49.6 15.6 Q54.4 13.4 59.4 15.4 M54.4 13.6 q.7 3.2 -.5 5.8" stroke="#efe9d4" stroke-width=".4" fill="none" opacity=".4"/><path d="M52.6 19.6 Q50 21.8 50.6 25.6" stroke="#948a70" stroke-width=".9" fill="none" opacity=".3"/><!-- sutures + temple -->
+    <path d="M58.2 20.6 Q61.4 19.5 63.5 21.2 Q63.6 24.9 60.9 26.1 Q58.6 25 58.2 20.6 Z" fill="#131a12"/><path d="M53.7 21 Q55.9 20.1 57.4 21.4 Q57.4 24.3 55.7 25.3 Q53.9 24.4 53.7 21 Z" fill="#131a12" opacity=".9"/><!-- sunken sockets -->
+    <path d="M61.7 27 l1 2 l-2.1 .25 z" fill="#131a12" opacity=".9"/><path d="M56.6 30.5 Q59.6 31.9 62.8 30.1 L62.6 32.2 Q59.6 33.7 56.5 32.2 Z" fill="#131a12"/><!-- nasal cavity + lipless mouth -->
+    <path d="M57.9 31.1 v1.2 M59.2 31.6 v1.3 M60.5 31.6 v1.3 M61.8 31.1 v1.2" stroke="#e4decb" stroke-width=".45" opacity=".8"/><path d="M58 25.3 Q61.2 26.8 63.6 24.7" stroke="#efe9d4" stroke-width=".5" fill="none" opacity=".45"/><!-- teeth + cheekbone -->
+    <!-- staff: fused vertebrae, grave-cloth grip, finger-bone cradle -->
+    <path class="wpn" d="M68.8 92.5 Q66.4 73.5 67.5 55 Q68.6 36.5 69.6 19.5" stroke="#5e5742" stroke-width="4.1" fill="none"/>
+    <path class="wpn" d="M68.8 92.5 Q66.4 73.5 67.5 55 Q68.6 36.5 69.6 19.5" stroke="url(#cd-shaft)" stroke-width="2.7" fill="none"/>
+    <path class="wpn" d="M65.2 83 q1.1 -2.1 2.6 -2.1 q1.5 0 2.6 2.1 q-1.1 2.1 -2.6 2.1 q-1.5 0 -2.6 -2.1 z M64.7 73.6 q1.1 -2.1 2.6 -2.1 q1.5 0 2.6 2.1 q-1.1 2.1 -2.6 2.1 q-1.5 0 -2.6 -2.1 z M64.6 64.3 q1.1 -2.1 2.6 -2.1 q1.5 0 2.6 2.1 q-1.1 2.1 -2.6 2.1 q-1.5 0 -2.6 -2.1 z" fill="url(#cd-bone)" stroke="#6e684f" stroke-width=".3"/>
+    <path class="wpn" d="M65.4 45.9 q1.1 -2.1 2.6 -2.1 q1.5 0 2.6 2.1 q-1.1 2.1 -2.6 2.1 q-1.5 0 -2.6 -2.1 z M66 36.9 q1.1 -2.1 2.6 -2.1 q1.5 0 2.6 2.1 q-1.1 2.1 -2.6 2.1 q-1.5 0 -2.6 -2.1 z M66.5 28.1 q1.1 -2.1 2.6 -2.1 q1.5 0 2.6 2.1 q-1.1 2.1 -2.6 2.1 q-1.5 0 -2.6 -2.1 z" fill="url(#cd-bone)" stroke="#6e684f" stroke-width=".3"/>
+    <path class="wpn" d="M64.9 82 l-1.8 -1.2 M70.5 82 l1.8 -1.2 M64.4 72.6 l-1.8 -1.2 M70 72.6 l1.8 -1.2 M65.2 44.9 l-1.7 -1.2 M70.8 44.9 l1.7 -1.2 M66.3 35.9 l-1.7 -1.2 M71.9 35.9 l1.7 -1.2" stroke="#8b8469" stroke-width=".9"/><!-- transverse processes -->
+    <path class="wpn" d="M64.8 49.8 q2.7 -1.2 5.4 0 l-.4 12.6 q-2.5 1.2 -5 0 z" fill="url(#cd-wrapD)"/><path class="wpn" d="M64.9 51.6 q2.6 1.4 5.3 -.4 M64.8 54.4 q2.6 1.4 5.3 -.4 M64.8 57.2 q2.6 1.4 5.2 -.4 M64.8 60 q2.6 1.4 5.2 -.4" stroke="#efe9d4" stroke-width=".45" fill="none" opacity=".55"/><!-- grave-cloth grip -->
+    <path class="wpn" d="M70.2 50.4 q2.4 2.4 1.2 5.4 q-.8 2 .4 3.6" stroke="#d6cfb6" stroke-width="1.1" fill="none" opacity=".85"/><!-- loose grave-cloth tail -->
+    <path class="wpn" d="M65.8 20.6 q3.7 -1.7 7.6 0 l-1 3.6 q-2.9 1.2 -5.8 0 z" fill="url(#cd-boneD)"/>
+    <path class="wpn" d="M66.8 21 Q62.4 17.2 63.2 9.4 M71.8 21 Q76.2 17.2 75.2 9.2 M69.2 21 Q69.8 15 69.2 7" stroke="#6e684f" stroke-width="2.6" fill="none"/>
+    <path class="wpn" d="M66.8 21 Q62.4 17.2 63.2 9.4 M71.8 21 Q76.2 17.2 75.2 9.2 M69.2 21 Q69.8 15 69.2 7" stroke="url(#cd-bone)" stroke-width="1.5" fill="none"/>
+    <circle class="wpn" cx="69" cy="13.5" r="5.3" fill="url(#cd-orb)"/>
+    <path class="wpn" d="M66.2 13.8 q2.2 -3.2 4.9 -1 q1.4 2.6 -1.1 4.5" stroke="#eaffee" stroke-width=".55" fill="none" opacity=".6"/><path class="wpn" d="M70.6 11.2 q-1.6 3.2 -3.4 4.2 q1.2 1.6 3.3 1" stroke="#dcffe4" stroke-width=".4" fill="none" opacity=".45"/><!-- inner swirl -->
+    <circle class="wpn" cx="69" cy="13.5" r="3.1" fill="url(#cd-orbCore)"/>
+    <path class="wpn" d="M64.4 11.4 q1 3.2 3.6 4.8 M73.8 11.2 q-1 3.2 -3.4 4.8" stroke="url(#cd-bone)" stroke-width="1.5" fill="none" stroke-linecap="round"/><!-- cradle fingertips in front -->
+    <circle class="wpn" cx="67" cy="11.4" r=".9" fill="#fff" opacity=".85"/><circle class="wpn" cx="67.9" cy="12.4" r=".4" fill="#fff" opacity=".5"/>
+    <!-- front arm, elbow, and the hand closed on the grip at data-hand -->
+    <path d="M56.4 38.6 Q62.6 39.8 65.4 45.6 Q67.4 49.6 68 53.6 L63.8 55.2 Q63 50.6 61.2 47 Q59 43.4 54.6 43.4 Z" fill="url(#cd-wrap)"/><path d="M58.8 41.4 Q63 43.6 64.8 48.4" stroke="#8b8469" stroke-width=".5" fill="none" opacity=".45"/>
+    <path d="M62.8 49.8 Q65.6 48.2 69.4 49.8 L69 54.6 Q65.4 56 62.4 54.4 Z" fill="url(#cd-wrapD)"/><!-- wrist wrapping -->
+    <path d="M64.6 52.4 q2.8 -1.6 5.2 .2 l.2 5.4 q-2.8 1.6 -5.4 -.2 z" fill="url(#cd-skin)"/><!-- palm behind the shaft -->
+    <path d="M65.2 53 q2.8 -.9 5 .5 M65 54.8 q3 -.9 5.2 .5 M65.1 56.6 q2.9 -.8 5 .5 M64.9 52.8 q-1.5 1.8 -.5 3.9" stroke="#8b8469" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M65.2 53 q2.8 -.9 5 .5 M65 54.8 q3 -.9 5.2 .5 M65.1 56.6 q2.9 -.8 5 .5 M64.9 52.8 q-1.5 1.8 -.5 3.9" stroke="url(#cd-skin)" stroke-width=".95" fill="none" stroke-linecap="round"/><!-- finger bones + thumb round the shaft -->
+  </g>
+  <!-- circlet shoved back onto the crown -->
+  <path d="M46.2 23.2 Q47 14.6 56.4 13.6" stroke="url(#cd-boneD)" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+  <path d="M46.8 22.6 Q47.6 15.6 56 14.4" stroke="#efe9d4" stroke-width=".4" fill="none" opacity=".5" stroke-linecap="round"/>
+  <path d="M50.3 13.9 l1.4 1.6 l-1.4 2.3 l-1.4 -2.3 z" fill="#8ee6a0" opacity=".9"/><path d="M50.3 13.9 l1.4 1.6 l-1.4 .7 z" fill="#dcffe4" opacity=".6"/><!-- grave-gem set in the band -->
+  <!-- eyes: witch-light burning in the sockets -->
+  <circle cx="60.9" cy="23.2" r="2.2" fill="#8ee6a0" opacity=".4" filter="url(#cd-eye)"/>
+  <circle cx="55.6" cy="22.9" r="1.8" fill="#8ee6a0" opacity=".26" filter="url(#cd-eye)"/>
+  <circle cx="60.9" cy="23.2" r="1.4" fill="#8ee6a0"/>
+  <circle cx="55.6" cy="22.9" r="1.15" fill="#8ee6a0" opacity=".85"/>
+  <circle cx="60.9" cy="23.2" r=".55" fill="#eaffee"/><circle cx="55.6" cy="22.9" r=".4" fill="#eaffee" opacity=".85"/>
+  <path d="M61.3 25.4 q-.5 2.4 -1.5 4 M55.8 24.8 q-.3 2 -1 3.2" stroke="#8ee6a0" stroke-width=".5" fill="none" opacity=".28" filter="url(#cd-glowSm)"/><!-- light spilling down the cheek -->
+  <!-- tattered wrapping strips trailing from the forearms -->
+  <path d="M62.6 48.4 q-1.8 6.2 -4.8 9.8 q-1.2 1.4 -.6 3.2 M40 57.6 q-2.4 5.4 -3 10.4 q-.4 3.4 .8 5.6" stroke="url(#cd-wrap)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".95"/>
+  <path d="M65.4 51.4 q-1 5.6 -3.6 9.6 q-1.4 2.2 -1 4.4 M42.6 56.4 q-1.4 5.2 -1.4 9.6" stroke="#c4bda2" stroke-width="1" fill="none" stroke-linecap="round" opacity=".8"/>
+  <!-- mantle + wrapping trim -->
+  <path d="M42.2 45.4 Q54.5 49.8 65.8 45.4" stroke="#d6cfb6" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M44.4 36.6 Q54.5 31.4 63.2 36.6" stroke="#577059" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path d="M43.4 59.4 Q54.5 63.8 65.2 59.4" stroke="#8ee6a0" stroke-width=".5" fill="none" stroke-linecap="round" opacity=".35"/>
+  <!-- bone splinters orbiting him, waiting to be thrown -->
+  <g class="wpn" fill="url(#cd-bone)" stroke="#8b8469" stroke-width=".25">
+    <path d="M78.6 24 l1.9 .5 l-.8 7 l-1.4 1.2 z" transform="rotate(62 79.2 27.6)"/><path d="M79.6 39 l1.8 .5 l-.7 6.4 l-1.3 1.1 z" transform="rotate(48 80.2 42.2)" opacity=".9"/>
+    <path d="M32 41 l1.8 .5 l-.7 6.2 l-1.3 1.1 z" transform="rotate(-54 32.6 44.1)" opacity=".7"/><path d="M82 10 l1.7 .4 l-.7 5.8 l-1.2 1 z" transform="rotate(54 82.6 12.9)" opacity=".85"/>
+    <path d="M32 26 l1.6 .4 l-.6 5.2 l-1.1 .9 z" transform="rotate(-62 32.5 28.6)" opacity=".65"/><path d="M78 53 l1.7 .4 l-.7 5.6 l-1.2 1 z" transform="rotate(56 78.6 55.8)" opacity=".8"/>
+  </g>
+  <!-- grave-motes -->
+  <g class="wpn" fill="#8ee6a0">
+    <circle cx="80" cy="18" r=".85"/><circle cx="58" cy="6.4" r=".7"/><circle cx="86" cy="31" r=".6"/>
+    <circle cx="75" cy="45" r=".7"/><circle cx="35" cy="34" r=".55" opacity=".6"/><circle cx="88" cy="48" r=".45" opacity=".5"/>
+  </g>
+  <g class="wpn" fill="#dcffe4" opacity=".5">
+    <circle cx="77" cy="9" r=".5"/><circle cx="83" cy="22" r=".4"/><circle cx="73" cy="33" r=".45"/>
+    <circle cx="90" cy="38" r=".3"/><circle cx="31" cy="54" r=".4"/><circle cx="29" cy="70" r=".35"/>
+  </g>
+  <g fill="#3f5244" opacity=".4"><circle cx="37" cy="80" r=".5"/><circle cx="72" cy="78" r=".45"/><circle cx="26" cy="62" r=".4"/><circle cx="80" cy="66" r=".35"/></g>
+  <ellipse class="wpn" cx="55" cy="50" rx="23" ry="31" fill="none" stroke="#8ee6a0" stroke-width=".4" opacity=".12" filter="url(#cd-glowSm)"/><!-- necromantic aura -->
+</svg>

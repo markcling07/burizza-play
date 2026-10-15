@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mordrek the Interred (Undead, melee) - Burizza art v1. A trudging zombie bruiser who dug himself
+     out of his own grave: burial suit rotted to rags, grave dirt caked on shoulders, knees and hands,
+     torn turf and roots still clinging, split skin over bared ribs, sunken cheeks, a lolling jaw and
+     grave-green pinpoint eyes. Sagging hunch, front shoulder dragged low. Canvas 100x100, faces right,
+     feet on y=94. The iron grave cross he tore out of the ground with him is his weapon (class="wpn"):
+     upright, crossbar, worn nameplate, rust, base spike and wire grip wrap, drawn at data-hand. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66,58">
+  <defs>
+    <linearGradient id="md-flesh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9c9a4"/><stop offset=".5" stop-color="#97a884"/><stop offset="1" stop-color="#63704f"/></linearGradient>
+    <linearGradient id="md-fleshD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7d8c6c"/><stop offset="1" stop-color="#46523a"/></linearGradient>
+    <linearGradient id="md-rags" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6e7059"/><stop offset=".5" stop-color="#5a5c4a"/><stop offset="1" stop-color="#3b3c30"/></linearGradient>
+    <linearGradient id="md-ragsD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a4c3d"/><stop offset="1" stop-color="#2a2b22"/></linearGradient>
+    <linearGradient id="md-trim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a6b5c"/><stop offset=".6" stop-color="#47564a"/><stop offset="1" stop-color="#2b352d"/></linearGradient>
+    <linearGradient id="md-iron" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a6"/><stop offset=".45" stop-color="#5c6168"/><stop offset="1" stop-color="#2c3035"/></linearGradient>
+    <linearGradient id="md-ironD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e535a"/><stop offset="1" stop-color="#20242a"/></linearGradient>
+    <linearGradient id="md-rust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5a2e"/><stop offset=".6" stop-color="#6a3f1e"/><stop offset="1" stop-color="#3f2411"/></linearGradient>
+    <linearGradient id="md-dirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a4530"/><stop offset="1" stop-color="#2e2319"/></linearGradient>
+    <linearGradient id="md-bone" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="#e9e3cb"/><stop offset="1" stop-color="#b6ae95"/></linearGradient>
+    <radialGradient id="md-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e6ffe6"/><stop offset=".4" stop-color="#8ee696"/><stop offset="1" stop-color="#8ee696" stop-opacity="0"/></radialGradient>
+    <radialGradient id="md-chill" cx=".5" cy=".6" r=".5"><stop offset="0" stop-color="#8ee696" stop-opacity=".3"/><stop offset="1" stop-color="#8ee696" stop-opacity="0"/></radialGradient>
+    <filter id="md-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.3"/></filter>
+    <filter id="md-haze" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4"/></filter>
+  </defs>
+  <ellipse cx="50" cy="94" rx="28" ry="3.9" fill="#000" opacity=".4"/>
+  <ellipse cx="48" cy="92.5" rx="21" ry="3" fill="url(#md-chill)" filter="url(#md-haze)"/>
+  <!-- the opened grave behind him: turned earth, a dark hole, torn turf -->
+  <path d="M13 94 Q16 85.5 24 86.5 Q29 83.5 35 87.5 Q39 86 42 88.5 L42 94 Z" fill="url(#md-dirt)"/>
+  <ellipse cx="23.5" cy="88.5" rx="7.5" ry="2.7" fill="#19180f"/>
+  <path d="M15 87.5 q4 -2.5 8.5 -1.5 M30 85 q4 -1.5 7 .8 M35.5 88 q3 -1.5 5.5 -.3" stroke="#47564a" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".8"/> <path d="M11.5 92 q3 -3 7 -2.5 M38 91 q4 -2.5 7.5 -1" stroke="#3a2c1c" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".7"/>
+  <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back arm: hanging slack, long, dirt-caked -->
+    <path d="M40 45.5 Q31.5 53 29.5 68 L36.5 69.5 Q37.5 56 45.5 50 Z" fill="url(#md-fleshD)"/>
+    <path d="M34.5 55.5 Q32.5 60 32 65.5" stroke="#46523a" stroke-width=".7" fill="none" opacity=".6"/> <path d="M33 58.5 l3 1 M32.5 62 l3.2 1" stroke="#7d8c6c" stroke-width=".5" opacity=".7"/>
+    <circle cx="32.8" cy="71" r="3.6" fill="url(#md-fleshD)"/>
+    <path d="M30.2 73.5 l-1.8 4.2 M32.8 74.6 l-.4 4.8 M35.4 73.8 l1.9 4" stroke="#63704f" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M29.8 68.8 q3.2 -1.8 6.4 -.3 q-1 3.2 -3.4 3.6 q-2.4 -.6 -3 -3.3 z" fill="url(#md-dirt)" opacity=".8"/>
+    <!-- back leg -->
+    <path d="M37 69 h11.5 l-1.5 11.5 l-1.8 8.5 h-9 l1.2 -8.5 z" fill="url(#md-ragsD)"/>
+    <path d="M38.8 76.5 q4 -2.2 8 -.4 q-1 3.6 -4 4.2 q-3 -.8 -4 -3.8 z" fill="url(#md-dirt)" opacity=".85"/>
+    <path d="M38 84 l1.5 3 l1.6 -2.6 l1.7 3 l1.6 -2.8 l1.5 2.6 l.3 -3.8 h-8.4 z" fill="url(#md-ragsD)"/>
+    <path d="M33.8 87.5 h11 q3.4 0 4 6.2 h-16 z" fill="#2b281f"/> <path d="M35.5 89.5 h9.5 M35 91.5 h10" stroke="#1d1b15" stroke-width=".5" opacity=".6"/>
+    <!-- front leg, mid-shuffle -->
+    <path d="M50.5 69 h12.5 l1.5 11.5 l2 8.5 h-10 l-3 -8.5 z" fill="url(#md-rags)"/>
+    <path d="M52.5 76.5 q4.4 -2.4 8.6 -.4 q-.8 4 -4.2 4.6 q-3.2 -.8 -4.4 -4.2 z" fill="url(#md-dirt)" opacity=".85"/>
+    <path d="M53.5 84 l1.6 3 l1.7 -2.6 l1.8 3 l1.7 -2.8 l1.6 2.6 l.6 -3.6 h-9.2 z" fill="url(#md-rags)"/>
+    <path d="M53.5 87.5 h12 q3.6 0 4.2 6.2 h-17 z" fill="#36332a"/> <path d="M55.5 89.5 h10.5 M55 91.5 h11" stroke="#22201a" stroke-width=".5" opacity=".6"/>
+    <!-- torso: hunched, front shoulder dragged low by the iron -->
+    <path d="M33.5 53 Q34 44 43 40.5 Q55 37.8 63.5 47 L62.5 71.5 Q48 77 35 71.5 Z" fill="url(#md-rags)"/>
+    <path d="M36 49 Q37.5 41 46 39.5 Q41.5 44.5 40.5 53 Z" fill="url(#md-ragsD)" opacity=".9"/>
+    <!-- bare chest torn out of the burial suit -->
+    <path d="M46.5 43 Q55 41 60.5 45.5 L58.5 66 Q50 69 45 63.5 Z" fill="url(#md-flesh)"/>
+    <path d="M45.5 43.5 l-2.5 3 l2 2.5 l-2.2 3 l2.4 2.8 l-2 3 l1.8 3 l-1.4 3.4 l2.4 2.8 Z" fill="url(#md-ragsD)"/> <path d="M61 45 l2.5 2.6 l-1.6 3 l1.8 3.2 l-1.4 3 l1.6 3 l-1.8 3 l1.4 3 l-2.6 2.6 Z" fill="url(#md-ragsD)"/>
+    <!-- the split: ribs showing through -->
+    <path d="M49.8 49.5 Q55 47.8 58.2 50.5 L56.8 62.5 Q51.5 64.5 48.8 60.5 Z" fill="#2f3a2e"/>
+    <path d="M50.1 52.3 q3.6 -1.4 6.6 .5 M49.7 55.8 q3.8 -1.4 6.8 .5 M49.6 59.2 q3.4 -1.3 6.3 .4" stroke="url(#md-bone)" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M53 48.5 l.2 15" stroke="#1f2a20" stroke-width=".5" opacity=".6"/>
+    <!-- sutures holding the burial suit to what is left of him -->
+    <path d="M59.8 45.5 L58 66" stroke="#46523a" stroke-width=".5" opacity=".8"/>
+    <path d="M58.3 48.5 l3 -1 M58.1 52 l3 -1 M57.9 55.5 l3 -1 M57.7 59 l3 -1 M57.5 62.5 l3 -1" stroke="#7d8c6c" stroke-width=".55" opacity=".8"/> <path d="M44.5 47 l2.8 -1.2 M44.3 51 l2.8 -1.2 M44.2 55 l2.8 -1.2" stroke="#7d8c6c" stroke-width=".5" opacity=".65"/>
+    <!-- rotted belt, tarnished buckle, ragged coat hem -->
+    <rect x="34.5" y="67" width="28.5" height="5.6" rx="1.1" fill="url(#md-trim)"/>
+    <path d="M36 68.5 h25.5 M36.5 71 h25" stroke="#2b352d" stroke-width=".4" opacity=".6"/>
+    <path d="M45 66.5 h8 l-1 7 l-3 1.8 l-3 -1.8 z" fill="#6b6a52"/>
+    <path d="M34.8 72.5 l1.8 5.5 l2 -4.2 l2.2 6 l2 -5 l2.4 5.5 l2 -4.5 l2.4 5 l2 -5.5 l2.2 4.5 l2 -6 l1.8 4.5 l1.4 -5.3 z" fill="url(#md-ragsD)"/>
+    <!-- grave dirt caked on both shoulders, torn turf and roots still hanging off him -->
+    <path d="M38.5 44 Q44 38.5 51 40.5 Q47 45.2 41.5 45.8 Z" fill="url(#md-dirt)" opacity=".8"/>
+    <path d="M55.5 44.5 Q60.5 43.5 64.5 47.5 Q59.5 49.2 56 47.5 Z" fill="url(#md-dirt)" opacity=".75"/>
+    <g fill="#3a2c1c" opacity=".8"><circle cx="43.5" cy="43.5" r=".8"/><circle cx="47.5" cy="41.6" r=".6"/><circle cx="58.5" cy="46" r=".7"/><circle cx="62" cy="47.6" r=".55"/></g>
+    <path d="M40 45.5 q-1.5 3.5 -.5 6.5 M44.5 46 q-.8 3 .4 5.5 M62 49 q1.5 3 .8 5.5" stroke="#3a2c1c" stroke-width=".6" fill="none" stroke-linecap="round" opacity=".75"/>
+    <path d="M41.5 40.5 q3 -2 6.5 -1.2" stroke="#47564a" stroke-width="1" fill="none" stroke-linecap="round" opacity=".85"/>
+    <!-- neck, head sunk down into the shoulders -->
+    <path d="M50.5 35.5 L59.5 37 L58.5 45.5 L49.5 43.5 Z" fill="url(#md-fleshD)"/>
+    <path d="M51.5 39 q3.5 1.2 7 1" stroke="#46523a" stroke-width=".6" fill="none" opacity=".7"/>
+    <path d="M51 28.5 L45.2 24 L50.5 34.5 Z" fill="url(#md-fleshD)"/> <path d="M48.5 28 L46.8 26 L49 31" stroke="#46523a" stroke-width=".55" fill="none" opacity=".6"/>
+    <!-- head: tilted, sunken cheeks, scalp half gone -->
+    <path d="M46 30.5 Q43.8 20.5 52.5 17.8 Q61.5 16 65.8 23 L69.4 29.2 L66.8 31.4 Q67.6 35.8 62.8 38.4 Q54.6 41 49.8 36.6 Q46.4 34.2 46 30.5 Z" fill="url(#md-flesh)"/>
+    <path d="M46.6 26 Q52 20.5 60 20 Q54 24.5 50.5 31.5 Z" fill="url(#md-fleshD)" opacity=".45"/>
+    <path d="M61.8 32 Q64.8 34.2 63.8 37" stroke="#63704f" stroke-width="1" fill="none" opacity=".6"/> <path d="M54.2 32.6 Q56.8 34.6 56.2 37" stroke="#63704f" stroke-width=".8" fill="none" opacity=".45"/>
+    <path d="M64.9 31.6 l2.9 1.9 l-2.7 1.6 z" fill="#333c30" opacity=".85"/>
+    <path d="M49.6 22 l4.5 -1.6 M50.3 24.6 l4.3 -1.6" stroke="#46523a" stroke-width=".5" opacity=".65"/> <path d="M50.7 21 l.6 2.3 M52.5 20.4 l.6 2.3 M54.3 19.9 l.6 2.3" stroke="#7d8c6c" stroke-width=".5" opacity=".75"/>
+    <path d="M46.2 27 Q44.4 18.6 50 15.6 Q54 13.8 57.8 15 Q52.4 18 50 22.4 Q48.2 25 48.2 28.4 Z" fill="#3b3c30"/> <path d="M49.4 16.4 q-1.8 -1 -2.2 -2.8 M53.4 14.7 q-1.1 -1.3 -1.1 -2.7 M57.2 14.9 q-.4 -1.5 .3 -2.6" stroke="#3b3c30" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".9"/>
+    <path d="M52 18.5 q4 -3 9.5 -1.4" stroke="url(#md-dirt)" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".7"/>
+    <!-- lolling jaw, most of the teeth gone -->
+    <path d="M52.4 36.4 Q58.4 39.6 65.2 36 Q66 42.4 60.4 44.6 Q54.2 45.2 52.2 41.2 Z" fill="url(#md-fleshD)"/>
+    <path d="M55.4 37 Q59.8 39.8 64.8 36.6 Q64 41.2 59.8 41.9 Q56.4 41.2 55.4 37 Z" fill="#262b24"/>
+    <path d="M57.8 38.6 l.5 1.6 l1.1 -1.2 Z M62 38.4 l.4 1.7 l1.2 -1.4 Z M60 41.7 l.5 -1.3 l.9 1.1 Z" fill="#d8d2b8"/> <path d="M56 43.2 q3 .9 5.6 .1" stroke="#46523a" stroke-width=".6" fill="none" opacity=".6"/>
+    <!-- front arm: sleeve rotted off at the elbow, sutured forearm -->
+    <path d="M53.5 42 Q62.5 43 67 50.5 L61.8 54.5 L52.5 47.5 Z" fill="url(#md-rags)"/>
+    <path d="M61.8 54.5 l1.6 -1.4 l1.4 1.2 l1.6 -1.8 l.6 -2 Z" fill="url(#md-ragsD)"/> <path d="M56 45.5 q4 .8 6.5 3.5" stroke="#3b3c30" stroke-width=".5" fill="none" opacity=".6"/>
+    <path d="M62 50 Q67 52.5 68.8 57.5 L63.8 61.5 L59.5 55 Z" fill="url(#md-flesh)"/>
+    <path d="M64.5 51.6 L67.2 59" stroke="#46523a" stroke-width=".5" opacity=".7"/> <path d="M63.4 52.6 l2.6 -1.2 M64.6 55.2 l2.7 -1.1 M65.5 57.6 l2.6 -1.2" stroke="#7d8c6c" stroke-width=".5" opacity=".7"/>
+    <!-- HIS MARKER: the iron grave cross, dragged up out of the ground with him -->
+    <g transform="rotate(22 66 58)">
+      <rect class="wpn" x="63.8" y="9" width="4.4" height="63" rx=".7" fill="url(#md-iron)"/>
+      <rect class="wpn" x="66.6" y="9" width="1.6" height="63" fill="url(#md-ironD)" opacity=".75"/>
+      <path class="wpn" d="M63.8 9 l.7 -2 h3 l.7 2 z" fill="url(#md-ironD)"/>
+      <rect class="wpn" x="57.5" y="19.5" width="19.5" height="5.6" rx=".7" fill="url(#md-iron)"/>
+      <rect class="wpn" x="57.5" y="23.3" width="19.5" height="1.8" fill="url(#md-ironD)" opacity=".7"/>
+      <path class="wpn" d="M63.4 18.9 h7.2 v6.9 h-7.2 z" fill="url(#md-ironD)" opacity=".45"/>
+      <g class="wpn" fill="url(#md-rust)" opacity=".8"><path d="M64 13 q3.2 -1 4.2 1.5 q-1 2.6 -2.8 2.9 q-1.8 -1.7 -1.4 -4.4 z"/><path d="M58.4 20.2 q3.6 -.8 4.6 1.8 q-2 2.3 -4.6 1.6 z"/><path d="M71.4 21 q3.6 -1 5.1 1.2 q-2 2.9 -5.1 2 z"/><path d="M64.2 42 q3.2 -1 4 1.6 q-1.5 3.1 -3.6 2.4 q-1.2 -2 -.4 -4 z"/><path d="M63.9 62 q3.4 -.5 4.3 2 q-1.6 2.7 -4.3 2 z"/></g>
+      <g class="wpn" fill="#2a2219" opacity=".55"><circle cx="65" cy="16.5" r=".5"/><circle cx="67.2" cy="27.6" r=".45"/><circle cx="60.5" cy="22.4" r=".5"/><circle cx="73.6" cy="23" r=".45"/><circle cx="65.3" cy="48" r=".5"/><circle cx="67" cy="66" r=".5"/><circle cx="75" cy="21" r=".4"/></g>
+      <rect class="wpn" x="60.2" y="30.5" width="11.6" height="8" rx=".7" fill="url(#md-rust)"/>
+      <rect class="wpn" x="61.3" y="31.6" width="9.4" height="5.8" rx=".4" fill="#7a5c3e" opacity=".5"/>
+      <path class="wpn" d="M62.3 33.4 h2.8 M66 33.6 h2.2 M69.2 33.4 h1 M62.1 35.7 h3.6 M66.8 35.9 h2.6" stroke="#3f2411" stroke-width=".5" opacity=".55"/>
+      <g class="wpn" fill="#3f2411" opacity=".7"><circle cx="61.4" cy="31.7" r=".5"/><circle cx="70.6" cy="31.7" r=".5"/><circle cx="61.4" cy="37.3" r=".5"/><circle cx="70.6" cy="37.3" r=".5"/></g>
+      <path class="wpn" d="M63.2 52.2 l5.6 1.4 M63.2 55 l5.6 1.4 M63.2 57.8 l5.6 1.4 M63.2 60.6 l5.6 1.4" stroke="#5e5547" stroke-width="1.7" stroke-linecap="round"/>
+      <path class="wpn" d="M63.4 53.4 l5.4 1.3 M63.4 59 l5.4 1.3" stroke="#8a7f6a" stroke-width=".4" opacity=".55"/>
+      <g class="wpn" fill="none" stroke="#6e737a" stroke-width="1.1"><ellipse cx="69.6" cy="64.6" rx=".9" ry="1.3"/><ellipse cx="70.6" cy="67.5" rx=".9" ry="1.3"/><ellipse cx="70.3" cy="70.4" rx=".9" ry="1.3"/></g>
+      <path class="wpn" d="M63.8 70 h4.4 l-2.2 8 z" fill="url(#md-ironD)"/>
+      <path class="wpn" d="M61.4 67 q4.6 -2.4 9.2 0 q-1.4 5.4 -4.6 7 q-3.2 -1.6 -4.6 -7 z" fill="url(#md-dirt)"/>
+      <path class="wpn" d="M62.4 72 q-1.6 3 -.6 5.6 M69.4 71.4 q2 2.6 1.2 5.4 M66 74.5 q-.4 3.4 .6 5.4" stroke="#3a2c1c" stroke-width=".7" fill="none" stroke-linecap="round"/>
+      <path class="wpn" d="M64.4 40 V62 M58.6 20.6 H76.4" stroke="#c3c8ce" stroke-width=".6" fill="none" opacity=".28"/>
+    </g>
+    <circle cx="66" cy="58" r="3.8" fill="url(#md-flesh)"/>
+    <path d="M63.8 55.6 q2.8 -1 5 .5 M63.6 58.4 q2.8 -1 5.2 .4 M64 61 q2.6 -.8 4.8 .3" stroke="#63704f" stroke-width=".6" fill="none" stroke-linecap="round" opacity=".8"/> <path d="M63.5 56 q2.6 -2 5.4 -.6 q-1 3 -3 3.4 q-2.2 -.8 -2.4 -2.8 z" fill="url(#md-dirt)" opacity=".5"/>
+  </g>
+  <!-- face: hollow sockets and grave-green pinpoints -->
+  <path d="M53 25.6 Q59.2 22.8 67.2 25" stroke="#5a6b5c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".9"/>
+  <ellipse cx="58.4" cy="29.8" rx="3.2" ry="2.8" fill="#39452f" opacity=".8"/> <ellipse cx="64.6" cy="29.2" rx="3.5" ry="2.9" fill="#39452f" opacity=".8"/>
+  <circle cx="58.4" cy="29.8" r="3.4" fill="url(#md-eye)" filter="url(#md-glow)"/> <circle cx="64.6" cy="29.2" r="3.7" fill="url(#md-eye)" filter="url(#md-glow)"/>
+  <circle cx="58.4" cy="29.8" r="1.35" fill="#8ee696"/>
+  <circle cx="64.6" cy="29.2" r="1.5" fill="#8ee696"/>
+  <circle cx="58.2" cy="29.6" r=".55" fill="#e6ffe6"/> <circle cx="64.4" cy="29" r=".65" fill="#e6ffe6"/>
+  <!-- grave passengers -->
+  <path d="M44.5 40.6 q2 -2.3 4.5 -1.2 q1.6 .9 .7 2.2" stroke="#c98f9a" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".9"/> <path d="M43.6 78.4 q1.9 1.9 4.3 1.1" stroke="#b58089" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".85"/>
+  <ellipse cx="64.9" cy="53.6" rx="1.5" ry="1" fill="#241f18"/> <path d="M63.6 52.8 l-1 -.9 M66.2 52.8 l1 -.9" stroke="#241f18" stroke-width=".4" stroke-linecap="round"/>
+  <!-- rim light -->
+  <path d="M48 22.5 Q50.5 19 55 18.3" stroke="#e8f0e0" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round"/> <path d="M36 50 Q38.5 44.5 44.5 42" stroke="#e8f0e0" stroke-width="1.2" fill="none" opacity=".32" stroke-linecap="round"/> <path d="M55.5 43.5 Q61 44.6 65 49.5" stroke="#e8f0e0" stroke-width="1" fill="none" opacity=".3" stroke-linecap="round"/>
+  <path class="wpn" d="M64.4 11 V28.5" transform="rotate(22 66 58)" stroke="#dfe4ea" stroke-width="1" fill="none" opacity=".5" stroke-linecap="round"/> <path class="wpn" d="M58.4 20.4 H76.6" transform="rotate(22 66 58)" stroke="#dfe4ea" stroke-width=".9" fill="none" opacity=".4" stroke-linecap="round"/>
+  <!-- the slow march: graveside chill trailing behind him -->
+  <path d="M31 59 q-7.5 -4 -12.5 -1 M28 69.5 q-8 -2 -12.5 2 M34 79 q-7.5 0 -11.5 4" stroke="#8ee696" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".28" filter="url(#md-glow)"/>
+  <path d="M31 59 q-7.5 -4 -12.5 -1 M28 69.5 q-8 -2 -12.5 2" stroke="#b9f5bd" stroke-width=".55" fill="none" stroke-linecap="round" opacity=".35"/>
+  <!-- dirt shaking loose as he walks -->
+  <g fill="#4a3826"><circle cx="39.5" cy="52" r=".7" opacity=".7"/><circle cx="43" cy="60" r=".55" opacity=".6"/><circle cx="59" cy="72" r=".6" opacity=".6"/><circle cx="64" cy="79" r=".7" opacity=".65"/><circle cx="47" cy="84" r=".6" opacity=".55"/><circle cx="36" cy="63" r=".5" opacity=".5"/></g> <g fill="#6b5339"><circle cx="41" cy="56.5" r=".45" opacity=".6"/><circle cx="61.5" cy="76" r=".5" opacity=".6"/><circle cx="52" cy="87" r=".45" opacity=".5"/><circle cx="37.5" cy="80" r=".5" opacity=".5"/><circle cx="67.5" cy="85" r=".45" opacity=".5"/></g>
+</svg>

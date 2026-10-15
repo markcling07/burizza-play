@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fin-Keeper Shazrak (Stray Banner, support, Sound) - Burizza art v2. A stocky murloc shaman cast
+     out from the depths: wide mouth full of needle teeth, bulging teal eyes, tall dorsal fin running
+     from the crown of his head to his upper back. He wears a necklace of shells and bone, a tattered
+     kelp-and-hide vest, and carries a gnarled driftwood staff capped with a bronze bell — the bell
+     is the weapon. Teal and dark indigo. Canvas 100x100, faces right, feet on y=94.
+     The bell-staff is his weapon (class="wpn"): data-hand marks the grip. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="60,62">
+  <defs>
+    <linearGradient id="sz-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a6a6e"/><stop offset=".5" stop-color="#2a5458"/><stop offset="1" stop-color="#1a3a3e"/></linearGradient>
+    <linearGradient id="sz-belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a9a8a"/><stop offset="1" stop-color="#4a7a6a"/></linearGradient>
+    <linearGradient id="sz-fin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fcad1"/><stop offset=".4" stop-color="#3a9aa0"/><stop offset="1" stop-color="#2a7078"/></linearGradient>
+    <linearGradient id="sz-vest" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3050"/><stop offset=".5" stop-color="#2a2440"/><stop offset="1" stop-color="#1a1830"/></linearGradient>
+    <linearGradient id="sz-staff" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a7a60"/><stop offset=".5" stop-color="#5a4a38"/><stop offset="1" stop-color="#3a2e22"/></linearGradient>
+    <linearGradient id="sz-bell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4a46c"/><stop offset=".4" stop-color="#9a7a50"/><stop offset="1" stop-color="#6a5430"/></linearGradient>
+    <linearGradient id="sz-kelp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a5a3a"/><stop offset="1" stop-color="#1a3a1a"/></linearGradient>
+    <radialGradient id="sz-aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#5fcad1" stop-opacity=".35"/><stop offset="1" stop-color="#5fcad1" stop-opacity="0"/></radialGradient>
+    <filter id="sz-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  </defs>
+  <!-- ground shadow -->
+  <ellipse cx="48" cy="94" rx="22" ry="3.4" fill="#000" opacity=".35"/>
+  <g stroke="none">
+    <!-- tail: stubby, behind the body -->
+    <path d="M30 72 Q26 78 22 82 Q20 86 24 88 Q28 86 32 80 Q34 76 34 72 Z" fill="url(#sz-skin)"/>
+    <path d="M24 82 Q20 84 18 88 Q22 90 26 86" fill="url(#sz-fin)" opacity=".7"/>
+    <!-- legs: short, bowed, amphibian -->
+    <path d="M40 76 L44 76 L43 88 L39 88 Z" fill="url(#sz-skin)"/>
+    <path d="M50 76 L54 76 L56 88 L51 88 Z" fill="url(#sz-skin)"/>
+    <!-- webbed feet -->
+    <path d="M36 87 L39 84 L43 87 L44 93 L42 94 L40 92 L38 94 L36 93 Q34 90 36 87 Z" fill="url(#sz-skin)"/>
+    <path d="M36.5 88 L38 86 L40 88" stroke="#2a5458" stroke-width=".6" fill="none"/>
+    <path d="M49 87 L52 84 L56 87 L58 93 L56 94 L54 92 L52 94 L50 93 Q48 90 49 87 Z" fill="url(#sz-skin)"/>
+    <path d="M50 88 L52 86 L54 88" stroke="#2a5458" stroke-width=".6" fill="none"/>
+    <!-- torso: round, stocky -->
+    <path d="M34 42 Q30 50 32 62 Q34 72 38 78 L56 78 Q60 72 62 62 Q64 50 60 42 Z" fill="url(#sz-skin)"/>
+    <!-- belly: lighter, slightly paler green -->
+    <path d="M38 46 Q36 54 38 66 L42 72 L52 72 L56 66 Q58 54 56 46 Z" fill="url(#sz-belly)"/>
+    <!-- belly texture lines -->
+    <path d="M40 50 Q47 49 54 50 M39 55 Q47 54 55 55 M39 60 Q47 59 55 60 M40 65 Q47 64 54 65" stroke="#4a7a6a" stroke-width=".5" fill="none" opacity=".4"/>
+    <!-- vest: tattered kelp and hide -->
+    <path d="M36 42 Q32 48 34 58 L38 62 L36 66 L33 70 L35 68 L34 74 L37 70 L38 75 L40 72 Z" fill="url(#sz-vest)"/>
+    <path d="M58 42 Q62 48 60 58 L56 62 L58 66 L61 70 L59 68 L60 74 L57 70 L56 75 L54 72 Z" fill="url(#sz-vest)"/>
+    <!-- vest lacing -->
+    <path d="M44 44 L50 46 M44 48 L50 50 M44 52 L50 54" stroke="#5fcad1" stroke-width=".5" opacity=".5"/>
+    <!-- kelp strips hanging from belt -->
+    <path d="M36 72 Q34 80 32 86" stroke="url(#sz-kelp)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M38 73 Q37 82 36 90" stroke="url(#sz-kelp)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M56 73 Q57 82 58 90" stroke="url(#sz-kelp)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- shell-and-bone necklace -->
+    <path d="M38 42 Q42 46 48 47 Q54 46 58 42" stroke="#c4a46c" stroke-width="1" fill="none"/>
+    <ellipse cx="42" cy="44.5" rx="1.8" ry="1.2" fill="#e8dcc0" transform="rotate(-15, 42, 44.5)"/>
+    <ellipse cx="48" cy="46.5" rx="2" ry="1.4" fill="#d0c0a0"/>
+    <circle cx="45" cy="45.8" r="1" fill="#f0e8d0"/>
+    <ellipse cx="54" cy="44.5" rx="1.8" ry="1.2" fill="#e8dcc0" transform="rotate(15, 54, 44.5)"/>
+    <circle cx="51" cy="46" r=".8" fill="#8a7a60"/>
+    <!-- left arm (back) -->
+    <path d="M32 44 Q28 52 30 62 L34 64 Q36 54 36 46 Z" fill="url(#sz-skin)"/>
+    <!-- left hand: webbed, three fingers -->
+    <path d="M29 63 Q27 66 28 69 L30 70 L32 67 L33 70 L35 67 L36 69 L37 66 L34 64 Z" fill="url(#sz-skin)"/>
+    <path d="M30 67 L31 65 M33 67 L33.5 65" stroke="#2a5458" stroke-width=".4" fill="none"/>
+    <!-- right arm (front, holding staff) -->
+    <path d="M58 44 Q62 50 62 58 L66 60 Q66 52 64 46 Z" fill="url(#sz-skin)"/>
+    <!-- right hand gripping staff -->
+    <path d="M58 60 Q56 58 56 62 Q56 65 58 64 L62 64 Q64 62 62 60 Z" fill="url(#sz-skin)"/>
+    <!-- head: wide, bulbous, amphibian -->
+    <path d="M34 22 Q30 28 32 36 Q34 42 40 42 L56 42 Q62 42 64 36 Q66 28 62 22 Q56 16 48 16 Q40 16 34 22 Z" fill="url(#sz-skin)"/>
+    <!-- cheek pouches -->
+    <ellipse cx="36" cy="34" rx="4" ry="3" fill="#3a6a6e" opacity=".5"/>
+    <ellipse cx="60" cy="34" rx="4" ry="3" fill="#3a6a6e" opacity=".5"/>
+    <!-- eyes: huge, bulging, teal — positioned wide apart like a frog -->
+    <ellipse cx="40" cy="24" rx="5" ry="4.5" fill="#0a1a1a"/>
+    <ellipse cx="40" cy="24.5" rx="4" ry="3.5" fill="#1a4a4e"/>
+    <circle cx="41" cy="24" r="2.4" fill="#5fcad1"/>
+    <circle cx="41.5" cy="23.5" r="1" fill="#a0eef0"/>
+    <circle cx="41" cy="24" r="4" fill="#5fcad1" opacity=".3" filter="url(#sz-glow)"/>
+    <ellipse cx="56" cy="24" rx="5" ry="4.5" fill="#0a1a1a"/>
+    <ellipse cx="56" cy="24.5" rx="4" ry="3.5" fill="#1a4a4e"/>
+    <circle cx="57" cy="24" r="2.4" fill="#5fcad1"/>
+    <circle cx="57.5" cy="23.5" r="1" fill="#a0eef0"/>
+    <circle cx="57" cy="24" r="4" fill="#5fcad1" opacity=".3" filter="url(#sz-glow)"/>
+    <!-- brow ridge -->
+    <path d="M34 22 Q40 20 46 22 M50 22 Q56 20 62 22" stroke="#1a3a3e" stroke-width="1.2" fill="none"/>
+    <!-- wide mouth: needle teeth, slight grin -->
+    <path d="M36 34 Q42 40 48 40 Q54 40 60 34" fill="#1a0a0a"/>
+    <path d="M37 34.5 L39 37 L41 34.8 L43 37.5 L45 35 L47 38 L49 35 L51 38 L53 35 L55 37.5 L57 34.8 L59 37 L60 34.5" stroke="#e8e0d0" stroke-width=".7" fill="none"/>
+    <!-- nostrils -->
+    <circle cx="46" cy="30" r="1" fill="#1a3a3e"/>
+    <circle cx="50" cy="30" r="1" fill="#1a3a3e"/>
+    <!-- dorsal fin: tall, running from crown down the back -->
+    <path d="M42 16 Q44 6 48 4 Q52 6 54 16 Q56 16 58 20 Q54 14 48 2 Q42 14 38 20 Z" fill="url(#sz-fin)"/>
+    <!-- fin membrane lines -->
+    <path d="M48 4 L46 14 M48 4 L48 15 M48 4 L50 14" stroke="#5fcad1" stroke-width=".4" fill="none" opacity=".4"/>
+    <!-- smaller side fins on head -->
+    <path d="M32 26 Q26 22 24 26 Q26 30 32 28 Z" fill="url(#sz-fin)"/>
+    <path d="M64 26 Q70 22 72 26 Q70 30 64 28 Z" fill="url(#sz-fin)"/>
+    <!-- fin membrane detail -->
+    <line x1="28" y1="25" x2="32" y2="27" stroke="#5fcad1" stroke-width=".3" opacity=".5"/>
+    <line x1="68" y1="25" x2="64" y2="27" stroke="#5fcad1" stroke-width=".3" opacity=".5"/>
+    <!-- spots/markings on skin -->
+    <circle cx="38" cy="50" r="1.2" fill="#2a5458" opacity=".4"/>
+    <circle cx="55" cy="48" r="1" fill="#2a5458" opacity=".4"/>
+    <circle cx="42" cy="58" r=".9" fill="#2a5458" opacity=".3"/>
+    <circle cx="35" cy="30" r=".8" fill="#2a5458" opacity=".3"/>
+    <circle cx="61" cy="32" r=".7" fill="#2a5458" opacity=".3"/>
+  </g>
+  <!-- WEAPON: driftwood bell-staff -->
+  <g class="wpn">
+    <!-- staff shaft: gnarled driftwood -->
+    <path d="M58 14 Q60 30 60 50 Q60 58 60 64" stroke="url(#sz-staff)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <!-- staff texture: knots and grain -->
+    <circle cx="59.5" cy="36" r="1.2" fill="#4a3a28" opacity=".5"/>
+    <path d="M58.5 42 Q60 41 61 42" stroke="#6a5a40" stroke-width=".5" fill="none"/>
+    <!-- bell mount: bronze bracket -->
+    <path d="M55 14 L63 14" stroke="#9a7a50" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M56 14 L56 12 M62 14 L62 12" stroke="#9a7a50" stroke-width="1"/>
+    <!-- the bell itself -->
+    <path d="M54 12 Q54 4 59 2 Q64 4 64 12 Z" fill="url(#sz-bell)"/>
+    <!-- bell mouth rim -->
+    <path d="M53.5 12 Q59 14 64.5 12" stroke="#c4a46c" stroke-width="1" fill="none"/>
+    <!-- bell highlight -->
+    <path d="M56 5 Q58 3.5 60 5" stroke="#e0d0a0" stroke-width=".6" fill="none" opacity=".6"/>
+    <!-- clapper -->
+    <line x1="59" y1="6" x2="59" y2="11" stroke="#6a5430" stroke-width=".8"/>
+    <circle cx="59" cy="11.5" r="1" fill="#6a5430"/>
+    <!-- sound waves emanating from bell -->
+    <path d="M66 6 Q70 8 66 12" stroke="#5fcad1" stroke-width="1.4" fill="none" opacity=".8" stroke-linecap="round"/>
+    <path d="M70 4 Q75 8 70 14" stroke="#5fcad1" stroke-width="1.2" fill="none" opacity=".55" stroke-linecap="round"/>
+    <path d="M74 2 Q80 8 74 16" stroke="#5fcad1" stroke-width="1" fill="none" opacity=".3" stroke-linecap="round"/>
+    <!-- small shells tied to staff -->
+    <ellipse cx="57" cy="22" rx="2" ry="1.2" fill="#e8dcc0" transform="rotate(-10, 57, 22)"/>
+    <ellipse cx="61" cy="26" rx="1.6" ry="1" fill="#d0c0a0" transform="rotate(15, 61, 26)"/>
+    <path d="M57 22 L58 24 M61 26 L60 28" stroke="#8a7a60" stroke-width=".5"/>
+  </g>
+  <!-- ambient aura around the bell -->
+  <circle class="wpn" cx="59" cy="8" r="14" fill="url(#sz-aura)"/>
+</svg>

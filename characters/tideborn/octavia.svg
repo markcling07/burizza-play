@@ -3,74 +3,138 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="71,50.3">
   <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8a0d6"/><stop offset=".5" stop-color="#9b6aa8"/><stop offset="1" stop-color="#673f76"/></linearGradient>
-    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#875a99"/><stop offset="1" stop-color="#543163"/></linearGradient>
-    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d5d9a"/><stop offset=".55" stop-color="#4b3d6e"/><stop offset="1" stop-color="#2a2142"/></linearGradient>
-    <linearGradient id="robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43375f"/><stop offset="1" stop-color="#241c38"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e9a8"/><stop offset="1" stop-color="#b09a3a"/></linearGradient>
-    <radialGradient id="ink" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#241b40"/><stop offset=".65" stop-color="#5a4a8a"/><stop offset="1" stop-color="#8f7ad0"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="oi-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8a0d6"/><stop offset=".5" stop-color="#9b6aa8"/><stop offset="1" stop-color="#673f76"/></linearGradient>
+    <linearGradient id="oi-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#875a99"/><stop offset="1" stop-color="#543163"/></linearGradient>
+    <linearGradient id="oi-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d5d9a"/><stop offset=".55" stop-color="#4b3d6e"/><stop offset="1" stop-color="#2a2142"/></linearGradient>
+    <linearGradient id="oi-robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43375f"/><stop offset="1" stop-color="#241c38"/></linearGradient>
+    <linearGradient id="oi-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e9a8"/><stop offset=".5" stop-color="#d4c46e"/><stop offset="1" stop-color="#b09a3a"/></linearGradient>
+    <linearGradient id="oi-goldD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c4b050"/><stop offset="1" stop-color="#8a7528"/></linearGradient>
+    <radialGradient id="oi-ink" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#1a1230"/><stop offset=".35" stop-color="#2e2050"/><stop offset=".65" stop-color="#5a4a8a"/><stop offset="1" stop-color="#8f7ad0"/></radialGradient>
+    <radialGradient id="oi-inkCore" cx=".4" cy=".4" r=".45"><stop offset="0" stop-color="#e0d4ff" stop-opacity=".6"/><stop offset=".5" stop-color="#7b6ab8" stop-opacity=".3"/><stop offset="1" stop-color="#241b40" stop-opacity="0"/></radialGradient>
+    <radialGradient id="oi-bio" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#c0e8ff"/><stop offset=".5" stop-color="#7bb8e0" stop-opacity=".6"/><stop offset="1" stop-color="#5a90b8" stop-opacity="0"/></radialGradient>
+    <filter id="oi-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="oi-glowSm" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.5"/></filter>
   </defs>
+  <!-- ground shadow -->
   <ellipse cx="50" cy="94" rx="25" ry="3.6" fill="#000" opacity=".35"/>
-  <!-- ink glow -->
-  <circle class="wpn" cx="78.5" cy="49" r="12.5" fill="#a48cf0" opacity=".6" filter="url(#glow)"/>
+  <!-- ink glow (outer aura) -->
+  <circle class="wpn" cx="78.5" cy="49" r="14" fill="#9070d0" opacity=".4" filter="url(#oi-glow)"/>
+  <circle class="wpn" cx="78.5" cy="49" r="10" fill="#c4b0ff" opacity=".25" filter="url(#oi-glowSm)"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- tentacle feet -->
-    <path d="M47 86 Q43 93.5 35 93.5 Q30 93.5 30.5 89.5 Q31 87.5 33 88.5 Q32.5 91 35.5 91 Q40.5 90.5 42 85 Z" fill="url(#skinD)"/>
-    <path d="M54 86 Q58 93.5 66 93.5 Q71 93.5 70.5 89.5 Q70 87.5 68 88.5 Q68.5 91 65.5 91 Q60.5 90.5 59 85 Z" fill="url(#skin)"/>
-    <path d="M46 88 Q49 94.5 52.5 93.5 Q55 92.5 54 88 Z" fill="url(#skinD)"/>
-    <!-- back sleeve -->
-    <path d="M40 45 Q34 52 34 62 L40.5 63 Q40 55 44 50 Z" fill="url(#robeD)"/>
-    <circle cx="37" cy="64" r="2.7" fill="url(#skinD)"/>
-    <!-- robe -->
-    <path d="M39 43 Q50 39 61 43 L64.5 88.5 Q51 92 35.5 88.5 Z" fill="url(#robe)"/>
-    <path d="M36 84.5 Q51 88 64.2 84.5 L64.5 88.5 Q51 92 35.5 88.5 Z" fill="url(#gold)"/>
-    <rect x="38.5" y="60" width="24" height="4" rx="1" fill="url(#gold)"/>
+    <!-- tentacle feet — left foot with suction cups -->
+    <path d="M47 86 Q43 93.5 35 93.5 Q30 93.5 30.5 89.5 Q31 87.5 33 88.5 Q32.5 91 35.5 91 Q40.5 90.5 42 85 Z" fill="url(#oi-skinD)"/>
+    <g fill="#6a3d7a" opacity=".7"><ellipse cx="37" cy="91.5" rx="1.1" ry=".6"/><ellipse cx="34" cy="91" rx=".9" ry=".5"/><ellipse cx="40" cy="90" rx=".8" ry=".5"/></g>
+    <!-- tentacle feet — right foot with suction cups -->
+    <path d="M54 86 Q58 93.5 66 93.5 Q71 93.5 70.5 89.5 Q70 87.5 68 88.5 Q68.5 91 65.5 91 Q60.5 90.5 59 85 Z" fill="url(#oi-skin)"/>
+    <g fill="#9b6aa8" opacity=".6"><ellipse cx="63" cy="91.5" rx="1.1" ry=".6"/><ellipse cx="66" cy="91" rx=".9" ry=".5"/><ellipse cx="60.5" cy="90.5" rx=".8" ry=".5"/></g>
+    <!-- tentacle feet — center foot with curl -->
+    <path d="M46 88 Q49 94.5 52.5 93.5 Q55 92.5 54 88 Z" fill="url(#oi-skinD)"/>
+    <ellipse cx="51" cy="92.5" rx=".8" ry=".45" fill="#6a3d7a" opacity=".65"/>
+    <!-- back sleeve with layered fabric -->
+    <path d="M40 45 Q34 52 34 62 L40.5 63 Q40 55 44 50 Z" fill="url(#oi-robeD)"/>
+    <path d="M34.5 58 Q37 57 40 58.5" stroke="url(#oi-goldD)" stroke-width=".8" fill="none"/>
+    <circle cx="37" cy="64" r="2.7" fill="url(#oi-skinD)"/>
+    <!-- robe body -->
+    <path d="M39 43 Q50 39 61 43 L64.5 88.5 Q51 92 35.5 88.5 Z" fill="url(#oi-robe)"/>
+    <!-- robe gold hem band -->
+    <path d="M36 84.5 Q51 88 64.2 84.5 L64.5 88.5 Q51 92 35.5 88.5 Z" fill="url(#oi-gold)"/>
+    <!-- gold sash/belt -->
+    <rect x="38.5" y="60" width="24" height="4" rx="1" fill="url(#oi-gold)"/>
+    <rect x="39" y="61" width="23" height=".6" rx=".3" fill="#d4c46e" opacity=".5"/>
+    <!-- robe arcane ink-stain symbols -->
+    <path d="M48 72 Q49 69 51 70 Q50 73 48 72 Z" fill="#3b2f53" opacity=".55"/>
+    <path d="M44 78 L45.5 75 L47 78 Z" fill="#3b2f53" opacity=".45"/>
+    <circle cx="56" cy="76" r="1.2" fill="none" stroke="#3b2f53" stroke-width=".6" opacity=".5"/>
+    <path d="M53 69 Q54.5 67.5 56 69" stroke="#3b2f53" stroke-width=".6" fill="none" opacity=".4"/>
+    <ellipse cx="42" cy="74" rx="2" ry="1.2" fill="#2a1e42" opacity=".3"/><ellipse cx="59" cy="80" rx="1.5" ry="1" fill="#2a1e42" opacity=".25"/>
     <!-- octopus head / mantle -->
-    <path d="M44 40 Q37 37 35 29 Q32 18 39 12 Q47 7 55 9.5 Q63 12.5 64 23 Q64.5 30 62 35 Q57 40 50 41 Z" fill="url(#skin)"/>
+    <path d="M44 40 Q37 37 35 29 Q32 18 39 12 Q47 7 55 9.5 Q63 12.5 64 23 Q64.5 30 62 35 Q57 40 50 41 Z" fill="url(#oi-skin)"/>
   </g>
-  <!-- tentacle beard (outline + fill strokes) -->
+  <!-- chromatophore spots on mantle -->
+  <g opacity=".7">
+    <circle cx="42" cy="21" r="2.6" fill="#6a4378"/><circle cx="48.5" cy="14.5" r="2" fill="#5c3568"/>
+    <circle cx="40" cy="29" r="1.8" fill="#6a4378"/><circle cx="55" cy="13.5" r="1.4" fill="#5c3568"/>
+    <circle cx="45" cy="27" r="1.3" fill="#7a5088"/><circle cx="57" cy="19" r="1.1" fill="#5c3568"/><circle cx="38" cy="22" r=".9" fill="#8a609a"/>
+  </g>
+  <!-- bioluminescent spots -->
+  <g fill="url(#oi-bio)" opacity=".65">
+    <circle cx="43" cy="24" r="1.0"/><circle cx="50" cy="12" r=".8"/><circle cx="38" cy="18" r=".7"/>
+    <circle cx="56" cy="16" r=".6"/><circle cx="60" cy="25" r=".5"/>
+  </g>
+  <!-- mantle highlight -->
+  <path d="M39.5 17 Q43 12 48.5 10.8" stroke="#fff" stroke-width="1.4" fill="none" opacity=".7" stroke-linecap="round"/>
+  <path d="M37 24 Q38 20 40.5 18" stroke="#fff" stroke-width=".7" fill="none" opacity=".35" stroke-linecap="round"/>
+  <!-- tentacle beard — four tentacles with suction cups and varied curls -->
   <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M48 37 Q44 45 43 49 Q42.5 52 45.5 51.5" stroke="none" stroke-width="5.2"/>
-    <path d="M48 37 Q44 45 43 49 Q42.5 52 45.5 51.5" stroke="#7a4d8b" stroke-width="2.4"/>
-    <path d="M52 38 Q52 46 49 51 Q47.5 54.5 51 54.5" stroke="none" stroke-width="5.2"/>
-    <path d="M52 38 Q52 46 49 51 Q47.5 54.5 51 54.5" stroke="#8a5c9a" stroke-width="2.4"/>
-    <path d="M56 38 Q58 47 55 53 Q54 56.5 57.5 55.5" stroke="none" stroke-width="5.2"/>
-    <path d="M56 38 Q58 47 55 53 Q54 56.5 57.5 55.5" stroke="#9b6aa8" stroke-width="2.4"/>
-    <path d="M60 36 Q65 43 62 49 Q61 52 64 51.5" stroke="none" stroke-width="5.2"/>
-    <path d="M60 36 Q65 43 62 49 Q61 52 64 51.5" stroke="#a979b6" stroke-width="2.4"/>
+    <!-- tentacle 1 — tight inward curl -->
+    <path d="M48 37 Q44 45 42.5 49 Q41.5 53 44 53 Q46 52.5 45.5 50" stroke="#5c3568" stroke-width="3.8"/>
+    <path d="M48 37 Q44 45 42.5 49 Q41.5 53 44 53 Q46 52.5 45.5 50" stroke="#7a4d8b" stroke-width="2.2"/>
+    <g fill="#ecd3f2" opacity=".7"><circle cx="45" cy="44" r=".6"/><circle cx="43.5" cy="48" r=".55"/><circle cx="43" cy="51" r=".5"/></g>
+    <!-- tentacle 2 — long draping curl -->
+    <path d="M52 38 Q51.5 46 48.5 51.5 Q47 55 50 55.5 Q52.5 55 51.5 52" stroke="#5c3568" stroke-width="3.8"/>
+    <path d="M52 38 Q51.5 46 48.5 51.5 Q47 55 50 55.5 Q52.5 55 51.5 52" stroke="#8a5c9a" stroke-width="2.2"/>
+    <g fill="#ecd3f2" opacity=".7"><circle cx="50.5" cy="45" r=".6"/><circle cx="49.5" cy="49.5" r=".55"/><circle cx="48.8" cy="53" r=".5"/></g>
+    <!-- tentacle 3 — outward sweep -->
+    <path d="M56 38 Q58.5 47 55.5 53.5 Q54 57 57 56.5 Q59 55.5 58 53" stroke="#5c3568" stroke-width="3.8"/>
+    <path d="M56 38 Q58.5 47 55.5 53.5 Q54 57 57 56.5 Q59 55.5 58 53" stroke="#9b6aa8" stroke-width="2.2"/>
+    <g fill="#ecd3f2" opacity=".7"><circle cx="57.5" cy="45.5" r=".6"/><circle cx="57" cy="50" r=".55"/><circle cx="55.8" cy="54" r=".5"/></g>
+    <!-- tentacle 4 — wide outward curl -->
+    <path d="M60 36 Q65.5 43 63 49.5 Q61.5 53 64.5 52 Q66.5 51 65 49" stroke="#5c3568" stroke-width="3.8"/>
+    <path d="M60 36 Q65.5 43 63 49.5 Q61.5 53 64.5 52 Q66.5 51 65 49" stroke="#a979b6" stroke-width="2.2"/>
+    <g fill="#ecd3f2" opacity=".7"><circle cx="63.5" cy="43.5" r=".6"/><circle cx="64" cy="47" r=".55"/><circle cx="63.2" cy="50.5" r=".5"/></g>
   </g>
-  <g fill="#ecd3f2"><circle cx="58" cy="46" r=".7"/><circle cx="56.8" cy="50" r=".7"/><circle cx="63.6" cy="44" r=".7"/><circle cx="63.4" cy="47.5" r=".7"/><circle cx="51.6" cy="47" r=".6"/></g>
+  <!-- cephalopod eye — golden iris, horizontal slit pupil, brow ridge -->
+  <ellipse cx="57.5" cy="26.5" rx="3.5" ry="3.2" fill="url(#oi-gold)" stroke="#4a3060" stroke-width=".6"/>
+  <ellipse cx="57.5" cy="26.5" rx="3" ry="2.8" fill="none" stroke="#d4c46e" stroke-width=".4" opacity=".5"/>
+  <rect x="54.8" y="25.7" width="5.4" height="1.8" rx=".9" fill="#15121d"/>
+  <ellipse cx="57.5" cy="26.6" rx=".8" ry="1.4" fill="#15121d" opacity=".4"/>
+  <circle cx="56.2" cy="25.8" r=".5" fill="#fff" opacity=".6"/>
+  <path d="M53.2 25 Q57.5 20.5 62 25 Q57.5 23.2 53.2 25 Z" fill="url(#oi-skinD)" stroke="none"/>
+  <path d="M53.5 28 Q57.5 30.5 61.5 28" stroke="url(#oi-skinD)" stroke-width=".7" fill="none"/>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <!-- front sleeve reaching to the orb -->
-    <path d="M55 44 Q63 43.5 70 47 L68.5 53 Q62 51.5 56 53 Z" fill="url(#robe)"/>
-    <path d="M66.2 45.6 L70 47 L68.5 53 L64.8 52.2 Z" fill="url(#gold)"/>
-    <circle cx="71" cy="50.3" r="2.8" fill="url(#skin)"/>
-    <!-- ink orb -->
-    <circle class="wpn" cx="78.5" cy="49" r="6.5" fill="url(#ink)"/>
+    <!-- front sleeve reaching toward orb -->
+    <path d="M55 44 Q63 43.5 70 47 L68.5 53 Q62 51.5 56 53 Z" fill="url(#oi-robe)"/>
+    <!-- gold cuff trim on front sleeve -->
+    <path d="M66.2 45.6 L70 47 L68.5 53 L64.8 52.2 Z" fill="url(#oi-gold)"/>
+    <path d="M65.5 47.5 L69 48.5" stroke="url(#oi-goldD)" stroke-width=".6"/>
+    <path d="M65 50 L68.2 51" stroke="url(#oi-goldD)" stroke-width=".6"/>
+    <!-- casting hand -->
+    <circle cx="71" cy="50.3" r="2.8" fill="url(#oi-skin)"/>
+    <!-- ink orb — main sphere -->
+    <circle class="wpn" cx="78.5" cy="49" r="6.5" fill="url(#oi-ink)"/>
+    <circle class="wpn" cx="78.5" cy="49" r="6.5" fill="url(#oi-inkCore)"/>
   </g>
-  <!-- orb rim + swirl -->
-  <circle class="wpn" cx="78.5" cy="49" r="5.1" fill="none" stroke="#c4b0ff" stroke-width="1" opacity=".85"/>
-  <path class="wpn" d="M76 49.5 Q76 46 79 46 Q82 46.5 81.5 49.5 Q81 52 78.5 51.5 Q77 51 77.6 49.5" stroke="#e2d8ff" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-  <!-- swirling ink -->
-  <path class="wpn" d="M70 40 Q77 36 84.5 41" stroke="#c4b0ff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".8"/>
-  <path class="wpn" d="M70 40 Q77 36 84.5 41" stroke="#3b2f63" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <path class="wpn" d="M87 52 Q86 59 78 60" stroke="#c4b0ff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".8"/>
-  <path class="wpn" d="M87 52 Q86 59 78 60" stroke="#3b2f63" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <g class="wpn" fill="#5a4a8a" stroke="#c4b0ff" stroke-width=".8">
-    <path d="M89 42 q-1.8 2.8 0 3.9 q1.8 -1.1 0 -3.9 z"/>
-    <path d="M74 61 q-1.5 2.4 0 3.3 q1.5 -.9 0 -3.3 z"/>
+  <!-- orb swirl, rim, highlight -->
+  <path class="wpn" d="M76 49.5 Q75.5 46 78.5 45.5 Q82 46 82 49 Q82 52.5 78.5 52 Q76.5 51.5 77 49.5" stroke="#c4b0ff" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".6"/>
+  <path class="wpn" d="M77.5 47 Q79.5 46.5 80.5 48 Q81 50 79.5 51 Q78 51.5 77 50" stroke="#e2d8ff" stroke-width=".5" fill="none" stroke-linecap="round" opacity=".5"/>
+  <circle class="wpn" cx="78.5" cy="49" r="5.3" fill="none" stroke="#c4b0ff" stroke-width=".9" opacity=".8"/>
+  <path class="wpn" d="M75.8 46.5 Q77 44.5 79.5 45" stroke="#e8e0ff" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".7"/>
+  <!-- swirling ink tendrils -->
+  <path class="wpn" d="M70 40 Q77 35.5 85 40.5" stroke="#c4b0ff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".75"/>
+  <path class="wpn" d="M70 40 Q77 35.5 85 40.5" stroke="#3b2f63" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M87 52 Q86 59.5 77.5 60.5" stroke="#c4b0ff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".75"/>
+  <path class="wpn" d="M87 52 Q86 59.5 77.5 60.5" stroke="#3b2f63" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- ink wisps and droplets -->
+  <path class="wpn" d="M73 55 Q71 58 72.5 60" stroke="#5a4a8a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/>
+  <path class="wpn" d="M83 44 Q86 42 87 44.5" stroke="#5a4a8a" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6"/>
+  <g class="wpn" fill="#5a4a8a" stroke="#c4b0ff" stroke-width=".7">
+    <path d="M89 42 q-1.8 2.8 0 3.9 q1.8-1.1 0-3.9z"/>
+    <path d="M74 61 q-1.5 2.4 0 3.3 q1.5-.9 0-3.3z"/>
+    <path d="M85 55 q-1.2 1.8 0 2.5 q1.2-.7 0-2.5z"/>
     <circle cx="91" cy="49" r="1.1"/>
+    <circle cx="72" cy="42" r=".8"/>
+    <circle cx="87" cy="57" r=".6"/>
   </g>
-  <!-- mantle spots + highlight -->
-  <g fill="#6a4378" opacity=".75"><circle cx="42" cy="21" r="2.4"/><circle cx="48.5" cy="14.5" r="1.8"/><circle cx="40" cy="29" r="1.6"/><circle cx="55" cy="13.5" r="1.2"/></g>
-  <path d="M39.5 17 Q43 12 48.5 10.8" stroke="#fff" stroke-width="1.3" fill="none" opacity=".75" stroke-linecap="round"/>
-  <!-- eye -->
-  <circle cx="57.5" cy="26.5" r="3.2" fill="url(#gold)" stroke="none" stroke-width="1.1"/>
-  <rect x="55" y="25.9" width="5" height="1.6" rx=".8" fill="#15121d"/>
-  <path d="M53.5 25.3 Q57.5 21 61.8 25.3 Q57.5 23.6 53.5 25.3 Z" fill="url(#skinD)" stroke="none" stroke-width="1" stroke-linejoin="round"/>
-  <!-- robe trim -->
-  <path d="M50.5 64 L51.3 87" stroke="url(#gold)" stroke-width="1.6"/>
+  <!-- ambient ink motes drifting near character -->
+  <g class="wpn" fill="#7b6ab8" opacity=".45">
+    <circle cx="68" cy="38" r=".5"/><circle cx="90" cy="45" r=".4"/>
+    <circle cx="71" cy="58" r=".45"/><circle cx="86" cy="37" r=".35"/>
+  </g>
+  <!-- robe trim details -->
+  <path d="M50.5 64 L51.3 87" stroke="url(#oi-gold)" stroke-width="1.6"/>
   <path d="M42 46 Q44 44 47 43.5" stroke="#9b8fd0" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-  <path d="M41 87 l2.5 -2 l2.5 2 M55 87 l2.5 -2 l2.5 2" stroke="#7c6a2a" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <path d="M54 44 Q57 43 60 44.5" stroke="#9b8fd0" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6"/>
+  <path d="M41 87 l2.5-2 l2.5 2 M47 87 l2.5-2 l2.5 2 M55 87 l2.5-2 l2.5 2 M61 87 l1.5-1.5" stroke="#7c6a2a" stroke-width=".9" fill="none" stroke-linecap="round"/>
+  <!-- bioluminescent body accents -->
+  <circle cx="44" cy="70" r=".6" fill="#a0d8f0" opacity=".35"/><circle cx="58" cy="50" r=".5" fill="#a0d8f0" opacity=".3"/>
 </svg>

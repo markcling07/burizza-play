@@ -3,76 +3,130 @@
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="70,38">
   <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#abc47c"/><stop offset=".5" stop-color="#7d9a4f"/><stop offset="1" stop-color="#4f6630"/></linearGradient>
-    <linearGradient id="skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a8543"/><stop offset="1" stop-color="#3d5126"/></linearGradient>
-    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8574a"/><stop offset=".5" stop-color="#7a3b2e"/><stop offset="1" stop-color="#4a2018"/></linearGradient>
-    <linearGradient id="leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e2c22"/><stop offset="1" stop-color="#341510"/></linearGradient>
-    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#c27d1f"/></linearGradient>
-    <linearGradient id="pot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a7088"/><stop offset=".5" stop-color="#3a3f52"/><stop offset="1" stop-color="#1e2130"/></linearGradient>
-    <linearGradient id="clay" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d78a5a"/><stop offset="1" stop-color="#8a4a2a"/></linearGradient>
-    <radialGradient id="spark" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6c2"/><stop offset=".4" stop-color="#ffb347"/><stop offset="1" stop-color="#e5482c" stop-opacity="0"/></radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.5"/></filter>
+    <linearGradient id="dk-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#abc47c"/><stop offset=".5" stop-color="#7d9a4f"/><stop offset="1" stop-color="#4f6630"/></linearGradient>
+    <linearGradient id="dk-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a8543"/><stop offset="1" stop-color="#3d5126"/></linearGradient>
+    <linearGradient id="dk-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8574a"/><stop offset=".5" stop-color="#7a3b2e"/><stop offset="1" stop-color="#4a2018"/></linearGradient>
+    <linearGradient id="dk-leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e2c22"/><stop offset="1" stop-color="#341510"/></linearGradient>
+    <linearGradient id="dk-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#c27d1f"/></linearGradient>
+    <linearGradient id="dk-pot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a7088"/><stop offset=".5" stop-color="#3a3f52"/><stop offset="1" stop-color="#1e2130"/></linearGradient>
+    <linearGradient id="dk-clay" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d78a5a"/><stop offset="1" stop-color="#8a4a2a"/></linearGradient>
+    <linearGradient id="dk-boot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a221c"/><stop offset="1" stop-color="#1a0e0a"/></linearGradient>
+    <linearGradient id="dk-smoke" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#888" stop-opacity=".3"/><stop offset="1" stop-color="#aaa" stop-opacity="0"/></linearGradient>
+    <radialGradient id="dk-spark" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6c2"/><stop offset=".4" stop-color="#ffb347"/><stop offset="1" stop-color="#e5482c" stop-opacity="0"/></radialGradient>
+    <radialGradient id="dk-lens" cx=".35" cy=".3" r=".65"><stop offset="0" stop-color="#ffe8a0"/><stop offset=".5" stop-color="#d4940a"/><stop offset="1" stop-color="#8a5a00"/></radialGradient>
+    <radialGradient id="dk-belly" cx=".5" cy=".4" r=".55"><stop offset="0" stop-color="#abc47c"/><stop offset="1" stop-color="#6a8543"/></radialGradient>
+    <filter id="dk-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.5"/></filter>
+    <filter id="dk-smog" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.8"/></filter>
   </defs>
+  <!-- ground shadow -->
   <ellipse cx="50" cy="94" rx="27" ry="3.8" fill="#000" opacity=".38"/>
   <!-- fuse glow -->
-  <circle class="wpn" cx="82" cy="19" r="9" fill="#ff8a3d" opacity=".6" filter="url(#glow)"/>
+  <circle class="wpn" cx="82" cy="19" r="9" fill="#ff8a3d" opacity=".6" filter="url(#dk-glow)"/>
+  <!-- smoke wisps -->
+  <g class="wpn" filter="url(#dk-smog)" opacity=".55">
+    <path d="M80 14 Q78 8 82 4 Q84 2 83 0" fill="none" stroke="url(#dk-smoke)" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M84 15 Q87 10 85 5 Q84 1 86 -1" fill="none" stroke="url(#dk-smoke)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M78 12 Q75 6 78 2" fill="none" stroke="url(#dk-smoke)" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- back arm + firepot -->
-    <path d="M35 45 Q29 53 29 62 L35.5 63.5 Q36 56 42 50 Z" fill="url(#skinD)"/>
-    <path d="M27 66 Q26 61 32 61 Q38 61 37 66 Q38.5 72 32 73 Q25.5 72 27 66 Z" fill="url(#clay)"/>
-    <rect x="29.5" y="58.5" width="5" height="3" rx="1" fill="url(#leatherD)"/>
-    <circle cx="32" cy="62" r="3.4" fill="url(#skinD)"/>
-    <!-- legs -->
-    <path d="M38.5 72 h11 l-1.5 16 h-11 z" fill="url(#leatherD)"/>
-    <path d="M33 87.5 h15 v6 h-16 z" fill="#2a1a16"/>
-    <path d="M52 72 h11 l2.5 16 h-11 z" fill="url(#leather)"/>
-    <path d="M53.5 87.5 h14 l2 6 h-16 z" fill="#3a221c"/>
-    <!-- gut + torso -->
-    <path d="M32 47 Q50 39 68 47 Q73 62 65.5 73 Q50 79 34.5 73 Q28.5 60 32 47 Z" fill="url(#skin)"/>
-    <path d="M33 48 Q38 44 44 43 L45 74.5 Q39 74 34.5 73 Q29 61 33 48 Z" fill="url(#leather)"/>
-    <path d="M56 43 Q63 44 67.5 47 Q72.5 62 65.5 73 Q61 74.5 57 75 Z" fill="url(#leather)"/>
-    <rect x="34" y="68" width="32" height="5.5" rx="1.2" fill="url(#leatherD)"/>
-    <rect x="47" y="67.3" width="6.5" height="7" rx="1.2" fill="url(#amber)"/>
+    <path d="M35 45 Q29 53 29 62 L35.5 63.5 Q36 56 42 50 Z" fill="url(#dk-skinD)"/>
+    <path d="M31 54 Q33 52 35 54" stroke="#3d5126" stroke-width=".8" fill="none" opacity=".5"/>
+    <path d="M27 66 Q26 61 32 61 Q38 61 37 66 Q38.5 72 32 73 Q25.5 72 27 66 Z" fill="url(#dk-clay)"/>
+    <path d="M28.5 64 h7" stroke="#8a4a2a" stroke-width=".6" opacity=".5"/>
+    <rect x="29.5" y="58.5" width="5" height="3" rx="1" fill="url(#dk-leatherD)"/>
+    <circle cx="32" cy="62" r="3.4" fill="url(#dk-skinD)"/>
+    <!-- legs with seam lines -->
+    <path d="M38.5 72 h11 l-1.5 16 h-11 z" fill="url(#dk-leatherD)"/>
+    <path d="M42 74 Q44 80 42.5 86" stroke="#271210" stroke-width=".7" fill="none" opacity=".4"/>
+    <path d="M52 72 h11 l2.5 16 h-11 z" fill="url(#dk-leather)"/>
+    <path d="M57 74 Q59 80 58 86" stroke="#4a2018" stroke-width=".7" fill="none" opacity=".4"/>
+    <!-- knee patches -->
+    <ellipse cx="44" cy="82" rx="3" ry="2" fill="url(#dk-leatherD)" opacity=".5"/>
+    <ellipse cx="58" cy="82" rx="3" ry="2" fill="url(#dk-leather)" opacity=".4"/>
+    <!-- boots -->
+    <path d="M33 87.5 h15 v2.5 l-2 3.5 h-14 z" fill="url(#dk-boot)"/>
+    <path d="M34 90 h13 M33.5 93 l1 1 h3 l1-1" stroke="#5e2c22" stroke-width=".7" fill="none"/>
+    <path d="M53.5 87.5 h14 l1 2.5 l1 3.5 h-16 z" fill="url(#dk-boot)"/>
+    <path d="M54.5 90 h13 M55 93 l1 1 h3 l1-1" stroke="#5e2c22" stroke-width=".7" fill="none"/>
+    <rect x="38" y="89" width="2.5" height="2" rx=".5" fill="url(#dk-amber)" opacity=".8"/>
+    <rect x="59" y="89" width="2.5" height="2" rx=".5" fill="url(#dk-amber)" opacity=".8"/>
+    <!-- torso -->
+    <path d="M32 47 Q50 39 68 47 Q73 62 65.5 73 Q50 79 34.5 73 Q28.5 60 32 47 Z" fill="url(#dk-skin)"/>
+    <!-- exposed belly - the Firegut -->
+    <ellipse cx="50" cy="60" rx="9" ry="7" fill="url(#dk-belly)" opacity=".6"/>
+    <path d="M46 57 Q50 54 54 57 M44 61 Q50 58 56 61" stroke="#6a8543" stroke-width=".65" fill="none" opacity=".45"/>
+    <circle cx="50" cy="63" r=".8" fill="#6a8543" opacity=".5"/>
+    <path d="M47 59 l2-1.5 l2 2 l2-2 l1.5 1.5" stroke="#4f6630" stroke-width=".9" fill="none" opacity=".6"/>
+    <!-- leather vest panels -->
+    <path d="M33 48 Q38 44 44 43 L45 74.5 Q39 74 34.5 73 Q29 61 33 48 Z" fill="url(#dk-leather)"/>
+    <path d="M56 43 Q63 44 67.5 47 Q72.5 62 65.5 73 Q61 74.5 57 75 Z" fill="url(#dk-leather)"/>
+    <path d="M44 46 L45 72 M56.5 46 L57 72" stroke="#341510" stroke-width=".6" stroke-dasharray="1.5 1.5" opacity=".6"/>
+    <path d="M36 52 l3 1 M62 54 l3 .5" stroke="#4a2018" stroke-width=".8" opacity=".35"/>
+    <!-- belt -->
+    <rect x="34" y="68" width="32" height="5.5" rx="1.2" fill="url(#dk-leatherD)"/>
+    <rect x="47" y="67.3" width="6.5" height="7" rx="1.2" fill="url(#dk-amber)"/>
+    <line x1="50.2" y1="68.5" x2="50.2" y2="73" stroke="#8a5a00" stroke-width=".7"/>
+    <circle cx="40" cy="71" r=".7" fill="#c27d1f" opacity=".7"/><circle cx="60" cy="71" r=".7" fill="#c27d1f" opacity=".7"/>
     <!-- bandolier strap -->
-    <path d="M57 42.5 L64 45.5 L42 72 L35.5 69.5 Z" fill="url(#leatherD)"/>
+    <path d="M57 42.5 L64 45.5 L42 72 L35.5 69.5 Z" fill="url(#dk-leatherD)"/>
+    <path d="M58 44 L40 69" stroke="#241008" stroke-width=".5" stroke-dasharray="1.2 1.8" opacity=".5"/>
     <!-- head -->
-    <path d="M46.5 27 L36.5 22 L44.5 33.5 Z" fill="url(#skinD)"/>
-    <path d="M44 30 Q42.5 18 52.5 17 Q62.5 16.5 64 25 L66.5 30 L64.8 32 Q66.5 37.5 61 40.5 Q54 43 47.5 40 Q44 36 44 30 Z" fill="url(#skin)"/>
-    <!-- leather cap + goggles -->
-    <path d="M44.3 27 Q43 17.5 52.5 17 Q61.5 16.5 63.5 23.5 Q53 20.5 44.3 27 Z" fill="url(#leatherD)"/>
-    <path d="M45 24.5 Q53 19.5 63.8 23" fill="none" stroke="none" stroke-width="3.2"/>
-    <circle cx="53" cy="20.8" r="3.3" fill="url(#amber)"/>
-    <circle cx="60.2" cy="21.2" r="3.1" fill="url(#amber)"/>
-    <!-- front arm raised with bomb -->
-    <path d="M58 45.5 L68 38.5 L73 43.5 L63.5 51.5 Z" fill="url(#skin)"/>
-    <circle class="wpn" cx="74" cy="31" r="7.5" fill="url(#pot)"/>
-    <rect class="wpn" x="72" y="22" width="5" height="3.5" rx="1" fill="url(#amber)" transform="rotate(18 74.5 23.75)"/>
+    <path d="M46.5 27 L36.5 22 L44.5 33.5 Z" fill="url(#dk-skinD)"/>
+    <path d="M44 30 Q42.5 18 52.5 17 Q62.5 16.5 64 25 L66.5 30 L64.8 32 Q66.5 37.5 61 40.5 Q54 43 47.5 40 Q44 36 44 30 Z" fill="url(#dk-skin)"/>
+    <!-- war paint + cheek scar -->
+    <path d="M48 32 l-1 4 M50 31 l-1.5 5" stroke="#8b2500" stroke-width="1" opacity=".55" stroke-linecap="round"/>
+    <path d="M62 33 l3 2.5 M62.5 34.5 l2 -1" stroke="#4f6630" stroke-width=".8" opacity=".5" stroke-linecap="round"/>
+    <!-- leather cap -->
+    <path d="M44.3 27 Q43 17.5 52.5 17 Q61.5 16.5 63.5 23.5 Q53 20.5 44.3 27 Z" fill="url(#dk-leatherD)"/>
+    <path d="M45 23 Q47 17 52.5 16.5 Q58 16.2 61 18" stroke="#241008" stroke-width=".5" fill="none" opacity=".5"/>
+    <!-- goggles -->
+    <circle cx="53" cy="20.8" r="3.8" fill="#341510"/><circle cx="60.2" cy="21.2" r="3.6" fill="#341510"/>
+    <circle cx="53" cy="20.8" r="3.3" fill="url(#dk-lens)"/><circle cx="60.2" cy="21.2" r="3.1" fill="url(#dk-lens)"/>
+    <path d="M56.2 21 h1" stroke="#341510" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M49.5 21.5 Q47 22 45 24 M63.2 22 Q64.5 23 65 25" stroke="#5e2c22" stroke-width="1" fill="none"/>
+    <!-- front arm -->
+    <path d="M58 45.5 L68 38.5 L73 43.5 L63.5 51.5 Z" fill="url(#dk-skin)"/>
+    <path d="M62 41 Q65 43 64 47" stroke="#4f6630" stroke-width=".7" fill="none" opacity=".4"/>
+    <!-- bomb -->
+    <circle class="wpn" cx="74" cy="31" r="7.5" fill="url(#dk-pot)"/>
+    <path class="wpn" d="M70 29 Q74 27 78 29 M69.5 33 Q74 35 78.5 33" stroke="#4a5068" stroke-width=".6" fill="none" opacity=".5"/>
+    <rect class="wpn" x="72" y="22" width="5" height="3.5" rx="1" fill="url(#dk-amber)" transform="rotate(18 74.5 23.75)"/>
     <path class="wpn" d="M76 22.5 Q78 18 82 19" fill="none" stroke="#c9b28a" stroke-width="1.4"/>
-    <path d="M65.5 40 Q65 36 69.5 35.5 L74.5 38 Q75.5 42 71.5 43.5 Z" fill="url(#skin)"/>
+    <path class="wpn" d="M81 18.5 l1.5 -.8 M81.5 19.5 l1.2 .5" stroke="#a89070" stroke-width=".6" stroke-linecap="round"/>
+    <!-- hand -->
+    <path d="M65.5 40 Q65 36 69.5 35.5 L74.5 38 Q75.5 42 71.5 43.5 Z" fill="url(#dk-skin)"/>
+    <path d="M68 37 Q70 36.5 72 37.5" stroke="#4f6630" stroke-width=".5" fill="none" opacity=".5"/>
     <!-- shoulder pad -->
-    <path d="M55 45 Q56 38.5 63.5 38.5 Q70 40 69.5 47.5 L58.5 51 Z" fill="url(#leather)"/>
+    <path d="M55 45 Q56 38.5 63.5 38.5 Q70 40 69.5 47.5 L58.5 51 Z" fill="url(#dk-leather)"/>
+    <path d="M58 42 Q63 39.5 67 42" stroke="#4a2018" stroke-width=".6" fill="none" opacity=".5"/>
+    <circle cx="59" cy="44" r=".8" fill="#c27d1f" opacity=".7"/><circle cx="65" cy="44" r=".8" fill="#c27d1f" opacity=".7"/>
   </g>
   <!-- bandolier pots -->
   <g stroke="none" stroke-width="1.2" stroke-linejoin="round">
-    <circle cx="58.5" cy="50" r="3.3" fill="url(#clay)"/>
-    <circle cx="52" cy="57.8" r="3.3" fill="url(#clay)"/>
-    <circle cx="45.5" cy="65.5" r="3.3" fill="url(#clay)"/>
+    <circle cx="58.5" cy="50" r="3.3" fill="url(#dk-clay)"/><circle cx="52" cy="57.8" r="3.3" fill="url(#dk-clay)"/><circle cx="45.5" cy="65.5" r="3.3" fill="url(#dk-clay)"/>
+    <path d="M57 48 h3 M50.5 55.8 h3 M44 63.5 h3" stroke="#8a4a2a" stroke-width=".5" opacity=".6"/>
   </g>
-  <path d="M57 47.2 h3 M50.5 55 h3 M44 62.7 h3" stroke="url(#amber)" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- bomb shine + fuse spark -->
+  <path d="M57 47.2 h3 M50.5 55 h3 M44 62.7 h3" stroke="url(#dk-amber)" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M59.8 47.5 l1 -1.5 M53.2 55.2 l1 -1.5 M46.8 63 l1 -1.5" stroke="#c9b28a" stroke-width=".7" stroke-linecap="round"/>
+  <!-- bomb shine + spark effects -->
   <path class="wpn" d="M69.5 28.5 Q70.5 25.8 73.5 25.2" stroke="#fff" stroke-width="1.4" fill="none" opacity=".8" stroke-linecap="round"/>
-  <circle class="wpn" cx="82" cy="19" r="4.5" fill="url(#spark)"/>
+  <path class="wpn" d="M71 34 Q72 35.5 74.5 35.8" stroke="#8a9ab0" stroke-width=".8" fill="none" opacity=".4" stroke-linecap="round"/>
+  <circle class="wpn" cx="82" cy="19" r="4.5" fill="url(#dk-spark)"/>
   <path class="wpn" d="M82 13 v3 M82 22 v3 M76 19 h3 M85 19 h3 M78 15 l1.6 1.6 M84.4 21.4 l1.6 1.6 M78 23 l1.6 -1.6 M84.4 16.6 l1.6 -1.6" stroke="#ffd27a" stroke-width="1.1" stroke-linecap="round"/>
   <circle class="wpn" cx="82" cy="19" r="1.6" fill="#fff6c2"/>
-  <g class="wpn" fill="#ffb347"><circle cx="88" cy="12" r=".9"/><circle cx="90" cy="22" r=".7"/><circle cx="85" cy="9" r=".6"/></g>
+  <g class="wpn" fill="#ffb347"><circle cx="88" cy="12" r=".9"/><circle cx="90" cy="22" r=".7"/><circle cx="85" cy="9" r=".6"/><circle cx="77" cy="11" r=".5" opacity=".7"/><circle cx="87" cy="16" r=".4" opacity=".6"/></g>
   <!-- face -->
-  <path d="M54.5 26 L63.5 27.8" stroke="none" stroke-width="2.4" stroke-linecap="round"/>
-  <circle cx="59.8" cy="29.8" r="1.4" fill="#ffcf5a"/>
-  <path d="M56.5 37 Q60.5 38.2 64.5 36" stroke="none" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M54.5 26 L63.5 27.8" stroke="#3d5126" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="59.8" cy="29.8" r="1.4" fill="#ffcf5a"/><circle cx="59.8" cy="29.8" r=".5" fill="#1a1a00"/>
+  <path d="M56.5 37 Q60.5 38.2 64.5 36" stroke="#3d5126" stroke-width="1.1" fill="none" stroke-linecap="round"/>
   <path d="M58 38.6 L57.8 33.4 L60.6 37.8 Z M62.6 37.2 L63.3 32.4 L64.8 36.1 Z" fill="#f1ead6" stroke="none" stroke-width=".85" stroke-linejoin="round"/>
   <path d="M47.5 36 q2.5 1 4 .2" stroke="#3d5126" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/>
-  <!-- goggle shine + highlights -->
+  <!-- goggle shine -->
   <path d="M51.5 19.6 q1 -1 2.2 -.9 M58.8 20 q1 -1 2.2 -.8" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".9"/>
+  <circle cx="54.5" cy="22" r=".6" fill="#fff" opacity=".4"/><circle cx="61.5" cy="22.2" r=".5" fill="#fff" opacity=".35"/>
+  <!-- body highlights -->
   <path d="M40 55 Q43 50 50 49" stroke="#fff" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round"/>
   <path d="M57.5 43.5 Q60 40.5 64 40.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6" stroke-linecap="round"/>
+  <path d="M36 64 Q38 61 40 60" stroke="#fff" stroke-width=".8" fill="none" opacity=".25" stroke-linecap="round"/>
 </svg>
