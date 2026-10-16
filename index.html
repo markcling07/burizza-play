@@ -18079,6 +18079,21 @@ function buildVillage() {
   $('#villageBtn').addEventListener('click', toVillage);
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') hideSay(); });
   addEventListener('resize', () => { if (!$('#villageScreen').hidden) zoomTown(true); });
+  /* ...but the window `resize` event is not enough on its own. The town is 100dvh, and on iOS Safari
+     the dynamic viewport settles AFTER first paint (the toolbar, the dvh resolving) without always
+     firing a window resize — the page never scrolls in the village (touch-action: none), so the
+     toolbar never collapses to force one either. The map's cover scale is computed once from the
+     town's height at frame time, so a town measured short on entry leaves the map framed to cover a
+     stub of the screen, with the forest-green background showing below it, until a lucky reload.
+     A ResizeObserver watches the town's actual box instead of guessing which event announces a
+     change: whenever its size really moves and the village is up, reframe. zoomTown(true) keeps the
+     look centre and only recomputes the cover scale, so this re-covers without yanking a panned view
+     home, and setView changes a transform on .townView — never the town's own size — so it cannot
+     feed back into the observer. */
+  if (window.ResizeObserver) {
+    const town = $('#town');
+    new ResizeObserver(() => { if (town.isConnected && !$('#villageScreen').hidden) zoomTown(true); }).observe(town);
+  }
   // Battle: the button opens its menu; a choice walks you to that building (its panel has the fights).
   const setBattleMenu = (open) => { $('#battleMenu').hidden = !open; $('#battleBtn').setAttribute('aria-expanded', String(open)); };
   $('#battleBtn').addEventListener('click', (ev) => { ev.stopPropagation(); setBattleMenu($('#battleMenu').hidden); });
