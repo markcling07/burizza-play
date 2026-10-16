@@ -724,19 +724,21 @@ def _():
             + g(drop(), 14, 30, 0, .55) + g(drop(), 53, 28, 0, .45))
 
 
-@icon('Nibble Flurry')
+@icon('Rimebite')
 def _():
-    return (g(jaws(), 20, 21, -15, .55) + g(jaws(), 36, 32, -15, .55) + g(jaws(), 47, 47, -15, .5)
-            + '<path d="M10 40 L16 44 M24 52 L28 56" stroke="#7fe3d8" stroke-width="2" opacity=".7"/>')
+    # Two bites now instead of three nibbles, and the cold comes off them.
+    return (g(jaws('#5fb2dc'), 24, 25, -15, .74) + g(jaws('#5fb2dc'), 43, 43, -15, .66)
+            + '<path d="M11 42 L17 46 M13 52 L18 55" stroke="#bff3ff" stroke-width="2.2" opacity=".75"/>'
+            + twinkle(15, 17, .8, '#dcf8ff'))
 
 
-@icon('Gurgle Frenzy')
+@icon('Glacial Frenzy')
 def _():
-    bubbles = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#bff3ff" fill-opacity=".25" stroke="#bff3ff" stroke-width="1.2"/>'
-                      for x, y, r in ((12, 14, 3.5), (52, 12, 2.6), (54, 50, 3.2), (11, 50, 2.4), (47, 22, 1.8)))
-    return (bubbles + glow('<ellipse cx="32" cy="33" rx="20" ry="15" fill="#ff4a4a"/>', .45)
-            + g(jaws(), 32, 33, 0, 1.15)
-            + '<path d="M8 30 L13 32 M56 30 L51 32 M32 10 V15" stroke="#ff7a7a" stroke-width="2.2"/>')
+    motes = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#bff3ff" fill-opacity=".3" stroke="#bff3ff" stroke-width="1.2"/>'
+                    for x, y, r in ((12, 14, 3.5), (52, 12, 2.6), (54, 50, 3.2), (11, 50, 2.4), (47, 22, 1.8)))
+    return (motes + glow('<ellipse cx="32" cy="33" rx="20" ry="15" fill="#4fc8f0"/>', .5)
+            + g(jaws('#5fb2dc'), 32, 33, 0, 1.15)
+            + '<path d="M8 30 L13 32 M56 30 L51 32 M32 10 V15" stroke="#9fe8ff" stroke-width="2.2"/>')
 
 
 @icon("Siren's Hush")
@@ -1461,15 +1463,13 @@ def _():
             + g(drop(), 16, 14, 0, .6) + g(drop(), 8, 20, 0, .4))
 
 
-@icon('Tiny Target')
+@icon('Frostplate')
 def _():
-    fish = ('<path d="M-8 0 C-4 -6 4 -6 7 0 C4 6 -4 6 -8 0 Z" fill="#5fa38a"/>'
-            '<path d="M7 0 L12 -4 L11 0 L12 4 Z" fill="#2f6f8f"/>'
-            '<circle cx="-4" cy="-1" r="1.3" fill="#15121d" stroke="none"/>')
-    return (g(arrow(), 30, 22, 80, .9)
-            + '<path d="M8 30 Q30 24 54 30" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-dasharray="3 3" opacity=".6"/>'
-            + g(fish, 32, 42, 0, 1.2)
-            + '<path d="M22 50 L18 54 M42 50 L46 54" stroke="#bff3ff" stroke-width="1.6"/>')
+    # The first blow of the turn goes into the rime-plate rather than into him.
+    return (g(heater('url(#steel)', '#9fe8ff'), 32, 31, 0, 1.3)
+            + '<path d="M21 28 L32 34 L43 28 M21 39 L32 45 L43 39" stroke="#3b4556" stroke-width="2.6" fill="none" stroke-linejoin="round"/>'
+            + '<path d="M24 20 Q32 16 40 20" stroke="#eaf1f8" stroke-width="1.4" fill="none" opacity=".55"/>'
+            + twinkle(13, 15, .85, '#dcf8ff') + twinkle(51, 45, .65, '#dcf8ff'))
 
 
 @icon('Echo')
@@ -2198,7 +2198,7 @@ CATALOG = {
         ('Sea-Sung', 'Seraphine · Nature', 'passive'), ('Vanish in Ink', 'Octavia · Nature', 'passive'),
         ('Gift of the Reef', 'Maren · Nature', 'passive'),
         ('Trident Lunge', 'Tharos Razorfin', 'skill'), ('Riptide', 'Tharos Razorfin', 'skill'), ('Blood in the Water', 'Tharos Razorfin', 'sig'), ('Feeding Frenzy', 'Tharos Razorfin', 'skill'), ('Undertow', 'Tharos Razorfin', 'skill'), ('Blood Scent', 'Tharos Razorfin', 'passive'),
-        ('Nibble Flurry', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Gurgle Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Choking Bite', 'Grubblefin', 'skill'), ('Tiny Target', 'Grubblefin', 'passive'),
+        ('Rimebite', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Glacial Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Choking Bite', 'Grubblefin', 'skill'), ('Frostplate', 'Grubblefin', 'passive'),
         ("Siren's Hush", 'Seraphine Wavecaller', 'skill'), ('Dirge of the Deep', 'Seraphine Wavecaller', 'skill'), ('Lure Song', 'Seraphine Wavecaller', 'sig'), ('Drowning Chorus', 'Seraphine Wavecaller', 'skill'), ('Song of the Depths', 'Seraphine Wavecaller', 'skill'), ('Echo', 'Seraphine Wavecaller', 'passive'),
         ('Ink Double', 'Octavia Inkveil', 'skill'), ('Tentacle Snare', 'Octavia Inkveil', 'skill'), ('Ink Cloud', 'Octavia Inkveil', 'sig'), ('Ink Whip', 'Octavia Inkveil', 'skill'), ('Crushing Grip', 'Octavia Inkveil', 'skill'), ('Ink Sac', 'Octavia Inkveil', 'passive'),
         ('Healing Tide', 'Maren Pearlheart', 'skill'), ('Tide Pool', 'Maren Pearlheart', 'skill'), ('Pearl Barrier', 'Maren Pearlheart', 'sig'), ('Reef Bloom', 'Maren Pearlheart', 'skill'), ('Riptide Crash', 'Maren Pearlheart', 'skill'), ('Rimefall', 'Maren Pearlheart', 'skill'), ('Backwash', 'Maren Pearlheart', 'passive'), ('Tidecaller', 'Maren Pearlheart', 'passive'),
@@ -2221,7 +2221,7 @@ CATALOG = {
         ('Grave Cross', 'Mordrek the Interred', 'skill'), ('Graveside Chill', 'Mordrek the Interred', 'skill'), ('Last Rites', 'Mordrek the Interred', 'sig'), ('Plant the Marker', 'Mordrek the Interred', 'skill'), ('Second Grave', 'Mordrek the Interred', 'passive'),
         ('Tomb Slab', 'Barrow', 'skill'), ('Grasping Hands', 'Barrow', 'skill'), ('Barrow Wall', 'Barrow', 'sig'), ('Crypt Breaker', 'Barrow', 'skill'), ('Hold the Grave', 'Barrow', 'skill'), ('Graveyard Fence', 'Barrow', 'skill'), ('Burrow', 'Barrow', 'skill'), ('Feast of the Fallen', 'Barrow', 'passive'),
         ('Bone Dart', 'Cadris Gravecall', 'skill'), ('Shambling Rise', 'Cadris Gravecall', 'skill'), ('Charnel Volley', 'Cadris Gravecall', 'sig'), ('Rot Shot', 'Cadris Gravecall', 'skill'), ('Marrow Pierce', 'Cadris Gravecall', 'skill'), ('Toll of the Dead', 'Cadris Gravecall', 'passive'),
-        ('Shroud Arrow', 'Vaun Shroudfletch', 'skill'), ('Withering Shot', 'Vaun Shroudfletch', 'skill'), ('Pall of Arrows', 'Vaun Shroudfletch', 'sig'), ('Graveshot', 'Vaun Shroudfletch', 'skill'), ('Scatter of Bones', 'Vaun Shroudfletch', 'skill'), ('Deathmark', 'Vaun Shroudfletch', 'passive'),
+        ('Shroudcast', 'Vaun Shroudfletch', 'skill'), ('Withering Shot', 'Vaun Shroudfletch', 'skill'), ('Pall of Bones', 'Vaun Shroudfletch', 'sig'), ('Graveshot', 'Vaun Shroudfletch', 'skill'), ('Scatter of Bones', 'Vaun Shroudfletch', 'skill'), ('Deathmark', 'Vaun Shroudfletch', 'passive'),
         ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Stolen Hours', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
         ('Clawing Grasp', 'Shambler (summon)', 'skill'),
     ]),
@@ -3059,32 +3059,40 @@ def _():
             + burst(44, 41, 2.4, 5.5, 8, '#e9e4d8'))
 
 
-@icon('Shroud Arrow')
+@icon('Shroudcast')
 def _():
-    return (poly('M10 44 Q18 36 14 26 Q22 32 20 20', '#8a9a8c', 2.4)
-            + g(arrow('url(#steel)', '#44523f'), 33, 30, -28)
-            + poly('M22 44 Q30 40 28 32', '#6a7a6c', 2))
+    # Off the staff and up the arc: the shaft in the low corner, a cord still swinging, and the
+    # skull at the top of its throw.
+    return (line(12, 56, 23, 31, '#6b4422', 3.4)
+            + poly('M23 31 Q28 37 26 42', '#8a5a32', 1.8)
+            + poly('M25 29 Q38 14 55 23', '#8a9a8c', 2.4)
+            + g(skull(), 50, 25, 16, .6)
+            + twinkle(35, 17, .6, '#bfeccb'))
 
 
-@icon('Pall of Arrows')
+@icon('Pall of Bones')
 def _():
-    arr = '<path d="M0 -8 V6 M0 6 L-2.6 1.8 M0 6 L2.6 1.8 M-2 -8 L0 -5 L2 -8" stroke-width="2" fill="none"/>'
+    # The same pall overhead as before, raining broken bone instead of arrows.
     return ('<path d="M10 16 Q16 8 26 12 Q32 4 42 10 Q52 8 54 17 Q58 24 48 25 L14 25 Q6 23 10 16 Z" fill="url(#shroud)"/>'
-            + g(arr, 20, 38) + g(arr, 32, 42) + g(arr, 44, 38))
+            + g(bone_shard(15), 20, 38, 80)
+            + g(bone_shard(17), 32, 43, 100)
+            + g(bone_shard(14), 45, 38, 75))
 
 
 @icon('Withering Shot')
 def _():
-    return (g(arrow('url(#steel)', '#44523f'), 30, 28, -22)
+    return (g(skull(), 27, 26, -12, .72)
             + poly('M42 40 L47 46 L52 40', '#d6a0ff', 2.4)
             + poly('M42 48 L47 54 L52 48', '#a860e0', 2.4))
 
 
 @icon('Graveshot')
 def _():
-    return (g(skull(), 46, 42, 0, .6)
-            + g(arrow('url(#steel)', '#44523f'), 28, 28, -30)
-            + speed_lines(8, 42, 2, 9, 6, '#bfeccb', -30))
+    # Harder on the rotting: the skull comes in trailing grave-green, poison pooling under it.
+    return (g(skull(), 42, 31, 14, .78)
+            + speed_lines(10, 33, 3, 11, 6, '#bfeccb', -18)
+            + g(drop('url(#poison)'), 45, 52, 0, .7)
+            + twinkle(23, 18, .6, '#d6ff86'))
 
 
 @icon('Scatter of Bones')

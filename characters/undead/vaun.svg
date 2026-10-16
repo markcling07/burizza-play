@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Vaun Shroudfletch (ranged) - Undead faction archer. A bare skeleton in a rotted burial
-     shroud, ribs snapped out of his own chest to fletch his arrows; no lungs left to shake
-     a shot. Weapon is the bone recurve bow with its nocked rib-fletched arrow (class="wpn"),
-     gripped at data-hand. Canvas 100x100, faces right, feet on y=94. -->
+<!-- Vaun Shroudfletch (ranged) - Undead faction staff-slinger. A bare skeleton in a rotted
+     burial shroud, ribs snapped out of his own chest for shot; no lungs left to shake a throw.
+     Weapon is the grave-wood SLINGSTAFF (class="wpn") - a long shaft held in both hands, the
+     sling cords hanging off the tip with the loaded skull swinging below and forward.
+     Gripped at data-hand. Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="74,42">
   <defs>
     <linearGradient id="vu-bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6f2e4"/><stop offset=".5" stop-color="#e2dcc4"/><stop offset="1" stop-color="#b0a888"/></linearGradient>
@@ -26,13 +27,12 @@
     <path d="M50 25 Q35 39 32 82 L34.5 75 L36.5 86 L39 76.5 L41.5 87 L44 76 L46.5 84 L49 71 L52.5 36 Z" fill="url(#vu-shroudD)"/>
     <path d="M48 28 Q38 42 36 74" stroke="#5e7155" stroke-width=".7" fill="none" opacity=".4"/>
     <path d="M38 54 Q40 51 41.5 54 Q40 57 38 54 Z M35.5 64 Q37 62 38.5 64 Q37 66.5 35.5 64 Z" fill="#101510" opacity=".55"/>
-    <!-- quiver of rib-fletched arrows -->
+    <!-- satchel of grave-shot: his own ribs, snapped short and curved, riding above the lip -->
     <g transform="rotate(-22 43 46)">
-      <path class="wpn" d="M38.4 30.5 L37 23 Q39.4 25.6 39.6 30.5 Z" fill="url(#vu-boneHL)"/>
-      <path class="wpn" d="M40 30.5 L42 23.6 Q40.9 26.8 41 30.5 Z" fill="#cdc6aa"/>
-      <path class="wpn" d="M42.2 30.5 L41 24 Q43.2 26.4 43.4 30.5 Z" fill="url(#vu-boneHL)"/>
-      <path class="wpn" d="M43.8 30.5 L45.8 24.6 Q44.7 27.6 44.8 30.5 Z" fill="#cdc6aa"/>
-      <path class="wpn" d="M39 29 v5 M42.6 29 v5 M45.2 30 v4" stroke="#d8d1b6" stroke-width=".85"/>
+      <path class="wpn" d="M38 31 Q36.4 25.8 38.2 22.6 Q39.4 25 39.4 27 Q40.4 28.6 39.8 31 Z" fill="url(#vu-boneHL)"/>
+      <path class="wpn" d="M41 31 Q41.8 26 43.6 23.4 Q43.2 26.4 42.4 28 Q42.6 29.8 42.4 31 Z" fill="#cdc6aa"/>
+      <path class="wpn" d="M44 31 Q44.6 26.6 46.6 24.2 Q46 27 45.4 28.4 Q45.6 30 45.4 31 Z" fill="url(#vu-boneHL)"/>
+      <path class="wpn" d="M39.2 30 v4.4 M42.4 30 v4.4 M45.4 30.4 v4" stroke="#d8d1b6" stroke-width=".85"/>
       <rect x="37.2" y="32.5" width="10" height="20" rx="2.2" fill="url(#vu-shroudD)"/>
       <rect x="36.8" y="35.4" width="10.8" height="2.4" fill="url(#vu-wrap)"/>
       <rect x="37" y="45.6" width="10.4" height="1.8" fill="url(#vu-wrap)"/>
@@ -41,9 +41,9 @@
     <!-- loose ribs drifting free of the quiver -->
     <path d="M30 33 Q23.5 36 22.5 42.5" stroke="url(#vu-bone)" stroke-width="1.7" fill="none" opacity=".92"/>
     <path d="M27.5 55 Q22.5 58 22 63" stroke="url(#vu-boneD)" stroke-width="1.35" fill="none" opacity=".75"/>
-    <!-- far arm: hauled back level with the shoulder, hand up at the jaw -->
-    <path d="M48 33.8 L43.6 38.4 L55.2 36.8" stroke="url(#vu-boneD)" stroke-width="2.9" fill="none"/>
-    <path d="M44.6 39.8 L55 38.2" stroke="#6b6450" stroke-width="1.1" fill="none" opacity=".8"/>
+    <!-- far arm: the low hand on the shaft, reaching down and across the body to the wide grip -->
+    <path d="M48 35.4 L52.4 48.6 L69.6 52.6" stroke="url(#vu-boneD)" stroke-width="2.9" fill="none"/>
+    <path d="M53.4 49.4 L68.8 53.4" stroke="#6b6450" stroke-width="1.1" fill="none" opacity=".8"/>
     <!-- far leg -->
     <path d="M51.4 59 L48.6 73.5 M48.4 75.2 L46.8 89.6" stroke="url(#vu-boneD)" stroke-width="3" fill="none"/>
     <ellipse cx="48.5" cy="74.4" rx="2.3" ry="2.1" fill="url(#vu-boneD)"/>
@@ -73,11 +73,11 @@
     <path d="M52.2 32.4 Q58.4 30.8 63 33.4" stroke="url(#vu-bone)" stroke-width="1.8" fill="none"/>
     <path d="M52.2 32.4 Q48.2 31.4 46.4 33.4" stroke="url(#vu-boneD)" stroke-width="1.6" fill="none"/>
     <ellipse cx="63.4" cy="34.6" rx="2.6" ry="2.7" fill="url(#vu-bone)"/><ellipse cx="47.4" cy="34.4" rx="2.3" ry="2.7" fill="url(#vu-boneD)"/>
-    <!-- bow arm: lead arm extended forward to the grip -->
+    <!-- stave arm: lead arm extended forward to the high grip -->
     <path d="M63.4 34.8 L69.2 39 L73.4 41.8" stroke="url(#vu-bone)" stroke-width="2.9" fill="none"/>
     <!-- wrapping strips: both forearms and both shins, ends trailing loose -->
-    <path d="M69.8 37.8 L68.8 40.6 M71.4 38.8 L70.4 41.6 M48.6 35.9 L49 39 M50.9 35.6 L51.3 38.7 M58.8 80.4 h4.3 M59.2 83.4 h4.4 M59.6 86.4 h4.2 M46.6 80 l3.4 -.8 M46.2 84 l3.6 -.8" stroke="url(#vu-wrap)" stroke-width="1.8" fill="none"/>
-    <path d="M70.6 41.4 Q70 44.6 67.8 46.4 M47.6 40.4 Q46.6 43.6 44.4 45 M63.8 86.6 Q66 88.4 65.6 91.4" stroke="#36422f" stroke-width="1.05" fill="none"/>
+    <path d="M69.8 37.8 L68.8 40.6 M71.4 38.8 L70.4 41.6 M48.2 39.7 L51 38.7 M49.3 43.1 L52.1 42.1 M58.8 80.4 h4.3 M59.2 83.4 h4.4 M59.6 86.4 h4.2 M46.6 80 l3.4 -.8 M46.2 84 l3.6 -.8" stroke="url(#vu-wrap)" stroke-width="1.8" fill="none"/>
+    <path d="M70.6 41.4 Q70 44.6 67.8 46.4 M51.2 44.6 Q50.4 47.8 48.2 49.2 M63.8 86.6 Q66 88.4 65.6 91.4" stroke="#36422f" stroke-width="1.05" fill="none"/>
     <!-- shoulder rags of the burial shroud, chest left bare -->
     <path d="M60.4 30.6 Q65.4 30 68.4 34.4 L67.6 40.4 L65.8 36.6 L64.2 41 L62.6 35.4 L60.8 38.4 Z" fill="url(#vu-shroud)"/>
     <path d="M51.6 30 Q46.6 29.6 44 33.8 L44.8 39.8 L46.4 36 L47.8 40.2 L49.4 34.6 L51.2 37.2 Z" fill="url(#vu-shroud)"/>
@@ -100,36 +100,31 @@
   <path d="M46.8 30.6 Q43.4 12.4 56.4 11 Q67.2 11.6 67.4 20.8 Q63.2 15 56.6 16.6 Q51.2 18.4 51 28.6 L51.6 34.2 L49.8 31.6 L48.6 34 Q46.9 33.2 46.8 30.6 Z" fill="url(#vu-shroud)"/>
   <path d="M51.4 21.4 Q53 16 59.8 16 Q64.6 17.6 66.6 20.6 Q62.4 17 56.6 18.4 Q52.6 19.6 51.4 21.4 Z M53 14.4 Q54.6 12.6 56.6 12.6 Q54.6 13.6 53 14.4 Z" fill="#141a12" opacity=".4"/>
   <path d="M47.4 29.4 Q45.8 20 49.2 13.8" stroke="#6e8263" stroke-width=".8" fill="none" opacity=".55"/>
-  <!-- BONE BOW: a pair of ribs lashed into a recurve, grip on data-hand 74,42 -->
-  <path class="wpn" d="M68.6 6.6 Q64.6 8.4 66 11.6 Q82 42 66 72.4 Q64.6 75.6 68.6 77.4" stroke="#6b6450" stroke-width="4.4" fill="none" stroke-linecap="round"/>
-  <path class="wpn" d="M68.6 6.6 Q64.6 8.4 66 11.6 Q82 42 66 72.4 Q64.6 75.6 68.6 77.4" stroke="url(#vu-bone)" stroke-width="2.7" fill="none" stroke-linecap="round"/>
-  <path class="wpn" d="M68.4 13.6 Q76.4 25 78.2 35 M78 49 Q76 59 68.6 70" stroke="#fffdf4" stroke-width=".78" fill="none" stroke-linecap="round" opacity=".6"/>
-  <path class="wpn" d="M71.6 20 l1.6 1.4 M74.4 27 l1.7 1.2 M76.6 55 l1.6 -1.3 M72.4 64 l1.7 -1.2" stroke="#9c947a" stroke-width=".55" fill="none" opacity=".75"/>
-  <path class="wpn" d="M67.6 8 l2.6 -1.4 M67.6 76 l2.6 1.4" stroke="url(#vu-boneHL)" stroke-width=".9" stroke-linecap="round"/>
-  <!-- shroud-strip grip binding -->
-  <path class="wpn" d="M73.9 36.6 Q75.9 42 73.9 47.4" stroke="url(#vu-wrap)" stroke-width="3.8" fill="none" stroke-linecap="round"/>
-  <path class="wpn" d="M73.6 38.2 Q75.6 38.6 75.2 39.2 M73.9 41.8 Q76 41.9 75.6 42.5 M73.6 45.4 Q75.5 45.2 75.1 45.8" stroke="#2a3426" stroke-width=".5" fill="none"/>
-  <!-- bow hand: finger bones closed on the grip -->
-  <path d="M71.2 38.4 Q75.4 38 75.6 42.1 Q75.8 46.2 71.4 45.6 Z" fill="url(#vu-bone)" stroke="#6b6450" stroke-width=".6"/>
-  <path d="M72.2 39.6 h2.8 M72.2 41.6 h3 M72.3 43.6 h2.8" stroke="#a79f82" stroke-width=".45" fill="none"/>
-  <!-- sinew string, hauled back to the jaw -->
-  <path class="wpn" d="M68.6 7.2 L54.8 38.3 L68.6 76.8" stroke="#ded7c0" stroke-width="1" fill="none" stroke-linejoin="round"/>
-  <path class="wpn" d="M68.4 8.4 L55.6 38.3" stroke="#fffdf4" stroke-width=".35" fill="none" opacity=".6"/>
-  <!-- nocked arrow, fletched with rib slivers, angled off the grip to the draw at the jaw -->
-  <g transform="rotate(11 74 42)" stroke-linecap="round">
-    <path class="wpn" d="M54.4 42 H92.2" stroke="#6b6450" stroke-width="2.4"/>
-    <path class="wpn" d="M54.4 42 H92.2" stroke="#ece6d0" stroke-width="1.5"/>
-    <path class="wpn" d="M55.4 41.1 H91.6" stroke="#fffdf4" stroke-width=".4" opacity=".55"/>
-    <path class="wpn" d="M53.9 40.2 v3.6" stroke="#9c947a" stroke-width="1.3"/>
-    <path class="wpn" d="M58 41.4 Q61.4 38.2 65.2 39.2 Q61.4 40.4 58.8 41.9 Z" fill="url(#vu-boneHL)"/>
-    <path class="wpn" d="M58 42.6 Q61.4 45.8 65.2 44.8 Q61.4 43.6 58.8 42.1 Z" fill="#cdc6aa"/>
-    <path class="wpn" d="M59.6 41.2 Q62.4 39.6 64.6 40 Q62.2 40.6 60.2 41.6 Z" fill="#fffdf4" opacity=".7"/>
-    <path class="wpn" d="M89.6 38.9 L97 42 L89.6 45.1 L91.4 42 Z" fill="url(#vu-boneHL)"/>
-    <path class="wpn" d="M91 40.6 L95 42 L91 43.4" stroke="#9c947a" stroke-width=".35" fill="none" opacity=".7"/>
-  </g>
-  <!-- draw hand: finger bones hooked on the string, knuckles at the jaw -->
-  <path d="M53.3 35.6 Q58 35.4 58.2 38.2 Q58.2 41.3 53.6 40.7 Q51.7 38.3 53.3 35.6 Z" fill="url(#vu-bone)" stroke="#6b6450" stroke-width=".7"/>
-  <path d="M54.2 36.8 h3 M54.2 38.5 h3.2 M54.4 39.8 h2.8" stroke="#a79f82" stroke-width=".45" fill="none"/>
+  <!-- SLINGSTAFF: a long grave-wood shaft, butt by his heel and tip above his head, running
+       through data-hand 74,42. The shaft is the lever the sling swings on. -->
+  <path class="wpn" d="M64 73.2 L82 17" stroke="#2e2a1f" stroke-width="5.2" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M64 73.2 L82 17" stroke="#6b5c3f" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M65.4 69.6 L80.8 21.4" stroke="#9c8a63" stroke-width=".8" fill="none" opacity=".5" stroke-linecap="round"/>
+  <path class="wpn" d="M67.2 60 l2.4 .8 M70.9 48 l2.4 .8 M74.9 35.4 l2.4 .8" stroke="#1f1c14" stroke-width=".6" fill="none" opacity=".45"/>
+  <!-- shroud-strip bindings, wrapped across the shaft at both grips -->
+  <path class="wpn" d="M71.2 40.8 L76.8 43.2 M65.9 57.4 L71.5 59.8" stroke="url(#vu-wrap)" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+  <path class="wpn" d="M72 41.4 L76 43.1 M66.7 58 L70.7 59.7" stroke="#2a3426" stroke-width=".5" fill="none"/>
+  <!-- the sling itself: two thin cords hanging off the tip with the loaded skull swinging below
+       and forward, slack and well clear of the shaft. Deliberately NOT swept back over the tip -
+       a thick continuous curve off a staff reads as a scythe blade at roster size. -->
+  <path class="wpn" d="M81.4 17.6 Q84.4 29.4 86.8 38.8" stroke="#a8906e" stroke-width="1.05" fill="none"/>
+  <path class="wpn" d="M82.8 18.2 Q87 30 90.2 39" stroke="#7d6346" stroke-width="1.05" fill="none"/>
+  <circle class="wpn" cx="88.4" cy="43.6" r="4.3" fill="url(#vu-bone)"/>
+  <path class="wpn" d="M85.9 46.6 h5 v2.7 h-5 z" fill="#cdc6aa"/>
+  <circle class="wpn" cx="86.9" cy="43.2" r="1.2" fill="#15121d"/><circle class="wpn" cx="90.3" cy="43.5" r="1.2" fill="#15121d"/>
+  <path class="wpn" d="M88.4 44.8 l-.9 1.5 h1.8 z" fill="#15121d"/>
+  <path class="wpn" d="M85.1 46.9 q4 4.6 8.4 .6" stroke="#8a5a32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- high hand: finger bones closed round the shaft at data-hand -->
+  <path d="M71.4 38.6 Q75.8 38.4 76.2 42.4 Q76.4 46.4 71.8 45.8 Z" fill="url(#vu-bone)" stroke="#6b6450" stroke-width=".6"/>
+  <path d="M72.4 39.8 h2.9 M72.4 41.8 h3.1 M72.5 43.8 h2.9" stroke="#a79f82" stroke-width=".45" fill="none"/>
+  <!-- low hand: the far hand come round the shaft, wide for the leverage -->
+  <path d="M66.6 51 Q71 50.8 71.4 54.6 Q71.6 58.4 67 57.8 Z" fill="url(#vu-boneD)" stroke="#6b6450" stroke-width=".6"/>
+  <path d="M67.6 52.2 h2.9 M67.6 54.2 h3.1 M67.7 56.2 h2.9" stroke="#8a8268" stroke-width=".45" fill="none"/>
   <!-- grave dust in front + socket bloom -->
   <g fill="#8ee696" opacity=".4"><circle cx="67" cy="50" r=".55"/><circle cx="52" cy="66" r=".5"/><circle cx="79" cy="30" r=".45"/><circle cx="44" cy="52" r=".6"/><circle cx="71" cy="84" r=".5"/><circle cx="63" cy="8" r=".45"/></g>
   <path d="M57.2 24.8 Q56.4 28 57.6 30.6 M62.6 24.8 Q62.2 27.4 63.2 29.4" stroke="#8ee696" stroke-width=".55" fill="none" opacity=".28" filter="url(#vu-glowSm)"/>

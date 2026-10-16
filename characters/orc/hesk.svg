@@ -18,9 +18,18 @@
   </defs>
   <!-- ground shadow -->
   <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".35"/>
+  <!-- STAFF CARRY. She holds the stave levelled across her, orb forward, instead of planted upright.
+       The staff is still DRAWN upright below (shaft y 20-92, orb at the top) and laid flat here, so
+       the pieces keep the coordinates they were painted with: rotate 90 about her grip at 69.5,54,
+       then slide 24 back along the shaft. Without that slide the orb swings out to x~107 - a quarter
+       turn maps x' = 123.5 - y, and the orb sits at y=16 - which is off the 100-wide canvas. The
+       shift brings the whole stave to x 7.5-83.5 and still leaves the shaft under her hand.
+       Every .wpn run in this file carries this same transform; they must stay in step. -->
   <!-- orb glow layers -->
-  <circle class="wpn" cx="72" cy="15" r="13" fill="#e0645a" opacity=".35" filter="url(#hk-glow)"/>
-  <circle class="wpn" cx="72" cy="15" r="11" fill="#e0645a" opacity=".6" filter="url(#hk-glow)"/>
+  <g transform="translate(-24 0) rotate(90 69.5 54)">
+    <circle class="wpn" cx="72" cy="15" r="13" fill="#e0645a" opacity=".35" filter="url(#hk-glow)"/>
+    <circle class="wpn" cx="72" cy="15" r="11" fill="#e0645a" opacity=".6" filter="url(#hk-glow)"/>
+  </g>
   <g stroke="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
     <!-- feet / sandals with straps -->
     <path d="M40 88 h9 v5.5 h-11 z" fill="#2a2220"/>
@@ -64,7 +73,8 @@
     <!-- drumstick tucked in belt -->
     <path d="M28 63 L26 72" stroke="#7a5a38" stroke-width="1.6" stroke-linecap="round"/>
     <circle cx="26" cy="72.5" r="1.4" fill="#a08060"/>
-    <!-- staff shaft -->
+    <!-- staff shaft (levelled by the group transform - see the note up top) -->
+    <g transform="translate(-24 0) rotate(90 69.5 54)">
     <rect class="wpn" x="68.4" y="20" width="3.2" height="72" rx="1" fill="url(#hk-wood)"/>
     <path class="wpn" d="M69.5 28 v12 M70.5 45 v14 M69.8 64 v10 M70.2 78 v8" stroke="#3e2516" stroke-width=".4" fill="none" opacity=".5"/>
     <!-- staff claw cradle -->
@@ -88,6 +98,7 @@
     <circle class="wpn" cx="76" cy="31" r="1.8" fill="url(#hk-bone)"/>
     <circle class="wpn" cx="75.4" cy="30.6" r=".4" fill="#2a2236"/><circle class="wpn" cx="76.6" cy="30.6" r=".4" fill="#2a2236"/>
     <path class="wpn" d="M75.6 32 h.8" stroke="#2a2236" stroke-width=".3"/>
+    </g>
     <!-- head -->
     <path d="M51 38 Q50 28 58.5 27.5 Q66.5 27.5 67 34.5 L69.5 39 L67.4 40.5 Q68 45.5 63.5 47.5 Q57 49 53.5 46 Q50.5 42.5 51 38 Z" fill="url(#hk-skin)"/>
     <!-- ear with inner fold -->
@@ -131,14 +142,16 @@
   <!-- chin wart + jaw rune -->
   <circle cx="65" cy="46" r=".6" fill="#8a9d6a" opacity=".6"/>
   <path d="M58 44 l1 -1.5 l.8 1.5" stroke="#6a8050" stroke-width=".5" fill="none" opacity=".5"/>
-  <!-- ambient magical particles -->
-  <g class="wpn" fill="#ff9a8a">
-    <circle cx="80" cy="9" r=".9" opacity=".9"/><circle cx="63" cy="7" r=".7" opacity=".8"/>
-    <circle cx="81" cy="21" r=".7" opacity=".7"/><circle cx="78" cy="5" r=".5" opacity=".5"/>
-    <circle cx="65" cy="12" r=".6" opacity=".6"/><circle cx="83" cy="15" r=".5" opacity=".4"/>
-    <circle cx="76" cy="24" r=".4" opacity=".5"/>
+  <!-- ambient magical particles: they hang around the orb, so they travel with it -->
+  <g transform="translate(-24 0) rotate(90 69.5 54)">
+    <g class="wpn" fill="#ff9a8a">
+      <circle cx="80" cy="9" r=".9" opacity=".9"/><circle cx="63" cy="7" r=".7" opacity=".8"/>
+      <circle cx="81" cy="21" r=".7" opacity=".7"/><circle cx="78" cy="5" r=".5" opacity=".5"/>
+      <circle cx="65" cy="12" r=".6" opacity=".6"/><circle cx="83" cy="15" r=".5" opacity=".4"/>
+      <circle cx="76" cy="24" r=".4" opacity=".5"/>
+    </g>
+    <!-- faint glowing particles -->
+    <circle class="wpn" cx="67" cy="10" r=".8" fill="#ffc8b0" opacity=".35" filter="url(#hk-glowSm)"/>
+    <circle class="wpn" cx="79" cy="12" r=".6" fill="#ffc8b0" opacity=".3" filter="url(#hk-glowSm)"/>
   </g>
-  <!-- faint glowing particles -->
-  <circle class="wpn" cx="67" cy="10" r=".8" fill="#ffc8b0" opacity=".35" filter="url(#hk-glowSm)"/>
-  <circle class="wpn" cx="79" cy="12" r=".6" fill="#ffc8b0" opacity=".3" filter="url(#hk-glowSm)"/>
 </svg>

@@ -522,35 +522,6 @@
       ]
     }
   },
-  "grubble": {
-    "idle": {
-      "src": "grubble-idle.webp",
-      "w": 370,
-      "h": 270,
-      "footX": 155,
-      "footY": 255,
-      "frames": 18,
-      "frameMs": 70,
-      "ms": 1260
-    },
-    "attack": {
-      "src": "grubble-attack.webp",
-      "w": 370,
-      "h": 270,
-      "footX": 155,
-      "footY": 255,
-      "frames": 32,
-      "frameMs": 40,
-      "ms": 1280,
-      "hitMs": 200,
-      "hitsMs": [
-        200,
-        360,
-        520,
-        680
-      ]
-    }
-  },
   "seraphine": {
     "idle": {
       "src": "seraphine-idle.webp",
@@ -765,29 +736,6 @@
       "hitMs": 520
     }
   },
-  "riven": {
-    "idle": {
-      "src": "riven-idle.webp",
-      "w": 350,
-      "h": 265,
-      "footX": 150,
-      "footY": 255,
-      "frames": 18,
-      "frameMs": 75,
-      "ms": 1350
-    },
-    "attack": {
-      "src": "riven-attack.webp",
-      "w": 350,
-      "h": 265,
-      "footX": 150,
-      "footY": 255,
-      "frames": 30,
-      "frameMs": 40,
-      "ms": 1200,
-      "hitMs": 480
-    }
-  },
   "shazrak": {
     "idle": {
       "src": "shazrak-idle.webp",
@@ -832,29 +780,6 @@
       "frameMs": 40,
       "ms": 1280,
       "hitMs": 680
-    }
-  },
-  "ryuunosuke": {
-    "idle": {
-      "src": "ryuunosuke-idle.webp",
-      "w": 370,
-      "h": 275,
-      "footX": 150,
-      "footY": 260,
-      "frames": 18,
-      "frameMs": 75,
-      "ms": 1350
-    },
-    "attack": {
-      "src": "ryuunosuke-attack.webp",
-      "w": 370,
-      "h": 275,
-      "footX": 150,
-      "footY": 260,
-      "frames": 30,
-      "frameMs": 40,
-      "ms": 1200,
-      "hitMs": 360
     }
   },
   "nyx": {

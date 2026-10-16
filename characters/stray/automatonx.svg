@@ -1,139 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Automaton X (Stray Banner, support, Heat) - Burizza art v1. A squat foundry robot cast in the
-     Union's own moulds: boxy riveted steel-blue plating, amber trim, a furnace grate burning in his
-     chest and an exhaust stack over his back shoulder. The raised arm ends in a serrated vice jaw
-     (Seize the Arm), a rail of latching hooks runs down his back for bolting onto an ally (Piggyback
-     Rig), and a weld nozzle hangs off the rig (Hammer Weld). He runs on Heat, not mana.
-     Canvas 100x100, faces right, feet on y=94. The spanner is his weapon (class="wpn"): data-hand
-     marks the grip, so a racked weapon can hide it and draw in its place. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66,64">
+<!-- Automaton X (Stray Banner, support, Heat) - Burizza art v2. A foundry-cast walking drone rather
+     than a humanoid: a rounded triangular hull carried on four jointed legs, with a turret set in
+     the face of it. Union livery - bare white plate, hazard yellow along the edges, black trim, and
+     yellow banding down the shins where a foot might be stepped on.
+     Facing right is read off two things: the right edge carries the lit yellow depth-face, and the
+     turret barrel is run out east through that edge, past the hull silhouette. The barrel is the
+     strongest facing cue on the model, which is why it sits high and clear of the legs.
+     The far pair of legs is drawn first, desaturated and shortened, so the near pair reads in front
+     of the hull rather than tangling with it at battlefield size.
+     Canvas 100x100, faces right, feet on y=94. He carries no weapon in his look{}, so nothing here
+     is marked class="wpn"; data-hand is kept at the hull's right shoulder so a RACKED weapon still
+     has a grip to draw from (see syncHeldWeapon). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66,58">
   <defs>
-    <linearGradient id="ax-steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a6aebd"/><stop offset=".35" stop-color="#7d8593"/><stop offset=".7" stop-color="#6d7482"/><stop offset="1" stop-color="#3f4550"/></linearGradient>
-    <linearGradient id="ax-steelD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5c6370"/><stop offset=".6" stop-color="#454b57"/><stop offset="1" stop-color="#2a2e37"/></linearGradient>
-    <linearGradient id="ax-plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#99a1b0"/><stop offset=".5" stop-color="#6d7482"/><stop offset="1" stop-color="#4a505c"/></linearGradient>
-    <linearGradient id="ax-iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b7280"/><stop offset=".5" stop-color="#434954"/><stop offset="1" stop-color="#22262e"/></linearGradient>
-    <linearGradient id="ax-amber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffdca2"/><stop offset=".45" stop-color="#e8a548"/><stop offset="1" stop-color="#8f5a13"/></linearGradient>
-    <linearGradient id="ax-chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2f8"/><stop offset=".45" stop-color="#bcc4d1"/><stop offset="1" stop-color="#6e7686"/></linearGradient>
-    <linearGradient id="ax-flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff6d8"/><stop offset=".45" stop-color="#ffcf6b"/><stop offset="1" stop-color="#e8702a" stop-opacity=".15"/></linearGradient>
-    <radialGradient id="ax-furnace" cx=".5" cy=".55" r=".62"><stop offset="0" stop-color="#fff3cf"/><stop offset=".35" stop-color="#ffb545"/><stop offset=".7" stop-color="#d9630f"/><stop offset="1" stop-color="#6a2a06"/></radialGradient>
-    <radialGradient id="ax-lens" cx=".38" cy=".34" r=".7"><stop offset="0" stop-color="#fffbe8"/><stop offset=".35" stop-color="#ffcf6b"/><stop offset=".75" stop-color="#e09524"/><stop offset="1" stop-color="#7d4a08"/></radialGradient>
-    <radialGradient id="ax-heat" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd98a" stop-opacity=".85"/><stop offset=".55" stop-color="#e8a548" stop-opacity=".32"/><stop offset="1" stop-color="#d9630f" stop-opacity="0"/></radialGradient>
+    <linearGradient id="ax-shell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset=".5" stop-color="#dde3ec"/><stop offset="1" stop-color="#9aa3b2"/></linearGradient>
+    <linearGradient id="ax-yellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe89a"/><stop offset=".4" stop-color="#f6c22e"/><stop offset="1" stop-color="#a87b0e"/></linearGradient>
+    <linearGradient id="ax-dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3c424b"/><stop offset=".55" stop-color="#242930"/><stop offset="1" stop-color="#13161a"/></linearGradient>
+    <linearGradient id="ax-limb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f4f7fa"/><stop offset=".48" stop-color="#ccd3dd"/><stop offset="1" stop-color="#868fa0"/></linearGradient>
+    <linearGradient id="ax-limbFar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#99a1ae"/><stop offset="1" stop-color="#5e6572"/></linearGradient>
+    <linearGradient id="ax-barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2f7"/><stop offset=".42" stop-color="#b9c1cd"/><stop offset="1" stop-color="#6f7784"/></linearGradient>
+    <radialGradient id="ax-lens" cx=".36" cy=".32" r=".72"><stop offset="0" stop-color="#fffbe4"/><stop offset=".28" stop-color="#ffe06b"/><stop offset=".62" stop-color="#c9930f"/><stop offset="1" stop-color="#14171b"/></radialGradient>
+    <radialGradient id="ax-heat" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffeaa0" stop-opacity=".82"/><stop offset=".55" stop-color="#f6c22e" stop-opacity=".3"/><stop offset="1" stop-color="#d99b0f" stop-opacity="0"/></radialGradient>
     <filter id="ax-glow" x="-90%" y="-90%" width="280%" height="280%"><feGaussianBlur stdDeviation="1.8"/></filter>
     <filter id="ax-glow-sm" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation=".8"/></filter>
   </defs>
-  <!-- ground shadow + the heat he sheds onto it -->
-  <ellipse cx="50" cy="93.6" rx="25" ry="3.6" fill="#000" opacity=".36"/>
-  <ellipse cx="50" cy="92.8" rx="13" ry="2.2" fill="#e8a548" opacity=".2" filter="url(#ax-glow)"/>
-  <!-- exhaust plume rising off the stack -->
-  <path d="M31 21 Q27.5 15 30.5 10 Q33 6 31 2.5" fill="none" stroke="#e8a548" stroke-width="1.7" opacity=".3" filter="url(#ax-glow)" stroke-linecap="round"/>
-  <path d="M34.5 21 Q32.5 16.5 34.5 12.5" fill="none" stroke="#ffcf6b" stroke-width="1.1" opacity=".28" filter="url(#ax-glow-sm)" stroke-linecap="round"/>
-  <g stroke="none">
-    <!-- far leg: stubby, set back, in shadow -->
-    <path d="M35.5 64 L45.5 64 L44.5 80 L37 80 Z" fill="url(#ax-steelD)"/>
-    <rect x="36" y="77.5" width="9" height="3.5" rx="1" fill="#2a2e37"/>
-    <path d="M37 80 L44.5 80 L44 87 L37.5 87 Z" fill="url(#ax-steelD)"/>
-    <path d="M32 85.5 L45 85.5 L46.5 89 L46.5 93 L30.5 93 Q30 88 32 85.5 Z" fill="url(#ax-iron)"/>
-    <path d="M33 90.5 v2.4 M36.5 90.4 v2.5 M40 90.3 v2.6 M43.5 90.3 v2.6" stroke="#15181e" stroke-width=".8"/>
-    <!-- FAR ARM: grapple arm raised, ending in a vice jaw (Seize the Arm) -->
-    <path d="M55.5 42.5 L67.5 30.5 L72.6 35.6 L60.6 47.6 Z" fill="url(#ax-steelD)"/>
-    <circle cx="70" cy="33" r="3.8" fill="url(#ax-iron)"/><circle cx="70" cy="33" r="1.5" fill="#1d2027"/>
-    <path d="M68.9 30 L76.9 27 L79.1 33 L71.1 36 Z" fill="url(#ax-steelD)"/><path d="M70 31.5 L77.5 28.8" stroke="#8d95a4" stroke-width=".5" opacity=".6"/>
-    <!-- vice housing + tension screw -->
-    <path d="M75 25.5 L83 23 L85.5 32.5 L77.5 35 Z" fill="url(#ax-iron)"/>
-    <path d="M79.5 22.2 L82.5 21.2 L83.6 24.6 L80.6 25.6 Z" fill="url(#ax-amber)"/><path d="M80 23.2 l2.8 -.9 M80.4 24.4 l2.8 -.9" stroke="#8f5a13" stroke-width=".4"/>
-    <!-- jaws, open, serrated -->
-    <path d="M82 23.5 L91.5 19.5 L93 23.5 L84 27.5 Z" fill="url(#ax-plate)"/><path d="M83 30.5 L92.5 32 L92 36.5 L82.5 33.5 Z" fill="url(#ax-plate)"/>
-    <path d="M86 26.6 l.5 1.5 M88 25.7 l.5 1.5 M90 24.8 l.5 1.5 M86 31 l-.4 -1.5 M88 31.3 l-.4 -1.5 M90 31.6 l-.4 -1.5" stroke="#20242c" stroke-width=".9" stroke-linecap="round"/>
-    <circle cx="83" cy="29" r="2.3" fill="url(#ax-iron)"/><circle cx="83" cy="29" r=".9" fill="#1d2027"/>
-    <!-- exhaust stack over the back shoulder -->
-    <path d="M30.5 41 L36.5 39.5 L35 22 L29.5 22.5 Z" fill="url(#ax-iron)"/>
-    <path d="M28 22.8 L36.2 21.8 L36.6 18.6 L28.4 19.6 Z" fill="url(#ax-steelD)"/><ellipse cx="32.3" cy="19.2" rx="4.1" ry="1.4" fill="#15181e"/>
-    <path d="M30 27 h5 M30 31 h5 M30 35 h5" stroke="#e8a548" stroke-width="1.2" opacity=".75" stroke-linecap="round"/>
-    <!-- PIGGYBACK RIG: back rail, latching hooks, shoulder bolt prongs -->
-    <path d="M30 40 L35 39 L35.5 66 L30.5 67 Z" fill="url(#ax-iron)"/>
-    <path d="M30.5 43 h-5 q-3.2 0 -3.2 3.2 q0 2.6 2.6 2.6" fill="none" stroke="#454b57" stroke-width="2.3" stroke-linecap="round"/>
-    <path d="M30.5 50 h-5 q-3.2 0 -3.2 3.2 q0 2.6 2.6 2.6" fill="none" stroke="#454b57" stroke-width="2.3" stroke-linecap="round"/>
-    <path d="M30.8 57 h-4.5 q-3.2 0 -3.2 3.2 q0 2.6 2.6 2.6" fill="none" stroke="#454b57" stroke-width="2.3" stroke-linecap="round"/>
-    <path d="M34.5 40.5 L30 36 L32.5 33.5 L37 38 Z" fill="url(#ax-steelD)"/><circle cx="31.3" cy="34.8" r="1.7" fill="url(#ax-amber)"/>
-    <!-- HAMMER WELD: nozzle boom off the rig, with its pilot flame -->
-    <path d="M31 61 L24 65.5 L21.8 62.5 L29 58 Z" fill="url(#ax-steelD)"/><path d="M23.5 65 L19.5 68 L17.6 65.3 L21.6 62.3 Z" fill="url(#ax-iron)"/>
-    <path d="M19.8 67.6 L16.6 70 L15.4 68 L18.4 65.8 Z" fill="url(#ax-amber)"/><path d="M30 58.5 Q33 53 32.5 47" stroke="#343943" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-    <!-- TORSO: a cast block, squat and heavy -->
-    <path d="M34.5 39 L62 37 L66 44.5 L66 59 L62.5 68.5 L37 68.5 L33 59 L33 45 Z" fill="url(#ax-steel)"/>
-    <path d="M40 38.4 V68.5 M41.1 38.3 V68.5" stroke="#99a1b0" stroke-width=".7" opacity=".55"/>
-    <!-- harness band + buckle (the rig he cinches onto a back) -->
-    <path d="M34 38.6 L63 36.8 L63.4 41.4 L34.4 43.2 Z" fill="url(#ax-amber)" opacity=".92"/>
-    <rect x="47.5" y="36.4" width="6.5" height="6" rx="1.2" fill="url(#ax-iron)"/><rect x="49.2" y="38" width="3" height="2.8" rx=".5" fill="#8f5a13"/>
-    <!-- furnace grate burning in the chest -->
-    <rect x="43" y="43" width="17" height="13" rx="1.6" fill="#1d2027"/>
-    <rect x="44.2" y="44.2" width="14.6" height="10.6" rx="1" fill="url(#ax-furnace)"/>
-    <path d="M44.2 47 h14.6 M44.2 49.8 h14.6 M44.2 52.6 h14.6" stroke="#301703" stroke-width="1.3" opacity=".72"/>
-    <rect x="43" y="43" width="17" height="13" rx="1.6" fill="none" stroke="url(#ax-amber)" stroke-width="1.3"/>
-    <!-- stamped X plate + flank heat vents -->
-    <rect x="44.5" y="58" width="13.5" height="8.5" rx="1" fill="url(#ax-plate)"/>
-    <path d="M47.2 60 L55.4 64.5 M55.4 60 L47.2 64.5" stroke="#e8a548" stroke-width="2.3" stroke-linecap="round"/>
-    <path d="M61.2 46 l3.6 -.7 M61.4 49.6 l3.6 -.7 M61.6 53.2 l3.6 -.7" stroke="#e8a548" stroke-width="1.7" stroke-linecap="round"/>
-    <!-- hip block + neck collar -->
-    <path d="M36 64 L64 63 L62.5 68.5 L37 68.5 Z" fill="url(#ax-iron)"/><path d="M42.5 33.5 L55.5 32.5 L56.5 39 L41.5 40 Z" fill="url(#ax-iron)"/>
-    <!-- HEAD: boxy cast skull under a heavy brow guard, jaw grate below -->
-    <path d="M38 19 L56 17.5 L60 22.5 L59.5 32 L56 36.5 L42 37 L38 32.5 L37.5 23 Z" fill="url(#ax-steel)"/>
-    <path d="M36.5 21.5 L59.5 19.3 L62 24 L58 25.6 L38 27.6 Z" fill="url(#ax-plate)"/>
-    <path d="M43.5 18.6 V32.8 M44.6 18.5 V32.8" stroke="#99a1b0" stroke-width=".6" opacity=".5"/>
-    <path d="M40.5 31.8 L48 31.4 L48 36.6 L41 36.9 Z" fill="url(#ax-iron)"/><path d="M42.4 32.2 V36.7 M44.3 32.1 V36.8 M46.2 32 V36.8" stroke="#6b7280" stroke-width=".7"/>
-    <!-- single warm optic, deep-set under the brow -->
-    <circle cx="53.5" cy="29" r="4.8" fill="url(#ax-iron)"/><circle cx="53.5" cy="29" r="3.5" fill="url(#ax-lens)"/>
-    <circle cx="53.5" cy="29" r="1.5" fill="#fff4cf"/><circle cx="52.1" cy="27.7" r="1" fill="#fff" opacity=".9"/>
-    <!-- NEAR ARM: pauldron, upper arm, elbow, forearm, gripping fist -->
-    <path d="M57.5 38 L67 40 L69 47.5 L59.5 48.5 Z" fill="url(#ax-plate)"/>
-    <path d="M60.1 46.5 L65.1 56.5 L70.9 53.5 L65.9 43.5 Z" fill="url(#ax-steel)"/>
-    <circle cx="67.5" cy="55" r="3.5" fill="url(#ax-iron)"/><circle cx="67.5" cy="55" r="1.4" fill="#1d2027"/>
-    <path d="M64.6 54.5 L63 62.5 L69 63.5 L70.5 55.5 Z" fill="url(#ax-steel)"/>
-    <circle cx="66" cy="64.8" r="3.7" fill="url(#ax-iron)"/>
-    <path d="M63.4 63 l1.2 1.2 M65.3 61.9 l1.2 1.2 M67.3 62.1 l1.1 1.2" stroke="#6b7280" stroke-width=".8" stroke-linecap="round"/>
-    <!-- WEAPON: the foundry spanner (Spanner Swing), grip on data-hand -->
-    <g class="wpn" transform="rotate(32 66 64)">
-      <rect class="wpn" x="60" y="61.6" width="10" height="5" rx="2" fill="url(#ax-iron)"/>
-      <path class="wpn" d="M62 62.1 v4.1 M64 62.1 v4.1 M66 62.1 v4.1 M68 62.1 v4.1" stroke="#20242c" stroke-width=".6" stroke-linecap="round"/>
-      <rect class="wpn" x="69" y="60.9" width="3.2" height="6.3" rx="1" fill="url(#ax-amber)"/>
-      <rect class="wpn" x="71.5" y="62.2" width="10.5" height="3.8" rx="1" fill="url(#ax-chrome)"/>
-      <path class="wpn" d="M80 59.5 L90 57.8 L90.5 61.2 L84.5 62.5 L84.5 65.8 L90.5 67.2 L90 70.5 L80 68.8 Z" fill="url(#ax-chrome)"/>
-      <path class="wpn" d="M72.5 63.1 h8.5" stroke="#fff" stroke-width=".7" opacity=".55" stroke-linecap="round"/>
-      <path class="wpn" d="M82.5 60.2 l2.2 -.4 M86.5 68.6 l2.2 .4" stroke="#6e7686" stroke-width=".6" stroke-linecap="round"/>
-    </g>
-    <!-- gripper jaws closed on the handle at data-hand -->
-    <g transform="rotate(32 66 64)"><rect x="64" y="59.4" width="4" height="9.2" rx="1.4" fill="url(#ax-iron)"/><rect x="63.3" y="59.3" width="5.4" height="2.7" rx="1" fill="url(#ax-steelD)"/><rect x="63.3" y="65.9" width="5.4" height="2.7" rx="1" fill="url(#ax-steelD)"/></g>
-    <!-- NEAR LEG: thigh, piston strut, knee block, shin, flat grip foot -->
-    <circle cx="56" cy="66.5" r="4.2" fill="url(#ax-iron)"/>
-    <path d="M50 64 L64 63.5 L63 78 L51 78.5 Z" fill="url(#ax-steel)"/>
-    <path d="M63.6 66 L66.6 65.5 L65.2 79.5 L62.2 80 Z" fill="url(#ax-plate)"/><path d="M64.6 68 L66 67.8 L65 78 L63.6 78.2 Z" fill="url(#ax-chrome)" opacity=".8"/>
-    <rect x="50.3" y="76" width="13.4" height="4.6" rx="1.5" fill="url(#ax-iron)"/><path d="M51 79.5 L63.4 79 L62.6 87 L52 87.5 Z" fill="url(#ax-plate)"/>
-    <path d="M49.5 85.5 L64 85 L67 89 L67.5 94 L47.5 94 L47 89 Z" fill="url(#ax-iron)"/>
-    <path d="M50.5 90.5 v3.4 M54 90.4 v3.5 M57.5 90.3 v3.6 M61 90.3 v3.6" stroke="#15181e" stroke-width=".9"/>
-    <!-- stamped serial plate on the thigh -->
-    <rect x="52.5" y="69" width="8" height="4.5" rx=".8" fill="url(#ax-amber)" opacity=".85"/><path d="M54 70.6 h5 M54 72 h3.2" stroke="#6a4310" stroke-width=".55"/>
+
+  <!-- ground shadow, and the heat he sheds onto it -->
+  <ellipse cx="50" cy="93.6" rx="26" ry="3.4" fill="#000" opacity=".34"/>
+  <ellipse cx="50" cy="92.6" rx="12" ry="2" fill="#f6c22e" opacity=".2" filter="url(#ax-glow)"/>
+
+  <!-- ===== FAR PAIR. Behind the hull, dimmer and a little shorter, so depth reads instantly. ===== -->
+  <g stroke="#13161a" stroke-width=".7" stroke-linejoin="round">
+    <!-- far left -->
+    <path d="M46 52 L42 51 L34.5 59 L38.5 61.5 Z" fill="url(#ax-limbFar)"/>
+    <circle cx="36" cy="60" r="2.6" fill="#2a2f37" stroke="none"/>
+    <path d="M34 58.5 L38 61 L32.5 84 L29.8 83.4 Z" fill="url(#ax-limbFar)"/>
+    <path d="M29.8 83.4 L32.5 84 L31.4 89.5 L28.6 88.8 Z" fill="#1b1f25" stroke="none"/>
+    <!-- far right -->
+    <path d="M54 52 L58 51 L65.5 59 L61.5 61.5 Z" fill="url(#ax-limbFar)"/>
+    <circle cx="64" cy="60" r="2.6" fill="#2a2f37" stroke="none"/>
+    <path d="M66 58.5 L62 61 L67.5 84 L70.2 83.4 Z" fill="url(#ax-limbFar)"/>
+    <path d="M70.2 83.4 L67.5 84 L68.6 89.5 L71.4 88.8 Z" fill="#1b1f25" stroke="none"/>
   </g>
-  <!-- rivets: torso edge, head, pauldron, shin -->
-  <g fill="#2a2e37"><circle cx="36" cy="45" r=".8"/><circle cx="36" cy="52" r=".75"/><circle cx="36.5" cy="59" r=".8"/><circle cx="63.5" cy="42" r=".7"/><circle cx="63.8" cy="59" r=".75"/><circle cx="45" cy="40.5" r=".6"/><circle cx="57" cy="39.6" r=".6"/></g>
-  <g fill="#2a2e37"><circle cx="39.5" cy="21.5" r=".7"/><circle cx="57.8" cy="20.2" r=".65"/><circle cx="39.3" cy="34" r=".6"/><circle cx="60" cy="41.8" r=".7"/><circle cx="67" cy="45.5" r=".7"/><circle cx="53.5" cy="81" r=".65"/><circle cx="41.5" cy="82" r=".6"/></g>
-  <!-- cast-mould flash along the shoulder seam + plate edges -->
-  <path d="M35 39.6 L61.8 37.7 M38.4 19.6 L55.8 18.2" stroke="#b2bac8" stroke-width=".55" opacity=".5"/>
-  <!-- soot staining round the vents, stack and grate -->
-  <ellipse cx="32.5" cy="25" rx="3.4" ry="4.6" fill="#1a1a1e" opacity=".3"/><ellipse cx="51.5" cy="41" rx="8" ry="2.4" fill="#1a1a1e" opacity=".22"/>
-  <ellipse cx="63.5" cy="50" rx="2.6" ry="5" fill="#1a1a1e" opacity=".22"/><ellipse cx="44" cy="90" rx="6" ry="2.4" fill="#1a1a1e" opacity=".2"/>
-  <!-- scratches and paint chips off the cast surface -->
-  <path d="M35.5 48 l3 -.6 M34.5 55 l2.4 .4 M46 67.5 l3.4 -.4 M55 35.4 l2.4 -.3 M52 83 l3 -.3" stroke="#b2bac8" stroke-width=".45" opacity=".55" stroke-linecap="round"/>
-  <path d="M38.6 29 l1.4 .3 l-.3 1 l-1.4 -.3z" fill="#99a1b0" opacity=".5"/><path d="M58.5 61 l1.2 .4 l-.3 .9 l-1.2 -.4z" fill="#99a1b0" opacity=".45"/>
-  <!-- highlights: the lit top-left of every cast block -->
-  <path d="M38.5 32 Q37.6 24 39.5 20" stroke="#fff" stroke-width="1.1" fill="none" opacity=".55" stroke-linecap="round"/>
-  <path d="M34.2 56 Q33.4 46 35.4 40" stroke="#fff" stroke-width="1.2" fill="none" opacity=".5" stroke-linecap="round"/>
-  <path d="M58.8 39.4 L66.4 41" stroke="#fff" stroke-width=".9" fill="none" opacity=".45" stroke-linecap="round"/><path d="M57.5 41.5 L68.5 31" stroke="#fff" stroke-width=".8" fill="none" opacity=".35" stroke-linecap="round"/>
-  <!-- HEAT: furnace bloom, optic glow, vent glow, stack mouth, weld flame -->
-  <ellipse cx="51.5" cy="49.5" rx="10.5" ry="8.5" fill="url(#ax-heat)" filter="url(#ax-glow)" opacity=".85"/>
-  <circle cx="53.5" cy="29" r="5.6" fill="url(#ax-heat)" filter="url(#ax-glow)"/>
-  <path d="M61.3 46 l3.6 -.7 M61.5 49.6 l3.6 -.7 M61.7 53.2 l3.6 -.7" stroke="#ffcf6b" stroke-width="1.4" opacity=".8" filter="url(#ax-glow-sm)" stroke-linecap="round"/>
-  <ellipse cx="32.3" cy="19.2" rx="3.6" ry="1.4" fill="#ffb545" opacity=".6" filter="url(#ax-glow-sm)"/>
-  <path d="M30.2 27 h4.6 M30.2 31 h4.6 M30.2 35 h4.6" stroke="#ffcf6b" stroke-width=".9" opacity=".6" filter="url(#ax-glow-sm)" stroke-linecap="round"/>
-  <circle cx="14.8" cy="70.8" r="4" fill="url(#ax-heat)" filter="url(#ax-glow)" opacity=".8"/><path d="M15.8 68.6 Q11.6 70.6 12.6 74.4 Q14.6 72.2 15.6 73 Q15.2 70.8 17 69.6 Z" fill="url(#ax-flame)"/>
-  <g fill="#ffe3a8" opacity=".75"><circle cx="11" cy="76" r=".5"/><circle cx="18" cy="73.5" r=".4"/><circle cx="13.5" cy="64.5" r=".35"/></g>
-  <circle cx="31.3" cy="34.8" r="1.1" fill="#ffd98a" opacity=".8" filter="url(#ax-glow-sm)"/><circle cx="53.5" cy="29" r="1.4" fill="#fff6dc"/>
+
+  <!-- ===== COLLAR. Segmented dark ring under the hull, with the yellow slot band around it. ===== -->
+  <path d="M33 47 L67 47 Q69 47 68.6 49.2 L67.6 54 L32.4 54 L31.4 49.2 Q31 47 33 47 Z" fill="url(#ax-dark)" stroke="#13161a" stroke-width=".7" stroke-linejoin="round"/>
+  <path d="M38 47.4 v6.2 M44 47.4 v6.2 M50 47.4 v6.2 M56 47.4 v6.2 M62 47.4 v6.2" stroke="#4a515b" stroke-width=".55" fill="none" opacity=".8"/>
+  <!-- yellow slot band -->
+  <path d="M32.6 54 L67.4 54 Q68 54 67.8 55.6 L67.2 59.2 Q67.1 60 66.2 60 L33.8 60 Q32.9 60 32.8 59.2 L32.2 55.6 Q32 54 32.6 54 Z" fill="url(#ax-yellow)" stroke="#13161a" stroke-width=".7" stroke-linejoin="round"/>
+  <path d="M37 55.6 l-.6 2.8 M42.2 55.6 l-.6 2.8 M47.4 55.6 l-.6 2.8 M52.6 55.6 l-.6 2.8 M57.8 55.6 l-.6 2.8 M63 55.6 l-.6 2.8"
+        stroke="#1b1f25" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".85"/>
+  <!-- underside plate, catching a little light -->
+  <path d="M35.5 60 L64.5 60 Q65 60 64.6 61.4 L63.6 63.4 Q63.3 64 62.6 64 L37.4 64 Q36.7 64 36.4 63.4 L35.4 61.4 Q35 60 35.5 60 Z" fill="url(#ax-shell)" stroke="#13161a" stroke-width=".7" stroke-linejoin="round"/>
+
+  <!-- ===== HULL. Rounded triangle, apex up. ===== -->
+  <path d="M50 12.5 Q52.6 12.5 53.9 14.8 L70.8 44.2 Q72.1 46.5 69.4 46.5 L30.6 46.5 Q27.9 46.5 29.2 44.2 L46.1 14.8 Q47.4 12.5 50 12.5 Z"
+        fill="url(#ax-shell)" stroke="#13161a" stroke-width="1.4" stroke-linejoin="round"/>
+  <!-- right edge: the lit depth-face, yellow. This is what turns him east. -->
+  <path d="M53.9 14.8 L70.8 44.2 Q72.1 46.5 69.4 46.5 L63.8 46.5 L49.2 19.2 Z" fill="url(#ax-yellow)" stroke="#13161a" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M51.6 18.8 L65.6 45" stroke="#13161a" stroke-width="1.1" fill="none" opacity=".75" stroke-linecap="round"/>
+  <!-- left edge: black band with a hot sliver along it -->
+  <path d="M46.1 14.8 L29.2 44.2 Q27.9 46.5 30.6 46.5 L35.4 46.5 L49 19.6 Z" fill="url(#ax-dark)" stroke="#13161a" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M46.4 17.6 L33.6 40.4" stroke="#ffe89a" stroke-width=".9" fill="none" opacity=".75" stroke-linecap="round"/>
+  <!-- bottom rail -->
+  <path d="M31.6 43.4 L68.4 43.4 L69.4 45.2 Q70 46.5 68.6 46.5 L31.4 46.5 Q30 46.5 30.6 45.2 Z" fill="url(#ax-dark)" stroke="#13161a" stroke-width=".8" stroke-linejoin="round"/>
+  <path d="M34 44.6 h32" stroke="#f6c22e" stroke-width=".8" opacity=".8" stroke-linecap="round"/>
+
+  <!-- stencilled markings: a code block and two caution ticks, left of the turret. -->
+  <path d="M38.4 38.4 h1 v3 h-1 Z M40 38.4 h.5 v3 h-.5 Z M41.2 38.4 h1.2 v3 h-1.2 Z M43 38.4 h.5 v3 h-.5 Z" fill="#4a515b" opacity=".9"/>
+  <path d="M38 28.6 h4.2 M38 30.4 h2.8" stroke="#8d95a2" stroke-width=".55" opacity=".8" stroke-linecap="round"/>
+
+  <!-- ===== TURRET. A drum sunk into the hull face with the barrel run out east, clearing the
+       right edge so it breaks the silhouette. Drawn barrel-first so the drum laps over its root. -->
+  <ellipse cx="54" cy="32.6" rx="12" ry="10" fill="#f6c22e" opacity=".13" filter="url(#ax-glow)"/>
+  <!-- barrel -->
+  <path d="M57.5 29.9 L77.2 28.9 L78.4 30.3 L78.4 34.7 L77.2 36.1 L57.5 35.1 Z" fill="url(#ax-barrel)" stroke="#13161a" stroke-width=".9" stroke-linejoin="round"/>
+  <path d="M60 31.2 L76 30.4" stroke="#f4f7fa" stroke-width=".65" opacity=".75" stroke-linecap="round"/>
+  <path d="M68.6 29.3 v6.2" stroke="#13161a" stroke-width=".55" opacity=".45"/>
+  <!-- muzzle brake -->
+  <path d="M76.4 27.8 L80.4 27.6 L81 29 L81 36 L80.4 37.4 L76.4 37.2 Z" fill="url(#ax-dark)" stroke="#13161a" stroke-width=".85" stroke-linejoin="round"/>
+  <path d="M77.6 30.2 h3 M77.6 34.6 h3" stroke="#4a515b" stroke-width=".6" stroke-linecap="round"/>
+  <circle cx="79.8" cy="32.4" r="1.4" fill="#0f1215"/>
+  <!-- mantlet: the shoulder the barrel pivots in -->
+  <path d="M55.4 27.9 L60.2 28.8 L60.2 36.2 L55.4 37.1 Z" fill="url(#ax-dark)" stroke="#13161a" stroke-width=".85" stroke-linejoin="round"/>
+  <!-- drum -->
+  <circle cx="51.4" cy="32.5" r="7.6" fill="url(#ax-dark)" stroke="#13161a" stroke-width="1"/>
+  <circle cx="51.4" cy="32.5" r="7.6" fill="none" stroke="#f6c22e" stroke-width=".9" opacity=".8"/>
+  <circle cx="51.4" cy="32.5" r="5.3" fill="#0f1215" stroke="#4a515b" stroke-width=".5"/>
+  <!-- sighting aperture, still lit -->
+  <circle cx="51.4" cy="32.5" r="2.7" fill="url(#ax-lens)"/>
+  <circle cx="50.5" cy="31.5" r=".85" fill="#fffbe4" opacity=".95"/>
+  <circle cx="51.4" cy="32.5" r="4.4" fill="url(#ax-heat)" filter="url(#ax-glow-sm)"/>
+  <!-- traverse bolts around the drum -->
+  <circle cx="51.4" cy="25.6" r=".7" fill="#4a515b"/><circle cx="51.4" cy="39.4" r=".7" fill="#4a515b"/>
+  <circle cx="45.1" cy="32.5" r=".7" fill="#4a515b"/>
+
+  <!-- ===== NEAR PAIR. Brighter, longer, drawn over the hull. ===== -->
+  <g stroke="#13161a" stroke-width=".8" stroke-linejoin="round">
+    <!-- near left -->
+    <path d="M43 55 L38.6 53.6 L25.4 64.2 L30.2 67.8 Z" fill="url(#ax-limb)"/>
+    <path d="M39.4 56.2 L29.6 64.2" stroke="#8d95a2" stroke-width=".6" fill="none" opacity=".8"/>
+    <circle cx="27.6" cy="66" r="3.3" fill="#2a2f37" stroke="#13161a" stroke-width=".7"/>
+    <circle cx="27.6" cy="66" r="1.2" fill="#f6c22e" stroke="none"/>
+    <path d="M25 64 L30 67.8 L21.4 89.6 L17.6 88.4 Z" fill="url(#ax-limb)"/>
+    <!-- hazard banding down the shin -->
+    <path d="M23.6 76.6 L27.8 79.4 L26.8 82 L22.6 79.2 Z" fill="#f6c22e"/>
+    <path d="M22.4 82.2 L26.4 84.9 L25.6 87.2 L21.6 84.5 Z" fill="#13161a"/>
+    <path d="M17.6 88.4 L21.4 89.6 L19.8 94 L16.2 92.8 Z" fill="#1b1f25" stroke="none"/>
+    <!-- near right -->
+    <path d="M57 55 L61.4 53.6 L74.6 64.2 L69.8 67.8 Z" fill="url(#ax-limb)"/>
+    <path d="M60.6 56.2 L70.4 64.2" stroke="#8d95a2" stroke-width=".6" fill="none" opacity=".8"/>
+    <circle cx="72.4" cy="66" r="3.3" fill="#2a2f37" stroke="#13161a" stroke-width=".7"/>
+    <circle cx="72.4" cy="66" r="1.2" fill="#f6c22e" stroke="none"/>
+    <path d="M75 64 L70 67.8 L78.6 89.6 L82.4 88.4 Z" fill="url(#ax-limb)"/>
+    <path d="M76.4 76.6 L72.2 79.4 L73.2 82 L77.4 79.2 Z" fill="#f6c22e"/>
+    <path d="M77.6 82.2 L73.6 84.9 L74.4 87.2 L78.4 84.5 Z" fill="#13161a"/>
+    <path d="M82.4 88.4 L78.6 89.6 L80.2 94 L83.8 92.8 Z" fill="#1b1f25" stroke="none"/>
+  </g>
 </svg>

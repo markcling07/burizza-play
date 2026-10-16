@@ -1,131 +1,194 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Grubblefin (melee) - Ashfall Road art v2. Small, frenzied Gurgling brawler.
+<!-- Grubblefin (melee) - Tideborn Gurgling, gone cold. The little brawler came back off the ice
+     shelf half-frozen and twice the weight: rime-plate buckled over the scales, a horned skull
+     he did not kill strapped to one shoulder, and a runeblade far too big for him that he swings
+     anyway. Still the same grin and the same one staring eye.
+     Weapon is the frost RUNEBLADE (class="wpn"), gripped at data-hand.
      Canvas 100x100, faces right, feet on y=94. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="64.8,68.4">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="66,64">
   <defs>
-    <linearGradient id="gb-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#93cdb4"/><stop offset=".5" stop-color="#5fa38a"/><stop offset="1" stop-color="#3a7360"/></linearGradient>
-    <linearGradient id="gb-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8f78"/><stop offset="1" stop-color="#2e5c4d"/></linearGradient>
-    <linearGradient id="gb-belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e4efc4"/><stop offset="1" stop-color="#a9c48e"/></linearGradient>
-    <linearGradient id="gb-fin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f9fc4"/><stop offset=".5" stop-color="#2f6f8f"/><stop offset="1" stop-color="#1c455c"/></linearGradient>
-    <linearGradient id="gb-finMem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6fbfdf" stop-opacity=".6"/><stop offset="1" stop-color="#2a5f7f" stop-opacity=".35"/></linearGradient>
-    <linearGradient id="gb-orange" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcc7a"/><stop offset="1" stop-color="#c07a22"/></linearGradient>
-    <linearGradient id="gb-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7048"/><stop offset=".4" stop-color="#7a5434"/><stop offset="1" stop-color="#5a3c24"/></linearGradient>
-    <linearGradient id="gb-flint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3e9f0"/><stop offset=".4" stop-color="#b0bac8"/><stop offset="1" stop-color="#7d8a9c"/></linearGradient>
-    <linearGradient id="gb-iris" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4e94e"/><stop offset=".6" stop-color="#8fb825"/><stop offset="1" stop-color="#4a7a10"/></linearGradient>
+    <linearGradient id="gb-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8dcf2"/><stop offset=".5" stop-color="#6fb0d4"/><stop offset="1" stop-color="#3d7099"/></linearGradient>
+    <linearGradient id="gb-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5590b4"/><stop offset="1" stop-color="#2d5675"/></linearGradient>
+    <linearGradient id="gb-belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f4fa"/><stop offset="1" stop-color="#a6c4d6"/></linearGradient>
+    <linearGradient id="gb-fin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fb2dc"/><stop offset=".5" stop-color="#2f6f8f"/><stop offset="1" stop-color="#17384e"/></linearGradient>
+    <linearGradient id="gb-finMem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fd8f4" stop-opacity=".6"/><stop offset="1" stop-color="#2a5f7f" stop-opacity=".35"/></linearGradient>
+    <linearGradient id="gb-ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eafcff"/><stop offset=".5" stop-color="#8fe4f8"/><stop offset="1" stop-color="#3f9fc8"/></linearGradient>
+    <linearGradient id="gb-plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dae3ee"/><stop offset=".45" stop-color="#97a6ba"/><stop offset="1" stop-color="#5c6a7c"/></linearGradient>
+    <linearGradient id="gb-plateD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8d9cb0"/><stop offset="1" stop-color="#404b5a"/></linearGradient>
+    <linearGradient id="gb-bone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f0de"/><stop offset="1" stop-color="#b0a68a"/></linearGradient>
+    <linearGradient id="gb-fur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d6a54"/><stop offset="1" stop-color="#372e26"/></linearGradient>
+    <linearGradient id="gb-iris" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dcf8ff"/><stop offset=".55" stop-color="#5fc8e8"/><stop offset="1" stop-color="#1b6a90"/></linearGradient>
     <linearGradient id="gb-tongue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e87888"/><stop offset="1" stop-color="#a84050"/></linearGradient>
-    <linearGradient id="gb-barnacle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8d0c0"/><stop offset="1" stop-color="#8a8070"/></linearGradient>
     <radialGradient id="gb-sheen" cx=".3" cy=".3" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <filter id="gb-glow" x="-90%" y="-90%" width="280%" height="280%"><feGaussianBlur stdDeviation="1.4"/></filter>
+    <filter id="gb-glowSm" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation=".6"/></filter>
   </defs>
-  <ellipse cx="50" cy="94" rx="20" ry="3.4" fill="#000" opacity=".35"/>
-  <g transform="translate(50 94) scale(.8) translate(-50 -94)">
-    <g stroke="none" stroke-width="1.85" stroke-linejoin="round" stroke-linecap="round">
-      <!-- spiky fin crest with membrane + spine veins -->
-      <path d="M60 23 L59.5 6 L53 17 L46.5 5 L44 19 L35 11 L37.5 26 L26.5 24 L36.5 35 L28.5 41 L40 43 Z" fill="url(#gb-fin)"/>
-      <path d="M59.5 6 L53 17 L56.5 12 Z M46.5 5 L44 19 L45.5 11 Z M35 11 L37.5 26 L36 17 Z" fill="url(#gb-finMem)"/>
-      <path d="M26.5 24 L36.5 35 L30 28 Z M28.5 41 L40 43 L33 41.5 Z" fill="url(#gb-finMem)"/>
-      <path d="M58 10 L54 16 M46 9 L45 17 M36 15 L37 24 M30 27 L35 33" stroke="#1c455c" stroke-width=".8" fill="none" opacity=".5"/>
-      <!-- back arm -->
-      <path d="M39 53 Q33 60 33 67 L38.5 68 Q38.5 61 43 56 Z" fill="url(#gb-skinD)"/>
-      <!-- back webbed hand -->
-      <path d="M31 66.5 L30.5 73 L33.5 70.5 L35.5 74 L37.5 70.5 L40 72 L39.5 66.5 Z" fill="url(#gb-skinD)"/>
-      <path d="M31.5 69 L33.5 70.5 M34 69 L35.5 71.5 M37 69 L38.5 71" stroke="#2e5c4d" stroke-width=".6" fill="none" opacity=".5"/>
-      <!-- legs -->
-      <path d="M43 76 h7 l-1 12.5 h-7 z" fill="url(#gb-skinD)"/>
-      <path d="M52 76 h7 l2 12.5 h-7 z" fill="url(#gb-skin)"/>
-      <!-- webbed feet with membrane -->
-      <path d="M35.5 93.5 L37 89 Q42 86 49 88.5 L49.5 93.5 Z" fill="#2e5c4d"/>
-      <path d="M37.5 90 L39 93.5 M41 89 L42 93.5 M44.5 88.5 L45.5 93.5" stroke="#245648" stroke-width=".6" fill="none" opacity=".45"/>
-      <path d="M52.5 93.5 L53 88.5 Q60 86 65 89 L68.5 93.5 Z" fill="#3a7360"/>
-      <path d="M55 89 L56 93.5 M58.5 88 L59.5 93.5 M62 88.5 L63.5 93.5" stroke="#2e5c4d" stroke-width=".6" fill="none" opacity=".45"/>
-      <!-- pot-bellied body -->
-      <path d="M38 50 Q33 66 40 79 Q50 84 61 79 Q67 65 62 50 Q50 45 38 50 Z" fill="url(#gb-skin)"/>
-      <!-- belly with scale texture -->
-      <path d="M47 55 Q54 53 59 57 Q62 68 57 78 Q51 80 47 77 Q43 66 47 55 Z" fill="url(#gb-belly)"/>
-      <g stroke="#9ab880" stroke-width=".45" fill="none" opacity=".4">
-        <path d="M49 58 q3 -1 6 0 M48 61 q4 -1 8 0 M47 64 q5 -1 9 0 M46 67 q5 0 10 0 M46.5 70 q4 .5 9 0 M47 73 q4 .5 8 0 M48.5 76 q3 .5 6 0"/>
-      </g>
-      <!-- loincloth / belt-fin -->
-      <path d="M39.5 72 Q50 77 61.5 72 L61 77 Q50 81.5 40 77 Z" fill="url(#gb-fin)"/>
-      <path d="M47 78.5 L54 78.5 L52.5 86 L48.5 85 Z" fill="url(#gb-fin)"/>
-      <!-- bandolier strap -->
-      <path d="M58.5 50.5 L42 71 L44.5 73 L61 52.5 Z" fill="url(#gb-orange)"/>
-      <path d="M53 57 l.6 1.5 M49 62 l.6 1.5 M45 67 l.6 1.5" stroke="#a06818" stroke-width=".7" fill="none"/>
-      <!-- barnacles on body -->
-      <g fill="url(#gb-barnacle)" stroke="#6a6050"><ellipse cx="40" cy="63" rx="1.8" ry="1.4" stroke-width=".4"/><ellipse cx="41.5" cy="61.5" rx="1.1" ry=".9" stroke-width=".3"/><circle cx="37" cy="56" r="1" stroke-width=".3"/></g>
-      <!-- big head -->
-      <path d="M38 38 Q37 22 53 21 Q68 21 70 33 Q71 41 66 45 Q58 51 48 50 Q39 48 38 38 Z" fill="url(#gb-skin)"/>
-      <ellipse cx="52" cy="30" rx="12" ry="10" fill="url(#gb-sheen)"/>
-      <!-- scale texture on head -->
-      <g stroke="#3a7360" stroke-width=".4" fill="none" opacity=".35">
-        <path d="M43 26 q2 -1 4 0 M42 29 q3 -1 5 0 M44 32 q2 -1 4 0 M50 23 q2 -.5 4 0"/>
-      </g>
-      <!-- mouth cavity -->
-      <path d="M70 33.5 Q62 37.5 53 37 Q58 48 66.5 44.5 Q70.5 40 70 33.5 Z" fill="#3a1420"/>
-      <!-- tongue -->
-      <path d="M56 40.5 Q61 46.5 66 43.5 Q63 41 56 40.5 Z" fill="url(#gb-tongue)"/>
-      <path d="M58 41.5 Q62 44 64 43" stroke="#c05060" stroke-width=".5" fill="none"/>
-      <!-- crude spear with leather wrapping -->
-      <g transform="rotate(40 68.5 62)">
-        <rect class="wpn" x="67.2" y="14" width="2.6" height="61" rx="1" fill="url(#gb-wood)"/>
-        <path class="wpn" d="M68 56 l.3 1.5 M68 50 l.3 1.5 M68 44 l.3 1.5 M68 38 l.3 1.5 M68 32 l.3 1.5" stroke="#4a2c14" stroke-width=".5"/>
-        <path class="wpn" d="M68.5 1 L73 8.5 L71.5 12 L68.5 14 L65.5 12 L64 8.5 Z" fill="url(#gb-flint)"/>
-        <path class="wpn" d="M68.5 3 L70.5 7 M68.5 5 L66.5 8 M68.5 8 L70 11" stroke="#9aa8b8" stroke-width=".4" fill="none" opacity=".6"/>
-        <rect class="wpn" x="66" y="14" width="5" height="4.6" rx="1" fill="url(#gb-orange)"/>
-        <path class="wpn" d="M66.5 15 l4 1 M66.5 17 l4 -1" stroke="#a06818" stroke-width=".5" fill="none"/>
-      </g>
-      <!-- front arm -->
-      <path d="M57 54 L68 59 L66 64.5 L55 60 Z" fill="url(#gb-skin)"/>
-      <!-- front hand (grip) -->
-      <circle cx="68.5" cy="62" r="3.5" fill="url(#gb-skin)"/>
-      <path d="M66 61 q1 2 0 3.5 M68 60.5 q.5 2 0 3.5 M70 61.5 q.5 1.5 -.5 3" stroke="#3a7360" stroke-width=".5" fill="none" opacity=".5"/>
+  <!-- ground shadow + the cold he stands in -->
+  <ellipse cx="50" cy="94" rx="24" ry="3.8" fill="#000" opacity=".35"/>
+  <ellipse cx="50" cy="93.2" rx="15" ry="2.8" fill="#8fe4f8" opacity=".18" filter="url(#gb-glow)"/>
+  <g stroke="none" stroke-width="1.85" stroke-linejoin="round" stroke-linecap="round">
+    <!-- fin crest, swept back, with rime creeping up every spine -->
+    <path d="M58 28 L57 8 L50 20 L43 7 L40 23 L30 13 L33 30 L21 28 L32 40 L24 46 L37 48 Z" fill="url(#gb-fin)"/>
+    <path d="M57 8 L50 20 L54 14 Z M43 7 L40 23 L42 14 Z M30 13 L33 30 L31 20 Z" fill="url(#gb-finMem)"/>
+    <path d="M21 28 L32 40 L25 33 Z M24 46 L37 48 L29 46.5 Z" fill="url(#gb-finMem)"/>
+    <path d="M56 13 L51 19 M43 12 L42 21 M31 17 L32.5 28 M25 32 L30 38" stroke="#17384e" stroke-width=".9" fill="none" opacity=".5"/>
+    <path d="M54 26 L56.4 11 M46 25 L44.4 11 M38 29 L33 17.5 M35 36.5 L26.5 30" stroke="#9fe8ff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".8"/>
+    <!-- skull pauldron, riding high on the far shoulder so it reads as armour and not as
+         something slung at his hip. Horns swept back and up, clear of the crest. -->
+    <g transform="rotate(-14 33 49)">
+      <path d="M26.5 45 Q30 39.5 34.5 40.4 Q39 41.4 39.4 47 Q39.4 51.6 36.6 53.4 L35.7 56.2 Q32.4 58 29.6 56.2 L28.7 53.4 Q26.5 51 26.5 45 Z" fill="url(#gb-bone)"/>
+      <path d="M27.8 42.6 Q23.6 37.6 19.4 37.6 Q24.2 40 26.4 45.4 Z" fill="url(#gb-bone)"/>
+      <path d="M37.4 41.8 Q38.6 36.6 36.4 33 Q40.4 36.8 40.4 43.2 Z" fill="url(#gb-bone)"/>
+      <ellipse cx="30.6" cy="46.4" rx="2.2" ry="2.4" fill="#1b2a33"/>
+      <ellipse cx="36" cy="47.2" rx="2" ry="2.2" fill="#1b2a33"/>
+      <path d="M33.4 50 l-1.1 2 h2.2 z" fill="#1b2a33"/>
+      <path d="M30.4 54.4 v2.4 M33.1 55 v2.4 M35.8 54.4 v2.2" stroke="#8a8068" stroke-width=".8"/>
+      <path d="M28.2 43.2 Q31.8 41.2 35.2 42.6" stroke="#fffdf2" stroke-width=".7" fill="none" opacity=".5"/>
     </g>
-    <!-- teeth: upper row varied sizes -->
-    <g fill="#fff">
-      <path d="M67.3 34.7 l2 -.5 l-.5 2.5 z M65 35.3 l1.6 -.3 l-.3 1.8 z M63.5 35.9 l2 -.4 l-.7 2.1 z"/>
-      <path d="M61 36.3 l1.4 -.2 l-.5 1.6 z M59.6 36.7 l2 -.2 l-1 2 z M57.8 37.2 l1.3 0 l-.6 1.4 z"/>
+    <!-- back arm, braced, and the clawed fist on the end of it -->
+    <path d="M40 57 Q31 65 30.5 75 L37.5 76 Q38 67 44.5 61 Z" fill="url(#gb-skinD)"/>
+    <path d="M28.5 73 L27.5 81.5 L32 78 L35 82.5 L38 77.5 L41 80 L40.5 72 Z" fill="url(#gb-skinD)"/>
+    <path d="M29.5 76 L32 78 M33 76 L35 79 M36.5 76 L38.5 78" stroke="#24465f" stroke-width=".6" fill="none" opacity=".5"/>
+    <!-- legs -->
+    <path d="M42 74 h9.5 l-1.5 15 h-9.5 z" fill="url(#gb-skinD)"/>
+    <path d="M54 74 h9.5 l2.5 15 h-9.5 z" fill="url(#gb-skin)"/>
+    <!-- greaves: banded rime-plate, buckled over the shins -->
+    <g stroke="#3b4556" stroke-width=".6" stroke-linejoin="round">
+      <path d="M41 77 h11 l-.3 4.4 h-11 z" fill="url(#gb-plateD)"/>
+      <path d="M40.6 83 h11 l-.3 4.4 h-11 z" fill="url(#gb-plateD)"/>
+      <path d="M53.6 77 h11 l.7 4.4 h-11 z" fill="url(#gb-plate)"/>
+      <path d="M54.2 83 h11.2 l.8 4.4 h-11.2 z" fill="url(#gb-plate)"/>
     </g>
-    <!-- teeth: lower row varied -->
-    <g fill="#f0ece0">
-      <path d="M57.5 43.8 l1.8 .4 l-1 -1.8 z M59 44.2 l2 .3 l-1.2 -2 z M61.5 44.8 l1.4 .1 l-.8 -1.6 z"/>
-      <path d="M63 45.1 l2 -.3 l-1.3 -1.9 z M65.5 44.5 l1.5 -.4 l-.9 -1.5 z"/>
+    <!-- webbed feet, claws out -->
+    <path d="M33 93.5 L35 88 Q41.5 85 49.5 88 L50.5 93.5 Z" fill="#2d5675"/>
+    <path d="M35.5 89.5 L37 93.5 M39.5 88.5 L40.5 93.5 M43.5 88 L44.5 93.5" stroke="#24465f" stroke-width=".6" fill="none" opacity=".45"/>
+    <path d="M53.5 93.5 L54 88 Q62 85 68 88.5 L72 93.5 Z" fill="#3d7099"/>
+    <path d="M56.5 89 L57.5 93.5 M60.5 88 L61.5 93.5 M64.5 88.5 L66 93.5" stroke="#2d5675" stroke-width=".6" fill="none" opacity=".45"/>
+    <!-- pot-bellied body: he never lost the gut, he just armoured it -->
+    <path d="M38 50 Q30.5 68 39 84 Q50 90 63 84 Q70.5 67 64 50 Q50 44 38 50 Z" fill="url(#gb-skin)"/>
+    <path d="M47 57 Q56 55 61.5 60 Q65.5 72 59.5 83 Q51 85.5 47 82 Q42 69 47 57 Z" fill="url(#gb-belly)"/>
+    <g stroke="#90b2c6" stroke-width=".45" fill="none" opacity=".4">
+      <path d="M49 60 q3.5 -1 7 0 M48 64 q4.5 -1 9 0 M47.5 68 q5 -1 10 0 M47.5 72 q5 0 10 0 M48 76 q4.5 .5 9 0 M49 80 q3.5 .5 7 0"/>
     </g>
-    <!-- eye: sclera, iris, pupil, highlight, brow -->
-    <circle cx="61" cy="27" r="5.2" fill="#f4f1e2"/>
-    <circle cx="62.3" cy="27.3" r="3.2" fill="url(#gb-iris)"/>
-    <circle cx="62.8" cy="27" r="1.6" fill="#15121d"/>
-    <circle cx="61.8" cy="26" r=".8" fill="#fff"/>
-    <circle cx="63.2" cy="27.8" r=".35" fill="#fff" opacity=".6"/>
-    <path d="M55.5 22.5 Q59 20 65 22 Q67 23 68 24.5" stroke="#2e5c4d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-    <path d="M56 24.5 Q59 22.5 64 23.5" stroke="#1c3a2e" stroke-width="1" fill="none" stroke-linecap="round"/>
-    <!-- gills with flesh-toned slits -->
-    <g stroke="#2f6f8f" stroke-width="1.4" fill="none" stroke-linecap="round">
-      <path d="M44 33.5 q-2 2 -1 4.5 q1 2.5 1 4 M47 33 q-2 2 -1 4.5 q1 2.5 1 4 M49.5 32.5 q-1.5 2 -.5 4 q1 2 .5 3.5"/>
+    <!-- breastplate: one curved slab of rime-plate over the gut, grooved in two chevrons.
+         Bands read as a ladder at roster size - a single shaped plate holds together. -->
+    <path d="M41.5 56.5 Q50 52.5 61.5 57 Q65.5 68 61 79 Q50 84 42.5 79 Q38.5 68 41.5 56.5 Z" fill="url(#gb-plateD)" stroke="#39414f" stroke-width=".9" stroke-linejoin="round"/>
+    <path d="M43.6 58.6 Q50 55.2 59.4 59 Q62.6 68 58.8 77.4 Q50 81.4 44 77.4 Q40.9 68 43.6 58.6 Z" fill="url(#gb-plate)"/>
+    <path d="M44.2 64 L51.4 67.6 L59 63.6 M44 70.6 L51.4 74.2 L59 70.2" stroke="#39414f" stroke-width="1.15" fill="none" stroke-linejoin="round" opacity=".85"/>
+    <path d="M45.4 61 Q50.6 58.4 57.4 61.2" stroke="#eaf1f8" stroke-width=".8" fill="none" opacity=".5"/>
+    <!-- fur collar over the shoulders, frost caught in it -->
+    <path d="M37 50.5 Q50 43 65 50.5 Q62 55 57 54 Q50 57 43 54 Q39 55 37 50.5 Z" fill="url(#gb-fur)"/>
+    <path d="M40 50 q2 -3 4 -1 M47 46.5 q2.5 -3 5 -.5 M55 47.5 q2.5 -2.5 4.5 0" stroke="#8d7a60" stroke-width="1.1" fill="none" opacity=".7"/>
+    <path d="M42 52.5 q2 -2 4 -.5 M52 52.8 q2 -2 4 -.5" stroke="#cfe6f2" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- big head -->
+    <path d="M36 40 Q35 21.5 54 21 Q72 21 74 34 Q75 44 69 48 Q59 54 48 53 Q37 51 36 40 Z" fill="url(#gb-skin)"/>
+    <ellipse cx="52" cy="30" rx="13" ry="11" fill="url(#gb-sheen)"/>
+    <g stroke="#3d7099" stroke-width=".4" fill="none" opacity=".35">
+      <path d="M42 27 q2.5 -1 5 0 M41 31 q3 -1 6 0 M43 35 q2.5 -1 5 0 M50 23 q2.5 -.5 5 0"/>
     </g>
-    <path d="M43.5 35 q-1 1.5 0 3 M46.5 34.5 q-1 1.5 0 3 M49 34 q-.8 1.2 0 2.5" stroke="#c44060" stroke-width=".5" fill="none" opacity=".45"/>
-    <!-- spots and scales -->
-    <g fill="#3a7360" opacity=".8">
-      <circle cx="46" cy="27" r="1.6"/><circle cx="50.5" cy="24.5" r="1.1"/>
-      <circle cx="42" cy="40" r="1.2"/><circle cx="41" cy="60" r="1.3"/>
-      <circle cx="56" cy="52" r=".9"/><circle cx="38.5" cy="50" r="1"/>
-      <circle cx="44" cy="68" r=".8"/><circle cx="58" cy="72" r=".7"/>
-    </g>
-    <!-- fin spine ribs -->
-    <path d="M56 22 L58.8 9.5 M48 21 L47 8.5 M40.5 27 L36.5 14.5 M38 33 L30 26.5" stroke="#e8a548" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".9"/>
-    <!-- toe claws -->
-    <path d="M36.5 93.5 l-.5 1 M42 93.5 l0 1 M49 93.5 l.5 .8 M53.5 93.5 l-.3 1 M59 93.5 l.3 1 M65 93.5 l.5 .8 M68 93.5 l.8 .5" stroke="#2e5c4d" stroke-width=".8" fill="none" stroke-linecap="round"/>
-    <!-- mucus sheen highlights -->
-    <path d="M42 30 Q44 24 50 22.5" stroke="#fff" stroke-width="1.5" fill="none" opacity=".65" stroke-linecap="round"/>
-    <path d="M38 58 Q39 53 42 51" stroke="#fff" stroke-width="1.2" fill="none" opacity=".5" stroke-linecap="round"/>
-    <g stroke="#fff" fill="none" stroke-linecap="round" opacity=".4">
-      <path d="M54 55 Q56 53 58 54" stroke-width=".8"/><path d="M43 76 Q45 75 47 76" stroke-width=".7" opacity=".35"/>
-    </g>
-    <!-- water drips -->
-    <g fill="#bfeee6"><ellipse cx="72" cy="47" rx=".7" ry="1.4" opacity=".5"/><ellipse cx="35" cy="72" rx=".5" ry="1.1" opacity=".4"/><ellipse cx="69" cy="55" rx=".4" ry=".9" opacity=".35"/></g>
-    <!-- bubbles -->
-    <g fill="none" stroke="#bfeee6" stroke-width="1.1">
-      <circle cx="76" cy="38" r="1.8"/><circle cx="80" cy="31" r="1.2"/>
-      <circle cx="73" cy="30" r=".9"/><circle cx="78" cy="24" r=".6"/>
-    </g>
-    <g fill="#fff" opacity=".4"><circle cx="75.3" cy="37" r=".4"/><circle cx="79.3" cy="30" r=".3"/></g>
+    <!-- the maw. The corner is hauled back and DOWN and the lip given a hard ridge raking to it:
+         with the corner high and no lip line this read as an open smile at every size. -->
+    <path d="M74.4 33.6 Q64 39.6 52 42.6 Q58.5 53.2 69 48.2 Q74.9 42 74.4 33.6 Z" fill="#26121d"/>
+    <path d="M52 42.6 Q64 39.6 74.4 33.6" stroke="#23496a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M53.6 45.4 Q59.6 50.4 66 48.4" stroke="#23496a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/>
+    <path d="M57.4 45 Q62.8 51 68 47.6 Q64.6 44.6 57.4 45 Z" fill="url(#gb-tongue)"/>
+    <path d="M59.4 46 Q63.8 48.8 65.8 47.4" stroke="#c05060" stroke-width=".5" fill="none"/>
+  </g>
+  <!-- teeth: long and badly matched, a couple of fangs well out of line. Seated along the new
+       raking lip, so they ride down toward the back corner with it. -->
+  <g fill="#fff">
+    <path d="M71.6 35 l2.4 -.6 l-.8 5.4 z M69 36.2 l1.9 -.4 l-.5 2.5 z M67.2 36.9 l2.4 -.5 l-1 6 z"/>
+    <path d="M64.4 38 l1.7 -.3 l-.7 2.3 z M62.8 38.6 l2.3 -.4 l-1.3 4.4 z M60.6 39.4 l1.5 -.2 l-.8 2 z"/>
+    <path d="M57.4 40.4 l1.4 -.3 l-.6 1.7 z"/>
+  </g>
+  <!-- lower row, two tusks riding up past the lip -->
+  <g fill="#f0f4f6">
+    <path d="M58.6 47.8 l2.1 .6 l-1 -2.4 z M60.8 48.6 l2.3 .5 l-1.4 -4.9 z M63.6 49.2 l1.6 .2 l-.9 -2.3 z"/>
+    <path d="M65.6 49.4 l2.3 -.2 l-1.5 -5.5 z M68.4 49 l1.8 -.4 l-1.1 -2.1 z"/>
+  </g>
+  <!-- the shard of ice through his brow ridge: small, raked forward, and drawn BEFORE the brow
+       so the brow closes over its base. Tall and centred it split the brow in two and read as
+       a party horn. -->
+  <path d="M57.4 23.8 L66.2 11.4 L65.4 21.6 L61.4 25.4 Z" fill="url(#gb-ice)"/>
+  <path d="M66.2 11.4 L65.4 21.6 L63.4 19 Z" fill="#fff" opacity=".45"/>
+  <path d="M60.4 21.8 L64 15.4" stroke="#fff" stroke-width=".8" fill="none" opacity=".65"/>
+  <path d="M57.4 23.8 L66.2 11.4 L65.4 21.6 L61.4 25.4 Z" fill="none" stroke="#eafcff" stroke-width=".6" opacity=".5"/>
+  <ellipse cx="62" cy="18.4" rx="4.6" ry="6.4" fill="#8fe4f8" opacity=".14" filter="url(#gb-glow)"/>
+  <!-- the one eye, and it is not friendly. Socket sunk dark, lid hauled down into a glare,
+       iris burning cold, pupil shrunk to a pinprick - a wide round pupil reads as cute. -->
+  <ellipse cx="63.4" cy="29.6" rx="7.6" ry="7" fill="#18384f" opacity=".6"/>
+  <circle cx="64" cy="29.2" r="5.7" fill="#e8f1f5"/>
+  <path d="M58.6 27.6 q5.6 -3.4 11.2 .4 q-5.6 -1.2 -11.2 -.4 z" fill="#8fb4c8" opacity=".5"/>
+  <circle cx="64.6" cy="29.5" r="5" fill="url(#gb-iris)"/>
+  <circle cx="64.6" cy="29.5" r="5" fill="none" stroke="#eafcff" stroke-width=".55" opacity=".7"/>
+  <circle cx="65.1" cy="29.5" r=".95" fill="#080d12"/>
+  <circle cx="63.2" cy="27.9" r=".8" fill="#fff" opacity=".9"/>
+  <circle cx="64.6" cy="29.5" r="5.8" fill="#8fe4f8" opacity=".24" filter="url(#gb-glowSm)"/>
+  <!-- lower lid pushed up, so the stare is a slot and not a saucer -->
+  <path d="M58.8 32.6 q5.6 3.2 11 -.8 q-5.2 1.8 -11 .8 z" fill="#2d5675"/>
+  <!-- red threads through the white: he has not slept since the ice took him -->
+  <g stroke="#c4566a" stroke-width=".4" fill="none" opacity=".5">
+    <path d="M59.4 30.6 q1.8 .8 2.2 2.2 M59.8 27.4 q1.6 -.6 3 -.4 M62 33.4 q.6 -1.2 1.8 -1.6"/>
+  </g>
+  <!-- the lid, hauled down over the top third of the eye -->
+  <path d="M58.2 24 Q64.6 21.4 70.6 26 L69.8 29 Q64 25 57.8 27 Z" fill="#2d5675"/>
+  <!-- brow: a curved crescent sitting ON the eye, thick at the snout end and tapering back.
+       A straight bar here read as a floating visor, not a face. -->
+  <path d="M55.4 23.4 Q62.6 19 70.6 25.6 Q72 27.2 70.4 31.2 Q64.6 25.4 57 26.8 Q55 26 55.4 23.4 Z" fill="#1d3c52"/>
+  <path d="M57.4 24.6 Q63 21.6 68.8 25.4" stroke="#43738f" stroke-width=".7" fill="none" opacity=".5"/>
+  <!-- an old split through the brow that never closed -->
+  <path d="M61 19.8 L63 26.6" stroke="#152d40" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M60.8 20.6 l1.7 .5 M61.6 22.8 l1.7 .5 M62.3 25 l1.6 .5" stroke="#7fa8c0" stroke-width=".5" fill="none" opacity=".55"/>
+  <!-- gills, rimed at the edges -->
+  <g stroke="#2f6f8f" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <path d="M43 34 q-2.2 2.2 -1 5 q1.2 2.8 1 4.4 M46.2 33.4 q-2.2 2.2 -1 5 q1.2 2.8 1 4.4 M49 32.8 q-1.7 2.2 -.6 4.5 q1.1 2.2 .6 3.9"/>
+  </g>
+  <path d="M42.5 35.6 q-1.1 1.7 0 3.3 M45.7 35 q-1.1 1.7 0 3.3 M48.5 34.4 q-.9 1.4 0 2.8" stroke="#bfeeff" stroke-width=".55" fill="none" opacity=".5"/>
+  <!-- spots -->
+  <g fill="#3d7099" opacity=".75">
+    <circle cx="45" cy="27.5" r="1.7"/><circle cx="50" cy="24.5" r="1.2"/>
+    <circle cx="41" cy="41" r="1.3"/><circle cx="40" cy="62" r="1.3"/>
+    <circle cx="38" cy="52" r="1.1"/><circle cx="62" cy="52" r=".9"/>
+  </g>
+  <!-- RUNEBLADE: too much sword for him, carried anyway. Drawn straight up from the grip and
+       swung out to the shoulder by one rotate, so data-hand stays the pivot. -->
+  <g transform="rotate(29 66 64)">
+    <!-- blade -->
+    <path class="wpn" d="M66 18 L70.5 28 L70.5 54 L61.5 54 L61.5 28 Z" fill="url(#gb-plate)" stroke="#39414f" stroke-width="1" stroke-linejoin="round"/>
+    <!-- the jagged teeth down the forward edge -->
+    <path class="wpn" d="M70.5 31 l3.6 2.4 l-3.6 1.6 Z M70.5 37 l3.8 2.4 l-3.8 1.6 Z M70.5 43 l3.6 2.4 l-3.6 1.6 Z M70.5 49 l3.2 2.2 l-3.2 1.4 Z" fill="url(#gb-plateD)" stroke="#39414f" stroke-width=".8" stroke-linejoin="round"/>
+    <!-- fuller, and the rune lit along it -->
+    <path class="wpn" d="M66 22 L66 52" stroke="#5c6a7c" stroke-width="2.6" opacity=".7"/>
+    <path class="wpn" d="M66 24 L66 50" stroke="#9fe8ff" stroke-width="1.5" opacity=".9" filter="url(#gb-glowSm)"/>
+    <path class="wpn" d="M66 30 l-2.4 3 h4.8 Z M66 42 l-2.4 3 h4.8 Z" fill="#dcf8ff" opacity=".9"/>
+    <path class="wpn" d="M63.2 27 L68.8 27 M63.2 38 L68.8 38 M63.2 48 L68.8 48" stroke="#bfeeff" stroke-width=".6" opacity=".55"/>
+    <!-- crossguard, swept down -->
+    <path class="wpn" d="M58.5 54 Q66 51.5 73.5 54 L74.6 58.4 Q66 55.4 57.4 58.4 Z" fill="url(#gb-plateD)" stroke="#39414f" stroke-width="1" stroke-linejoin="round"/>
+    <circle class="wpn" cx="66" cy="56" r="1.9" fill="#9fe8ff" filter="url(#gb-glowSm)"/>
+    <circle class="wpn" cx="66" cy="56" r="1.1" fill="#eafcff"/>
+    <!-- grip and pommel -->
+    <rect class="wpn" x="64.3" y="58" width="3.4" height="11" rx="1.3" fill="#3a3028"/>
+    <path class="wpn" d="M64.3 60.4 h3.4 M64.3 63 h3.4 M64.3 65.6 h3.4" stroke="#7d6a54" stroke-width=".8"/>
+    <path class="wpn" d="M66 72.6 l-3 -2 l3 -2.2 l3 2.2 Z" fill="url(#gb-plateD)" stroke="#39414f" stroke-width=".8" stroke-linejoin="round"/>
+  </g>
+  <!-- front arm, reaching down the grip, vambrace banded to match the greaves -->
+  <path d="M57 53.5 L69.5 59.5 L66.5 66.5 L54 60.5 Z" fill="url(#gb-skin)"/>
+  <g stroke="#3b4556" stroke-width=".6" stroke-linejoin="round">
+    <path d="M59.5 55.4 L67.6 59.3 L66.4 62 L58.3 58.1 Z" fill="url(#gb-plate)"/>
+  </g>
+  <!-- front hand closed on the grip at data-hand -->
+  <circle cx="66.6" cy="64.2" r="3.8" fill="url(#gb-skin)"/>
+  <path d="M64 63 q1.1 2.2 0 3.8 M66.2 62.4 q.6 2.2 0 3.8 M68.4 63.4 q.6 1.7 -.5 3.2" stroke="#3d7099" stroke-width=".55" fill="none" opacity=".55"/>
+  <!-- his breath, and the cold coming off him -->
+  <g fill="none" stroke="#bfeeff" stroke-width="1.1" opacity=".75">
+    <path d="M78 38 q4 -2 7 .5" stroke-linecap="round"/>
+    <path d="M80 43 q3.5 -1.5 6 .5" stroke-linecap="round" opacity=".6"/>
+  </g>
+  <g fill="#dcf8ff">
+    <path d="M84 29 l.9 2.2 l2.2 .9 l-2.2 .9 l-.9 2.2 l-.9 -2.2 l-2.2 -.9 l2.2 -.9 Z" opacity=".8"/>
+    <path d="M22 60 l.7 1.7 l1.7 .7 l-1.7 .7 l-.7 1.7 l-.7 -1.7 l-1.7 -.7 l1.7 -.7 Z" opacity=".6"/>
+    <path d="M78 72 l.6 1.4 l1.4 .6 l-1.4 .6 l-.6 1.4 l-.6 -1.4 l-1.4 -.6 l1.4 -.6 Z" opacity=".5"/>
+    <circle cx="27" cy="38" r=".8" opacity=".5"/><circle cx="88" cy="56" r=".7" opacity=".45"/>
+    <circle cx="19" cy="70" r=".6" opacity=".4"/><circle cx="74" cy="18" r=".6" opacity=".45"/>
   </g>
 </svg>
