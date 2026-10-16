@@ -1809,9 +1809,9 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 /* Ryuunosuke's Invulnerable Clone (cloneFlit): the shadow peels off him, crosses to the FAR side of
    the mark and cuts it from behind, then goes out. It is never a unit — no box, no speed bar,
    nothing can target it — so it lives and dies as one loose element over the arena. */
-.cloneflit { position: absolute; z-index: 255; pointer-events: none; width: 44px; height: 54px; margin: -54px 0 0 -22px; opacity: 0;
-  filter: drop-shadow(0 0 8px rgba(96, 74, 180, .8)); }
-.cloneflit svg { width: 100%; height: 100%; display: block; }
+.cloneflit { position: absolute; z-index: 255; pointer-events: none; opacity: 0;
+  filter: brightness(0.85) saturate(0.5) drop-shadow(0 0 6px rgba(90, 60, 160, .7)); }
+.cloneflit svg, .cloneflit img { width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; }
 /* Tharos's Riptide / Undertow (waterSweep): a blue wave rolls across the targets, the way its
    caster faces (--sweep-dir, set from facing()) - an enemy Tharos washes them right to left. */
 .watersweep {
@@ -6879,12 +6879,21 @@ async function syncHeldWeapon(el, u) {
   const mine = u.side === 'p' && !u.summon && !u.monster && !u.inert;
   const wpn = (mine && heldWeapon(u.id)) || '';
   const arm = (mine && wornArmor(u.id)) || '';
-  const want = `${wpn}|${arm}`;
+  /* A champion with an authored strike needs their art inlined too, carrying
+     nothing or not. The pose swings `.wpn`, and the pieces marked that way live
+     inside the art file — behind an <img> they are a picture, not elements, and
+     nothing can reach them. Ryuunosuke's file marks eleven of them and all five
+     of his poses sat dead because of it: strikePose found no .wpn and did
+     nothing at all, not even the generic lunge. Inlining is the same path the
+     swapped-weapon case already takes, so this only widens when it runs.
+     Both sides, not just yours — the enemy swings too. */
+  const rig = !wpn && !arm && hasStrikeArt(u.id);
+  const want = `${wpn}|${arm}${rig ? '|rig' : ''}`;
   if ((host.dataset.gear || '') === want) return;
   host.dataset.gear = want;
   const a = lookOf(u.id);
   const cur = () => host.querySelector('.art');
-  if (!wpn && !arm) {   // nothing worn: back to the plain linked art, as before
+  if (!wpn && !arm && !rig) {   // nothing worn, nothing to rig: plain linked art, as before
     const c = cur();
     if (c && c.tagName !== 'IMG') c.outerHTML = spriteSVG(artOf(u));
     return;
@@ -6909,6 +6918,20 @@ async function syncHeldWeapon(el, u) {
   if (c) c.outerHTML = txt.replace(/<\?xml[\s\S]*?\?>/, '').trim().replace('<svg', `<svg class="art${wpn ? ' held' : ''}"`);
   const node = host.querySelector('svg.art');
   if (!node) return;
+  /* Rigged art the champion is still drawn holding: the artist's own .wpn
+     pieces are what swings, and every one of them has to turn about the hand
+     the file declares — about the SAME point, so view-box (the file's own
+     coordinates) rather than fill-box (each piece's own little box, which
+     would spin a guard and a blade about two different centres and tear the
+     sword apart). The swapped-weapon branch below builds one group and sets
+     this on it; here the pieces are the artist's and there are nine. */
+  if (rig) {
+    const [hx, hy] = handOf(u.id, node);
+    node.querySelectorAll('.wpn').forEach((p) => {
+      p.style.transformBox = 'view-box';
+      p.style.transformOrigin = `${hx}px ${hy}px`;
+    });
+  }
   node.querySelector('.heldwpn')?.remove();
   if (wpn) {
     const [hx, hy] = handOf(u.id, node);
@@ -7015,6 +7038,7 @@ let FFWD = false;
 // runs hands-off from the first turn. Off in the real game — only bootTest ever sets it. It also runs the
 // whole fight AUTO_SPEED× faster (both the action beats and the speed bar) so results come in early.
 let AUTO_PLAY = false;
+let EGUARD = false;
 /* free=1 (sim only): the sandbox switch. Every unit starts each of its turns with
    no cooldowns and a full mana pool, so every skill it owns can be cast every
    turn — including the signature, which normally opens a battle two turns away.
@@ -9473,6 +9497,7 @@ function aiChoose(u) {
   const hurt = allies.filter((a) => a.hp / a.maxHp < 0.55).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
   const skills = skillsOf(u).filter((s) => usable(u, s));
   const guard = skills.find((s) => s.id === 'guard');
+  if (EGUARD && u.side === 'e') return { sk: guard, t: u };
   if (runsHot(u) && u.heat >= 70 && chance(0.7)) return { sk: guard, t: u };
 
   const scored = skills.map((s) => {
@@ -19122,6 +19147,14 @@ function graveShine(u, t, ms, hit) {
   }, ms * hit);
 }
 
+/* Who has an authored swing, by champion — 'ryuunosuke:Twin Slash' counts for
+   ryuunosuke. syncHeldWeapon reads this to decide whether to inline their art:
+   the poses below swing `.wpn`, and those pieces only exist as elements once
+   the file is in the DOM rather than behind an <img>. Built once, after every
+   WEAPON_STRIKES entry above has been assigned. */
+const STRIKE_RIGGED = new Set(Object.keys(WEAPON_STRIKES).map((k) => k.split(':')[0]));
+const hasStrikeArt = (id) => STRIKE_RIGGED.has(id);
+
 // Weapon swing: lean in and twist, or the champion's own attack clip. Resolves at the moment of impact.
 // sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
 // pace < 1 runs the same swing through quicker, for flurries that would drag at full length.
@@ -19131,10 +19164,15 @@ async function strikePose(u, fresh = false, sk = null, pace = 1, tg = null) {
   const d = facing(u);
   // A skill's own move ('barrow:Tomb Slab') first, then the champion's basic-Attack move.
   const ws = sk && (WEAPON_STRIKES[`${u.id}:${sk.name}`] || (sk.id === 'attack' && WEAPON_STRIKES[u.id]));
-  const wpn = ws && !reduced && u.hp > 0 && bodyEl(u)?.querySelector('.wpn');
-  if (wpn) {
+  /* Every .wpn piece, not just the first. A swapped weapon is one group and this
+     is the same as it ever was, but a champion drawn holding their own is marked
+     piece by piece to keep the artist's z-order (see WEARING WHAT YOU CARRY) —
+     Ryuunosuke's katana is nine. Swinging only the first sent the blade across
+     the field and left the guard, the wrap and the pommel standing in his hand. */
+  const parts = ws && !reduced && u.hp > 0 ? [...(bodyEl(u)?.querySelectorAll('.wpn') || [])] : [];
+  if (parts.length) {
     const ms = beat(ws.ms * pace);
-    wpn.animate(ws.wpn, { duration: ms });
+    parts.forEach((p) => p.animate(ws.wpn, { duration: ms }));
     if (ws.off) bodyEl(u).querySelector('.wpn2')?.animate(ws.off, { duration: ms });
     pose(u, ws.body(d), ws.ms * pace);
     if (ws.shine && tg) graveShine(u, tg, ms, ws.hit);   // Grave Cross: the lifted cross pours green light onto them
@@ -19649,20 +19687,23 @@ async function cloneFlit(u, t) {
   const d = facing(u);
   const el = document.createElement('div');
   el.className = 'cloneflit';
-  el.innerHTML = CLONE_FLIT_ART;
-  const x0 = a.x + d * a.w * 0.2, y0 = a.top + a.h * 0.42;
-  const x1 = b.x + d * b.w * 0.62, y1 = b.top + b.h * 0.42;   // past the mark: its back is to him
-  el.style.cssText = `left:${x0.toFixed(0)}px; top:${y0.toFixed(0)}px;`;
+  const art = bodyEl(u)?.querySelector('.upic .art');
+  if (art) el.appendChild(art.cloneNode(true));
+  else el.innerHTML = CLONE_FLIT_ART;
+  const w = a.w, h = a.h;
+  el.style.cssText = `left:${a.x.toFixed(0)}px; top:${a.top.toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; margin: 0 0 0 ${(-w / 2).toFixed(0)}px;`;
   arena.appendChild(el);
-  const dx = x1 - x0, dy = y1 - y0, ms = beat(430);
+  const x0 = 0, y0 = 0;
+  const x1 = (b.x + d * b.w * 0.5) - a.x, y1 = b.top - a.top;
+  const ms = beat(900);
   const face = `scaleX(${-d})`;
   const at = (fx, fy, s) => `translate(${fx.toFixed(0)}px, ${fy.toFixed(0)}px) ${face} scale(${s})`;
   const anim = el.animate([
-    { opacity: 0,   transform: at(0, 0, 0.7) },
-    { opacity: 0.9, transform: at(dx * 0.4, dy * 0.4 - 12, 0.9), offset: 0.38 },
-    { opacity: 0.95, transform: at(dx, dy, 1), offset: 0.7 },
-    { opacity: 0.95, transform: at(dx - d * 11, dy, 1), offset: 0.88 },   // the cut, forward into its back
-    { opacity: 0,   transform: at(dx - d * 15, dy, 0.96) },
+    { opacity: 0,   transform: at(x0, y0, 0.9) },
+    { opacity: 0.85, transform: at(x1 * 0.35, y1 * 0.35 - 14, 1), offset: 0.25 },
+    { opacity: 0.85, transform: at(x1, y1, 1), offset: 0.55 },
+    { opacity: 0.85, transform: at(x1 - d * 16, y1, 1), offset: 0.8 },
+    { opacity: 0,   transform: at(x1 - d * 22, y1, 0.95) },
   ], { duration: ms, easing: 'cubic-bezier(.3,.9,.3,1)' });
   await (anim.finished ? anim.finished.catch(() => {}) : sleep(ms));
   el.remove();
@@ -20964,6 +21005,8 @@ function bootTest(params) {
   TEST_MODE = true;
   AUTO_PLAY = params.has('auto') && params.get('auto') !== '0';   // auto=1: the AI plays your champion too
   SIM_FREE = params.has('free') && params.get('free') !== '0';     // free=1: no cooldowns, full mana, every turn
+  EGUARD = params.has('eguard') && params.get('eguard') !== '0';   // eguard=1: enemies only guard
+  if (params.has('speed')) SPEED = Math.max(0.1, Math.min(3, +params.get('speed') || 1));  // speed=0.2: 5× slower
   if (params.has('nolog')) setLogHidden(true);                    // nolog=1: all field, no chronicle
   /* The Sim Deck runs these fights in frames and needs to know when one is decided so it can deal the
      next. It cannot simply read `state`: that is a module-scope binding and invisible from outside the
