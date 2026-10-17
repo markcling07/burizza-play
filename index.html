@@ -19796,6 +19796,81 @@ async function cloneStrike(u, sk) {
   if (restored) restored.style.display = '';
 }
 
+// Twin Slash: Ryuunosuke dashes to the front of the target while his clone materializes behind
+// them. Both slash simultaneously — Ryuunosuke's blade and the clone's — and the two cuts cross
+// on the target's body as a red X that lingers. Guaranteed critical hit.
+async function twinSlashSkill(u, t, sk) {
+  const arena = $('#arena'), d = facing(u);
+  const trip = await dashTo(u, [t]);
+  const b = stageBox(t), a = stageBox(u);
+  // Spawn the clone behind the target (opposite side from Ryuunosuke)
+  let cel = null;
+  if (!reduced && b && a && arena) {
+    cel = document.createElement('div');
+    cel.className = 'matrixclone';
+    const art = bodyEl(u)?.querySelector('.upic .art');
+    if (art) cel.appendChild(art.cloneNode(true));
+    const w = a.w, h = a.h;
+    const cx = b.x + d * (b.w * 0.45 + w * 0.3);
+    cel.style.cssText = `position:absolute; left:${cx.toFixed(0)}px; top:${b.top.toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; margin:0 0 0 ${(-w / 2).toFixed(0)}px; z-index:200; transform:scaleX(${-d}); opacity:0;`;
+    arena.appendChild(cel);
+    cel.animate([{ opacity: 0 }, { opacity: 0.85 }], { duration: beat(180), fill: 'forwards' });
+    const cln = cloneArt(u);
+    if (cln) cln.style.display = 'none';
+  }
+  await wait(120);
+  // Both strike at the same time
+  const strike1 = strikePose(u, true, sk);
+  const strike2 = cel ? cel.animate([
+    { translate: '0 0' }, { translate: `${(-d * 14).toFixed(0)}px 0`, offset: 0.4 },
+    { translate: `${(-d * 6).toFixed(0)}px 0` },
+  ], { duration: beat(240), easing: 'ease-in-out' }).finished.catch(() => {}) : Promise.resolve();
+  await Promise.all([strike1, strike2]);
+  // X slash marks on the target
+  const slashes = [];
+  if (!reduced && b && arena) {
+    const slashW = b.w * 1.4;
+    for (const angle of [-35, 35]) {
+      const s = document.createElement('div');
+      s.className = 'twin-x-slash';
+      s.style.cssText = `left:${(b.x - slashW / 2).toFixed(0)}px; top:${(b.top + b.h * 0.45).toFixed(0)}px; width:${slashW.toFixed(0)}px; transform:rotate(${angle}deg);`;
+      arena.appendChild(s);
+      s.animate([
+        { opacity: 0, transform: `rotate(${angle}deg) scaleX(0.15)`, offset: 0 },
+        { opacity: 1, transform: `rotate(${angle}deg) scaleX(1)`, offset: 0.12 },
+        { opacity: 1, transform: `rotate(${angle}deg) scaleX(1)`, offset: 0.8 },
+        { opacity: 0, transform: `rotate(${angle}deg) scaleX(1.05)`, offset: 1 },
+      ], { duration: beat(1400), easing: 'ease-out', fill: 'forwards' });
+      slashes.push(s);
+    }
+  }
+  burst(t, 'blood');
+  // Ryuunosuke's hit
+  markAttacked(t);
+  strikeOnce(u, t, sk.mult, sk.name, sk.o);
+  // Clone's hit — same target, same crit
+  strikeOnce(u, t, RYUU_CLONE_MULT, 'Twin Slash (Clone)', { counter: true, alwaysCrit: true });
+  log(`${u.name} and his shadow slash through ${t.name} from both sides!`, u.side);
+  render();
+  await wait(400);
+  // Clone fades out
+  if (cel) {
+    cel.animate([{ opacity: 0.85 }, { opacity: 0 }], { duration: beat(300), fill: 'forwards' });
+    await wait(300);
+    cel.remove();
+  }
+  const cln = cloneArt(u);
+  if (cln) cln.style.display = '';
+  // Clean up slashes after they finish
+  await wait(700);
+  for (const s of slashes) s.remove();
+  await dashBack(u, trip);
+  applyHitEffects(u, t, sk.o || {});
+  if (t.hp <= 0 && pv(u).killHeal && u.hp > 0) healUnit(u, u, Math.round(u.maxHp * pv(u).killHeal), 'Bloodlust');
+  if (t.hp <= 0 && pv(u).killSpeed && u.hp > 0) { u.pos = Math.min(TRACK, (u.pos || 0) + pv(u).killSpeed); float(u, 'Shadow Step', 'fx'); }
+  render();
+}
+
 // Shadow Matrix: 3-Rev channel. Rev 1 (cast): vanish in smoke. Rev 2: clones appear behind every
 // enemy. Rev 3: all clones slash simultaneously, Ryuunosuke reappears.
 function matrixVanish(u, on) {
