@@ -34,6 +34,8 @@ PAL = {
     # dirtier than the Union's steel blue, so the two read as kin without reading as the same.
     'cog':     ('#5a4028', '#180f08', '#ffa64d'),
     'monster': ('#4a4038', '#16110d', '#c0a080'),
+    # The Stray Banner: masterless blades. Night ink with a crimson edge (Ryuunosuke's trim).
+    'stray':   ('#2c2a3c', '#0b0a12', '#c04848'),
 }
 
 DEFS = f'''
@@ -2245,6 +2247,12 @@ CATALOG = {
         ('Attune: Light', 'Orin (retired)', 'skill'), ('Attune: Void', 'Orin (retired)', 'skill'),
         ('Conduct', 'Orin (retired)', 'skill'),
     ]),
+    'stray': ('The Stray Banner', [
+        ('Invulnerable Clone', 'Ryuunosuke · Nature', 'passive'),
+        ('Shadow Matrix', 'Ryuunosuke', 'skill'), ('Iaijutsu', 'Ryuunosuke', 'sig'), ('Mark of Death', 'Ryuunosuke', 'skill'),
+        ('Smoke Veil', 'Ryuunosuke', 'skill'), ('Twin Slash', 'Ryuunosuke', 'skill'), ('Blade Dance', 'Ryuunosuke', 'skill'),
+        ('Shadow Step', 'Ryuunosuke', 'passive'), ('Killing Intent', 'Ryuunosuke', 'passive'),
+    ]),
     'cog': ('The Cogbound', [
         ('Unblinking', 'Vharo · Nature', 'passive'), ('Sunforged', 'Vharo', 'passive'),
         ('Lightlance', 'Vharo', 'skill'), ('Recall Swords', 'Vharo', 'sig'),
@@ -3528,6 +3536,127 @@ def _():
             + twinkle(30, 28, .7, '#d0d4ff')
             + twinkle(16, 38, .5, '#9da6e0')
             + '<path d="M40 20 Q50 24 48 34" fill="none" stroke="#b9c0e0" stroke-width="1.5"/>')
+
+
+# ---- The Stray Banner -----------------------------------------------------
+
+# Ryuunosuke helpers: his katana, his shadow, and a crimson brush stroke.
+SHADOW = '#5a5280'   # dusk violet: dark enough to read as a shadow, light enough to see on the night frame
+CRIMSON = '#c04848'
+
+
+def katana(length=40, blade='url(#steel)'):
+    """A katana on its back, edge down: hilt at the origin, a gently curved blade running to +x."""
+    L = length
+    return (f'<path d="M4 -1.6 Q{L * .55:.1f} -4.4 {L} -6.2 Q{L * .6:.1f} -1.2 4 2 Z" fill="{blade}"/>'
+            f'<path d="M6 -.6 Q{L * .55:.1f} -3.2 {L - 2:.1f} -5.4" fill="none" stroke="#ffffff" stroke-width=".9" opacity=".8"/>'
+            '<ellipse cx="3" cy=".2" rx="1.6" ry="4.6" fill="url(#gold)"/>'
+            '<rect x="-11" y="-1.8" width="13" height="3.8" rx="1.4" fill="#2a1a1a"/>'
+            '<path d="M-10 -1.8 l2 3.8 M-7 -1.8 l2 3.8 M-4 -1.8 l2 3.8" stroke="' + CRIMSON + '" stroke-width="1"/>')
+
+
+def shade(x, y, s=1, fill=SHADOW, eye=CRIMSON):
+    """A shadow figure (head and shoulders) with one red eye: his clone."""
+    return g('<path d="M-9 12 Q-9 2 -4.6 -.4 Q-7 -3 -6.4 -7 Q-5.4 -12.6 0 -12.6 Q5.4 -12.6 6.4 -7 Q7 -3 4.6 -.4 Q9 2 9 12 Z" '
+             f'fill="{fill}"/>'
+             f'<path d="M1 -7 L5 -6.4" stroke="{eye}" stroke-width="1.8"/>', x, y, 0, s)
+
+
+def slash(x1, y1, x2, y2, w=3.2, color='#ffffff', glow_color=CRIMSON):
+    """A clean blade stroke with a crimson after-glow."""
+    return (f'<path d="M{x1} {y1} L{x2} {y2}" stroke="{glow_color}" stroke-width="{w + 3:.1f}" opacity=".45" filter="url(#blur)"/>'
+            f'<path d="M{x1} {y1} L{x2} {y2}" stroke="{color}" stroke-width="{w:.1f}"/>')
+
+
+def enso(cx, cy, r, color=CRIMSON, w=4):
+    """A brushed red circle left open at the top right."""
+    return (f'<path d="M{cx + r * .55:.1f} {cy - r * .83:.1f} A{r} {r} 0 1 0 {cx + r * .93:.1f} {cy - r * .3:.1f}" '
+            f'fill="none" stroke="{color}" stroke-width="{w}"/>')
+
+
+@icon('Shadow Matrix')
+def _():
+    # Replicas of him rise behind every enemy, around a marked centre, blades out.
+    return (shade(15, 24, .78) + shade(49, 24, .78) + shade(32, 47, .78)
+            + '<circle cx="32" cy="30" r="5.4" fill="none" stroke="' + CRIMSON + '" stroke-width="2.4"/>'
+            + '<circle cx="32" cy="30" r="1.8" fill="' + CRIMSON + '"/>'
+            + slash(10, 44, 26, 34, 2.2) + slash(54, 44, 38, 34, 2.2) + slash(32, 10, 32, 21, 2.2))
+
+
+@icon('Iaijutsu')
+def _():
+    # The lightning draw: half out of the scabbard, and a white cut already across the frame.
+    return ('<path d="M8 44 L30 36 L31 40 L9 48 Z" fill="#2a1a1a"/>'
+            '<path d="M10 45 l2 2.6 M15 43.2 l2 2.6 M20 41.4 l2 2.6" stroke="' + CRIMSON + '" stroke-width="1"/>'
+            + g(katana(32), 22, 39, -20, 1.25)
+            + slash(6, 22, 58, 22, 3.4)
+            + '<path d="M34 16 L38 22 L33 22 L37 28" fill="none" stroke="#ffe680" stroke-width="2"/>'
+            + twinkle(56, 22, .9, '#ffffff'))
+
+
+@icon('Mark of Death')
+def _():
+    # A crimson brushed circle around the marked one, a cross cut through it.
+    return (enso(32, 32, 19)
+            + skull().replace('url(#bone)', '#e8e0d0').join(['<g transform="translate(32 33) scale(.7)">', '</g>'])
+            + slash(17, 17, 47, 47, 2.4, '#ffffff') + slash(47, 17, 17, 47, 2.4, '#ffffff'))
+
+
+@icon('Smoke Veil')
+def _():
+    # He is gone into the smoke - only the one red eye still shows.
+    puffs = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="url(#iron)" opacity="{o}"/>'
+                    for x, y, r, o in ((20, 40, 11, .95), (36, 42, 12, .95), (47, 34, 9, .9), (28, 28, 10, .85),
+                                       (42, 22, 7.5, .8), (16, 26, 6, .75)))
+    return (shade(32, 32, 1.05, '#3a3650') + puffs
+            + '<path d="M33 25.4 L38 26.2" stroke="' + CRIMSON + '" stroke-width="2.4"/>'
+            + '<circle cx="35.5" cy="25.8" r="3.4" fill="' + CRIMSON + '" opacity=".35" filter="url(#blur)" stroke="none"/>')
+
+
+@icon('Twin Slash')
+def _():
+    # His cut and the clone's, landing as one: steel and shadow crossing in an X, a flash where they meet.
+    return (g(katana(40), 11, 51, -45, 1.12) + g(katana(40, '#8a80b8'), 53, 51, -135, 1.12)
+            + burst(32, 30, 4, 10, 10, '#ffffff')
+            + '<circle cx="32" cy="30" r="3" fill="' + CRIMSON + '"/>')
+
+
+@icon('Blade Dance')
+def _():
+    # A whirl of cuts through the whole warband: arcs all round, the blade at their heart.
+    arcs = ''.join(f'<path d="M{32 + 22 * math.cos(math.radians(a)):.1f} {32 + 22 * math.sin(math.radians(a)):.1f} '
+                   f'A22 22 0 0 1 {32 + 22 * math.cos(math.radians(a + 70)):.1f} {32 + 22 * math.sin(math.radians(a + 70)):.1f}" '
+                   f'fill="none" stroke="{c}" stroke-width="3"/>'
+                   for a, c in ((-80, '#ffffff'), (40, CRIMSON), (160, '#ffffff')))
+    return arcs + g(katana(30), 17, 42, -35, 1.2) + speed_lines(40, 46, 3, 8, 4, CRIMSON, 0)
+
+
+@icon('Invulnerable Clone')
+def _():
+    # His shadow walks a step behind him, wrapped in a ring nothing gets through.
+    return ('<circle cx="38" cy="30" r="17" fill="none" stroke="#9aa0d0" stroke-width="1.6" stroke-dasharray="3 3"/>'
+            + shade(38, 30, 1.2) + shade(26, 34, 1.15, 'url(#steel)', CRIMSON))
+
+
+@icon('Shadow Step')
+def _():
+    # One kill and he is already further down the line: afterimages streaming behind him.
+    return (shade(16, 32, .95, SHADOW, CRIMSON).replace('<g ', '<g opacity=".35" ', 1)
+            + shade(26, 32, .95, SHADOW, CRIMSON).replace('<g ', '<g opacity=".65" ', 1)
+            + shade(38, 32, .95)
+            + '<path d="M44 46 L56 46 M52 42 L56 46 L52 50" fill="none" stroke="' + CRIMSON + '" stroke-width="2.6"/>')
+
+
+@icon('Killing Intent')
+def _():
+    # The pressure of a blade that has already decided: two red eyes in the dark, a ragged red aura.
+    spikes = ''.join(f'<path d="M{32 + 14 * math.cos(math.radians(a)):.1f} {32 + 14 * math.sin(math.radians(a)):.1f} '
+                     f'L{32 + 24 * math.cos(math.radians(a + 6)):.1f} {32 + 24 * math.sin(math.radians(a + 6)):.1f}" '
+                     f'stroke="{CRIMSON}" stroke-width="2.4"/>' for a in range(-90, 270, 30))
+    return (spikes + '<circle cx="32" cy="32" r="15" fill="#0b0a12"/>'
+            + '<path d="M22 30 L29 32 L22 33 Z M42 30 L35 32 L42 33 Z" fill="#ff5a5a" stroke="none"/>'
+            + '<circle cx="26" cy="31.6" r="4" fill="#ff5a5a" opacity=".45" filter="url(#blur)" stroke="none"/>'
+            + '<circle cx="38" cy="31.6" r="4" fill="#ff5a5a" opacity=".45" filter="url(#blur)" stroke="none"/>')
 
 
 def frame(faction, kind, glyph, name):

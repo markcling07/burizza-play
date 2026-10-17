@@ -166,6 +166,61 @@
       "frameMs": 40,
       "ms": 1280,
       "hitMs": 560
+    },
+    "s-piston-punch": {
+      "src": "bulwark-s-piston-punch.webp",
+      "w": 400,
+      "h": 270,
+      "footX": 145,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 600
+    },
+    "s-hydraulic-slam": {
+      "src": "bulwark-s-hydraulic-slam.webp",
+      "w": 400,
+      "h": 270,
+      "footX": 145,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 600
+    },
+    "s-steam-vent": {
+      "src": "bulwark-s-steam-vent.webp",
+      "w": 400,
+      "h": 270,
+      "footX": 145,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 560
+    },
+    "s-piledriver": {
+      "src": "bulwark-s-piledriver.webp",
+      "w": 400,
+      "h": 270,
+      "footX": 145,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 600
+    },
+    "s-bunker-down": {
+      "src": "bulwark-s-bunker-down.webp",
+      "w": 400,
+      "h": 270,
+      "footX": 145,
+      "footY": 255,
+      "frames": 28,
+      "frameMs": 40,
+      "ms": 1120,
+      "hitMs": 560
     }
   },
   "sawtooth": {
@@ -713,6 +768,29 @@
       "hitMs": 675
     }
   },
+  "nyx": {
+    "idle": {
+      "src": "nyx-idle.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 18,
+      "frameMs": 75,
+      "ms": 1350
+    },
+    "attack": {
+      "src": "nyx-attack.webp",
+      "w": 350,
+      "h": 265,
+      "footX": 150,
+      "footY": 255,
+      "frames": 30,
+      "frameMs": 40,
+      "ms": 1200,
+      "hitMs": 520
+    }
+  },
   "thurgan": {
     "idle": {
       "src": "thurgan-idle.webp",
@@ -780,29 +858,6 @@
       "frameMs": 40,
       "ms": 1280,
       "hitMs": 680
-    }
-  },
-  "nyx": {
-    "idle": {
-      "src": "nyx-idle.webp",
-      "w": 350,
-      "h": 265,
-      "footX": 150,
-      "footY": 255,
-      "frames": 18,
-      "frameMs": 75,
-      "ms": 1350
-    },
-    "attack": {
-      "src": "nyx-attack.webp",
-      "w": 350,
-      "h": 265,
-      "footX": 150,
-      "footY": 255,
-      "frames": 30,
-      "frameMs": 40,
-      "ms": 1200,
-      "hitMs": 520
     }
   },
   "automatonx": {

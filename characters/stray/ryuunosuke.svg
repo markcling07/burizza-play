@@ -39,7 +39,7 @@
        while he holds his level - so the two never merge into one shape. Cool indigo rather than
        black, because black on the arena's dark floor disappears. Only the eyes carry colour.
        Drawn first, so his own braced back leg passes in front of it. -->
-  <g opacity=".72">
+  <g class="cln" opacity=".72">
     <ellipse cx="21" cy="88.6" rx="12" ry="2.2" fill="#15112a" opacity=".55" filter="url(#ry-soft)"/>
     <!-- hakama and legs -->
     <path d="M15 56 Q10.6 64 12.4 73 L19 74.6 Q19.6 64.6 20.2 56 Z" fill="#241e3a"/>

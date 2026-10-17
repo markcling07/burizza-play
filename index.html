@@ -1823,6 +1823,13 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .matrix-slash::after { content: ''; position: absolute; left: 20%; right: 20%; top: 100%;
   height: 8px; background: linear-gradient(180deg, rgba(160,10,10,.6) 0%, transparent 100%);
   filter: blur(1px); border-radius: 0 0 2px 2px; }
+.twin-x-slash { position: absolute; pointer-events: none; z-index: 250; height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(200,20,15,.8) 8%, #dd2020 30%, #ee3025 50%, #dd2020 70%, rgba(200,20,15,.8) 92%, transparent 100%);
+  border-radius: 2px; box-shadow: 0 2px 10px 2px rgba(200,20,10,.7), 0 4px 6px 1px rgba(120,0,0,.5);
+  opacity: 0; transform-origin: center; }
+.twin-x-slash::after { content: ''; position: absolute; left: 15%; right: 15%; top: 100%;
+  height: 6px; background: linear-gradient(180deg, rgba(160,10,10,.5) 0%, transparent 100%);
+  filter: blur(1px); }
 /* Tharos's Riptide / Undertow (waterSweep): a blue wave rolls across the targets, the way its
    caster faces (--sweep-dir, set from facing()) - an enemy Tharos washes them right to left. */
 .watersweep {
@@ -3959,6 +3966,7 @@ const FX = {
   rcs:      { icon: '🔊', label: 'Sound',     kind: 'neutral', verb: 'is charged with Sound' },
   rcv:      { icon: '🟣', label: 'Void',      kind: 'neutral', verb: 'is charged with Void' },
   flee:     { icon: '😱', label: 'Afraid',    kind: 'bad',  verb: 'is gripped by fear: it turns and runs back down the speed bar' },
+  cloak:    { icon: '🌫️', label: 'Cloaked',   kind: 'good', verb: 'is cloaked in smoke: nothing can target them, but the shadow keeps striking' },
   // Rooted (Tharos's Anchor, and anything else that pins a unit): it still takes its turns, but it
   // cannot cross the field — melee run-in attacks and spells are shut off (a hurled or gust skill is
   // still loosed where it stands), and it cannot walk to a target (Second Burial, Bolt-On). Ranged
@@ -4584,7 +4592,7 @@ const ROSTER = [
              D('Iaijutsu', 'Lightning draw. If the clone hits the same target this turn, both strikes deal 30% more.', 2, 1.3, { iaijutsu: true, mp: 10 }),
              B('Mark of Death', `Marks an enemy for ${RYUU_MARK_TURNS} turns: the clone targets only them, and they take ${Math.round(RYUU_MARK_BONUS * 100)}% more damage from Ryuunosuke.`, 4, 'enemy', [['deathmark', RYUU_MARK_TURNS]], { aiTarget: 'highest', mp: 20 }),
              B('Smoke Veil', 'Vanishes for 1 turn. Untargetable, but his clone keeps striking.', 4, 'self', [['cloak', 1]], { mp: 20 }),
-             D('Twin Slash', '180% — Ryuunosuke and his clone coordinate a simultaneous strike. Guaranteed critical hit.', 4, 1.8, { autoCrit: true, mp: 25 }),
+             D('Twin Slash', '180% — Ryuunosuke and his clone coordinate a simultaneous strike. Guaranteed critical hit.', 4, 1.8, { alwaysCrit: true, twinSlash: true, mp: 25 }),
              D('Blade Dance', '50% twice to every enemy — Ryuunosuke dashes through the warband while the clone mirrors from the other side.', 4, 0.5, { aoe: true, hits: 2, mp: 30 })],
     passive: P('Shadow Step', `Defeating an enemy fills his speed bar by ${Math.round(RYUU_KILL_SPEED / 10)}%.`, { killSpeed: RYUU_KILL_SPEED }),
     passiveAlt: P('Killing Intent', '+5% damage for every dead enemy, up to +20%.', { killStack: { per: 0.05, max: 0.2 } }) },
@@ -7500,11 +7508,12 @@ const buried = (u) => !!has(u, 'burrowed');
 // no single blow, no area attack, and no mending or blessing either — they are not wholly on the
 // field until their own turn comes round. strikeOnce turns aside anything that reaches them anyway.
 const veiled = (u) => !!has(u, 'veiled');
+const cloaked = (u) => !!has(u, 'cloak');
 // Come Apart: while a Gorehound is running as two hounds there is no Gorehound to aim at. He is
 // out of reach the way the burrowed and the coffined are, which is what makes the thrown and the
 // queued — Execute's torrent, Mara's shot — find nothing where he was.
 const apart = (u) => !!u.apart;
-const outOfReach = (u) => inBox(u) || buried(u) || veiled(u) || apart(u) || !!u.shadowMatrix;
+const outOfReach = (u) => inBox(u) || buried(u) || veiled(u) || cloaked(u) || apart(u) || !!u.shadowMatrix;
 const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
@@ -7831,6 +7840,7 @@ function powerMult(u) {
   if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus() + (charNat(u).rhythm ? 0.05 : 0);   // Wren: Spellblade's Rhythm
   if (u.faction === 'tide' && highTide()) m *= 1.25;
   if (pv(u).deadScale) m *= 1 + pv(u).deadScale * deadCount();   // Cadris: Toll of the Dead
+  if (pv(u).killStack) { const df = state.teams[u.side === 'p' ? 'e' : 'p'].filter(x => x.hp <= 0 && !x.inert).length; if (df > 0) m *= 1 + Math.min(pv(u).killStack.per * df, pv(u).killStack.max); }
   // Two on the Trail (Vashka's Nature): hunter and called beast strike harder side by side.
   if (charNat(u).pair && summonOf(u)) m *= 1.1;
   if (u.summon) { const ow = unitBy(u.owner); if (ow && ow.hp > 0 && charNat(ow).pair) m *= 1.1; }
@@ -7946,6 +7956,7 @@ function strikeOnce(u, t, mult, label, o) {
   // Mark of Death, unlike Exposed, is owed to one man: it keys off the attacker carrying the clone
   // Nature, so the mark opens the target to Ryuunosuke (and to the shadow striking as him) alone.
   if (has(t, 'deathmark') && charNat(u).clone) dmg *= 1 + RYUU_MARK_BONUS;
+  if (o.iaijutsu && charNat(u).clone) dmg *= 1.3;
   if (TP.firstHitDR && !t.plated) { dmg *= 1 - TP.firstHitDR; t.plated = true; }
   if (allyHas(t, 'allyDR', true)) dmg *= 0.9;
   if (has(t, 'hex') && allyHas(u, 'hexVuln')) dmg *= 1.15;
@@ -8641,6 +8652,7 @@ async function damageSkill(u, t, sk) {
       lastHit = tg;
       applyHitEffects(u, tg, o);
       if (tg.hp <= 0 && pv(u).killHeal && u.hp > 0) healUnit(u, u, Math.round(u.maxHp * pv(u).killHeal), 'Bloodlust');
+      if (tg.hp <= 0 && pv(u).killSpeed && u.hp > 0) { u.pos = Math.min(TRACK, (u.pos || 0) + pv(u).killSpeed); float(u, 'Shadow Step', 'fx'); }
     }
     render();
     await wait(o.rampage ? RAMPAGE_GAP : hits > 1 ? 130 : 160);
@@ -9416,7 +9428,11 @@ async function doAction(u, sk, t) {
   else if (sk.o?.turncoat) await turncoatVerse(u, t);   // the mark is made to swing at its own
   else if (sk.o?.reshHold) await reshHold(u, t);        // Resh pins the mark, longer per stone standing
   else if (sk.o?.battery) await reshBattery(u, t);      // half of what Resh holds, handed over
+  else if (sk.o?.twinSlash) {
+    await twinSlashSkill(u, t, sk);
+  }
   else if (sk.kind === 'damage') {
+    if (sk.o?.iaijutsu) u.iaijutsuTarget = t?.uid;
     await damageSkill(u, t, sk);
     // Whatever this body does, its rider does after it (riderFollowUp).
     if (u.hp > 0) await riderFollowUp(u);
@@ -9479,7 +9495,7 @@ async function doAction(u, sk, t) {
   // Ryuunosuke's Invulnerable Clone: whatever he just did, the shadow does too. Before the rites
   // below, so a bot the clone finishes off still gives itself away on the same action.
   // Shadow Matrix is a channel — the clone vanishes with him and strikes on the resolve instead.
-  if (!sk.o?.shadowMatrix) await cloneStrike(u, sk);
+  if (!sk.o?.shadowMatrix && !sk.o?.twinSlash) await cloneStrike(u, sk);
   await scrapBotRites();   // a bot this action left on its last sparks gives itself away now
   if (sk.id === 'attack') gainMp(u, MANA.attackGain, true);
   if (sk.id === 'attack' && u.maxSwords && u.swords > 0) { u.swords--; float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx'); }
@@ -19765,12 +19781,15 @@ async function cloneStrike(u, sk) {
   const picks = validTargets(u, { target: 'enemy' });
   if (!picks.length) return;
   const marked = picks.filter((e) => has(e, 'deathmark'));
-  const tg = pick(marked.length ? marked : picks);
+  const iaijutsu = !!u.iaijutsuTarget;
+  const forced = iaijutsu ? picks.find(e => e.uid === u.iaijutsuTarget) : null;
+  const tg = forced || pick(marked.length ? marked : picks);
+  delete u.iaijutsuTarget;
   float(u, 'Clone', 'fx');
   log(`${u.name}'s shadow steps in behind ${tg.name}.`, u.side);
   markAttacked(tg);
   await cloneFlit(u, tg);
-  strikeOnce(u, tg, RYUU_CLONE_MULT, 'Invulnerable Clone', { counter: true });
+  strikeOnce(u, tg, RYUU_CLONE_MULT * (iaijutsu ? 1.3 : 1), 'Invulnerable Clone', { counter: true });
   render();
   await wait(220);
   const restored = cloneArt(u);
@@ -20611,6 +20630,7 @@ function passiveChips(u) {
   if (u.race === 'dwarf' && u.stacks) c.push(`Fortify ${u.stacks}`);
   if (u.faction === 'tide' && highTide() && u.hp > 0) c.push('High Tide');
   if (pv(u).deadScale && u.hp > 0) { const d = deadCount(); if (d) c.push(`Toll +${Math.round(pv(u).deadScale * d * 100)}%`); }
+  if (pv(u).killStack && u.hp > 0) { const df = state.teams[u.side === 'p' ? 'e' : 'p'].filter(x => x.hp <= 0 && !x.inert).length; if (df > 0) c.push(`Intent +${Math.round(Math.min(pv(u).killStack.per * df, pv(u).killStack.max) * 100)}%`); }
   if (favored(u) && u.hp > 0) c.push(WEATHER[wx()].name);
   return c;   // labels; the battlefield builds the chips so it can rank and cap them with the statuses
 }
