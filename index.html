@@ -7440,7 +7440,8 @@ function skillsOf(u) {
   const c = charById(u.id);
   const guard = runsHot(u) ? { ...GUARD, desc: 'Take 50% less damage until your next turn. Vents 50 Heat.' }
     : u.maxMp ? { ...GUARD, desc: `${GUARD.desc} Restores ${MANA.guardGain} MP.` } : GUARD;
-  const attack = u.maxMp ? { ...ATTACK, desc: `${ATTACK.desc} Restores ${MANA.attackGain} MP.` } : ATTACK;
+  let attack = u.maxMp ? { ...ATTACK, desc: `${ATTACK.desc} Restores ${MANA.attackGain} MP.` } : ATTACK;
+  if (charNat(u).clone) attack = { ...attack, o: { ...attack.o, hits: 2 } };
   // Mana cost: the skill's own o.mp, else the default; champions with no mana (mechs) cast for free.
   const cost = (s, d) => (u.maxMp ? spellCost(s, d) : 0);
   // Order on the bar: the cheap opener, then the three second-tier skills, with the ★ signature last.
@@ -8975,6 +8976,10 @@ async function buffSkill(u, t, sk) {
   }
   const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
   await castPose(u, true, sk);
+  const proj = PROJ_SKILL[sk.name];
+  if (proj && sk.target === 'enemy') {
+    await shoot(u, t, proj);
+  }
   const ids = sk.fx.map(([id]) => id);
   const look = ids.includes('taunt') ? 'roar' : ids.some((id) => id === 'shield' || id === 'ward') ? 'shield' : 'buff';
   for (const a of targets) {
@@ -9427,6 +9432,12 @@ async function doAction(u, sk, t) {
   }
   render();
 
+  // Ryuunosuke's Invulnerable Clone detaches immediately and strikes in parallel with the main
+  // action — the shadow never rides his back during combat. Forced target set early so the clone
+  // reads it. Shadow Matrix and Twin Slash handle the clone themselves.
+  if (sk.o?.iaijutsu) u.iaijutsuTarget = t?.uid;
+  const cloneP = !sk.o?.shadowMatrix && !sk.o?.twinSlash ? cloneStrike(u, sk) : null;
+
   if (sk.o?.shadowMatrix) await beginShadowMatrix(u, sk);
   else if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Revs later (fireAim)
   else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Rev (fireLoadedThrow)
@@ -9437,7 +9448,6 @@ async function doAction(u, sk, t) {
     await twinSlashSkill(u, t, sk);
   }
   else if (sk.kind === 'damage') {
-    if (sk.o?.iaijutsu) u.iaijutsuTarget = t?.uid;
     await damageSkill(u, t, sk);
     // Whatever this body does, its rider does after it (riderFollowUp).
     if (u.hp > 0) await riderFollowUp(u);
@@ -9497,10 +9507,7 @@ async function doAction(u, sk, t) {
     await wait(380);
   }
 
-  // Ryuunosuke's Invulnerable Clone: whatever he just did, the shadow does too. Before the rites
-  // below, so a bot the clone finishes off still gives itself away on the same action.
-  // Shadow Matrix is a channel — the clone vanishes with him and strikes on the resolve instead.
-  if (!sk.o?.shadowMatrix && !sk.o?.twinSlash) await cloneStrike(u, sk);
+  if (cloneP) await cloneP;
   await scrapBotRites();   // a bot this action left on its last sparks gives itself away now
   if (sk.id === 'attack') gainMp(u, MANA.attackGain, true);
   if (sk.id === 'attack' && u.maxSwords && u.swords > 0) { u.swords--; float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx'); }
@@ -19467,6 +19474,8 @@ const PROJ_SKILL = {
   'Attune: Void': { kind: 'attunev', impact: 'void' },
   'Grand Chord': { kind: 'discordwave', impact: 'sound' },
   'Steady Tone': { kind: 'sonicpulse' },
+  // Stray
+  'Mark of Death': { kind: 'kunai' },
   // Neutral skills (when a ranged champion equips them)
   'Throwing Axe': { kind: 'axe', arc: true },
   'Flash Powder': { kind: 'flash', arc: true, impact: 'flash' },
@@ -19503,6 +19512,10 @@ const PROJ_ART = {
     <path d="M38 1.5 L34 0 M38 6.5 L34 8" stroke="#c9d1de" stroke-width="1.2"/><path d="M36 1 L50 4 L36 7 L39 4 Z" fill="#c9d1de" ${PI_}/>`],
   dart: [22, 6, `<line x1="4" y1="3" x2="16" y2="3" stroke="#3a2a1a" stroke-width="1.6"/><path d="M15 1 L22 3 L15 5 Z" fill="#e0242f" ${PI_}/>
     <path d="M0 .5 L5 3 L0 5.5 Z" fill="#e0242f"/>`],
+  kunai: [30, 8, `<circle cx="3" cy="4" r="2.2" fill="none" stroke="#5d6780" stroke-width="1.4"/>
+    <rect x="5" y="3" width="9" height="2" fill="#2a2a33" ${PI_}/>
+    <path d="M14 1.5 L30 4 L14 6.5 Z" fill="#9aa8be" ${PI_}/>
+    <path d="M16 4 L28 4" stroke="#d0d8e6" stroke-width=".5" opacity=".5"/>`],
   bomb: [16, 16, `<circle cx="8" cy="9" r="6" fill="#2a2a33" ${PI_}/><circle cx="6" cy="7" r="1.6" fill="#6a6f80"/>
     <rect x="6.5" y="1.5" width="3" height="2.5" fill="#8a826e"/><circle class="pk" cx="10" cy="1.5" r="1.8" fill="#ffd166"/>`],
   firepot: [16, 20, `<path class="pk" d="M8 0 C10.5 2 11 4 9.5 6 L6.5 6 C5 4 5.5 2 8 0 Z" fill="#ff8a1d"/>
