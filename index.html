@@ -7084,7 +7084,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // battlefield choreography (beat). The speed bar itself always runs at the original 1× pace
 // (renderTrack, waitBar). The champions' attack clips are pre-rendered WebP files and always
 // play at their own pace.
-const SPEEDS = [1.5, 2];
+const SPEEDS = [1.25, 1.5, 2];
 const SPEED_KEY = 'burizza.speed';
 let SPEED = (() => { try { const v = +localStorage.getItem(SPEED_KEY); return SPEEDS.includes(v) ? v : 1.5; } catch { return 1.5; } })();
 /* Fast forward — once your own champion is down the fight is out of your hands, so a ⏩ appears
@@ -11417,7 +11417,7 @@ async function nextTurn() {
     // Whatever came down at this Rev (Execute's torrent on its mark's turn, a Covering Fire shot,
     // a Grudge Axe) may have killed - or sent running - the very unit whose turn it is. Then there is
     // no turn: never start one for a corpse, whose turn-start regen would stand it back up.
-    if (u.hp <= 0 || !allUnits().includes(u)) { endTurn(u); continue; }
+    if (u.hp <= 0 || !allUnits().includes(u)) { endTurn(u); await wait(500); continue; }
     // Carrying a Cogbound is worth ground: the host is shoved up the bar as their turn opens.
     const rider = allUnits().find((x) => x.rideHost === u.uid && x.attachedTo === u.uid && x.hp > 0);
     if (rider) { u.pos = (u.pos || 0) + ORIN_RIDE_PUSH; float(u, 'Driven', 'good'); }
@@ -11425,12 +11425,12 @@ async function nextTurn() {
     if (token !== state.token || checkEnd()) return;
     await scrapBotRites();   // a burn or a toll may have left a bot on its last sparks
     if (token !== state.token || checkEnd()) return;
-    if (s !== 'ok' || u.hp <= 0) { endTurn(u); continue; }
+    if (s !== 'ok' || u.hp <= 0) { endTurn(u); await wait(500); continue; }
     if (shouldFlee(u)) { await flee(u); continue; }
     // Your heroes wait for you; summons (on either side) act on their own.
     // Only your champion waits for your orders; recruits and summons act on their own.
     // A standing stone's turn is its effect — it has nothing to swing.
-    if (isTotem(u)) { await totemPulse(u); if (token !== state.token) return; endTurn(u); continue; }
+    if (isTotem(u)) { await totemPulse(u); if (token !== state.token) return; endTurn(u); await wait(500); continue; }
     if (commandable(u) && !AUTO_PLAY) { state.phase = 'choose'; state.pending = null; state.itemUsed = false; render(); return; }
     await wait(450);
     // A recruit may spend one satchel item before acting, just as you can on your turn.
@@ -11448,11 +11448,11 @@ async function nextTurn() {
       await salvageLastRites(u);
       if (token !== state.token) return;
       endTurn(u);
-      await wait(250);
+      await wait(500);
       continue;
     }
     // §8.5.2 the final-phase boss may devour a follower to heal instead of attacking.
-    if (u.expFinal && await expBossDevour(u)) { if (token !== state.token || checkEnd()) return; endTurn(u); await wait(250); continue; }
+    if (u.expFinal && await expBossDevour(u)) { if (token !== state.token || checkEnd()) return; endTurn(u); await wait(500); continue; }
     const { sk, t } = bossPlan(u) || aiChoose(u);   // bosses enrage and telegraph their big attacks
     await doAction(u, sk, t);
     await fleeWounded();   // a minion knocked to a quarter runs at once, not on its own turn
@@ -11463,7 +11463,7 @@ async function nextTurn() {
     // A Gorehound's half has had one of its turns; when every half still standing is spent, they fold back.
     if (u.splitOf && u.hp > 0 && --u.actsLeft <= 0) mergeIfDone(u);
     endTurn(u);
-    await wait(250);
+    await wait(500);
   }
 }
 
@@ -11490,7 +11490,7 @@ async function commit(u, sk, t) {
   await expEscapeCheck();
   if (token !== state.token || checkEnd()) return;
   endTurn(u);
-  await wait(250);
+  await wait(500);
   if (token === state.token) nextTurn();
 }
 
@@ -21507,15 +21507,16 @@ $('#withdrawGo').addEventListener('click', () => {
   state.runPending = false;
   if (dungeonRun()) retreatDungeon(); else toVillage();
 });
-// Battle speed toggle on the speed bar: 1.5× ⇄ 2×, remembered in this browser. Takes effect from the next motion.
+// Battle speed toggle on the speed bar: 1× → 1.5× → 2×, remembered in this browser. Takes effect from the next motion.
 function renderSpeedBtn() {
   const b = $('#speedBtn');
   b.textContent = `${SPEED}×`;
-  b.setAttribute('aria-pressed', String(SPEED === 2));
-  b.title = SPEED === 2 ? 'Double speed. Click for 1.5×' : 'Battle speed 1.5×. Click for 2×';
+  b.setAttribute('aria-pressed', String(SPEED !== 1));
+  const next = SPEEDS[(SPEEDS.indexOf(SPEED) + 1) % SPEEDS.length];
+  b.title = `Battle speed ${SPEED}×. Click for ${next}×`;
 }
 $('#speedBtn').addEventListener('click', () => {
-  SPEED = SPEED === 2 ? 1.5 : 2;
+  SPEED = SPEEDS[(SPEEDS.indexOf(SPEED) + 1) % SPEEDS.length];
   try { localStorage.setItem(SPEED_KEY, String(SPEED)); } catch {}
   renderSpeedBtn();
 });
