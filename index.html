@@ -1857,6 +1857,22 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 /* Anchors / Jellies (settleAttachments) are carried onto their host's slot. */
 .unit.attached { transition: none; }
+/* Riven's aimed blades (volleyFx): hung over his head, turned on the mark, bobbing until they fly. */
+.volley { position: absolute; z-index: 246; width: 0; height: 0; pointer-events: none; }
+/* Riven's Barrier: swords standing point-down in a row in front of him, bobbing in the air */
+.barrier { position: absolute; z-index: 246; width: 0; height: 0; pointer-events: none; }
+.barrier i { position: absolute; left: calc(var(--i) * 19px - 36px); top: -4.5px; width: 72px; height: 9px; }
+.barrier b { display: block; width: 72px; height: 9px; rotate: 90deg;
+  filter: drop-shadow(0 0 6px #6ef0a8); animation: volleyBob 1.4s ease-in-out infinite; animation-delay: calc(var(--i) * -.35s); }
+.barrier svg { display: block; width: 72px; height: 9px; }
+/* a blade gone from his hands fades out of his art (carriedBlades) */
+svg.art [data-blade] { transition: opacity .45s ease; }
+svg.art .spentblade { opacity: 0; }
+.volley i { position: absolute; left: -30px; top: calc(var(--i) * -7px - 6px); width: 60px; height: 10px;
+  transform: rotate(var(--ang, 0rad)); filter: drop-shadow(0 0 5px #6ef0a8);
+  animation: volleyBob 1.2s ease-in-out infinite; animation-delay: calc(var(--i) * -.2s); }
+.volley svg { display: block; }
+@keyframes volleyBob { 50% { translate: 0 -2.5px; } }
 /* The Anchor's chain (syncAnchorChains): dark-edged iron links, behind every figure on the field. */
 .chains { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
 .chains .cl-face { fill: none; stroke: #9fb0ba; stroke-width: 1.5; paint-order: stroke; filter: drop-shadow(0 0 1px #1d2130) drop-shadow(0 1px 0 #1d2130); }
@@ -3959,6 +3975,7 @@ const FX = {
   // lobbed from above) still find them (see attackType / fenceStops). The wall holds both ways — a
   // melee ally so fenced cannot swing out past it, while an arching shot still clears it freely.
   // Counted in the owner's own turns like any ward (see validTargets and usable).
+  barrier:   { icon: '⚔️', label: 'Barrier', kind: 'good', verb: 'hangs his swords in front of him: no melee blow can single him out and straight shots glance off, though arcing shots and area attacks still land' },
   protected: { icon: '🪦', label: 'Protected', kind: 'good', verb: 'stands behind a graveyard fence: no melee blow reaches them and straight shots glance off, though area attacks and anything lobbed from above still land' },
   // BASH and FEAR are counted on the field's global clock — in Revs (any unit's turn-start, see
   // THE TURN PULSE), not the owner's own turns. BASH holds the unit off the speed bar outright;
@@ -4123,6 +4140,13 @@ const weldMetal = (u) => runsHot(u) || (!!u.summon && SUMMONS[u.id]?.look?.body 
 const VHARO_BURST_MULT = 0.55;   // each blade's share when he throws the fistful at one mark
 const VHARO_CMD_MULT = 0.5;      // each commanded blade's share when they tear free and fly
 const VHARO_RECALL_TURNS = 2;
+// Recall Swords: a blade torn back out leaves a wound. Each body bleeds this share of his attack per
+// turn FOR EVERY BLADE pulled out of it, for RIVEN_RECALL_BLEED_TURNS turns (1 blade light, 5 heavy).
+const RIVEN_RECALL_BLEED = 0.15;
+const RIVEN_RECALL_BLEED_TURNS = 3;
+// Barrier: how many of his swords hang in front of him, and for how many of his turns.
+const RIVEN_BARRIER_SWORDS = 3;
+const RIVEN_BARRIER_TURNS = 3;
 const VHARO_HARVEST_MULT = 0.6;   // each blade's share when it tears back out the way it went in
 
 const ZULKAN_RETALIATORY = 0.5;   // 50% chance to bash anyone who swings at him
@@ -4544,17 +4568,16 @@ const ROSTER = [
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
 
   // ---- The Stray Banner (no unified resource; each carries their own) ----
-  { id: 'riven', name: 'Riven', faction: 'stray', role: 'ranged', bio: 'A light-channeler who throws his blades away and calls them home.',
+  { id: 'riven', name: 'Riven', faction: 'stray', role: 'ranged', bio: 'A hooded blade-thrower: he aims once, throws real swords, and calls them home.',
     mods: { atk: 1.2, hp: 0.85, agi: 1.05 },
     look: { body: 'wraith', main: '#3a3326', trim: '#ffd166', eye: '#6ef0a8' },
-    skills: [D('Lightlance', '115% light, thrown flat and fast.', 2, 1.15, { magic: true, attackType: 'horizontal' }),
-             B('Recall Swords', `Every blade on the field tears free and floats home. Costs the turn, and the returning light runs through him: ${VHARO_RECALL_TURNS} turns of striking harder.`, 4, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
-             D('Starfire', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands.', 4, 0.8, { magic: true, swordTargets: true, attackType: 'horizontal' }),
-             D('Sunburst', 'Throws every blade he is holding into one body at once — the fewer he has, the less there is to throw.', 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, attackType: 'horizontal' }),
-             D('Command the Fallen', 'Every blade already buried in an enemy tears itself out and flies at one mark.', 3, VHARO_CMD_MULT, { magic: true, swordCommand: true, attackType: 'horizontal' }),
-             D('Blade Harvest', 'Every blade standing in one body rips back out the way it went in — and comes home to his hand.', 3, VHARO_HARVEST_MULT, { magic: true, swordHarvest: true, attackType: 'horizontal' })],
-    nature: { name: 'Unblinking', desc: `His throws never miss. Each one spends a blade into the body it finds, and killing that body gives the blade back. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
-    passive: P('Sunforged', '+8% critical hit chance.', { stat: { crit: 0.08 } }) },
+    skills: [D('Sighted Throw', 'Uses 2 swords. He aims at one enemy now; at the next Rev two blades hit it for 115% each (230% in all), and both stay stuck in it. Needs 2 swords in hand.', 2, 1.15, { magic: true, swordCount: 2, attackType: 'horizontal' }),
+             D('Emptied Hands', `★ Ultimate. Throws every sword in his hand at one enemy, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, attackType: 'horizontal' }),
+             D('Fan of Blades', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands.', 4, 0.8, { magic: true, swordTargets: true, attackType: 'horizontal' }),
+             B('Recall Swords', `No cooldown; takes his turn, and only when a sword is out. Every sword stuck in an enemy rips out and flies home to him. Each enemy a sword is pulled from Bleeds for ${RIVEN_RECALL_BLEED_TURNS} turns: ${Math.round(RIVEN_RECALL_BLEED * 100)}% of his attack per turn for every sword pulled out of it. Then he strikes 30% harder for ${VHARO_RECALL_TURNS} turns.`, 0, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
+             B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS })],
+    nature: { name: 'Unblinking', desc: `He aims on his turn and the blades fly at the next Rev. His throws never miss. Each blade that lands is spent into the body it finds, and killing that body gives the blade back; one that is turned aside or finds nothing comes home. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
+    passive: P('Dead Aim', '+8% critical hit chance: what he aims at, he hits clean.', { stat: { crit: 0.08 } }) },
   { id: 'automatonx', name: 'Automaton X', faction: 'stray', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
     mods: { atk: 0.95, hp: 0.9, agi: 1.15 },
     look: { body: 'bot', main: '#6d7482', trim: '#e8a548', eye: '#ffcf6b' },
@@ -6911,9 +6934,9 @@ async function syncHeldWeapon(el, u) {
      nothing at all, not even the generic lunge. Inlining is the same path the
      swapped-weapon case already takes, so this only widens when it runs.
      Both sides, not just yours — the enemy swings too. */
-  const rig = !wpn && !arm && hasStrikeArt(u.id);
+  const rig = !wpn && !arm && (hasStrikeArt(u.id) || !!u.maxSwords);   // + Riven: see carriedBlades
   const want = `${wpn}|${arm}${rig ? '|rig' : ''}`;
-  if ((host.dataset.gear || '') === want) return;
+  if ((host.dataset.gear || '') === want) return carriedBlades(host, u);
   host.dataset.gear = want;
   const a = lookOf(u.id);
   const cur = () => host.querySelector('.art');
@@ -6966,6 +6989,17 @@ async function syncHeldWeapon(el, u) {
     node.appendChild(g);
   }
   if (arm) overlayArmor(node, u.id, a, arm);
+  carriedBlades(host, u);
+}
+
+/* RIVEN'S CARRIED BLADES. His art draws every blade he owns (data-blade="1".."5" in the file), so the
+   drawing has to give them up as he does: a blade aimed and hanging over him, flying, or stuck in a
+   body is not in his hands, and its twin in the art fades out. Recall, Harvest or a kill brings it back. */
+function carriedBlades(host, u) {
+  if (!u.maxSwords) return;
+  const out = (u.volley ? volleyBlades(u, u.volley.sk) : 0) + (u.bladesOut || 0);
+  const held = Math.max(0, u.swords - out);
+  host.querySelectorAll('svg.art [data-blade]').forEach((b) => b.classList.toggle('spentblade', +b.dataset.blade > held));
 }
 
 const lookOf = (id) => charById(id)?.look || SUMMONS[id]?.look || MONSTERS[id]?.look;
@@ -7160,7 +7194,8 @@ const SIXTH_ID = 'f';
 // Beyond the five: 'f' for a sixth skill, 'g' for a seventh (Barrow's Burrow). Same rule — they widen
 // the pool to choose from, never the slots.
 const EXTRA_IDS = [SIXTH_ID, 'g'];
-const activeIdsOf = (c) => (c && c.skills.length > 5 ? [...ACTIVE_IDS, ...EXTRA_IDS.slice(0, c.skills.length - 5)] : ACTIVE_IDS);
+// Fewer than five works too (Riven carries four): the pool is only the slots the kit actually fills.
+const activeIdsOf = (c) => (c ? [...ACTIVE_IDS, ...EXTRA_IDS].filter((id, i) => c.skills[i]) : ACTIVE_IDS);
 // Neutral skills: class-free actives any champion can equip in an active slot.
 // Kept modest on purpose — utility that rounds out a kit, never outshines one.
 const NEUTRAL_SKILLS = {
@@ -7445,13 +7480,15 @@ function skillsOf(u) {
   // Mana cost: the skill's own o.mp, else the default; champions with no mana (mechs) cast for free.
   const cost = (s, d) => (u.maxMp ? spellCost(s, d) : 0);
   // Order on the bar: the cheap opener, then the three second-tier skills, with the ★ signature last.
+  // A slot the kit does not fill (a champion with fewer than five skills) is simply left out.
+  const slot = (n, id, d, heat, extra = {}) => c.skills[n] && { ...c.skills[n], id, ...extra, mp: cost(c.skills[n], d), o: { heat, ...c.skills[n].o } };
   const actives = [
-    { ...c.skills[0], id: 'a', mp: cost(c.skills[0], MANA.skillCost), o: { heat: 25, ...c.skills[0].o } },
-    { ...c.skills[2], id: 'c', mp: cost(c.skills[2], MANA.skill2Cost), o: { heat: 30, ...c.skills[2].o } },
-    { ...c.skills[3], id: 'd', mp: cost(c.skills[3], MANA.skill2Cost), o: { heat: 30, ...c.skills[3].o } },
-    { ...c.skills[4], id: 'e', mp: cost(c.skills[4], MANA.skill2Cost), o: { heat: 30, ...c.skills[4].o } },
-    { ...c.skills[1], id: 'b', sig: true, mp: cost(c.skills[1], MANA.ultCost), o: { heat: 40, ...c.skills[1].o } },
-  ];
+    slot(0, 'a', MANA.skillCost, 25),
+    slot(2, 'c', MANA.skill2Cost, 30),
+    slot(3, 'd', MANA.skill2Cost, 30),
+    slot(4, 'e', MANA.skill2Cost, 30),
+    slot(1, 'b', MANA.ultCost, 40, { sig: true }),
+  ].filter(Boolean);
   // A sixth (and seventh) skill, for the few champions who carry one, at the second-tier cost.
   c.skills.slice(5, 5 + EXTRA_IDS.length).forEach((sk, i) =>
     actives.push({ ...sk, id: EXTRA_IDS[i], mp: cost(sk, MANA.skill2Cost), o: { heat: 30, ...sk.o } }));
@@ -7533,7 +7570,9 @@ function validTargets(u, sk) {
   // Bolt-On: a bolted-on champion cannot be singled out by either side. He stays in openFoes /
   // openAllies, so area attacks and mass blessings still reach him — only single targeting skips him.
   if (sk.target === 'enemy') {
-    const foes = singleFoes(u);
+    let foes = singleFoes(u);
+    // Blade Harvest pulls his own blades home: only a body with some in it, and no line or taunt stops that.
+    if (sk.o?.swordHarvest) return foes.filter((f) => (f.lodged || 0) > 0);
     // Graveyard Fence: an iron fence turns aside a MELEE attacker closing in (not a hurled or gust
     // skill, which come over the top). A ranged attacker may still aim at whoever stands behind it,
     // but a straight shot glances off the iron (fenceStops, in damageSkill) - so the AI looks for an
@@ -7541,6 +7580,8 @@ function validTargets(u, sk) {
     // through rather than deadlock — the same soft fallback the front line uses.
     // Vesper's Execute is no run-in either: the blood comes down on them as a torrent from above.
     const meleeAtk = u.role === 'melee' && !sk.o?.hurl && !sk.o?.gust && sk.kind !== 'execute';
+    // Riven's Barrier: a melee attacker cannot single him out at all - no break-through, unlike a fence.
+    if (meleeAtk) foes = foes.filter((f) => !has(f, 'barrier'));
     if (has(u, 'rooted') && meleeAtk) return foes.filter((f) => f.attach && f.hostUid === u.uid);
     const reachable = (list) => {
       if (!meleeAtk) return list;
@@ -7599,9 +7640,10 @@ function usable(u, sk) {
   if (has(u, 'rooted') && requiresMove(u, sk) && !(sk.target === 'enemy' && attachmentsOn(u).length)) return false;
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
-  if (u.maxSwords && sk.id === 'attack' && u.swords <= 0) return false;
-  if (u.maxSwords && sk.o?.swordTargets && u.swords <= 0) return false;
-  if (sk.o?.recall && u.swords >= u.maxSwords) return false;
+  if (throwsFromHand(u, sk) && u.swords < (sk.o?.swordCount || 1)) return false;   // not enough in hand to throw
+  if (sk.o?.recall && u.swords + (u.barrierSwords || 0) >= u.maxSwords) return false;   // nothing out in a body to call
+  if (sk.o?.barrier && (u.swords < sk.o.barrier || has(u, 'barrier'))) return false;
+  if (sk.o?.swordCommand && !foesOf(u).some((f) => f.hp > 0 && (f.lodged || 0) > 0)) return false;   // no blade of his is out in a body
   if (u.cooldowns[sk.id] > EPS) return false;   // fractional now: a hair above zero is still ready
   // Fenced in (Graveyard Fence): the wall holds both ways. A MELEE unit behind it cannot swing
   // out past its own fence — its basic Attack and every melee damage skill are shut off (a hurled
@@ -8522,7 +8564,7 @@ const attackType = (u, sk, p) =>
   : HORIZONTAL;
 /* GRAVEYARD FENCE vs. RANGED: a HORIZONTAL shot at a fenced champion strikes the iron and glances off;
    an ARCH shot sails over and lands, and area attacks still land. p = the projectile the shot flies as. */
-const fenceStops = (u, sk, p, t) => !!t && t.hp > 0 && has(t, 'protected') && u.role !== 'melee' && sk.target === 'enemy'
+const fenceStops = (u, sk, p, t) => !!t && t.hp > 0 && (has(t, 'protected') || has(t, 'barrier')) && u.role !== 'melee' && sk.target === 'enemy'
   && attackType(u, sk, p) === HORIZONTAL;
 // Where the fence stands: on the side of the target facing the shooter, just short of them.
 const FENCE_STOP = (e, to, from) => ({ x: e.x - Math.sign(e.x - from.x) * e.w * 0.42 });
@@ -8534,7 +8576,7 @@ async function fenceDeflect(u, t, label, p) {
     ricochetSpark({ x: b.x - dir * b.w * 0.42, y: b.top + b.h * 0.45 }, Math.atan2(-0.9, -dir));
   }
   float(t, 'Deflected', 'miss');
-  log(`${u.name}'s ${label} glances off the graveyard fence before ${t.name}.`, u.side);
+  log(`${u.name}'s ${label} glances off ${has(t, 'protected') ? 'the graveyard fence' : 'the swords hanging'} before ${t.name}.`, u.side);
 }
 
 // The second Rev: fired from the held aim (mara-shot starts on the aim pose), not a fresh raise.
@@ -8547,6 +8589,208 @@ async function powderShotFires(u, t, sk, extra = null) {
   await powderShotWindup(u);
   const p = projectileFor(u, sk);
   await shoot(u, t, extra ? { ...p, ...extra, impact: null } : p);
+}
+
+/* RIVEN'S BLADES. He throws real swords, and he has only so many (u.swords of u.maxSwords).
+   - Every attack he makes - the basic Attack or a skill - is AIMED on his turn: the blades lift and hang
+     over him pointed at the mark (aimVolley), and they fly at the next Rev (fireVolley, from turnPulse).
+   - A blade is spent only when it LANDS: it sticks in the body it found (t.lodged). One that is turned
+     aside (a graveyard fence), finds nothing (a hidden mark) or kills what it hit comes home to him
+     (settleBlades), and a body that falls with his blades in it gives them back too (fell).
+   - Attacks thrown from his hands are locked when his hands are empty (throwsFromHand, in usable).
+     (The swordCommand / swordHarvest options below belonged to Command the Fallen and Blade Harvest,
+     since taken out of his kit; no skill carries them now.)
+   - Getting them back costs his turn: Recall Swords brings all of them home. */
+const throwsFromHand = (u, sk) => !!u.maxSwords && sk.kind === 'damage' && !sk.o?.swordCommand && !sk.o?.swordHarvest;
+
+// How many blades hang over him while he aims: what the skill will throw from his hands.
+function volleyBlades(u, sk) {
+  if (!throwsFromHand(u, sk)) return 0;
+  if (sk.o?.swordBurst) return u.swords;
+  if (sk.o?.swordCount) return Math.min(sk.o.swordCount, u.swords);
+  if (sk.o?.swordTargets) return Math.min(u.swords, Math.max(1, singleFoes(u).length));
+  return 1;
+}
+
+async function aimVolley(u, t, sk) {
+  u.volley = { revs: 1, target: t?.uid, sk };
+  volleyFx(u, volleyBlades(u, sk));
+  await castPose(u);   // he lifts his hand; the blades rise with it - nothing is thrown yet
+  float(u, '⚔ Aiming', 'fx');
+  const what = sk.id === 'attack' ? 'a blade' : sk.o?.swordCommand || sk.o?.swordHarvest ? `${sk.name}` : `${sk.name}`;
+  log(`${u.name} takes aim at ${t ? t.name : 'the enemy'} — ${what} flies at the next Rev.`, u.side);
+  render();
+  await wait(300);
+}
+
+function clearVolley(u) {
+  u.volley = null;
+  u.volleyEl?.remove();
+  u.volleyEl = null;
+}
+
+/* The next Rev: the aimed blades fly. A mark that has fallen meanwhile is traded for another the
+   targeting law allows; a mark gone to ground or into a coffin is not there, and the blades come
+   back unspent; a fence turns them aside (damageSkill does that, and settleBlades sends them home). */
+async function fireVolley(u) {
+  const { target, sk } = u.volley;
+  u.bladesOut = volleyBlades(u, sk);   // in the air now: still out of his hands (carriedBlades)
+  clearVolley(u);
+  let t = unitBy(target);
+  if (sk.target === 'enemy') {
+    if (!t || t.hp <= 0) {
+      const opts = validTargets(u, sk);
+      t = opts.length ? pick(opts) : null;
+      if (!t) { log(`${u.name}'s blades find nothing left to strike, and settle back into his hands.`, u.side); u.bladesOut = 0; render(); return; }
+    } else if (outOfReach(t)) {
+      u.bladesOut = 0; float(t, 'Hidden', 'miss');
+      log(`${u.name}'s blades find nothing — ${t.name} is ${buried(t) ? 'under the earth' : 'sealed in the coffin'}. They drift back to him.`, u.side);
+      render();
+      await wait(320);
+      return;
+    }
+  }
+  if (throwsFromHand(u, sk) && u.swords <= 0) { log(`${u.name} has no blade left to throw.`, u.side); u.bladesOut = 0; render(); return; }
+  u.volleyFiring = true;
+  try { await damageSkill(u, t, sk); } finally { u.volleyFiring = false; u.bladesOut = 0; }
+}
+
+/* After the strikes: every blade that landed sticks in its body and is spent from his hands - unless
+   the body fell under it, in which case the blade comes straight home. Commanded blades were already
+   out in the field: the ones that land stick again, the rest come home to his hands. */
+function settleBlades(u, o, landed, commanded) {
+  u.bladesOut = 0;   // they have landed: the count below is the truth again
+  let stuck = 0, freed = 0, hand = o.swordCommand ? Infinity : u.swords;   // he can't spend blades he isn't holding
+  for (const [tg, n] of landed) {
+    if (tg.hp > 0) {
+      const k = Math.min(n, hand);
+      hand -= k;
+      tg.lodged = (tg.lodged || 0) + k;
+      stuck += k;
+      for (let i = 0; i < k; i++) lodgeSwordFx(tg);
+    } else freed += n;
+  }
+  landed.clear();
+  const before = u.swords;
+  if (o.swordCommand) u.swords = Math.min(u.maxSwords, u.swords + Math.max(0, commanded - stuck));
+  else u.swords = Math.max(0, u.swords - stuck);
+  if (u.swords !== before || freed) float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
+}
+
+// The aimed blades, hanging over him and turned on the mark until they fly (follows him and the mark).
+function volleyFx(u, n) {
+  u.volleyEl?.remove();
+  u.volleyEl = null;
+  if (reduced || n <= 0) return;
+  const el = document.createElement('div');
+  el.className = 'volley';
+  el.innerHTML = Array.from({ length: Math.min(n, 6) }, (_, i) => `<i style="--i:${i}">${LODGE_SWORD_SVG}</i>`).join('');
+  $('#arena').appendChild(el);
+  u.volleyEl = el;
+  el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: beat(400), easing: 'ease-out' });
+  const tick = () => {
+    if (u.volleyEl !== el || !u.volley || !state.teams[u.side].includes(u)) { el.remove(); return; }
+    const a = stageBox(u), t = unitBy(u.volley.target), b = t && t.hp > 0 && stageBox(t);
+    if (a) {
+      // beside his shoulder, out toward the mark - clear of his nameplate above him
+      const x = a.x + facing(u) * a.w * 0.34, y = a.top + a.h * 0.3;
+      const ang = b ? Math.atan2(b.top + b.h * 0.45 - y, b.x - x) : (u.side === 'p' ? 0 : Math.PI);
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.setProperty('--ang', `${ang}rad`);
+    }
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// Riven's Barrier: his swords standing upright in front of him, a wall between him and the enemy line.
+const BARRIER_GAP = 19;   // px between the swords in the wall (matches .barrier i)
+// The wall follows him and lives exactly as long as the status does (a dispel takes it down too).
+function barrierFx(u) {
+  u.barrierEl?.remove();
+  if (reduced) return;
+  const el = document.createElement('div');
+  el.className = 'barrier';
+  const n = u.barrierSwords || RIVEN_BARRIER_SWORDS, [w, h, art] = PROJ_ART.lightsword;
+  el.innerHTML = Array.from({ length: n }, (_, i) => `<i style="--i:${i - (n - 1) / 2}"><b><svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${art}</svg></b></i>`).join('');
+  $('#arena').appendChild(el);
+  u.barrierEl = el;
+  /* The swirl: each sword lifts off his back (where his art carries them, still levelled at the enemy),
+     sweeps up over his head turning end over end, and comes down standing point-first in front of him -
+     one after another. Offsets are from the sword's place in the wall to the fan on his back. */
+  const a0 = stageBox(u), f = facing(u);
+  if (a0) [...el.children].forEach((sw, i) => {
+    const off = (i - (n - 1) / 2) * BARRIER_GAP;
+    const bx = -f * a0.w * 0.8 - off, by = -a0.h * (0.24 - i * 0.08);   // the three on his back, stacked
+    const r0 = -90 * f;                                               // lying level, pointing at the enemy
+    sw.animate([
+      { opacity: 0, transform: `translate(${bx}px, ${by}px) rotate(${r0}deg)` },
+      { opacity: 1, transform: `translate(${bx}px, ${by - 6}px) rotate(${r0}deg)`, offset: 0.12 },
+      { transform: `translate(${bx * 0.4}px, ${-a0.h * 0.62}px) rotate(${r0 + f * 200}deg)`, offset: 0.5 },
+      { transform: `translate(${f * 14 - off * 0.2}px, ${-a0.h * 0.2}px) rotate(${r0 + f * 400}deg)`, offset: 0.82 },
+      { opacity: 1, transform: `translate(0px, 0px) rotate(${r0 + f * 450}deg)` },
+    ], { duration: beat(950), delay: beat(160) * i, easing: 'ease-in-out', fill: 'backwards' });
+  });
+  const tick = () => {
+    if (u.barrierEl !== el || u.hp <= 0 || !has(u, 'barrier') || !state.teams[u.side].includes(u)) { el.remove(); if (u.barrierEl === el) u.barrierEl = null; return; }
+    const a = stageBox(u);
+    if (a) {
+      el.style.left = `${a.x + facing(u) * a.w * 0.42}px`;
+      el.style.top = `${a.top + a.h * 0.52}px`;
+    }
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+function dropBarrier(u) {
+  const n = u.barrierSwords || 0;
+  u.barrierSwords = 0;
+  u.barrierEl?.remove();
+  u.barrierEl = null;
+  if (!n || u.hp <= 0) return;
+  u.swords = Math.min(u.maxSwords, u.swords + n);
+  float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
+  log(`${u.name}'s barrier comes down — the ${n === 1 ? 'last sword returns' : 'swords return'} to his hand.`, u.side);
+}
+// Each of Riven's turns, one sword peels off the barrier and floats slowly back behind him.
+function peelBarrierSword(u) {
+  u.barrierSwords--;
+  u.swords = Math.min(u.maxSwords, u.swords + 1);
+  // Animate the last <i> drifting back behind him (reverse of the cast swirl, but gentle)
+  if (u.barrierEl) {
+    const kids = u.barrierEl.children;
+    if (kids.length > 0) {
+      const gone = kids[kids.length - 1];
+      const n = kids.length;                         // how many were there before this peel
+      const i = n - 1;                               // index of the sword being returned
+      const a0 = stageBox(u), f = facing(u);
+      if (a0) {
+        const off = (i - (n - 1) / 2) * BARRIER_GAP;
+        const bx = -f * a0.w * 0.8 - off, by = -a0.h * (0.24 - i * 0.08);
+        const r0 = -90 * f;
+        gone.animate([
+          { opacity: 1, transform: 'translate(0px, 0px)' },
+          { opacity: 1, transform: `translate(${bx * 0.3}px, ${-a0.h * 0.35}px) rotate(${f * 120}deg)`, offset: 0.4 },
+          { opacity: 0.4, transform: `translate(${bx * 0.8}px, ${by + 4}px) rotate(${r0}deg)`, offset: 0.85 },
+          { opacity: 0, transform: `translate(${bx}px, ${by}px) rotate(${r0}deg)` },
+        ], { duration: beat(800), easing: 'ease-in-out', fill: 'forwards' });
+      } else {
+        gone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: beat(400), fill: 'forwards' });
+      }
+      const dur = a0 ? beat(820) : beat(420);
+      setTimeout(() => {
+        gone.remove();
+        // Re-centre the remaining swords
+        if (u.barrierEl) [...u.barrierEl.children].forEach((c, ci) => {
+          c.style.setProperty('--i', ci - (u.barrierSwords - 1) / 2);
+        });
+      }, dur);
+    }
+  }
+  render();
+  float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
+  log(`A sword drifts back to ${u.name}'s hand. ${u.barrierSwords} ${u.barrierSwords === 1 ? 'blade' : 'blades'} still hang before him.`, u.side);
 }
 
 async function damageSkill(u, t, sk) {
@@ -8581,9 +8825,11 @@ async function damageSkill(u, t, sk) {
     }
   }
   let targets = sk.target === 'allEnemies' ? openFoes(u) : [t];
-  // Sunburst: the fistful. One strike per blade he is holding, all into the same
+  // Emptied Hands: the fistful. One strike per blade he is holding, all into the same
   // body, and his hands are empty after — the blades are in the mark, not lost.
   if (o.swordBurst && u.maxSwords) targets = Array(Math.max(1, u.swords)).fill(t);
+  // Sighted Throw: a set number of blades (swordCount), every one into the same mark.
+  if (o.swordCount && u.maxSwords) targets = Array(Math.max(1, Math.min(o.swordCount, u.swords))).fill(t);
   if (o.swordTargets && u.maxSwords) {
     const pool = openFoes(u).filter((f) => f !== t);
     const extra = Math.min(u.swords - 1, pool.length);
@@ -8592,7 +8838,7 @@ async function damageSkill(u, t, sk) {
   }
   /* Blade Harvest: everything standing in ONE body tears back out the way it
      went in. Counted up front like Command, but the blades come HOME rather than
-     flying on — this is how a committed Sunburst turns back into ammunition.
+     flying on — this is how a committed Emptied Hands turns back into ammunition.
      Capped by what his hands can hold; a sixth blade has nowhere to go. */
   if (o.swordHarvest && u.maxSwords) {
     const blades = t && t.hp > 0 ? (t.lodged || 0) : 0;
@@ -8644,16 +8890,21 @@ async function damageSkill(u, t, sk) {
   else if (o.watersweep) { await (o.slam ? tridentSlam(u) : tridentRaise(u)); waterSweep(u, targets); }
   else if (!melee && !o.hurl) await aimPose(u, sk);
   if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
+  /* Sighted Throw (swordCount) and Emptied Hands (swordBurst): his blades leave ONE BY ONE - each flies and lands before the next is
+     thrown, so you see every sword travel. Fired together they would fly the same line and read as one. */
+  const oneByOne = !!(o.swordCount || o.swordBurst) && targets.length > 1;
   // Area attacks from range: every projectile flies at once, then the hits resolve.
-  if (!melee && !o.gust && !o.watersweep && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
+  if (!melee && !o.gust && !o.watersweep && targets.length > 1 && !oneByOne) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills. Sawtooth's Flywheel adds one at 50+ Heat.
   const hits = (o.hits || 1) + (o.hits > 1 ? (pv(u).extraHit || 0) + (charNat(u).flywheel && u.heat >= 50 ? 1 : 0) : 0);
   const struck = new Set();   // everyone a blow of this skill actually landed on (Last Rites pins only what it hit)
+  const landed = new Map();   // Riven: blades that landed, per body (settleBlades spends and lodges them)
   const hitOnce = async (tg, mult) => {
     const r = strikeOnce(u, tg, mult, sk.name, tg === heroicGuard ? { ...o, heroic: true } : o);
     if (!r.miss) {
       struck.add(tg);
+      if (u.maxSwords) landed.set(tg, (landed.get(tg) || 0) + 1);
       total += r.dmg;
       lastHit = tg;
       applyHitEffects(u, tg, o);
@@ -8719,7 +8970,7 @@ async function damageSkill(u, t, sk) {
       else if (melee) await strikePose(u, false, sk, 1, tg);
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
-      else if (!o.watersweep && !o.gust && targets.length === 1) {
+      else if (!o.watersweep && !o.gust && (targets.length === 1 || oneByOne)) {
         if (fenceStops(u, sk, proj, tg)) { await fenceDeflect(u, tg, sk.name, proj); continue; }   // the iron takes it
         await shoot(u, tg, proj);
       }
@@ -8804,15 +9055,7 @@ async function damageSkill(u, t, sk) {
     }
   };
   drain(total);
-  if (u.maxSwords && sk.id === 'attack' && lastHit) { lastHit.lodged = (lastHit.lodged || 0) + 1; if (lastHit.hp > 0) lodgeSwordFx(lastHit); }
-  // Sunburst and Command both end with blades standing in the mark; only Sunburst
-  // spends what he was holding, since the commanded ones were already out there.
-  if (u.maxSwords && (o.swordBurst || o.swordCommand) && !o.swordHarvest && t) {
-    const thrown = o.swordBurst ? Math.max(1, u.swords) : targets.length;
-    t.lodged = (t.lodged || 0) + thrown;
-    if (t.hp > 0) for (let i = 0; i < thrown; i++) lodgeSwordFx(t);
-    if (o.swordBurst) { u.swords = 0; float(u, `⚔ 0/${u.maxSwords}`, 'fx'); }
-  }
+  if (u.maxSwords && !o.swordHarvest) settleBlades(u, o, landed, o.swordCommand ? targets.length : 0);
   render();
   await wait(160);
   await resolveCounters();   // defenders strike back before the attacker runs home
@@ -8845,6 +9088,7 @@ async function damageSkill(u, t, sk) {
   }
   // A Shambler that falls in front of the enemy (a counter, thorns, Retribution...) doesn't walk
   // home: its corpse stays where it dropped, lying at the enemy's feet until it crumbles.
+  if (u.maxSwords && !o.swordHarvest && landed.size) settleBlades(u, o, landed, 0);   // a Double Attack's second blade
   if (trip && u.id === 'zombie' && u.hp <= 0) layoutSides();
   else if (trip) await dashBack(u, trip);
   // The guardian who threw themselves in front of an ally leaps back to their own place.
@@ -8959,11 +9203,31 @@ async function healSkill(u, t, sk) {
 
 async function buffSkill(u, t, sk) {
   const o = sk.o || {};
+  // Riven's Barrier: swords out of his hand and hung in front of him (barrierFx); they come home in beginTurn.
+  if (o.barrier && u.maxSwords) {
+    await castPose(u, true);
+    u.swords -= o.barrier;
+    u.barrierSwords = o.barrier;
+    for (const [id, turns] of sk.fx || []) addFx(u, id, turns);
+    render();   // his art lets the three go as they lift off his back
+    barrierFx(u);
+    float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
+    log(`${u.name} hangs ${o.barrier} swords in front of himself — no melee blow can reach him, and straight shots will glance off.`, u.side);
+    await sleep(beat(950) + beat(160) * (o.barrier - 1));
+    return;
+  }
   if (o.recall && u.maxSwords) {
     await castPose(u, true);
+    // Every body a blade tears out of is left bleeding - the more blades came out of it, the worse.
+    const torn = foesOf(u).filter((f) => f.hp > 0 && (f.lodged || 0) > 0).map((f) => [f, f.lodged]);
     await returnSwordsFx(u);
+    for (const [f, n] of torn) {
+      addFx(f, 'bleed', RIVEN_RECALL_BLEED_TURNS, Math.max(1, Math.round(u.atk * RIVEN_RECALL_BLEED * n)));
+      ownFx(u, f, 'bleed');
+      log(`${n} blade${n === 1 ? '' : 's'} tear${n === 1 ? 's' : ''} out of ${f.name}.`, u.side);
+    }
     for (const f of [...state.teams.p, ...state.teams.e]) { if (f.lodged) { f.lodged = 0; } }
-    u.swords = u.maxSwords;
+    u.swords = u.maxSwords - (u.barrierSwords || 0);   // the barrier's swords stay where they hang
     float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
     log(`${u.name} calls every blade home.`, u.side);
     burst(u, 'light');
@@ -9316,6 +9580,13 @@ async function beginTurn(u) {
   const hadBearer = has(u, 'shieldbearer');
   u.effects = u.effects.filter((e) => e.until != null || e.revs != null || e.turns > 0);
   if (hadBearer && !has(u, 'shieldbearer')) standDown(u);   // the stance has run out: back to his place
+  // Riven's Barrier: each turn one sword peels off and drifts home. When the last one returns, the
+  // wall is gone. If the status was stripped early (dispel), all remaining swords drop at once.
+  if (u.barrierSwords) {
+    if (has(u, 'barrier')) peelBarrierSword(u);
+    else dropBarrier(u);
+    if (u.barrierSwords <= 0) { u.effects = u.effects.filter((e) => e.id !== 'barrier'); dropBarrier(u); }
+  }
   if (hadRooted && !has(u, 'rooted')) {
     for (const a of attachmentsOn(u).filter((x) => x.attach === 'anchor')) removeAttachment(a, 'expired');
   }
@@ -9439,6 +9710,7 @@ async function doAction(u, sk, t) {
   const cloneP = !sk.o?.shadowMatrix && !sk.o?.twinSlash ? cloneStrike(u, sk) : null;
 
   if (sk.o?.shadowMatrix) await beginShadowMatrix(u, sk);
+  else if (u.maxSwords && sk.kind === 'damage' && !u.volleyFiring) await aimVolley(u, t, sk);   // Riven: aimed now, flies next Rev
   else if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Revs later (fireAim)
   else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Rev (fireLoadedThrow)
   else if (sk.o?.turncoat) await turncoatVerse(u, t);   // the mark is made to swing at its own
@@ -9510,7 +9782,6 @@ async function doAction(u, sk, t) {
   if (cloneP) await cloneP;
   await scrapBotRites();   // a bot this action left on its last sparks gives itself away now
   if (sk.id === 'attack') gainMp(u, MANA.attackGain, true);
-  if (sk.id === 'attack' && u.maxSwords && u.swords > 0) { u.swords--; float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx'); }
   if (sk.id === 'guard') gainMp(u, MANA.guardGain);
   u.lastAction = sk.id;
   u.combo = false;
@@ -10999,6 +11270,25 @@ async function turnPulse() {
     if (m.aimShot.revs === 1 && !m.aimShot.raised) await raiseAim(m);
     if (m.aimShot.revs > 0) continue;
     await fireAim(m);
+    if (checkEnd()) return true;
+  }
+  // Riven's blades: aimed on his turn, they fly at the next Rev, whoever's turn it is. Stunned, bashed
+  // or coffined before then - or silenced, for a skill - they drop back into his hands unthrown.
+  for (const r of allUnits()) {
+    if (!r.volley) continue;
+    if (r.hp <= 0) { clearVolley(r); continue; }
+    const why = hardFrozen(r) ? 'stunned' : has(r, 'bash') ? 'bashed' : inBox(r) ? 'sealed in the coffin'
+      : has(r, 'silence') && r.volley.sk.id !== 'attack' ? 'silenced' : '';
+    if (why) {
+      log(`${r.name} is ${why} — the aimed blades drop back into his hands.`, r.side);
+      float(r, 'Volley lost', 'miss');
+      clearVolley(r);
+      render();
+      await wait(400);
+      continue;
+    }
+    if (--r.volley.revs > 0) continue;
+    await fireVolley(r);
     if (checkEnd()) return true;
   }
   // Molotov's fuse: the lit bottle flies on the Rev after she lights it, whoever's turn it is. Dropped
@@ -15193,7 +15483,7 @@ const NATURE_ICON = '<svg class="sic" viewBox="0 0 32 32" aria-hidden="true"><ci
 // tapping another icon (data-pskill) shows that one instead (state.pickSkill).
 function pickSkillsHTML(c) {
   const kit = [
-    ...[0, 2, 3, 4, ...c.skills.slice(5).map((_, i) => 5 + i)].map((n) => ({ key: `s${n}`, s: c.skills[n], tag: 'Skill' })),
+    ...[0, 2, 3, 4, ...c.skills.slice(5).map((_, i) => 5 + i)].filter((n) => c.skills[n]).map((n) => ({ key: `s${n}`, s: c.skills[n], tag: 'Skill' })),
     { key: 's1', s: c.skills[1], tag: '★ Signature', note: `From turn ${ULT_FIRST_TURN}.` },
     { key: 'pas', s: c.passive, tag: 'Passive', cls: 'pas' },
     ...altList(c).map((pa, i) => ({ key: `alt${i}`, s: pa, tag: 'Or, as passive', cls: 'pas' })),
@@ -19460,7 +19750,6 @@ const PROJ_SKILL = {
   // The Riftborn
   'Ray': { kind: 'lightray' },
   'Prism Lance': { kind: 'prismlance' },
-  'Starfire': { kind: 'starfire', impact: 'light' },
   'Glare': { kind: 'glareshot', impact: 'light' },
   'Clarion': { kind: 'sonicpulse', impact: 'sound' },
   'Thrum': { kind: 'thrum', impact: 'sound' },
@@ -19665,6 +19954,8 @@ function projectileFor(u, sk) {
   const o = sk.o || {}, a = lookOf(artOf(u)) || {};
   const own = sk.id === 'attack' ? PROJ_ATTACK[u.id] : PROJ_SKILL[sk.name];
   if (own) return own;
+  // Riven throws nothing but his own swords: every skill of his flies as the same blade his Attack does.
+  if (u.maxSwords) return PROJ_ATTACK[u.id] || PROJ_ATTACK.riven;
   if (o.element === 'lightning') return { kind: 'bolt' };
   // Drekka is the only champion who carries a pot, so this catch-all is hers: it takes her lift too,
   // and without it Cinder Spray would be the one throw in her kit that didn't go high.
@@ -20087,7 +20378,11 @@ function gravPullFx(t) {
 
 const LODGE_SWORD_SVG = `<svg viewBox="0 0 60 10" width="60" height="10" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lsB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eafff2"/><stop offset=".5" stop-color="#6ef0a8"/><stop offset="1" stop-color="#1f9e62"/></linearGradient></defs><path d="M10 3 L56 3 L60 5 L56 7 L10 7 Z" fill="url(#lsB)" stroke="#167a4c" stroke-width=".5"/><path d="M12 4.8 L56 4.8" stroke="#f2fff8" stroke-width=".5" stroke-linecap="round"/><rect x="7" y="1" width="4" height="8" rx=".8" fill="url(#lsB)" stroke="#167a4c" stroke-width=".5"/><rect x="2" y="3" width="6" height="4" rx=".7" fill="#6ef0a8" stroke="#167a4c" stroke-width=".5"/><circle cx="1.5" cy="5" r="1.5" fill="#6ef0a8"/></svg>`;
 
-const LODGE_BOTTOMS = [45, 55, 35, 60, 42];
+/* Where each stuck blade sits, in the order they land: every one gets its own height, its own depth
+   and its own tilt, so five blades in a body read as five. Counted from the blades already drawn on the
+   body (not from t.lodged, which a volley bumps all at once - that stacked them in one spot). */
+const LODGE_SPOTS = [[46, 10, 0], [58, 14, -7], [34, 6, 6], [66, 4, -12], [40, 18, 10],
+                     [52, 2, -4], [28, 14, 12], [62, 20, -9], [44, 0, 7], [36, 22, -6]];
 
 function lodgeSwordFx(t) {
   const b = bodyEl(t);
@@ -20098,13 +20393,13 @@ function lodgeSwordFx(t) {
   const dx = (tr.left + tr.width / 2) - (vr.left + vr.width / 2);
   const dy = (tr.top + tr.height / 2) - (vr.top + vr.height / 2);
   const ang = Math.atan2(dy, dx) * 180 / Math.PI;
-  const jitter = ((t.lodged - 1) % 5 - 2) * 4;
-  const rot = ang + jitter;
-  const bot = LODGE_BOTTOMS[(t.lodged - 1) % LODGE_BOTTOMS.length];
+  const n = b.querySelectorAll('.lodged-sword').length;
+  const [bot, left, tilt] = LODGE_SPOTS[n % LODGE_SPOTS.length];
+  const rot = ang + tilt;
   const el = document.createElement('div');
   el.className = 'lodged-sword';
   el.innerHTML = LODGE_SWORD_SVG;
-  el.style.cssText = `position:absolute; bottom:${bot}%; left:10%; opacity:0; transform:rotate(${rot}deg); filter:drop-shadow(0 0 4px #6ef0a8); pointer-events:none; z-index:10;`;
+  el.style.cssText = `position:absolute; bottom:${bot}%; left:${left}%; opacity:0; transform:rotate(${rot}deg); filter:drop-shadow(0 0 4px #6ef0a8); pointer-events:none; z-index:10;`;
   b.appendChild(el);
   el.animate([
     { opacity: 0, transform: `rotate(${rot}deg) translateX(-20px)` },
@@ -20119,20 +20414,24 @@ function returnSwordFx(v, swordOwner) {
   const vr = vEl.getBoundingClientRect(), hr = hEl.getBoundingClientRect();
   const dx = hr.left + hr.width / 2 - (vr.left + vr.width / 2), dy = hr.top + hr.height / 2 - (vr.top + vr.height / 2);
   swords.forEach((s, i) => {
+    // They do not snap home: each one works free, rises, and drifts back to him on the air.
+    const ms = beat(1500), lag = beat(220) * i;
     s.animate([
       { transform: 'translateX(0)', opacity: 1 },
-      { transform: `translate(${dx}px, ${dy - 20}px) scale(.7)`, opacity: .8, offset: .6 },
-      { transform: `translate(${dx}px, ${dy}px)`, opacity: 0 }
-    ], { duration: 600, delay: i * 80, easing: 'ease-in', fill: 'forwards' });
-    setTimeout(() => s.remove(), 700 + i * 80);
+      { transform: 'translate(0px, -10px)', opacity: 1, offset: .15 },
+      { transform: `translate(${dx * .5}px, ${dy * .5 - 34}px) scale(.85)`, opacity: .95, offset: .55 },
+      { transform: `translate(${dx}px, ${dy - 8}px) scale(.75)`, opacity: .85, offset: .9 },
+      { transform: `translate(${dx}px, ${dy}px) scale(.7)`, opacity: 0 }
+    ], { duration: ms, delay: lag, easing: 'ease-in-out', fill: 'forwards' });
+    setTimeout(() => s.remove(), ms + lag + 60);
   });
 }
 
 async function returnSwordsFx(u) {
   const all = [...state.teams.p, ...state.teams.e].filter((f) => f.lodged && f.side !== u.side);
   for (const f of all) returnSwordFx(f, u);
+  if (all.length) await sleep(beat(1500));   // let them float all the way home before he moves on
   clearLodgedSwords();
-  if (all.length) await sleep(beat(500));
 }
 
 function clearLodgedSwords(v) {

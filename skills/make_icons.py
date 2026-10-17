@@ -2008,75 +2008,8 @@ def _():
 
 
 # ---- The Cogbound --------------------------------------------------------
-# Vharo throws light and must fetch it back, so every one of his reads as a blade with a direction:
-# out, home, or out of a body. Orin rides and clamps, so his read as a machine getting hold of
-# something. Both reuse the shared helpers rather than new primitives.
-
-def lightblade(fill='url(#blade)', length=26):
-    """A slim blade of light, point to the right, centred on its own origin."""
-    h = length / 2
-    return (f'<path d="M{-h} -2.6 L{h - 7} -2.6 L{h} 0 L{h - 7} 2.6 L{-h} 2.6 Z" fill="{fill}"/>'
-            f'<rect x="{-h - 4.5}" y="-1.3" width="5" height="2.6" rx="1" fill="url(#gold)"/>')
-
-
-@icon('Lightlance')
-def _():
-    # One blade thrown flat and fast — the speed lines are behind it, where it has been.
-    return (speed_lines(8, 32, 3, 13, 7, '#ffe489', 0, .75)
-            + g(lightblade(), 36, 32, 0, 1.15)
-            + twinkle(54, 20, .8, '#fffbe0'))
-
-
-@icon('Recall Swords')
-def _():
-    # Every blade on the field turning for home: four points aimed inward at his open hand.
-    return (burst(32, 32, 3, 9, 8, '#ffe489')
-            + g(lightblade('url(#blade)', 17), 12, 14, 38, .8)
-            + g(lightblade('url(#blade)', 17), 52, 14, 142, .8)
-            + g(lightblade('url(#blade)', 17), 12, 50, -38, .8)
-            + g(lightblade('url(#blade)', 17), 52, 50, -142, .8))
-
-
-@icon('Sunburst')
-def _():
-    # The whole fistful thrown into one body at once. The blades are pushed clear of the core and
-    # pointed outward, or the cluster reads as a cog — which is Orin's language, not his.
-    out = ''
-    for a in (0, 60, 120, 180, 240, 300):
-        rad = math.radians(a)
-        out += g(lightblade('url(#blade)', 21), 32 + 16 * math.cos(rad), 32 + 16 * math.sin(rad), a, .95)
-    return (glow('<circle cx="32" cy="32" r="9" fill="#ffd166"/>', .6)
-            + out
-            + '<circle cx="32" cy="32" r="5.5" fill="url(#holy)"/>')
-
-
-@icon('Command the Fallen')
-def _():
-    # Blades already buried in a body tearing themselves out and flying at one mark.
-    return (g(jaws('#6b4f32'), 18, 44, 0, .62)
-            + g(lightblade('url(#blade)', 20), 34, 26, -32, .95)
-            + g(lightblade('url(#blade)', 16), 44, 42, -18, .8)
-            + poly('M20 36 l10 -7 M24 44 l9 -3', '#ffe489', 1.8)
-            + twinkle(52, 16, .75, '#fffbe0'))
-
-
-@icon('Blade Harvest')
-def _():
-    # Every blade standing in one body ripping back out the way it went in — and coming home.
-    return (g(jaws('#6b4f32'), 44, 42, 180, .62)
-            + g(lightblade('url(#blade)', 20), 30, 28, 196, .95)
-            + g(lightblade('url(#blade)', 16), 20, 42, 206, .8)
-            + g(drop('url(#blood)'), 46, 54, 0, .5)
-            + speed_lines(40, 26, 2, 9, 6, '#ffe489', 0, .6))
-
-
-@icon('Sunforged')
-def _():
-    # The passive: a blade standing in a sun — what he was made in, and what it sharpened.
-    return (glow('<circle cx="32" cy="34" r="14" fill="#ffb43d"/>', .5)
-            + burst(32, 34, 9, 16, 12, 'url(#fireR)')
-            + g(sword('url(#blade)'), 32, 33, 0, .72))
-
+# Orin rides and clamps, so his read as a machine getting hold of something.
+# (Riven, who used to stand here as Vharo, has his own section under The Stray Banner.)
 
 @icon('Spanner Swing')
 def _():
@@ -2252,12 +2185,12 @@ CATALOG = {
         ('Shadow Matrix', 'Ryuunosuke', 'skill'), ('Iaijutsu', 'Ryuunosuke', 'sig'), ('Mark of Death', 'Ryuunosuke', 'skill'),
         ('Smoke Veil', 'Ryuunosuke', 'skill'), ('Twin Slash', 'Ryuunosuke', 'skill'), ('Blade Dance', 'Ryuunosuke', 'skill'),
         ('Shadow Step', 'Ryuunosuke', 'passive'), ('Killing Intent', 'Ryuunosuke', 'passive'),
+        ('Unblinking', 'Riven · Nature', 'passive'), ('Dead Aim', 'Riven', 'passive'),
+        ('Sighted Throw', 'Riven', 'skill'), ('Emptied Hands', 'Riven', 'sig'),
+        ('Fan of Blades', 'Riven', 'skill'), ('Recall Swords', 'Riven', 'skill'),
+        ('Barrier', 'Riven', 'skill'),
     ]),
     'cog': ('The Cogbound', [
-        ('Unblinking', 'Vharo · Nature', 'passive'), ('Sunforged', 'Vharo', 'passive'),
-        ('Lightlance', 'Vharo', 'skill'), ('Recall Swords', 'Vharo', 'sig'),
-        ('Starfire', 'Vharo', 'skill'), ('Sunburst', 'Vharo', 'skill'),
-        ('Command the Fallen', 'Vharo', 'skill'), ('Blade Harvest', 'Vharo', 'skill'),
         ('Foundry-Cast', 'Orin', 'passive'),
         ('Spanner Swing', 'Orin', 'skill'), ('Piggyback Rig', 'Orin', 'sig'),
         ('Seize the Arm', 'Orin', 'skill'), ('Rush Bot', 'Orin', 'skill'),
@@ -3305,17 +3238,6 @@ def _():
             + grav_chevron(10, 16, 5) + grav_chevron(47, 16, 5, '#9da6e0'))
 
 
-# --- Vharo (light ranged) ---
-@icon('Unblinking')
-def _():
-    # A wide-open eye radiating light: attacks never miss.
-    return ('<path d="M12 32 Q22 18 32 18 Q42 18 52 32 Q42 46 32 46 Q22 46 12 32 Z" fill="url(#lightG)"/>'
-            + '<circle cx="32" cy="32" r="8" fill="#a88a20"/>'
-            + '<circle cx="32" cy="32" r="4" fill="#15121d"/>'
-            + '<circle cx="33" cy="31" r="1.5" fill="#fffef0" stroke="none"/>'
-            + glow('<circle cx="32" cy="32" r="12" fill="#ffe680"/>', .3))
-
-
 @icon('Ray')
 def _():
     # A horizontal beam of light.
@@ -3334,18 +3256,6 @@ def _():
             + '<path d="M42 28 L54 22 L54 30 L42 32 Z" fill="#ffe680" stroke="none"/>'
             + '<path d="M42 32 L54 30 L54 38 L42 36 Z" fill="#5fcad1" stroke="none"/>'
             + '<path d="M42 36 L54 38 L54 46 L42 40 Z" fill="#8a5ad6" stroke="none"/>')
-
-
-@icon('Starfire')
-def _():
-    # Multiple light bolts radiating outward: multi-target based on swords held.
-    return (twinkle(32, 16, 1.1, '#ffe680')
-            + twinkle(18, 28, .8, '#e8d26a')
-            + twinkle(46, 28, .8, '#e8d26a')
-            + twinkle(22, 44, .7, '#c8a030')
-            + twinkle(42, 44, .7, '#c8a030')
-            + glow('<circle cx="32" cy="32" r="14" fill="#ffe680"/>', .2)
-            + '<circle cx="32" cy="32" r="6" fill="url(#lightR)" stroke="none"/>')
 
 
 @icon('Glare')
@@ -3657,6 +3567,109 @@ def _():
             + '<path d="M22 30 L29 32 L22 33 Z M42 30 L35 32 L42 33 Z" fill="#ff5a5a" stroke="none"/>'
             + '<circle cx="26" cy="31.6" r="4" fill="#ff5a5a" opacity=".45" filter="url(#blur)" stroke="none"/>'
             + '<circle cx="38" cy="31.6" r="4" fill="#ff5a5a" opacity=".45" filter="url(#blur)" stroke="none"/>')
+
+
+# ---- Riven (The Stray Banner) -------------------------------------------
+# He throws real swords and has only five, so every icon is one of HIS blades - grave-green, a
+# white edge, a gold guard and grip, exactly as his art draws them - going somewhere: out to a
+# mark, into one body, out of a body, or home. No suns: that was the old light-channeler.
+
+RV_DEFS = ('<defs><linearGradient id="rvB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eafff2"/>'
+           '<stop offset=".5" stop-color="#6ef0a8"/><stop offset="1" stop-color="#1f9e62"/></linearGradient></defs>')
+RV_GREEN = '#6ef0a8'
+
+
+def rvblade():
+    """One of Riven's blades, point to the right, centred on its own origin; the tip sits at x=+20."""
+    return g('<path d="M-5 0 Q1 -3.6 16 -2.8 L30 0 L16 2.8 Q1 3.6 -5 0 Z" fill="#6ef0a8" opacity=".45" filter="url(#blur)" stroke="none"/>'
+             '<path d="M-4 0 Q1 -2.4 16 -1.9 L29 0 L16 1.9 Q1 2.4 -4 0 Z" fill="url(#rvB)" stroke-width="1.1"/>'
+             '<path d="M-1.5 0 L25 0" stroke="#f2fff8" stroke-width=".8" opacity=".9"/>'
+             '<path d="M-5.2 -3.6 Q-3.1 0 -5.2 3.6 Q-7.5 0 -5.2 -3.6 Z" fill="#ffd166" stroke-width=".9"/>'
+             '<rect x="-11.5" y="-1.2" width="5.6" height="2.4" rx="1.1" fill="#b9872a" stroke-width=".8"/>', -9)
+
+
+def rv_at(tx, ty, ang, s, gap=0):
+    """A blade whose TIP lands `gap` short of (tx, ty), flying in at angle `ang` (degrees, 0 = rightward)."""
+    r = math.radians(ang)
+    d = 20 * s + gap
+    return g(rvblade(), round(tx - d * math.cos(r), 1), round(ty - d * math.sin(r), 1), ang, s)
+
+
+def crosshair(x, y, r=6, color=RV_GREEN, w=1.6):
+    return (f'<circle cx="{x}" cy="{y}" r="{r}" fill="none" stroke="{color}" stroke-width="{w}"/>'
+            f'<path d="M{x - r - 3} {y} L{x - r + 2.5} {y} M{x + r - 2.5} {y} L{x + r + 3} {y} '
+            f'M{x} {y - r - 3} L{x} {y - r + 2.5} M{x} {y + r - 2.5} L{x} {y + r + 3}" stroke="{color}" stroke-width="{w}"/>'
+            f'<circle cx="{x}" cy="{y}" r="1.2" fill="{color}" stroke="none"/>')
+
+
+def husk(x, y, s=1, fill='#4a3f3a'):
+    """A body to stick blades into: head and shoulders, no face - the mark, not a champion."""
+    return g('<path d="M-10 13 Q-10 2 -5 -.5 Q-7.5 -3.5 -7 -7.5 Q-6 -13 0 -13 Q6 -13 7 -7.5 Q7.5 -3.5 5 -.5 Q10 2 10 13 Z" '
+             f'fill="{fill}"/>', x, y, 0, s)
+
+
+@icon('Sighted Throw')
+def _():
+    # Two blades, levelled at the mark he picked a Rev ago: a sight laid on the target, both on its line.
+    return (RV_DEFS + crosshair(51, 32, 7.5)
+            + rv_at(51, 27, 4, .92, 10) + rv_at(51, 37, -4, .92, 10))
+
+
+@icon('Recall Swords')
+def _():
+    # Every blade on the field turning for home: four of his, points in, closing on the open hand.
+    return (RV_DEFS + glow(f'<circle cx="32" cy="32" r="8" fill="{RV_GREEN}"/>', .7)
+            + ''.join(rv_at(32, 32, a, .6, 6) for a in (45, 135, 225, 315))
+            + twinkle(32, 32, .95, '#f2fff8'))
+
+
+@icon('Fan of Blades')
+def _():
+    # The fan off his shoulder let go at once: one blade to the mark, one more for every blade still held.
+    fan = ''.join(g(rvblade(), round(10 + 24 * math.cos(math.radians(a)), 1), round(50 + 24 * math.sin(math.radians(a)), 1), a, .78)
+                  for a in (-64, -38, -12))
+    return (RV_DEFS + fan
+            + twinkle(51, 12, .6, '#f2fff8') + twinkle(56, 40, .5, '#f2fff8'))
+
+
+@icon('Emptied Hands')
+def _():
+    # Every blade he is holding, into one body at once: five points closing on a single mark.
+    return (RV_DEFS + husk(50, 33, .95)
+            + burst(48, 30, 2.5, 7, 8, '#f2fff8')
+            + ''.join(rv_at(47, 30, a, .6, 3) for a in (-28, -14, 0, 14, 28)))
+
+
+@icon('Barrier')
+def _():
+    # Three of his swords hung point-down in a row in front of him, and a straight shot glancing off them.
+    wall = ''.join(g(rvblade(), x, 31, 90, .78) for x in (22, 32, 42))
+    return (RV_DEFS + glow(f'<rect x="16" y="14" width="32" height="36" rx="8" fill="{RV_GREEN}"/>', .28) + wall
+            + '<path d="M58 22 L50 27" stroke="#ffffff" stroke-width="2"/>'
+            + '<path d="M50 27 L57 33" stroke="#ffffff" stroke-width="1.4" opacity=".6"/>'
+            + burst(50, 27, 1.8, 5, 8, '#f2fff8'))
+
+
+@icon('Unblinking')
+def _():
+    # His nature: the hood, and the two grave-green eyes that do not close.
+    return ('<path d="M12 52 Q8 22 32 12 Q56 22 52 52 Q42 45 32 45 Q22 45 12 52 Z" fill="#3a3326"/>'
+            + '<ellipse cx="32" cy="34" rx="12.5" ry="10" fill="#14110b"/>'
+            + '<path d="M19 25 Q32 18 45 25" fill="none" stroke="#d6a84a" stroke-width="1.6"/>'
+            + '<path d="M32 21 l1.8 2.4 l-1.8 2.4 l-1.8 -2.4 Z" fill="#ffd166" stroke-width=".8"/>'
+            + glow(f'<circle cx="26.5" cy="34" r="5" fill="{RV_GREEN}"/><circle cx="38" cy="34.5" r="5.5" fill="{RV_GREEN}"/>', .75)
+            + f'<ellipse cx="26.5" cy="34" rx="2.4" ry="1.8" fill="{RV_GREEN}" stroke="none"/>'
+            + f'<ellipse cx="38" cy="34.5" rx="2.8" ry="2.1" fill="{RV_GREEN}" stroke="none"/>'
+            + '<circle cx="26.6" cy="33.8" r=".8" fill="#f2fff8" stroke="none"/><circle cx="38.2" cy="34.2" r="1" fill="#f2fff8" stroke="none"/>')
+
+
+@icon('Dead Aim')
+def _():
+    # His passive (+crit): a blade driven dead centre through the sight, and the flash of the clean hit.
+    return (RV_DEFS + crosshair(36, 34, 13, RV_GREEN, 1.8)
+            + '<circle cx="36" cy="34" r="6.5" fill="none" stroke="#6ef0a8" stroke-width="1.2" opacity=".7"/>'
+            + rv_at(36, 34, 40, .8, 0)
+            + burst(36, 34, 2.4, 8, 8, '#f2fff8'))
 
 
 def frame(faction, kind, glyph, name):
