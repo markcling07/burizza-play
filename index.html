@@ -1489,6 +1489,11 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   box-shadow: 0 0 4px rgba(139, 226, 139, .95), 0 0 12px rgba(90, 210, 110, .55); }
 .proj-beam::before { content: ''; position: absolute; right: 100%; top: 50%; width: 90px; height: 1px; margin-top: -.5px;
   background: linear-gradient(90deg, rgba(139, 226, 139, 0), rgba(139, 226, 139, .3)); }
+.proj-redbeam { width: 120px; height: 1.2px; margin: -.6px 0 0 -60px; border-radius: .6px;
+  background: linear-gradient(90deg, rgba(226, 80, 80, 0), rgba(226, 80, 80, .34) 42%, rgba(226, 80, 80, .8) 78%, #fff2f2);
+  box-shadow: 0 0 4px rgba(226, 80, 80, .95), 0 0 12px rgba(200, 60, 60, .55); filter: drop-shadow(0 0 6px rgba(226, 80, 80, .7)); }
+.proj-redbeam::before { content: ''; position: absolute; right: 100%; top: 50%; width: 90px; height: 1px; margin-top: -.5px;
+  background: linear-gradient(90deg, rgba(226, 80, 80, 0), rgba(226, 80, 80, .3)); }
 /* Muzzle fire and smoke at the barrel of a gun (muzzleFlash): a wrapper flipped to face the shot, the
    flame inside it, and loose puffs of powder smoke. */
 .ricospark { position: absolute; z-index: 252; width: 40px; height: 40px; margin: -20px 0 0 -20px; pointer-events: none; }
@@ -19391,7 +19396,7 @@ const PROJ_ATTACK = {
   hesk: { kind: 'pyreskull', color: '#8ce05a' },
   mara: { kind: 'silver' },   // a thin silver round, out of a barrel that flashes fire and smoke (MUZZLE)
   cadris: { kind: 'firefly', wander: true },   // his basic attack sends a small green grave-firefly, drifting every which way before it strikes
-  riven: { kind: 'lightsword', impact: 'light', swordThrow: true }, shazrak: { kind: 'sonicpulse' }, nyx: { kind: 'voidbolt' }, automatonx: { kind: 'orb', color: '#b9c0e0' },
+  riven: { kind: 'lightsword', impact: 'light', swordThrow: true }, shazrak: { kind: 'sonicpulse' }, nyx: { kind: 'voidbolt' }, automatonx: { kind: 'redbeam' },
   /* Vashka throws her spears rather than thrusting them, so they leave on an arc instead of flat.
      Hers by name and not on `case 'spear'` down in projectileFor: that case is shared with a trident
      and with a human spear champion, who hold their weapons rather than throw them — lobbing it
