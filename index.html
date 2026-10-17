@@ -1812,6 +1812,17 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .cloneflit { position: absolute; z-index: 255; pointer-events: none; opacity: 0;
   filter: brightness(0.85) saturate(0.5) drop-shadow(0 0 6px rgba(90, 60, 160, .7)); }
 .cloneflit svg, .cloneflit img { width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; }
+.matrixclone { filter: brightness(0.6) saturate(0.3) drop-shadow(0 0 8px rgba(192, 72, 72, .8)); }
+.matrixclone svg, .matrixclone img { width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; }
+[data-matrix-vanished] .body { opacity: 0 !important; transition: opacity 0.2s; }
+[data-matrix-vanished] .plate, [data-matrix-vanished] .chips { opacity: .25; transition: opacity 0.2s; }
+.matrix-slash { position: absolute; pointer-events: none; z-index: 250; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(200,20,15,.8) 8%, #dd2020 30%, #ee3025 50%, #dd2020 70%, rgba(200,20,15,.8) 92%, transparent 100%);
+  border-radius: 2px; box-shadow: 0 2px 10px 2px rgba(200,20,10,.7), 0 4px 6px 1px rgba(120,0,0,.5);
+  opacity: 0; transform-origin: center; }
+.matrix-slash::after { content: ''; position: absolute; left: 20%; right: 20%; top: 100%;
+  height: 8px; background: linear-gradient(180deg, rgba(160,10,10,.6) 0%, transparent 100%);
+  filter: blur(1px); border-radius: 0 0 2px 2px; }
 /* Tharos's Riptide / Undertow (waterSweep): a blue wave rolls across the targets, the way its
    caster faces (--sweep-dir, set from facing()) - an enemy Tharos washes them right to left. */
 .watersweep {
@@ -3812,7 +3823,7 @@ function payXp(n) {
 
 /* Warband size: you plus TEAM_SIZE − 1 recruits, and enemy champion bands field the same number.
    Monster packs and boss rooms keep their own sizes — the road was never a fair place. */
-const TEAM_SIZE = 4;
+let TEAM_SIZE = 4;
 const numWord = (n) => ['no', 'one', 'two', 'three', 'four', 'five'][n] || String(n);
 
 // Your warband is always [your champion, then your recruits] once you have a champion.
@@ -7493,7 +7504,7 @@ const veiled = (u) => !!has(u, 'veiled');
 // out of reach the way the burrowed and the coffined are, which is what makes the thrown and the
 // queued — Execute's torrent, Mara's shot — find nothing where he was.
 const apart = (u) => !!u.apart;
-const outOfReach = (u) => inBox(u) || buried(u) || veiled(u) || apart(u);
+const outOfReach = (u) => inBox(u) || buried(u) || veiled(u) || apart(u) || !!u.shadowMatrix;
 const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
@@ -8614,7 +8625,7 @@ async function damageSkill(u, t, sk) {
   // Tharos holds his ground: the trident goes up for a Riptide and down into the floor for an
   // Undertow, and the wave rolls out to the targets either way.
   else if (o.watersweep) { await (o.slam ? tridentSlam(u) : tridentRaise(u)); waterSweep(u, targets); }
-  else if (!melee && !o.hurl) await aimPose(u);
+  else if (!melee && !o.hurl) await aimPose(u, sk);
   if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
   // Area attacks from range: every projectile flies at once, then the hits resolve.
   if (!melee && !o.gust && !o.watersweep && targets.length > 1) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
@@ -8894,7 +8905,7 @@ function strip(u) {
 async function healSkill(u, t, sk) {
   const o = sk.o || {};
   const targets = sk.target === 'allAllies' ? openAllies(u) : [t];
-  await castPose(u, true);
+  await castPose(u, true, sk);
   for (const a of targets) {
     if (o.lightbeam) await sacredLight(a);   // Sacred Light: the shaft lands before the mend pops
     burst(a, 'heal');
@@ -8946,7 +8957,7 @@ async function buffSkill(u, t, sk) {
     return;
   }
   const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
-  await castPose(u, true);
+  await castPose(u, true, sk);
   const ids = sk.fx.map(([id]) => id);
   const look = ids.includes('taunt') ? 'roar' : ids.some((id) => id === 'shield' || id === 'ward') ? 'shield' : 'buff';
   for (const a of targets) {
@@ -9399,7 +9410,8 @@ async function doAction(u, sk, t) {
   }
   render();
 
-  if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Revs later (fireAim)
+  if (sk.o?.shadowMatrix) await beginShadowMatrix(u, sk);
+  else if (sk.o?.aim) await takeAim(u, t, sk);   // Powder Shot: the shot goes off Revs later (fireAim)
   else if (sk.o?.fuse) await loadThrow(u, t, sk);   // Molotov: lit now, it flies next Rev (fireLoadedThrow)
   else if (sk.o?.turncoat) await turncoatVerse(u, t);   // the mark is made to swing at its own
   else if (sk.o?.reshHold) await reshHold(u, t);        // Resh pins the mark, longer per stone standing
@@ -9466,7 +9478,8 @@ async function doAction(u, sk, t) {
 
   // Ryuunosuke's Invulnerable Clone: whatever he just did, the shadow does too. Before the rites
   // below, so a bot the clone finishes off still gives itself away on the same action.
-  await cloneStrike(u, sk);
+  // Shadow Matrix is a channel — the clone vanishes with him and strikes on the resolve instead.
+  if (!sk.o?.shadowMatrix) await cloneStrike(u, sk);
   await scrapBotRites();   // a bot this action left on its last sparks gives itself away now
   if (sk.id === 'attack') gainMp(u, MANA.attackGain, true);
   if (sk.id === 'attack' && u.maxSwords && u.swords > 0) { u.swords--; float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx'); }
@@ -9497,7 +9510,7 @@ function aiChoose(u) {
   const hurt = allies.filter((a) => a.hp / a.maxHp < 0.55).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
   const skills = skillsOf(u).filter((s) => usable(u, s));
   const guard = skills.find((s) => s.id === 'guard');
-  if (EGUARD && u.side === 'e') return { sk: guard, t: u };
+  if (EGUARD && !u.you) return { sk: guard, t: u };
   if (runsHot(u) && u.heat >= 70 && chance(0.7)) return { sk: guard, t: u };
 
   const scored = skills.map((s) => {
@@ -10988,6 +11001,27 @@ async function turnPulse() {
     if (--v.bloodRite.revs > 0) continue;
     await executeFalls(v);
     if (checkEnd()) return true;
+  }
+  // Shadow Matrix: Rev 2 = clones appear, Rev 3 = clones attack and Ryuunosuke reappears.
+  for (const m of allUnits()) {
+    if (!m.shadowMatrix) continue;
+    if (m.hp <= 0) { if (m.shadowMatrix.cloneEls) for (const cel of m.shadowMatrix.cloneEls) cel.remove(); m.shadowMatrix = null; matrixVanish(m, false); const c = cloneArt(m); if (c) c.style.display = ''; continue; }
+    const lost = has(m, 'silence') || hardFrozen(m) || has(m, 'bash') || inBox(m);
+    if (lost) {
+      const why = has(m, 'silence') ? 'silenced' : hardFrozen(m) ? 'stunned' : has(m, 'bash') ? 'bashed' : 'sealed';
+      log(`${m.name} is ${why} — the Shadow Matrix collapses.`, m.side);
+      float(m, 'Matrix lost', 'miss');
+      if (m.shadowMatrix.cloneEls) for (const cel of m.shadowMatrix.cloneEls) cel.remove();
+      m.shadowMatrix = null;
+      matrixVanish(m, false);
+      const c = cloneArt(m); if (c) c.style.display = '';
+      render();
+      await wait(400);
+      continue;
+    }
+    m.shadowMatrix.revs = Math.max(0, m.shadowMatrix.revs - 1);
+    if (m.shadowMatrix.revs === 1) { await matrixClonesAppear(m); continue; }
+    if (m.shadowMatrix.revs <= 0) { await matrixResolve(m); if (checkEnd()) return true; continue; }
   }
   // Grudge Axe: Krug, held up by his grudge, throws on the Rev after the one he was struck down in.
   for (const v of allUnits()) {
@@ -18622,7 +18656,7 @@ function fetchClip(src) {
 function prefetchClips() {
   for (const u of allUnits()) {
     const a = animOf(u);
-    if (a) for (const k of ['attack', 'load', 'shot']) if (a[k]) fetchClip(a[k].src);
+    if (a) for (const k of Object.keys(a)) if (k === 'attack' || k === 'load' || k === 'shot' || k.startsWith('s-')) fetchClip(a[k].src);
   }
 }
 
@@ -18633,16 +18667,23 @@ function prefetchClips() {
 // fresh: always restart the clip, even if the last swing's clip is still running (a Double Attack's
 // second swing comes round sooner than a clip lasts). Otherwise a multi-hit skill's later hits ride
 // the clip already playing.
-function playAttack(u, fresh = false) {
+/* PER-SKILL CLIPS. A champion may have a clip of their own for a skill, filed in the manifest as
+   's-<skill slug>' ('s-hydraulic-slam' for Bulwark's Hydraulic Slam). The skill being performed plays
+   that one; everything else - the basic Attack, and any skill not yet given its own - plays 'attack'. */
+const clipFor = (a, sk) => (sk && sk.id !== 'attack' && sk.name && a[`s-${skillSlug(sk.name)}`]) || a.attack;
+
+// sk (optional): the skill being performed, so it can play its own clip (see PER-SKILL CLIPS).
+function playAttack(u, fresh = false, sk = null) {
   const a = animOf(u), img = animImg(u);
-  const blob = a && clipBlobs.get(a.attack.src);
+  const c = a && clipFor(a, sk);
+  const blob = c && clipBlobs.get(c.src);
   if (!a || !img || !blob) return null;
-  const hits = a.attack.hitsMs || [];
+  const hits = c.hitsMs || [];
   if (!fresh && img.clipUntil > performance.now()) return hits.length > 1 ? hits[1] - hits[0] : 140;
 
   const url = URL.createObjectURL(blob);
-  img.clipUntil = performance.now() + a.attack.ms;
-  sizeClip(img, a.attack, u.side);
+  img.clipUntil = performance.now() + c.ms;
+  sizeClip(img, c, u.side);
   img.src = url;
   setTimeout(() => {
     URL.revokeObjectURL(url);
@@ -18650,8 +18691,8 @@ function playAttack(u, fresh = false) {
     const rest = restClip(u, a);
     sizeClip(img, rest, u.side);
     img.src = ANIM_DIR + rest.src;
-  }, a.attack.ms);
-  return a.attack.hitMs;
+  }, c.ms);
+  return c.hitMs ?? a.attack.hitMs;
 }
 
 /* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).
@@ -19159,7 +19200,7 @@ const hasStrikeArt = (id) => STRIKE_RIGGED.has(id);
 // sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
 // pace < 1 runs the same swing through quicker, for flurries that would drag at full length.
 async function strikePose(u, fresh = false, sk = null, pace = 1, tg = null) {
-  const hit = playAttack(u, fresh);
+  const hit = playAttack(u, fresh, sk);
   if (hit != null) return sleep(hit * pace);
   const d = facing(u);
   // A skill's own move ('barrow:Tomb Slab') first, then the champion's basic-Attack move.
@@ -19184,8 +19225,8 @@ async function strikePose(u, fresh = false, sk = null, pace = 1, tg = null) {
 }
 
 // Ranged wind-up: a small recoil before the shot.
-async function aimPose(u) {
-  const hit = playAttack(u);
+async function aimPose(u, sk = null) {
+  const hit = playAttack(u, false, sk);
   if (hit != null) return sleep(hit);
   const d = facing(u);
   if (!pose(u, [{ transform: 'none' }, { transform: `translateX(${-d * 6}px) rotate(${-d * 4}deg)`, offset: 0.5 }, { transform: 'none' }], 260)) return;
@@ -19195,8 +19236,8 @@ async function aimPose(u) {
 /* Spells, buffs, summons, guard and potions: a hop with a golden glow.
    `clip` plays the champion's own attack animation instead, which suits a skill they
    perform — a heal, a ward, a summon — but not raising a guard or drinking a draught. */
-async function castPose(u, clip = false) {
-  const hit = clip ? playAttack(u) : null;
+async function castPose(u, clip = false, sk = null) {
+  const hit = clip ? playAttack(u, false, sk) : null;
   if (hit != null) return sleep(hit);
   if (!pose(u, [{ transform: 'none', filter: 'none' },
     { transform: 'translateY(-12px)', filter: 'brightness(1.4) drop-shadow(0 0 8px #e8a548)', offset: 0.4 },
@@ -19690,6 +19731,8 @@ async function cloneFlit(u, t) {
   const art = bodyEl(u)?.querySelector('.upic .art');
   if (art) el.appendChild(art.cloneNode(true));
   else el.innerHTML = CLONE_FLIT_ART;
+  const clnEl = cloneArt(u);
+  if (clnEl) clnEl.style.display = 'none';
   const w = a.w, h = a.h;
   el.style.cssText = `left:${a.x.toFixed(0)}px; top:${a.top.toFixed(0)}px; width:${w.toFixed(0)}px; height:${h.toFixed(0)}px; margin: 0 0 0 ${(-w / 2).toFixed(0)}px;`;
   arena.appendChild(el);
@@ -19715,6 +19758,8 @@ async function cloneFlit(u, t) {
    not the attacker standing in front of you": it stops the mark riposting, snapping back or raising
    a guard against a shadow, and it slips past a bodyguard, which is what striking from behind means.
    Mark of Death overrides the random pick — a marked enemy is the only one it will go for. */
+function cloneArt(u) { return bodyEl(u)?.querySelector('.upic .art > g[opacity=".72"]'); }
+
 async function cloneStrike(u, sk) {
   if (!charNat(u).clone || u.hp <= 0 || sk.id === 'guard') return;
   const picks = validTargets(u, { target: 'enemy' });
@@ -19728,6 +19773,120 @@ async function cloneStrike(u, sk) {
   strikeOnce(u, tg, RYUU_CLONE_MULT, 'Invulnerable Clone', { counter: true });
   render();
   await wait(220);
+  const restored = cloneArt(u);
+  if (restored) restored.style.display = '';
+}
+
+// Shadow Matrix: 3-Rev channel. Rev 1 (cast): vanish in smoke. Rev 2: clones appear behind every
+// enemy. Rev 3: all clones slash simultaneously, Ryuunosuke reappears.
+function matrixVanish(u, on) {
+  const el = actorEl(u);
+  if (!el) return;
+  if (on) el.setAttribute('data-matrix-vanished', '');
+  else el.removeAttribute('data-matrix-vanished');
+}
+
+async function beginShadowMatrix(u, sk) {
+  u.shadowMatrix = { revs: 2, sk };
+  float(u, 'Shadow Matrix', 'fx');
+  log(`${u.name} vanishes into the shadows — replicas will appear behind every enemy.`, u.side);
+  burst(u, 'smoke');
+  matrixVanish(u, true);
+  const cln = cloneArt(u);
+  if (cln) cln.style.display = 'none';
+  render();
+  await wait(600);
+}
+
+async function matrixClonesAppear(u) {
+  const foes = foesOf(u).filter((f) => f.hp > 0 && !outOfReach(f));
+  if (!foes.length) return;
+  const arena = $('#arena');
+  if (!arena) return;
+  const art = bodyEl(u)?.querySelector('.upic .art');
+  u.shadowMatrix.cloneEls = [];
+  for (const f of foes) {
+    const b = stageBox(f);
+    if (!b) continue;
+    const d = facing(u);
+    const el = document.createElement('div');
+    el.className = 'matrixclone';
+    if (art) {
+      const copy = art.cloneNode(true);
+      const cln = copy.querySelector('g[opacity=".72"]');
+      if (cln) cln.remove();
+      el.appendChild(copy);
+    } else el.innerHTML = CLONE_FLIT_ART;
+    el.dataset.d = d;
+    el.style.cssText = `position:absolute; left:${(b.x + d * b.w * 0.5).toFixed(0)}px; top:${b.top.toFixed(0)}px; width:${b.w.toFixed(0)}px; height:${b.h.toFixed(0)}px; margin:0 0 0 ${(-b.w / 2).toFixed(0)}px; opacity:0; transform:scaleX(${-d}); pointer-events:none; z-index:5;`;
+    arena.appendChild(el);
+    el.animate([
+      { opacity: 0, transform: `scaleX(${-d}) scale(0.7)` },
+      { opacity: 0.8, transform: `scaleX(${-d}) scale(1)` }
+    ], { duration: 350, fill: 'forwards', easing: 'ease-out' });
+    burst(f, 'smoke');
+    u.shadowMatrix.cloneEls.push(el);
+  }
+  float(u, 'Replicas', 'fx');
+  log(`Shadow replicas materialise behind every enemy.`, u.side);
+  render();
+  matrixVanish(u, true);
+  await wait(450);
+}
+
+async function matrixResolve(u) {
+  const { sk, cloneEls } = u.shadowMatrix;
+  const foes = foesOf(u).filter((f) => f.hp > 0 && !outOfReach(f));
+  if (cloneEls) {
+    for (const cel of cloneEls) {
+      cel.getAnimations().forEach((a) => a.cancel());
+      const d = +(cel.dataset.d || 1);
+      const face = `scaleX(${-d})`;
+      const dash = cel.offsetWidth * 1.4;
+      cel.animate([
+        { transform: `translateX(${(d * 8).toFixed(0)}px) ${face}`, opacity: 0.85 },
+        { transform: `translateX(${(-d * dash * 0.1).toFixed(0)}px) ${face}`, opacity: 1, offset: 0.12 },
+        { transform: `translateX(${(-d * dash).toFixed(0)}px) ${face}`, opacity: 0.5, offset: 0.55 },
+        { transform: `translateX(${(-d * dash * 1.2).toFixed(0)}px) ${face}`, opacity: 0 },
+      ], { duration: beat(420), easing: 'cubic-bezier(.15,.85,.25,1)', fill: 'forwards' });
+    }
+  }
+  const arena = $('#arena');
+  const slashes = [];
+  for (const f of foes) {
+    const b = stageBox(f);
+    if (!b || !arena) continue;
+    const slashW = b.w * 1.3;
+    const s = document.createElement('div');
+    s.className = 'matrix-slash';
+    s.style.cssText = `left:${(b.x - slashW / 2).toFixed(0)}px; top:${(b.top + b.h * 0.45).toFixed(0)}px; width:${slashW.toFixed(0)}px;`;
+    arena.appendChild(s);
+    s.animate([
+      { opacity: 0, transform: 'scaleX(0.2)', offset: 0 },
+      { opacity: 1, transform: 'scaleX(1)', offset: 0.1 },
+      { opacity: 1, transform: 'scaleX(1)', offset: 0.8 },
+      { opacity: 0, transform: 'scaleX(1.05)', offset: 1 },
+    ], { duration: beat(1400), easing: 'ease-out', fill: 'forwards' });
+    slashes.push(s);
+  }
+  await wait(180);
+  for (const f of foes) {
+    strikeOnce(u, f, sk.mult, sk.name, { counter: true, noDodge: true });
+  }
+  log(`${u.name}'s shadow replicas slash every enemy at once!`, u.side);
+  render();
+  await wait(1200);
+  for (const s of slashes) s.remove();
+  if (cloneEls) for (const cel of cloneEls) cel.remove();
+  u.shadowMatrix = null;
+  matrixVanish(u, false);
+  const cln = cloneArt(u);
+  if (cln) cln.style.display = '';
+  burst(u, 'smoke');
+  float(u, 'Returns', 'fx');
+  log(`${u.name} steps back out of the shadows.`, u.side);
+  render();
+  await wait(400);
 }
 
 async function coffinFly(u, t) {
@@ -21060,15 +21219,32 @@ function bootTest(params) {
       return ws ? { ms: ws.ms, hit: ws.hit, wpn: ws.wpn, body: ws.body ? ws.body(facing(u)) : null } : null;
     },
     // Replay one swing. fresh=true so a clip restarts rather than resuming mid-flight.
-    play(uid, name, pace = 1) {
+    // Melee champions dash in, swing, then dash back — just like the real battle.
+    async play(uid, name, pace = 1) {
       const u = unitBy(uid);
       if (!u) return false;
       const sk = name === 'Attack' ? { id: 'attack', name: 'Attack' }
         : (skillsOf(u) || []).find((s) => s.name === name) || { id: 'x', name };
+      if (sk.o?.shadowMatrix) {
+        await beginShadowMatrix(u, sk);
+        await wait(800 / pace);
+        await matrixClonesAppear(u);
+        await wait(800 / pace);
+        await matrixResolve(u);
+        return true;
+      }
       const foe = allUnits().find((o) => o.side !== u.side && o.hp > 0) || null;
-      strikePose(u, true, sk, pace, foe);
+      const melee = u.role === 'melee' && foe;
+      const swing = async () => {
+        const trip = melee ? await dashTo(u, [foe], pace) : null;
+        await strikePose(u, true, sk, pace, foe);
+        if (trip) await dashBack(u, trip);
+      };
+      await Promise.all([swing(), cloneStrike(u, sk)]);
       return true;
     },
+    get canAct() { return state.phase === 'choose'; },
+    act(name) { const u = unitBy(state.active); if (!u) return; const all = skillsOf(u); const sk = name === 'Attack' ? all.find(s => s.id === 'attack') : name === 'Guard' ? all.find(s => s.id === 'guard') : all.find(s => s.name === name); if (!sk) return; onSkill(sk.id); },
     // prefers-reduced-motion kills every pose, so the bench can warn instead of looking broken.
     get reduced() { return reduced; },
   };
@@ -21145,7 +21321,7 @@ function bootTest(params) {
   // still you. Same ids on both sides is a mirror match; a shared id is tagged "Rival" on the enemy.
   const vs = (params.get('vs') || '').split(',').map((s) => s.trim()).filter(Boolean).filter((id) => charById(id));
   if (vs.length) {
-    const eband = vs.slice(0, TEAM_SIZE);
+    const eband = vs.slice(0, +(params.get('teamsize') || TEAM_SIZE));
     // vs= is always explicit, so it is taken at the size given too — one Gorehound
     // alone is a bout, not an under-filled warband waiting to be padded out.
     /* ctl= hands the bout to the Sparring ring's rules instead of a duel's, so you
