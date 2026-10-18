@@ -469,6 +469,13 @@ body[data-screen="select"] .top { display: none; }
 /* Battle log hidden (the Hide log button, remembered per browser): the field takes the full width. */
 body.logHidden .chron { display: none; }
 body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
+/* No-HUD mode (?battle&nohud=1): hide everything except the arena itself. */
+body.noHud .fieldBar, body.noHud .speed, body.noHud .deck, body.noHud .chron,
+body.noHud .ladder, body.noHud .top, body.noHud .foot { display: none; }
+body.noHud .battleGrid { grid-template-columns: minmax(0, 1fr); }
+body.noHud .field { gap: 0; }
+body.noHud .wrap { padding: 0; gap: 0; }
+body.noHud .screen { gap: 0; }
 .speedBtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #1a1410; }
 /* Fast forward: appears beside the speed toggle only while your champion is down (see FFWD). */
 .ffwdBtn { min-width: 40px; }
@@ -492,6 +499,13 @@ body.logHidden .battleGrid { grid-template-columns: minmax(0, 1fr); }
 .unit.latched .upic > :is(.art, .anim, svg) { animation: rideRock 1.9s ease-in-out infinite; }
 @keyframes rideRock { 50% { translate: 0 -1.6px; } }
 @media (prefers-reduced-motion: reduce) { .unit.latched .upic > :is(.art, .anim, svg) { animation: none; } }
+/* Grip clamp: Orin on the ENEMY's head. Smaller and hunched over the skull, grinding away.
+   The idle breath stops, the figure rocks side-to-side like a rider clamped on. */
+.unit.gripping .body { animation: none; }
+.unit.gripping .upic { scale: .55; transform-origin: 50% 100%; }
+.unit.gripping .upic > :is(.art, .anim, svg) { animation: gripGrind .6s ease-in-out infinite; }
+@keyframes gripGrind { 0%, 100% { translate: -2px 0; rotate: -4deg; } 50% { translate: 2px 0; rotate: 4deg; } }
+@media (prefers-reduced-motion: reduce) { .unit.gripping .upic > :is(.art, .anim, svg) { animation: none; } }
 /* The rail runs as far left as it can: the margins only clear half a token on the left and
    the Act gate on the right. Overflow is visible all the way up, so a runner sitting at the
    very start of the bar can overhang the edge without being cut off. */
@@ -1542,6 +1556,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .proj-bloodbones { filter: drop-shadow(0 0 3px rgba(179, 32, 46, .7)); }
 .proj-spark { width: 16px; height: 4px; margin: -2px 0 0 -8px; border-radius: 2px; background: linear-gradient(90deg, transparent, #7fe3ff 40%, #fff); box-shadow: 0 0 8px #7fe3ff; }
 .proj-plasma { width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: radial-gradient(circle, #fff 0 16%, #9fe7ff 34%, #3f8aff 56%, transparent 72%); box-shadow: 0 0 18px #6fb5ff, 0 0 4px #fff inset; animation: ppulse .14s infinite; }
+.proj-greenball { width: 32px; height: 32px; margin: -16px 0 0 -16px; border-radius: 50%; background: radial-gradient(circle, #fff 0 14%, #b5ffc8 30%, #67d08a 52%, rgba(60, 160, 90, .6) 70%, transparent 80%); box-shadow: 0 0 24px rgba(103, 208, 138, .9), 0 0 48px rgba(80, 180, 120, .5), 0 0 6px #fff inset; animation: ppulse .14s infinite; }
 .proj-tracer { width: 30px; height: 2px; margin: -1px 0 0 -15px; border-radius: 1px; background: linear-gradient(90deg, transparent, #ffd166 60%, #fff); box-shadow: 0 0 6px #ffd166; }
 .proj-slug { width: 16px; height: 7px; margin: -3.5px 0 0 -8px; border-radius: 3px 50% 50% 3px; background: radial-gradient(circle at 70% 50%, #fff6c2, #ff9a2e 60%, #b8460f); box-shadow: 0 0 12px #ff7a2f, -10px 0 10px rgba(220, 220, 230, .45); }
 .proj-ricochet { width: 10px; height: 4px; margin: -2px 0 0 -5px; border-radius: 2px; background: #eef2f8; box-shadow: 0 0 6px #fff, 0 0 12px #9fdcff; }
@@ -3371,7 +3386,7 @@ const theFaction = (f, start = false) => `${start ? 'The' : 'the'} ${f.name.repl
    the role's base pool × the faction's multiplier. Skills and ultimates cost mana;
    it regenerates every turn, Attack restores a little and Guard restores more. */
 const MANA = {
-  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0, riftborn: 1, stray: 1 },   // Stray Banner uses mana by default; Riven runs on swords, Automaton X on heat
+  pool: { human: 1.5, stone: 1.5, tide: 1, crimson: 0, undead: 1, orc: 0.7, mech: 0, riftborn: 1, stray: 1 },   // Stray Banner uses mana by default; Riven runs on swords, Orin on heat
   skillCost: 20, skill2Cost: 25, ultCost: 40,   // default costs; a skill can override with o.mp
   poolScale: 0.9,                       // champions' own pool runs 10% leaner (gear and passives add on top, in full)
   spellExtra: 10, healExtra: 20,        // every spell costs 10 MP over its listed price; a healing skill 20 more on top of that
@@ -4127,13 +4142,14 @@ const RESH_BATTERY_PCT = 0.5;
    a friend hides him from every single blow, riding a foe leaves him in the open
    where anyone can pull him off. */
 const ORIN_RIDE_TURNS = 3;    // turns bolted to an ally
-const ORIN_RIDE_PUSH = 60;    // bar ground the host gains each turn he rides
-const ORIN_GRIP_TURNS = 1;    // a clamp on an enemy is brief
-const ORIN_GRIP_DMG = 15;     // ...and grinds this much every Rev it holds
-const ORIN_RUSH_PUSH = 120;   // the bar shove a Rush Bot hands its ally
-const ORIN_WELD_MULT = 2.0;    // a weld laid on flesh: he is no healer
-const ORIN_WELD_METAL = 1.6;   // ...but on plate and gearing he is one, and it shows
-const ORIN_WELD_RIDE = 1.25;   // ...and best of all on the back he is already bolted to
+const ORIN_RIDE_PUSH = 80;    // bar ground the host gains each turn he rides
+const ORIN_GRIP_TURNS = 2;    // turns clamped on an enemy
+const ORIN_GRIP_DMG = 0.15;   // grinds 15% ATK every Rev it holds
+const ORIN_RUSH_DRAIN = 0.15; // Rush Bot drains this share of the enemy's max HP
+const ORIN_RUSH_BAR = 250;    // 25% of the speed bar (TRACK = 1000)
+const ORIN_WELD_MULT = 3.0;    // base heal mult: a serious weld now
+const ORIN_WELD_METAL = 1.4;   // ...on plate and gearing it takes better
+const ORIN_WELD_RIDE = 1.2;    // ...and best of all on the back he is already bolted to
 const ORIN_WELD_VENT = 50;     // Heat bled out of the mark while its panels are open
 /* What a Cogbound weld actually bites on: anything cast rather than born — the hot
    factions, and any welded bot. A summoned stone is masonry, not machinery. */
@@ -4176,52 +4192,52 @@ const ROSTER = [
     mods: { hp: 1.2, def: 1.3, atk: 0.9, agi: 0.8 },
     look: { body: 'mech', main: '#7d8aa3', trim: '#f0a73a', weapon: 'fist' },
     nature: { name: 'Built to Hold', desc: 'While he stands, his warband\'s front line takes three blows to break instead of two.', front: 1 },
-    skills: [D('Piston Punch', '130% hit.', 2, 1.3),
-             D('Hydraulic Slam', '160% hit with a 50% chance to stun.', 4, 1.6, { stun: 0.5 }),
-             D('Steam Vent', '70% scalding steam to all enemies. Vents 40 Heat instead of building it.', 3, 0.7, { aoe: true, heat: -40 }),
-             D('Piledriver', '180% hit that ignores armor. Builds 40 Heat.', 4, 1.8, { pierce: true, heat: 40 }),
-             B('Bunker Down', 'Taunt all enemies and brace: shielded for 2 turns. Vents 30 Heat.', 4, 'self', [['taunt', 3], ['shield', 2]], { heat: -30 })],
+    skills: [D('Piston Punch', 'Deals 130% ATK damage.', 2, 1.3),
+             D('Hydraulic Slam', 'Deals 160% ATK damage. 50% chance to Stun.', 4, 1.6, { stun: 0.5 }),
+             D('Steam Vent', 'Deals 70% ATK damage to all enemies. Vents 40 Heat.', 3, 0.7, { aoe: true, heat: -40 }),
+             D('Piledriver', 'Deals 180% ATK damage. Ignores armor. Builds 40 Heat.', 4, 1.8, { pierce: true, heat: 40 }),
+             B('Bunker Down', 'Taunts all enemies for 3 turns. Shields self for 2 turns. Vents 30 Heat.', 4, 'self', [['taunt', 3], ['shield', 2]], { heat: -30 })],
     passive: P('Reactive Plating', 'The first hit he takes each turn deals 30% less damage.', { firstHitDR: 0.3 }) },
   { id: 'sawtooth', name: 'Sawtooth', faction: 'mech', role: 'melee', bio: 'Scrapper with buzzsaw arms.',
     mods: { atk: 1.1, hp: 0.95, agi: 1.1 },
     look: { body: 'mech', main: '#9b5d3c', trim: '#ffd166', weapon: 'saw' },
     nature: { name: 'Flywheel', desc: 'At 50 Heat or more his many-cut skills cut once more — the blades are already spinning.', flywheel: 1 },
-    skills: [D('Rip Saw', 'Two cuts of 70%.', 2, 0.7, { hits: 2 }),
-             D('Grinder', 'Three cuts of 55%. Causes Bleed.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
-             D('Shrapnel Spin', 'Two cuts of 45% to all enemies.', 4, 0.45, { aoe: true, hits: 2 }),
-             D('Limb Shear', '150% cut that ignores armor, 60% stronger against Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed' }),
-             B('Rev Up', 'Spin the blades up: 30% more damage for 2 turns and his cooldowns drop by 1.', 4, 'self', [['empower', 3]], { reduceCd: true })],
-    passive: P('Serrated', 'His critical hits cause Bleed.', { critFx: [['bleed', 3, 0.3]] }) },
+    skills: [D('Rip Saw', 'Strikes 2 times for 70% ATK damage each.', 2, 0.7, { hits: 2 }),
+             D('Grinder', 'Strikes 3 times for 55% ATK damage each. Applies Bleed for 3 turns.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
+             D('Shrapnel Spin', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2 }),
+             D('Limb Shear', 'Deals 150% ATK damage. Ignores armor. 60% bonus damage to Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed' }),
+             B('Rev Up', 'Increases damage by 30% for 2 turns. Reduces all cooldowns by 1.', 4, 'self', [['empower', 3]], { reduceCd: true })],
+    passive: P('Serrated', 'Critical hits apply Bleed for 3 turns.', { critFx: [['bleed', 3, 0.3]] }) },
   { id: 'arclight', name: 'Arclight', faction: 'mech', role: 'ranged', bio: 'Tesla-coil sniper unit.',
     mods: {},
     look: { body: 'mech', main: '#4d6a8f', trim: '#7fe3ff', weapon: 'gun', orb: '#7fe3ff' },
     nature: { name: 'Arc Transfer', desc: 'When her lightning strikes a Soaked enemy, a spark leaps to a second enemy for 30%.', arc: 1 },
-    skills: [D('Arc Bolt', '130% lightning. Never misses. Causes Mana Leak: every action the target takes burns 12 MP.', 2, 1.3, { element: 'lightning', noDodge: true, fx: [['leak', 3]] }),
-             D('Chain Surge', '75% lightning to all enemies. Ignores shields.', 4, 0.75, { aoe: true, element: 'lightning', noDodge: true, ignoreShield: true }),
-             D('Discharge', '100% lightning. Never misses. Burns 25 of the target\'s mana as extra damage.', 3, 1.0, { element: 'lightning', noDodge: true, manaBurn: 25 }),
-             D('Overload Coil', '170% lightning. Never misses. Causes Mana Leak. Builds 45 Heat.', 4, 1.7, { element: 'lightning', noDodge: true, fx: [['leak', 3]], heat: 45 }),
-             D('Static Field', '55% lightning to all enemies. Never misses. Slows them all.', 4, 0.55, { aoe: true, element: 'lightning', noDodge: true, fx: [['slow', 2]] }),
-             B('Jump Start', 'Arclight throws a charge into an ally: they are jolted to the head of the speed bar and take their turn next, straight after hers.', 5, 'ally', [], { jumpstart: true, notSelf: true })],
+    skills: [D('Arc Bolt', 'Deals 130% ATK lightning damage. Cannot miss. Applies Mana Leak for 3 turns: target loses 12 MP per action.', 2, 1.3, { element: 'lightning', noDodge: true, fx: [['leak', 3]] }),
+             D('Chain Surge', 'Deals 75% ATK lightning damage to all enemies. Cannot miss. Ignores shields.', 4, 0.75, { aoe: true, element: 'lightning', noDodge: true, ignoreShield: true }),
+             D('Discharge', 'Deals 100% ATK lightning damage. Cannot miss. Burns 25 MP from target as bonus damage.', 3, 1.0, { element: 'lightning', noDodge: true, manaBurn: 25 }),
+             D('Overload Coil', 'Deals 170% ATK lightning damage. Cannot miss. Applies Mana Leak for 3 turns. Builds 45 Heat.', 4, 1.7, { element: 'lightning', noDodge: true, fx: [['leak', 3]], heat: 45 }),
+             D('Static Field', 'Deals 55% ATK lightning damage to all enemies. Cannot miss. Applies Slow for 2 turns.', 4, 0.55, { aoe: true, element: 'lightning', noDodge: true, fx: [['slow', 2]] }),
+             B('Jump Start', 'Jolts an ally to the top of the speed bar. They take their next turn immediately after Arclight.', 5, 'ally', [], { jumpstart: true, notSelf: true })],
     passive: P('Feedback Loop', 'Her lightning deals 25% more damage to targets with Mana Leak.', { vs: { fx: 'leak', bonus: 0.25, element: 'lightning' } }) },
   { id: 'howitzer', name: 'Howitzer', faction: 'mech', role: 'ranged', bio: 'Walking artillery platform.',
     mods: { hp: 1.1, agi: 0.75, atk: 1.05 },
     look: { body: 'mech', main: '#5f6b52', trim: '#ff7a45', weapon: 'cannon' },
     nature: { name: 'Dug In', desc: 'Planted like a gun carriage: nothing drags him back along the speed bar — not a blow, not the bucking earth.', anchor: 1 },
-    skills: [D('Flak Burst', '60% to all enemies.', 3, 0.6, { aoe: true }),
-             D('Siege Shell', 'Massive 230% shell. Builds 50 Heat.', 5, 2.3, { heat: 50 }),
-             D('AP Round', '150% shell that ignores armor.', 3, 1.5, { pierce: true }),
-             D('Mortar Walk', '45% to all enemies, twice.', 4, 0.45, { aoe: true, hits: 2 }),
-             D('Shell Shock', '110% shell. Staggers the target and sunders its armor.', 3, 1.1, { fx: [['stagger', 1], ['sunder', 3]] })],
-    passive: P('Big Guns', 'His attacks on all enemies deal 20% more damage.', { aoeBonus: 0.2 }) },
+    skills: [D('Flak Burst', 'Deals 60% ATK damage to all enemies.', 3, 0.6, { aoe: true }),
+             D('Siege Shell', 'Deals 230% ATK damage. Builds 50 Heat.', 5, 2.3, { heat: 50 }),
+             D('AP Round', 'Deals 150% ATK damage. Ignores armor.', 3, 1.5, { pierce: true }),
+             D('Mortar Walk', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2 }),
+             D('Shell Shock', 'Deals 110% ATK damage. Staggers target for 1 turn. Sunders armor for 3 turns.', 3, 1.1, { fx: [['stagger', 1], ['sunder', 3]] })],
+    passive: P('Big Guns', 'AoE attacks deal 20% bonus damage.', { aoeBonus: 0.2 }) },
   { id: 'patchwork', name: 'Patchwork', faction: 'mech', role: 'support', bio: 'Repair drone with welding arms.',
     mods: { def: 1.2 },
     look: { body: 'mech', main: '#a39a86', trim: '#8be28b', weapon: 'wrench' },
     nature: { name: 'Oil Can', desc: 'Every mend he gives also vents 15 Heat from an Ironclad ally — or drips 5 MP into anyone else.', oilcan: 1 },
-    skills: [H('Field Weld', 'Heal an ally and shield them until their next turn.', 2, 3.0, { fx: [['shield', 1]] }),
-             S('Assemble Scrapbot', 'Build a Scrapbot turret that fights on its own for 3 rounds. If it is brought to 25% HP, it gives the rest of itself to your most wounded ally.', 5, 'scrapbot'),
-             B('Overclock', 'An ally deals 30% more damage for 2 turns and their cooldowns drop by 1.', 4, 'ally', [['empower', 3]], { reduceCd: true }),
-             H('Jury Rig', 'Patch an ally with scrap: a heal, then they regenerate for 3 turns.', 3, 2.2, { fx: [['regen', 3, 0.7]] }),
-             B('Coolant Flush', 'Clear an ally\'s debuffs; they resist new ones for 2 turns. Vents 50 Heat.', 4, 'ally', [['immune', 3]], { cleanse: true, heat: -50, aiTarget: 'debuffed' }),
+    skills: [H('Field Weld', 'Heals an ally for 300% ATK. Shields them for 1 turn.', 2, 3.0, { fx: [['shield', 1]] }),
+             S('Assemble Scrapbot', 'Summons a Scrapbot that fights for 3 rounds. At 25% HP, it sacrifices itself and heals your most wounded ally.', 5, 'scrapbot'),
+             B('Overclock', 'Empowers an ally: +30% damage for 2 turns. Reduces their cooldowns by 1.', 4, 'ally', [['empower', 3]], { reduceCd: true }),
+             H('Jury Rig', 'Heals an ally for 220% ATK. Applies Regen for 3 turns.', 3, 2.2, { fx: [['regen', 3, 0.7]] }),
+             B('Coolant Flush', 'Cleanses all debuffs from an ally. Grants Debuff Immunity for 2 turns. Vents 50 Heat.', 4, 'ally', [['immune', 3]], { cleanse: true, heat: -50, aiTarget: 'debuffed' }),
              // Bolt-On rides the field's clock, not his own: every turn ANY unit takes — friend or
              // foe — is one of the weld's four (see THE TURN PULSE). While bolted on he still acts,
              // keeps every blessing and curse ticking on him, and can still be broken by a sweep.
@@ -4233,54 +4249,54 @@ const ROSTER = [
     mods: { atk: 1.15, def: 0.85 },
     look: { body: 'orc', main: '#5a3a2a', trim: '#9aa3b5', skin: '#6b8f56', hair: '#1d1d1d', weapon: 'axe' },
     nature: { name: 'Red Mist', desc: 'Below half HP his Double Attack chance is doubled — the redder the mist, the faster the axes.', redmist: 1 },
-    skills: [D('Cleave', '65% to all enemies.', 3, 0.65, { aoe: true }),
-             D('Blood Frenzy', 'Krug launches himself at the target and carves a line through the warband: six leaping blows of 38%, each one crossing to the other rank from the one before it — front, back, front again — until the six are spent. Costs 10% of his own HP.', 4, 0.38, { selfCost: 0.1, rampage: 6 }),
-             D('Reckless Swing', 'Krug swings both axes for 170%, then careens into another enemy at random and swings again for 100%. All that momentum leaves him Exposed (takes 25% more damage) until his next turn.', 3, 1.7, { bounce: 0.6, selfFx: [['exposed', 1]] }),
-             D('Twin Axes', 'Two chops of 85%. Causes Bleed.', 3, 0.85, { hits: 2, fx: [['bleed', 3, 0.3]] }),
-             B('Warchief\'s Fury', 'Krug works himself into a rage: Enraged for 2 turns, dealing 35% more damage.', 4, 'self', [['enraged', 3]])],
+    skills: [D('Cleave', 'Deals 65% ATK damage to all enemies.', 3, 0.65, { aoe: true }),
+             D('Blood Frenzy', 'Strikes 6 times for 38% ATK damage each, alternating between front and back rows. Costs 10% of own max HP.', 4, 0.38, { selfCost: 0.1, rampage: 6 }),
+             D('Reckless Swing', 'Deals 170% ATK damage, then bounces to a random enemy for 100% ATK. Exposes self for 1 turn (+25% damage taken).', 3, 1.7, { bounce: 0.6, selfFx: [['exposed', 1]] }),
+             D('Twin Axes', 'Strikes 2 times for 85% ATK damage each. Applies Bleed for 3 turns.', 3, 0.85, { hits: 2, fx: [['bleed', 3, 0.3]] }),
+             B('Warchief\'s Fury', 'Enrages self for 2 turns: +35% damage.', 4, 'self', [['enraged', 3]])],
     passive: P('Bloodlust', 'Defeating an enemy heals him for 20% of his max HP.', { killHeal: 0.2 }),
     passiveAlt: P('Grudge Axe', 'The blow that would kill him leaves him standing on 0 HP, outlined in red. On the next turn, whoever\'s it is, he hurls his axe at his killer, and it bounces on until every enemy in reach has been hit once - each hit for 100% of his attack, never dodged. Then he falls. Once per battle.', { grudge: 1 }) },
   { id: 'mogra', name: 'Mogra Ironhide', short: 'Mogra', faction: 'orc', role: 'melee', bio: 'Shield-and-mace bruiser.',
     mods: { hp: 1.15, def: 1.25, atk: 0.9 },
     look: { body: 'orc', main: '#4a4e5c', trim: '#b07d3e', skin: '#7a9a5e', weapon: 'hammer', shield: '#6b4f32' },
     nature: { name: 'Tusk and Board', desc: 'Guarding is not hiding: the first melee blow to land on her Guard is answered with a free swing.', board: 1 },
-    skills: [D('Skull Rattler', '120% hit. Staggers the target: it keeps stopping on the speed bar for about 1.5 rounds.', 2, 1.2, { fx: [['stagger', 1]] }),
-             B('Iron Hide', 'Taunt all enemies, shield herself and reflect 40% of damage taken for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2], ['thorns', 2]]),
-             D('Ground Pound', '55% to all enemies with a 40% chance each to Stagger.', 4, 0.55, { aoe: true, quake: true, chanceFx: [['stagger', 1, 0.4]] }),
-             D('Bonebreaker', '140% hit. Sunders the target\'s armor.', 3, 1.4, { fx: [['sunder', 3]] }),
-             B('Hold the Line', 'Shield herself and reflect 40% of damage taken for 2 turns, plus a small heal.', 4, 'self', [['shield', 2], ['thorns', 2]], { heal: 1.2 })],
+    skills: [D('Skull Rattler', 'Deals 120% ATK damage. Staggers target for 1 turn.', 2, 1.2, { fx: [['stagger', 1]] }),
+             B('Iron Hide', 'Taunts all enemies for 3 turns. Shields self for 2 turns. Reflects 40% of damage taken for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2], ['thorns', 2]]),
+             D('Ground Pound', 'Deals 55% ATK damage to all enemies. 40% chance to Stagger each target.', 4, 0.55, { aoe: true, quake: true, chanceFx: [['stagger', 1, 0.4]] }),
+             D('Bonebreaker', 'Deals 140% ATK damage. Sunders armor for 3 turns.', 3, 1.4, { fx: [['sunder', 3]] }),
+             B('Hold the Line', 'Shields self for 2 turns. Reflects 40% of damage taken for 2 turns. Heals for 120% ATK.', 4, 'self', [['shield', 2], ['thorns', 2]], { heal: 1.2 })],
     passive: P('Thick Skull', 'Immune to Stun and Stagger.', { immune: ['stun', 'stagger'] }) },
   { id: 'vashka', name: 'Vashka Spearthrower', short: 'Vashka', faction: 'orc', role: 'ranged', bio: 'Javelin hunter of the steppe.',
     mods: { agi: 1.1 },
     look: { body: 'orc', main: '#6b4f32', trim: '#c9b28a', skin: '#5f8a62', hair: '#2b1b12', weapon: 'spear' },
     nature: { name: 'Two on the Trail', desc: 'While a beast she called fights beside her, both of them deal 10% more.', pair: 1 },
     skills: [S('Call the War Boar', 'Summon a war boar that fights on its own for 4 rounds.', 4, 'warboar'),
-             D('Gutpiercer', '160% hit that ignores armor. Causes Bleed.', 4, 1.6, { pierce: true, fx: [['bleed', 3, 0.3]] }),
-             D('Hunter\'s Mark', '60% hit. Marks the target: it takes 25% more damage for 2 turns.', 3, 0.6, { fx: [['exposed', 3]] }),
-             D('Pinning Throw', '130% spear that ignores armor. Slows the target for 2 turns.', 3, 1.3, { pierce: true, fx: [['slow', 3]] }),
-             D('Volley of Spears', '55% to all enemies. Causes Bleed.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.25]] })],
+             D('Gutpiercer', 'Deals 160% ATK damage. Ignores armor. Applies Bleed for 3 turns.', 4, 1.6, { pierce: true, fx: [['bleed', 3, 0.3]] }),
+             D('Hunter\'s Mark', 'Deals 60% ATK damage. Exposes target for 2 turns: +25% damage taken.', 3, 0.6, { fx: [['exposed', 3]] }),
+             D('Pinning Throw', 'Deals 130% ATK damage. Ignores armor. Applies Slow for 2 turns.', 3, 1.3, { pierce: true, fx: [['slow', 3]] }),
+             D('Volley of Spears', 'Deals 55% ATK damage to all enemies. Applies Bleed for 3 turns.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.25]] })],
     passive: P('Steppe Hunter', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }) },
   { id: 'drekka', name: 'Drekka Firegut', short: 'Drekka', faction: 'orc', role: 'ranged', bio: 'Bomb and firepot thrower.',
     mods: {},
     look: { body: 'orc', main: '#7a3b2e', trim: '#e8a548', skin: '#7d9a4f', weapon: 'pot' },
     nature: { name: 'Long Fuse', desc: 'Her Burns burn a turn longer.', longfuse: 1 },
-    skills: [D('Firepot', '100% hit. Burns for 3 turns.', 2, 1.0, { magic: true, fx: [['burn', 3, 0.35]] }),
-             D('Powder Keg', '75% to all enemies. Burns them all.', 5, 0.75, { magic: true, aoe: true, fx: [['burn', 3, 0.3]] }),
-             D('Napalm Jar', '90% hit. Burns and Slows the target.', 3, 0.9, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2]] }),
-             D('Cinder Spray', '50% fire to all enemies. Never misses. Blinds them all.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
-             D('Sticky Tar', '80% hit. Burns, Slows and sunders the target\'s armor.', 4, 0.8, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] }),
-             D('Molotov', 'Drekka lights the bottle: it flies on the next turn, whoever\'s it is — 75% fire to all enemies. Never misses. Burns them all and sets the enemy ground ablaze for 2 turns, searing anyone who stands there. Burns off Soaked and leaves them Dry while it lasts.', 5, 0.75, { magic: true, aoe: true, noDodge: true, attackType: 'arch', fuse: 1, fx: [['burn', 3, 0.3], ['dry', 2]], groundFire: 2 })],
+    skills: [D('Firepot', 'Deals 100% ATK fire damage. Applies Burn for 3 turns.', 2, 1.0, { magic: true, fx: [['burn', 3, 0.35]] }),
+             D('Powder Keg', 'Deals 75% ATK fire damage to all enemies. Applies Burn for 3 turns.', 5, 0.75, { magic: true, aoe: true, fx: [['burn', 3, 0.3]] }),
+             D('Napalm Jar', 'Deals 90% ATK fire damage. Applies Burn for 3 turns and Slow for 2 turns.', 3, 0.9, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2]] }),
+             D('Cinder Spray', 'Deals 50% ATK fire damage to all enemies. Cannot miss. Applies Blind for 2 turns.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
+             D('Sticky Tar', 'Deals 80% ATK fire damage. Applies Burn for 3 turns, Slow for 2 turns, and Sunder for 3 turns.', 4, 0.8, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] }),
+             D('Molotov', 'Fuse: detonates after 1 turn. Deals 75% ATK fire damage to all enemies. Cannot miss. Applies Burn for 3 turns. Sets ground ablaze for 2 turns. Removes Soaked, applies Dry.', 5, 0.75, { magic: true, aoe: true, noDodge: true, attackType: 'arch', fuse: 1, fx: [['burn', 3, 0.3], ['dry', 2]], groundFire: 2 })],
     passive: P('Pyromaniac', 'Deals 25% more damage to Burning enemies.', { vs: { fx: 'burn', bonus: 0.25 } }) },
   { id: 'hesk', name: 'Old Mother Hesk', short: 'Hesk', faction: 'orc', role: 'support', bio: 'Shaman who keeps the war drums.',
     mods: { hp: 1.05 },
     look: { body: 'orc', main: '#4b3d5e', trim: '#d8c8a8', skin: '#8a9d6a', hair: '#d8d8d8', weapon: 'staff', orb: '#e0645a' },
     nature: { name: 'Ancestors\' Whisper', desc: 'When an ally falls, the ancestors lean close: all her cooldowns drop by 1.', whisper: 1 },
-    skills: [B('Spirit Ward', 'An ally takes 60% less damage for 2 turns.', 2, 'ally', [['ward', 2]], { aiTarget: 'lowest' }),
+    skills: [B('Spirit Ward', 'Wards an ally for 2 turns: -60% damage taken.', 2, 'ally', [['ward', 2]], { aiTarget: 'lowest' }),
              B('Drums of the Horde', 'All allies deal 30% more damage for 2 turns, plus a small heal.', 5, 'allAllies', [['empower', 3]], { heal: 1.0 }),
-             B('Bone Charm', 'Clear an ally\'s debuffs. They resist new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { cleanse: true, aiTarget: 'debuffed' }),
-             H('Ancestor\'s Balm', 'Heal an ally; they regenerate for 3 turns and resist new debuffs.', 3, 2.0, { fx: [['regen', 3, 0.6], ['immune', 3]] }),
-             B('Totem of Stone', 'Plant a totem: shield all allies until their next turn and give them Thorns.', 4, 'allAllies', [['shield', 1], ['thorns', 2]]),
-             B('Quickstep Drums', 'The drums change their beat and the warband falls in step: every ally is Hastened for 2 turns, crossing the speed bar far faster.', 5, 'allAllies', [['haste', 3]])],
+             B('Bone Charm', 'Cleanses all debuffs from an ally. Grants Debuff Immunity for 2 turns.', 4, 'ally', [['immune', 3]], { cleanse: true, aiTarget: 'debuffed' }),
+             H('Ancestor\'s Balm', 'Heals an ally for 200% ATK. Applies Regen for 3 turns. Grants Debuff Immunity.', 3, 2.0, { fx: [['regen', 3, 0.6], ['immune', 3]] }),
+             B('Totem of Stone', 'Shields all allies for 1 turn. Applies Thorns for 2 turns.', 4, 'allAllies', [['shield', 1], ['thorns', 2]]),
+             B('Quickstep Drums', 'Hastens all allies for 2 turns: increased speed bar movement.', 5, 'allAllies', [['haste', 3]])],
     passive: P('Ancestral Watch', 'The first time an ally drops below 30% HP, the spirits Ward them for 2 turns.', { guardian: 0.3 }) },
 
   // ---- Kingdom of Aldmere (Human) ----
@@ -4288,22 +4304,22 @@ const ROSTER = [
     mods: {},
     look: { body: 'human', helm: true, main: '#a9b3c6', trim: '#e8a548', skin: '#e2b48f', weapon: 'sword' },
     nature: { name: 'Spellblade\'s Rhythm', desc: 'Discipline comes easier to her: +20% rather than +15% when she varies her actions.', rhythm: 1 },
-    skills: [D('Power Slash', '160% cut. Burns away 60% of the target\'s current mana.', 2, 1.6, { slash: true, manaBurnPct: 0.6 }),
-             D('Thunderclap', '130% lightning with a 45% chance to stun.', 4, 1.3, { element: 'lightning', noDodge: true, stun: 0.45 }),
-             D('Arcane Edge', '100% cut plus 20% of her current mana as extra damage.', 3, 1.0, { manaDamage: 0.2 }),
-             D('Mageslayer', '110% cut. Burns 30 of the target\'s mana as extra damage and Silences them for 2 turns.', 4, 1.1, { manaBurn: 30, fx: [['silence', 3]] }),
-             D('Runed Thrust', '140% cut plus 15% of her current mana as extra damage. Sunders the target\'s armor.', 3, 1.4, { manaDamage: 0.15, fx: [['sunder', 3]] })],
+    skills: [D('Power Slash', 'Deals 160% ATK damage. Burns 60% of target\'s current MP.', 2, 1.6, { slash: true, manaBurnPct: 0.6 }),
+             D('Thunderclap', 'Deals 130% ATK lightning damage. Cannot miss. 45% chance to Stun.', 4, 1.3, { element: 'lightning', noDodge: true, stun: 0.45 }),
+             D('Arcane Edge', 'Deals 100% ATK damage + 20% of current MP as bonus damage.', 3, 1.0, { manaDamage: 0.2 }),
+             D('Mageslayer', 'Deals 110% ATK damage. Burns 30 MP from target as bonus damage. Silences for 2 turns.', 4, 1.1, { manaBurn: 30, fx: [['silence', 3]] }),
+             D('Runed Thrust', 'Deals 140% ATK damage + 15% of current MP as bonus damage. Sunders armor for 3 turns.', 3, 1.4, { manaDamage: 0.15, fx: [['sunder', 3]] })],
     passive: P('Arcane Ward', 'Starts every battle Shielded for her first 2 turns.', { startFx: [['shield', 3]] }),
     passiveAlt: P('Heroic', 'When a melee attacker strikes at one of her allies, 15% chance Wren throws herself into its path — she takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.15 }) },
   { id: 'garrick', name: 'Sir Garrick Vane', short: 'Garrick', faction: 'human', role: 'melee', bio: 'Heavily armored paladin.',
     mods: { hp: 1.1, def: 1.25, atk: 0.9, agi: 0.85 },
     look: { body: 'human', helm: true, main: '#d7dbe4', trim: '#d9b44a', skin: '#c68f6a', weapon: 'hammer', shield: '#3e5a8c' },
     nature: { name: 'Sworn Shield', desc: 'Once per battle, the blow that would fell an ally finds his shield instead — he takes it, whatever it is.', sworn: 1 },
-    skills: [D('Smite', '130% hit. Heals him for 35% of the damage.', 2, 1.3, { lifesteal: 0.35 }),
-             B('Oathguard', 'Shield an ally for 2 turns and reflect 40% of the damage they take.', 4, 'ally', [['shield', 2], ['thorns', 2]], { aiTarget: 'lowest' }),
-             D('Consecrate', '45% holy damage to all enemies. Never misses. Heals all allies a little.', 4, 0.45, { magic: true, aoe: true, noDodge: true, allyHeal: 0.8 }),
-             D('Hammer of Judgement', '150% holy smash. Never misses, with a 40% chance to stun.', 4, 1.5, { magic: true, noDodge: true, stun: 0.4 }),
-             B('Lionheart', 'Taunt all enemies and take 60% less damage for 2 turns.', 5, 'self', [['taunt', 3], ['ward', 2]]),
+    skills: [D('Smite', 'Deals 130% ATK damage. Lifesteals 35% of damage dealt.', 2, 1.3, { lifesteal: 0.35 }),
+             B('Oathguard', 'Shields an ally for 2 turns. Reflects 40% of damage taken for 2 turns.', 4, 'ally', [['shield', 2], ['thorns', 2]], { aiTarget: 'lowest' }),
+             D('Consecrate', 'Deals 45% ATK holy damage to all enemies. Cannot miss. Heals all allies for 80% ATK.', 4, 0.45, { magic: true, aoe: true, noDodge: true, allyHeal: 0.8 }),
+             D('Hammer of Judgement', 'Deals 150% ATK holy damage. Cannot miss. 40% chance to Stun.', 4, 1.5, { magic: true, noDodge: true, stun: 0.4 }),
+             B('Lionheart', 'Taunts all enemies for 3 turns. Wards self for 2 turns: -60% damage taken.', 5, 'self', [['taunt', 3], ['ward', 2]]),
              B('Shieldbearer', 'Garrick steps in front of an ally and stands there for 2 turns: every blow meant for them lands on him instead, physical or magical, and half the time his shield turns aside a quarter of what he catches. Only a lobbed shot arcs over him.', 4, 'ally', [], { bodyguard: 2, notSelf: true, aiTarget: 'lowest' })],
     passive: P('Retribution', 'When he takes a hit, every enemy takes 20% of that damage.', { retribution: 0.2 }),
     passiveAlt: [P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }),
@@ -4316,32 +4332,32 @@ const ROSTER = [
     watch: 5,
     nature: { name: 'Covering Fire', desc: 'Every five turns taken on the field — friend or foe — she snaps off a free shot at a random enemy, taunters first.' },
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#c68f6a', hair: '#5a3520', weapon: 'gun' },
-    skills: [D('Aimed Shot', '140% shot, +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
-             D('Powder Shot', 'Mara takes aim: 2 turns later the shot goes off on its own, whoever takes them — 220%, +70% crit chance. While she aims she is Exposed, and her Covering Fire holds. A Silence, stun or bash breaks her aim and the shot is lost. A mark that is simply not there — gone to ground, into a coffin, or come apart into two hounds — cannot be found by it, and a graveyard fence turns the round aside.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
-             D('Ricochet', '90% shot that ricochets into another enemy for 60%.', 3, 0.9, { bounce: 0.6 }),
-             D('Pistol Whip', '100% hit with a 40% chance to Stagger.', 2, 1.0, { chanceFx: [['stagger', 1, 0.4]] }),
-             D('Volley Fire', '55% to all enemies, +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 })],
+    skills: [D('Aimed Shot', 'Deals 140% ATK damage. +25% crit chance.', 2, 1.4, { critBonus: 0.25 }),
+             D('Powder Shot', 'Channels for 2 turns, then fires for 220% ATK damage. +70% crit chance. Mara is Exposed while aiming. Silence, Stun or Bash cancels the shot. Target must still be alive and targetable when it fires.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
+             D('Ricochet', 'Deals 90% ATK damage. Bounces to a random enemy for 60% ATK.', 3, 0.9, { bounce: 0.6 }),
+             D('Pistol Whip', 'Deals 100% ATK damage. 40% chance to Stagger.', 2, 1.0, { chanceFx: [['stagger', 1, 0.4]] }),
+             D('Volley Fire', 'Deals 55% ATK damage to all enemies. +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 })],
     passive: P('Deadeye', 'Her critical hits deal double damage instead of +50%.', { critMult: 2 }) },
   { id: 'aldous', name: 'Aldous Emberfall', short: 'Aldous', faction: 'human', role: 'ranged', bio: 'Pyromancer of the royal college.',
     mods: { hp: 0.95 },
     look: { body: 'human', main: '#7a2e3a', trim: '#e8a548', skin: '#e2b48f', hair: '#d9d4c7', weapon: 'staff', orb: '#ff8a3d' },
     nature: { name: 'Ember-Warm', desc: 'While anything on the field burns, the fire feeds him: +5 MP a turn.', emberwarm: 1 },
-    skills: [D('Fireball', '120% fire. Never misses. Burns for 3 turns.', 2, 1.2, { magic: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
-             D('Inferno', '60% fire to all enemies, plus 15% of his current mana as extra damage. Burns them all.', 5, 0.6, { magic: true, aoe: true, noDodge: true, manaDamage: 0.15, fx: [['burn', 3, 0.3]] }),
-             D('Ignite', '100% fire. Never misses. 60% stronger against Burning targets.', 3, 1.0, { magic: true, noDodge: true, bonusVs: 'burn' }),
-             D('Flame Lance', '150% fire that ignores armor. Never misses. Burns for 3 turns.', 4, 1.5, { magic: true, pierce: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
-             B('Mantle of Flame', 'Aldous wreathes himself in fire: 30% more damage for 2 turns, and he is shielded.', 4, 'self', [['empower', 3], ['shield', 2]])],
+    skills: [D('Fireball', 'Deals 120% ATK fire damage. Cannot miss. Applies Burn for 3 turns.', 2, 1.2, { magic: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
+             D('Inferno', 'Deals 60% ATK fire damage to all enemies + 15% of current MP as bonus damage. Cannot miss. Applies Burn for 3 turns.', 5, 0.6, { magic: true, aoe: true, noDodge: true, manaDamage: 0.15, fx: [['burn', 3, 0.3]] }),
+             D('Ignite', 'Deals 100% ATK fire damage. Cannot miss. 60% bonus damage to Burning targets.', 3, 1.0, { magic: true, noDodge: true, bonusVs: 'burn' }),
+             D('Flame Lance', 'Deals 150% ATK fire damage. Cannot miss. Ignores armor. Applies Burn for 3 turns.', 4, 1.5, { magic: true, pierce: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
+             B('Mantle of Flame', 'Empowers self: +30% damage for 2 turns. Shields self for 2 turns.', 4, 'self', [['empower', 3], ['shield', 2]])],
     passive: P('Kindling', 'His Burns deal 50% more damage.', { dotBoost: { burn: 1.5 } }) },
   { id: 'liesl', name: 'Sister Liesl', short: 'Liesl', faction: 'human', role: 'support', bio: 'Cleric of the dawn chapel.',
     mods: {},
     look: { body: 'human', main: '#e9e4d8', trim: '#d9b44a', skin: '#f0c9a6', hair: '#c9a25e', weapon: 'staff', orb: '#fff1b8' },
     nature: { name: 'Undimmed', desc: 'No pall and no hex dims her light: her mending ignores both.', undimmed: 1 },
-    skills: [H('Sacred Light', 'Heal an ally and clear all their debuffs.', 2, 3.2, { cleanse: true, lightbeam: true }),
-             H('Prayer of Dawn', 'Heal all allies and restore 25 mana to each.', 5, 2.0, { all: true, manaRestore: 25 }),
-             B('Guardian Angel', 'Shield an ally for 2 turns and give them Regen.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
-             B('Benediction', 'An ally takes 60% less damage for 2 turns and resists new debuffs.', 4, 'ally', [['ward', 2], ['immune', 3]], { aiTarget: 'lowest' }),
-             D('Censure', '70% holy hit. Never misses. Weakens and Blinds the target for 2 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['blind', 3]] }),
-             B('First Light', 'The dawn comes early for one ally: they surge a quarter of the way up the speed bar, healed a little as the light takes them.', 4, 'ally', [], { surge: 250, heal: 1.2 })],
+    skills: [H('Sacred Light', 'Heals an ally for 320% ATK. Cleanses all debuffs.', 2, 3.2, { cleanse: true, lightbeam: true }),
+             H('Prayer of Dawn', 'Heals all allies for 200% ATK. Restores 25 MP to each.', 5, 2.0, { all: true, manaRestore: 25 }),
+             B('Guardian Angel', 'Shields an ally for 2 turns. Applies Regen for 3 turns.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
+             B('Benediction', 'Wards an ally for 2 turns: -60% damage taken. Grants Debuff Immunity.', 4, 'ally', [['ward', 2], ['immune', 3]], { aiTarget: 'lowest' }),
+             D('Censure', 'Deals 70% ATK holy damage. Cannot miss. Applies Weaken and Blind for 2 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['blind', 3]] }),
+             B('First Light', 'Pushes an ally 25% up the speed bar. Heals for 120% ATK.', 4, 'ally', [], { surge: 250, heal: 1.2 })],
     passive: P('Mercy', 'Her healing is 30% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.3 } }) },
 
   // ---- Stoneleaf Accord (Elves & Dwarves) ----
@@ -4349,52 +4365,52 @@ const ROSTER = [
     mods: { hp: 1.05, def: 1.1 },
     look: { body: 'dwarf', main: '#6b4f32', trim: '#9aa3b5', skin: '#e0ae86', hair: '#b5562b', weapon: 'hammer' },
     nature: { name: 'Anvil-Patient', desc: 'He arrives already braced: one Fortify stack from the first bell.', brace: 1 },
-    skills: [D('Hammerfall', '135% smash.', 2, 1.35),
-             D('Mountain Breaker', '150% hit. Sunders armor (−40% defense).', 4, 1.5, { fx: [['sunder', 3]] }),
-             D('Anvil Strike', '120% smash. Durgan gains a Fortify stack.', 3, 1.2, { selfStacks: 1 }),
-             D('Forge Strike', 'Two hammer blows of 80%. Durgan gains a Fortify stack.', 3, 0.8, { hits: 2, selfStacks: 1 }),
-             D('Quake Hammer', '60% to all enemies. Sunders their armor.', 4, 0.6, { aoe: true, fx: [['sunder', 3]] })],
+    skills: [D('Hammerfall', 'Deals 135% ATK damage.', 2, 1.35),
+             D('Mountain Breaker', 'Deals 150% ATK damage. Sunders armor for 3 turns (-40% DEF).', 4, 1.5, { fx: [['sunder', 3]] }),
+             D('Anvil Strike', 'Deals 120% ATK damage. Gains 1 Fortify stack.', 3, 1.2, { selfStacks: 1 }),
+             D('Forge Strike', 'Strikes 2 times for 80% ATK damage each. Gains 1 Fortify stack.', 3, 0.8, { hits: 2, selfStacks: 1 }),
+             D('Quake Hammer', 'Deals 60% ATK damage to all enemies. Sunders armor for 3 turns.', 4, 0.6, { aoe: true, fx: [['sunder', 3]] })],
     passive: P('Grudge', 'Deals 20% more damage to the last enemy that hit him.', { grudge: 0.2 }) },
   { id: 'hilda', name: 'Hilda Stonewall', short: 'Hilda', faction: 'stone', race: 'dwarf', role: 'melee', bio: 'Dwarf shieldmaiden.',
     mods: { hp: 1.15, def: 1.3, atk: 0.85, agi: 0.8 },
     look: { body: 'dwarf', main: '#40597a', trim: '#c9a25e', skin: '#ecbfa0', hair: '#e8c872', weapon: 'axe', shield: '#8a5a32' },
     nature: { name: 'Deep Foundation', desc: 'Dwarf-work holds: her Fortify stacks to four where others stop at three.', stackcap: 4 },
-    skills: [D('Shield Bash', '100% hit with a 35% chance to stun.', 3, 1.0, { stun: 0.35 }),
-             B('Stand Firm', 'Taunt all enemies and shield herself for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]]),
-             B('Shieldwall', 'Shield an ally for 2 turns. Hilda gains 2 Fortify stacks.', 4, 'ally', [['shield', 2]], { selfStacks: 2, aiTarget: 'lowest' }),
-             D('Boulder Toss', '130% hit. Slows the target for 2 turns.', 3, 1.3, { fx: [['slow', 3]] }),
-             B('Bulwark of the Accord', 'Shield all allies until their next turn. Hilda gains 2 Fortify stacks.', 5, 'allAllies', [['shield', 1]], { selfStacks: 2 })],
+    skills: [D('Shield Bash', 'Deals 100% ATK damage. 35% chance to Stun.', 3, 1.0, { stun: 0.35 }),
+             B('Stand Firm', 'Taunts all enemies for 3 turns. Shields self for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]]),
+             B('Shieldwall', 'Shields an ally for 2 turns. Hilda gains 2 Fortify stacks.', 4, 'ally', [['shield', 2]], { selfStacks: 2, aiTarget: 'lowest' }),
+             D('Boulder Toss', 'Deals 130% ATK damage. Applies Slow for 2 turns.', 3, 1.3, { fx: [['slow', 3]] }),
+             B('Bulwark of the Accord', 'Shields all allies for 1 turn. Hilda gains 2 Fortify stacks.', 5, 'allAllies', [['shield', 1]], { selfStacks: 2 })],
     passive: P('Unbreakable', 'Once per battle, a blow that would knock her out leaves her at 1 HP.', { lastStand: true }) },
   { id: 'aelira', name: 'Aelira Swiftwind', short: 'Aelira', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf longbow archer.',
     mods: { agi: 1.2, crit: 0.15 },
     look: { body: 'elf', main: '#3f7a4f', trim: '#d9c58a', skin: '#f0d2b4', hair: '#e8d9a0', weapon: 'bow' },
     nature: { name: 'Fletcher\'s Line', desc: 'A hit costs her one Precision stack — never the whole draw.', line: 1 },
-    skills: [D('Swift Arrows', 'Two arrows of 70%.', 2, 0.7, { hits: 2 }),
-             D('Hawkeye', '160% shot that always crits.', 4, 1.6, { alwaysCrit: true }),
-             D('Arrow Rain', '50% to all enemies.', 3, 0.5, { aoe: true }),
-             D('Piercing Shot', '150% arrow that ignores armor and shields.', 3, 1.5, { pierce: true, ignoreShield: true }),
-             B('Steady Aim', 'Aelira takes aim: 30% more damage for 2 turns and she gains 3 Precision stacks.', 4, 'self', [['empower', 3]], { selfStacks: 3 })],
+    skills: [D('Swift Arrows', 'Strikes 2 times for 70% ATK damage each.', 2, 0.7, { hits: 2 }),
+             D('Hawkeye', 'Deals 160% ATK damage. Guaranteed critical hit.', 4, 1.6, { alwaysCrit: true }),
+             D('Arrow Rain', 'Deals 50% ATK damage to all enemies.', 3, 0.5, { aoe: true }),
+             D('Piercing Shot', 'Deals 150% ATK damage. Ignores armor and shields.', 3, 1.5, { pierce: true, ignoreShield: true }),
+             B('Steady Aim', 'Empowers self: +30% damage for 2 turns. Gains 3 Precision stacks.', 4, 'self', [['empower', 3]], { selfStacks: 3 })],
     passive: P('Keen Eye', 'Starts every battle with 3 Precision stacks.', { startStacks: 3 }) },
   { id: 'faelan', name: 'Faelan Thornshot', short: 'Faelan', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf who tips his crossbow bolts with venom.',
     mods: {},
     look: { body: 'elf', main: '#2f4f3a', trim: '#9ac46b', skin: '#d9b08c', hair: '#2b2b2b', weapon: 'crossbow' },
     nature: { name: 'Crawling Venom', desc: 'When a poisoned thing dies, the venom crawls on: it hops to another enemy for the turns it had left.', crawl: 1 },
-    skills: [D('Venom Bolt', '100% shot. Poisons for 3 turns.', 2, 1.0, { fx: [['poison', 3, 0.3]] }),
-             D('Thornvolley', '60% to all enemies. Poisons and slows them.', 5, 0.6, { aoe: true, fx: [['poison', 3, 0.25], ['slow', 2]] }),
-             D('Envenom', '100% shot, 60% stronger against Poisoned targets.', 3, 1.0, { bonusVs: 'poison' }),
-             D('Crippling Bolt', '110% shot. Poisons and Slows the target.', 3, 1.1, { fx: [['poison', 3, 0.3], ['slow', 2]] }),
-             D('Toxic Barrage', 'Three venom bolts of 50%. Poisons the target.', 4, 0.5, { hits: 3, fx: [['poison', 3, 0.3]] })],
+    skills: [D('Venom Bolt', 'Deals 100% ATK damage. Applies Poison for 3 turns.', 2, 1.0, { fx: [['poison', 3, 0.3]] }),
+             D('Thornvolley', 'Deals 60% ATK damage to all enemies. Applies Poison for 3 turns and Slow for 2 turns.', 5, 0.6, { aoe: true, fx: [['poison', 3, 0.25], ['slow', 2]] }),
+             D('Envenom', 'Deals 100% ATK damage. 60% bonus damage to Poisoned targets.', 3, 1.0, { bonusVs: 'poison' }),
+             D('Crippling Bolt', 'Deals 110% ATK damage. Applies Poison for 3 turns and Slow for 2 turns.', 3, 1.1, { fx: [['poison', 3, 0.3], ['slow', 2]] }),
+             D('Toxic Barrage', 'Strikes 3 times for 50% ATK damage each. Applies Poison for 3 turns.', 4, 0.5, { hits: 3, fx: [['poison', 3, 0.3]] })],
     passive: P('Debilitating Venom', 'While he stands, Poisoned enemies deal 15% less damage.', { weakenPoisoned: 0.15 }) },
   { id: 'elowen', name: 'Elowen Greenmantle', short: 'Elowen', faction: 'stone', race: 'elf', role: 'support', bio: 'Elf druid of the deep wood.',
     mods: { agi: 1.1 },
     look: { body: 'elf', main: '#5e8a4a', trim: '#e3d27a', skin: '#f0d2b4', hair: '#c96a3c', weapon: 'staff', orb: '#9fe08a' },
     nature: { name: 'Evergreen', desc: 'Each of her turns, the oldest curse on her falls away like a dead leaf.', evergreen: 1 },
-    skills: [H('Regrowth', 'Heal an ally, then they regenerate for 3 turns.', 2, 2.2, { fx: [['regen', 3, 0.8]] }),
-             H('Bloom of Spring', 'Heal all allies a little, clear their debuffs and give them Regen.', 5, 1.0, { all: true, cleanse: true, fx: [['regen', 3, 0.6]] }),
-             D('Entangle', '70% hit. Roots Slow and Stagger the target.', 3, 0.7, { magic: true, fx: [['slow', 2], ['stagger', 1]], roots: true }),
-             B('Barkskin', 'An ally is shielded for 2 turns and takes 60% less damage.', 4, 'ally', [['shield', 2], ['ward', 2]], { aiTarget: 'lowest' }),
-             D('Thornlash', '80% hit. Roots the target: Slowed, and it takes 25% more damage for 2 turns.', 3, 0.8, { magic: true, fx: [['slow', 2], ['exposed', 3]], roots: true }),
-             B('Wind at the Back', 'The wood lends its wind: an ally is Hastened for 3 turns, and any Slow on them is blown away like dead leaves.', 4, 'ally', [['haste', 4]], { shedSlow: true })],
+    skills: [H('Regrowth', 'Heals an ally for 220% ATK. Applies Regen for 3 turns.', 2, 2.2, { fx: [['regen', 3, 0.8]] }),
+             H('Bloom of Spring', 'Heals all allies for 100% ATK. Cleanses all debuffs. Applies Regen for 3 turns.', 5, 1.0, { all: true, cleanse: true, fx: [['regen', 3, 0.6]] }),
+             D('Entangle', 'Deals 70% ATK damage. Roots target: Applies Slow for 2 turns and Stagger.', 3, 0.7, { magic: true, fx: [['slow', 2], ['stagger', 1]], roots: true }),
+             B('Barkskin', 'Shields an ally for 2 turns. Wards for 2 turns: -60% damage taken.', 4, 'ally', [['shield', 2], ['ward', 2]], { aiTarget: 'lowest' }),
+             D('Thornlash', 'Deals 80% ATK damage. Roots target: Applies Slow and Exposed for 2 turns (+25% damage taken).', 3, 0.8, { magic: true, fx: [['slow', 2], ['exposed', 3]], roots: true }),
+             B('Wind at the Back', 'Hastens an ally for 3 turns. Removes Slow.', 4, 'ally', [['haste', 4]], { shedSlow: true })],
     passive: P('Forest Stride', 'While she stands, all allies move 20% faster on the speed bar.', { haste: 0.2 }),
     passiveAlt: P('Verdant Aura', 'While she stands, all allies regenerate an extra 2% of max HP each turn.', { allyRegen: 0.02 }) },
 
@@ -4403,59 +4419,59 @@ const ROSTER = [
     mods: { atk: 1.05, agi: 1.05 },
     look: { body: 'tide', crest: 'shark', skin: '#6f8597', main: '#3b4f63', trim: '#d9c58a', weapon: 'trident' },
     nature: { name: 'Tide-Runner', desc: 'The flood carries him: +15% speed on the bar every High Tide.', tiderun: 1 },
-    skills: [D('Trident Lunge', '120% hit. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]], leap: true }),
-             D('Blood in the Water', '150% hit, 60% stronger against bleeding targets.', 3, 1.5, { bonusVs: 'bleed' }),
-             D('Riptide', '120% hit. He lifts the trident and a wave washes the target back along the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
-             D('Feeding Frenzy', 'Three bites of 55%, 60% stronger against Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
-             D('Undertow', '60% to all enemies. He drives the trident into the ground and a great wave washes them back along the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true, slam: true }),
+    skills: [D('Trident Lunge', 'Deals 120% ATK damage. Applies Bleed for 3 turns.', 2, 1.2, { fx: [['bleed', 3, 0.3]], leap: true }),
+             D('Blood in the Water', 'Deals 150% ATK damage. 60% bonus damage to Bleeding targets.', 3, 1.5, { bonusVs: 'bleed' }),
+             D('Riptide', 'Deals 120% ATK damage. Knocks target back on the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
+             D('Feeding Frenzy', 'Strikes 3 times for 55% ATK damage each. 60% bonus damage to Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
+             D('Undertow', 'Deals 60% ATK damage to all enemies. Knocks all targets back on the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true, slam: true }),
              { name: 'Anchor Chain', desc: 'A great anchor crashes from above and roots an enemy for 2 of its turns or until the anchor is broken — whichever comes first. The rooted enemy can still act, but it cannot cross the field: no melee attacks, run-in spells, or moves to an ally. Ranged attacks and in-place casts still land. The host can strike the anchor on itself. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
     passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }) },
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Gurgling brawler gone cold, plated in rime.',
     mods: { hp: 1.2, agi: 0.9, atk: 1.15 },
     look: { body: 'tide', crest: 'fish', skin: '#79b9d8', main: '#2b4a66', trim: '#9fe8ff', weapon: 'sword' },
     nature: { name: 'Snapback', desc: 'Miss him and he\'s already biting: when an attack misses him, he snaps back for 50%.', snap: 1 },
-    skills: [D('Rimebite', 'Two bites of 70%.', 2, 0.7, { hits: 2 }),
-             D('Glacial Frenzy', 'Three bites of 70%.', 4, 0.7, { hits: 3 }),
-             B('Slippery Scales', 'Dodge every attack that can miss until his next turn.', 4, 'self', [['evade', 1]]),
-             D('Barnacle Bite', '100% bite. Causes Bleed and Slows the target.', 2, 1.0, { fx: [['bleed', 3, 0.25], ['slow', 2]] }),
-             D('Tail Whip', '60% to all enemies with a 35% chance each to Stagger.', 4, 0.6, { aoe: true, chanceFx: [['stagger', 1, 0.35]] }),
-             D('Choking Bite', '90% bite. The target is Choking for 2 turns: if it uses a skill, it is Silenced on its next turn.', 3, 0.9, { fx: [['choke', 3]] })],
+    skills: [D('Rimebite', 'Strikes 2 times for 70% ATK damage each.', 2, 0.7, { hits: 2 }),
+             D('Glacial Frenzy', 'Strikes 3 times for 70% ATK damage each.', 4, 0.7, { hits: 3 }),
+             B('Slippery Scales', 'Evades all dodgeable attacks for 1 turn.', 4, 'self', [['evade', 1]]),
+             D('Barnacle Bite', 'Deals 100% ATK damage. Applies Bleed for 3 turns and Slow for 2 turns.', 2, 1.0, { fx: [['bleed', 3, 0.25], ['slow', 2]] }),
+             D('Tail Whip', 'Deals 60% ATK damage to all enemies. 35% chance to Stagger each target.', 4, 0.6, { aoe: true, chanceFx: [['stagger', 1, 0.35]] }),
+             D('Choking Bite', 'Deals 90% ATK damage. Applies Choke for 2 turns: using a skill causes Silence on the next turn.', 3, 0.9, { fx: [['choke', 3]] })],
     passive: P('Frostplate', 'The first hit he takes each turn deals 25% less damage.', { firstHitDR: 0.25 }) },
   { id: 'seraphine', name: 'Seraphine Wavecaller', short: 'Seraphine', faction: 'tide', role: 'ranged', bio: 'Siren whose song drowns sailors.',
     mods: { agi: 1.05 },
     look: { body: 'elf', fin: true, skin: '#9fd0c8', hair: '#3d6fb0', main: '#2a7f8f', trim: '#e9e4d8', weapon: 'orb', orb: '#f2c6d8' },
     nature: { name: 'Sea-Sung', desc: 'At High Tide the sea carries the song: her skills cost half their mana.', seasung: 1 },
-    skills: [D('Siren\'s Hush', '100% hit that never misses. Silences the target for 2 turns: Attack and Guard only.', 3, 1.0, { magic: true, noDodge: true, fx: [['silence', 3]] }),
-             D('Lure Song', '70% hit with a 70% chance to charm (stun) the target.', 4, 0.7, { magic: true, noDodge: true, stun: 0.7 }),
-             D('Dirge of the Deep', '50% to all enemies. Never misses. Weakens them.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
-             D('Drowning Chorus', '60% to all enemies. Never misses. Slows and Blinds them all.', 4, 0.6, { magic: true, aoe: true, noDodge: true, fx: [['slow', 2], ['blind', 2]] }),
-             B('Song of the Depths', 'All allies are shielded until their next turn and deal 30% more damage for 2 turns.', 5, 'allAllies', [['shield', 1], ['empower', 3]]),
-             B('Turncoat Verse', 'Seraphine sings an enemy champion round onto their own: they strike the ally of theirs who is furthest gone, with everything that blow would normally carry — and lose half the speed bar for it.', 5, 'enemy', [], { turncoat: true })],
+    skills: [D('Siren\'s Hush', 'Deals 100% ATK damage. Cannot miss. Silences target for 2 turns.', 3, 1.0, { magic: true, noDodge: true, fx: [['silence', 3]] }),
+             D('Lure Song', 'Deals 70% ATK damage. Cannot miss. 70% chance to Charm (Stun).', 4, 0.7, { magic: true, noDodge: true, stun: 0.7 }),
+             D('Dirge of the Deep', 'Deals 50% ATK damage to all enemies. Cannot miss. Applies Weaken for 2 turns.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
+             D('Drowning Chorus', 'Deals 60% ATK damage to all enemies. Cannot miss. Applies Slow and Blind for 2 turns.', 4, 0.6, { magic: true, aoe: true, noDodge: true, fx: [['slow', 2], ['blind', 2]] }),
+             B('Song of the Depths', 'Shields all allies for 1 turn. Empowers all allies: +30% damage for 2 turns.', 5, 'allAllies', [['shield', 1], ['empower', 3]]),
+             B('Turncoat Verse', 'Forces an enemy to attack their most wounded ally. Target loses 50% of its speed bar.', 5, 'enemy', [], { turncoat: true })],
     passive: P('Echo', 'Her Silence, Weaken and other lasting debuffs last 1 turn longer.', { fxLonger: 1 }) },
   { id: 'octavia', name: 'Octavia Inkveil', short: 'Octavia', faction: 'tide', role: 'ranged', bio: 'Octopus-folk ink caster.',
     mods: {},
     look: { body: 'tide', crest: 'octo', skin: '#9b6aa8', main: '#4b3d6e', trim: '#e3d27a', weapon: 'orb', orb: '#5a4a8a' },
     nature: { name: 'Vanish in Ink', desc: 'Once per battle, the first blow that drops her below 30% leaves the attacker Blinded and her untouchable until her next turn.', inkvanish: 1 },
-    skills: [S('Ink Double', 'Conjure an ink illusion of herself. It taunts enemies, hits for half and fades after 2 rounds.', 4, 'illusion'),
-             D('Ink Cloud', '50% to all enemies. Blinds them all.', 5, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
-             D('Tentacle Snare', '90% hit. Slows the target for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
-             D('Ink Whip', '120% hit. Never misses. Blinds the target for 2 turns.', 3, 1.2, { magic: true, noDodge: true, fx: [['blind', 3]] }),
-             D('Crushing Grip', '160% hit. Silences the target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] }),
+    skills: [S('Ink Double', 'Summons an ink illusion that taunts enemies. Deals 50% damage. Lasts 2 rounds.', 4, 'illusion'),
+             D('Ink Cloud', 'Deals 50% ATK damage to all enemies. Cannot miss. Applies Blind for 2 turns.', 5, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
+             D('Tentacle Snare', 'Deals 90% ATK damage. Applies Slow for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
+             D('Ink Whip', 'Deals 120% ATK damage. Cannot miss. Applies Blind for 2 turns.', 3, 1.2, { magic: true, noDodge: true, fx: [['blind', 3]] }),
+             D('Crushing Grip', 'Deals 160% ATK damage. Silences target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] }),
              { name: 'Stinging Veil', desc: 'Octavia flings a pink jellyfish that clamps onto an enemy, shocking it for 15 magic at once and 15 more every 3 turns, whoever takes them. The jelly stands as a unit of its own — targetable, untouched by area attacks, and burst only by 3 blows of any size.', cd: 4, kind: 'jelly', target: 'enemy', o: {} }],
     passive: P('Ink Sac', 'When hit, 25% chance to Blind the attacker.', { onHitTaken: { chance: 0.25, fx: [['blind', 2]] } }) },
   { id: 'maren', name: 'Maren Pearlheart', short: 'Maren', faction: 'tide', role: 'support', bio: 'Pearl priestess of the reef.',
     mods: {},
     look: { body: 'tide', crest: 'fish', skin: '#7fb3a8', main: '#e9e4d8', trim: '#f2c6d8', weapon: 'staff', orb: '#fff7e6' },
     nature: { name: 'Gift of the Reef', desc: 'Water carries her gift: her mending is 20% stronger on a Soaked ally.', reefgift: 1 },
-    skills: [H('Healing Tide', 'Heal an ally. 30% stronger at High Tide.', 2, 3.0, { tideBonus: 1.3 }),
-             B('Pearl Barrier', 'Shield all allies until their next turn and heal them a little.', 5, 'allAllies', [['shield', 1]], { heal: 1.0 }),
-             B('Tide Pool', 'All allies regenerate for 3 turns.', 4, 'allAllies', [['regen', 3, 0.5]]),
-             H('Reef Bloom', 'Heal an ally and clear their debuffs. 30% stronger at High Tide.', 3, 2.6, { cleanse: true, tideBonus: 1.3 }),
-             D('Riptide Crash', '70% to all enemies. Never misses. Weakens them all.', 4, 0.7, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
+    skills: [H('Healing Tide', 'Heals an ally for 300% ATK. 30% stronger at High Tide.', 2, 3.0, { tideBonus: 1.3 }),
+             B('Pearl Barrier', 'Shields all allies for 1 turn. Heals all allies for 100% ATK.', 5, 'allAllies', [['shield', 1]], { heal: 1.0 }),
+             B('Tide Pool', 'Applies Regen to all allies for 3 turns.', 4, 'allAllies', [['regen', 3, 0.5]]),
+             H('Reef Bloom', 'Heals an ally for 260% ATK. Cleanses all debuffs. 30% stronger at High Tide.', 3, 2.6, { cleanse: true, tideBonus: 1.3 }),
+             D('Riptide Crash', 'Deals 70% ATK damage to all enemies. Cannot miss. Applies Weaken for 2 turns.', 4, 0.7, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
              /* The only thing in the game that lands a Bash. Deliberately dodgeable, unlike her
                 Riptide Crash: a shard that misses carries no Bash with it (applyHitEffects only runs
                 on a hit), so an agile warband is not simply frozen out by one cast. */
-             D('Rimefall', 'Maren freezes the spray and brings it down over the enemy warband: 60% to all enemies, falling from above. Every shard that lands knocks its mark clean off the speed bar — Bashed for 2 turns on the field, whoever takes them, so a slow champion cannot wait it out by refusing to act. A shard that is dodged carries no Bash.', 5, 0.6, { magic: true, aoe: true, attackType: 'arch', fx: [['bash', 2]] })],
+             D('Rimefall', 'Deals 60% ATK damage to all enemies (arcing). Applies Bash for 2 turns to each target hit. Dodged shards apply no Bash.', 5, 0.6, { magic: true, aoe: true, attackType: 'arch', fx: [['bash', 2]] })],
     passive: P('Backwash', 'Each time an enemy uses a skill, it takes damage equal to 10% of its current HP.', { spellBacklash: 0.1 }),
     passiveAlt: P('Tidecaller', 'Her heals also restore 8 MP.', { healMp: 8 }) },
 
@@ -4464,112 +4480,112 @@ const ROSTER = [
     mods: { def: 0.9, agi: 1.15 },
     look: { body: 'vampire', main: '#3a2433', cape: '#1a1018', trim: '#c0303f', skin: '#e8dfe6', hair: '#1b1b22', weapon: 'rapier' },
     nature: { name: 'Noble Blood', desc: 'Old blood spends slowly: his skills cost 10% of his HP, not 15 — and his signature 15, not 20.', noble: 1 },
-    skills: [D('Crimson Lunge', '140% thrust. Drains an extra 50% of the damage.', 2, 1.4, { lifesteal: 0.5 }),
+    skills: [D('Crimson Lunge', 'Deals 140% ATK damage. Lifesteals 50% of damage dealt.', 2, 1.4, { lifesteal: 0.5 }),
              { name: 'Execute', desc: 'Vesper bleeds himself and every living ally for half their current HP and throws all of it into the sky over one enemy. Two Revs later — whoever takes them — it comes down on them as a single Magic blow that cannot miss and ignores armor. Only a mark that is simply not there when it falls escapes it — gone to ground, sealed in a coffin, or come apart into two hounds; a graveyard fence is no roof. No mana, no blood price beyond the warband\'s own. The rite needs the whole warband: while any ally has fallen, it cannot be performed.', cd: 5, kind: 'execute', target: 'enemy', o: { noBlood: true } },
-             D('Exsanguinate', '200% hit that causes Bleed. Drains an extra 50%.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
-             D('Night Waltz', 'Three thrusts of 50%.', 3, 0.5, { hits: 3 }),
-             D('Throat Tear', '150% thrust that ignores armor. Causes Bleed and drains an extra 50%.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
-             B('Mist Form', 'Vesper dissolves into mist: attacks that can miss will miss until his next turn, and he heals a little.', 4, 'self', [['evade', 1]], { heal: 1.5, mist: true })],
+             D('Exsanguinate', 'Deals 200% ATK damage. Lifesteals 50%. Applies Bleed for 3 turns.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
+             D('Night Waltz', 'Strikes 3 times for 50% ATK damage each.', 3, 0.5, { hits: 3 }),
+             D('Throat Tear', 'Deals 150% ATK damage. Ignores armor. Lifesteals 50%. Applies Bleed for 3 turns.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
+             B('Mist Form', 'Evades all dodgeable attacks for 1 turn. Heals for 150% ATK.', 4, 'self', [['evade', 1]], { heal: 1.5, mist: true })],
     passive: P('Riposte', 'When hit in melee, 20% chance to strike back for 60%.', { riposte: { chance: 0.2, mult: 0.6 } }) },
   { id: 'malgrath', name: 'Malgrath the Unbound', short: 'Malgrath', faction: 'crimson', role: 'melee', bio: 'Demon brute freed from the pit.',
     mods: { hp: 1.15, atk: 1.05, def: 0.9, agi: 0.85 },
     look: { body: 'demon', main: '#2d2230', trim: '#e8a548', skin: '#a8323a', horn: '#1f1a1f', eye: '#ffd166', weapon: 'axe' },
     nature: { name: 'Pit-Forged', desc: 'Hellfire knows its own: Burn never takes from him.', fireproof: 1 },
-    skills: [D('Hellfire Slam', '60% to all enemies. Burns them all and marks them with Infernal Toll: for 2 turns, their next skill also costs 5% of their current HP, on top of mana.', 3, 0.6, { magic: true, aoe: true, wave: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
-             D('Infernal Wrath', '230% hit. Costs 15% of his own HP.', 4, 2.3, { selfCost: 0.15 }),
-             B('Demonic Roar', 'Taunt all enemies and deal 30% more damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
-             D('Pit Chains', '130% hit. Drags the target back along the speed bar and Exposes it.', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
-             D('Sulphur Breath', '55% fire to all enemies. Never misses. Burns and Blinds them all.', 4, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] }),
+    skills: [D('Hellfire Slam', 'Deals 60% ATK fire damage to all enemies. Applies Burn for 3 turns. Applies Infernal Toll for 2 turns: skills cost an extra 5% of current HP.', 3, 0.6, { magic: true, aoe: true, wave: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
+             D('Infernal Wrath', 'Deals 230% ATK damage. Costs 15% of own max HP.', 4, 2.3, { selfCost: 0.15 }),
+             B('Demonic Roar', 'Taunts all enemies for 3 turns. Empowers self: +30% damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
+             D('Pit Chains', 'Deals 130% ATK damage. Knocks target back on the speed bar. Exposes for 2 turns (+25% damage taken).', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
+             D('Sulphur Breath', 'Deals 55% ATK fire damage to all enemies. Cannot miss. Applies Burn for 3 turns and Blind for 2 turns.', 4, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] }),
              B('Blood Pact', 'Malgrath binds the warband in blood. The next 3 blows he takes are split evenly between him and every living ally — with three beside him he carries a quarter of each.', 4, 'self', [['bloodpact', 99]], { charges: 3 })],
     passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }) },
   { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer — her feet never touch the ash.',
     mods: { hp: 0.9, agi: 1.3 }, floats: true,
     nature: { name: 'On the Wing', desc: 'Her feet never touch the ash: she flies to her marks, and nothing that needs footing — Stagger, the quaking earth — can take hold of her.' },
     look: { body: 'demon', wings: '#3d1f4a', main: '#1f1626', trim: '#e05a9a', skin: '#7a3d8f', horn: '#2a1830', eye: '#ff6bb5', weapon: 'dagger' },
-    skills: [D('Kiss of Ruin', '110% hit. Weakens the target.', 2, 1.1, { fx: [['weaken', 2]] }),
-             D('Dance of Knives', 'Five cuts of 40%.', 4, 0.4, { hits: 5 }),
-             D('Shadowstep', '110% hit. Never misses, +30% crit chance.', 3, 1.1, { noDodge: true, critBonus: 0.3 }),
-             D('Wing Carve', 'Four cuts of 45%. Causes Bleed.', 4, 0.45, { hits: 4, fx: [['bleed', 3, 0.25]] }),
-             B('Predator\'s Grace', 'Seraxa takes wing: she dodges every attack that can miss until her next turn and strikes 30% harder for 2 turns.', 4, 'self', [['evade', 1], ['empower', 3]])],
+    skills: [D('Kiss of Ruin', 'Deals 110% ATK damage. Applies Weaken for 2 turns.', 2, 1.1, { fx: [['weaken', 2]] }),
+             D('Dance of Knives', 'Strikes 5 times for 40% ATK damage each.', 4, 0.4, { hits: 5 }),
+             D('Shadowstep', 'Deals 110% ATK damage. Cannot miss. +30% crit chance.', 3, 1.1, { noDodge: true, critBonus: 0.3 }),
+             D('Wing Carve', 'Strikes 4 times for 45% ATK damage each. Applies Bleed for 3 turns.', 4, 0.45, { hits: 4, fx: [['bleed', 3, 0.25]] }),
+             B('Predator\'s Grace', 'Evades all dodgeable attacks for 1 turn. Empowers self: +30% damage for 2 turns.', 4, 'self', [['evade', 1], ['empower', 3]])],
     passive: P('Flurry', 'Her multi-hit skills strike one extra time.', { extraHit: 1 }) },
   { id: 'gorehound', name: 'Gorehound', faction: 'crimson', role: 'melee', bio: 'Two-headed hellhound of the Court\'s kennels. Cut one down and it comes apart into two.',
     mods: { hp: 1.05, agi: 1.1 },
     look: { body: 'direhound', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
     splitOnDeath: 2,
     nature: { name: 'Slips the Line', desc: 'No line holds a hound: the front-line law never binds his bites. Taunts still do.', slipline: 1 },
-    skills: [D('Rend', '120% bite. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
-             D('Hellhound Howl', '50% to all enemies and slows them.', 4, 0.5, { aoe: true, fx: [['slow', 2]] }),
-             D('Savage Maul', '110% bite. Exposes the target: it takes 25% more damage for 2 turns.', 3, 1.1, { fx: [['exposed', 3]] }),
-             D('Hamstring', '100% bite. Slows the target and causes Bleed.', 2, 1.0, { fx: [['slow', 2], ['bleed', 3, 0.3]] }),
-             D('Feral Lunge', '190% bite. Gorehound is Exposed until its next turn.', 4, 1.9, { selfFx: [['exposed', 1]] }),
+    skills: [D('Rend', 'Deals 120% ATK damage. Applies Bleed for 3 turns.', 2, 1.2, { fx: [['bleed', 3, 0.3]] }),
+             D('Hellhound Howl', 'Deals 50% ATK damage to all enemies. Applies Slow for 2 turns.', 4, 0.5, { aoe: true, fx: [['slow', 2]] }),
+             D('Savage Maul', 'Deals 110% ATK damage. Exposes target for 2 turns: +25% damage taken.', 3, 1.1, { fx: [['exposed', 3]] }),
+             D('Hamstring', 'Deals 100% ATK damage. Applies Slow for 2 turns and Bleed for 3 turns.', 2, 1.0, { fx: [['slow', 2], ['bleed', 3, 0.3]] }),
+             D('Feral Lunge', 'Deals 190% ATK damage. Exposes self for 1 turn (+25% damage taken).', 4, 1.9, { selfFx: [['exposed', 1]] }),
              { name: 'Come Apart', desc: `Both heads tear loose and run as two hounds — ${GORE_SPLIT_SPEED}× speed on the bar, ${GORE_SPLIT_BLOWS} blows each to put down whatever size they come in, and neither takes orders. While they run there is no Gorehound to aim at: nothing can be singled out, area attacks wash past, and anything thrown or queued at him finds nothing where he stood. Once each hound still standing has taken ${GORE_SPLIT_TURNS} turns they fold back together, at the health he left with. Put both hounds down and there is nothing left to come back.`, cd: 5, kind: 'split', target: 'self', o: {} }],
     passive: P('Tear Apart', 'When Gorehound falls, both heads tear free as a pair of Hell Pups — 100 HP each, 1.5× faster on the speed bar, still yours to command, and each has a 40% chance to throw itself in front of a melee blow meant for an ally.', {}) },
   { id: 'morwenna', name: 'Morwenna Bloodweaver', short: 'Morwenna', faction: 'crimson', role: 'support', bio: 'Blood witch of the Court.',
     mods: {},
     look: { body: 'vampire', main: '#5a1f2e', cape: '#2a1018', trim: '#d9b44a', skin: '#efe4ea', hair: '#c9c2d6', weapon: 'staff', orb: '#c0303f' },
     nature: { name: 'Overflowing Cup', desc: 'Lifesteal past her full health doesn\'t spill — it pours into her most hurt ally.', overflow: 1 },
-    skills: [D('Blight Hex', '60% hit that never misses. Burns 20 of the target\'s mana as extra damage, then Hexes them for 3 turns: healing received is halved.', 2, 0.6, { magic: true, noDodge: true, manaBurn: 20, fx: [['hex', 4]] }),
-             H('Blood Communion', 'Heal all allies and Hex all enemies for 2 turns.', 5, 1.8, { all: true, enemyFx: [['hex', 3]] }),
-             D('Blood Siphon', '80% hit. Never misses. Heals her most hurt ally for the damage dealt.', 3, 0.8, { magic: true, noDodge: true, allySteal: 1 }),
+    skills: [D('Blight Hex', 'Deals 60% ATK damage. Cannot miss. Burns 20 MP from target as bonus damage. Applies Hex for 3 turns: healing received halved.', 2, 0.6, { magic: true, noDodge: true, manaBurn: 20, fx: [['hex', 4]] }),
+             H('Blood Communion', 'Heals all allies for 180% ATK. Applies Hex to all enemies for 2 turns.', 5, 1.8, { all: true, enemyFx: [['hex', 3]] }),
+             D('Blood Siphon', 'Deals 80% ATK damage. Cannot miss. Heals most wounded ally for 100% of damage dealt.', 3, 0.8, { magic: true, noDodge: true, allySteal: 1 }),
              B('Crimson Mend', `Open a blood channel for 3 turns. At the start of each of her turns it mends every ally — summoned units included — for ${Math.round(CRIMSON_MEND_PCT * 100)}% of their max HP, and costs Morwenna ${Math.round(CRIMSON_MEND_PCT * 100)}% of hers.`, 4, 'self', [['bloodchannel', 3]], { channel: true }),
-             D('Wither', '70% hit. Never misses. Weakens the target and sunders its armor.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] }),
-             B('Blood Ward', 'Morwenna spreads her ward over the whole warband. The next 3 blows any ally takes are halved, and she bleeds the other half herself. Blows aimed at her are hers alone.', 4, 'self', [['bloodward', 99]], { charges: 3 }),
-             B('Quickened Blood', 'Her blood runs in an ally\'s veins for a while: Hastened for 2 turns and mended a little.', 4, 'ally', [['haste', 3]], { heal: 1.0, notSelf: true })],
+             D('Wither', 'Deals 70% ATK damage. Cannot miss. Applies Weaken and Sunder for 3 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] }),
+             B('Blood Ward', 'Next 3 hits on any ally are halved; Morwenna takes the other half. Hits on Morwenna are not shared.', 4, 'self', [['bloodward', 99]], { charges: 3 }),
+             B('Quickened Blood', 'Hastens an ally for 2 turns. Heals for 100% ATK.', 4, 'ally', [['haste', 3]], { heal: 1.0, notSelf: true })],
     passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }) },
   // ---- The Pale Host (Undead) ----
   { id: 'mordrek', name: 'Mordrek the Interred', short: 'Mordrek', faction: 'undead', role: 'melee', bio: 'Dug himself out, and brought his own marker with him.',
     mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
     look: { body: 'zombie', main: '#5a5c4a', trim: '#47564a', skin: '#97a884', weapon: 'cross' },
     nature: { name: 'The Slow March', desc: 'Nothing hurries him, nothing holds him: Slow and speed-bar drags never touch his march.', march: 1 },
-    skills: [D('Grave Cross', '130% swing of the iron marker. The target is gripped by Fear: over the next 3 turns, whoever takes them, it runs back to the start of the speed bar, and cannot act until it gets there.', 2, 1.3, { fx: [['flee', 3]] }),
-             D('Last Rites', 'Two giant iron crosses come down on the target one after the other: two 110% blows that ignore armor. They pin it where it stands, so it cannot act until Mordrek\'s next turn. If Mordrek falls first, the crosses crumble and it goes free.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
-             D('Graveside Chill', '85% to all enemies on a green grave-wind. They recoil in Fear, losing ground on the speed bar.', 4, 0.85, { aoe: true, gust: true, fx: [['fear', 2]] }),
-             D('Bonebreaker', 'Two blows of 75% that sunder armor.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
+    skills: [D('Grave Cross', 'Deals 130% ATK damage. Applies Fear for 3 turns: target is pushed to the start of the speed bar and cannot act until it gets back.', 2, 1.3, { fx: [['flee', 3]] }),
+             D('Last Rites', 'Strikes 2 times for 110% ATK damage each. Ignores armor. Pins target until Mordrek\'s next turn: cannot act. Pin breaks if Mordrek falls.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
+             D('Graveside Chill', 'Deals 85% ATK damage to all enemies. Applies Fear for 2 turns.', 4, 0.85, { aoe: true, gust: true, fx: [['fear', 2]] }),
+             D('Bonebreaker', 'Strikes 2 times for 75% ATK damage each. Sunders armor for 3 turns.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
              S('Plant the Marker', 'Step forward and drive the cross into the ground. The Grave Cross stands as a unit of its own and Taunts every enemy until it has taken 6 blows, whatever their size; then it flies back to his hand. While it is planted, Mordrek cannot use his basic Attack.', 4, 'gravecross')],
     passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
     look: { body: 'wight', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', cape: '#2b302a', weapon: 'headstone', weaponScale: 1.3, offhand: 'gravefence', offhandScale: 1.45 },
     nature: { name: 'Lord of the Mound', desc: 'While any body lies on the field, the dead crowd round their lord: he takes 8% less.', mound: 1 },
-    skills: [D('Tomb Slab', '120% slam with the grave slab.', 2, 1.2),
-             B('Barrow Wall', 'Taunt every enemy and raise the grave-plate: shielded for 3 turns, and every ill thing on him is left in the dirt.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
-             D('Grasping Hands', '70% to all enemies. Slows them all.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
-             D('Crypt Breaker', '155% blow that ignores armor.', 3, 1.55, { pierce: true }),
-             B('Hold the Grave', 'Set his feet: thorns and a shield for 2 turns.', 4, 'self', [['thorns', 3], ['shield', 2]]),
-             B('Graveyard Fence', 'Raise an iron graveyard fence before an ally champion: they are Protected for 2 turns. No melee blow can reach them, and every shot fired straight at them — arrows, bullets, bolts, thrown blades, spell-bolts — glances off the iron. Area attacks still land, and so does anything that comes down from above: a lobbed shell or pot, an arching skull, a cross from the sky. The wall holds both ways: a melee ally fenced in cannot swing out past it, while a ranged ally fires over it freely, and any ally can still cast and Guard. The fence is no unit of its own.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' }),
+    skills: [D('Tomb Slab', 'Deals 120% ATK damage.', 2, 1.2),
+             B('Barrow Wall', 'Taunts all enemies for 4 turns. Shields self for 3 turns. Cleanses all debuffs.', 5, 'self', [['taunt', 4], ['shield', 3]], { cleanse: true }),
+             D('Grasping Hands', 'Deals 70% ATK damage to all enemies. Applies Slow for 2 turns.', 4, 0.7, { aoe: true, fx: [['slow', 2]] }),
+             D('Crypt Breaker', 'Deals 155% ATK damage. Ignores armor.', 3, 1.55, { pierce: true }),
+             B('Hold the Grave', 'Shields self for 2 turns. Applies Thorns for 3 turns.', 4, 'self', [['thorns', 3], ['shield', 2]]),
+             B('Graveyard Fence', 'Protects an ally champion for 2 turns. Blocks all melee and direct ranged attacks. AoE and arcing attacks still hit. Melee allies behind the fence cannot attack out; ranged allies fire over it freely.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' }),
              { name: 'Burrow', desc: 'Barrow buries himself in the grave-dirt for 1 round, holding his place on the speed bar: nothing can target him, and area attacks pass over him. He climbs back out when the round is up.', cd: 5, kind: 'burrow', target: 'self', o: {} }],
     passive: P('Feast of the Fallen', 'Whenever anything on the field dies, friend or foe, he drinks 15% of his current HP. The grave feeds him directly, so the Pale Host\'s halved mending does not touch it.', { deathHeal: 0.15 }) },
   { id: 'cadris', name: 'Cadris Gravecall', short: 'Cadris', faction: 'undead', role: 'ranged', bio: 'Raises what the road leaves behind, and spends it freely.',
     mods: {},
     look: { body: 'revenant', main: '#d6cfb6', trim: '#3f5244', weapon: 'staff', orb: '#8ee6a0' },
     nature: { name: 'Bone-Thrift', desc: 'Nothing he raises is wasted: a Shambler coming apart flings its bones — 30% to a random enemy.', thrift: 1 },
-    skills: [D('Bone Dart', '120% splinter of bone.', 2, 1.2),
-             D('Charnel Volley', '85% to all enemies, twice.', 5, 0.85, { aoe: true, hits: 2 }),
-             S('Shambling Rise', 'Claw up a 1-HP Shambler. It swings the moment it stands, swings once more if it is somehow still standing, then falls apart. It answers to nobody, and the Undying pact does not cover it.', 3, 'zombie'),
-             D('Rot Shot', '110% shot that poisons.', 3, 1.1, { fx: [['poison', 3, 0.3]] }),
-             D('Marrow Pierce', '150% shot that ignores armor.', 3, 1.5, { pierce: true })],
+    skills: [D('Bone Dart', 'Deals 120% ATK damage.', 2, 1.2),
+             D('Charnel Volley', 'Strikes all enemies 2 times for 85% ATK damage each.', 5, 0.85, { aoe: true, hits: 2 }),
+             S('Shambling Rise', 'Summons a 1-HP Shambler. It attacks immediately, attacks once more if still alive, then dies. Uncontrollable. Not covered by Undying.', 3, 'zombie'),
+             D('Rot Shot', 'Deals 110% ATK damage. Applies Poison for 3 turns.', 3, 1.1, { fx: [['poison', 3, 0.3]] }),
+             D('Marrow Pierce', 'Deals 150% ATK damage. Ignores armor.', 3, 1.5, { pierce: true })],
     // "Toll" here is the DEATH TOLL — a count of the fallen, nothing to do with the field's clock.
     passive: P('Toll of the Dead', 'Deals 5% more damage for every body lying on the field, whoever it belonged to.', { deadScale: 0.05 }) },
   { id: 'vaun', name: 'Vaun Shroudfletch', short: 'Vaun', faction: 'undead', role: 'ranged', bio: 'Snaps out its own ribs for shot. Never needs to breathe to steady a throw.',
     mods: { atk: 1.1, agi: 1.05, hp: 0.95 },
     look: { body: 'skeleton', main: '#e2dcc4', trim: '#44523f', weapon: 'slingstaff' },
     nature: { name: 'Breathless', desc: 'No breath to hold, no waver in the cords: his basic Attack cannot be dodged.', breathless: 1 },
-    skills: [D('Shroudcast', '125% skull.', 2, 1.25),
-             D('Pall of Bones', '70% to all enemies, twice. Blinds them all.', 5, 0.7, { aoe: true, hits: 2, fx: [['blind', 2]] }),
-             D('Withering Shot', '110% skull. Weakens the target and sunders its armor.', 3, 1.1, { fx: [['weaken', 3], ['sunder', 3]] }),
-             D('Graveshot', '165% skull, 50% stronger against a Poisoned target.', 3, 1.65, { bonusVs: 'poison' }),
-             D('Scatter of Bones', '55% to all enemies. Causes Bleed.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.22]] })],
+    skills: [D('Shroudcast', 'Deals 125% ATK damage.', 2, 1.25),
+             D('Pall of Bones', 'Strikes all enemies 2 times for 70% ATK damage each. Applies Blind for 2 turns.', 5, 0.7, { aoe: true, hits: 2, fx: [['blind', 2]] }),
+             D('Withering Shot', 'Deals 110% ATK damage. Applies Weaken and Sunder for 3 turns.', 3, 1.1, { fx: [['weaken', 3], ['sunder', 3]] }),
+             D('Graveshot', 'Deals 165% ATK damage. 50% bonus damage to Poisoned targets.', 3, 1.65, { bonusVs: 'poison' }),
+             D('Scatter of Bones', 'Deals 55% ATK damage to all enemies. Applies Bleed for 3 turns.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.22]] })],
     passive: P('Deathmark', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }) },
   { id: 'mortessa', name: 'Mortessa', faction: 'undead', role: 'support', bio: 'Necromancer of the Pale Host. Brings the coffin everywhere, for anyone.',
     mods: { def: 1.1 },
     look: { body: 'haunted', main: '#3c4a42', trim: '#9fc4a2', skin: '#ddd8cb', hair: '#f1efe6', eye: '#8ee6a0', weapon: 'coffin', orb: '#8ee6a0' },
     nature: { name: 'The Dead Listen', desc: 'The grave knows her voice: her mending is never halved by grave-flesh.', gravetongue: 1 },
-    skills: [H('Grave Mend', 'Mend an ally with grave-dust and a whispered name.', 2, 2.8),
-             R('Second Burial', 'Call a fallen ally back onto their feet at 10% of their HP. The grave keeps its claim — the Undying pact holds anew when they next fall — and mending can reach them once more.', 6, 0.10),
-             C('Coffin', 'Seal an ally in the coffin for 2 turns, whoever takes them, held safe off the speed bar: nothing can target them and area attacks wash over them for nothing, but no mending reaches inside either. At hero level 5 the lid leaves their curses behind as it opens; at level 10 they step out shielded.', 4),
-             B('Hex of Ruin', 'Hex an enemy for 3 turns: all healing they receive is halved.', 3, 'enemy', [['hex', 4]]),
-             D('Soul Siphon', '110% drain that never misses and heals her for half of what it takes.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 }),
-             B('Stolen Hours', 'The grave pockets an enemy\'s hours: they are dragged a quarter of the way back down the speed bar and left Leaden for 2 turns — their cooldowns do not run down.', 5, 'enemy', [['leaden', 2]], { dragBack: 250 })],
+    skills: [H('Grave Mend', 'Heals an ally for 280% ATK.', 2, 2.8),
+             R('Second Burial', 'Revives a fallen ally at 10% HP. Undying resets. Ally can be healed again.', 6, 0.10),
+             C('Coffin', 'Seals an ally for 2 turns: untargetable, immune to AoE, but cannot be healed. Level 5: cleanses debuffs on exit. Level 10: exits with Shield.', 4),
+             B('Hex of Ruin', 'Applies Hex to an enemy for 3 turns: healing received halved.', 3, 'enemy', [['hex', 4]]),
+             D('Soul Siphon', 'Deals 110% ATK damage. Cannot miss. Lifesteals 50%.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 }),
+             B('Stolen Hours', 'Drags an enemy 25% back on the speed bar. Applies Leaden for 2 turns: cooldowns do not tick down.', 5, 'enemy', [['leaden', 2]], { dragBack: 250 })],
     passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
 
   // ---- The Stray Banner (no unified resource; each carries their own) ----
@@ -4583,21 +4599,21 @@ const ROSTER = [
              B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS })],
     nature: { name: 'Unblinking', desc: `He aims on his turn and the blades fly at the next Rev. His throws never miss. Each blade that lands is spent into the body it finds, and killing that body gives the blade back; one that is turned aside or finds nothing comes home. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
     passive: P('Dead Aim', '+8% critical hit chance: what he aims at, he hits clean.', { stat: { crit: 0.08 } }) },
-  { id: 'automatonx', name: 'Automaton X', faction: 'stray', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
-    mods: { atk: 0.95, hp: 0.9, agi: 1.15 },
+  { id: 'automatonx', name: 'Orin', faction: 'stray', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
+    mods: { atk: 1.0, hp: 0.95, agi: 1.15 },
     look: { body: 'bot', main: '#6d7482', trim: '#e8a548', eye: '#ffcf6b' },
-    skills: [D('Spanner Swing', '100% hit with whatever is to hand.', 2, 1.0, {}),
-             B('Piggyback Rig', `Automaton X bolts onto an ally's back for ${ORIN_RIDE_TURNS} turns: they run ${ORIN_RIDE_PUSH} further along the bar at every turn of theirs, and he swings in straight after every attack they make. No single blow can find him while he rides, though area attacks still catch him.`, 5, 'ally', [], { ride: true, notSelf: true, aiTarget: 'lowest' }),
-             B('Seize the Arm', `Automaton X clamps onto an enemy and disarms them for ${ORIN_GRIP_TURNS} turn, grinding ${ORIN_GRIP_DMG} off them every Rev he holds on. He is in the open while he does it — anyone can pull him off, and it will kill him.`, 4, 'enemy', [], { grip: true }),
-             S('Rush Bot', 'Welds a bot that charges the moment it lands: it strikes an enemy at random, then runs to a random ally and shoves them up the speed bar.', 4, 'rushbot', {}),
-             B('Overclock', 'Runs an ally\'s gears past their rating: they are driven up the speed bar and strike 30% harder for 2 turns.', 3, 'ally', [['empower', 3]], { overclock: true, aiTarget: 'lowest' }),
-             H('Hammer Weld', `Beats an ally back into shape with his own fire. On anything cast rather than born — a bot, a hot hull — the weld takes properly and mends ${Math.round((ORIN_WELD_METAL - 1) * 100)}% more, and ${ORIN_WELD_VENT} Heat is bled out while the panels are open. Best of all on the back he is already bolted to.`, 3, ORIN_WELD_MULT, { weld: true })],
+    skills: [D('Spanner Swing', 'Deals 120% ATK damage.', 2, 1.2, { dash: true }),
+             B('Piggyback Rig', `Orin bolts onto an ally's back for ${ORIN_RIDE_TURNS} turns: they run ${ORIN_RIDE_PUSH} further along the bar at every turn of theirs, and he swings in straight after every attack they make. No single blow can find him while he rides, though area attacks still catch him.`, 4, 'ally', [], { ride: true, notSelf: true, aiTarget: 'lowest' }),
+             B('Seize the Arm', `Orin clamps onto an enemy and disarms them for ${ORIN_GRIP_TURNS} turns, grinding ${Math.round(ORIN_GRIP_DMG * 100)}% ATK damage every Rev he holds on. Orin is fully exposed while gripping — any hit will kill him.`, 4, 'enemy', [], { grip: true }),
+             S('Rush Bot', `Welds a bot that charges the moment it lands: it drains ${Math.round(ORIN_RUSH_DRAIN * 100)}% of a random enemy's max HP, then runs to a random ally — healing them for the stolen amount and boosting their turn bar by 25%.`, 4, 'rushbot', {}),
+             B('Overclock', 'Pushes an ally up the speed bar. Empowers them: +30% damage for 2 turns.', 3, 'ally', [['empower', 3]], { overclock: true, aiTarget: 'lowest' }),
+             H('Hammer Weld', `Heals an ally for ${Math.round(ORIN_WELD_MULT * 100)}% ATK. On anything cast rather than born — a bot, a hot hull — mends ${Math.round((ORIN_WELD_METAL - 1) * 100)}% more and vents ${ORIN_WELD_VENT} Heat. Best of all on the back he is already bolted to.`, 3, ORIN_WELD_MULT, { weld: true, weldBeam: true })],
     nature: { name: 'Foundry-Cast', desc: 'Built in the Union\'s own moulds. Runs on Heat, not mana — every action fills the overheat bar.', heat: 1 },
     passive: P('Foundry-Cast', 'Built in the Union\'s own moulds: +10% Heat damage and the overheat bar fills a little slower.', { stat: { heatMult: 0.1 } }) },
   { id: 'shazrak', name: 'Fin-Keeper Shazrak', faction: 'stray', role: 'support', bio: 'A sound-shaper who moves the war to his own time.',
     mods: { atk: 0.9, hp: 1.0, agi: 1.1 },
     look: { body: 'wraith', main: '#2a2440', trim: '#5fcad1', eye: '#5fcad1' },
-    skills: [D('Clarion', '110% sonic blast.', 2, 1.1, { magic: true, mp: 15 }),
+    skills: [D('Clarion', 'Deals 110% ATK magic damage. Costs 15 MP.', 2, 1.1, { magic: true, mp: 15 }),
              S('Mana Cairn', 'Raises a cairn. Every turn it stands, enemy spells cost another 10%. Two stones may stand; a third pulls down the oldest.', 3, 'tot_mana', { mp: 25 }),
              S('Quickening Stone', 'Raises a stone that carries the whole warband forward along the speed bar every turn it stands.', 3, 'tot_haste', { mp: 25 }),
              S('Unweaving Stone', 'Raises a stone that thins enemy magic wards by another 6% every turn it stands.', 3, 'tot_ward', { mp: 25 }),
@@ -4610,23 +4626,23 @@ const ROSTER = [
     mods: { hp: 1.2, def: 1.2, atk: 0.95, agi: 0.85 },
     look: { body: 'orc', main: '#8a2a1a', trim: '#c47a3a', skin: '#a04030', weapon: 'hammer' },
     nature: { name: 'Red Blood', desc: `Below ${Math.round(ZULKAN_RED_HP * 100)}% HP his bash lasts a turn longer and he hits ${Math.round(ZULKAN_RED_BONUS * 100)}% harder — the redder the blood, the harder the fist.`, redblood: 1 },
-    skills: [D('Ground Slam', '140% blow that lifts the target and smashes them into the dirt. Every other enemy is bashed for 1 turn by the shock.', 4, 1.4, { fx: [['bash', 1]], splashBash: 1, mp: 25 }),
+    skills: [D('Ground Slam', 'Deals 140% ATK damage. Bashes target. Splash: bashes all other enemies for 1 turn. Costs 25 MP.', 4, 1.4, { fx: [['bash', 1]], splashBash: 1, mp: 25 }),
              D('Skyward Smash', `160% uppercut that launches the target out of the fight for ${ZULKAN_AIRBORNE} turns. Untargetable during the first.`, 4, 1.6, { fx: [['bash', ZULKAN_AIRBORNE]], mp: 25 }),
              B('War Cry', 'Taunts all enemies for 1 turn. Forced swings trigger Retaliatory Bash.', 4, 'self', [['taunt', 2]], { mp: 20 }),
-             D('Seismic Toss', '120% — grabs a bashed enemy and hurls them at another. Both are bashed for 1 turn.', 3, 1.2, { requireFx: 'bash', bounce: 1.0, fx: [['bash', 1]], mp: 20 }),
+             D('Seismic Toss', 'Deals 120% ATK damage. Requires: target is Bashed. Bounces to another enemy for 100% ATK. Both are Bashed for 1 turn. Costs 20 MP.', 3, 1.2, { requireFx: 'bash', bounce: 1.0, fx: [['bash', 1]], mp: 20 }),
              B('Iron Stance', `Braces: takes 50% less damage for 2 turns and Retaliatory Bash becomes a certainty.`, 4, 'self', [['ward', 2]], { ironStance: true, mp: 20 }),
-             D('Tremor', '55% to all enemies. Drags every one of them back along the speed bar.', 3, 0.55, { aoe: true, dragBack: 150, mp: 25 })],
+             D('Tremor', 'Deals 55% ATK damage to all enemies. Drags all targets back on the speed bar. Costs 25 MP.', 3, 0.55, { aoe: true, dragBack: 150, mp: 25 })],
     passive: P('Retaliatory Bash', `Enemies that strike him have a ${Math.round(ZULKAN_RETALIATORY * 100)}% chance to be bashed for 1 turn.`, { retaliatory: { chance: ZULKAN_RETALIATORY, fx: ['bash', 1] } }) },
   { id: 'ryuunosuke', name: 'Ryuunosuke', faction: 'stray', role: 'melee', bio: 'Masterless samurai with a permanent shadow clone.',
     mods: { atk: 1.15, hp: 0.9, agi: 1.2 },
     look: { body: 'wraith', main: '#1a1a2a', trim: '#c04848', eye: '#c04848' },
     nature: { name: 'Invulnerable Clone', desc: `A shadow walks behind him. Whenever he attacks or casts, the clone strikes a random enemy from behind for ${Math.round(RYUU_CLONE_MULT * 100)}% of his base damage. The clone is untouchable.`, clone: 1 },
-    skills: [D('Shadow Matrix', 'Replicas appear behind every enemy. Ryuunosuke vanishes. Next turn: all replicas slash. Cannot be dodged.', 5, 0.8, { aoe: true, noDodge: true, shadowMatrix: true, mp: 35 }),
-             D('Iaijutsu', 'Lightning draw. If the clone hits the same target this turn, both strikes deal 30% more.', 2, 1.3, { iaijutsu: true, mp: 10 }),
+    skills: [D('Shadow Matrix', 'Deals 80% ATK damage to all enemies on next turn. Cannot miss. Ryuunosuke is untargetable until it fires. Costs 35 MP.', 5, 0.8, { aoe: true, noDodge: true, shadowMatrix: true, mp: 35 }),
+             D('Iaijutsu', 'Deals 130% ATK damage. If the clone strikes the same target, both deal 30% bonus damage. Costs 10 MP.', 2, 1.3, { iaijutsu: true, mp: 10 }),
              B('Mark of Death', `Marks an enemy for ${RYUU_MARK_TURNS} turns: the clone targets only them, and they take ${Math.round(RYUU_MARK_BONUS * 100)}% more damage from Ryuunosuke.`, 4, 'enemy', [['deathmark', RYUU_MARK_TURNS]], { aiTarget: 'highest', mp: 20 }),
              B('Smoke Veil', 'Vanishes for 1 turn. Untargetable, but his clone keeps striking.', 4, 'self', [['cloak', 1]], { mp: 20 }),
-             D('Twin Slash', '180% — Ryuunosuke and his clone coordinate a simultaneous strike. Guaranteed critical hit.', 4, 1.8, { alwaysCrit: true, twinSlash: true, mp: 25 }),
-             D('Blade Dance', '50% twice to every enemy — Ryuunosuke dashes through the warband while the clone mirrors from the other side.', 4, 0.5, { aoe: true, hits: 2, mp: 30 })],
+             D('Twin Slash', 'Deals 180% ATK damage. Guaranteed critical hit. Ryuunosuke and clone strike together. Costs 25 MP.', 4, 1.8, { alwaysCrit: true, twinSlash: true, mp: 25 }),
+             D('Blade Dance', 'Strikes all enemies 2 times for 50% ATK damage each. Costs 30 MP.', 4, 0.5, { aoe: true, hits: 2, mp: 30 })],
     passive: P('Shadow Step', `Defeating an enemy fills his speed bar by ${Math.round(RYUU_KILL_SPEED / 10)}%.`, { killSpeed: RYUU_KILL_SPEED }),
     passiveAlt: P('Killing Intent', '+5% damage for every dead enemy, up to +20%.', { killStack: { per: 0.05, max: 0.2 } }) },
 ];
@@ -4635,8 +4651,8 @@ const ROSTER = [
 // or be matched against is drawn from here.
 const PLAY_ROSTER = ROSTER.filter((c) => !HIDDEN_FACTIONS.has(c.faction));
 
-const ATTACK = { id: 'attack', name: 'Attack', desc: 'Basic hit for 100%.', cd: 0, kind: 'damage', target: 'enemy', mult: 1, o: { heat: 10 } };
-const GUARD  = { id: 'guard',  name: 'Guard',  desc: 'Take 50% less damage until your next turn.', cd: 0, kind: 'guard', target: 'self', o: { heat: -50 } };
+const ATTACK = { id: 'attack', name: 'Attack', desc: 'Deals 100% ATK damage.', cd: 0, kind: 'damage', target: 'enemy', mult: 1, o: { heat: 10 } };
+const GUARD  = { id: 'guard',  name: 'Guard',  desc: 'Reduces damage taken by 50% for 1 turn.', cd: 0, kind: 'guard', target: 'self', o: { heat: -50 } };
 const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One ally', allAllies: 'All allies', self: 'Self', deadAlly: 'One fallen ally' };
 
 /* ==================================================================
@@ -4795,7 +4811,7 @@ const SUMMONS = {
     look: { body: 'beast', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
     leave: (u) => `${u.name} is put down.`,
     stats: (o) => ({ maxHp: 100, atk: o.atk, def: o.def, agi: o.agi, crit: o.crit || 0.06, dodge: o.dodge || 0 }),
-    skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' }],
+    skills: [{ ...ATTACK, name: 'Bite', desc: 'Deals 100% ATK damage.' }],
   },
   // A living half of a Gorehound who has come apart on purpose (see splitHounds). Not a Hell Pup:
   // a Pup is what is left when he dies, while this is him, still fighting, in two places. Counted
@@ -4807,7 +4823,7 @@ const SUMMONS = {
     look: { body: 'beast', main: '#5a2626', trim: '#ff7a2f', eye: '#ffd166' },
     leave: (u) => `${u.name} folds back together.`,
     stats: (o) => ({ maxHp: GORE_SPLIT_BLOWS, atk: o.atk, def: o.def, agi: o.agi, crit: o.crit || 0.06, dodge: o.dodge || 0 }),
-    skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' }],
+    skills: [{ ...ATTACK, name: 'Bite', desc: 'Deals 100% ATK damage.' }],
   },
   // ATTACHMENTS — Tharos's Anchor and Octavia's Jellyfish (see spawnAttachment). Inert units that
   // stand on the caster's side but clamp onto a chosen enemy: targetable and blow-counted like a
@@ -4834,7 +4850,7 @@ const SUMMONS = {
     look: { body: 'bot', main: '#a39a86', trim: '#8be28b' },
     leave: (u) => `${u.name} falls apart.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.55), atk: Math.round(o.atk * 1.3), def: o.def, agi: 12, crit: 0.08, dodge: 0 }),
-    skills: [{ ...ATTACK, name: 'Beam Shot', desc: '100% shot.' },
+    skills: [{ ...ATTACK, name: 'Beam Shot', desc: 'Deals 100% ATK damage.' },
              D('Beam Burst', 'Three beams of 45%.', 3, 0.45, { hits: 3 })],
   },
   illusion: {
@@ -4856,7 +4872,7 @@ const SUMMONS = {
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.5), atk: Math.round(o.atk * 0.75), def: Math.round(o.def * 0.5), agi: o.agi, crit: 0.05, dodge: 0.08 }),
     onSpawn: (s) => { const o = unitBy(s.owner); if (o) s.role = o.role; s.actsLeft = 3; s.hitsLeft = 8; },
     leave: (u) => `${u.name} ripples and fades.`,
-    skills: [{ ...ATTACK, name: 'Phantom Strike', desc: '100% hit.' }],
+    skills: [{ ...ATTACK, name: 'Phantom Strike', desc: 'Deals 100% ATK damage.' }],
   },
   warboar: {
     name: 'War Boar', role: 'melee', life: 400,
@@ -4874,7 +4890,7 @@ const SUMMONS = {
     look: { body: 'bot', main: '#8a8172', trim: '#ff8a3d' },
     leave: (u) => `${u.name} finally falls apart.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.5), atk: Math.round(o.atk * 1.1), def: o.def, agi: 11, crit: 0.08, dodge: 0 }),
-    skills: [{ ...ATTACK, name: 'Scrap Swing', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Scrap Swing', desc: 'Deals 100% ATK damage.' },
              D('Overload Burst', '70% to all enemies.', 3, 0.7, { aoe: true })],
   },
   // Raised by the Drowned Abbot (dungeon boss).
@@ -4884,7 +4900,7 @@ const SUMMONS = {
     look: { body: 'skeleton', main: '#b8c9c9', trim: '#2c3e46' },
     leave: (u) => `${u.name} sinks back into the black water.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.25), atk: Math.round(o.atk * 0.8), def: o.def, agi: 9, crit: 0.05, dodge: 0 }),
-    skills: [{ ...ATTACK, name: 'Grasp', desc: '100% hit.' }],
+    skills: [{ ...ATTACK, name: 'Grasp', desc: 'Deals 100% ATK damage.' }],
   },
   // Cadris's Shambling Rise. One hit point, one swing the moment it stands (strikesOnSpawn), and
   // one more if it somehow lives to take a turn of its own — then it comes apart. `life` is short
@@ -4896,7 +4912,7 @@ const SUMMONS = {
     look: { body: 'ghoul', main: '#6a7055', trim: '#cbbf92', skin: '#a8b094' },
     leave: (u) => `${u.name} comes apart where it stands.`,
     stats: (o) => ({ maxHp: 1, atk: Math.round(o.atk * 0.9), def: 0, agi: 16, crit: 0.05, dodge: 0 }),
-    skills: [{ ...ATTACK, name: 'Clawing Grasp', desc: '100% hit.' }],
+    skills: [{ ...ATTACK, name: 'Clawing Grasp', desc: 'Deals 100% ATK damage.' }],
   },
   // Mordrek's Plant the Marker: his own weapon, driven into the ground in front of him. It is a
   // unit (it can be targeted, struck and caught in sweeps) but an inert one: it never takes a turn,
@@ -4904,14 +4920,14 @@ const SUMMONS = {
   // number of blows it has left (see countBlows). Broken, it leaves no body: it flies back to
   // Mordrek's hand (crossFliesHome), and while it stands he has no weapon to Attack with.
   // Orin's Rush Bot: a one-errand machine. It lands swinging (strikesOnSpawn),
-  // then spends itself shoving an ally up the bar — see rushBotErrand.
+  // drains the target and delivers the stolen life to an ally — see rushBotErrand.
   rushbot: {
     name: 'Rush Bot', role: 'melee', life: 120, strikesOnSpawn: true, errand: 'rush',
-    desc: 'A welded scrap-charger. Strikes an enemy at random the moment it lands, then runs to an ally and shoves them up the speed bar.',
+    desc: 'A welded scrap-charger. Drains 10% of a random enemy\'s max HP, runs to a random ally, heals them for the stolen amount and boosts their turn bar by 25%.',
     look: { body: 'bot', main: '#7a828f', trim: '#e8a548' },
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.25), atk: Math.round(o.atk * 0.8), def: Math.round(o.def * 0.5), agi: 16, crit: 0.05, dodge: 0 }),
     leave: (u) => `${u.name} clatters apart.`,
-    skills: [{ ...ATTACK, name: 'Ram', desc: '100% hit.' }],
+    skills: [{ ...ATTACK, name: 'Ram', desc: 'Deals 100% ATK damage.' }],
   },
   // Resh's five stones. Planted things that think: they take turns (see totemPulse).
   tot_mana: {
@@ -4975,8 +4991,8 @@ const SUMMONS = {
     look: { body: 'wraith', main: '#5a4a6a', trim: '#c8b8e0', eye: '#d9a8ff', orb: '#d9a8ff' },
     leave: (u) => `${u.name} melts back into shadow.`,
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.28), atk: Math.round(o.atk * 0.7), def: o.def, agi: 11, crit: 0.06, dodge: 0.1 }),
-    skills: [{ ...ATTACK, name: 'Rake', desc: '100% hit.' },
-             D('Chilling Grip', '80% hit. Weakens the target.', 3, 0.8, { fx: [['weaken', 2]] })],
+    skills: [{ ...ATTACK, name: 'Rake', desc: 'Deals 100% ATK damage.' },
+             D('Chilling Grip', 'Deals 80% ATK damage. Applies Weaken for 2 turns.', 3, 0.8, { fx: [['weaken', 2]] })],
   },
 };
 
@@ -6195,7 +6211,7 @@ const MONSTERS = {
     lore: 'Ember-winged bats that nest in the cave roof and dive in screeching swarms.',
     mods: { hp: 0.55, atk: 0.8, def: 0.6, agi: 1.45 },
     look: { body: 'bat', main: '#3a2a35', trim: '#ff8a3d' },
-    skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' },
+    skills: [{ ...ATTACK, name: 'Bite', desc: 'Deals 100% ATK damage.' },
              D('Ember Screech', '35% to all enemies. Slows them.', 3, 0.35, { aoe: true, noDodge: true, fx: [['slow', 2]] })],
   },
   ashcrawler: {
@@ -6203,8 +6219,8 @@ const MONSTERS = {
     lore: 'A grey cave spider as big as a hound. Its bite numbs and its web holds.',
     mods: { hp: 0.8, atk: 0.9, def: 0.8, agi: 1.15 },
     look: { body: 'spider', main: '#4a4a52', trim: '#c0303f' },
-    skills: [{ ...ATTACK, name: 'Fang', desc: '100% bite.' },
-             D('Venom Fang', '90% bite. Poisons for 3 turns.', 2, 0.9, { fx: [['poison', 3, 0.35]] }),
+    skills: [{ ...ATTACK, name: 'Fang', desc: 'Deals 100% ATK damage.' },
+             D('Venom Fang', 'Deals 90% ATK damage. Applies Poison for 3 turns.', 2, 0.9, { fx: [['poison', 3, 0.35]] }),
              D('Web Shot', '50% hit that never misses. Slows the target.', 3, 0.5, { noDodge: true, fx: [['slow', 3]] })],
   },
   magmaslime: {
@@ -6213,8 +6229,8 @@ const MONSTERS = {
     mods: { hp: 1.2, atk: 0.75, def: 1.1, agi: 0.6 },
     passive: P('Hardened Crust', 'Starts every battle Shielded for its first 2 turns.', { startFx: [['shield', 3]] }),
     look: { body: 'slime', main: '#a8402a', trim: '#ffb347' },
-    skills: [{ ...ATTACK, name: 'Slam', desc: '100% hit.' },
-             D('Lava Spit', '80% hit. Burns for 3 turns.', 2, 0.8, { magic: true, fx: [['burn', 3, 0.35]] })],
+    skills: [{ ...ATTACK, name: 'Slam', desc: 'Deals 100% ATK damage.' },
+             D('Lava Spit', 'Deals 80% ATK fire damage. Applies Burn for 3 turns.', 2, 0.8, { magic: true, fx: [['burn', 3, 0.35]] })],
   },
   bonerattler: {
     name: 'Bone Rattler', plural: 'Bone Rattlers', role: 'melee', xp: 20,
@@ -6222,7 +6238,7 @@ const MONSTERS = {
     mods: { hp: 0.9, atk: 1.05, def: 1.0, agi: 0.9 },
     passive: P('Reassemble', 'Once per battle, a blow that would knock it out leaves it at 1 HP.', { lastStand: true }),
     look: { body: 'skeleton', main: '#e6e1d3', trim: '#8a5a32' },
-    skills: [{ ...ATTACK, name: 'Pick Swing', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Pick Swing', desc: 'Deals 100% ATK damage.' },
              D('Rusty Cleave', '55% to all enemies. Causes Bleed.', 3, 0.55, { aoe: true, fx: [['bleed', 3, 0.25]] })],
   },
   glowcap: {
@@ -6230,8 +6246,8 @@ const MONSTERS = {
     lore: 'A mushroom-folk elder. Its spores mend its kin and blind its foes.',
     mods: { hp: 0.75, atk: 1, def: 0.8, agi: 1 },
     look: { body: 'shroom', main: '#5e8a6a', trim: '#9fe0ff' },
-    skills: [{ ...ATTACK, name: 'Spore Puff', desc: '100% hit.' },
-             H('Mending Spores', 'Heal an ally.', 2, 2.6),
+    skills: [{ ...ATTACK, name: 'Spore Puff', desc: 'Deals 100% ATK damage.' },
+             H('Mending Spores', 'Heals an ally for 260% ATK.', 2, 2.6),
              D('Blinding Spores', '30% to all enemies. Blinds them.', 4, 0.3, { aoe: true, noDodge: true, fx: [['blind', 2]] })],
   },
   cavetroll: {
@@ -6240,8 +6256,8 @@ const MONSTERS = {
     mods: { hp: 2.0, atk: 1.25, def: 1.2, agi: 0.65 },
     passive: P('Troll Blood', 'Recovers an extra 4% of max HP every turn.', { stat: { hpRegenPct: 0.04 } }),
     look: { body: 'troll', main: '#6d7a5a', trim: '#8a5a32' },
-    skills: [{ ...ATTACK, name: 'Club', desc: '100% hit.' },
-             D('Boulder Slam', '140% hit. Staggers the target.', 3, 1.4, { fx: [['stagger', 1]] })],
+    skills: [{ ...ATTACK, name: 'Club', desc: 'Deals 100% ATK damage.' },
+             D('Boulder Slam', 'Deals 140% ATK damage. Staggers target.', 3, 1.4, { fx: [['stagger', 1]] })],
   },
 
   // ---- The Sunken Crypt ----
@@ -6251,8 +6267,8 @@ const MONSTERS = {
     mods: { hp: 0.95, atk: 1.05, def: 0.8, agi: 1.1 },
     passive: P('Grave Hunger', 'Defeating a champion heals it for 20% of its max HP.', { killHeal: 0.2 }),
     look: { body: 'ghoul', main: '#3e4440', skin: '#8fa38a', trim: '#e0f070' },
-    skills: [{ ...ATTACK, name: 'Claw', desc: '100% hit.' },
-             D('Rotten Claws', '110% hit. Causes Bleed.', 2, 1.1, { fx: [['bleed', 3, 0.3]] })],
+    skills: [{ ...ATTACK, name: 'Claw', desc: 'Deals 100% ATK damage.' },
+             D('Rotten Claws', 'Deals 110% ATK damage. Applies Bleed for 3 turns.', 2, 1.1, { fx: [['bleed', 3, 0.3]] })],
   },
   wraith: {
     name: 'Wailing Wraith', plural: 'Wailing Wraiths', role: 'ranged', xp: 24,
@@ -6260,8 +6276,8 @@ const MONSTERS = {
     mods: { hp: 0.7, atk: 1.0, def: 0.7, agi: 1.15 }, floats: true,
     passive: P('Incorporeal', 'Dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#9fb4c4', trim: '#dfe9f2', eye: '#7fe3ff', orb: '#7fe3ff' },
-    skills: [{ ...ATTACK, name: 'Chill Touch', desc: '100% hit.' },
-             D('Soul Drain', '100% hit. Drains half the damage as HP.', 2, 1.0, { magic: true, noDodge: true, lifesteal: 0.5 }),
+    skills: [{ ...ATTACK, name: 'Chill Touch', desc: 'Deals 100% ATK damage.' },
+             D('Soul Drain', 'Deals 100% ATK damage. Cannot miss. Lifesteals 50%.', 2, 1.0, { magic: true, noDodge: true, lifesteal: 0.5 }),
              D('Wail', '35% to all enemies, with a 35% chance each to Silence.', 4, 0.35, { magic: true, aoe: true, noDodge: true, chanceFx: [['silence', 3, 0.35]] })],
   },
 
@@ -6271,8 +6287,8 @@ const MONSTERS = {
     lore: 'A dwarf-built mining drone that forgot its orders. It bites through armor and drains power.',
     mods: { hp: 0.8, atk: 1.0, def: 1.0, agi: 1.3 },
     look: { body: 'spider', main: '#7a7f8a', trim: '#ffd166' },
-    skills: [{ ...ATTACK, name: 'Saw Bite', desc: '100% hit.' },
-             D('Short Circuit', '90% hit. Causes Mana Leak.', 3, 0.9, { fx: [['leak', 3]] })],
+    skills: [{ ...ATTACK, name: 'Saw Bite', desc: 'Deals 100% ATK damage.' },
+             D('Short Circuit', 'Deals 90% ATK damage. Applies Mana Leak for 3 turns.', 3, 0.9, { fx: [['leak', 3]] })],
   },
   rustgolem: {
     name: 'Rust Golem', plural: 'Rust Golems', role: 'melee', xp: 30,
@@ -6280,8 +6296,8 @@ const MONSTERS = {
     mods: { hp: 1.45, atk: 0.95, def: 1.5, agi: 0.6 },
     passive: P('Iron Plating', 'The first hit it takes each turn deals 20% less damage.', { firstHitDR: 0.2 }),
     look: { body: 'golem', main: '#7a6658', trim: '#ff9a4a' },
-    skills: [{ ...ATTACK, name: 'Iron Fist', desc: '100% hit.' },
-             D('Rust Slam', '120% hit. Sunders armor (−40% defense).', 3, 1.2, { fx: [['sunder', 3]] })],
+    skills: [{ ...ATTACK, name: 'Iron Fist', desc: 'Deals 100% ATK damage.' },
+             D('Rust Slam', 'Deals 120% ATK damage. Sunders armor for 3 turns (-40% DEF).', 3, 1.2, { fx: [['sunder', 3]] })],
   },
 
   // ---- The Ashen Spire ----
@@ -6290,8 +6306,8 @@ const MONSTERS = {
     lore: 'A cackling spark with wings. One is a nuisance; a flock sets the room on fire.',
     mods: { hp: 0.7, atk: 1.15, def: 0.7, agi: 1.3 },
     look: { body: 'demon', main: '#3a1a1a', trim: '#ff7a2f', skin: '#c4472a', horn: '#2a1414', eye: '#ffd166', wings: '#5a2020', orb: '#ff7a2f', scale: 0.75 },
-    skills: [{ ...ATTACK, name: 'Spark', desc: '100% hit.' },
-             D('Firebolt', '100% fire. Burns for 3 turns.', 2, 1.0, { magic: true, fx: [['burn', 3, 0.35]] }),
+    skills: [{ ...ATTACK, name: 'Spark', desc: 'Deals 100% ATK damage.' },
+             D('Firebolt', 'Deals 100% ATK fire damage. Applies Burn for 3 turns.', 2, 1.0, { magic: true, fx: [['burn', 3, 0.35]] }),
              D('Cinder Rain', '35% to all enemies. Burns them all.', 4, 0.35, { magic: true, aoe: true, noDodge: true, fx: [['burn', 2, 0.3]] })],
   },
   ashdrake: {
@@ -6299,7 +6315,7 @@ const MONSTERS = {
     lore: 'A young wyrm of the Spire. Not yet the size of its mother, but just as angry.',
     mods: { hp: 1.9, atk: 1.25, def: 1.15, agi: 0.95 },
     look: { body: 'drake', main: '#5a2a22', wing: '#7a3a2a', trim: '#e8a548', eye: '#ffd166' },
-    skills: [{ ...ATTACK, name: 'Tail Lash', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Tail Lash', desc: 'Deals 100% ATK damage.' },
              D('Scorching Breath', '55% to all enemies. Burns them all.', 3, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.35]] })],
   },
 
@@ -6309,7 +6325,7 @@ const MONSTERS = {
     lore: 'He held the last mass as the river broke the crypt walls. He is still holding it.',
     mods: { hp: 5.2, atk: 1.15, def: 1.3, agi: 0.9 },
     look: { body: 'vampire', main: '#2c3e46', cape: '#16242a', trim: '#6fc1b8', skin: '#a9c4c0', hair: '#d8e2e2', weapon: 'staff', orb: '#6fc1b8' },
-    skills: [{ ...ATTACK, name: 'Censer Swing', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Censer Swing', desc: 'Deals 100% ATK damage.' },
              D('Drowning Curse', '80% hit that never misses. Weakens and Hexes the target.', 2, 0.8, { magic: true, noDodge: true, fx: [['weaken', 3], ['hex', 3]] }),
              S('Raise the Drowned', 'Raises a drowned corpse to fight for him.', 4, 'risen')],
     telegraph: { every: 3, name: 'Black Tide', warn: 'raises his censer, and black water starts to rise…',
@@ -6320,8 +6336,8 @@ const MONSTERS = {
     lore: 'The mine\'s great overseer-engine. It still keeps the shift whistle on a schedule.',
     mods: { hp: 4.4, atk: 1.25, def: 1.5, agi: 0.7 },
     look: { body: 'golem', main: '#5a5f6a', trim: '#ffb347' },
-    skills: [{ ...ATTACK, name: 'Piston Fist', desc: '100% hit.' },
-             D('Hammer Drill', '140% hit. Sunders armor.', 2, 1.4, { fx: [['sunder', 3]] }),
+    skills: [{ ...ATTACK, name: 'Piston Fist', desc: 'Deals 100% ATK damage.' },
+             D('Hammer Drill', 'Deals 140% ATK damage. Sunders armor for 3 turns.', 2, 1.4, { fx: [['sunder', 3]] }),
              B('Overdrive', 'Empowers itself for 2 turns.', 4, 'self', [['empower', 3]])],
     telegraph: { every: 3, name: 'Steam Burst', warn: 'hisses as its boilers build pressure…',
                  skill: D('Steam Burst', '100% to all enemies. Staggers them.', 0, 1.0, { aoe: true, noDodge: true, fx: [['stagger', 1]] }) },
@@ -6331,11 +6347,11 @@ const MONSTERS = {
     lore: 'The mother of the Spire\'s drakes. Every grey flake that falls on Ashfall Road came from her.',
     mods: { hp: 4.4, atk: 1.35, def: 1.3, agi: 0.95 },
     look: { body: 'drake', main: '#8a3b2e', wing: '#a24a38', trim: '#f2c46d', eye: '#ffec8a' },
-    skills: [{ ...ATTACK, name: 'Bite', desc: '100% hit.' },
-             D('Rend', '120% hit. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.35]] }),
+    skills: [{ ...ATTACK, name: 'Bite', desc: 'Deals 100% ATK damage.' },
+             D('Rend', 'Deals 120% ATK damage. Applies Bleed for 3 turns.', 2, 1.2, { fx: [['bleed', 3, 0.35]] }),
              D('Wing Buffet', '50% to all enemies. Slows them.', 3, 0.5, { aoe: true, noDodge: true, fx: [['slow', 2]] })],
     telegraph: { every: 3, name: 'Inferno Breath', warn: 'draws a long, glowing breath…',
-                 skill: D('Inferno Breath', '115% fire to all enemies. Burns them all.', 0, 1.15, { aoe: true, noDodge: true, fx: [['burn', 3, 0.4]] }) },
+                 skill: D('Inferno Breath', 'Deals 115% ATK fire damage to all enemies. Cannot miss. Applies Burn for 3 turns.', 0, 1.15, { aoe: true, noDodge: true, fx: [['burn', 3, 0.4]] }) },
   },
 
   // ---- Mournhollow Manor (a haunted house) ----
@@ -6345,7 +6361,7 @@ const MONSTERS = {
     lore: 'Livery over a brigandine. The house stopped paying in coin years ago; he stayed anyway.',
     mods: { hp: 1.05, atk: 0.95, def: 1.1, agi: 0.95 },
     look: { body: 'human', helm: true, main: '#4a2a3a', trim: '#d9b44a', skin: '#d9a87f', weapon: 'spear' },
-    skills: [{ ...ATTACK, name: 'Pike Thrust', desc: '100% thrust.' },
+    skills: [{ ...ATTACK, name: 'Pike Thrust', desc: 'Deals 100% ATK damage.' },
              D('Drive Them Back', '110% shove of the pike haft. Drags the target back along the speed bar.', 3, 1.1, { knockback: 200 }),
              B('Close Ranks', 'Sets the pike and braces: shielded for 2 turns.', 4, 'self', [['shield', 2]])],
   },
@@ -6354,9 +6370,9 @@ const MONSTERS = {
     lore: 'Kept on to thin the deer, and never fussy about what else wanders up the road.',
     mods: { hp: 0.85, atk: 1.0, def: 0.8, agi: 1.15 },
     look: { body: 'human', main: '#3a4431', trim: '#8a6a3a', skin: '#c99a72', hair: '#4a3520', weapon: 'crossbow' },
-    skills: [{ ...ATTACK, name: "Poacher's Bolt", desc: '100% bolt.' },
-             D('Leg Snare', '70% bolt trailing a wire. Slows the target and causes Bleed.', 3, 0.7, { fx: [['slow', 2], ['bleed', 3, 0.25]] }),
-             D('Lung Shot', '140% bolt, +25% crit chance.', 3, 1.4, { critBonus: 0.25 })],
+    skills: [{ ...ATTACK, name: "Poacher's Bolt", desc: 'Deals 100% ATK damage.' },
+             D('Leg Snare', 'Deals 70% ATK damage. Applies Slow for 2 turns and Bleed for 3 turns.', 3, 0.7, { fx: [['slow', 2], ['bleed', 3, 0.25]] }),
+             D('Lung Shot', 'Deals 140% ATK damage. +25% crit chance.', 3, 1.4, { critBonus: 0.25 })],
   },
   duelist: {
     name: 'Disgraced Duelist', plural: 'Disgraced Duelists', role: 'melee', xp: 28,
@@ -6364,25 +6380,25 @@ const MONSTERS = {
     mods: { hp: 0.9, atk: 1.1, def: 0.85, agi: 1.2 },
     passive: P('Second Intention', 'When hit in melee, 20% chance to strike back for 60%.', { riposte: { chance: 0.2, mult: 0.6 } }),
     look: { body: 'human', main: '#26303f', trim: '#c0303f', skin: '#e2b48f', hair: '#1d1d22', weapon: 'rapier' },
-    skills: [{ ...ATTACK, name: 'Point Work', desc: '100% thrust.' },
+    skills: [{ ...ATTACK, name: 'Point Work', desc: 'Deals 100% ATK damage.' },
              D('Flurry of Form', 'Three drilled thrusts of 45%.', 3, 0.45, { hits: 3 }),
-             D('Scarring Draw', '120% cut across the face. Causes Bleed.', 2, 1.2, { fx: [['bleed', 3, 0.3]] })],
+             D('Scarring Draw', 'Deals 120% ATK damage. Applies Bleed for 3 turns.', 2, 1.2, { fx: [['bleed', 3, 0.3]] })],
   },
   marksman: {
     name: 'Gallery Marksman', plural: 'Gallery Marksmen', role: 'ranged', xp: 30,
     lore: 'Shoots from the long gallery, where the portraits watch the work and say nothing.',
     mods: { hp: 0.8, atk: 1.15, def: 0.75, agi: 1.0 },
     look: { body: 'human', main: '#2f4a6b', trim: '#c6a15b', skin: '#caa07a', hair: '#6a5230', weapon: 'gun' },
-    skills: [{ ...ATTACK, name: 'Long Gun', desc: '100% shot.' },
+    skills: [{ ...ATTACK, name: 'Long Gun', desc: 'Deals 100% ATK damage.' },
              D('Measured Volley', 'Two counted shots of 70%.', 3, 0.7, { hits: 2 }),
-             D('Gallery Shot', '150% shot that ignores armor.', 4, 1.5, { pierce: true })],
+             D('Gallery Shot', 'Deals 150% ATK damage. Ignores armor.', 4, 1.5, { pierce: true })],
   },
   chaplain: {
     name: 'House Chaplain', plural: 'House Chaplains', role: 'support', xp: 30,
     lore: 'Still takes confession from the household. Absolution is whatever his lordship needs it to be.',
     mods: { hp: 0.9, atk: 1.0, def: 0.85, agi: 0.95 },
     look: { body: 'human', main: '#1f1a24', trim: '#d9b44a', skin: '#e0b28c', hair: '#cfc9bd', weapon: 'staff', orb: '#e8dcc0' },
-    skills: [{ ...ATTACK, name: 'Processional Staff', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Processional Staff', desc: 'Deals 100% ATK damage.' },
              H('Litany of the House', 'Mends a member of the household.', 2, 2.6),
              D('Anathema', '60% condemnation that never misses. Weakens the target.', 3, 0.6, { magic: true, noDodge: true, fx: [['weaken', 2]] })],
   },
@@ -6391,7 +6407,7 @@ const MONSTERS = {
     lore: 'Master of the last lit house on the road. His invitations are not declined, and his guests are not missed.',
     mods: { hp: 6.0, atk: 1.3, def: 1.2, agi: 1.0 },
     look: { body: 'human', main: '#3a2a4a', trim: '#d9b44a', skin: '#e8d2ba', hair: '#d8d4cc', weapon: 'rapier' },
-    skills: [{ ...ATTACK, name: 'Cane-Sword', desc: '100% cut.' },
+    skills: [{ ...ATTACK, name: 'Cane-Sword', desc: 'Deals 100% ATK damage.' },
              D('You Are Dismissed', '140% backhand cut. Drags the target back along the speed bar and Exposes them.', 3, 1.4, { knockback: 250, fx: [['exposed', 3]] }),
              D("The Lord's Contempt", '80% to all enemies. Never misses. Weakens them all.', 4, 0.8, { aoe: true, magic: true, noDodge: true, fx: [['weaken', 2]] })],
     telegraph: { every: 3, name: 'The Last Waltz', warn: 'raises one hand, and somewhere the dead orchestra strikes up…',
@@ -6403,7 +6419,7 @@ const MONSTERS = {
     mods: { hp: 0.72, atk: 1.05, def: 0.7, agi: 1.25 }, floats: true,
     passive: P('Fading', 'Half-there and hard to pin down: dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#b8a6c8', trim: '#e6dcf2', eye: '#d9a8ff', orb: '#d9a8ff' },
-    skills: [{ ...ATTACK, name: 'Cold Grasp', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Cold Grasp', desc: 'Deals 100% ATK damage.' },
              D('Haunt', '95% hit that never misses. Weakens the target.', 2, 0.95, { magic: true, noDodge: true, fx: [['weaken', 3]] }),
              D('Shriek', '35% to all enemies. Blinds them.', 4, 0.35, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] })],
   },
@@ -6413,15 +6429,15 @@ const MONSTERS = {
     mods: { hp: 0.85, atk: 1.15, def: 0.75, agi: 1.35 },
     passive: P('Pack Hunter', 'Deals 20% more damage to enemies already below half HP.', { execute: { below: 0.5, bonus: 0.2 } }),
     look: { body: 'beast', main: '#4a4650', trim: '#9a4a4a', eye: '#ff6a4a' },
-    skills: [{ ...ATTACK, name: 'Bite', desc: '100% bite.' },
-             D('Savage Maul', '115% bite. Causes Bleed.', 2, 1.15, { fx: [['bleed', 3, 0.3]] })],
+    skills: [{ ...ATTACK, name: 'Bite', desc: 'Deals 100% ATK damage.' },
+             D('Savage Maul', 'Deals 115% ATK damage. Applies Bleed for 3 turns.', 2, 1.15, { fx: [['bleed', 3, 0.3]] })],
   },
   crone: {
     name: 'Hollow Crone', plural: 'Hollow Crones', role: 'support', xp: 30,
     lore: 'The house witch, withered down to bone and spite. She mends the dead and curses the living.',
     mods: { hp: 0.8, atk: 0.95, def: 0.8, agi: 0.95 },
     look: { body: 'vampire', main: '#3a2a44', cape: '#241830', trim: '#8fe0a0', skin: '#b7a9a0', hair: '#d8d2cc', weapon: 'staff', orb: '#8fe0a0' },
-    skills: [{ ...ATTACK, name: 'Hex Bolt', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Hex Bolt', desc: 'Deals 100% ATK damage.' },
              H('Grave Mending', 'Heal a wounded ally.', 2, 2.6),
              D('Evil Eye', '60% hit that never misses. Weakens and Hexes the target.', 3, 0.6, { magic: true, noDodge: true, fx: [['weaken', 3], ['hex', 3]] })],
   },
@@ -6433,7 +6449,7 @@ const MONSTERS = {
     mods: { hp: 1.3, atk: 1.15, def: 1.35, agi: 0.85 },
     passive: P('Dread Armor', 'The first hit it takes each turn deals 25% less damage.', { firstHitDR: 0.25 }),
     look: { body: 'skeleton', main: '#c9ccd6', trim: '#5f7190' },
-    skills: [{ ...ATTACK, name: 'Longsword', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Longsword', desc: 'Deals 100% ATK damage.' },
              D('Shield Bash', '90% hit with a 40% chance to stun.', 2, 0.9, { stun: 0.4 }),
              D('Dread Cleave', '60% to all enemies. Sunders their armor.', 4, 0.6, { aoe: true, fx: [['sunder', 2]] })],
   },
@@ -6443,7 +6459,7 @@ const MONSTERS = {
     mods: { hp: 1.5, atk: 1.1, def: 1.45, agi: 0.95 },
     passive: P('Stone Skin', 'Starts every battle Shielded for its first 2 turns.', { startFx: [['shield', 3]] }),
     look: { body: 'golem', main: '#5a5e66', trim: '#8a93a0' },
-    skills: [{ ...ATTACK, name: 'Rake', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Rake', desc: 'Deals 100% ATK damage.' },
              D('Dive Bomb', '150% hit from above.', 3, 1.5)],
   },
   necromancer: {
@@ -6451,7 +6467,7 @@ const MONSTERS = {
     lore: 'The king\'s last advisor. He promised his lord life everlasting, and very nearly delivered.',
     mods: { hp: 0.85, atk: 1.0, def: 0.8, agi: 1.0 },
     look: { body: 'vampire', main: '#2a2140', cape: '#181228', trim: '#9a7ad0', skin: '#b8b0c0', hair: '#2a2436', weapon: 'staff', orb: '#9a7ad0' },
-    skills: [{ ...ATTACK, name: 'Bone Shard', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Bone Shard', desc: 'Deals 100% ATK damage.' },
              D('Wither', '90% hit that never misses. Weakens the target.', 2, 0.9, { magic: true, noDodge: true, fx: [['weaken', 3]] }),
              S('Raise Skeleton', 'Raises a skeleton to fight for it.', 4, 'risen')],
   },
@@ -6463,8 +6479,8 @@ const MONSTERS = {
     mods: { hp: 0.78, atk: 1.1, def: 0.7, agi: 1.2 }, floats: true,
     passive: P('Incorporeal', 'Dodges attacks more often.', { dodge: 0.12 }),
     look: { body: 'wraith', main: '#4a6a6a', trim: '#bfe8e2', eye: '#9ffff0', orb: '#9ffff0' },
-    skills: [{ ...ATTACK, name: 'Wailing Touch', desc: '100% hit.' },
-             D('Keening', '100% hit. Causes Bleed and Slows.', 2, 1.0, { magic: true, fx: [['bleed', 3, 0.3], ['slow', 2]] }),
+    skills: [{ ...ATTACK, name: 'Wailing Touch', desc: 'Deals 100% ATK damage.' },
+             D('Keening', 'Deals 100% ATK damage. Applies Bleed for 3 turns and Slow for 2 turns.', 2, 1.0, { magic: true, fx: [['bleed', 3, 0.3], ['slow', 2]] }),
              D('Death Wail', '45% to all enemies, each with a 40% chance to Silence.', 4, 0.45, { magic: true, aoe: true, noDodge: true, chanceFx: [['silence', 3, 0.4]] })],
   },
 
@@ -6474,7 +6490,7 @@ const MONSTERS = {
     lore: 'She waited at the window for a carriage that never came, and waits there still. Do not take the chair beside her.',
     mods: { hp: 4.8, atk: 1.2, def: 1.25, agi: 1.0 },
     look: { body: 'vampire', main: '#3a2a4a', cape: '#221834', trim: '#d9a8ff', skin: '#c8b8cc', hair: '#e8dff0', weapon: 'staff', orb: '#d9a8ff' },
-    skills: [{ ...ATTACK, name: 'Spectral Rake', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Spectral Rake', desc: 'Deals 100% ATK damage.' },
              D('Mourning Veil', '85% hit that never misses. Weakens and Hexes the target.', 2, 0.85, { magic: true, noDodge: true, fx: [['weaken', 3], ['hex', 3]] }),
              S('Call a Shade', 'Pulls up a Grasping Shade to fight for her.', 4, 'shade')],
     telegraph: { every: 3, name: 'Wail of the Manor', warn: 'throws back her veil and opens her mouth to scream…',
@@ -6485,7 +6501,7 @@ const MONSTERS = {
     lore: 'He bought everlasting life with an everlasting winter. Direhold has not seen a spring since his coronation.',
     mods: { hp: 5.6, atk: 1.3, def: 1.45, agi: 0.95 },
     look: { body: 'vampire', main: '#1e2636', cape: '#10161f', trim: '#7fb0ff', skin: '#aab6c4', hair: '#cdd8e4', weapon: 'staff', orb: '#7fb0ff' },
-    skills: [{ ...ATTACK, name: 'Soulblade', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Soulblade', desc: 'Deals 100% ATK damage.' },
              D('Death Coil', '150% hit that never misses. Drains half the damage as HP.', 2, 1.5, { magic: true, noDodge: true, lifesteal: 0.5 }),
              D('Curse of Decay', '55% to all enemies. Weakens and Poisons them.', 3, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2], ['poison', 3, 0.3]] }),
              S('Raise the Fallen', 'Raises a drowned corpse to serve the crown.', 5, 'risen')],
@@ -6497,7 +6513,7 @@ const MONSTERS = {
     lore: 'The oldest of the hollow\'s witches. Every younger crone was, once, somebody she caught.',
     mods: { hp: 5.0, atk: 1.25, def: 1.3, agi: 1.0 },
     look: { body: 'vampire', main: '#2a331f', cape: '#1a2014', trim: '#9fe0a0', skin: '#b6b49c', hair: '#d8d8c8', weapon: 'staff', orb: '#9fe0a0' },
-    skills: [{ ...ATTACK, name: 'Thorn Lash', desc: '100% hit.' },
+    skills: [{ ...ATTACK, name: 'Thorn Lash', desc: 'Deals 100% ATK damage.' },
              D('Witch\'s Brand', '90% hit that never misses. Hexes and Poisons the target.', 2, 0.9, { magic: true, noDodge: true, fx: [['hex', 3], ['poison', 3, 0.35]] }),
              H('Coven Mending', 'Heals her most wounded ally for a lot.', 3, 3.2),
              B('Brew of Spite', 'Empowers herself for 2 turns.', 4, 'self', [['empower', 3]])],
@@ -7206,7 +7222,7 @@ const activeIdsOf = (c) => (c ? [...ACTIVE_IDS, ...EXTRA_IDS].filter((id, i) => 
 const NEUTRAL_SKILLS = {
   soullink:    B('Soul Link', 'Link an ally for 3 turns: a third of the damage they take from hits is divided among their teammates.', 4, 'ally', [['link', 4]], { mp: 20, aiTarget: 'lowest' }),
   firstaid:    H('First Aid', 'A quick field dressing: a small heal for an ally.', 3, 1.2, { mp: 20 }),
-  flashpowder: D('Flash Powder', '60% hit. Blinds the target for 2 turns.', 3, 0.6, { mp: 25, fx: [['blind', 3]] }),
+  flashpowder: D('Flash Powder', 'Deals 60% ATK damage. Applies Blind for 2 turns. Costs 25 MP.', 3, 0.6, { mp: 25, fx: [['blind', 3]] }),
   smokebomb:   B('Smoke Bomb', 'Vanish in smoke: attacks that can miss will miss you until your next turn.', 5, 'self', [['evade', 1]], { mp: 25 }),
   throwingaxe: D('Throwing Axe', 'A hurled axe for 110%.', 2, 1.1, { mp: 20 }),
   lowblow:     D('Low Blow', '80% hit with a 35% chance to Stagger.', 3, 0.8, { mp: 20, chanceFx: [['stagger', 1, 0.35]] }),
@@ -7214,8 +7230,8 @@ const NEUTRAL_SKILLS = {
   caltrops:    D('Caltrops', '35% to all enemies and Slows them.', 5, 0.35, { mp: 25, aoe: true, fx: [['slow', 2]] }),
   battlecry:   B('Battle Cry', 'Bellow a challenge: deal 30% more damage for 2 turns.', 4, 'self', [['empower', 3]], { mp: 20 }),
   wardingcharm: B('Warding Charm', 'An ally resists new debuffs for 2 turns.', 4, 'ally', [['immune', 3]], { mp: 20, aiTarget: 'debuffed' }),
-  demoralize:  D('Demoralize', '60% hit. Weakens the target for 2 turns.', 3, 0.6, { mp: 25, fx: [['weaken', 3]] }),
-  armorcrack:  D('Armor Crack', '70% hit. Sunders armor: −40% defense for 2 turns.', 4, 0.7, { mp: 25, fx: [['sunder', 3]] }),
+  demoralize:  D('Demoralize', 'Deals 60% ATK damage. Applies Weaken for 2 turns. Costs 25 MP.', 3, 0.6, { mp: 25, fx: [['weaken', 3]] }),
+  armorcrack:  D('Armor Crack', 'Deals 70% ATK damage. Sunders armor for 2 turns (-40% DEF). Costs 25 MP.', 4, 0.7, { mp: 25, fx: [['sunder', 3]] }),
   // Dispel: strips the blessings off an enemy and leaves them unable to take new ones. Counted in Revs
   // rather than the mark's own turns, so a slow champion cannot wait it out by simply not acting.
   dispel:      B('Dispel', 'Tear every blessing off an enemy: all their buffs come away, and nothing new will take hold on them for 2 turns, whoever takes them.', 4, 'enemy', [['unblessed', 2]], { mp: 25, strip: true }),
@@ -7375,7 +7391,7 @@ function makeUnit(c, lv, side, slot, scale = 1) {
   const st = equipped.reduce((sum, p) => addUp(sum, p.stat || {}), {});   // generic passives' stat bonuses
   const r = ROLES[c.role], m = c.mods || {}, g = 1 + 0.12 * (lv - 1);
   // Forged gear only helps your own warband, never an enemy's Rival copy of the same champion.
-  const gear = side === 'p' ? gearOf(c.id) : {}, pool = MANA.pool[c.faction] ?? 1;
+  const gear = side === 'p' ? gearOf(c.id) : {}, pool = c.nature?.heat ? 0 : (MANA.pool[c.faction] ?? 1);
   const wg = (1 + FORGE.w.per * (gear.w || 0)) * (1 + (gear.atkPct || 0));
   const ag = 1 + FORGE.a.per * (gear.a || 0);
   const maxHp = Math.round(r.hp * (m.hp || 1) * g * scale * ag * (1 + (gear.hpPct || 0)) * (1 + (st.hpPct || 0)));
@@ -8887,9 +8903,12 @@ async function damageSkill(u, t, sk) {
   // Hurled skills (Last Rites) come down from the sky: no run-in, no shot, the caster stays put.
   // A gust or a wave is called up from where the caster stands: no run-in and no shot, whatever
   // their role - the water and the grave-wind do the traveling for them.
-  const melee = u.role === 'melee' && !o.hurl && !o.gust && !o.watersweep;
+  const melee = (u.role === 'melee' || o.dash) && !o.hurl && !o.gust && !o.watersweep;
+  const onSelf = melee && targets.every((tg) => tg.attach && tg.hostUid === u.uid);
+  const preFace = u.face;
+  if (onSelf) { u.face = u.side === 'p' ? 270 : 90; render(); await wait(200); }   // turn around to swing at the thing on your back
   const proj = melee || o.hurl || o.gust || o.watersweep ? null : projectileFor(u, sk);
-  let trip = melee ? await dashTo(u, targets) : null;   // reassigned if a Double Attack charges in again
+  let trip = melee && !onSelf ? await dashTo(u, targets) : null;   // reassigned if a Double Attack charges in again
   if (o.gust) { await castPose(u, true); await graveGust(u, targets); }   // the green grave-wind sweeps across first
   // Tharos holds his ground: the trident goes up for a Riptide and down into the floor for an
   // Undertow, and the wave rolls out to the targets either way.
@@ -9098,6 +9117,7 @@ async function damageSkill(u, t, sk) {
   // A Shambler that falls in front of the enemy (a counter, thorns, Retribution...) doesn't walk
   // home: its corpse stays where it dropped, lying at the enemy's feet until it crumbles.
   if (u.maxSwords && !o.swordHarvest && landed.size) settleBlades(u, o, landed, 0);   // a Double Attack's second blade
+  if (onSelf && u.hp > 0) { u.face = preFace; render(); }
   if (trip && u.id === 'zombie' && u.hp <= 0) layoutSides();
   else if (trip) await dashBack(u, trip);
   // The guardian who threw themselves in front of an ally leaps back to their own place.
@@ -9176,8 +9196,9 @@ function strip(u) {
 async function healSkill(u, t, sk) {
   const o = sk.o || {};
   const targets = sk.target === 'allAllies' ? openAllies(u) : [t];
-  await castPose(u, true, sk);
+  await castPose(u, !o.weldBeam, sk);
   for (const a of targets) {
+    if (o.weldBeam) await weldBeam(u, a);
     if (o.lightbeam) await sacredLight(a);   // Sacred Light: the shaft lands before the mend pops
     burst(a, 'heal');
     /* Hammer Weld: a crude weld, worth far more on plate than on flesh, and worth more
@@ -9250,7 +9271,7 @@ async function buffSkill(u, t, sk) {
   const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
   await castPose(u, true, sk);
   const proj = PROJ_SKILL[sk.name];
-  if (proj && sk.target === 'enemy') {
+  if (proj && (sk.target === 'enemy' || sk.target === 'ally')) {
     await shoot(u, t, proj);
   }
   const ids = sk.fx.map(([id]) => id);
@@ -9347,9 +9368,10 @@ async function buffSkill(u, t, sk) {
   if (o.grip && t && t.hp > 0 && u.hp > 0) {
     u.gripOn = t.uid;
     u.gripLeft = ORIN_GRIP_TURNS;
-    addFx(t, 'disarmed', ORIN_GRIP_TURNS);
-    addFx(t, 'clamped', ORIN_GRIP_TURNS, 0, true);
+    addFx(t, 'disarmed', 99);
+    addFx(t, 'clamped', 99, 0, true);
     log(`${u.name} clamps onto ${t.name}'s arm — it cannot swing, and the gears are already grinding.`, u.side);
+    settleLatch();
   }
   /* Shieldbearer (Garrick): he crosses the field and plants himself in front of the ward, and the
      mark goes on HIM — u.wardUid names who he is covering, so the damage path finds exactly one
@@ -9490,6 +9512,11 @@ async function beginTurn(u) {
   if (SIM_FREE) { u.cooldowns = {}; if (u.maxMp) u.mp = u.maxMp; }
   releaseRites(u, `is released from ${u.name}'s Last Rites.`);   // his turn has come round: the crosses lift
   unburrow(u);   // Burrow: if his turn comes before the round is out, he comes up to take it
+  if (u.gripOn && --u.gripLeft <= 0) {
+    const host = unitBy(u.gripOn);
+    u.gripOn = null;
+    if (host) { host.effects = host.effects.filter((e) => e.id !== 'clamped' && e.id !== 'disarmed'); log(`${u.name} drops off ${host.name}.`, u.side); }
+  }
   // Evergreen (Elowen's Nature): each of her turns, the oldest curse falls away like a dead leaf —
   // before it can tick, the wood has already shed it.
   if (charNat(u).evergreen) {
@@ -10523,18 +10550,45 @@ async function riderFollowUp(host) {
   render();
 }
 
-/* A Rush Bot has exactly one errand after its charge: find an ally and shove them
-   up the speed bar. It spends itself doing it — the whole machine was the delivery. */
+/* A Rush Bot's whole life is one errand: charge a random enemy, drain 10% of its
+   max HP, then run to a random ally — heal for the stolen amount and boost their
+   bar by 25%. The machine comes apart as it delivers. */
 async function rushBotErrand(bot) {
   if (bot.hp <= 0) return;
+  const foes = state.teams[bot.side === 'p' ? 'e' : 'p'].filter((e) => e.hp > 0);
+  const enemy = pick(foes);
+  if (!enemy) { bot.hp = 0; removeUnit(bot); render(); return; }
+  // 1. Dash to the enemy
+  const trip1 = await dashTo(bot, [enemy]);
+  await wait(120);
+  // 2. Drain
+  const drain = Math.round(enemy.maxHp * ORIN_RUSH_DRAIN);
+  enemy.hp = Math.max(0, enemy.hp - drain);
+  float(enemy, `${drain}`, 'dot');
+  burst(enemy, 'hit');
+  log(`${bot.name} charges ${enemy.name} and drains ${drain} HP.`, bot.side);
+  if (enemy.hp <= 0) fell(enemy, bot);
+  render();
+  await wait(300);
+  // 3. Dash back from the enemy
+  await dashBack(bot, trip1);
+  await wait(100);
+  // 4. Find an ally and dash to them
   const kin = state.teams[bot.side].filter((a) => a.hp > 0 && !a.summon && !a.inert);
-  const mark = pick(kin);
-  if (!mark) return;
-  await wait(260);
-  mark.pos = (mark.pos || 0) + ORIN_RUSH_PUSH;
-  float(mark, 'Shoved', 'good');
-  burst(mark, 'buff');
-  log(`${bot.name} slams into ${mark.name} and shoves them ${ORIN_RUSH_PUSH} up the bar, coming apart as it does.`, bot.side);
+  const ally = pick(kin);
+  if (ally) {
+    const trip2 = await dashTo(bot, [ally]);
+    await wait(120);
+    ally.hp = Math.min(ally.maxHp, ally.hp + drain);
+    ally.pos = (ally.pos || 0) + ORIN_RUSH_BAR;
+    float(ally, `+${drain}`, 'heal');
+    burst(ally, 'heal');
+    log(`${bot.name} delivers the stolen life to ${ally.name} (+${drain} HP) and boosts their bar by 25%, coming apart as it does.`, bot.side);
+    if (trip2) trip2.anim?.cancel();
+  } else {
+    log(`${bot.name} finds no ally to deliver to and clatters apart.`, bot.side);
+  }
+  // 5. Self-destruct
   bot.hp = 0;
   removeUnit(bot);
   render();
@@ -11048,6 +11102,26 @@ function dismountFx(p) {
   ], { duration: 460 });
 }
 
+// Grip pounce: Orin launches high and slams down onto the enemy's head.
+function gripFx(p, host) {
+  const b = bodyEl(p);
+  if (reduced || !b) return;
+  const d = facing(p);
+  b.animate([
+    { transform: 'translateY(0) rotate(0deg) scale(1)', easing: 'ease-out' },
+    { transform: `translateY(-50px) rotate(${d * 18}deg) scale(1.1)`, offset: 0.35, easing: 'ease-in' },
+    { transform: `translateY(-55px) rotate(${d * 5}deg) scale(.9)`, offset: 0.6, easing: 'ease-in' },
+    { transform: `translateY(4px) rotate(${-d * 3}deg) scale(1)`, offset: 0.9, easing: 'ease-out' },
+    { transform: 'translateY(0) rotate(0deg) scale(1)' },
+  ], { duration: 520 });
+  const hb = bodyEl(host);
+  if (hb) setTimeout(() => { if (host.hp > 0) hb.animate([
+    { transform: 'none' },
+    { transform: 'translateY(5px) scaleY(.94)', offset: 0.5 },
+    { transform: 'none' },
+  ], { duration: 300, easing: 'ease-out' }); }, 400);
+}
+
 // A bolted-on champion rides pick-a-back: his figure is carried to the host's slot (offsetLeft /
 // offsetTop ignore transforms, so repeated calls never drift). layoutSides and render both run
 // often; this is re-applied after them and simply clears itself once nobody is attached.
@@ -11079,6 +11153,24 @@ function settleLatch() {
         if (p.hp > 0 && p.latchFx) dismountFx(p);
       }
       p.latchFx = false;
+    }
+    // Grip clamp: Orin on the ENEMY's head — centred over them, high up.
+    const gHost = p.gripOn && unitBy(p.gripOn);
+    const gel = gHost && p.hp > 0 ? document.getElementById(`u-${gHost.uid}`) : null;
+    if (gel && !hel) {
+      const dx = gel.offsetLeft + gel.offsetWidth / 2 - (el.offsetLeft + el.offsetWidth / 2);
+      const gc = gel.querySelector('.chips')?.offsetHeight || 0, pc2 = el.querySelector('.chips')?.offsetHeight || 0;
+      const dy = (gel.offsetTop + gc) - (el.offsetTop + pc2) - (gel.offsetHeight - gc) * 0.38;
+      el.classList.add('gripping');
+      el.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
+      el.style.zIndex = (parseInt(gel.style.zIndex, 10) || 10) + 2;
+      if (!p.gripFx) { p.gripFx = true; gripFx(p, gHost); }
+    } else if (el.classList.contains('gripping')) {
+      el.classList.remove('gripping');
+      el.style.translate = '';
+      el.style.zIndex = '';
+      if (p.hp > 0 && p.gripFx) dismountFx(p);
+      p.gripFx = false;
     }
   }
   settleAttachments();
@@ -11201,22 +11293,21 @@ async function turnPulse() {
       if (gf.turns <= 0) extinguishGroundFire('dies down');
     }
   }
-  /* Orin's clamp grinds every Rev it holds, and lets go when its turn is spent
-     or either of them falls. The ride's bar-shove is handled where the host's own
-     turn comes round (see the rider's push below). */
+  /* Orin's clamp grinds every Rev it holds; the release happens when Orin's own
+     turn comes back (see beginTurn), so the grip lasts a full turn cycle. */
   for (const p of allUnits()) {
     if (!p.gripOn) continue;
     const host = unitBy(p.gripOn);
-    if (p.hp <= 0 || !host || host.hp <= 0) { if (p.hp > 0 && host) log(`${p.name} lets go of ${host.name}.`, p.side); p.gripOn = null; p.gripLeft = 0; continue; }
-    host.hp = Math.max(0, host.hp - ORIN_GRIP_DMG);
-    float(host, `${ORIN_GRIP_DMG}`, 'dot');
-    log(`${p.name}'s clamp grinds ${host.name} for ${ORIN_GRIP_DMG}.`, p.side);
-    if (host.hp <= 0) { fell(host, p); p.gripOn = null; p.gripLeft = 0; continue; }
-    if (--p.gripLeft <= 0) {
-      p.gripOn = null;
-      host.effects = host.effects.filter((e) => e.id !== 'clamped');
-      log(`${p.name} drops off ${host.name}.`, p.side);
+    if (p.hp <= 0 || !host || host.hp <= 0) {
+      if (p.hp > 0 && host) log(`${p.name} lets go of ${host.name}.`, p.side);
+      if (host) host.effects = host.effects.filter((e) => e.id !== 'clamped' && e.id !== 'disarmed');
+      p.gripOn = null; p.gripLeft = 0; continue;
     }
+    const gd = Math.round(p.atk * ORIN_GRIP_DMG);
+    host.hp = Math.max(0, host.hp - gd);
+    float(host, `${gd}`, 'dot');
+    log(`${p.name}'s clamp grinds ${host.name} for ${gd}.`, p.side);
+    if (host.hp <= 0) { fell(host, p); p.gripOn = null; p.gripLeft = 0; continue; }
     render();
     await wait(260);
   }
@@ -19132,7 +19223,7 @@ function carryRiders(u, from, mid, end, ms, easing, hostZ) {
   const [fX, fY] = dashXY(from), [mX, mY] = dashXY(mid), [eX, eY] = dashXY(end);
   const atts = [];
   for (const a of allUnits()) {
-    const rides = (a.attach && a.hostUid === u.uid) || a.attachedTo === u.uid;
+    const rides = (a.attach && a.hostUid === u.uid) || a.attachedTo === u.uid || a.gripOn === u.uid;
     if (!rides || a.hp <= 0) continue;
     const ael = actorEl(a);
     if (!ael) continue;
@@ -19486,6 +19577,25 @@ WEAPON_STRIKES['mordrek:Grave Cross'] = {
     { transform: 'none' }],
 };
 
+/* SPANNER SWING: Orin dashes in close and bobs his head up and down, firing a short red beam.
+   No weapon parts to animate — the body keyframes do all the work. */
+WEAPON_STRIKES['automatonx:Spanner Swing'] = {
+  ms: 2200, hit: 0.82, laser: true,
+  wpn: [],
+  body: (d) => [
+    { transform: 'none' },
+    { transform: `translateY(-8px) translateX(${d * 4}px)`, offset: 0.08, easing: 'ease-out' },
+    { transform: `translateY(-6px) translateX(${d * 6}px) rotate(${d * 3}deg)`, offset: 0.14 },
+    { transform: `translateY(-4px) translateX(${d * 6}px) rotate(${d * 3}deg)`, offset: 0.20 },
+    { transform: `translateY(-8px) translateX(${d * 5}px) rotate(${d * 2}deg)`, offset: 0.35 },
+    { transform: `translateY(-3px) translateX(${d * 6}px) rotate(${d * 4}deg)`, offset: 0.50 },
+    { transform: `translateY(-7px) translateX(${d * 5}px) rotate(${d * 2}deg)`, offset: 0.65 },
+    { transform: `translateY(-2px) translateX(${d * 6}px) rotate(${d * 3}deg)`, offset: 0.80 },
+    { transform: `translateX(${d * 3}px)`, offset: 0.90, easing: 'ease-in' },
+    { transform: 'none' }
+  ],
+};
+
 /* The light of the lifted cross: a cone of grave-green poured from the head of the cross onto the
    target, swelling as the iron heats (0.36 -> hit) and lingering a moment after, with the target
    lit green at the moment it lands. ms = the whole move's length, hit = its impact fraction. */
@@ -19514,6 +19624,109 @@ function graveShine(u, t, ms, hit) {
   }, ms * hit);
 }
 
+/* HEAD LASER (Spanner Swing): a close-range red beam from Orin's head to the target.
+   He is already standing in melee range, so the beam is short and instant — a camera-flash
+   of red light that sears across, with the target lit red at impact. */
+function headLaser(u, t, ms, hit) {
+  const a = stageBox(u), b = stageBox(t);
+  if (reduced || !a || !b) return;
+  const d = facing(u);
+  const from = { x: a.x + d * a.w * 0.15, y: a.top + a.h * 0.22 };
+  const headY = b.top + b.h * 0.08;
+  const feetY = b.feet - 2;
+  const angHead = Math.atan2(headY - from.y, b.x - from.x) * 180 / Math.PI;
+  const angFeet = Math.atan2(feetY - from.y, b.x - from.x) * 180 / Math.PI;
+  const maxLen = Math.hypot(b.x - from.x, feetY - from.y) + 12;
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    position: 'absolute', left: `${from.x}px`, top: `${from.y}px`,
+    width: `${maxLen}px`, height: '60px', marginTop: '-30px',
+    background: 'linear-gradient(90deg, rgba(226,80,80,0) 0%, rgba(226,80,80,.7) 10%, #fff2f2 40%, #ffffff 50%, #fff2f2 60%, rgba(226,80,80,.7) 90%, rgba(226,80,80,0) 100%)',
+    boxShadow: '0 0 14px rgba(226,80,80,.95), 0 0 36px rgba(200,60,60,.6), 0 0 60px rgba(226,80,80,.3)',
+    borderRadius: '0 12px 12px 0', transformOrigin: '0 50%', pointerEvents: 'none',
+    clipPath: 'polygon(0 46%, 100% 0%, 100% 100%, 0 54%)',
+    zIndex: '9999',
+  });
+  $('#arena').appendChild(el);
+  const beamStart = 0.14;
+  const beamEnd = 0.88;
+  const beamMs = ms * (beamEnd - beamStart);
+  el.animate([
+    { transform: `rotate(${angHead}deg)`, opacity: 0 },
+    { transform: `rotate(${angHead}deg)`, opacity: 0, offset: beamStart - 0.02 },
+    { transform: `rotate(${angHead}deg)`, opacity: 1, offset: beamStart },
+    { transform: `rotate(${angFeet}deg)`, opacity: 1, offset: beamEnd },
+    { transform: `rotate(${angFeet}deg)`, opacity: 0, offset: beamEnd + 0.04 },
+    { transform: `rotate(${angFeet}deg)`, opacity: 0 },
+  ], { duration: ms, fill: 'forwards' });
+  setTimeout(() => el.remove(), ms + 60);
+  const tb = bodyEl(t);
+  if (tb) {
+    const glowStart = ms * beamStart;
+    tb.animate([
+      { filter: 'none' },
+      { filter: 'brightness(1.5) drop-shadow(0 0 12px rgba(226, 80, 80, .95))', offset: 0.15 },
+      { filter: 'brightness(1.3) drop-shadow(0 0 8px rgba(226, 80, 80, .7))', offset: 0.85 },
+      { filter: 'none' },
+    ], { duration: beamMs, delay: glowStart });
+  }
+  setTimeout(() => burst(t, 'hit'), ms * hit);
+}
+
+/* WELD BEAM (Hammer Weld): a green healing laser from Orin's head sweeping the ally
+   head-to-toe. Same geometry as headLaser but green and aimed at a friend. Returns a
+   promise that resolves when the beam finishes so healSkill can wait on it. */
+function weldBeam(u, t) {
+  const a = stageBox(u), b = stageBox(t);
+  if (reduced || !a || !b) return Promise.resolve();
+  const d = facing(u);
+  const from = { x: a.x + d * a.w * 0.15, y: a.top + a.h * 0.22 };
+  const headY = b.top + b.h * 0.08;
+  const feetY = b.feet - 2;
+  const angHead = Math.atan2(headY - from.y, b.x - from.x) * 180 / Math.PI;
+  const angFeet = Math.atan2(feetY - from.y, b.x - from.x) * 180 / Math.PI;
+  const maxLen = Math.hypot(b.x - from.x, feetY - from.y) + 12;
+  const ms = 1800;
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    position: 'absolute', left: `${from.x}px`, top: `${from.y}px`,
+    width: `${maxLen}px`, height: '60px', marginTop: '-30px',
+    background: 'linear-gradient(90deg, rgba(103,208,138,0) 0%, rgba(103,208,138,.7) 10%, #e0ffe8 40%, #ffffff 50%, #e0ffe8 60%, rgba(103,208,138,.7) 90%, rgba(103,208,138,0) 100%)',
+    boxShadow: '0 0 14px rgba(103,208,138,.95), 0 0 36px rgba(80,180,120,.6), 0 0 60px rgba(103,208,138,.3)',
+    borderRadius: '0 12px 12px 0', transformOrigin: '0 50%', pointerEvents: 'none',
+    clipPath: 'polygon(0 46%, 100% 0%, 100% 100%, 0 54%)',
+    zIndex: '9999',
+  });
+  $('#arena').appendChild(el);
+  el.animate([
+    { transform: `rotate(${angHead}deg)`, opacity: 0 },
+    { transform: `rotate(${angHead}deg)`, opacity: 1, offset: 0.06 },
+    { transform: `rotate(${angFeet}deg)`, opacity: 1, offset: 0.88 },
+    { transform: `rotate(${angFeet}deg)`, opacity: 0, offset: 0.95 },
+    { transform: `rotate(${angFeet}deg)`, opacity: 0 },
+  ], { duration: ms, fill: 'forwards' });
+  const bod = bodyEl(u);
+  if (bod) bod.animate([
+    { transform: 'none' },
+    { transform: `translateY(-6px) translateX(${d * 4}px)`, offset: 0.08 },
+    { transform: `translateY(-3px) translateX(${d * 5}px) rotate(${d * 2}deg)`, offset: 0.20 },
+    { transform: `translateY(-7px) translateX(${d * 4}px)`, offset: 0.35 },
+    { transform: `translateY(-2px) translateX(${d * 5}px) rotate(${d * 3}deg)`, offset: 0.50 },
+    { transform: `translateY(-6px) translateX(${d * 4}px)`, offset: 0.65 },
+    { transform: `translateY(-2px) translateX(${d * 5}px) rotate(${d * 2}deg)`, offset: 0.80 },
+    { transform: `translateX(${d * 3}px)`, offset: 0.90 },
+    { transform: 'none' },
+  ], { duration: ms });
+  const tb = bodyEl(t);
+  if (tb) tb.animate([
+    { filter: 'none' },
+    { filter: 'brightness(1.4) drop-shadow(0 0 12px rgba(103, 208, 138, .9))', offset: 0.15 },
+    { filter: 'brightness(1.3) drop-shadow(0 0 8px rgba(103, 208, 138, .7))', offset: 0.85 },
+    { filter: 'none' },
+  ], { duration: ms * 0.82, delay: ms * 0.06 });
+  return new Promise((r) => { setTimeout(() => { el.remove(); r(); }, ms + 60); });
+}
+
 /* Who has an authored swing, by champion — 'ryuunosuke:Twin Slash' counts for
    ryuunosuke. syncHeldWeapon reads this to decide whether to inline their art:
    the poses below swing `.wpn`, and those pieces only exist as elements once
@@ -19526,23 +19739,29 @@ const hasStrikeArt = (id) => STRIKE_RIGGED.has(id);
 // sk (optional) = the skill being swung: a basic Attack can use the champion's WEAPON_STRIKES move.
 // pace < 1 runs the same swing through quicker, for flurries that would drag at full length.
 async function strikePose(u, fresh = false, sk = null, pace = 1, tg = null) {
-  const hit = playAttack(u, fresh, sk);
-  if (hit != null) return sleep(hit * pace);
   const d = facing(u);
   // A skill's own move ('barrow:Tomb Slab') first, then the champion's basic-Attack move.
   const ws = sk && (WEAPON_STRIKES[`${u.id}:${sk.name}`] || (sk.id === 'attack' && WEAPON_STRIKES[u.id]));
+  // Skip pre-rendered clips when a skill-specific WEAPON_STRIKES entry exists.
+  if (!ws || !(sk && WEAPON_STRIKES[`${u.id}:${sk.name}`])) {
+    const hit = playAttack(u, fresh, sk);
+    if (hit != null) return sleep(hit * pace);
+  }
   /* Every .wpn piece, not just the first. A swapped weapon is one group and this
      is the same as it ever was, but a champion drawn holding their own is marked
      piece by piece to keep the artist's z-order (see WEARING WHAT YOU CARRY) —
      Ryuunosuke's katana is nine. Swinging only the first sent the blade across
      the field and left the guard, the wrap and the pommel standing in his hand. */
-  const parts = ws && !reduced && u.hp > 0 ? [...(bodyEl(u)?.querySelectorAll('.wpn') || [])] : [];
-  if (parts.length) {
+  if (ws && !reduced && u.hp > 0) {
     const ms = beat(ws.ms * pace);
-    parts.forEach((p) => p.animate(ws.wpn, { duration: ms }));
-    if (ws.off) bodyEl(u).querySelector('.wpn2')?.animate(ws.off, { duration: ms });
+    const parts = [...(bodyEl(u)?.querySelectorAll('.wpn') || [])];
+    if (parts.length) {
+      parts.forEach((p) => p.animate(ws.wpn, { duration: ms }));
+      if (ws.off) bodyEl(u).querySelector('.wpn2')?.animate(ws.off, { duration: ms });
+    }
     pose(u, ws.body(d), ws.ms * pace);
-    if (ws.shine && tg) graveShine(u, tg, ms, ws.hit);   // Grave Cross: the lifted cross pours green light onto them
+    if (ws.shine && tg) graveShine(u, tg, ms, ws.hit);
+    if (ws.laser && tg) headLaser(u, tg, ms, ws.hit);
     await sleep(ms * ws.hit);
     return;
   }
@@ -19711,6 +19930,7 @@ const PROJ_ATTACK = {
 };
 const PROJ_SKILL = {
   // Ironclad Union
+  'Overclock': { kind: 'greenball', impact: 'heal' },
   'Discharge': { kind: 'plasma' },
   'Flak Burst': { kind: 'flak', arc: true, impact: 'flak' },
   'Siege Shell': { kind: 'rocket', arc: 'curve', impact: 'boom' },
@@ -21645,6 +21865,7 @@ function bootTest(params) {
   EGUARD = params.has('eguard') && params.get('eguard') !== '0';   // eguard=1: enemies only guard
   if (params.has('speed')) SPEED = Math.max(0.1, Math.min(3, +params.get('speed') || 1));  // speed=0.2: 5× slower
   if (params.has('nolog')) setLogHidden(true);                    // nolog=1: all field, no chronicle
+  if (params.has('nohud')) document.body.classList.add('noHud');  // nohud=1: arena only, no bars or deck
   /* The Sim Deck runs these fights in frames and needs to know when one is decided so it can deal the
      next. It cannot simply read `state`: that is a module-scope binding and invisible from outside the
      frame. So a test fight publishes a tiny read-only window onto itself - nothing the game uses, and
@@ -21679,13 +21900,17 @@ function bootTest(params) {
     moves(uid) {
       const u = unitBy(uid);
       if (!u) return [];
-      const clip = !!(animOf(u) && animOf(u).attack);
+      const a = animOf(u);
+      const clip = !!(a && a.attack);
       const out = [{
         id: 'attack', name: 'Attack',
         from: clip ? 'clip' : WEAPON_STRIKES[u.id] ? 'strike' : 'fallback',
       }];
       for (const s of (skillsOf(u) || [])) {
-        if (WEAPON_STRIKES[`${u.id}:${s.name}`]) out.push({ id: s.id, name: s.name, from: clip ? 'clip' : 'strike' });
+        if (s.id === 'attack' || s.id === 'guard') continue;
+        const hasStrike = !!WEAPON_STRIKES[`${u.id}:${s.name}`];
+        const hasClip = !!(a && a[`s-${skillSlug(s.name)}`]);
+        if (hasStrike || hasClip) out.push({ id: s.id, name: s.name, from: hasClip ? 'clip' : 'strike' });
       }
       return out;
     },
@@ -21720,6 +21945,17 @@ function bootTest(params) {
       };
       await swing(); await cloneStrike(u, sk);
       return true;
+    },
+    skillInfo(uid) {
+      const u = unitBy(uid);
+      if (!u) return [];
+      return (skillsOf(u) || []).map(s => ({
+        id: s.id, name: s.name, desc: s.desc, cd: s.cd || 0,
+        mp: s.mp || 0, sig: !!s.sig, kind: s.kind || 'damage',
+        slug: skillSlug(s.name),
+        cdLeft: Math.ceil(u.cooldowns[s.id] || 0),
+        usable: state.phase === 'choose' && usable(u, s),
+      }));
     },
     get canAct() { return state.phase === 'choose'; },
     act(name) { const u = unitBy(state.active); if (!u) return; const all = skillsOf(u); const sk = name === 'Attack' ? all.find(s => s.id === 'attack') : name === 'Guard' ? all.find(s => s.id === 'guard') : all.find(s => s.name === name); if (!sk) return; onSkill(sk.id); },

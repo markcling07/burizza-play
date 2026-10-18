@@ -24,7 +24,7 @@
     <filter id="gb-glowSm" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation=".6"/></filter>
   </defs>
   <!-- ground shadow + the cold he stands in -->
-  <ellipse cx="50" cy="94" rx="24" ry="3.8" fill="#000" opacity=".35"/>
+  <ellipse cx="50" cy="94" rx="20" ry="3.8" fill="#000" opacity=".35"/>
   <ellipse cx="50" cy="93.2" rx="15" ry="2.8" fill="#8fe4f8" opacity=".18" filter="url(#gb-glow)"/>
   <g stroke="none" stroke-width="1.85" stroke-linejoin="round" stroke-linecap="round">
     <!-- fin crest, swept back, with rime creeping up every spine -->
@@ -46,40 +46,40 @@
       <path d="M28.2 43.2 Q31.8 41.2 35.2 42.6" stroke="#fffdf2" stroke-width=".7" fill="none" opacity=".5"/>
     </g>
     <!-- back arm, braced, and the clawed fist on the end of it -->
-    <path d="M40 57 Q31 65 30.5 75 L37.5 76 Q38 67 44.5 61 Z" fill="url(#gb-skinD)"/>
-    <path d="M28.5 73 L27.5 81.5 L32 78 L35 82.5 L38 77.5 L41 80 L40.5 72 Z" fill="url(#gb-skinD)"/>
-    <path d="M29.5 76 L32 78 M33 76 L35 79 M36.5 76 L38.5 78" stroke="#24465f" stroke-width=".6" fill="none" opacity=".5"/>
+    <path d="M43 57 Q34 65 33.5 75 L40 76 Q40.5 67 46.5 61 Z" fill="url(#gb-skinD)"/>
+    <path d="M31.5 73 L30.5 81.5 L35 78 L38 82.5 L41 77.5 L44 80 L43.5 72 Z" fill="url(#gb-skinD)"/>
+    <path d="M32.5 76 L35 78 M36 76 L38 79 M39.5 76 L41.5 78" stroke="#24465f" stroke-width=".6" fill="none" opacity=".5"/>
     <!-- legs -->
-    <path d="M42 74 h9.5 l-1.5 15 h-9.5 z" fill="url(#gb-skinD)"/>
-    <path d="M54 74 h9.5 l2.5 15 h-9.5 z" fill="url(#gb-skin)"/>
+    <path d="M43 74 h9 l-1.5 15 h-9 z" fill="url(#gb-skinD)"/>
+    <path d="M53 74 h9 l2 15 h-9 z" fill="url(#gb-skin)"/>
     <!-- greaves: banded rime-plate, buckled over the shins -->
     <g stroke="#3b4556" stroke-width=".6" stroke-linejoin="round">
-      <path d="M41 77 h11 l-.3 4.4 h-11 z" fill="url(#gb-plateD)"/>
-      <path d="M40.6 83 h11 l-.3 4.4 h-11 z" fill="url(#gb-plateD)"/>
-      <path d="M53.6 77 h11 l.7 4.4 h-11 z" fill="url(#gb-plate)"/>
-      <path d="M54.2 83 h11.2 l.8 4.4 h-11.2 z" fill="url(#gb-plate)"/>
+      <path d="M42.5 77 h10 l-.3 4.4 h-10 z" fill="url(#gb-plateD)"/>
+      <path d="M42 83 h10 l-.3 4.4 h-10 z" fill="url(#gb-plateD)"/>
+      <path d="M52.5 77 h10 l.6 4.4 h-10 z" fill="url(#gb-plate)"/>
+      <path d="M53 83 h10 l.7 4.4 h-10 z" fill="url(#gb-plate)"/>
     </g>
     <!-- webbed feet, claws out -->
-    <path d="M33 93.5 L35 88 Q41.5 85 49.5 88 L50.5 93.5 Z" fill="#2d5675"/>
-    <path d="M35.5 89.5 L37 93.5 M39.5 88.5 L40.5 93.5 M43.5 88 L44.5 93.5" stroke="#24465f" stroke-width=".6" fill="none" opacity=".45"/>
-    <path d="M53.5 93.5 L54 88 Q62 85 68 88.5 L72 93.5 Z" fill="#3d7099"/>
-    <path d="M56.5 89 L57.5 93.5 M60.5 88 L61.5 93.5 M64.5 88.5 L66 93.5" stroke="#2d5675" stroke-width=".6" fill="none" opacity=".45"/>
+    <path d="M35 93.5 L37 88 Q43 85 50 88 L51 93.5 Z" fill="#2d5675"/>
+    <path d="M37.5 89.5 L39 93.5 M41 88.5 L42 93.5 M44.5 88 L45.5 93.5" stroke="#24465f" stroke-width=".6" fill="none" opacity=".45"/>
+    <path d="M53 93.5 L53.5 88 Q60 85 65.5 88.5 L69 93.5 Z" fill="#3d7099"/>
+    <path d="M55.5 89 L56.5 93.5 M58.5 88 L59.5 93.5 M62 88.5 L63.5 93.5" stroke="#2d5675" stroke-width=".6" fill="none" opacity=".45"/>
     <!-- pot-bellied body: he never lost the gut, he just armoured it -->
-    <path d="M38 50 Q30.5 68 39 84 Q50 90 63 84 Q70.5 67 64 50 Q50 44 38 50 Z" fill="url(#gb-skin)"/>
-    <path d="M47 57 Q56 55 61.5 60 Q65.5 72 59.5 83 Q51 85.5 47 82 Q42 69 47 57 Z" fill="url(#gb-belly)"/>
+    <path d="M41 50 Q35 68 42 84 Q50 90 60 84 Q67 67 61 50 Q50 44 41 50 Z" fill="url(#gb-skin)"/>
+    <path d="M47 57 Q54.5 55 59 60 Q62.5 72 57 83 Q51 85.5 47 82 Q43 69 47 57 Z" fill="url(#gb-belly)"/>
     <g stroke="#90b2c6" stroke-width=".45" fill="none" opacity=".4">
-      <path d="M49 60 q3.5 -1 7 0 M48 64 q4.5 -1 9 0 M47.5 68 q5 -1 10 0 M47.5 72 q5 0 10 0 M48 76 q4.5 .5 9 0 M49 80 q3.5 .5 7 0"/>
+      <path d="M49 60 q3 -1 5.5 0 M48 64 q3.5 -1 7 0 M48 68 q4 -1 8 0 M48 72 q4 0 8 0 M48.5 76 q3.5 .5 7 0 M49 80 q3 .5 5.5 0"/>
     </g>
     <!-- breastplate: one curved slab of rime-plate over the gut, grooved in two chevrons.
          Bands read as a ladder at roster size - a single shaped plate holds together. -->
-    <path d="M41.5 56.5 Q50 52.5 61.5 57 Q65.5 68 61 79 Q50 84 42.5 79 Q38.5 68 41.5 56.5 Z" fill="url(#gb-plateD)" stroke="#39414f" stroke-width=".9" stroke-linejoin="round"/>
-    <path d="M43.6 58.6 Q50 55.2 59.4 59 Q62.6 68 58.8 77.4 Q50 81.4 44 77.4 Q40.9 68 43.6 58.6 Z" fill="url(#gb-plate)"/>
-    <path d="M44.2 64 L51.4 67.6 L59 63.6 M44 70.6 L51.4 74.2 L59 70.2" stroke="#39414f" stroke-width="1.15" fill="none" stroke-linejoin="round" opacity=".85"/>
-    <path d="M45.4 61 Q50.6 58.4 57.4 61.2" stroke="#eaf1f8" stroke-width=".8" fill="none" opacity=".5"/>
+    <path d="M43.5 56.5 Q50 52.5 59 57 Q62 68 58.5 79 Q50 84 44 79 Q41 68 43.5 56.5 Z" fill="url(#gb-plateD)" stroke="#39414f" stroke-width=".9" stroke-linejoin="round"/>
+    <path d="M45 58.6 Q50 55.2 57.4 59 Q60 68 56.8 77.4 Q50 81.4 45.5 77.4 Q43 68 45 58.6 Z" fill="url(#gb-plate)"/>
+    <path d="M45.8 64 L51 67.6 L57 63.6 M45.8 70.6 L51 74.2 L57 70.2" stroke="#39414f" stroke-width="1.15" fill="none" stroke-linejoin="round" opacity=".85"/>
+    <path d="M46.5 61 Q50.6 58.4 56 61.2" stroke="#eaf1f8" stroke-width=".8" fill="none" opacity=".5"/>
     <!-- fur collar over the shoulders, frost caught in it -->
-    <path d="M37 50.5 Q50 43 65 50.5 Q62 55 57 54 Q50 57 43 54 Q39 55 37 50.5 Z" fill="url(#gb-fur)"/>
-    <path d="M40 50 q2 -3 4 -1 M47 46.5 q2.5 -3 5 -.5 M55 47.5 q2.5 -2.5 4.5 0" stroke="#8d7a60" stroke-width="1.1" fill="none" opacity=".7"/>
-    <path d="M42 52.5 q2 -2 4 -.5 M52 52.8 q2 -2 4 -.5" stroke="#cfe6f2" stroke-width=".7" fill="none" opacity=".5"/>
+    <path d="M40 50.5 Q50 43 62 50.5 Q60 55 56 54 Q50 57 45 54 Q41.5 55 40 50.5 Z" fill="url(#gb-fur)"/>
+    <path d="M42 50 q2 -3 4 -1 M47 46.5 q2.5 -3 5 -.5 M54 47.5 q2 -2.5 3.5 0" stroke="#8d7a60" stroke-width="1.1" fill="none" opacity=".7"/>
+    <path d="M43.5 52.5 q2 -2 4 -.5 M51 52.8 q2 -2 3 -.5" stroke="#cfe6f2" stroke-width=".7" fill="none" opacity=".5"/>
     <!-- big head -->
     <path d="M36 40 Q35 21.5 54 21 Q72 21 74 34 Q75 44 69 48 Q59 54 48 53 Q37 51 36 40 Z" fill="url(#gb-skin)"/>
     <ellipse cx="52" cy="30" rx="13" ry="11" fill="url(#gb-sheen)"/>
@@ -147,8 +147,8 @@
   <!-- spots -->
   <g fill="#3d7099" opacity=".75">
     <circle cx="45" cy="27.5" r="1.7"/><circle cx="50" cy="24.5" r="1.2"/>
-    <circle cx="41" cy="41" r="1.3"/><circle cx="40" cy="62" r="1.3"/>
-    <circle cx="38" cy="52" r="1.1"/><circle cx="62" cy="52" r=".9"/>
+    <circle cx="41" cy="41" r="1.3"/><circle cx="42" cy="62" r="1.3"/>
+    <circle cx="40" cy="52" r="1.1"/><circle cx="60" cy="52" r=".9"/>
   </g>
   <!-- RUNEBLADE: too much sword for him, carried anyway. Drawn straight up from the grip and
        swung out to the shoulder by one rotate, so data-hand stays the pivot. -->
@@ -172,9 +172,9 @@
     <path class="wpn" d="M66 72.6 l-3 -2 l3 -2.2 l3 2.2 Z" fill="url(#gb-plateD)" stroke="#39414f" stroke-width=".8" stroke-linejoin="round"/>
   </g>
   <!-- front arm, reaching down the grip, vambrace banded to match the greaves -->
-  <path d="M57 53.5 L69.5 59.5 L66.5 66.5 L54 60.5 Z" fill="url(#gb-skin)"/>
+  <path d="M55.5 53.5 L69.5 59.5 L66.5 66.5 L52.5 60.5 Z" fill="url(#gb-skin)"/>
   <g stroke="#3b4556" stroke-width=".6" stroke-linejoin="round">
-    <path d="M59.5 55.4 L67.6 59.3 L66.4 62 L58.3 58.1 Z" fill="url(#gb-plate)"/>
+    <path d="M58 55.4 L67.6 59.3 L66.4 62 L56.8 58.1 Z" fill="url(#gb-plate)"/>
   </g>
   <!-- front hand closed on the grip at data-hand -->
   <circle cx="66.6" cy="64.2" r="3.8" fill="url(#gb-skin)"/>
