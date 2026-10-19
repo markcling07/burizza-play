@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Burizza skill icon: Step Out. A figure leaving the lee of the wall. 64x64. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+<defs>
+<linearGradient id="soWall" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8591a8"/><stop offset="1" stop-color="#5c6880"/></linearGradient>
+</defs>
+<!-- the ground -->
+<path d="M4 54 h56" stroke="#7d6a4e" stroke-width="2.6" stroke-linecap="round"/>
+<!-- the cover being left behind, on the left -->
+<path d="M8 20 h14 v34 H8 z" fill="url(#soWall)" stroke="#2b3243" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M8 31 h14 M8 42 h14 M15 20 v34" stroke="#2b3243" stroke-width="1.4" opacity=".55"/>
+<!-- the figure, stepping clear of it -->
+<circle cx="37" cy="21" r="6" fill="#e9dcc0" stroke="#2b3243" stroke-width="2"/>
+<path d="M37 28 v13" stroke="#2b3243" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M37 41 l-5 11 M37 41 l7 10" stroke="#2b3243" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M37 32 l-6 5 M37 32 l8 3" stroke="#2b3243" stroke-width="2.8" stroke-linecap="round"/>
+<!-- the way out -->
+<path d="M50 34 h9" stroke="#f0a73a" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M54 29 l5 5 l-5 5" fill="none" stroke="#f0a73a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
