@@ -2265,33 +2265,6 @@ svg.art .spentblade { opacity: 0; }
    the gate is a phone concern, where upright is genuinely too cramped.
    ================================================================ */
 #rotateGate { display: none; }
-@media (orientation: portrait) and (max-width: 700px) {
-  /* Hide the entire game behind the gate so the phone doesn't waste memory
-     rendering 50+ SVGs it can't see yet — prevents mobile browser crashes. */
-  .wrap { visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
-  .wrap img { content-visibility: hidden; }
-  #rotateGate {
-    display: flex; position: fixed; inset: 0; z-index: 9000;
-    flex-direction: column; align-items: center; justify-content: center;
-    padding: calc(28px + env(safe-area-inset-top)) 28px calc(28px + env(safe-area-inset-bottom));
-    text-align: center; -webkit-user-select: none; user-select: none;
-    background:
-      radial-gradient(130% 80% at 50% 8%, rgba(232, 165, 72, .12), transparent 62%),
-      var(--bg);
-  }
-  .rgCard { display: grid; gap: 16px; justify-items: center; max-width: 320px; }
-  .rgPhone {
-    width: 88px; height: 88px; color: var(--accent);
-    transform-origin: 50% 50%; animation: rgTip 2.8s ease-in-out infinite;
-  }
-  .rgPhone svg { width: 100%; height: 100%; display: block;
-    filter: drop-shadow(0 6px 16px rgba(232, 165, 72, .25)); }
-  #rotateGate h2 {
-    margin: 0; font-family: var(--font-display); font-weight: 600;
-    font-size: 1.5rem; line-height: 1.14; color: var(--fg);
-  }
-  #rotateGate p { margin: 0; font-size: .96rem; line-height: 1.4; color: var(--muted); }
-}
 /* The phone tips upright -> sideways -> back: the gesture we're asking for. */
 @keyframes rgTip {
   0%, 26%  { transform: rotate(0deg); }
