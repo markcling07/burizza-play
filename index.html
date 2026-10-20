@@ -2645,24 +2645,26 @@ svg.art .spentblade { opacity: 0; }
   .wxPill { top: 34px; }
   /* The arena gives up its 16/8 and simply fills what is left — on this screen
      the height is the budget and the aspect ratio has to follow it. */
-  /* container-type: size, not inline-size, so the units below can measure the
-     HEIGHT as well. Safe here and only here: this arena is given an explicit
-     height by the grid, where the desktop one derives its height from its own
-     aspect-ratio and must keep measuring only the width. */
+  /* inline-size, NOT `container-type: size`. Full size-containment here (so the
+     units below could read the field HEIGHT with cqh) crashed iOS Safari's web
+     process the instant the phone turned to landscape — the blank "Can't open
+     this page". The height cap is preserved by measuring the viewport (dvh)
+     instead: this arena fills nearly all of a <=540px-tall landscape viewport,
+     so a dvh share tracks the field height closely, and iOS never has to resolve
+     size-containment at all. */
   .arena { grid-area: arena; aspect-ratio: auto; min-height: 0; height: 100%; border-radius: 10px;
-    container-type: size; }
+    container-type: inline-size; }
   /* A champion is sized as a share of the field's WIDTH (13cqw), which is right
      while the field is a tall-ish box. With the log hidden the field is 828px
      wide and still only 263 tall, and that share drew champions 161px tall into
-     a 263px box — the back rank's nameplates were cut off by the top edge.
-     Capping against the height too costs nothing in the narrow layout (the
-     width term is still the smaller one there) and keeps the wide one honest.
-     The cqh figures are each the cqw figure scaled by the ratio that leaves the
-     narrow layout exactly as it was. */
-  .unit         { --size: clamp(46px, min(13cqw,   21cqh), 150px); }
-  .unit.boss    { --size: clamp(84px, min(21cqw,   34cqh), 230px); }
-  .unit.elite   { --size: clamp(68px, min(17cqw,   28cqh), 190px); }
-  .unit.summon  { --size: clamp(44px, min(9.5cqw, 15cqh), 110px); }
+     a 263px box — the back rank's nameplates were cut off by the top edge. The
+     dvh terms cap the height so that cannot happen; they are tuned a touch
+     tighter than the old cqh figures, so a dynamic URL bar can only ever leave a
+     champion SHORTER than its box, never clipped past the top edge. */
+  .unit         { --size: clamp(46px, min(13cqw,   13dvh), 150px); }
+  .unit.boss    { --size: clamp(84px, min(21cqw,   21dvh), 230px); }
+  .unit.elite   { --size: clamp(68px, min(17cqw,   17dvh), 190px); }
+  .unit.summon  { --size: clamp(44px, min(9.5cqw, 9dvh),  110px); }
   /* THE FLOOR COMES UP TO MEET THE BAR. A champion is placed at a PERCENTAGE
      of the field's height (`top: calc(var(--y) * 1%)`, feet on that line), so
      making them smaller does not lift them — it just leaves their feet in the
