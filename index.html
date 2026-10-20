@@ -1112,14 +1112,21 @@ body.picking .unit:not(.targetable) > :is(.chips, .plate, .body) { pointer-event
 /* The chip row never wraps. Wrapping grows the block upward from the champion's feet, and a second or
    third row of statuses reaches up over whoever stands behind them (the render caps the count, see
    CHIP_MAX, so a single row is always enough to hold them). */
-.unit .chips { justify-content: center; min-height: 0; gap: 2px; flex-wrap: nowrap; }
-.unit .chip { font-size: .5rem; line-height: 11px; padding: 0 4px; background: var(--plate); }
-/* ...and the "+N" standing for everything that did not fit. */
+.unit .chips {
+  position: absolute; z-index: 8; right: -4px; top: 50%; transform: translateY(-50%);
+  flex-direction: column; align-items: flex-end; gap: 3px; min-height: 0;
+  display: none;
+}
+.unit.acting .chips, .unit.viewing .chips { display: flex; }
+.unit .chip {
+  font-size: .48rem; line-height: 13px; padding: 1px 6px;
+  background: rgba(10, 10, 20, .75); border-radius: 3px;
+  backdrop-filter: blur(2px); white-space: nowrap;
+}
+.unit .chip.bad { border-left: 2px solid var(--bad); }
+.unit .chip.good { border-left: 2px solid #3ddc60; }
+.unit .chip.pass { border-left: 2px solid var(--accent); }
 .unit .chip.more { color: var(--muted); }
-/* The chip's label slowly fades away, leaving just the icon. Anything that touches the champion —
-   damage, a mend, a new status — restamps the unit's last-touched time (float / addFx), and render
-   feeds it in as a negative delay (--chipAge), so the fade runs on across re-renders and the words
-   come back whenever something new lands. */
 .unit .chip .txt {
   display: inline-block; vertical-align: top; overflow: hidden; max-width: 16ch;
   animation: chipTxt 10s linear var(--chipAge, 0ms) forwards;
@@ -1133,7 +1140,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   width: 100%; max-width: 118px; display: grid; gap: 1px; padding: 0;
   border: none; background: none; transition: border-color .15s;
 }
-.unit.summon .plate { border-style: dashed; }
+.unit.summon .plate { border-style: none; }
 /* Covering Fire countdown: a round dial hung off the left of the plate. The gold ring fills as the
    field's turns tick by; the number is the turns left until her free shot, and it glows on the last. */
 .unit .plate:has(.watchdial) { position: relative; }
@@ -1582,6 +1589,60 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit.down .hastefx { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .unit.hastened .hastefx::before, .unit.hastened .hastefx::after { animation: none; opacity: .6; }
+}
+.unit.leaking .upic > :is(.art, svg, .anim) { filter: drop-shadow(0 0 4px rgba(30, 80, 230, .8)); }
+.leakfx { display: none; }
+.unit.leaking .leakfx {
+  display: block; position: absolute; left: 0; right: 0; bottom: 0; height: 55%;
+  pointer-events: none; z-index: 6; overflow: visible;
+}
+.leakfx .puddle {
+  position: absolute; bottom: 2%; left: 50%; transform: translateX(-50%);
+  width: 75%; height: 14%;
+  background: radial-gradient(ellipse, rgba(30, 80, 220, .85), rgba(20, 60, 200, .55) 55%, transparent 75%);
+  border-radius: 50%;
+  animation: puddlePulse 2.5s ease-in-out infinite;
+}
+@keyframes puddlePulse {
+  0%, 100% { opacity: .7; transform: translateX(-50%) scaleX(1); }
+  50%      { opacity: 1;  transform: translateX(-50%) scaleX(1.08); }
+}
+.leakfx .drop {
+  position: absolute; width: 4px; border-radius: 0 50% 50% 50%;
+  transform: rotate(45deg);
+  background: rgba(40, 100, 240, .95);
+  box-shadow: 0 0 4px rgba(30, 80, 230, .8);
+}
+.leakfx .drop:nth-child(2) { left: 35%; height: 6px; animation: manaDrop 1.8s ease-in .0s infinite; }
+.leakfx .drop:nth-child(3) { left: 58%; height: 5px; animation: manaDrop 2.2s ease-in .6s infinite; }
+.leakfx .drop:nth-child(4) { left: 45%; height: 5px; animation: manaDrop 2.5s ease-in 1.2s infinite; }
+@keyframes manaDrop {
+  0%   { top: 20%; opacity: 0; }
+  15%  { opacity: .9; }
+  85%  { opacity: .7; }
+  100% { top: 88%; opacity: 0; }
+}
+.leakfx .bubble {
+  position: absolute; border-radius: 50%;
+  border: 1.5px solid rgba(50, 120, 255, .8);
+  background: rgba(30, 90, 240, .2);
+}
+.leakfx .bubble:nth-child(5) { left: 30%; width: 5px; height: 5px; animation: manaBubble 2s ease-out .3s infinite; }
+.leakfx .bubble:nth-child(6) { left: 55%; width: 4px; height: 4px; animation: manaBubble 2.4s ease-out .9s infinite; }
+.leakfx .bubble:nth-child(7) { left: 42%; width: 6px; height: 6px; animation: manaBubble 2.8s ease-out 1.5s infinite; }
+.leakfx .bubble:nth-child(8) { left: 65%; width: 3px; height: 3px; animation: manaBubble 2.1s ease-out 2.0s infinite; }
+@keyframes manaBubble {
+  0%   { bottom: 4%; opacity: 0; transform: scale(.5); }
+  20%  { opacity: .8; transform: scale(1); }
+  80%  { opacity: .5; }
+  100% { bottom: 35%; opacity: 0; transform: scale(.6); }
+}
+.unit.down .leakfx { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .leakfx .drop, .leakfx .bubble { animation: none; }
+  .leakfx .drop { opacity: .6; top: 55%; }
+  .leakfx .bubble { opacity: .5; bottom: 15%; }
+  .leakfx .puddle { animation: none; opacity: .8; }
 }
 /* WEARING WHAT YOU CARRY. While a champion holds something other than the weapon they were drawn
    with, their art is inlined and the painted weapon's pieces (class="wpn" in the art file) are
@@ -7197,6 +7258,106 @@ const MONSTERS = {
     telegraph: { every: 3, name: 'Cauldron Burst', warn: 'tips her cauldron toward you, and the green brew hisses…',
                  skill: D('Cauldron Burst', '105% to all enemies. Poisons and Weakens them.', 0, 1.05, { aoe: true, noDodge: true, fx: [['poison', 3, 0.4], ['weaken', 2]] }) },
   },
+
+  // ---- Brineholt Deep — a drowned harbour one tide below Ashfall Road ----
+  brinewraith: {
+    name: 'Brine Wraith', plural: 'Brine Wraiths', role: 'ranged', xp: 30,
+    lore: 'A sailor the reef kept. Salt water still pours from its mouth when it sings for the tide.',
+    mods: { hp: 0.75, atk: 1.05, def: 0.7, agi: 1.2 }, floats: true,
+    passive: P('Incorporeal', 'Dodges attacks more often.', { dodge: 0.12 }),
+    look: { body: 'tide', crest: 'shark', skin: '#7f9bb0', main: '#2f4a5e', trim: '#a9e6dd', weapon: 'trident' },
+    skills: [{ ...ATTACK, name: 'Brine Lash', desc: 'Deals 100% ATK damage.' },
+             D('Undertow', 'Deals 95% ATK damage. Soaks the target for 3 turns.', 2, 0.95, { magic: true, fx: [['soaked', 3]] }),
+             D('Drowning Dirge', '35% to all enemies, with a 35% chance each to Silence.', 4, 0.35, { magic: true, aoe: true, noDodge: true, chanceFx: [['silence', 3, 0.35]] })],
+  },
+  reeflurker: {
+    name: 'Reef Lurker', plural: 'Reef Lurkers', role: 'ranged', xp: 28,
+    lore: 'A drifting bell of stingers. It is almost beautiful, until the water around it goes numb.',
+    mods: { hp: 0.7, atk: 1.0, def: 0.65, agi: 1.25 }, floats: true,
+    look: { body: 'jellyfish', main: '#5fb0e8', trim: '#bfe8ff', eye: '#ffffff' },
+    skills: [{ ...ATTACK, name: 'Sting', desc: 'Deals 100% ATK damage.' },
+             D('Numbing Veil', 'Deals 85% ATK damage. Poisons the target for 3 turns and Slows it.', 2, 0.85, { magic: true, fx: [['poison', 3, 0.3], ['slow', 2]] }),
+             B('Bioluminesce', 'Flares bright and Wards itself against the next blows.', 4, 'self', [['ward', 2]])],
+  },
+  coralgolem: {
+    name: 'Coral Golem', plural: 'Coral Golems', role: 'melee', xp: 36,
+    lore: 'Centuries of reef grew over a drowned statue, until the statue learned to walk again.',
+    mods: { hp: 1.5, atk: 0.95, def: 1.5, agi: 0.55 },
+    passive: P('Calcified', 'The first hit it takes each turn deals 20% less damage.', { firstHitDR: 0.2 }),
+    look: { body: 'golem', main: '#3f6e6a', trim: '#f2b6c6' },
+    skills: [{ ...ATTACK, name: 'Reef Fist', desc: 'Deals 100% ATK damage.' },
+             D('Barnacle Rake', 'Deals 115% ATK damage. Applies Bleed for 3 turns.', 3, 1.15, { fx: [['bleed', 3, 0.3]] }),
+             D('Crushing Tide', '55% to all enemies. Sunders their armor for 3 turns.', 4, 0.55, { aoe: true, noDodge: true, fx: [['sunder', 3]] })],
+  },
+  sawjaw: {
+    name: 'Sawjaw Reaver', plural: 'Sawjaw Reavers', role: 'melee', xp: 60, elite: true,
+    lore: 'A reef-shark that grew legs to follow the blood onto the sand. It has never once been full.',
+    mods: { hp: 1.9, atk: 1.3, def: 1.0, agi: 1.15 },
+    passive: P('Blood Frenzy', 'Defeating a champion heals it for 25% of its max HP.', { killHeal: 0.25 }),
+    look: { body: 'beast', main: '#3a5566', trim: '#d9e6ee', eye: '#bffff0' },
+    skills: [{ ...ATTACK, name: 'Rend', desc: 'Deals 100% ATK damage.' },
+             D('Gnashing Bite', 'Deals 130% ATK damage. Lifesteals 40% and causes Bleed for 3 turns.', 2, 1.3, { lifesteal: 0.4, fx: [['bleed', 3, 0.35]] })],
+  },
+  tidemother: {
+    name: 'The Tide Mother', role: 'ranged', xp: 320, boss: true,
+    lore: 'The reef prays to her, and she answers in salt. A ship\'s figurehead once, they say, before the sea gave her a mouth.',
+    mods: { hp: 4.6, atk: 1.2, def: 1.3, agi: 1.0 },
+    look: { body: 'tide', crest: 'octo', skin: '#5e7f93', main: '#213a4c', trim: '#7fe3d4', weapon: 'trident' },
+    skills: [{ ...ATTACK, name: 'Trident Sweep', desc: 'Deals 100% ATK damage.' },
+             D('Riptide', 'Deals 110% ATK damage. Soaks the target and drags it back along the speed bar.', 2, 1.1, { magic: true, knockback: 200, fx: [['soaked', 3]] }),
+             S('Call the Drowned', 'Raises a drowned sailor to fight for her.', 4, 'risen')],
+    telegraph: { every: 3, name: 'Tidal Surge', warn: 'lifts her trident, and the water climbs the walls…',
+                 skill: D('Tidal Surge', '95% to all enemies. Cannot miss. Soaks them all.', 0, 0.95, { aoe: true, noDodge: true, fx: [['soaked', 3]] }) },
+  },
+
+  // ---- Gloomfang Warren — a maze of beast-dug tunnels under the hills ----
+  gnashboar: {
+    name: 'Gnash Boar', plural: 'Gnash Boars', role: 'melee', xp: 32,
+    lore: 'Tusked, half-blind, and always hungry. It charges the first thing that moves and asks nothing after.',
+    mods: { hp: 1.15, atk: 1.1, def: 0.9, agi: 1.0 },
+    look: { body: 'boar', main: '#4a3626', trim: '#e8dcc4', hair: '#241812' },
+    skills: [{ ...ATTACK, name: 'Gore', desc: 'Deals 100% ATK damage.' },
+             D('Tusk Charge', 'Deals 120% ATK damage. Drags the target back along the speed bar.', 3, 1.2, { knockback: 180 })],
+  },
+  moonhound: {
+    name: 'Moon Hound', plural: 'Moon Hounds', role: 'melee', xp: 30,
+    lore: 'They hunt in threes and sing to a moon the warren\'s ceiling hides. The song is the last thing many hear.',
+    mods: { hp: 0.8, atk: 1.1, def: 0.75, agi: 1.5 },
+    passive: P('Slip the Leash', 'Slips aside more often (dodges).', { dodge: 0.12 }),
+    look: { body: 'direhound', main: '#36404a', trim: '#aebfcf', eye: '#cfe8ff' },
+    skills: [{ ...ATTACK, name: 'Snap', desc: 'Deals 100% ATK damage.' },
+             D('Hamstring', 'Deals 90% ATK damage. Slows the target for 3 turns.', 2, 0.9, { fx: [['slow', 3]] })],
+  },
+  thornback: {
+    name: 'Thornback', plural: 'Thornbacks', role: 'melee', xp: 34,
+    lore: 'A ridge-backed grazer gone wrong down here, its hide grown into a wall of black thorns.',
+    mods: { hp: 1.3, atk: 1.0, def: 1.2, agi: 0.8 },
+    passive: P('Bramble Hide', 'Attackers take a little damage back (Thorns) all fight.', { startFx: [['thorns', 9]] }),
+    look: { body: 'beast', main: '#2f3a24', trim: '#6a7a4a', eye: '#d6ff7a' },
+    skills: [{ ...ATTACK, name: 'Ram', desc: 'Deals 100% ATK damage.' },
+             D('Quill Burst', '50% to all enemies. Causes Bleed.', 3, 0.5, { aoe: true, noDodge: true, fx: [['bleed', 3, 0.25]] })],
+  },
+  warrenhexer: {
+    name: 'Warren Hexer', plural: 'Warren Hexers', role: 'support', xp: 36,
+    lore: 'The pack\'s two-legged shaman. It paints its kin in rot-ward mud and spits curses at everything else.',
+    mods: { hp: 0.9, atk: 0.95, def: 0.9, agi: 1.0 },
+    look: { body: 'orc', main: '#3a2a1a', trim: '#8a9a6a', skin: '#7a6a4a', hair: '#141008', weapon: 'staff' },
+    skills: [{ ...ATTACK, name: 'Bone Rattle', desc: 'Deals 100% ATK damage.' },
+             H('Rot-Ward Mud', 'Heals an ally for 280% ATK.', 2, 2.8),
+             D('Evil Eye', '30% to all enemies. Weakens and Blinds them.', 4, 0.3, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2], ['blind', 2]] })],
+  },
+  gorehide: {
+    name: 'Gorehide, the Warren King', role: 'melee', xp: 360, boss: true,
+    lore: 'The biggest thing the warren ever grew, and the reason nothing bigger ever did. The pack does not obey it so much as flee toward it.',
+    mods: { hp: 4.8, atk: 1.3, def: 1.35, agi: 0.85 },
+    passive: P('Beast Blood', 'Recovers an extra 4% of max HP every turn.', { stat: { hpRegenPct: 0.04 } }),
+    look: { body: 'troll', main: '#5a3a2a', trim: '#c08a4a' },
+    skills: [{ ...ATTACK, name: 'Maul', desc: 'Deals 100% ATK damage.' },
+             D('Bone Crusher', 'Deals 140% ATK damage. Staggers the target.', 2, 1.4, { fx: [['stagger', 1]] }),
+             B('Blood Howl', 'Lets out a howl and Empowers itself for 2 turns.', 4, 'self', [['empower', 3]])],
+    telegraph: { every: 3, name: 'Stampede', warn: 'drums the ground, and the whole warren answers with a stampede…',
+                 skill: D('Stampede', '110% to all enemies. Staggers them all.', 0, 1.1, { aoe: true, noDodge: true, fx: [['stagger', 1]] }) },
+  },
 };
 
 /* EMBERHOLLOW CAVE — hunts against monster packs. Each depth unlocks at a level;
@@ -7350,6 +7511,14 @@ const DUNGEONS = [
     blurb: 'A sunken bog where green lights bob between the trees. Follow one, and the coven will be very glad you came.',
     rooms: [['crone', 'banshee', 'gravehound'], ['banshee', 'phantom', 'crone'], ['crone', 'gravehound', 'banshee', 'phantom']],
     chest: { gold: 520, items: 3 }, firstClear: 'hagthorn' },
+  { id: 'reef', name: 'Brineholt Deep', minLv: 24, look: 'coven', boss: 'tidemother', bossAdds: ['reeflurker', 'brinewraith'], scale: 1.08, cond: 'damp',
+    blurb: 'Where Ashfall Road meets the grey sea, a drowned harbour lies one tide down. Its people never left — they only learned to breathe the salt.',
+    rooms: [['reeflurker', 'brinewraith', 'coralgolem'], ['brinewraith', 'coralgolem', 'reeflurker'], ['coralgolem', 'sawjaw', 'reeflurker', 'brinewraith']],
+    chest: { gold: 600, items: 3 }, firstClear: 'moonstone' },
+  { id: 'warren', name: 'Gloomfang Warren', minLv: 28, look: 'mine', boss: 'gorehide', bossAdds: ['moonhound', 'moonhound'], scale: 1.12, cond: 'gas',
+    blurb: 'A black maze of beast-dug tunnels under the hills. Follow the bones inward and they get bigger, until they stop being bones you recognise.',
+    rooms: [['moonhound', 'gnashboar', 'moonhound'], ['gnashboar', 'thornback', 'warrenhexer'], ['thornback', 'warrenhexer', 'moonhound', 'gnashboar']],
+    chest: { gold: 720, items: 3 }, firstClear: 'trollblood' },
 ];
 const dungeonById = (id) => DUNGEONS.find((d) => d.id === id);
 const DG_REVIVE = 0.3, DG_REST_HP = 0.12, DG_REST_MP = 0.15;  // between rooms (a short breather mid-chase)
@@ -19698,7 +19867,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${runsHot(u) && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
+      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
     </div>`;
 }
 
@@ -22826,6 +22995,7 @@ function renderBattle() {
     el.classList.toggle('empowered', !!has(u, 'empower') && u.hp > 0);
     el.classList.toggle('charmed', !!has(u, 'immune') && u.hp > 0);
     el.classList.toggle('hastened', !!has(u, 'haste') && u.hp > 0);
+    el.classList.toggle('leaking', !!has(u, 'leak') && u.hp > 0);
     syncWardArt(el, u);                                                     // ...and his shield is drawn lit
     syncHeldWeapon(el, u);                                                  // ...and everyone holds the weapon they racked
     el.classList.toggle('down', u.hp <= 0);
