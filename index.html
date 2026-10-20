@@ -1673,8 +1673,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 @keyframes burnSmoke {
   0%   { opacity: 0; transform: translateY(0) scale(.4); }
-  28%  { opacity: .42; }
-  100% { opacity: 0; transform: translateY(-24px) scale(1.7); }
+  26%  { opacity: .6; }
+  100% { opacity: 0; transform: translateY(-28px) scale(1.9); }
 }
 /* Soaked and burning at once: the fire is losing. It guts down to embers rather than vanishing,
    which keeps the two statuses legible on the same body. */
@@ -19882,7 +19882,7 @@ function unitCardHTML(u) {
    side carry the same pattern, which is the whole complaint about one shared clip; and a champion's
    own fire stays put instead of leaping to new spots every time some unrelated status comes or goes
    and the overlay is rebuilt. Same uid, same fire, every time. */
-const BURN_TONGUES = 4;
+const BURN_TONGUES = 6;
 // A cheap deterministic 0..1 from the uid and a counter — FNV-1a, enough to scatter four flames.
 const burnRand = (uid, n) => {
   let h = 2166136261;
@@ -19894,10 +19894,16 @@ function burnFlamesSVG(u) {
   const n1 = (v) => Math.round(v * 10) / 10;
   let flames = '', smoke = '';
   for (let i = 0; i < BURN_TONGUES; i++) {
-    const x = 30 + burnRand(u.uid, i * 4) * 40;       // across the body, shoulder to shoulder
-    const y = 42 + burnRand(u.uid, i * 4 + 1) * 44;   // chest down to the boots
-    const h = 7 + burnRand(u.uid, i * 4 + 2) * 9;     // how tall this one stands
-    const w = h * 0.42;
+    // Each tongue gets its OWN column across the body (shoulder to shoulder) so none stacks on
+    // another; a small jitter keeps the row from looking mechanical, and neighbours alternate
+    // between an upper and a lower band so two adjacent tips can never meet.
+    const lane = (i + 0.5) / BURN_TONGUES;            // this tongue's column centre, 0..1
+    const jx = (burnRand(u.uid, i * 4) - 0.5) * (52 / BURN_TONGUES * 0.6);
+    const x = 24 + lane * 52 + jx;                    // 24..76 across the body — a touch wider so the bigger tongues have room
+    const band = i % 2 ? 0 : 0.5;                     // alternate an upper and a lower band
+    const y = 44 + (band + burnRand(u.uid, i * 4 + 1) * 0.5) * 38;  // 44..82, staggered down the torso
+    const h = 12 + burnRand(u.uid, i * 4 + 2) * 12;   // how tall this one stands — a bigger blaze (was 7..15)
+    const w = h * 0.4;                                // a hair slimmer than before so taller tongues don't merge sideways
     const lean = (burnRand(u.uid, i * 4 + 3) - 0.5) * w;  // which way the tip is licking
     const d = -i * 0.17;                              // each tongue on its own beat
     /* Not a teardrop: the left edge climbs and pinches in, the tip leans off centre, and the right
@@ -19915,10 +19921,11 @@ function burnFlamesSVG(u) {
        + `Q${n1(x + lean * .5)} ${n1(y - h * .52)} ${n1(x + lean * .8)} ${n1(y - h * .62)}`
        + `Q${n1(x + w * .3)} ${n1(y - h * .3)} ${n1(x + w * .45)} ${n1(y)}`
        + `Q${n1(x)} ${n1(y + h * .13)} ${n1(x - w * .45)} ${n1(y)}Z"/>`;
-    // A wisp off every other tongue — four would be a bonfire, two is something smouldering.
+    // A wisp off every other tongue — black, so it reads as something actually catching fire
+    // rather than steam. Still only every other one, so the fire stays the read, not the smoke.
     if (i % 2 === 0) {
-      smoke += `<ellipse class="smoke" style="animation-delay:${n1(-i * 1.3)}s" fill="#aeb4bf"`
-        + ` cx="${n1(x + lean)}" cy="${n1(y - h - w * .6)}" rx="${n1(w * .9)}" ry="${n1(w * .78)}"/>`;
+      smoke += `<ellipse class="smoke" style="animation-delay:${n1(-i * 1.3)}s" fill="#3c3c45"`
+        + ` cx="${n1(x + lean)}" cy="${n1(y - h - w * .6)}" rx="${n1(w)}" ry="${n1(w * .88)}"/>`;
     }
   }
   return `<svg class="burnfx" viewBox="0 0 100 100" aria-hidden="true">${smoke}<g class="burnlit">${flames}</g></svg>`;
