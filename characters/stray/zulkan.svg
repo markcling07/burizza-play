@@ -1,160 +1,185 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Zul'kan (Stray Banner, melee tank, Red Orc) - Burizza art placeholder. A hulking red orc exile
-     with a massive warhammer held in his right hand. Scarred, heavy-set, wearing scavenged plate
-     and hide. Canvas 100x100, faces right, feet on y=94. The warhammer head is his weapon
-     (class="wpn"): data-hand marks where the grip meets the fist. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="68.9,53.7">
+<!-- Zul'kan (Stray Banner, melee tank, Red Orc) – Ashfall Road art v3. A hulking red orc
+     in a wide battle-ready stance, gripping a massive warhammer with both hands wide apart.
+     Arms curve outward from the body, elbows visible outside the torso silhouette.
+     Haft runs diagonally lower-left to upper-right, hammerhead high and right.
+     Canvas 100x100, faces right, feet on y=94. data-hand marks the dominant grip. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="58,38">
   <defs>
-    <linearGradient id="zk-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c04a3a"/><stop offset="1" stop-color="#8a2a1a"/></linearGradient>
-    <linearGradient id="zk-armor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a5046"/><stop offset=".6" stop-color="#3a342c"/><stop offset="1" stop-color="#2a2420"/></linearGradient>
+    <linearGradient id="zk-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d05040"/><stop offset=".4" stop-color="#b83828"/><stop offset="1" stop-color="#7a1a0e"/></linearGradient>
+    <linearGradient id="zk-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a2a18"/><stop offset="1" stop-color="#5a1208"/></linearGradient>
+    <linearGradient id="zk-armor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#686058"/><stop offset=".4" stop-color="#4a4238"/><stop offset="1" stop-color="#2a2420"/></linearGradient>
+    <linearGradient id="zk-armorH" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a8072"/><stop offset="1" stop-color="#5a5248"/></linearGradient>
     <linearGradient id="zk-hide" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a5a40"/><stop offset="1" stop-color="#3a3020"/></linearGradient>
-    <linearGradient id="zk-metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a8072"/><stop offset=".5" stop-color="#5a5248"/><stop offset="1" stop-color="#3a342e"/></linearGradient>
-    <linearGradient id="zk-hammer" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a7268"/><stop offset=".5" stop-color="#4a4238"/><stop offset="1" stop-color="#2a2420"/></linearGradient>
-    <linearGradient id="zk-haft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a4a2a"/><stop offset="1" stop-color="#3a2a14"/></linearGradient>
-    <linearGradient id="zk-tusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0e8d0"/><stop offset="1" stop-color="#c8b890"/></linearGradient>
+    <linearGradient id="zk-metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a9284"/><stop offset=".5" stop-color="#6a6258"/><stop offset="1" stop-color="#3a342e"/></linearGradient>
+    <linearGradient id="zk-hammer" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a8278"/><stop offset=".5" stop-color="#5a5248"/><stop offset="1" stop-color="#2a2420"/></linearGradient>
+    <linearGradient id="zk-haft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a5a34"/><stop offset="1" stop-color="#3a2a14"/></linearGradient>
+    <linearGradient id="zk-tusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4ecd4"/><stop offset=".6" stop-color="#d8c8a0"/><stop offset="1" stop-color="#b0a078"/></linearGradient>
     <linearGradient id="zk-rust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a4a32"/><stop offset="1" stop-color="#4a2a18"/></linearGradient>
     <linearGradient id="zk-chain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a9080"/><stop offset="1" stop-color="#4a4438"/></linearGradient>
     <linearGradient id="zk-bone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8dcc0"/><stop offset="1" stop-color="#b0a080"/></linearGradient>
     <linearGradient id="zk-blood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a1008"/><stop offset="1" stop-color="#3a0804"/></linearGradient>
-    <linearGradient id="zk-scar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6a1a0a"/><stop offset="1" stop-color="#4a1008"/></linearGradient>
-    <linearGradient id="zk-pauldron-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a6258"/><stop offset="1" stop-color="#2a2620"/></linearGradient>
+    <linearGradient id="zk-eye" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc040"/><stop offset="1" stop-color="#e08010"/></linearGradient>
   </defs>
-  <!-- ground shadow, cracked earth, dust -->
-  <ellipse cx="48" cy="94" rx="26" ry="4" fill="#000" opacity=".3"/>
-  <line x1="36" y1="93" x2="32" y2="96" stroke="#000" stroke-width=".4" opacity=".2"/>
-  <line x1="55" y1="93" x2="59" y2="96" stroke="#000" stroke-width=".4" opacity=".18"/>
-  <ellipse cx="33" cy="93" rx="4" ry="1.5" fill="#8a7a60" opacity=".12"/><ellipse cx="62" cy="93" rx="3.5" ry="1.2" fill="#8a7a60" opacity=".1"/>
-  <!-- STANCE: he is the faction's tank and was reading as its smallest man — 81.5 tall
-       against Mogra's 92 and Krug's 89, and the narrowest of the three. Grown about the
-       footing line (y=93.5, which every champion shares) so his head reaches the canvas top
-       like theirs, and stretched a little wider than tall so the mass reads as bulk rather
-       than a taller thin man. The ground shadow is left outside this: it marks where he
-       stands, not how big he is. -->
-  <g transform="translate(50.0,93.5) scale(1.18,1.12) translate(-50.0,-93.5)">
-  <g stroke="none">
-    <!-- legs: thick hide-wrapped with straps -->
-    <path d="M38 74 L44 74 L43 89 L37 89 Z" fill="url(#zk-hide)"/>
-    <path d="M50 74 L56 74 L58 89 L51 89 Z" fill="url(#zk-hide)"/>
-    <rect x="37" y="79" width="7" height="1.2" rx=".4" fill="#4a3a20" opacity=".7"/><rect x="51" y="81" width="7" height="1.2" rx=".4" fill="#4a3a20" opacity=".7"/>
-    <!-- boots with metal toe caps, straps, studs -->
-    <path d="M35 88 h10 v5.5 h-13 Q31 90 35 88 Z" fill="url(#zk-armor)"/>
-    <path d="M49 88 h11 l4 5.5 h-16 Z" fill="url(#zk-armor)"/>
-    <path d="M32 91 Q31 90 33 89 h5 v3 h-4 Q32 92 32 91 Z" fill="url(#zk-metal)" opacity=".8"/><path d="M61 89 h4 l2.5 3.5 h-5 Q61 91 61 89 Z" fill="url(#zk-metal)" opacity=".8"/>
-    <rect x="35" y="89.5" width="9" height=".8" rx=".3" fill="#3a2a14" opacity=".6"/><rect x="51" y="89.5" width="9" height=".8" rx=".3" fill="#3a2a14" opacity=".6"/>
-    <circle cx="36" cy="90" r=".5" fill="#7a7060"/><circle cx="39" cy="90" r=".5" fill="#7a7060"/><circle cx="42" cy="90" r=".5" fill="#7a7060"/><circle cx="53" cy="90" r=".5" fill="#7a7060"/><circle cx="56" cy="90" r=".5" fill="#7a7060"/>
-    <!-- knee guards with rivets -->
-    <rect x="37" y="73" width="8" height="4" rx="1" fill="url(#zk-metal)"/>
-    <rect x="49" y="73" width="8" height="4" rx="1" fill="url(#zk-metal)"/>
-    <circle cx="39" cy="75" r=".6" fill="#9a9080"/><circle cx="43" cy="75" r=".6" fill="#9a9080"/><circle cx="51" cy="75" r=".6" fill="#9a9080"/><circle cx="55" cy="75" r=".6" fill="#9a9080"/>
-    <!-- torso: massive barrel chest -->
-    <path d="M32 38 Q30 50 32 62 Q34 72 38 76 L56 76 Q60 72 62 62 Q64 50 62 38 Z" fill="url(#zk-armor)"/>
-    <!-- chest plate: dents, scratches, crossed-axes emblem, welded patch, armor straps -->
-    <path d="M34 40 Q33 50 35 60 L40 64 L54 64 L59 60 Q61 50 60 40 Z" fill="url(#zk-metal)"/>
-    <ellipse cx="42" cy="48" rx="2.5" ry="1.5" fill="#4a4238" opacity=".3"/><ellipse cx="53" cy="52" rx="2" ry="1.2" fill="#4a4238" opacity=".25"/>
-    <line x1="38" y1="44" x2="44" y2="46" stroke="#6a6258" stroke-width=".4" opacity=".3"/><line x1="50" y1="42" x2="56" y2="48" stroke="#6a6258" stroke-width=".3" opacity=".25"/>
-    <line x1="45" y1="46" x2="49" y2="50" stroke="#6a6258" stroke-width=".6" opacity=".35"/><line x1="49" y1="46" x2="45" y2="50" stroke="#6a6258" stroke-width=".6" opacity=".35"/>
-    <rect x="36" y="57" width="5" height="4" rx=".5" fill="url(#zk-rust)" opacity=".5"/>
-    <path d="M36 42 Q44 44 56 40" stroke="#4a3a20" stroke-width="1.5" fill="none" opacity=".5"/>
-    <path d="M58 44 Q50 64 38 62" stroke="#4a3a20" stroke-width="1.2" fill="none" opacity=".4"/>
-    <!-- belt with buckle, hanging chain and trophy bone -->
-    <rect x="34" y="68" width="26" height="5" rx="1" fill="#5a4a30"/>
-    <rect x="44" y="67.5" width="6" height="6" rx="1" fill="url(#zk-metal)"/><circle cx="47" cy="70.5" r="1.2" fill="#3a342e" opacity=".5"/>
-    <path d="M38 72 Q37 75 36 77 Q35 78 36 79" stroke="url(#zk-chain)" stroke-width="1" fill="none" stroke-linecap="round"/>
-    <circle cx="36" cy="79.5" r="1" fill="url(#zk-chain)" opacity=".8"/>
-    <path d="M54 72 L55 77 L54.5 79" stroke="url(#zk-bone)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-    <ellipse cx="55" cy="79.5" rx="1.5" ry=".8" fill="url(#zk-bone)" opacity=".8"/>
-    <!-- left pauldron: heavy metal, rivets, spike -->
-    <ellipse cx="33" cy="38" rx="8" ry="5" fill="url(#zk-metal)"/>
-    <circle cx="29" cy="38" r=".6" fill="#9a9080"/><circle cx="33" cy="35" r=".6" fill="#9a9080"/><circle cx="37" cy="38" r=".6" fill="#9a9080"/>
-    <path d="M31 35 L30 31 L33 35" fill="#5a5248"/>
-    <!-- right pauldron: mismatched, leather-wrapped with stitching and spike -->
-    <ellipse cx="61" cy="38" rx="7" ry="4.5" fill="url(#zk-pauldron-r)"/>
-    <path d="M57 36 Q61 34 65 36 M57 38 Q61 36 65 38" stroke="#3a2a14" stroke-width=".5" fill="none" stroke-dasharray="1,.8"/>
-    <path d="M63 36 L64 32 L65 36" fill="#4a4238"/>
-    <!-- left arm: bare, muscle contour, bicep bulge, vein -->
-    <path d="M26 40 Q24 50 26 60 L30 62 L34 60 Q36 50 34 40 Z" fill="url(#zk-skin)"/>
-    <path d="M28 42 Q26 48 27 54" stroke="#7a1a0a" stroke-width=".5" fill="none" opacity=".35"/>
-    <path d="M32 42 Q34 46 33 50" stroke="#9a2a14" stroke-width=".4" fill="none" opacity=".3"/>
-    <path d="M29 48 Q28 52 29 56" stroke="#6a1a0a" stroke-width=".4" fill="none" opacity=".25"/>
-    <!-- left fist clenched, knuckle lines -->
-    <circle cx="28" cy="63" r="4" fill="url(#zk-skin)"/>
-    <path d="M25.5 62 Q27 61 29 61.5" stroke="#7a1a0a" stroke-width=".4" fill="none" opacity=".4"/>
-    <!-- neck muscles -->
-    <path d="M40 36 Q42 37 44 36 M50 36 Q52 37 54 36" stroke="#9a2a14" stroke-width=".6" fill="none" opacity=".3"/>
-    <!-- right arm: bare, muscled -->
-    <path d="M58 40 Q60 48 62 56 L66 58 L68 56 Q66 48 64 40 Z" fill="url(#zk-skin)"/>
-    <path d="M60 42 Q58 46 59 50" stroke="#9a2a14" stroke-width=".5" fill="none" opacity=".3"/>
-    <path d="M63 46 Q64 50 63 54" stroke="#6a1a0a" stroke-width=".4" fill="none" opacity=".25"/>
-    <!-- right fist gripping haft, knuckle detail -->
-    <circle cx="64" cy="59" r="4" fill="url(#zk-skin)"/>
-    <path d="M62 57.5 Q63 57 64 57.5" stroke="#7a1a0a" stroke-width=".4" fill="none" opacity=".4"/>
-    <!-- HEAD, three-quarter, looking down the field at them.
+  <!-- ground shadow -->
+  <ellipse cx="46" cy="94" rx="30" ry="4.5" fill="#000" opacity=".35"/>
+  <g stroke="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- back leg: planted wide, thick hide-wrapped -->
+    <path d="M30 72 h10 l-2 18 h-12 z" fill="url(#zk-hide)"/>
+    <path d="M26 90 h14 v4 h-16 Q22 91.5 26 90 z" fill="url(#zk-armor)"/>
+    <path d="M23 92 Q22.5 91 25 90 h4 v2.5 h-3.5 z" fill="url(#zk-metal)" opacity=".7"/>
+    <rect x="30" y="78" width="9" height="1.2" rx=".4" fill="#4a3a20" opacity=".6"/>
+    <!-- back knee guard -->
+    <rect x="29" y="70" width="12" height="4.5" rx="1.2" fill="url(#zk-metal)"/>
+    <circle cx="32" cy="72.2" r=".6" fill="#9a9080"/><circle cx="37" cy="72.2" r=".6" fill="#9a9080"/>
 
-         He was the only champion on the roster drawn square-on — symmetric eyes, a centred
-         nose, both tusks equal — so he stared past the enemy at the viewer. This is the same
-         construction Krug and Mogra use, in his colours: the back of the skull is a smooth
-         curve, the brow juts forward, a notch marks the bridge, and the muzzle swells out and
-         down to the chin. From that angle you only ever see ONE eye and ONE nostril, the ear
-         falls behind the skull, and the tusks rise from the jaw with the near one carried
-         further forward. Drawn, not transformed: the first two attempts at turning him with a
-         <g transform> only skewed a front-on face and made him look broken. -->
-    <!-- ear: behind the head, pointing back away from the facing -->
-    <path d="M40 24 L30.5 18 L38.5 31.5 Z" fill="url(#zk-skin)" opacity=".92"/>
-    <path d="M38 24.5 L34 21.5 L37.5 28.5" stroke="#7a1a0a" stroke-width=".55" fill="none" opacity=".45"/>
-    <!-- skull: smooth back, brow, bridge notch, muzzle, jaw -->
-    <path d="M37.5 26 Q35.5 15 45 12.5 Q55 11.8 57.5 21 L60.5 25.5 L58.5 28 Q61 33.5 54.5 36.5 Q47 39 41.5 36 Q38 32 37.5 26 Z" fill="url(#zk-skin)"/>
-    <!-- brow ridge, heavy over the one eye we can see -->
-    <path d="M46.5 21.5 L56 23.6" stroke="#7a1a0a" stroke-width="2.6" stroke-linecap="round"/>
-    <path d="M47.5 20.2 Q52 19.6 55.8 21.4" stroke="#5a0a04" stroke-width=".4" fill="none" opacity=".4"/>
-    <!-- the near eye -->
-    <ellipse cx="53.2" cy="25.5" rx="2.5" ry="2.2" fill="#1a0a00"/>
-    <circle cx="53.6" cy="25.4" r="1.05" fill="#ffa030"/>
-    <circle cx="53.9" cy="25.1" r=".42" fill="#ffcc60"/>
-    <!-- mouth line and the single visible nostril, out at the muzzle -->
-    <path d="M48.5 31.6 Q53 32.9 57.8 31" stroke="#7a1a0a" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-    <ellipse cx="57.2" cy="27.5" rx=".85" ry=".6" fill="#6a1a0a" opacity=".55"/>
-    <!-- tusks up from the jaw; the near one sits further forward and reads bigger -->
-    <path d="M50 33.2 L49.4 27.3 L52.4 32.4 Z" fill="url(#zk-tusk)"/>
-    <path d="M55 32.2 L56 26.4 L57.6 30.9 Z" fill="url(#zk-tusk)"/>
-    <path d="M50.1 31.6 L50 28.4" stroke="#d8d0b8" stroke-width=".4" opacity=".5"/>
-    <path d="M55.9 30.4 L56.2 27.6" stroke="#d8d0b8" stroke-width=".4" opacity=".5"/>
-    <!-- his scar, and war paint back along the cheek -->
-    <path d="M46.2 28.4 L51.8 31.6" stroke="url(#zk-scar)" stroke-width="1" opacity=".55"/>
-    <path d="M41.6 24.6 L39.6 28" stroke="#1a0a04" stroke-width="1" opacity=".33"/>
-    <path d="M44 24 L42 27.4" stroke="#1a0a04" stroke-width="1" opacity=".3"/>
-    <!-- light down the back of the skull, as the other orcs carry it -->
-    <path d="M40 19.5 Q42 15.2 46.5 13.9" stroke="#fff" stroke-width="1.2" fill="none" opacity=".4" stroke-linecap="round"/>
+    <!-- front leg: forward, aggressive stance -->
+    <path d="M48 72 h11 l4 18 h-12 z" fill="url(#zk-hide)"/>
+    <path d="M50 90 h14 l3.5 4 h-18 z" fill="url(#zk-armor)"/>
+    <path d="M64 90 h4 l3 3.5 h-5.5 Q64 92 64 90 z" fill="url(#zk-metal)" opacity=".7"/>
+    <rect x="49" y="80" width="10" height="1.2" rx=".4" fill="#4a3a20" opacity=".6"/>
+    <!-- front knee guard -->
+    <rect x="47" y="70" width="13" height="4.5" rx="1.2" fill="url(#zk-metal)"/>
+    <ellipse cx="54" cy="70" rx="3" ry="2" fill="url(#zk-armorH)"/>
+    <circle cx="50" cy="72.2" r=".6" fill="#9a9080"/><circle cx="56" cy="72.2" r=".6" fill="#9a9080"/>
+    <path d="M48 73 h12" stroke="#5a5248" stroke-width=".4" opacity=".4"/>
+
+    <!-- torso: massive barrel chest, leaning forward slightly -->
+    <path d="M28 36 Q26 48 28 60 Q32 70 36 74 L60 74 Q64 70 66 60 Q68 48 66 36 z" fill="url(#zk-armor)"/>
+    <!-- chest plate -->
+    <path d="M30 38 Q29 48 31 58 L38 64 L58 64 L63 58 Q65 48 64 38 z" fill="url(#zk-metal)"/>
+    <path d="M32 42 Q40 44 52 40" stroke="#4a3a20" stroke-width="1.8" fill="none" opacity=".45"/>
+    <path d="M62 44 Q54 60 36 60" stroke="#4a3a20" stroke-width="1.3" fill="none" opacity=".35"/>
+    <!-- dents and scratches -->
+    <ellipse cx="40" cy="48" rx="2.5" ry="1.5" fill="#4a4238" opacity=".25"/>
+    <ellipse cx="54" cy="50" rx="2" ry="1.2" fill="#4a4238" opacity=".2"/>
+    <line x1="36" y1="44" x2="42" y2="46" stroke="#6a6258" stroke-width=".4" opacity=".3"/>
+    <line x1="50" y1="43" x2="56" y2="48" stroke="#6a6258" stroke-width=".3" opacity=".25"/>
+    <!-- crossed-axes emblem -->
+    <line x1="44" y1="46" x2="48" y2="50" stroke="#6a6258" stroke-width=".7" opacity=".35"/>
+    <line x1="48" y1="46" x2="44" y2="50" stroke="#6a6258" stroke-width=".7" opacity=".35"/>
+    <!-- welded patch -->
+    <rect x="34" y="55" width="5" height="4" rx=".5" fill="url(#zk-rust)" opacity=".45"/>
+    <!-- chest highlight -->
+    <path d="M34 42 Q38 39 44 38" stroke="#fff" stroke-width="1.2" fill="none" opacity=".3"/>
+
+    <!-- belt with buckle, chain and trophy bone -->
+    <rect x="30" y="66" width="34" height="5.5" rx="1" fill="#5a4a30"/>
+    <rect x="43" y="65.5" width="6.5" height="6.5" rx="1" fill="url(#zk-metal)"/>
+    <circle cx="46.2" cy="68.8" r="1.4" fill="#3a342e" opacity=".5"/>
+    <path d="M36 71 Q35 74 34 76 Q33 77.5 34 78.5" stroke="url(#zk-chain)" stroke-width="1.2" fill="none"/>
+    <circle cx="34" cy="79" r="1.2" fill="url(#zk-chain)" opacity=".8"/>
+    <path d="M56 71 L57 76 L56.5 78" stroke="url(#zk-bone)" stroke-width="1.3" fill="none"/>
+    <ellipse cx="57" cy="78.5" rx="1.8" ry=".9" fill="url(#zk-bone)" opacity=".8"/>
+
+    <!-- left pauldron: heavy metal with spike and rivets -->
+    <path d="M23 36 Q23 29 31 28 L38 34 L32 42 z" fill="url(#zk-metal)"/>
+    <path d="M26 32 Q30 30 34 32" fill="none" stroke="#8a8072" stroke-width=".6"/>
+    <circle cx="27" cy="34" r=".7" fill="#9a9080"/><circle cx="31" cy="32" r=".7" fill="#9a9080"/><circle cx="35" cy="35" r=".7" fill="#9a9080"/>
+    <path d="M27 32 L25 27 L29 32" fill="#5a5248"/>
+
+    <!-- right pauldron: mismatched, leather-wrapped, spike -->
+    <path d="M59 36 Q59 30 66 30 L70 36 L64 42 z" fill="url(#zk-armor)"/>
+    <path d="M61 33 Q65 31 69 33 M61 35 Q65 33 69 35" stroke="#3a2a14" stroke-width=".5" fill="none" stroke-dasharray="1,.8"/>
+    <path d="M66 32 L67 27 L68 32" fill="#4a4238"/>
+
+    <!-- LEFT ARM: massive back arm, proper orc bulk -->
+    <path d="M22 34 Q14 40 12 50 Q14 62 24 64 L38 58 L38 48 Q30 54 24 50 Q18 44 20 38 L28 38 z" fill="url(#zk-skinD)"/>
+    <path d="M16 42 Q13 48 15 56" stroke="#5a1208" stroke-width="1.5" fill="none" opacity=".4"/>
+    <path d="M22 40 Q18 46 18 54" stroke="#5a1208" stroke-width="1" fill="none" opacity=".3"/>
+    <path d="M14 44 Q12 50 14 58" stroke="#c04838" stroke-width="1.2" fill="none" opacity=".25"/>
+    <path d="M26 40 Q22 46 24 54" stroke="#5a1208" stroke-width=".8" fill="none" opacity=".2"/>
+    <circle cx="38" cy="56" r="5" fill="url(#zk-skinD)"/>
+    <path d="M35 54 Q37 53 39 54" stroke="#5a1208" stroke-width=".6" fill="none" opacity=".4"/>
+    <path d="M35.5 56.5 Q37.5 55.5 39.5 56.5" stroke="#3a0a04" stroke-width=".5" fill="none" opacity=".3"/>
+
+    <!-- RIGHT ARM: elbow curves out right of torso, forearm to upper grip -->
+    <path d="M64 34 Q74 34 78 42 Q76 50 66 46 L56 40 L60 36 z" fill="url(#zk-skin)"/>
+    <path d="M68 36 Q74 38 76 42" stroke="#7a1a0a" stroke-width=".5" fill="none" opacity=".3"/>
+    <circle cx="58" cy="38" r="4.2" fill="url(#zk-skin)"/>
+    <path d="M55.5 36.5 Q57 36 58.5 36.5" stroke="#7a1a0a" stroke-width=".5" fill="none" opacity=".4"/>
+    <path d="M56 38.5 Q57.5 38 59 38.5" stroke="#5a1208" stroke-width=".4" fill="none" opacity=".3"/>
+
+    <!-- neck muscles -->
+    <path d="M38 34 Q40 35 43 34 M51 34 Q53 35 55 34" stroke="#9a2a14" stroke-width=".7" fill="none" opacity=".3"/>
+
+    <!-- HEAD: three-quarter view, looking down the field -->
+    <!-- ear behind head -->
+    <path d="M34 20 L25 14 L33 28 z" fill="url(#zk-skin)" opacity=".9"/>
+    <path d="M33 20 L29 17 L32 25" stroke="#7a1a0a" stroke-width=".55" fill="none" opacity=".4"/>
+    <!-- skull: heavy brow, jutting muzzle, thick jaw -->
+    <path d="M32 22 Q30 12 40 8.5 Q50 7.5 54 16 L57 21 L55.5 24 Q58 30 51 34 Q44 37 38 34 Q34 29 32 22 z" fill="url(#zk-skin)"/>
+    <!-- brow ridge -->
+    <path d="M42 17.5 L53 19.5" stroke="#7a1a0a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M43 16 Q48 15.2 53 17" stroke="#5a0a04" stroke-width=".5" fill="none" opacity=".4"/>
+    <!-- the near eye: fierce amber -->
+    <ellipse cx="50" cy="21.5" rx="2.8" ry="2.4" fill="#1a0a00"/>
+    <circle cx="50.5" cy="21.3" r="1.2" fill="url(#zk-eye)"/>
+    <circle cx="50.9" cy="21" r=".5" fill="#ffdd70"/>
+    <circle cx="49.5" cy="22" r=".3" fill="#fff" opacity=".6"/>
+    <!-- mouth and visible nostril -->
+    <path d="M44 28 Q50 30 55 27.5" stroke="#7a1a0a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="54" cy="24" rx=".9" ry=".65" fill="#6a1a0a" opacity=".55"/>
+    <!-- tusks: near one bigger -->
+    <path d="M46 30 L45 23.5 L48.5 29 z" fill="url(#zk-tusk)"/>
+    <path d="M52 29 L53 23 L54.5 27.8 z" fill="url(#zk-tusk)"/>
+    <path d="M46.2 28 L45.5 24.5" stroke="#d8d0b8" stroke-width=".45" opacity=".5"/>
+    <path d="M53 27.5 L53.2 24" stroke="#d8d0b8" stroke-width=".45" opacity=".5"/>
+    <!-- scar across cheek -->
+    <path d="M42 24.5 L48.5 28" stroke="#6a1a0a" stroke-width="1.1" opacity=".5"/>
+    <!-- war paint: two stripes down the cheek -->
+    <path d="M37 21 L35 25" stroke="#1a0a04" stroke-width="1.1" opacity=".35"/>
+    <path d="M39.5 20.5 L37.5 24.5" stroke="#1a0a04" stroke-width="1" opacity=".3"/>
+    <!-- skull highlight -->
+    <path d="M35 16 Q38 11.5 42 9.5" stroke="#fff" stroke-width="1.3" fill="none" opacity=".45" stroke-linecap="round"/>
+    <!-- jaw muscle -->
+    <path d="M40 30 Q42 32 44 31" stroke="#9a2a14" stroke-width=".6" fill="none" opacity=".3"/>
   </g>
-  <!-- WEAPON: warhammer -->
+  <!-- WEAPON: warhammer held diagonally with both hands wide apart -->
   <g class="wpn">
-    <!-- Held a touch further out, so the head clears his muzzle now that he is turned
-         into it. Nested rather than set on .wpn itself, because the swing animates that
-         element's transform and would overwrite anything parked there. -->
-    <g transform="translate(4,0)">
-    <!-- haft with wood grain -->
-    <rect x="61" y="24" width="3.5" height="36" rx="1.5" fill="url(#zk-haft)"/>
-    <line x1="62" y1="28" x2="62" y2="56" stroke="#2a1a0a" stroke-width=".3" opacity=".3"/>
-    <line x1="63.5" y1="30" x2="63.5" y2="54" stroke="#2a1a0a" stroke-width=".2" opacity=".2"/>
-    <!-- leather grip wrapping -->
-    <path d="M61 52 L64.5 53.5 M61 54 L64.5 55.5 M61 56 L64.5 57.5" stroke="#4a2a10" stroke-width=".8" fill="none" opacity=".7"/>
-    <!-- hammer head with strike faces -->
-    <rect x="55" y="18" width="16" height="10" rx="2" fill="url(#zk-hammer)"/>
-    <rect x="55.5" y="19" width="5" height="8" rx="1" fill="#3a342e" opacity=".4"/>
-    <rect x="66" y="19" width="5" height="8" rx="1" fill="#3a342e" opacity=".4"/>
-    <!-- impact dents on faces -->
-    <ellipse cx="57" cy="22" rx="1.2" ry=".8" fill="#2a2420" opacity=".35"/>
-    <ellipse cx="58.5" cy="25" rx=".8" ry=".6" fill="#2a2420" opacity=".3"/>
-    <ellipse cx="68" cy="21" rx="1" ry=".7" fill="#2a2420" opacity=".3"/>
-    <!-- blood stain on strike face -->
-    <path d="M56 21 Q57 20.5 57.5 22 Q58 23 57 23.5" fill="url(#zk-blood)" opacity=".4"/>
-    <!-- rune engravings on head -->
-    <line x1="61" y1="20" x2="61" y2="26" stroke="#5a5248" stroke-width=".5" opacity=".4"/>
-    <line x1="59.5" y1="23" x2="62.5" y2="23" stroke="#5a5248" stroke-width=".4" opacity=".35"/>
-    <path d="M64 20 L65 23 L64 26" stroke="#5a5248" stroke-width=".4" fill="none" opacity=".35"/>
-    <!-- spike on top with edge highlight -->
-    <path d="M62 18 L63.5 12 L65 18" fill="url(#zk-metal)"/>
-    <line x1="63.5" y1="12.5" x2="64.5" y2="17" stroke="#9a9080" stroke-width=".3" opacity=".4"/>
-  </g>
+    <g transform="translate(-24 15) rotate(48 72 32)">
+      <!-- haft with wood grain -->
+      <rect x="70.2" y="10" width="3.6" height="44" rx="1.5" fill="url(#zk-haft)"/>
+      <line x1="71.2" y1="14" x2="71.2" y2="50" stroke="#2a1a0a" stroke-width=".3" opacity=".3"/>
+      <line x1="72.8" y1="16" x2="72.8" y2="48" stroke="#2a1a0a" stroke-width=".2" opacity=".2"/>
+      <!-- upper leather grip (right hand) -->
+      <path d="M70 16 l3.8 1.5 M70 18 l3.8 1.5 M70 20 l3.8 1.5" stroke="#4a2a10" stroke-width=".9" fill="none" opacity=".65"/>
+      <!-- lower leather grip (left hand) -->
+      <path d="M70 44 l3.8 1.5 M70 46 l3.8 1.5 M70 48 l3.8 1.5" stroke="#4a2a10" stroke-width=".9" fill="none" opacity=".65"/>
+      <!-- hammer head: massive, battered -->
+      <rect x="63" y="4" width="18" height="11" rx="2.5" fill="url(#zk-hammer)"/>
+      <!-- strike faces with depth -->
+      <rect x="63.5" y="5" width="6" height="9" rx="1.2" fill="#3a342e" opacity=".35"/>
+      <rect x="74.5" y="5" width="6" height="9" rx="1.2" fill="#3a342e" opacity=".35"/>
+      <!-- impact dents -->
+      <ellipse cx="65" cy="8" rx="1.4" ry=".9" fill="#2a2420" opacity=".35"/>
+      <ellipse cx="66.5" cy="12" rx=".9" ry=".7" fill="#2a2420" opacity=".3"/>
+      <ellipse cx="77" cy="7.5" rx="1.1" ry=".8" fill="#2a2420" opacity=".3"/>
+      <!-- blood stain -->
+      <path d="M64 7 Q65 6.5 65.5 8 Q66 9.5 65 10" fill="url(#zk-blood)" opacity=".4"/>
+      <!-- rune engravings -->
+      <line x1="70" y1="6" x2="70" y2="13" stroke="#5a5248" stroke-width=".5" opacity=".4"/>
+      <line x1="68.5" y1="9.5" x2="71.5" y2="9.5" stroke="#5a5248" stroke-width=".4" opacity=".35"/>
+      <path d="M73 6 L74 9.5 L73 13" stroke="#5a5248" stroke-width=".4" fill="none" opacity=".35"/>
+      <!-- spike on top -->
+      <path d="M70 4 L72 -3 L74 4" fill="url(#zk-metal)"/>
+      <line x1="72" y1="-2.5" x2="73" y2="3" stroke="#9a9080" stroke-width=".35" opacity=".4"/>
+      <!-- head highlight -->
+      <path d="M64 5.5 h14" stroke="#8a8072" stroke-width=".5" opacity=".4"/>
+      <!-- pommel -->
+      <circle cx="72" cy="55.5" r="2.6" fill="url(#zk-metal)"/>
+      <circle cx="72" cy="55.5" r="1.3" fill="#5a5248" opacity=".5"/>
     </g>
   </g>
+  <!-- grip fingers wrapping over haft -->
+  <path d="M56.5 36.5 Q58 35 59.5 36.5" stroke="#b83828" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M56 38.5 Q57.5 37 59 38.5" stroke="#9a2818" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M36.5 54.5 Q38 53 39.5 54.5" stroke="#7a1a0a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M36 56.5 Q37.5 55 39 56.5" stroke="#5a1208" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <!-- body scars layered on top -->
+  <path d="M56 48 Q58 50 57 53" stroke="#6a1a0a" stroke-width=".6" fill="none" opacity=".35"/>
+  <path d="M38 54 l2 1.5" stroke="#6a1a0a" stroke-width=".55" fill="none" opacity=".3"/>
+  <!-- dust at feet -->
+  <ellipse cx="30" cy="93.5" rx="4" ry="1.5" fill="#8a7a60" opacity=".1"/>
+  <ellipse cx="64" cy="93.5" rx="3.5" ry="1.2" fill="#8a7a60" opacity=".08"/>
 </svg>
