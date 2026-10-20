@@ -280,8 +280,8 @@ body[data-screen="select"] .top { display: none; }
 .xpgain { color: var(--accent); font-size: 1.05rem; }
 .xpkill { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
 .herotag {
-  display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 4px; border-radius: 999px;
-  background: var(--panel); border: 1px solid var(--line); min-width: 0;
+  display: inline-flex; align-items: center; gap: 8px; padding: 0; border-radius: 0;
+  background: none; border: none; min-width: 0;
 }
 .herotag .hmini { width: 30px; height: 30px; flex: none; border-radius: 50%; overflow: hidden; background: var(--panel-2); position: relative; }
 .herotag .hmini svg, .herotag .hmini img { position: absolute; width: 170%; height: 170%; left: -35%; top: -12%; max-width: none; }
@@ -1673,8 +1673,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 @keyframes burnSmoke {
   0%   { opacity: 0; transform: translateY(0) scale(.4); }
-  26%  { opacity: .6; }
-  100% { opacity: 0; transform: translateY(-28px) scale(1.9); }
+  28%  { opacity: .42; }
+  100% { opacity: 0; transform: translateY(-24px) scale(1.7); }
 }
 /* Soaked and burning at once: the fire is losing. It guts down to embers rather than vanishing,
    which keeps the two statuses legible on the same body. */
@@ -2645,26 +2645,24 @@ svg.art .spentblade { opacity: 0; }
   .wxPill { top: 34px; }
   /* The arena gives up its 16/8 and simply fills what is left — on this screen
      the height is the budget and the aspect ratio has to follow it. */
-  /* inline-size, NOT `container-type: size`. Full size-containment here (so the
-     units below could read the field HEIGHT with cqh) crashed iOS Safari's web
-     process the instant the phone turned to landscape — the blank "Can't open
-     this page". The height cap is preserved by measuring the viewport (dvh)
-     instead: this arena fills nearly all of a <=540px-tall landscape viewport,
-     so a dvh share tracks the field height closely, and iOS never has to resolve
-     size-containment at all. */
+  /* container-type: size, not inline-size, so the units below can measure the
+     HEIGHT as well. Safe here and only here: this arena is given an explicit
+     height by the grid, where the desktop one derives its height from its own
+     aspect-ratio and must keep measuring only the width. */
   .arena { grid-area: arena; aspect-ratio: auto; min-height: 0; height: 100%; border-radius: 10px;
-    container-type: inline-size; }
+    container-type: size; }
   /* A champion is sized as a share of the field's WIDTH (13cqw), which is right
      while the field is a tall-ish box. With the log hidden the field is 828px
      wide and still only 263 tall, and that share drew champions 161px tall into
-     a 263px box — the back rank's nameplates were cut off by the top edge. The
-     dvh terms cap the height so that cannot happen; they are tuned a touch
-     tighter than the old cqh figures, so a dynamic URL bar can only ever leave a
-     champion SHORTER than its box, never clipped past the top edge. */
-  .unit         { --size: clamp(46px, min(13cqw,   13dvh), 150px); }
-  .unit.boss    { --size: clamp(84px, min(21cqw,   21dvh), 230px); }
-  .unit.elite   { --size: clamp(68px, min(17cqw,   17dvh), 190px); }
-  .unit.summon  { --size: clamp(44px, min(9.5cqw, 9dvh),  110px); }
+     a 263px box — the back rank's nameplates were cut off by the top edge.
+     Capping against the height too costs nothing in the narrow layout (the
+     width term is still the smaller one there) and keeps the wide one honest.
+     The cqh figures are each the cqw figure scaled by the ratio that leaves the
+     narrow layout exactly as it was. */
+  .unit         { --size: clamp(46px, min(13cqw,   21cqh), 150px); }
+  .unit.boss    { --size: clamp(84px, min(21cqw,   34cqh), 230px); }
+  .unit.elite   { --size: clamp(68px, min(17cqw,   28cqh), 190px); }
+  .unit.summon  { --size: clamp(44px, min(9.5cqw, 15cqh), 110px); }
   /* THE FLOOR COMES UP TO MEET THE BAR. A champion is placed at a PERCENTAGE
      of the field's height (`top: calc(var(--y) * 1%)`, feet on that line), so
      making them smaller does not lift them — it just leaves their feet in the
@@ -2968,9 +2966,7 @@ svg.art .spentblade { opacity: 0; }
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
   }
   .dock { left: calc(10px + env(safe-area-inset-left)); }
-  .townHud { right: calc(8px + env(safe-area-inset-right)); }
-  .gearBtn { width: 34px; height: 34px; }
-  .gearBtn svg { width: 19px; height: 19px; }
+  .townHud { left: calc(8px + env(safe-area-inset-left)); }
   .battleBtn { min-height: 42px; padding: 5px 15px 5px 12px; }
 }
 
@@ -3095,15 +3091,15 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
    zoomTown/setView set its transform; --zinv undoes the scale for name tags and quest marks so they stay readable. */
 /* --map-ar is set from MAP_W / MAP_H at startup, so the map's shape is defined in one place. */
 .townView { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: var(--map-ar, 23 / 6); transform-origin: 0 0; }
-/* Gear: opens the game mechanics window. */
-.gearBtn {
-  pointer-events: auto; display: grid; place-items: center; width: 38px; height: 38px; padding: 0; cursor: pointer;
-  border-radius: 50%; border: 1px solid var(--line); background: rgba(22, 25, 37, .86); color: var(--fg); backdrop-filter: blur(3px);
-  transition: color .15s, border-color .15s;
-}
-.gearBtn svg { width: 22px; height: 22px; transition: transform .4s ease; }
-.gearBtn:hover, .gearBtn:focus-visible { color: var(--accent); border-color: var(--accent); }
-.gearBtn:hover svg { transform: rotate(60deg); }
+/* Hero menu: dropdown from the herotag. */
+.townHud .herotag { cursor: pointer; pointer-events: auto; transition: border-color .15s; }
+.townHud .herotag:hover { border-color: var(--accent); }
+.heroMenu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; padding: 6px; border-radius: 12px; background: rgba(22, 25, 37, .96); border: 1px solid var(--line); backdrop-filter: blur(6px); box-shadow: 0 8px 24px rgba(0,0,0,.5); pointer-events: auto; z-index: 10; }
+.heroMenu[hidden] { display: none; }
+.heroMenu button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border: none; background: none; color: var(--fg); font: inherit; font-size: .82rem; border-radius: 8px; cursor: pointer; text-align: left; }
+.heroMenu button:hover { background: rgba(255,255,255,.08); }
+.heroMenu button svg { width: 18px; height: 18px; flex: none; opacity: .7; }
+.heroMenu hr { border: none; border-top: 1px solid var(--line); margin: 4px 0; }
 .rulesDlg {
   width: min(900px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; overflow: hidden;
   border: 1px solid var(--accent); border-radius: 14px; background: var(--panel); color: var(--fg);
@@ -3114,8 +3110,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .rulesDlg h2 { margin: 0; font-family: var(--font-display); font-size: 1.6rem; }
 .rulesBody { display: grid; gap: 10px; padding: 14px 16px 16px; overflow: auto; min-height: 0; }
 /* Your champion and purse, pinned to the map's top-right corner (outside the zoom). */
-.townHud { position: absolute; top: 8px; right: 8px; z-index: 3; display: flex; gap: 8px; align-items: center; pointer-events: none; }
-.townHud .herotag, .townHud .purse { background: rgba(22, 25, 37, .86); backdrop-filter: blur(3px); }
+.townHud { position: absolute; top: 8px; left: 8px; z-index: 3; display: flex; gap: 8px; align-items: center; pointer-events: none; }
+.townHud .purse { background: rgba(22, 25, 37, .86); backdrop-filter: blur(3px); }
 .townView.glide { transition: transform .6s cubic-bezier(.3, .1, .2, 1); }
 /* Everything else floats on the village: name tags and quest marks keep a readable size at any zoom. */
 .townView .npc .tag { transform: translateX(-50%) scale(var(--zinv, 1)); transform-origin: 50% 100%; }
@@ -3166,33 +3162,31 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 /* The dock: your warband and skills, bottom-left. Hidden under an open bottom sheet. */
 .dock { position: absolute; z-index: 3; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; }
 .dock button {
-  display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 5px 14px 5px 6px; cursor: pointer;
-  border-radius: 999px; border: 1px solid var(--line); background: rgba(22, 25, 37, .88); backdrop-filter: blur(3px);
+  display: flex; align-items: center; gap: 0; min-height: 0; padding: 0; cursor: pointer;
+  border-radius: 0; border: none; background: none;
   color: var(--fg); font: inherit; font-weight: 800; font-size: .92rem;
 }
-.dock button:hover, .dock button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.dock button:hover, .dock button[aria-pressed="true"] { color: var(--accent); }
+.dock .lbl { display: none; }
 .dock .faces { display: flex; }
 .dock .faces span { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; position: relative; background: var(--panel-2); border: 1px solid var(--line); }
 .dock .faces span + span { margin-left: -10px; }
 .dock .faces img, .dock .faces svg { position: absolute; width: 170%; height: 170%; left: -35%; top: -12%; max-width: none; }
 .dock .sic { width: 30px; height: 30px; }
-/* Narrow phones: the dock's three buttons go icon-only (faces, skill icon, scroll) so they fit across. */
-@media (max-width: 480px) {
-  .dock { gap: 6px; }
-  .dock .lbl { display: none; }
-  .dock button { padding: 5px 9px 5px 6px; gap: 6px; }
-}
-.dock .badge { min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .74rem; line-height: 20px; text-align: center; }
+.dock .badge { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .6rem; line-height: 16px; text-align: center; }
+.dock [data-k="sheet:skills"] { position: relative; }
+.dock [data-k="sheet:skills"] .badge { position: absolute; top: -4px; right: -4px; }
 .town.sheetOpen .dock { display: none; }
 /* Battle: bottom-right of the village, opposite the dock. Opens a menu of the three ways to fight;
    each one walks you to that building. Hidden under any open sheet. */
 .battleDock { position: absolute; z-index: 3; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); display: grid; justify-items: end; gap: 8px; }
 .battleBtn {
-  display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 18px 6px 14px; cursor: pointer;
-  border-radius: 999px; border: 2px solid #2a1a05; background: linear-gradient(#f3bd62, var(--accent) 55%, #c9822f);
-  color: var(--accent-ink); font: inherit; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: .02em;
+  display: grid; place-items: center; width: 48px; height: 48px; padding: 0; cursor: pointer;
+  border-radius: 50%; border: 2px solid #2a1a05; background: linear-gradient(#f3bd62, var(--accent) 55%, #c9822f);
+  color: var(--accent-ink); font: inherit;
   box-shadow: 0 4px 14px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .45);
 }
+.battleBtn span { display: none; }
 .battleBtn svg { width: 24px; height: 24px; }
 .battleBtn:hover, .battleBtn[aria-expanded="true"] { filter: brightness(1.08); }
 .battleMenu {
@@ -3366,7 +3360,9 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   font-size: .64rem; font-weight: 800; line-height: 15px; white-space: nowrap;
 }
 .wcard.you .wlvl { border-color: var(--accent); }
-.wcard .wname { flex: 1 1 auto; }
+.wcard .wname { flex: 1 1 auto; border: none; background: none; color: inherit; text-align: left; padding: 0; cursor: pointer; font: inherit; }
+.wcard .wname:hover b { color: var(--accent); }
+button.wpic { border: none; background: none; padding: 0; cursor: pointer; }
 .wcard .wskills { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; max-width: 58%; }
 .wcard .wsk { width: 30px; height: 30px; flex: none; }
 .wcard .wsk .sic { width: 100%; height: 100%; display: block; }
@@ -3457,6 +3453,32 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .wcard b { display: block; font-family: var(--font-display); font-size: 1.15rem; line-height: 1.1; }
 .wcard small { display: block; color: var(--muted); font-size: .78rem; }
 .wcard > span { min-width: 0; }
+/* Champion stats detail panel (opened from Warband card tap). */
+.csHead { display: flex; gap: 10px; align-items: center; }
+.csBack { flex: none; width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); cursor: pointer; font-size: .9rem; display: grid; place-items: center; }
+.csBack:hover { border-color: var(--accent); }
+.csInfo { flex: 1; min-width: 0; }
+.csInfo b { display: block; font-family: var(--font-display); font-size: 1.2rem; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; }
+.csInfo small { color: var(--muted); font-size: .66rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.csFig { justify-self: center; width: 140px; height: 140px; }
+.csFig svg, .csFig img { width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; }
+.csLbl { margin: 6px 0 2px; font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+.csGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px; }
+.csStat { display: flex; align-items: baseline; gap: 5px; padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,.04); }
+.csStat small { font-size: .62rem; font-weight: 800; letter-spacing: .06em; color: var(--muted); }
+.csStat b { font-size: .92rem; }
+.csNat { padding: 6px 8px; border-radius: 8px; background: rgba(100, 180, 80, .1); border: 1px solid rgba(100, 180, 80, .25); font-size: .82rem; line-height: 1.35; }
+.csNat b { color: #7dcc6a; }
+.csNat small { color: var(--muted); display: block; margin-top: 2px; }
+.csSkills { display: grid; gap: 6px; }
+.csSkill { display: grid; grid-template-columns: 34px 1fr auto; gap: 6px 8px; align-items: start; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,.03); }
+.csSkill .sic { width: 34px; height: 34px; grid-row: 1 / 3; }
+.csSkill .csSkN { font-size: .88rem; font-weight: 700; }
+.csSkill .csSkN em { font-style: normal; font-size: .68rem; font-weight: 800; color: var(--muted); margin-left: 4px; }
+.csSkill .csSkC { font-size: .72rem; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.csSkill .csSkD { grid-column: 2 / -1; font-size: .78rem; line-height: 1.3; color: var(--muted); }
+.csSkill.sig { border-left: 2px solid var(--accent); }
+.csSkill.pas { border-left: 2px solid #7dcc6a; }
 .sklist { display: grid; gap: 6px; }
 .skrow { display: flex; gap: 8px; align-items: center; font-size: .88rem; }
 .skrow .sic { width: 28px; height: 28px; flex: none; }
@@ -3875,7 +3897,14 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
       </div>
       <div id="placePanel" hidden></div>
       <div class="townHud" id="townHud">
-        <button class="gearBtn" id="gearBtn" type="button" aria-label="Game mechanics" title="Game mechanics"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.6 7.6 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button>
+        <div class="heroMenu" id="heroMenu" hidden>
+          <button type="button" data-hm="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>Profile</button>
+          <button type="button" data-hm="account"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18" stroke="currentColor" stroke-width="2"/></svg>Account Info</button>
+          <button type="button" data-hm="stats"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M8 16V10M12 16V4M16 16V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Stats</button>
+          <button type="button" data-hm="mechanics"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.6 7.6 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>Game Mechanics</button>
+          <hr>
+          <button type="button" data-hm="switch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3l4 4-4 4M20 7H9M8 21l-4-4 4-4M4 17h11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Switch Accounts</button>
+        </div>
       </div>
     </div>
     </div>
@@ -16463,7 +16492,7 @@ function render() {
   document.body.classList.toggle('inTown', inTown);
   document.body.dataset.screen = state.screen;
   if ($('#purse').parentElement !== hud) {
-    if (inTown) hud.prepend($('#herotag'), $('#purse'));   // the gear stays rightmost
+    if (inTown) hud.prepend($('#herotag'), $('#purse'));
     else hud.append($('#herotag'), $('#purse'));
   }
   renderPurse();
@@ -17764,12 +17793,12 @@ const PLACE_BODY = {
         <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
     }
     const full = state.team.length === TEAM_SIZE;
-    return `<p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
-        <b>${battleXp(0)} XP</b>, more for every battle deeper, and clearing all six adds <b>${CLEAR_BONUS} gold</b> and <b>${XP_CLEAR_BONUS} XP</b>.
-        Levels stick: ${heroName()} keeps every level they earn, and your recruits fight at your level.</p>
-      <div class="btns">${full ? `<button class="btn primary" type="button" data-k="fight">Fight as ${heroName()}</button>` : ''}
+    return `<div class="btns">${full ? `<button class="btn primary" type="button" data-k="fight">Fight as ${heroName()}</button>` : ''}
         <button class="btn" type="button" data-k="skills">Choose skills</button>
-        <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button></div>`;
+        <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button></div>
+      <p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
+        <b>${battleXp(0)} XP</b>, more for every battle deeper, and clearing all six adds <b>${CLEAR_BONUS} gold</b> and <b>${XP_CLEAR_BONUS} XP</b>.
+        Levels stick: ${heroName()} keeps every level they earn, and your recruits fight at your level.</p>`;
   },
 
   // Proving Grounds: three rival warbands at rising stakes. Reopening the place rerolls them.
@@ -17790,12 +17819,11 @@ const PLACE_BODY = {
           ${!full ? 'Needs a full warband' : profile.gold < d.stake ? `Needs ${d.stake} gold` : `Fight for ${d.pay} gold`}</button>
       </div>`;
     }).join('');
-    return `<p class="note">Rival warbands, any mix of factions, no faction tricks barred. Pay the stake to step over the rope: win and it
-        comes back with profit, lose and the purse stays with them. Duels pay XP either way and your warband walks out fully healed.
-        New challengers show up every time you come by${profile.stats.duelWins ? ` — so far you have won <b>${profile.stats.duelWins}</b> duel${profile.stats.duelWins === 1 ? '' : 's'}` : ''}.</p>
-      ${full ? `<div class="teamRow">${teamMinis()}</div>` : ''}
+    return `${full ? `<div class="teamRow">${teamMinis()}</div>` : `<div class="btns"><button class="btn primary" type="button" data-k="team">Choose your recruits</button></div>`}
       <div class="depths">${cards}</div>
-      ${full ? '' : `<div class="btns"><button class="btn primary" type="button" data-k="team">Choose your recruits</button></div>`}`;
+      <p class="note">Rival warbands, any mix of factions, no faction tricks barred. Pay the stake to step over the rope: win and it
+        comes back with profit, lose and the purse stays with them. Duels pay XP either way and your warband walks out fully healed.
+        New challengers show up every time you come by${profile.stats.duelWins ? ` — so far you have won <b>${profile.stats.duelWins}</b> duel${profile.stats.duelWins === 1 ? '' : 's'}` : ''}.</p>`;
   },
 
   /* Training Yard: drill techniques into your champion. Each one mastered unlocks it for the Skills
@@ -17829,14 +17857,14 @@ const PLACE_BODY = {
     };
     const left = TRAINABLE.filter((id) => !isTrained(c.id, id)).length;
     return `${tabs}${state.trainNews ? `<p class="loot">${state.trainNews}</p>` : ''}
-      <p class="note">Techniques take a few mornings of drill apiece. Master one and ${heroName()} can carry it into battle —
-        and earns a <b>skill point</b> for the bruises. ${left ? `<b>${left}</b> still to learn.` : 'Nothing left to learn here.'}
-        Unspent skill points: <b>${pts}</b>.</p>
+      <div class="btns"><button class="btn" type="button" data-k="skills">Choose skills</button></div>
       <h3 class="bhead">Techniques <small class="bsub">neutral skills · share your active slots</small></h3>
       <div class="depths">${order(NEUTRAL_KEYS).map(card).join('')}</div>
       <h3 class="bhead">Disciplines <small class="bsub">learned passives</small></h3>
       <div class="depths">${order(GENERIC_KEYS).map(card).join('')}</div>
-      <div class="btns"><button class="btn" type="button" data-k="skills">Choose skills</button></div>`;
+      <p class="note">Techniques take a few mornings of drill apiece. Master one and ${heroName()} can carry it into battle —
+        and earns a <b>skill point</b> for the bruises. ${left ? `<b>${left}</b> still to learn.` : 'Nothing left to learn here.'}
+        Unspent skill points: <b>${pts}</b>.</p>`;
   },
 
   // Guild House: one membership at a time. Favor is kept per guild, so switching back costs only the fee.
@@ -17861,11 +17889,11 @@ const PLACE_BODY = {
         ${btn}
       </div>`;
     }).join('');
-    return `<p class="note">One guild at a time wears your colors. Every victory earns <b>1 favor</b> — gauntlet clears and dungeon
+    return `<div class="depths">${cards}</div>
+      <p class="note">One guild at a time wears your colors. Every victory earns <b>1 favor</b> — gauntlet clears and dungeon
         bosses earn <b>2</b> — and favor raises your rank: ${GUILD_RANKS.map((r) => `${r.name} at ${r.at}`).join(', ')}.
         Rank grows your guild's perk from ${GUILD_RANKS[0].pct}% to ${GUILD_RANKS[GUILD_RANKS.length - 1].pct}%.
-        The first guild takes you in free; after that, switching costs ${GUILD_SWITCH_COST} gold. Favor is remembered by every guild.</p>
-      <div class="depths">${cards}</div>`;
+        The first guild takes you in free; after that, switching costs ${GUILD_SWITCH_COST} gold. Favor is remembered by every guild.</p>`;
   },
 
   // Emberhollow Cave: pick a depth to hunt; deeper depths unlock with level. Bestiary below.
@@ -17891,12 +17919,12 @@ const PLACE_BODY = {
       <div class="beast"><span class="mini">${spriteSVG(id)}</span>
         <div><b>${m.name}</b>${m.elite ? ' <span class="role melee">Elite</span>' : ''}<p>${m.lore}</p>
         <small>${m.skills.slice(1).map((s) => s.name).join(' · ')}${m.passive ? ` · Passive: ${m.passive.name}` : ''}</small></div></div>`).join('');
-    return `<p class="note">Monsters fight at your level and come in packs. Each hunt is one battle with full HP. It pays XP for every monster
-        in the pack, plus a little gold, and counts toward bounties. There's no weather underground.</p>
-      <div class="teamRow">${teamMinis()}</div>
+    return `<div class="teamRow">${teamMinis()}</div>
       <div class="depths">${depths}</div>
       <h3 class="bhead">Bestiary</h3>
-      <div class="bestiary">${bestiary}</div>`;
+      <div class="bestiary">${bestiary}</div>
+      <p class="note">Monsters fight at your level and come in packs. Each hunt is one battle with full HP. It pays XP for every monster
+        in the pack, plus a little gold, and counts toward bounties. There's no weather underground.</p>`;
   },
 
   // Expedition Gate: the dungeons along Ashfall Road, each a chain of rooms ending in a boss.
@@ -17956,9 +17984,9 @@ const PLACE_BODY = {
     const sel = forgeHero();
     const list = heroListHTML(sel, (id) => { const g = gearRaw(id); return [`Weapon ${g.w || 0} · Armor ${g.a || 0}`, (g.w || 0) + (g.a || 0) > 0]; });
     return `${shopHeroHTML('forge')}<div class="forge">${list}${anvilHTML(sel)}</div>
+      <div class="btns"><button class="btn small" type="button" data-k="open:armory">Visit the Armory</button></div>
       <p class="note">Upgrades are permanent and count in every battle, for this champion only.
-        Named weapons and worn kit hang next door at <b>the Armory</b>; the anvil's Weapon tier sharpens whichever weapon a champion holds.</p>
-      <div class="btns"><button class="btn small" type="button" data-k="open:armory">Visit the Armory</button></div>`;
+        Named weapons and worn kit hang next door at <b>the Armory</b>; the anvil's Weapon tier sharpens whichever weapon a champion holds.</p>`;
   },
 
   // The Armory: named weapons on the rack (THE ARMORY data) and worn kit on the stand (THE ARMOR STAND).
@@ -18009,7 +18037,7 @@ const PLACE_BODY = {
     };
     const lead = active ? `<b>${PETS[active].name}</b> walks at your champion's side, and its gift counts in every battle your champion fights.`
       : 'One pet walks at your champion\'s side at a time, and its gift counts in every battle your champion fights. The others wait at home.';
-    return `<p class="note">${lead}</p><div class="wares">${PET_KEYS.map(card).join('')}</div>`;
+    return `<div class="wares">${PET_KEYS.map(card).join('')}</div><p class="note">${lead}</p>`;
   },
 
   academy() {
@@ -18121,9 +18149,9 @@ const PLACE_BODY = {
         <div class="mv">${who || '<span class="note">Nobody in your warband can wear it</span>'}</div></div>`;
     }).join('');
     return `<div class="room">${roomSVG()}</div>
+      <div class="btns"><button class="btn small" type="button" data-k="homeshop">Shop for furniture</button></div>
       <p class="note">${profile.home.length ? `${profile.home.length} of ${DECOR_KEYS.length} pieces of furniture.${perkText ? ` Warband perks: <b>${perkText}</b>.` : ''}` : 'Bare walls and a cold floor.'}
         Odo Mott sells furniture under <b>Home goods</b> at the Market.</p>
-      <div class="btns"><button class="btn small" type="button" data-k="homeshop">Shop for furniture</button></div>
       <div class="homeGrid">
         <section><p class="label">Satchel and stash</p><div class="invList">${items}</div>
           ${profile.tomes ? `<div class="wares">${tomeHTML('home')}</div>` : ''}
@@ -18153,8 +18181,8 @@ const PLACE_BODY = {
         <div class="nfoot"><b>${b.gold} gold</b>${btn}</div></div>`;
     }).join('');
     return `<div class="notices">${notes}</div>
-      <p class="note">New jobs are posted every day. Progress counts from any battle, in or out of a gauntlet run.</p>
-      <div class="btns"><button class="btn small" type="button" data-k="breroll"${guildPct('bounty') || profile.gold >= BOUNTY_REROLL ? '' : ' disabled'}>Ask Holt for new jobs (${guildPct('bounty') ? 'free for the Oathbound' : `${BOUNTY_REROLL} gold`})</button></div>`;
+      <div class="btns"><button class="btn small" type="button" data-k="breroll"${guildPct('bounty') || profile.gold >= BOUNTY_REROLL ? '' : ' disabled'}>Ask Holt for new jobs (${guildPct('bounty') ? 'free for the Oathbound' : `${BOUNTY_REROLL} gold`})</button></div>
+      <p class="note">New jobs are posted every day. Progress counts from any battle, in or out of a gauntlet run.</p>`;
   },
 
   carnival() {
@@ -18346,7 +18374,7 @@ function codexHTML() {
   else if (tab === 'gear') body = GEAR_LORE.map(([h, t]) => entryHTML(h, t)).join('');
   else body = FACTION_KEYS.map((k) => {
     const f = FACTIONS[k], w = Object.values(WEATHER).find((x) => x.favors === k);
-    return entryHTML(f.name, `<b>${f.mechanic}.</b> ${f.rule} Favored by ${w.name}. Mana pool: ${poolLabel(k)}.`);
+    return entryHTML(f.name, `<b>${f.mechanic}.</b> ${f.rule}${w ? ` Favored by ${w.name}.` : ''} Mana pool: ${poolLabel(k)}.`);
   }).join('');
   const foot = tab === 'weather' ? `<p class="note">The weather changes every ${WEATHER_EVERY} rounds. Battles start under Clear Skies. You are told when the sky will turn, never what it will turn into - though an Ash Storm always sends Brimstone Fall ahead of it, and the sky itself darkens a round or two before that.
       No weather reaches underground: Emberhollow Cave gets the odd Earthquake instead, and a dungeon's condition holds for the whole run.</p>` : '';
@@ -18489,6 +18517,50 @@ const SLOT_GLYPH = {
   t:  '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="5.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 6.5L12 3l2.5 3.5L12 9.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
   pack: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6V5a3 3 0 0 1 6 0v1M6 8h12l1 12H5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h6" stroke="currentColor" stroke-width="1.6"/></svg>',
 };
+function champStatsHTML(cid) {
+  const c = charById(cid), lv = heroLevel(), you = isHeroId(cid), name = you ? heroName() : c.name;
+  const u = makeUnit(c, lv, 'p', Math.max(0, state.team.indexOf(cid)));
+  const r = ROLES[c.role];
+  const stat = (k, v) => `<div class="csStat"><small>${k}</small><b>${v}</b></div>`;
+  const stats = [
+    stat('HP', u.maxHp), stat('MP', u.maxMp || '—'),
+    stat('ATK', u.atk), stat('DEF', u.def),
+    stat('AGI', u.agi), stat('CRIT', `${Math.round((u.crit || 0) * 100)}%`),
+    stat('DODGE', `${Math.round((u.dodge || 0) * 100)}%`),
+  ].join('');
+  const lo = loadoutFor(c, lv);
+  const allSkills = [];
+  const attack = { name: 'Attack', desc: 'A free melee strike.' + (u.maxMp ? ` Restores ${MANA.attackGain} MP.` : ''), mp: 0, free: true };
+  const guard = { name: 'Guard', desc: 'Take a defensive stance, halving incoming damage this round.' + (u.maxMp ? ` Restores ${MANA.guardGain} MP.` : ''), mp: 0, free: true };
+  const actIds = lo.act;
+  actIds.forEach((id) => {
+    const sk = activeById(c, id);
+    if (!sk) return;
+    const base = { a: MANA.skillCost, c: MANA.skill2Cost, d: MANA.skill2Cost, e: MANA.skill2Cost, b: MANA.ultCost }[id] || MANA.skill2Cost;
+    const cost = u.maxMp ? spellCost(sk, base) : 0;
+    allSkills.push({ sk, cost, sig: id === 'b', pas: false, id });
+  });
+  const pasIds = lo.pas;
+  const passives = pasIds.map((id) => passiveById(c, id)).filter(Boolean);
+  const skillRows = [
+    `<div class="csSkill"><span class="sic">${skillIcon(attack)}</span><span class="csSkN">Attack</span><span class="csSkC">Free</span><span class="csSkD">${attack.desc}</span></div>`,
+    `<div class="csSkill"><span class="sic">${skillIcon(guard)}</span><span class="csSkN">Guard</span><span class="csSkC">Free</span><span class="csSkD">${guard.desc}</span></div>`,
+    ...allSkills.map(({ sk, cost, sig }) =>
+      `<div class="csSkill${sig ? ' sig' : ''}"><span class="sic">${skillIcon(sk)}</span><span class="csSkN">${sk.name}${sig ? '<em>★ Signature</em>' : ''}</span><span class="csSkC">${cost ? cost + ' MP' : 'Free'}</span><span class="csSkD">${sk.desc}</span></div>`),
+    ...passives.map((p) =>
+      `<div class="csSkill pas"><span class="sic">${skillIcon(p)}</span><span class="csSkN">${p.name}<em>Passive</em></span><span class="csSkC"></span><span class="csSkD">${p.desc}</span></div>`),
+  ].join('');
+  const nat = c.nature;
+  const natureHTML = nat ? `<div class="csLbl">Nature</div><div class="csNat"><b>${nat.name}</b><small>${nat.desc}</small></div>` : '';
+  return `<div class="csHead"><button class="csBack" type="button" data-k="wdetail:" title="Back" aria-label="Back to warband">←</button>
+      <div class="csInfo"><b>${name}</b><small>Level ${lv} · ${r.label} · ${you ? 'You' : 'Recruit'}</small></div></div>
+    <div class="csFig">${spriteSVG(cid)}</div>
+    <div class="csLbl">Stats</div>
+    <div class="csGrid">${stats}</div>
+    ${natureHTML}
+    <div class="csLbl">Skills</div>
+    <div class="csSkills">${skillRows}</div>`;
+}
 function champHTML(cid) {
   const c = charById(cid), lv = heroLevel(), you = isHeroId(cid), name = you ? heroName() : c.name;
   const u = makeUnit(c, lv, 'p', Math.max(0, state.team.indexOf(cid)));
@@ -18636,6 +18708,13 @@ function sheetHTML(which) {
       <div><button class="btn${pts ? ' primary' : ''}" type="button" data-k="skills">Choose skills</button></div>
     </section>`;
   }
+  // Champion stats detail: opened by tapping a portrait in the warband list.
+  if (state.wdetail && state.team.includes(state.wdetail)) {
+    return `<section class="panel" id="panel" aria-label="Champion stats">
+      <div class="phead"><div><p class="label">Your warband</p><h2>Champion stats</h2></div>${close}</div>
+      ${champStatsHTML(state.wdetail)}
+    </section>`;
+  }
   // Each champion: portrait with their level, name, and the skills they take into battle
   // (your chosen loadout; recruits pick their own at your level, as makeUnit does).
   const cards = state.team.map((id, i) => {
@@ -18647,8 +18726,8 @@ function sheetHTML(which) {
     const picker = !you && state.swapSlot === i ? `<div class="wpicker" role="group" aria-label="Choose who replaces ${ch.name}">${
       PLAY_ROSTER.filter((x) => !state.team.includes(x.id)).map((x) =>
         `<button class="wpick" type="button" data-k="recruit:${i}:${x.id}" title="${escHTML(x.name)}" aria-label="Recruit ${escHTML(x.name)}">${spriteSVG(x.id)}</button>`).join('')}</div>` : '';
-    return `<div class="wcard${you ? ' you' : ''}"><span class="wpic">${spriteSVG(id)}<span class="wlvl">Lv ${lv}</span></span>
-      <span class="wname"><b>${you ? heroName() : ch.name}</b></span>
+    return `<div class="wcard${you ? ' you' : ''}"><button class="wpic" type="button" data-k="wdetail:${id}" title="View ${you ? heroName() : ch.name}'s stats" aria-label="View ${you ? heroName() : ch.name}'s stats">${spriteSVG(id)}<span class="wlvl">Lv ${lv}</span></button>
+      <button class="wname" type="button" data-k="wdetail:${id}"><b>${you ? heroName() : ch.name}</b></button>
       ${swap}
       <span class="wskills" aria-label="Skills">${kit}</span>
       <button class="btn small wchange" type="button" data-k="skillsfor:${id}" aria-label="Change ${you ? heroName() : ch.name}'s skills"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 7l3 3" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Change</span></button></div>${picker}`;
@@ -18700,11 +18779,11 @@ function placeHTML(k) {
   const p = PLACES[k];
   return `<section class="panel" id="panel" aria-label="${p.name}">
     <div class="phead">
-      <div><h2>${p.name}</h2>${p.flavor ? `<p class="flavor">${p.flavor}</p>` : ''}</div>
+      <div><h2>${p.name}</h2></div>
       <button class="btn small iconBack" type="button" data-k="back" aria-label="Back to the square" title="Back to the square"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
-    ${keeperHTML(k)}
     ${PLACE_BODY[k]()}
+    ${keeperHTML(k)}
   </section>`;
 }
 
@@ -19628,7 +19707,8 @@ function villageAction(k) {
   if (verb === 'skills') { state.skillsFor = null; state.skillsFrom = null; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'skillsfor') { state.skillsFor = arg; state.skillsFrom = 'warband'; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'play') { if (startBooth(arg)) { render(); runBooth(); } return; }
-  if (verb === 'sheet') { state.place = null; state.champ = null; state.booth = null; state.swapSlot = null; state.invSel = null; state.sheet = arg && state.sheet !== arg ? arg : null; }
+  if (verb === 'wdetail') { state.wdetail = arg || null; render(); return; }
+  if (verb === 'sheet') { state.place = null; state.champ = null; state.booth = null; state.swapSlot = null; state.invSel = null; state.wdetail = null; state.sheet = arg && state.sheet !== arg ? arg : null; }
   else if (verb === 'swap') state.swapSlot = state.swapSlot === Number(arg) ? null : Number(arg);
   // Inventory: whose gear, equip from the bag, put an equipped item back.
   else if (verb === 'invfor') { state.invFor = arg; state.invSel = null; }
@@ -19818,9 +19898,19 @@ function buildVillage() {
   document.addEventListener('click', (ev) => { if (!ev.target.closest('#battleDock')) setBattleMenu(false); });
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') setBattleMenu(false); });
   buildStage();
-  // Gear → game mechanics window. Its tabs re-render in place; Esc or Close shuts it.
-  const dlg = $('#rulesDlg');
-  $('#gearBtn').addEventListener('click', () => { hideSay(); $('#rulesBody').innerHTML = codexHTML(); dlg.showModal(); });
+  // Hero menu: dropdown from the herotag. Clicking the tag toggles it; clicking outside closes it.
+  const hMenu = $('#heroMenu'), dlg = $('#rulesDlg');
+  const toggleHeroMenu = () => { hMenu.hidden = !hMenu.hidden; };
+  $('#herotag').addEventListener('click', (ev) => { ev.stopPropagation(); hideSay(); toggleHeroMenu(); });
+  hMenu.addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-hm]');
+    if (!b) return;
+    hMenu.hidden = true;
+    const k = b.dataset.hm;
+    if (k === 'mechanics') { $('#rulesBody').innerHTML = codexHTML(); dlg.showModal(); }
+    if (k === 'stats') { villageAction('sheet:warband'); const hero = state.team[0]; if (hero) { state.wdetail = hero; render(); } }
+  });
+  document.addEventListener('click', (ev) => { if (!ev.target.closest('#heroMenu, #herotag')) hMenu.hidden = true; });
   dlg.addEventListener('click', (ev) => {
     if (ev.target === dlg || ev.target.closest('[data-close]')) return dlg.close();   // backdrop or Close
     const tab = ev.target.closest('[data-k^="codex:"]');
@@ -19882,7 +19972,7 @@ function unitCardHTML(u) {
    side carry the same pattern, which is the whole complaint about one shared clip; and a champion's
    own fire stays put instead of leaping to new spots every time some unrelated status comes or goes
    and the overlay is rebuilt. Same uid, same fire, every time. */
-const BURN_TONGUES = 6;
+const BURN_TONGUES = 4;
 // A cheap deterministic 0..1 from the uid and a counter — FNV-1a, enough to scatter four flames.
 const burnRand = (uid, n) => {
   let h = 2166136261;
@@ -19894,16 +19984,10 @@ function burnFlamesSVG(u) {
   const n1 = (v) => Math.round(v * 10) / 10;
   let flames = '', smoke = '';
   for (let i = 0; i < BURN_TONGUES; i++) {
-    // Each tongue gets its OWN column across the body (shoulder to shoulder) so none stacks on
-    // another; a small jitter keeps the row from looking mechanical, and neighbours alternate
-    // between an upper and a lower band so two adjacent tips can never meet.
-    const lane = (i + 0.5) / BURN_TONGUES;            // this tongue's column centre, 0..1
-    const jx = (burnRand(u.uid, i * 4) - 0.5) * (52 / BURN_TONGUES * 0.6);
-    const x = 24 + lane * 52 + jx;                    // 24..76 across the body — a touch wider so the bigger tongues have room
-    const band = i % 2 ? 0 : 0.5;                     // alternate an upper and a lower band
-    const y = 44 + (band + burnRand(u.uid, i * 4 + 1) * 0.5) * 38;  // 44..82, staggered down the torso
-    const h = 12 + burnRand(u.uid, i * 4 + 2) * 12;   // how tall this one stands — a bigger blaze (was 7..15)
-    const w = h * 0.4;                                // a hair slimmer than before so taller tongues don't merge sideways
+    const x = 30 + burnRand(u.uid, i * 4) * 40;       // across the body, shoulder to shoulder
+    const y = 42 + burnRand(u.uid, i * 4 + 1) * 44;   // chest down to the boots
+    const h = 7 + burnRand(u.uid, i * 4 + 2) * 9;     // how tall this one stands
+    const w = h * 0.42;
     const lean = (burnRand(u.uid, i * 4 + 3) - 0.5) * w;  // which way the tip is licking
     const d = -i * 0.17;                              // each tongue on its own beat
     /* Not a teardrop: the left edge climbs and pinches in, the tip leans off centre, and the right
@@ -19921,11 +20005,10 @@ function burnFlamesSVG(u) {
        + `Q${n1(x + lean * .5)} ${n1(y - h * .52)} ${n1(x + lean * .8)} ${n1(y - h * .62)}`
        + `Q${n1(x + w * .3)} ${n1(y - h * .3)} ${n1(x + w * .45)} ${n1(y)}`
        + `Q${n1(x)} ${n1(y + h * .13)} ${n1(x - w * .45)} ${n1(y)}Z"/>`;
-    // A wisp off every other tongue — black, so it reads as something actually catching fire
-    // rather than steam. Still only every other one, so the fire stays the read, not the smoke.
+    // A wisp off every other tongue — four would be a bonfire, two is something smouldering.
     if (i % 2 === 0) {
-      smoke += `<ellipse class="smoke" style="animation-delay:${n1(-i * 1.3)}s" fill="#3c3c45"`
-        + ` cx="${n1(x + lean)}" cy="${n1(y - h - w * .6)}" rx="${n1(w)}" ry="${n1(w * .88)}"/>`;
+      smoke += `<ellipse class="smoke" style="animation-delay:${n1(-i * 1.3)}s" fill="#aeb4bf"`
+        + ` cx="${n1(x + lean)}" cy="${n1(y - h - w * .6)}" rx="${n1(w * .9)}" ry="${n1(w * .78)}"/>`;
     }
   }
   return `<svg class="burnfx" viewBox="0 0 100 100" aria-hidden="true">${smoke}<g class="burnlit">${flames}</g></svg>`;
