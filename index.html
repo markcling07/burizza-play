@@ -2738,12 +2738,20 @@ svg.art .spentblade { opacity: 0; }
     grid-area: tray; position: static; min-height: 0; overflow-y: auto;
     overscroll-behavior: contain; gap: 6px; padding: 8px;
   }
-  #selectScreen .trayHead { font-size: .84rem; }
-  #selectScreen .slots { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; gap: 6px; }
-  #selectScreen .slot strong { font-size: .72rem; }
+  #selectScreen .trayHead { display: none; }
+  #selectScreen .slots { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; gap: 6px; flex: 1; align-content: center; }
+  #selectScreen .slot { grid-template-rows: 1fr auto; padding: 6px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+  #selectScreen .slot.empty { border-style: dashed; background: none; }
+  #selectScreen .slot .mini { width: 100%; max-width: 90px; height: auto; aspect-ratio: 1; }
+  #selectScreen .slot .ph { width: 44px; height: 44px; border: 0; }
+  #selectScreen .slot strong { font-size: .74rem; }
+  #selectScreen .slot small { font-size: .66rem; }
+  #selectScreen .slot.filled:hover { border-color: var(--bad); }
+  #selectScreen .slot.you { border-color: var(--accent); }
   #selectScreen .trayRow p { display: none; }
-  #selectScreen .trayBtns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; }
-  #selectScreen .trayBtns .btn { padding: 6px 8px; font-size: .8rem; }
+  #selectScreen .trayBtns { display: flex; gap: 4px; width: 100%; }
+  #selectScreen .trayBtns .btn { padding: 6px 8px; font-size: .74rem; flex: 1; min-width: 0; }
+  #selectScreen .trayBtns #randomBtn { flex: 0 0 auto; padding: 6px 10px; display: grid; place-items: center; }
   /* The filters stop being a four-column grid and become pills that wrap.
      Fixed columns gave "All" the same 125px as "Stray Banner" — nine factions
      needed three rows, and the long names were still clipped to "Bloodt...".
@@ -2852,8 +2860,9 @@ svg.art .spentblade { opacity: 0; }
   body[data-screen="select"] .topR, body[data-screen="skills"] .topR { display: none; }
   .tray { gap: 6px; padding: 8px; }
   .trayRow p { font-size: .78rem; }
-  .trayBtns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; }
-  .trayBtns .btn { padding: 7px 8px; font-size: .84rem; }
+  .trayBtns { display: flex; gap: 4px; width: 100%; }
+  .trayBtns .btn { padding: 5px 8px; font-size: .78rem; flex: 1; min-width: 0; }
+  .trayBtns #randomBtn { flex: 0 0 auto; padding: 5px 10px; display: grid; place-items: center; }
   .slot strong { font-size: .74rem; }
   #selectScreen .trayRow p { display: none; }
   #filters .fbtn { font-size: .76rem; }
@@ -3782,7 +3791,7 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
         <p id="trayInfo"></p>
         <div class="trayBtns">
           <button class="btn ghost" type="button" id="retireBtn" hidden>New champion</button>
-          <button class="btn" type="button" id="randomBtn">Random recruits</button>
+          <button class="btn" type="button" id="randomBtn" title="Random recruits" aria-label="Random recruits"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg></button>
           <button class="btn primary" type="button" id="beginBtn">Save warband</button>
         </div>
       </div>
