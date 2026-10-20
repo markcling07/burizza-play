@@ -688,6 +688,18 @@ body.noHud .screen { gap: 0; }
 @keyframes wobble { 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
 .tok.slow .face { box-shadow: 0 0 0 3px rgba(111, 181, 230, .5); }
 .tok.slow .st { color: var(--ranged); }
+.tok.hastened .face { box-shadow: 0 0 0 3px rgba(130, 210, 255, .85), 0 0 14px rgba(100, 200, 255, .7); }
+.tok.hastened::before {
+  content: ''; position: absolute; right: 100%; top: 50%; width: 28px; height: 6px;
+  margin-top: -3px; pointer-events: none;
+  background: linear-gradient(to left, rgba(130, 210, 255, .95), transparent);
+  border-radius: 3px; filter: blur(1px);
+  animation: hasteTrail 1s ease-in-out infinite;
+}
+@keyframes hasteTrail {
+  0%, 100% { opacity: .6; width: 22px; }
+  50%      { opacity: 1;  width: 38px; }
+}
 /* On their turn, the champion's token leaves its lane and drops into the circular Act gate, filling
    it: left:100% + the token's own -margin pins its centre to the gate's, top:50% with margin-top
    = -half its height centres it vertically (independent of track height), and translateX nudges it
@@ -1532,6 +1544,44 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .unit.down .charmfx { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .unit.charmed .charmfx::before, .unit.charmed .charmfx::after { animation: none; opacity: .7; }
+}
+.hastefx { display: none; }
+.unit.hastened .hastefx {
+  display: block; position: absolute; left: 0; right: 0; bottom: 0; height: 40%;
+  pointer-events: none; z-index: 6; overflow: hidden;
+}
+.unit.hastened .hastefx::before, .unit.hastened .hastefx::after {
+  content: ''; position: absolute; bottom: 0; width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse 22% 40% at 20% 82%, rgba(130, 210, 255, 1), transparent),
+    radial-gradient(ellipse 18% 34% at 50% 88%, rgba(100, 200, 255, .9), transparent),
+    radial-gradient(ellipse 20% 38% at 75% 80%, rgba(130, 210, 255, .95), transparent);
+  filter: blur(1.5px);
+}
+.unit.hastened .hastefx::before {
+  animation: hasteWind1 1.2s ease-in-out infinite;
+}
+.unit.hastened .hastefx::after {
+  background:
+    radial-gradient(ellipse 16% 28% at 35% 85%, rgba(170, 230, 255, .95), transparent),
+    radial-gradient(ellipse 18% 34% at 65% 78%, rgba(130, 220, 255, .85), transparent),
+    radial-gradient(ellipse 14% 26% at 85% 90%, rgba(150, 225, 255, .9), transparent);
+  animation: hasteWind2 1.5s ease-in-out .3s infinite;
+}
+@keyframes hasteWind1 {
+  0%   { opacity: .6; transform: translateX(-8%) scaleX(1); }
+  50%  { opacity: 1;  transform: translateX(6%) scaleX(1.15); }
+  100% { opacity: .6; transform: translateX(-8%) scaleX(1); }
+}
+@keyframes hasteWind2 {
+  0%   { opacity: .5; transform: translateX(6%) scaleX(1.1); }
+  50%  { opacity: 1;  transform: translateX(-6%) scaleX(.9); }
+  100% { opacity: .5; transform: translateX(6%) scaleX(1.1); }
+}
+.unit.lookW .hastefx { transform: scaleX(-1); }
+.unit.down .hastefx { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .unit.hastened .hastefx::before, .unit.hastened .hastefx::after { animation: none; opacity: .6; }
 }
 /* WEARING WHAT YOU CARRY. While a champion holds something other than the weapon they were drawn
    with, their art is inlined and the painted weapon's pieces (class="wpn" in the art file) are
@@ -19648,7 +19698,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${runsHot(u) && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
+      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
     </div>`;
 }
 
@@ -22574,6 +22624,7 @@ function renderTrack(ms) {
     el.classList.toggle('slow', isSlow && !isFrozen && !isStagger);
     el.classList.toggle('down', u.hp <= 0);
     el.classList.toggle('silenced', !!has(u, 'silence') && u.hp > 0);
+    el.classList.toggle('hastened', !!has(u, 'haste') && u.hp > 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     const st = el.querySelector('.st');
     // Rooted shows no speed-bar label: the token still races to the gate, so it isn't "held" like a
@@ -22774,6 +22825,7 @@ function renderBattle() {
     el.classList.toggle('mending', !!has(u, 'regen') && u.hp > 0);
     el.classList.toggle('empowered', !!has(u, 'empower') && u.hp > 0);
     el.classList.toggle('charmed', !!has(u, 'immune') && u.hp > 0);
+    el.classList.toggle('hastened', !!has(u, 'haste') && u.hp > 0);
     syncWardArt(el, u);                                                     // ...and his shield is drawn lit
     syncHeldWeapon(el, u);                                                  // ...and everyone holds the weapon they racked
     el.classList.toggle('down', u.hp <= 0);
