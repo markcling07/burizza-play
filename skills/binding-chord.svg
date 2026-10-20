@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Burizza skill icon: Binding Chord. 64x64. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+<defs>
+<radialGradient id="bg" cx=".5" cy=".3" r=".85"><stop offset="0" stop-color="#2a2440"/><stop offset="1" stop-color="#0e0c1a"/></radialGradient>
+<filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.4" stdDeviation="1" flood-color="#000" flood-opacity=".55"/></filter>
+<linearGradient id="bc-teal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fcad1"/><stop offset="1" stop-color="#2a7a8a"/></linearGradient>
+<linearGradient id="bc-string" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5fcad1"/><stop offset="1" stop-color="#a8eef4"/></linearGradient>
+<radialGradient id="bc-target" cx=".5" cy=".45" r=".5"><stop offset="0" stop-color="#6a6060"/><stop offset="1" stop-color="#3a3434"/></radialGradient>
+</defs>
+<rect x="2" y="2" width="60" height="60" rx="11" fill="url(#bg)"/>
+<rect x="5.5" y="5.5" width="53" height="53" rx="8" fill="none" stroke="#b9c0e0" stroke-width="1" opacity="0.25"/>
+<g filter="url(#ds)" stroke="#15121d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+<!-- target circle (the enemy) -->
+<circle cx="32" cy="32" r="8" fill="url(#bc-target)"/>
+<!-- binding strings wrapping the target (two crossing arcs) -->
+<path d="M18 22 Q32 28 46 22" fill="none" stroke="url(#bc-string)" stroke-width="2.2"/>
+<path d="M18 42 Q32 36 46 42" fill="none" stroke="url(#bc-string)" stroke-width="2.2"/>
+<path d="M20 18 Q28 32 20 46" fill="none" stroke="url(#bc-string)" stroke-width="2.2"/>
+<path d="M44 18 Q36 32 44 46" fill="none" stroke="url(#bc-string)" stroke-width="2.2"/>
+<!-- sound wave arcs emanating outward -->
+<path d="M13 26 A8 8 0 0 0 13 38" fill="none" stroke="#5fcad1" stroke-width="2" opacity=".85"/>
+<path d="M9 22 A14 14 0 0 0 9 42" fill="none" stroke="#5fcad1" stroke-width="2" opacity=".5"/>
+<path d="M51 26 A8 8 0 0 1 51 38" fill="none" stroke="#5fcad1" stroke-width="2" opacity=".85"/>
+<path d="M55 22 A14 14 0 0 1 55 42" fill="none" stroke="#5fcad1" stroke-width="2" opacity=".5"/>
+<!-- small musical note accents -->
+<circle cx="22" cy="15" r="2" fill="#a8eef4" stroke="none"/>
+<line x1="24" y1="15" x2="24" y2="10" stroke="#a8eef4" stroke-width="1.4"/>
+<circle cx="44" cy="49" r="2" fill="#a8eef4" stroke="none"/>
+<line x1="46" y1="49" x2="46" y2="44" stroke="#a8eef4" stroke-width="1.4"/>
+</g>
+<rect x="2" y="2" width="60" height="60" rx="11" fill="none" stroke="#b9c0e0" stroke-width="2" opacity="0.85"/>
+</svg>

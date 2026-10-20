@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Burizza skill icon: Storm Cairn. 64x64. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+<defs>
+<radialGradient id="bg" cx=".5" cy=".3" r=".85"><stop offset="0" stop-color="#2a2440"/><stop offset="1" stop-color="#0e0c1a"/></radialGradient>
+<filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.4" stdDeviation="1" flood-color="#000" flood-opacity=".55"/></filter>
+<linearGradient id="scStone1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a8a7a"/><stop offset="1" stop-color="#4a4a40"/></linearGradient>
+<linearGradient id="scStone2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a9a88"/><stop offset="1" stop-color="#5a5a4e"/></linearGradient>
+<linearGradient id="scStone3" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#7a7a6c"/><stop offset="1" stop-color="#3e3e36"/></linearGradient>
+<linearGradient id="scBolt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#5fcad1"/><stop offset="1" stop-color="#2f6fd0"/></linearGradient>
+<radialGradient id="scFlash" cx=".5" cy=".3" r=".5"><stop offset="0" stop-color="#bfe6ff" stop-opacity=".5"/><stop offset="1" stop-color="#5fcad1" stop-opacity="0"/></radialGradient>
+<filter id="scGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.8"/></filter>
+</defs>
+<rect x="2" y="2" width="60" height="60" rx="11" fill="url(#bg)"/>
+<rect x="5.5" y="5.5" width="53" height="53" rx="8" fill="none" stroke="#b9c0e0" stroke-width="1" opacity="0.25"/>
+<!-- lightning flash glow -->
+<ellipse cx="32" cy="28" rx="14" ry="16" fill="url(#scFlash)" filter="url(#scGlow)" opacity="0.6"/>
+<g filter="url(#ds)" stroke="#15121d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+<!-- bottom stone — wide, flat -->
+<ellipse cx="32" cy="52" rx="13" ry="4.5" fill="url(#scStone1)"/>
+<path d="M19 52 Q19 45 24 44 L40 44 Q45 45 45 52" fill="url(#scStone1)"/>
+<!-- middle stone — medium -->
+<ellipse cx="32" cy="43" rx="9.5" ry="3.5" fill="url(#scStone2)"/>
+<path d="M22.5 43 Q23 37 27 36 L37 36 Q41 37 41.5 43" fill="url(#scStone2)"/>
+<!-- top stone — small, peaked -->
+<ellipse cx="32" cy="35" rx="6.5" ry="3" fill="url(#scStone3)"/>
+<path d="M25.5 35 Q26 29 29 28 L35 28 Q38 29 38.5 35" fill="url(#scStone3)"/>
+<!-- lightning bolt striking down from top -->
+<path d="M30 8 L27 20 L33 19 L28 30 L36 17 L30 18 L34 8 Z" fill="url(#scBolt)" stroke="#15121d" stroke-width="1.2"/>
+<!-- small electric arcs around cairn top -->
+<path d="M22 32 L18 28" stroke="#5fcad1" stroke-width="1.6" opacity="0.6"/>
+<path d="M18 28 L20 26" stroke="#5fcad1" stroke-width="1.6" opacity="0.6"/>
+<path d="M42 32 L46 28" stroke="#5fcad1" stroke-width="1.6" opacity="0.6"/>
+<path d="M46 28 L44 26" stroke="#5fcad1" stroke-width="1.6" opacity="0.6"/>
+</g>
+<rect x="2" y="2" width="60" height="60" rx="11" fill="none" stroke="#b9c0e0" stroke-width="2" opacity="0.85"/>
+</svg>

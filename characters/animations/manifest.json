@@ -837,29 +837,6 @@
       "hitMs": 520
     }
   },
-  "zulkan": {
-    "idle": {
-      "src": "zulkan-idle.webp",
-      "w": 400,
-      "h": 290,
-      "footX": 155,
-      "footY": 275,
-      "frames": 18,
-      "frameMs": 75,
-      "ms": 1350
-    },
-    "attack": {
-      "src": "zulkan-attack.webp",
-      "w": 400,
-      "h": 290,
-      "footX": 155,
-      "footY": 275,
-      "frames": 32,
-      "frameMs": 40,
-      "ms": 1280,
-      "hitMs": 680
-    }
-  },
   "automatonx": {
     "idle": {
       "src": "automatonx-idle.webp",

@@ -3,7 +3,7 @@
      with a massive warhammer held in his right hand. Scarred, heavy-set, wearing scavenged plate
      and hide. Canvas 100x100, faces right, feet on y=94. The warhammer head is his weapon
      (class="wpn"): data-hand marks where the grip meets the fist. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="62,58">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" data-hand="68.9,53.7">
   <defs>
     <linearGradient id="zk-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c04a3a"/><stop offset="1" stop-color="#8a2a1a"/></linearGradient>
     <linearGradient id="zk-armor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a5046"/><stop offset=".6" stop-color="#3a342c"/><stop offset="1" stop-color="#2a2420"/></linearGradient>
@@ -24,6 +24,13 @@
   <line x1="36" y1="93" x2="32" y2="96" stroke="#000" stroke-width=".4" opacity=".2"/>
   <line x1="55" y1="93" x2="59" y2="96" stroke="#000" stroke-width=".4" opacity=".18"/>
   <ellipse cx="33" cy="93" rx="4" ry="1.5" fill="#8a7a60" opacity=".12"/><ellipse cx="62" cy="93" rx="3.5" ry="1.2" fill="#8a7a60" opacity=".1"/>
+  <!-- STANCE: he is the faction's tank and was reading as its smallest man — 81.5 tall
+       against Mogra's 92 and Krug's 89, and the narrowest of the three. Grown about the
+       footing line (y=93.5, which every champion shares) so his head reaches the canvas top
+       like theirs, and stretched a little wider than tall so the mass reads as bulk rather
+       than a taller thin man. The ground shadow is left outside this: it marks where he
+       stands, not how big he is. -->
+  <g transform="translate(50.0,93.5) scale(1.18,1.12) translate(-50.0,-93.5)">
   <g stroke="none">
     <!-- legs: thick hide-wrapped with straps -->
     <path d="M38 74 L44 74 L43 89 L37 89 Z" fill="url(#zk-hide)"/>
@@ -81,33 +88,49 @@
     <!-- right fist gripping haft, knuckle detail -->
     <circle cx="64" cy="59" r="4" fill="url(#zk-skin)"/>
     <path d="M62 57.5 Q63 57 64 57.5" stroke="#7a1a0a" stroke-width=".4" fill="none" opacity=".4"/>
-    <!-- head: broad, heavy jaw -->
-    <path d="M38 16 Q36 22 36 28 Q36 34 40 36 L54 36 Q58 34 58 28 Q58 22 56 16 Q50 12 44 12 Q40 14 38 16 Z" fill="url(#zk-skin)"/>
-    <!-- brow ridge with crease -->
-    <path d="M38 22 Q42 20 47 20 Q52 20 56 22 L56 24 Q52 22 47 22 Q42 22 38 24 Z" fill="#7a1a0a"/>
-    <path d="M40 21 Q47 19.5 54 21" stroke="#5a0a04" stroke-width=".4" fill="none" opacity=".4"/>
-    <!-- eyes: small, fierce, glinting orange -->
-    <ellipse cx="43" cy="25" rx="2" ry="1.5" fill="#1a0a00"/><circle cx="43.5" cy="25" r=".8" fill="#ffa030"/><circle cx="43.8" cy="24.8" r=".3" fill="#ffcc60"/>
-    <ellipse cx="52" cy="25" rx="2" ry="1.5" fill="#1a0a00"/><circle cx="52.5" cy="25" r=".8" fill="#ffa030"/><circle cx="52.8" cy="24.8" r=".3" fill="#ffcc60"/>
-    <!-- nose with nostril definition -->
-    <ellipse cx="48" cy="28" rx="2.5" ry="1.5" fill="#9a2a14"/>
-    <ellipse cx="46.8" cy="28.5" rx=".8" ry=".5" fill="#6a1a0a" opacity=".5"/><ellipse cx="49.2" cy="28.5" rx=".8" ry=".5" fill="#6a1a0a" opacity=".5"/>
-    <!-- tusks with ridges, chipped right tusk -->
-    <path d="M41 32 Q40 28 39 25" stroke="url(#zk-tusk)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M40.2 29 Q39.8 27.5 39.5 26.5" stroke="#d8d0b8" stroke-width=".4" fill="none" opacity=".5"/>
-    <path d="M53 32 Q54 28 55 25" stroke="url(#zk-tusk)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M53.8 29 Q54.2 27.5 54.6 26.5" stroke="#d8d0b8" stroke-width=".4" fill="none" opacity=".5"/>
-    <path d="M54.8 25.5 L55.3 25 L55.1 25.8" fill="#b0a080" opacity=".6"/>
-    <!-- scars: deep jaw scar, cheek scar; war paint marks -->
-    <line x1="44" y1="30" x2="50" y2="33" stroke="url(#zk-scar)" stroke-width="1" opacity=".6"/>
-    <line x1="54" y1="27" x2="57" y2="31" stroke="#5a1a0a" stroke-width=".6" opacity=".4"/>
-    <line x1="40" y1="27" x2="38" y2="30" stroke="#1a0a04" stroke-width="1" opacity=".35"/><line x1="42" y1="27" x2="40" y2="30" stroke="#1a0a04" stroke-width="1" opacity=".35"/>
-    <!-- pointed ears with inner fold -->
-    <path d="M36 20 Q32 18 30 16 Q32 20 34 24" fill="url(#zk-skin)"/><path d="M34 20 Q33 19 32 18" stroke="#7a1a0a" stroke-width=".5" fill="none" opacity=".4"/>
-    <path d="M58 20 Q62 18 64 16 Q62 20 60 24" fill="url(#zk-skin)"/><path d="M60 20 Q61 19 62 18" stroke="#7a1a0a" stroke-width=".5" fill="none" opacity=".4"/>
+    <!-- HEAD, three-quarter, looking down the field at them.
+
+         He was the only champion on the roster drawn square-on — symmetric eyes, a centred
+         nose, both tusks equal — so he stared past the enemy at the viewer. This is the same
+         construction Krug and Mogra use, in his colours: the back of the skull is a smooth
+         curve, the brow juts forward, a notch marks the bridge, and the muzzle swells out and
+         down to the chin. From that angle you only ever see ONE eye and ONE nostril, the ear
+         falls behind the skull, and the tusks rise from the jaw with the near one carried
+         further forward. Drawn, not transformed: the first two attempts at turning him with a
+         <g transform> only skewed a front-on face and made him look broken. -->
+    <!-- ear: behind the head, pointing back away from the facing -->
+    <path d="M40 24 L30.5 18 L38.5 31.5 Z" fill="url(#zk-skin)" opacity=".92"/>
+    <path d="M38 24.5 L34 21.5 L37.5 28.5" stroke="#7a1a0a" stroke-width=".55" fill="none" opacity=".45"/>
+    <!-- skull: smooth back, brow, bridge notch, muzzle, jaw -->
+    <path d="M37.5 26 Q35.5 15 45 12.5 Q55 11.8 57.5 21 L60.5 25.5 L58.5 28 Q61 33.5 54.5 36.5 Q47 39 41.5 36 Q38 32 37.5 26 Z" fill="url(#zk-skin)"/>
+    <!-- brow ridge, heavy over the one eye we can see -->
+    <path d="M46.5 21.5 L56 23.6" stroke="#7a1a0a" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M47.5 20.2 Q52 19.6 55.8 21.4" stroke="#5a0a04" stroke-width=".4" fill="none" opacity=".4"/>
+    <!-- the near eye -->
+    <ellipse cx="53.2" cy="25.5" rx="2.5" ry="2.2" fill="#1a0a00"/>
+    <circle cx="53.6" cy="25.4" r="1.05" fill="#ffa030"/>
+    <circle cx="53.9" cy="25.1" r=".42" fill="#ffcc60"/>
+    <!-- mouth line and the single visible nostril, out at the muzzle -->
+    <path d="M48.5 31.6 Q53 32.9 57.8 31" stroke="#7a1a0a" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    <ellipse cx="57.2" cy="27.5" rx=".85" ry=".6" fill="#6a1a0a" opacity=".55"/>
+    <!-- tusks up from the jaw; the near one sits further forward and reads bigger -->
+    <path d="M50 33.2 L49.4 27.3 L52.4 32.4 Z" fill="url(#zk-tusk)"/>
+    <path d="M55 32.2 L56 26.4 L57.6 30.9 Z" fill="url(#zk-tusk)"/>
+    <path d="M50.1 31.6 L50 28.4" stroke="#d8d0b8" stroke-width=".4" opacity=".5"/>
+    <path d="M55.9 30.4 L56.2 27.6" stroke="#d8d0b8" stroke-width=".4" opacity=".5"/>
+    <!-- his scar, and war paint back along the cheek -->
+    <path d="M46.2 28.4 L51.8 31.6" stroke="url(#zk-scar)" stroke-width="1" opacity=".55"/>
+    <path d="M41.6 24.6 L39.6 28" stroke="#1a0a04" stroke-width="1" opacity=".33"/>
+    <path d="M44 24 L42 27.4" stroke="#1a0a04" stroke-width="1" opacity=".3"/>
+    <!-- light down the back of the skull, as the other orcs carry it -->
+    <path d="M40 19.5 Q42 15.2 46.5 13.9" stroke="#fff" stroke-width="1.2" fill="none" opacity=".4" stroke-linecap="round"/>
   </g>
   <!-- WEAPON: warhammer -->
   <g class="wpn">
+    <!-- Held a touch further out, so the head clears his muzzle now that he is turned
+         into it. Nested rather than set on .wpn itself, because the swing animates that
+         element's transform and would overwrite anything parked there. -->
+    <g transform="translate(4,0)">
     <!-- haft with wood grain -->
     <rect x="61" y="24" width="3.5" height="36" rx="1.5" fill="url(#zk-haft)"/>
     <line x1="62" y1="28" x2="62" y2="56" stroke="#2a1a0a" stroke-width=".3" opacity=".3"/>
@@ -131,5 +154,7 @@
     <!-- spike on top with edge highlight -->
     <path d="M62 18 L63.5 12 L65 18" fill="url(#zk-metal)"/>
     <line x1="63.5" y1="12.5" x2="64.5" y2="17" stroke="#9a9080" stroke-width=".3" opacity=".4"/>
+  </g>
+    </g>
   </g>
 </svg>

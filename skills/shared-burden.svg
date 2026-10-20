@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Burizza skill icon: Shared Burden. 64x64. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+<defs>
+<radialGradient id="bg" cx=".5" cy=".3" r=".85"><stop offset="0" stop-color="#2a2440"/><stop offset="1" stop-color="#0e0c1a"/></radialGradient>
+<filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.4" stdDeviation="1" flood-color="#000" flood-opacity=".55"/></filter>
+<linearGradient id="sb-teal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5fcad1"/><stop offset="1" stop-color="#2a7a8a"/></linearGradient>
+<linearGradient id="sb-mana" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#2f6fd0"/></linearGradient>
+<radialGradient id="sb-orbL" cx=".4" cy=".35" r=".6"><stop offset="0" stop-color="#bfe6ff"/><stop offset=".6" stop-color="#5fcad1"/><stop offset="1" stop-color="#2a7a8a"/></radialGradient>
+<radialGradient id="sb-orbR" cx=".4" cy=".35" r=".6"><stop offset="0" stop-color="#bfe6ff"/><stop offset=".6" stop-color="#5fcad1"/><stop offset="1" stop-color="#2a7a8a"/></radialGradient>
+<radialGradient id="sb-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#5fcad1" stop-opacity=".25"/><stop offset="1" stop-color="#2a7a8a" stop-opacity="0"/></radialGradient>
+</defs>
+<rect x="2" y="2" width="60" height="60" rx="11" fill="url(#bg)"/>
+<rect x="5.5" y="5.5" width="53" height="53" rx="8" fill="none" stroke="#b9c0e0" stroke-width="1" opacity="0.25"/>
+<!-- subtle glow along bridge -->
+<ellipse cx="32" cy="30" rx="20" ry="10" fill="url(#sb-glow)"/>
+<g filter="url(#ds)" stroke="#15121d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+<!-- left figure (simple person silhouette) -->
+<circle cx="16" cy="24" r="4.5" fill="url(#sb-orbL)"/>
+<path d="M16 28.5 L16 40" stroke="url(#sb-teal)" stroke-width="2.4"/>
+<path d="M11 34 L16 31 L21 34" fill="none" stroke="url(#sb-teal)" stroke-width="2"/>
+<path d="M13 46 L16 40 L19 46" fill="none" stroke="url(#sb-teal)" stroke-width="2"/>
+<!-- right figure -->
+<circle cx="48" cy="24" r="4.5" fill="url(#sb-orbR)"/>
+<path d="M48 28.5 L48 40" stroke="url(#sb-teal)" stroke-width="2.4"/>
+<path d="M43 34 L48 31 L53 34" fill="none" stroke="url(#sb-teal)" stroke-width="2"/>
+<path d="M45 46 L48 40 L51 46" fill="none" stroke="url(#sb-teal)" stroke-width="2"/>
+<!-- energy bridge arc between figures -->
+<path d="M21 26 Q32 14 43 26" fill="none" stroke="url(#sb-mana)" stroke-width="2.4"/>
+<path d="M21 28 Q32 18 43 28" fill="none" stroke="url(#sb-mana)" stroke-width="1.6" opacity=".5"/>
+<!-- mana particles along the bridge -->
+<circle cx="26" cy="20" r="1.5" fill="#bfe6ff" stroke="none" opacity=".9"/>
+<circle cx="32" cy="17" r="2" fill="#bfe6ff" stroke="none" opacity="1"/>
+<circle cx="38" cy="20" r="1.5" fill="#bfe6ff" stroke="none" opacity=".9"/>
+<circle cx="29" cy="18" r="1" fill="#5fcad1" stroke="none" opacity=".7"/>
+<circle cx="35" cy="18" r="1" fill="#5fcad1" stroke="none" opacity=".7"/>
+</g>
+<rect x="2" y="2" width="60" height="60" rx="11" fill="none" stroke="#b9c0e0" stroke-width="2" opacity="0.85"/>
+</svg>

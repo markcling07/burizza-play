@@ -195,31 +195,71 @@ body[data-screen="select"] .top { display: none; }
   position: relative; display: block; left: auto; margin: 0;
   width: 100%; height: auto; aspect-ratio: 1; transition: none;
 }
-/* Boxed, not round: a square frame reads as a roster card and gives the wide
-   sprites more usable area than a circle, which clips their shoulders away. */
+/* No frame, no plate: the faces sit straight on the screen. The token's ring
+   and panel fill are what made each one read as a card, and eighty bordered
+   cards fight the art — the same reason the filter pills lost their capsules.
+
+   The rounded clip stays: .face crops the sprite to a head-and-shoulders box
+   (the token art is drawn at 170%), so without overflow: hidden every portrait
+   would spill over its neighbours. The border keeps its 1px and merely goes
+   transparent, so nothing reflows when a pick is selected.
+
+   Only the one you are looking at or have taken wears a ring — see below. */
 #factionList .roster .pick .pic .face {
-  border-radius: 10px; border-width: 1px; border-color: var(--line);
+  border-radius: 10px; border-width: 1px; border-color: transparent;
+  background: none;
 }
+/* THE GOLD RING. The champion you have opened (aria-expanded, so it follows the
+   drop-down), the one picked into a slot, and your own champion each wear it.
+
+   `outline` rather than the border: outline is painted outside the box and
+   takes no space, so a ring can appear and vanish on click without nudging a
+   grid of forty tiles. It follows border-radius, so it tracks the rounded clip.
+   The offset pulls it inward by a pixel so neighbouring rings never touch. */
+#factionList .roster .pick[aria-expanded="true"] .pic .face,
 #factionList .roster .pick.sel .pic .face,
-#factionList .roster .pick.me .pic .face { border-color: var(--accent); }
-/* The drop-down under the roster. */
-.rdetail { display: grid; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: var(--panel); }
-.rdetail .rdhead { display: flex; gap: 10px; align-items: flex-start; }
+#factionList .roster .pick.me .pic .face {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+/* Yours is the one you play: a brighter, thicker ring than a mere selection. */
+#factionList .roster .pick.me .pic .face { outline-width: 3px; }
+/* THE SKILL CARD — a popover, not a drawer.
+
+   It used to be a grid row after the roster, so opening a champion inserted a
+   block of its own height and shoved every champion below it down the page:
+   the thing you had just clicked moved, and on a short landscape screen the
+   rest of the faction left the view entirely.
+
+   Fixed, so it is out of flow (nothing moves when it opens) and outside the
+   reach of #factionList's overflow, which would otherwise clip it at the edge
+   of the scrolling list. positionDetail() anchors it under the champion and
+   flips it above when the bottom of the screen is closer than its own height.
+   Clicking anywhere else, or scrolling the roster, puts it away. */
+.rdetail {
+  position: fixed; z-index: 60; left: 0; top: 0;
+  width: min(330px, calc(100vw - 20px));
+  max-height: min(60vh, 320px); overflow-y: auto; overscroll-behavior: contain;
+  display: grid; gap: 6px; padding: 10px;
+  border-radius: 12px; border: 1px solid var(--accent); background: var(--panel);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .62);
+}
+.rdetail .rdhead { display: flex; gap: 8px; align-items: flex-start; }
 .rdetail .rdhead > div:first-child { flex: 1; min-width: 0; display: grid; gap: 3px; }
-.rdetail .rdhead b { font-family: var(--font-display); font-size: 1.2rem; }
+.rdetail .rdhead b { font-family: var(--font-display); font-size: 1rem; }
 .rdetail .rdhead .roles { display: flex; gap: 4px; }
-.rdetail .rdhead .bio { margin: 0; font-size: .82rem; color: var(--muted); }
-.rdetail .rdhead .btn { flex: none; }
+.rdetail .rdhead .bio { display: none; }
+.rdetail .rdhead .btn { flex: none; padding: 5px 10px; font-size: .8rem; }
 /* The kit as one row of icons; the picked one is ringed and its details sit underneath. */
-.rdetail .skrow { display: flex; flex-wrap: wrap; gap: 6px; }
-.rdetail .skb { position: relative; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 9px; background: none; cursor: pointer; opacity: .7; transition: opacity .15s, box-shadow .15s; }
+.rdetail .skrow { display: flex; flex-wrap: wrap; gap: 5px; }
+.rdetail .skb { position: relative; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px; background: none; cursor: pointer; opacity: .7; transition: opacity .15s, box-shadow .15s; }
 .rdetail .skb .sic { width: 100%; height: 100%; display: block; }
 .rdetail .skb.pas, .rdetail .skb.nat { border-radius: 50%; }
 .rdetail .skb:hover { opacity: 1; }
 .rdetail .skb[aria-pressed="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--accent), 0 0 10px rgba(232, 165, 72, .45); }
 .rdetail .skb.nat[aria-pressed="true"] { box-shadow: 0 0 0 2px #8fd6a0, 0 0 10px rgba(143, 214, 160, .45); }
 .rdetail .skb .star { position: absolute; left: -4px; top: -6px; color: var(--accent); font-size: .8rem; text-shadow: 0 1px 2px #000; }
-.rdetail .skinfo { display: grid; gap: 2px; min-height: 3.6em; font-size: .82rem; line-height: 1.3; color: var(--muted); }
+.rdetail .skinfo { display: grid; gap: 2px; min-height: 2.6em; font-size: .76rem; line-height: 1.3; color: var(--muted); }
 .rdetail .skinfo b { color: var(--fg); }
 .rdetail .skinfo b small { display: block; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .rdetail .skinfo.pas b { color: var(--accent); }
@@ -1221,6 +1261,19 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    values to leave from. */
 .unit .upic { rotate: 0deg; scale: 1; transition: translate .6s ease-in, clip-path .6s ease-in, rotate .5s ease, scale .5s ease; }
 .unit.buried .upic { translate: 0 100%; clip-path: inset(0 0 100% 0); }
+/* AIRBORNE (Skyward Smash) — the same move as Burrow, upward. He hits them off the ground and
+   they are simply not there any more: out of reach, off the bar, and out of the picture until
+   the Revs run out. The arena clips its overflow, so a translate past the top edge is all it
+   takes to put them in the sky; no clip-path is needed the way the burrow needs one.
+
+   The rise overrides the shared .upic transition with a fast ease-out — a body leaving the
+   ground is quickest at the start. Coming down it falls back to that shared `.6s ease-in`,
+   which accelerates, which is exactly what a fall should do. The nameplate stays behind at
+   ground level, so you can still read their health and see where they are going to land. */
+.unit.aloft .upic { translate: 0 -165%; transition: translate .42s cubic-bezier(.12, .78, .32, 1); }
+.unit.aloft .body { animation: none; }   /* nothing idles mid-air */
+.unit.aloft .plate, .unit.aloft .chips { opacity: .55; }
+@media (prefers-reduced-motion: reduce) { .unit.aloft .upic { transition: none; } }
 /* Come Apart: the Gorehound himself is nowhere while his halves run. The card keeps its place in
    the line (visibility, not display) so the warband does not reshuffle and snap back on the merge. */
 .unit.apart .upic { visibility: hidden; }
@@ -1719,6 +1772,30 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @keyframes tvFlow { to { stroke-dashoffset: -17; } }   /* the dashes run from Morwenna toward each ally */
 @keyframes tvBeat { 15% { transform: scale(1.5); } 30% { transform: scale(1); } 45% { transform: scale(1.3); } 60% { transform: scale(1); } }
 @keyframes tvIn { from { opacity: 0; } }
+
+/* ZUL'KAN'S ROPE. Ground Slam binds before it throws: the cord whips round the
+   body, cinches tight, and holds while he swings them overhead — then snaps
+   off on the landing. It borrows Morwenna's tether palette (the deep #7a0f22
+   under-glow, the #c0303f cord, the pale #ff9aa8 running highlight) because
+   both are the same red thread; hers feeds an ally, his ties an enemy up.
+
+   Mounted on the target's .body, so it rides every lift, drop and shake that
+   deadfallLift puts the body through without being animated itself. */
+.ropebind { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: 247; pointer-events: none;
+  animation: rbCinch .24s cubic-bezier(.3, 1.5, .5, 1) both; }
+.ropebind svg { position: absolute; left: -34px; top: -42px; width: 68px; height: 84px; overflow: visible; }
+.ropebind .rb-glow { fill: none; stroke: #7a0f22; stroke-width: 7; stroke-linecap: round; opacity: .5; filter: blur(2px); }
+.ropebind .rb-body { fill: none; stroke: #c0303f; stroke-width: 3; stroke-linecap: round; }
+.ropebind .rb-hi   { fill: none; stroke: #ff9aa8; stroke-width: 1.4; stroke-linecap: round;
+  stroke-dasharray: 4 11; animation: rbFlow .7s linear infinite; }
+/* The coils arrive loose and oversized and pull in — a rope thrown, then hauled. */
+@keyframes rbCinch { from { opacity: 0; transform: scale(1.55) rotate(-9deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+@keyframes rbFlow { to { stroke-dashoffset: -15; } }
+/* Let go on impact: the cord springs open rather than fading politely out. */
+.ropebind.snap { animation: rbSnap .22s ease-in both; }
+@keyframes rbSnap { to { opacity: 0; transform: scale(1.3) rotate(7deg); } }
+@media (prefers-reduced-motion: reduce) { .ropebind, .ropebind * { animation: none; } }
+
 .burst-splash { width: 115%; background: radial-gradient(circle at 35% 35%, #fff 0 4%, transparent 5%), radial-gradient(circle at 66% 42%, #dff7ff 0 3%, transparent 4%), radial-gradient(circle, rgba(170, 235, 250, .85) 0 22%, rgba(63, 182, 216, .55) 44%, transparent 66%); animation-duration: .6s; }
 /* Rimefall's shards breaking on a body: a hard white shatter with splinters thrown off it, colder
    and sharper than the Tideborn's splash — no wet bloom, just frost and glass. */
@@ -4492,6 +4569,9 @@ const FX = {
   // one ally standing in its lee. See THE BUNKER.
   bunker:   { icon: '🛡️', label: 'Bunkered',  kind: 'good', verb: 'is anchored into the ground: shots glance off it and melee barely marks it, but it cannot move or strike' },
   sheltered:{ icon: '🧱', label: 'In cover',  kind: 'good', verb: 'is behind the bunker: nothing can reach them, and their turn is spent either holding or stepping out' },
+  /* Zul'kan's Skyward Smash. Burrowed upside down: the same "not on the field" state, counted in
+     Revs rather than the round clock, and ended by falling back onto it instead of climbing out. */
+  airborne: { icon: '🌤️', label: 'Airborne',  kind: 'bad',  verb: 'is hammered off the ground: nothing can reach them until they come down' },
   // Barrow's Graveyard Fence: an iron fence stands before the protected ally. No melee blow can
   // reach them, and a HORIZONTAL shot glances off the iron; only area attacks and ARCH shots (anything
   // lobbed from above) still find them (see attackType / fenceStops). The wall holds both ways — a
@@ -5141,8 +5221,8 @@ const ROSTER = [
     mods: { hp: 1.2, def: 1.2, atk: 0.95, agi: 0.85 },
     look: { body: 'orc', main: '#8a2a1a', trim: '#c47a3a', skin: '#a04030', weapon: 'hammer' },
     nature: { name: 'Red Blood', desc: `Below ${Math.round(ZULKAN_RED_HP * 100)}% HP his bash lasts a turn longer and he hits ${Math.round(ZULKAN_RED_BONUS * 100)}% harder — the redder the blood, the harder the fist.`, redblood: 1 },
-    skills: [D('Ground Slam', 'Deals 140% ATK damage. Bashes target. Splash: bashes all other enemies for 1 turn. Costs 25 MP.', 4, 1.4, { fx: [['bash', 1]], splashBash: 1, mp: 25 }),
-             D('Skyward Smash', `160% uppercut that launches the target out of the fight for ${ZULKAN_AIRBORNE} turns. Untargetable during the first.`, 4, 1.6, { fx: [['bash', ZULKAN_AIRBORNE]], mp: 25 }),
+    skills: [D('Ground Slam', 'Deals 140% ATK damage. Bashes target. Splash: bashes all other enemies for 1 turn. Costs 25 MP.', 4, 1.4, { fx: [['bash', 1]], splashBash: 1, mp: 25, deadfall: true, rope: true }),
+             D('Skyward Smash', `160% uppercut that launches the target out of the fight for ${ZULKAN_AIRBORNE} Revs: nothing can reach them until they land.`, 4, 1.6, { fx: [['bash', ZULKAN_AIRBORNE], ['airborne', ZULKAN_AIRBORNE]], mp: 25 }),
              B('War Cry', 'Taunts all enemies for 1 turn. Forced swings trigger Retaliatory Bash.', 4, 'self', [['taunt', 2]], { mp: 20 }),
              D('Seismic Toss', 'Deals 120% ATK damage. Requires: target is Bashed. Bounces to another enemy for 100% ATK. Both are Bashed for 1 turn. Costs 20 MP.', 3, 1.2, { requireFx: 'bash', bounce: 1.0, fx: [['bash', 1]], mp: 20 }),
              B('Iron Stance', `Braces: takes 50% less damage for 2 turns and Retaliatory Bash becomes a certainty.`, 4, 'self', [['ward', 2]], { ironStance: true, mp: 20 }),
@@ -8140,7 +8220,8 @@ const apart = (u) => !!u.apart;
 // Behind Bulwark's bunker (see THE BUNKER): out of reach the way the coffin and
 // the grave mound are. The machine in front of them is what can still be hit.
 const sheltered = (u) => !!has(u, 'sheltered');
-const outOfReach = (u) => inBox(u) || buried(u) || veiled(u) || cloaked(u) || apart(u) || sheltered(u) || !!u.shadowMatrix;
+const aloft = (u) => !!has(u, 'airborne');   // Skyward Smash: hit off the ground and still coming down
+const outOfReach = (u) => inBox(u) || buried(u) || aloft(u) || veiled(u) || cloaked(u) || apart(u) || sheltered(u) || !!u.shadowMatrix;
 const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
@@ -9638,7 +9719,7 @@ async function damageSkill(u, t, sk) {
   } else for (const tg of targets) {
     for (let i = 0; i < hits; i++) {
       if (tg.hp <= 0 || u.hp <= 0) break;
-      if (o.deadfall && melee) await deadfallLift(u, tg);
+      if (o.deadfall && melee) await deadfallLift(u, tg, o);
       // Hydraulic Slam has already slammed — once, above, before any of these
       // blows. Nothing per-target: he hit the GROUND, not this champion, and
       // there is no swing of his to play at each of them.
@@ -10080,7 +10161,7 @@ const TIMED_FX = { stun: 100, overheat: 100, stagger: 150, burrowed: 100 };   //
 // last; FEAR only shoves it back (FEAR_BACK of the 1000-long track, about two turns of ground).
 // FLEE (Grave Cross) is the slow fear: no shove, but each Rev the unit runs a step back, reaching
 // the start line on the last one, and it is held off the bar until then (revHeld).
-const REV_FX = { bash: true, fear: true, coffin: true, flee: true, unblessed: true, shock: true };   // shock runs on the field clock, as Resh counts it
+const REV_FX = { bash: true, fear: true, coffin: true, flee: true, unblessed: true, shock: true, airborne: true };   // shock runs on the field clock, as Resh counts it; airborne hangs there for its Revs
 const FEAR_BACK = 500, FEAR_REVS = 2, COFFIN_REVS = 2;
 // Turncoat Verse: the same half of the bar FEAR takes, because it is the same idea — ground lost, not
 // a turn stolen. The charmed champion still acts when it comes round; it just comes round later.
@@ -10766,7 +10847,7 @@ const pinned = (u) => !!has(u, 'rites');   // Last Rites: held in place until Mo
 // BASH and the coffin hold a unit off the speed bar outright — counted in Revs (see turnPulse),
 // so a held unit never reaches the Act gate until its Revs run out. FEAR is NOT here: it only
 // shoves the unit back along the bar, so it still takes its turns, just later.
-const revHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin') || has(u, 'flee'));
+const revHeld = (u) => !!(has(u, 'bash') || has(u, 'coffin') || has(u, 'flee') || has(u, 'airborne'));
 // Rooted (Tharos's Anchor) is NOT here on purpose: a rooted unit keeps reaching the Act gate and
 // taking its turns — it just can't cross the field once it acts (see requiresMove / usable).
 const frozen = (u) => hardFrozen(u) || staggerStopped(u) || pinned(u) || revHeld(u) || buried(u);   // Burrow: held for its round
@@ -12038,6 +12119,13 @@ function emergeRev(u, e) {
   } else if (e.id === 'fear' || e.id === 'flee') {
     float(u, 'Steadies', 'fx');
     log(`${u.name} masters its fear.`, u.side);
+  } else if (e.id === 'airborne') {
+    /* They come down. render() has already dropped .aloft by the time this runs, so the shared
+       .upic transition is carrying them back to the floor on its ease-in — the fall accelerates
+       on its own. Give it that long, then shake the ground under them. */
+    float(u, 'Lands', 'fx');
+    log(`${u.name} comes down hard.`, 'sys');
+    setTimeout(() => { if (u.hp > 0) { tremorFx(420); burst(u, 'smoke'); } }, beat(560));
   } else if (e.id === 'coffin') {
     if (e.cleanse) cleanse(u);                                     // Lv5+: ill things stay in the box
     if (e.shield) { burst(u, 'shield'); addFx(u, 'shield', 2); }   // Lv10+: steps out shielded
@@ -16354,6 +16442,27 @@ function buildSelect() {
     const b = ev.target.closest('.pick');
     if (b) { state.openPick = state.openPick === b.dataset.id ? null : b.dataset.id; state.pickSkill = null; renderSelect(); }
   });
+
+  /* Put the skill card away. Anything that is not the card itself and not a
+     champion closes it — a champion is excluded because the handler above has
+     already decided what that click means (open another, or toggle this one
+     shut), and closing here too would fight it.
+
+     Scrolling the roster closes it as well: the card is fixed to the viewport,
+     so it cannot follow the face it belongs to, and a card pointing at the
+     wrong champion is worse than no card. */
+  const closeDetail = () => {
+    if (!state.openPick) return;
+    state.openPick = null; state.pickSkill = null;
+    renderSelect();
+  };
+  document.addEventListener('pointerdown', (ev) => {
+    if (!state.openPick) return;
+    if (ev.target.closest('.rdetail') || ev.target.closest('.pick')) return;
+    closeDetail();
+  });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeDetail(); });
+  $('#factionList').addEventListener('scroll', closeDetail, { passive: true });
   $('#slots').addEventListener('click', (ev) => {
     const b = ev.target.closest('.slot.filled');
     if (b) togglePick(b.dataset.id);
@@ -16410,8 +16519,7 @@ function pickDetailHTML(c) {
     : 'Recruit';
   const locked = i === 0 && !creating;
   return `<div class="rdhead">
-      <div><b>${c.name}</b><span class="roles"><span class="role ${c.role}">${ROLES[c.role].label}</span>${isTank(c) ? '<span class="role melee" title="Has a taunt in their kit">Tank</span>' : ''}</span>
-        <p class="bio">${c.bio}</p></div>
+      <div><b>${c.name}</b><span class="roles"><span class="role ${c.role}">${ROLES[c.role].label}</span>${isTank(c) ? '<span class="role melee" title="Has a taunt in their kit">Tank</span>' : ''}</span></div>
       <button class="btn small${i < 0 ? ' primary' : ''}" type="button" data-pickact="${c.id}"${locked ? ' disabled' : ''}>${label}</button></div>
     ${pickSkillsHTML(c)}`;
 }
@@ -16454,6 +16562,38 @@ function togglePick(id) {
   renderSelect();
 }
 
+/* Anchor the skill card to the champion it describes. The card is fixed, so
+   these are viewport coordinates: sit under the face, left edges aligned, and
+   flip above when the card is taller than the room left below it. Both axes
+   are clamped to the screen so a champion at the far right or on the bottom
+   row still gets a card that is entirely visible.
+
+   Measured after the content is in, never guessed — the card's height depends
+   on the champion's bio and how many skills they carry. */
+function positionDetail(card, tile) {
+  const GAP = 6, EDGE = 8, FLOOR = 120;
+  const t = tile.getBoundingClientRect();
+  card.style.maxHeight = '';                       // measure it at full height first
+  const w = card.offsetWidth, natural = card.offsetHeight;
+
+  /* Prefer under the champion; go above only when that side is genuinely
+     roomier. Then cap the height to whatever that side has, so the card
+     scrolls its own content instead of growing past the screen and being
+     shoved back over the face it belongs to — which is what a plain
+     "flip when it does not fit" rule does on a 390px-tall phone, where
+     neither side fits a full card. */
+  const below = innerHeight - t.bottom - GAP - EDGE;
+  const above = t.top - GAP - EDGE;
+  const goBelow = natural <= below || below >= above;
+  const h = Math.max(FLOOR, Math.min(natural, goBelow ? below : above));
+  card.style.maxHeight = `${Math.round(h)}px`;
+
+  const left = Math.max(EDGE, Math.min(t.left, innerWidth - w - EDGE));
+  const top = goBelow ? t.bottom + GAP : Math.max(EDGE, t.top - GAP - h);
+  card.style.left = `${Math.round(left)}px`;
+  card.style.top = `${Math.round(top)}px`;
+}
+
 function renderSelect() {
   const creating = !profile.hero, t = state.team;
   $('#tagline').textContent = creating
@@ -16473,11 +16613,12 @@ function renderSelect() {
   document.querySelectorAll('.faction').forEach((s) => {
     const empty = ![...s.querySelectorAll('.pick')].some((b) => !b.hidden);
     s.hidden = (state.filter !== 'all' && s.dataset.faction !== state.filter) || empty;
-    // The open champion's skills drop down under this faction's roster.
+    // The open champion's skills float over the roster, anchored to their face.
     const open = state.openPick && s.querySelector(`.pick[data-id="${state.openPick}"]:not([hidden])`);
     const d = s.querySelector('.rdetail');
     d.hidden = !open;
     d.innerHTML = open ? pickDetailHTML(charById(state.openPick)) : '';
+    if (open) positionDetail(d, open);
     s.querySelectorAll('.pick').forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.id === state.openPick && !!open)));
   });
   document.querySelectorAll('.pick').forEach((b) => {
@@ -21705,23 +21846,96 @@ async function leapPose(u) {
 
 /* Thurgan's Deadfall: he lifts the target on a well of gravity (the target bobs up, hangs, then
    crashes down) while Thurgan himself drives his fist into the floor. The hit resolves on impact. */
-async function deadfallLift(u, t) {
+/* Three coils round the chest and a tail whipping off the top one. Drawn as
+   flat ellipses rather than a wrapped helix: at 68x84 on a body that is about
+   to be swung through the air, a true helix reads as scribble, while three bands
+   read as a rope at a glance — which is all the half second it is on screen
+   allows. Each coil is stroked three times (glow, cord, running highlight). */
+const ROPE_COILS = [
+  { cx: 34, cy: 30, rx: 21, ry: 5.5 },
+  { cx: 34, cy: 41, rx: 23, ry: 6 },
+  { cx: 34, cy: 52, rx: 20, ry: 5.5 },
+];
+const ROPE_SVG = `<svg viewBox="0 0 68 84" aria-hidden="true">${
+  ['rb-glow', 'rb-body', 'rb-hi'].map((cls) =>
+    ROPE_COILS.map((c) => `<ellipse class="${cls}" cx="${c.cx}" cy="${c.cy}" rx="${c.rx}" ry="${c.ry}"/>`).join('') +
+    `<path class="${cls}" d="M13 28 Q4 20 7 10"/>`).join('')
+}</svg>`;
+
+/* Bind the target. Returns the cord so the caller can snap it off on impact;
+   null when the body is gone, which the caller treats as "no rope to cut". */
+function ropeBind(t) {
+  const b = bodyEl(t);
+  if (!b) return null;
+  const el = document.createElement('div');
+  el.className = 'ropebind';
+  el.innerHTML = ROPE_SVG;
+  b.appendChild(el);
+  return el;
+}
+function ropeSnap(el) {
+  if (!el) return;
+  el.classList.add('snap');
+  setTimeout(() => el.remove(), 260);
+}
+
+/* How far to throw a body so the arena's top edge swallows it and only the
+   boots are left hanging in view. Measured, not a constant: the arena is a
+   different height on a phone held sideways than on a desktop, and the body
+   scales with --size, so any fixed pixel figure is right on exactly one
+   screen. #arena clips its overflow, which is what does the cutting.
+
+   SHOW is the slice left below the edge. The floor keeps the throw readable
+   if the measurement ever comes back nonsense (a hidden arena measures zero),
+   and the ceiling stops a very tall arena turning the lift into a long wait
+   for a body to come back down. */
+function liftClearance(t) {
+  const b = bodyEl(t), arena = $('#arena');
+  const SHOW = 0.22, MIN = 70, MAX = 420;
+  if (!b || !arena) return 150;
+  const bb = b.getBoundingClientRect(), ab = arena.getBoundingClientRect();
+  if (!bb.height || !ab.height) return 150;
+  return Math.round(Math.min(MAX, Math.max(MIN, bb.bottom - ab.top - bb.height * SHOW)));
+}
+
+/* The lift-and-drop. With `rope`, Zul'kan's Ground Slam shape: he is already
+   in front of the target (every melee skill dashes there before this runs),
+   the cord cinches on, the body goes up on it, and he hauls it back down.
+   The rope lets go on the landing, not before — a cord that vanishes at the
+   top of the arc makes the drop look like the target simply fell. */
+async function deadfallLift(u, t, o = {}) {
   const d = facing(u);
+  let rope = null;
+  if (o.rope) {
+    rope = ropeBind(t);
+    await sleep(beat(220));           // let it cinch before anything moves
+  }
+  /* One clock for the throw, so the two bodies and the impact cannot drift
+     apart. The shape is up / HANG / down: the hang is the point — a body
+     yanked off its feet and held there reads as someone else's doing, where
+     a straight up-and-down reads as a stumble. The drop is the shortest leg
+     of the three and runs on an ease-in, so it arrives hard after the wait. */
+  const MS = 1250, UP = 0.18, APEX = 0.28, FALL = 0.62, LAND = 0.78;
   pose(u, [{ transform: 'none' },
-    { transform: `translateY(-8px) scaleY(1.06) rotate(${-d * 5}deg)`, offset: 0.3 },
-    { transform: `translateY(-10px) scaleY(1.08) rotate(${-d * 7}deg)`, offset: 0.5 },
-    { transform: `translateY(6px) scaleY(.88) rotate(${d * 8}deg)`, offset: 0.72, easing: 'cubic-bezier(.6,0,1,.4)' },
-    { transform: 'none' }], 820);
+    { transform: `translateY(-8px) scaleY(1.06) rotate(${-d * 5}deg)`, offset: UP },
+    { transform: `translateY(-10px) scaleY(1.08) rotate(${-d * 7}deg)`, offset: APEX },
+    { transform: `translateY(-9px) scaleY(1.07) rotate(${-d * 6}deg)`, offset: FALL },   // holding them up
+    { transform: `translateY(6px) scaleY(.88) rotate(${d * 12}deg)`, offset: LAND, easing: 'cubic-bezier(.6,0,1,.4)' },
+    { transform: `translateY(3px) scaleY(.94) rotate(${d * 7}deg)`, offset: 0.88 },
+    { transform: 'none' }], MS);
   burst(t, 'gravity');
+  const rise = liftClearance(t);
   if (!pose(t, [{ transform: 'none' },
-    { transform: 'translateY(-60px) scale(.92)', offset: 0.28, easing: 'ease-out' },
-    { transform: 'translateY(-66px) scale(.9)', offset: 0.48 },
-    { transform: 'translateY(8px) scale(1.08)', offset: 0.72, easing: 'cubic-bezier(.7,0,1,.4)' },
-    { transform: 'translateY(4px) scale(1.04)', offset: 0.84 },
-    { transform: 'none' }], 820)) return;
-  await sleep(beat(580));
+    { transform: `translateY(${-rise}px) scale(.92)`, offset: UP, easing: 'ease-out' },
+    { transform: `translateY(${-rise - 8}px) scale(.9)`, offset: APEX },
+    { transform: `translateY(${-rise - 4}px) scale(.9)`, offset: FALL, easing: 'cubic-bezier(.5,0,1,.45)' },  // hangs, then drops
+    { transform: 'translateY(8px) scale(1.08)', offset: LAND },
+    { transform: 'translateY(4px) scale(1.04)', offset: 0.88 },
+    { transform: 'none' }], MS)) { ropeSnap(rope); return; }
+  await sleep(beat(MS * LAND));
   tremorFx(500);
   burst(t, 'smoke');
+  ropeSnap(rope);                     // it lets go as they land
   await sleep(beat(140));
 }
 
@@ -22523,6 +22737,7 @@ function renderBattle() {
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
     el.classList.toggle('buried', buried(u));
+    el.classList.toggle('aloft', aloft(u));   // Skyward Smash: up there, and not to be reached
     el.classList.toggle('apart', apart(u));   // Come Apart: he is not on the field to be seen or struck
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
     el.classList.toggle('grudge', !!u.grudge);   // Grudge Axe: on 0 HP, outlined in red, one throw left

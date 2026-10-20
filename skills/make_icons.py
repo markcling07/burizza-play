@@ -2189,6 +2189,10 @@ CATALOG = {
         ('Sighted Throw', 'Riven', 'skill'), ('Emptied Hands', 'Riven', 'sig'),
         ('Fan of Blades', 'Riven', 'skill'), ('Recall Swords', 'Riven', 'skill'),
         ('Barrier', 'Riven', 'skill'),
+        ('Red Blood', "Zul'kan · Nature", 'passive'), ('Retaliatory Bash', "Zul'kan", 'passive'),
+        ('Ground Slam', "Zul'kan", 'skill'), ('Skyward Smash', "Zul'kan", 'sig'),
+        ('War Cry', "Zul'kan", 'skill'), ('Seismic Toss', "Zul'kan", 'skill'),
+        ('Iron Stance', "Zul'kan", 'skill'), ('Tremor', "Zul'kan", 'skill'),
     ]),
     'cog': ('The Cogbound', [
         ('Foundry-Cast', 'Orin', 'passive'),
@@ -3670,6 +3674,109 @@ def _():
             + '<circle cx="36" cy="34" r="6.5" fill="none" stroke="#6ef0a8" stroke-width="1.2" opacity=".7"/>'
             + rv_at(36, 34, 40, .8, 0)
             + burst(36, 34, 2.4, 8, 8, '#f2fff8'))
+
+
+# ── Zul'kan ──────────────────────────────────────────────────────────────────
+# The red orc holds the field by knocking people off their feet, so the kit is
+# a hammer, the floor, and what the floor does back. One red runs through all
+# six so they read as one hand, and the ripple-and-crack pair recurs wherever
+# the ground takes the blow (Ground Slam, Seismic Toss, Tremor) — the same
+# visual grammar Mogra's Ground Pound already uses for a shockwave.
+ZK_RED = '#d9433a'
+
+
+def zk_floor(y, cracks='M25 0 L21 8 M33 0 L34 8 M41 0 L45 8'):
+    """The ground, and the splits he keeps putting in it."""
+    return (f'<rect x="6" y="{y}" width="52" height="7" rx="2" fill="#5a4636"/>'
+            + g(poly(cracks, '#3a2c22', 1.3), 0, y + 6))
+
+
+def zk_head():
+    """A tusked orc head, mouth open. Drawn here rather than borrowing skull():
+       a skull reads undead, and this one is very much shouting."""
+    return ('<path d="M-10 -8 Q-12 6 -4 12 Q4 15 10 8 Q13 -4 8 -10 Q0 -14 -10 -8 Z" fill="#6e8a44"/>'
+            '<path d="M-5 1 Q0 10 7 2 Q1 -1 -5 1 Z" fill="#3a1410"/>'
+            '<path d="M-3.5 2.5 L-4.5 8 M5 2 L6 7.5" stroke="#f2e8d0" stroke-width="2.2"/>'
+            f'<circle cx="-4" cy="-4" r="1.8" fill="{ZK_RED}" stroke="none"/>'
+            f'<circle cx="5" cy="-5" r="1.8" fill="{ZK_RED}" stroke="none"/>')
+
+
+@icon('Ground Slam')
+def _():
+    # The hammer already through the floor, the shock going out both ways.
+    return (arc_lines(32, 47, 15, 2, 58, ZK_RED, 180, 2.2, 6)
+            + arc_lines(32, 47, 15, 2, 58, ZK_RED, 0, 2.2, 6)
+            + zk_floor(47)
+            + burst(32, 45, 4, 10, 9, '#ffd166')
+            + g(hammer(), 32, 25, 180, .95)
+            + twinkle(14, 23, .7) + twinkle(50, 23, .7))
+
+
+@icon('Skyward Smash')
+def _():
+    # The signature: the uppercut, and whoever took it leaving the frame.
+    return (speed_lines(32, 46, 3, 13, 7, ZK_RED, -90, .7)
+            + g(hammer(), 26, 42, 28, .92)
+            + glow(burst(40, 17, 3, 10, 8, '#ffd166'), .65)
+            + burst(40, 17, 3, 9, 8, '#ffd166')
+            + stun_stars(40, 11, 18))
+
+
+@icon('War Cry')
+def _():
+    # The taunt: he shouts, and the sound is what reaches them.
+    return (arc_lines(28, 32, 14, 3, 72, ZK_RED, 0, 2.4, 6)
+            + g(zk_head(), 22, 32, 0, 1.15)
+            + twinkle(50, 18, .65) + twinkle(52, 45, .55))
+
+
+@icon('Seismic Toss')
+def _():
+    # Picked up, thrown across the field, landed on.
+    return (poly('M11 46 Q24 6 46 32', ZK_RED, 2.0)
+            + g(rock('url(#hide)'), 26, 19, -20, .72)
+            + zk_floor(48, 'M20 0 L16 8 M28 0 L29 8')
+            + burst(46, 40, 3, 9, 8, '#ffd166')
+            + twinkle(13, 22, .65))
+
+
+@icon('Iron Stance')
+def _():
+    # Braced: the shield planted, the blows coming in off both edges.
+    return (glow(g(heater('url(#iron)', ZK_RED), 32, 29, 0, 1.0), .45)
+            + g(heater('url(#iron)', ZK_RED), 32, 29, 0, 1.0)
+            + zk_floor(51, 'M28 0 L26 7 M38 0 L40 7')
+            + speed_lines(11, 28, 2, 9, 9, ZK_RED, 0, .55)
+            + speed_lines(53, 28, 2, 9, 9, ZK_RED, 180, .55))
+
+
+@icon('Tremor')
+def _():
+    # No hammer in this one: the floor itself is the attack, and it reaches all of them.
+    return (arc_lines(32, 44, 12, 3, 66, ZK_RED, 180, 2.2, 6)
+            + arc_lines(32, 44, 12, 3, 66, ZK_RED, 0, 2.2, 6)
+            + zk_floor(44, 'M22 0 L18 9 M32 0 L33 9 M43 0 L47 9')
+            + g(rock('url(#hide)'), 15, 37, -18, .5)
+            + g(rock('url(#hide)'), 49, 35, 22, .45)
+            + twinkle(32, 20, .7))
+
+
+@icon('Retaliatory Bash')
+def _():
+    # The passive: you hit the shield, the shield hits back and you lose your feet.
+    return (g(heater('url(#iron)', ZK_RED), 27, 35, 0, .95)
+            + poly('M53 13 L43 24', '#c9ccd8', 2.0)
+            + burst(42, 25, 3, 9, 9, '#ffd166')
+            + stun_stars(43, 14, 16))
+
+
+@icon('Red Blood')
+def _():
+    # His nature: the lower he goes, the harder he swings. A drop, and the climb out of it.
+    return (glow(g(drop('url(#blood)'), 32, 34, 0, 1.7), .55)
+            + g(drop('url(#blood)'), 32, 34, 0, 1.6)
+            + poly('M32 47 L32 21 M25 28 L32 20 L39 28', '#ffd166', 2.0)
+            + twinkle(18, 22, .65) + twinkle(47, 44, .55))
 
 
 def frame(faction, kind, glyph, name):
