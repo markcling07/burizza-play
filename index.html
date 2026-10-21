@@ -1112,12 +1112,30 @@ body.picking .unit:not(.targetable) > :is(.chips, .plate, .body) { pointer-event
 /* The chip row never wraps. Wrapping grows the block upward from the champion's feet, and a second or
    third row of statuses reaches up over whoever stands behind them (the render caps the count, see
    CHIP_MAX, so a single row is always enough to hold them). */
+/* The row stands OUT IN FRONT of the fighter rather than on top of them: anchored to the edge of the
+   box on the side they are looking (.lookW flips it), so the column grows away from the body and the
+   art is never covered. Both sides look inward across the field, so the chips lean toward the middle
+   and never hang off the arena. The mirror on .lookW is the sprite's alone — these are words, so they
+   are moved side to side by hand instead, and stay the right way round. */
 .unit .chips {
-  position: absolute; z-index: 8; right: -4px; top: 50%; transform: translateY(-50%);
-  flex-direction: column; align-items: flex-end; gap: 3px; min-height: 0;
+  position: absolute; z-index: 8; left: 100%; top: 50%; transform: translateY(-50%);
+  margin-left: 4px;
+  flex-direction: column; align-items: flex-start; gap: 3px; min-height: 0;
   display: none;
 }
-.unit.acting .chips, .unit.viewing .chips { display: flex; }
+.unit.lookW .chips {
+  left: auto; right: 100%; margin-left: 0; margin-right: 4px; align-items: flex-end;
+}
+/* Statuses are answered on demand, not worn: the row stays shut until the fighter is tapped (onUnit
+   sets state.chipsOn), so eight fighters mid-fight are eight clean silhouettes. The tapped fighter
+   also comes forward: units carry no z-index of their own and stack in DOM order, so without this the
+   row opens UNDER whoever is drawn after them and the far end of every chip is eaten by the next
+   champion's name plate. Only ever one is open at a time, so nothing is hidden to pay for it.
+   It has to be !important: a unit's z-index is written inline from its --y so the field sorts
+   back-to-front by depth (those numbers are field rows, 0-100), and a plain rule cannot reach past an
+   inline style. 150 clears every depth without touching the 200 a knocked-loose summon flies at. */
+.unit.chipsOn { z-index: 150 !important; }
+.unit.chipsOn .chips { display: flex; }
 .unit .chip {
   font-size: .48rem; line-height: 13px; padding: 1px 6px;
   background: rgba(10, 10, 20, .75); border-radius: 3px;
@@ -1673,8 +1691,8 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 }
 @keyframes burnSmoke {
   0%   { opacity: 0; transform: translateY(0) scale(.4); }
-  28%  { opacity: .42; }
-  100% { opacity: 0; transform: translateY(-24px) scale(1.7); }
+  26%  { opacity: .6; }
+  100% { opacity: 0; transform: translateY(-28px) scale(1.9); }
 }
 /* Soaked and burning at once: the fire is losing. It guts down to embers rather than vanishing,
    which keeps the two statuses legible on the same body. */
@@ -2645,24 +2663,26 @@ svg.art .spentblade { opacity: 0; }
   .wxPill { top: 34px; }
   /* The arena gives up its 16/8 and simply fills what is left — on this screen
      the height is the budget and the aspect ratio has to follow it. */
-  /* container-type: size, not inline-size, so the units below can measure the
-     HEIGHT as well. Safe here and only here: this arena is given an explicit
-     height by the grid, where the desktop one derives its height from its own
-     aspect-ratio and must keep measuring only the width. */
+  /* inline-size, NOT `container-type: size`. Full size-containment here (so the
+     units below could read the field HEIGHT with cqh) crashed iOS Safari's web
+     process the instant the phone turned to landscape — the blank "Can't open
+     this page". The height cap is preserved by measuring the viewport (dvh)
+     instead: this arena fills nearly all of a <=540px-tall landscape viewport,
+     so a dvh share tracks the field height closely, and iOS never has to resolve
+     size-containment at all. */
   .arena { grid-area: arena; aspect-ratio: auto; min-height: 0; height: 100%; border-radius: 10px;
-    container-type: size; }
+    container-type: inline-size; }
   /* A champion is sized as a share of the field's WIDTH (13cqw), which is right
      while the field is a tall-ish box. With the log hidden the field is 828px
      wide and still only 263 tall, and that share drew champions 161px tall into
-     a 263px box — the back rank's nameplates were cut off by the top edge.
-     Capping against the height too costs nothing in the narrow layout (the
-     width term is still the smaller one there) and keeps the wide one honest.
-     The cqh figures are each the cqw figure scaled by the ratio that leaves the
-     narrow layout exactly as it was. */
-  .unit         { --size: clamp(46px, min(13cqw,   21cqh), 150px); }
-  .unit.boss    { --size: clamp(84px, min(21cqw,   34cqh), 230px); }
-  .unit.elite   { --size: clamp(68px, min(17cqw,   28cqh), 190px); }
-  .unit.summon  { --size: clamp(44px, min(9.5cqw, 15cqh), 110px); }
+     a 263px box — the back rank's nameplates were cut off by the top edge. The
+     dvh terms cap the height so that cannot happen; they are tuned a touch
+     tighter than the old cqh figures, so a dynamic URL bar can only ever leave a
+     champion SHORTER than its box, never clipped past the top edge. */
+  .unit         { --size: clamp(46px, min(13cqw,   13dvh), 150px); }
+  .unit.boss    { --size: clamp(84px, min(21cqw,   21dvh), 230px); }
+  .unit.elite   { --size: clamp(68px, min(17cqw,   17dvh), 190px); }
+  .unit.summon  { --size: clamp(44px, min(9.5cqw, 9dvh),  110px); }
   /* THE FLOOR COMES UP TO MEET THE BAR. A champion is placed at a PERCENTAGE
      of the field's height (`top: calc(var(--y) * 1%)`, feet on that line), so
      making them smaller does not lift them — it just leaves their feet in the
@@ -5695,7 +5715,7 @@ const SUMMONS = {
   tot_mana: {
     name: 'Mana Cairn', role: 'melee', life: null, totem: true,
     desc: 'A humming cairn. Every turn it stands, enemy spells cost another 10%. Takes 6 blows of any size.',
-    look: { body: 'marker', main: '#2a2440', trim: '#5fcad1' },
+    look: { body: 'totemOwl', main: '#2b2119', trim: '#5fcad1' },
     stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 9, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); },
     leave: (u) => `${u.name} goes quiet.`,
@@ -5704,7 +5724,7 @@ const SUMMONS = {
   tot_haste: {
     name: 'Quickening Stone', role: 'melee', life: null, totem: true,
     desc: 'Every turn it stands, the whole warband is carried forward along the speed bar. Takes 6 blows of any size.',
-    look: { body: 'marker', main: '#243a44', trim: '#7fe3d0' },
+    look: { body: 'totemTiki', main: '#2b2119', trim: '#6fe0a0' },
     stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 13, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); },
     leave: (u) => `${u.name} falls still.`,
@@ -5713,7 +5733,7 @@ const SUMMONS = {
   tot_ward: {
     name: 'Unweaving Stone', role: 'melee', life: null, totem: true,
     desc: 'Every turn it stands, enemy magic wards thin by another 6%. Takes 6 blows of any size.',
-    look: { body: 'marker', main: '#2e2440', trim: '#b98ae6' },
+    look: { body: 'totemWeave', main: '#2b2119', trim: '#b98ae6' },
     stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 9, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); },
     leave: (u) => `${u.name} unravels.`,
@@ -5722,7 +5742,7 @@ const SUMMONS = {
   tot_shock: {
     name: 'Storm Cairn', role: 'melee', life: null, totem: true,
     desc: 'Every third Rev it looses a shock at the soundest enemy for 2% of their health. Takes 6 blows of any size.',
-    look: { body: 'marker', main: '#1f2b40', trim: '#8fd2ff' },
+    look: { body: 'totemStorm', main: '#2b2119', trim: '#8fd2ff' },
     stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 11, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); },
     leave: (u) => `${u.name} earths itself.`,
@@ -5731,7 +5751,7 @@ const SUMMONS = {
   tot_taunt: {
     name: 'Bulwark Stone', role: 'melee', life: null, totem: true, reflect: true,
     desc: 'Draws every enemy blow and throws it back, split evenly among them. Brittle: two blows and it breaks.',
-    look: { body: 'marker', main: '#3a2f24', trim: '#e8b65a' },
+    look: { body: 'totemBulwark', main: '#2b2119', trim: '#e8b65a' },
     stats: () => ({ maxHp: TOTEM_TAUNT_BLOWS, atk: 0, def: 0, agi: 7, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); addFx(s, 'taunt', 99, 0, true); },
     leave: (u) => `${u.name} cracks and falls.`,
@@ -5764,6 +5784,25 @@ const SUMMONS = {
    Everything faces right; enemies get flipped by CSS.
    ================================================================== */
 const STEEL = '#c9d1de', WOOD = '#7a5434', INK = '#1d2130', DARK = '#2a2f3f';
+
+/* ---- FIN-KEEPER SHAZRAK'S TOTEMS ----------------------------------------
+   Five carved standing-stones in one silhouette language: warm carved wood on a
+   shattered-rock plinth, gold inlay, glowing eyes, and a soft aura that is the
+   totem's own accent (look.trim). Drawn bold so the shape survives the shrink to
+   battle size. main = deep carving shadow; trim = aura + eye-light. The sculpts
+   differ (owl, horned tiki, storm-head...), the wood and stone are shared. */
+const TWOOD = '#8a5e38', TWOOD_HI = '#b07d49', TWOOD_LO = '#5c3d23', TGOLD = '#e3b45f', TSHELL = '#efe6d2';
+const TSTONE = '#7f7886', TSTONE_HI = '#9c95a6', TSTONE_LO = '#544e5c';
+// one tongue of aura-flame, drawn at the origin pointing up (the hounds' flame shape)
+const tflame = (x, y, k, c, o = 1) => `<path transform="translate(${x} ${y}) scale(${k})" d="M0 0 q-4 -6 -1 -12 q1 5 4 6 q1 -4 -1 -8 q7 6 5 14 q-2 3 -7 0 Z" fill="${c}" opacity="${o}"/>`;
+// soft back-halo: two low-opacity discs of the accent behind the sculpt
+const taura = (a, cx, cy, r) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${a.trim}" opacity=".09"/><circle cx="${cx}" cy="${cy}" r="${r * 0.64}" fill="${a.trim}" opacity=".12"/>`;
+// the shattered-rock plinth every totem rises from
+const tbase = () => `<path d="M24 93 Q21 81 31 79 L41 82 L50 78 L59 82 L69 79 Q79 81 76 93 Z" fill="${TSTONE}"/>
+       <path d="M24 93 Q21 81 31 79 L36 80 L33 93 Z" fill="${TSTONE_LO}" opacity=".55"/>
+       <path d="M69 79 Q79 81 76 93 L67 93 L68 80 Z" fill="${TSTONE_HI}" opacity=".5"/>
+       <path d="M33 86 q5 -3 9 -1 M56 85 q6 -2 10 1 M43 90 q4 -2 8 0" stroke="${TSTONE_LO}" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".7"/>
+       <path d="M15 89 l5 -5 l3 6 Z" fill="${TSTONE}" opacity=".8"/><path d="M81 86 l5 2 l-2 6 Z" fill="${TSTONE}" opacity=".75"/>`;
 
 const BODIES = {
   human(a) {
@@ -6057,6 +6096,128 @@ const BODIES = {
        <path d="M26 94 Q30 83 41 82 Q50 79 59 82 Q70 83 74 94 Z" fill="#4a3a2c"/>
        <path d="M33 88 q4 -3 8 -1 M57 86 q5 -2 9 1 M44 91 q3 -2 6 0" stroke="#2e2219" stroke-width="1.6" fill="none" stroke-linecap="round"/>
        <circle cx="36" cy="84" r="1.8" fill="#6a5644"/><circle cx="64" cy="85" r="2.2" fill="#6a5644"/><circle cx="53" cy="83" r="1.4" fill="#6a5644"/>` };
+  },
+  // Quickening Stone — a winged, horned tiki wreathed in its own fast green fire. (haste)
+  totemTiki(a) {
+    const eye = a.eye || a.trim, deep = a.main;
+    return { hand: [50, 50], shieldY: 0, svg:
+      `${taura(a, 50, 48, 33)}
+       ${tflame(28, 72, 0.95, a.trim, .5)}${tflame(72, 72, 0.95, a.trim, .5)}${tflame(24, 62, 0.7, a.trim, .4)}${tflame(76, 62, 0.7, a.trim, .4)}${tflame(50, 20, 0.8, a.trim, .45)}
+       <path d="M47 60 L18 57 Q9 61 14 71 Q31 66 47 69 Z" fill="${TWOOD}"/>
+       <path d="M53 60 L82 57 Q91 61 86 71 Q69 66 53 69 Z" fill="${TWOOD}"/>
+       <path d="M44 61 L20 59 M43 65 L18 66" stroke="${TWOOD_LO}" stroke-width="1.5" fill="none" opacity=".55"/>
+       <path d="M56 61 L80 59 M57 65 L82 66" stroke="${TWOOD_LO}" stroke-width="1.5" fill="none" opacity=".55"/>
+       <path d="M41 78 L40 42 Q50 38 60 42 L59 78 Z" fill="${TWOOD}"/>
+       <path d="M41 78 L40 42 Q44 40 46 41 L46 78 Z" fill="${TWOOD_HI}" opacity=".45"/>
+       <path d="M59 78 L60 42 Q56 40 54 41 L54 78 Z" fill="${TWOOD_LO}" opacity=".5"/>
+       <path d="M44 73 l6 4 l6 -4 M45 67 l5 3 l5 -3" stroke="${TGOLD}" stroke-width="2" fill="none"/>
+       <path d="M39 46 Q38 24 50 22 Q62 24 61 46 Q50 50 39 46 Z" fill="${TWOOD}"/>
+       <path d="M41 31 Q50 28 59 31" stroke="${TWOOD_LO}" stroke-width="4" fill="none"/>
+       <circle cx="43" cy="31" r="1.4" fill="${TSHELL}"/><circle cx="47" cy="29.6" r="1.4" fill="${TSHELL}"/><circle cx="50" cy="29.2" r="1.4" fill="${TSHELL}"/><circle cx="53" cy="29.6" r="1.4" fill="${TSHELL}"/><circle cx="57" cy="31" r="1.4" fill="${TSHELL}"/>
+       <path d="M42 36 L48 38 L47 41.5 L42 39.5 Z" fill="${deep}"/><path d="M58 36 L52 38 L53 41.5 L58 39.5 Z" fill="${deep}"/>
+       <path d="M43 37.3 L47 38.8" stroke="${eye}" stroke-width="2.3" stroke-linecap="round"/><path d="M57 37.3 L53 38.8" stroke="${eye}" stroke-width="2.3" stroke-linecap="round"/>
+       <path d="M49 39 L50 45 L51 39 Z" fill="${TWOOD_LO}"/>
+       <path d="M45 45 Q50 44 55 45 L52.5 53 Q50 51 47.5 53 Z" fill="${deep}"/>
+       <path d="M41 41 Q29 40 21 31 Q14 23 15 14 Q21 21 28 27 Q35 34 42 36 Z" fill="#d8c9a8"/>
+       <path d="M41 41 Q33 39 27 33 Q33 35 42 36 Z" fill="#b39a74" opacity=".55"/>
+       <path d="M59 41 Q71 40 79 31 Q86 23 85 14 Q79 21 72 27 Q65 34 58 36 Z" fill="#d8c9a8"/>
+       <path d="M59 41 Q67 39 73 33 Q67 35 58 36 Z" fill="#b39a74" opacity=".55"/>
+       <path d="M28 32 L32 27 M20 24 L24 19" stroke="#3a2f22" stroke-width="2" fill="none" opacity=".5"/>
+       <path d="M72 32 L68 27 M80 24 L76 19" stroke="#3a2f22" stroke-width="2" fill="none" opacity=".5"/>
+       ${tbase()}
+       <circle cx="30" cy="82" r="1.3" fill="${a.trim}" opacity=".8"/><circle cx="71" cy="84" r="1.5" fill="${a.trim}" opacity=".7"/><circle cx="50" cy="88" r="1.1" fill="${a.trim}" opacity=".7"/>` };
+  },
+  // Mana Cairn — a carved owl on a standing-stone basin, a rune turning over its head. (mana)
+  totemOwl(a) {
+    const eye = a.eye || a.trim, deep = a.main;
+    return { hand: [50, 50], shieldY: 0, svg:
+      `${taura(a, 50, 46, 32)}
+       <g><path d="M50 15 l7 4 v8 l-7 4 l-7 -4 v-8 Z" fill="none" stroke="${a.trim}" stroke-width="1.8"/><path d="M50 19 l3.5 2 v4 l-3.5 2 l-3.5 -2 v-4 Z" fill="${a.trim}" opacity=".55"/></g>
+       <path d="M46 40 L18 28 Q9 30 11 40 Q10 50 20 52 Q33 48 46 50 Z" fill="${TWOOD}"/>
+       <path d="M54 40 L82 28 Q91 30 89 40 Q90 50 80 52 Q67 48 54 50 Z" fill="${TWOOD}"/>
+       <path d="M44 42 Q28 40 17 36 M45 47 Q30 47 20 50" stroke="${TWOOD_LO}" stroke-width="1.5" fill="none" opacity=".5"/>
+       <path d="M56 42 Q72 40 83 36 M55 47 Q70 47 80 50" stroke="${TWOOD_LO}" stroke-width="1.5" fill="none" opacity=".5"/>
+       <path d="M38 74 Q34 48 42 36 Q50 31 58 36 Q66 48 62 74 Z" fill="${TWOOD}"/>
+       <path d="M38 74 Q34 48 42 36 Q46 33 48 35 Q42 50 45 74 Z" fill="${TWOOD_HI}" opacity=".4"/>
+       <path d="M62 74 Q66 48 58 36 Q54 33 52 35 Q58 50 55 74 Z" fill="${TWOOD_LO}" opacity=".5"/>
+       <path d="M44 56 Q50 54 56 56 M43 63 Q50 61 57 63 M44 69 Q50 67 56 69" stroke="${TWOOD_LO}" stroke-width="1.4" fill="none" opacity=".6"/>
+       <path d="M40 34 L36 24 Q41 28 44 33 Z" fill="${TWOOD}"/><path d="M60 34 L64 24 Q59 28 56 33 Z" fill="${TWOOD}"/>
+       <circle cx="41.5" cy="42" r="8.5" fill="${a.trim}" opacity=".22"/><circle cx="58.5" cy="42" r="8.5" fill="${a.trim}" opacity=".22"/>
+       <circle cx="41.5" cy="42" r="6.5" fill="${deep}"/><circle cx="58.5" cy="42" r="6.5" fill="${deep}"/>
+       <circle cx="41.5" cy="42" r="4" fill="${eye}"/><circle cx="58.5" cy="42" r="4" fill="${eye}"/>
+       <circle cx="41.5" cy="42" r="1.8" fill="${deep}"/><circle cx="58.5" cy="42" r="1.8" fill="${deep}"/>
+       <circle cx="42.8" cy="40.8" r="1.2" fill="#fff" opacity=".8"/><circle cx="59.8" cy="40.8" r="1.2" fill="#fff" opacity=".8"/>
+       <path d="M47 46 L50 55 L53 46 Z" fill="${TGOLD}"/>
+       ${tbase()}
+       <circle cx="28" cy="80" r="1.3" fill="${a.trim}" opacity=".8"/><circle cx="73" cy="82" r="1.5" fill="${a.trim}" opacity=".7"/><circle cx="62" cy="86" r="1.1" fill="${a.trim}" opacity=".7"/>` };
+  },
+  // Bulwark Stone — a squat totem with raised fists and a shield-boss chest, burning and brittle. (taunt)
+  totemBulwark(a) {
+    const eye = a.eye || a.trim, deep = a.main, hot = '#ffd166';
+    return { hand: [50, 50], shieldY: 0, svg:
+      `${taura(a, 50, 54, 34)}
+       ${tflame(26, 66, 1.3, a.trim, .55)}${tflame(74, 66, 1.3, a.trim, .55)}${tflame(34, 40, 1.0, a.trim, .5)}${tflame(66, 40, 1.0, a.trim, .5)}${tflame(50, 30, 1.1, a.trim, .5)}
+       ${tflame(30, 64, 0.8, hot, .6)}${tflame(70, 64, 0.8, hot, .6)}
+       <path d="M30 64 Q22 56 24 44 Q30 48 34 56 Z" fill="${TWOOD}"/>
+       <path d="M70 64 Q78 56 76 44 Q70 48 66 56 Z" fill="${TWOOD}"/>
+       <circle cx="22" cy="43" r="6.5" fill="${TWOOD}"/><circle cx="78" cy="43" r="6.5" fill="${TWOOD}"/>
+       <path d="M16.5 41 h11 M17 45 h10.5" stroke="${TSHELL}" stroke-width="1.5" opacity=".7"/>
+       <path d="M72.5 41 h11 M72.5 45 h10.5" stroke="${TSHELL}" stroke-width="1.5" opacity=".7"/>
+       <path d="M35 80 Q32 50 38 42 Q50 36 62 42 Q68 50 65 80 Z" fill="${TWOOD}"/>
+       <path d="M35 80 Q32 50 38 42 Q43 39 46 41 Q40 54 42 80 Z" fill="${TWOOD_HI}" opacity=".4"/>
+       <path d="M65 80 Q68 50 62 42 Q57 39 54 41 Q60 54 58 80 Z" fill="${TWOOD_LO}" opacity=".5"/>
+       <circle cx="50" cy="61" r="9" fill="${TWOOD_LO}"/><circle cx="50" cy="61" r="9" fill="none" stroke="${TGOLD}" stroke-width="2"/><circle cx="50" cy="61" r="3.2" fill="${TGOLD}"/>
+       <path d="M40 48 Q38 36 50 34 Q62 36 60 48 Q50 52 40 48 Z" fill="${TWOOD}"/>
+       <path d="M41 40 L47 42.5 L46 46 L41 44 Z" fill="${deep}"/><path d="M59 40 L53 42.5 L54 46 L59 44 Z" fill="${deep}"/>
+       <path d="M42 41.5 L46 43.2" stroke="${eye}" stroke-width="2.4" stroke-linecap="round"/><path d="M58 41.5 L54 43.2" stroke="${eye}" stroke-width="2.4" stroke-linecap="round"/>
+       <path d="M44 49 l2 -2 l2 2 l2 -2 l2 2 l2 -2" stroke="${deep}" stroke-width="1.8" fill="none"/>
+       <path d="M47 65 L45 73 M53 67 L55 75 M50 69 L50 79" stroke="${hot}" stroke-width="1.2" fill="none" opacity=".7"/>
+       ${tbase()}
+       <circle cx="29" cy="80" r="1.5" fill="${hot}" opacity=".85"/><circle cx="72" cy="83" r="1.6" fill="${a.trim}" opacity=".7"/><circle cx="50" cy="88" r="1.2" fill="${hot}" opacity=".7"/>` };
+  },
+  // Unweaving Stone — a totem coming apart at a seam, threads of itself unspooling into the air. (ward)
+  totemWeave(a) {
+    const eye = a.eye || a.trim, deep = a.main;
+    return { hand: [50, 50], shieldY: 0, svg:
+      `${taura(a, 50, 48, 30)}
+       <path d="M46 25 Q43 17 47 11 Q49 14 48 18 M50 24 Q50 13 54 9 Q53 13 52 17 M54 26 Q59 20 57 13 Q56 16 54 19 M43 27 Q38 22 40 15 Q41 19 43 22" stroke="${a.trim}" stroke-width="1.4" fill="none" opacity=".8" stroke-linecap="round"/>
+       <circle cx="47" cy="11" r="1.1" fill="${a.trim}" opacity=".8"/><circle cx="54" cy="9" r="1.1" fill="${a.trim}" opacity=".75"/>
+       <path d="M43 80 L41 30 Q50 25 59 30 L57 80 Z" fill="${TWOOD}"/>
+       <path d="M43 80 L41 30 Q45 27 47 28 L47.5 80 Z" fill="${TWOOD_HI}" opacity=".4"/>
+       <path d="M57 80 L59 30 Q55 27 53 28 L52.5 80 Z" fill="${TWOOD_LO}" opacity=".45"/>
+       <path d="M50 26 L50 80" stroke="${deep}" stroke-width="2.4"/>
+       <path d="M50 34 q-4 2 -6 0 M50 46 q5 2 7 -1 M50 58 q-5 1 -7 -1 M50 70 q5 2 7 0" stroke="${deep}" stroke-width="1.5" fill="none" opacity=".7"/>
+       <path d="M41 44 q-6 3 -11 1 q4 3 10 2 M59 50 q6 3 12 0 q-5 4 -11 2" stroke="${a.trim}" stroke-width="1.5" fill="none" opacity=".75"/>
+       <path d="M42 34 Q41 26 50 25 Q59 26 58 34 Q50 38 42 34 Z" fill="${TWOOD}"/>
+       <path d="M43 30 L47.5 31.4 L47 33 L43 31.7 Z" fill="${deep}"/><path d="M57 30 L52.5 31.4 L53 33 L57 31.7 Z" fill="${deep}"/>
+       <path d="M44 31 L47 32" stroke="${eye}" stroke-width="2" stroke-linecap="round"/><path d="M56 31 L53 32" stroke="${eye}" stroke-width="2" stroke-linecap="round"/>
+       <path d="M47 37 Q49 43 48 56 L50 60 L52 56 Q51 43 53 37 Z" fill="${deep}" opacity=".85"/>
+       <ellipse cx="50" cy="67" rx="5" ry="3.5" fill="none" stroke="${TGOLD}" stroke-width="1.8" opacity=".9"/>
+       <path d="M55 67 q5 1 7 4 q-4 0 -6 -1" stroke="${TGOLD}" stroke-width="1.6" fill="none" opacity=".85"/>
+       ${tbase()}
+       <circle cx="31" cy="48" r="1.3" fill="${a.trim}" opacity=".8"/><circle cx="70" cy="54" r="1.3" fill="${a.trim}" opacity=".75"/><circle cx="35" cy="20" r="1.2" fill="${a.trim}" opacity=".7"/><circle cx="64" cy="18" r="1.2" fill="${a.trim}" opacity=".7"/>` };
+  },
+  // Storm Cairn — a totem crowned in lightning, arcs crawling down its carved sides. (shock)
+  totemStorm(a) {
+    const eye = a.eye || a.trim, deep = a.main;
+    return { hand: [50, 50], shieldY: 0, svg:
+      `${taura(a, 50, 46, 32)}
+       <path d="M50 30 L44 16 L49 18 L43 6 L55 17 L50 16 L57 28 Z" fill="${a.trim}"/>
+       <path d="M40 28 L34 18 L39 19 L35 10 L44 22 Z" fill="${a.trim}" opacity=".8"/>
+       <path d="M60 28 L66 18 L61 19 L65 10 L56 22 Z" fill="${a.trim}" opacity=".8"/>
+       <path d="M42 80 L41 36 Q50 31 59 36 L58 80 Z" fill="${TWOOD}"/>
+       <path d="M42 80 L41 36 Q45 33 47 34 L47 80 Z" fill="${TWOOD_HI}" opacity=".4"/>
+       <path d="M58 80 L59 36 Q55 33 53 34 L53 80 Z" fill="${TWOOD_LO}" opacity=".5"/>
+       <path d="M44 48 l4 4 l-5 4 l5 4 M56 52 l-4 4 l5 4 l-5 4" stroke="${a.trim}" stroke-width="1.5" fill="none" opacity=".8"/>
+       <path d="M47 70 l3 3 l-3 3 l3 3" stroke="${a.trim}" stroke-width="1.4" fill="none" opacity=".7"/>
+       <path d="M41 40 Q40 31 50 30 Q60 31 59 40 Q50 44 41 40 Z" fill="${TWOOD}"/>
+       <path d="M44 34 L49 37 L45 38.5 Z" fill="${deep}"/><path d="M56 34 L51 37 L55 38.5 Z" fill="${deep}"/>
+       <path d="M44.5 35.5 L47.5 37" stroke="${eye}" stroke-width="2.3" stroke-linecap="round"/><path d="M55.5 35.5 L52.5 37" stroke="${eye}" stroke-width="2.3" stroke-linecap="round"/>
+       <path d="M45 42 l2 2 l2 -2 l2 2 l2 -2 l2 2" stroke="${eye}" stroke-width="1.6" fill="none" opacity=".9"/>
+       <path d="M50 44 L50 36" stroke="${TWOOD_LO}" stroke-width="2" opacity=".5"/>
+       <circle cx="50" cy="57" r="4.5" fill="none" stroke="${TGOLD}" stroke-width="1.8"/><path d="M50 53 l-1.5 4 h3 Z" fill="${TGOLD}"/>
+       ${tbase()}
+       <circle cx="30" cy="80" r="1.4" fill="${a.trim}" opacity=".85"/><circle cx="71" cy="82" r="1.5" fill="${a.trim}" opacity=".75"/><circle cx="50" cy="88" r="1.1" fill="${a.trim}" opacity=".7"/>` };
   },
   // A haunted woman: corpse-pale, hollow-eyed, long white hair falling past her shoulders,
   // in a grave-dark dress that trails the ground. Her coffin rides on her back (the weapon recipe).
@@ -12806,6 +12967,14 @@ function onUnit(uid) {
     const t = unitBy(uid);
     if (!t || ['won', 'lost', 'cleared'].includes(state.phase)) return;
     state.inspect = t.you ? null : uid;
+    // The same tap opens that fighter's status row, and tapping them again shuts it. Kept apart from
+    // inspect on purpose: inspect is cleared by a tap on your own champion (the deck goes home), and
+    // your own champion's statuses are exactly the ones you most want to read before you spend a turn.
+    state.chipsOn = state.chipsOn === uid ? null : uid;
+    // Opening the row winds its labels back to full. They fade to bare icons ten seconds after the
+    // status landed, which was right when the row opened itself the moment something changed — but a
+    // row you have to ask for is one you asked to READ, and an icon alone does not answer the question.
+    if (state.chipsOn === uid) t.chipsAt = Date.now();
     renderBattle();
     return;
   }
@@ -13078,7 +13247,7 @@ function startBattle(retry) {
     for (const u of state.teams.e) if (state.team.includes(u.id)) u.name = `Rival ${u.name}`;
   }
   state.round = 1; state.time = 0; state.moving = false; state.active = null;
-  state.inspect = null; state.inspectTurn = null;   // the deck starts on your own champion
+  state.inspect = null; state.inspectTurn = null; state.chipsOn = null;   // the deck starts on your own champion, every status row shut
   state.frontline = { p: 0, e: 0 };   // the front-line rule starts fresh every battle
   // Everyone lines up at the start of the speed bar and races to Act together.
   for (const u of allUnits()) u.pos = 0;
@@ -13828,7 +13997,7 @@ function expHallField() {
   if (profile.hero && state.teams.p[0]) { state.teams.p[0].you = true; state.teams.p[0].name = heroName(); }
   state.teams.e = []; state.enemyIds = [];
   state.round = 1; state.time = 0; state.moving = false; state.active = null;
-  state.inspect = null; state.inspectTurn = null; state.frontline = { p: 0, e: 0 };
+  state.inspect = null; state.inspectTurn = null; state.chipsOn = null; state.frontline = { p: 0, e: 0 };
   for (const u of allUnits()) u.pos = 0;
   state.opening = false; state.phase = 'idle'; state.pending = null; state.reward = null; state.log = [];
   state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0; state.quakeJolt = null; state.groundFire = null;
@@ -19972,7 +20141,7 @@ function unitCardHTML(u) {
    side carry the same pattern, which is the whole complaint about one shared clip; and a champion's
    own fire stays put instead of leaping to new spots every time some unrelated status comes or goes
    and the overlay is rebuilt. Same uid, same fire, every time. */
-const BURN_TONGUES = 4;
+const BURN_TONGUES = 6;
 // A cheap deterministic 0..1 from the uid and a counter — FNV-1a, enough to scatter four flames.
 const burnRand = (uid, n) => {
   let h = 2166136261;
@@ -19984,10 +20153,16 @@ function burnFlamesSVG(u) {
   const n1 = (v) => Math.round(v * 10) / 10;
   let flames = '', smoke = '';
   for (let i = 0; i < BURN_TONGUES; i++) {
-    const x = 30 + burnRand(u.uid, i * 4) * 40;       // across the body, shoulder to shoulder
-    const y = 42 + burnRand(u.uid, i * 4 + 1) * 44;   // chest down to the boots
-    const h = 7 + burnRand(u.uid, i * 4 + 2) * 9;     // how tall this one stands
-    const w = h * 0.42;
+    // Each tongue gets its OWN column across the body (shoulder to shoulder) so none stacks on
+    // another; a small jitter keeps the row from looking mechanical, and neighbours alternate
+    // between an upper and a lower band so two adjacent tips can never meet.
+    const lane = (i + 0.5) / BURN_TONGUES;            // this tongue's column centre, 0..1
+    const jx = (burnRand(u.uid, i * 4) - 0.5) * (52 / BURN_TONGUES * 0.6);
+    const x = 24 + lane * 52 + jx;                    // 24..76 across the body — a touch wider so the bigger tongues have room
+    const band = i % 2 ? 0 : 0.5;                     // alternate an upper and a lower band
+    const y = 44 + (band + burnRand(u.uid, i * 4 + 1) * 0.5) * 38;  // 44..82, staggered down the torso
+    const h = 12 + burnRand(u.uid, i * 4 + 2) * 12;   // how tall this one stands — a bigger blaze (was 7..15)
+    const w = h * 0.4;                                // a hair slimmer than before so taller tongues don't merge sideways
     const lean = (burnRand(u.uid, i * 4 + 3) - 0.5) * w;  // which way the tip is licking
     const d = -i * 0.17;                              // each tongue on its own beat
     /* Not a teardrop: the left edge climbs and pinches in, the tip leans off centre, and the right
@@ -20005,10 +20180,11 @@ function burnFlamesSVG(u) {
        + `Q${n1(x + lean * .5)} ${n1(y - h * .52)} ${n1(x + lean * .8)} ${n1(y - h * .62)}`
        + `Q${n1(x + w * .3)} ${n1(y - h * .3)} ${n1(x + w * .45)} ${n1(y)}`
        + `Q${n1(x)} ${n1(y + h * .13)} ${n1(x - w * .45)} ${n1(y)}Z"/>`;
-    // A wisp off every other tongue — four would be a bonfire, two is something smouldering.
+    // A wisp off every other tongue — black, so it reads as something actually catching fire
+    // rather than steam. Still only every other one, so the fire stays the read, not the smoke.
     if (i % 2 === 0) {
-      smoke += `<ellipse class="smoke" style="animation-delay:${n1(-i * 1.3)}s" fill="#aeb4bf"`
-        + ` cx="${n1(x + lean)}" cy="${n1(y - h - w * .6)}" rx="${n1(w * .9)}" ry="${n1(w * .78)}"/>`;
+      smoke += `<ellipse class="smoke" style="animation-delay:${n1(-i * 1.3)}s" fill="#3c3c45"`
+        + ` cx="${n1(x + lean)}" cy="${n1(y - h - w * .6)}" rx="${n1(w)}" ry="${n1(w * .88)}"/>`;
     }
   }
   return `<svg class="burnfx" viewBox="0 0 100 100" aria-hidden="true">${smoke}<g class="burnlit">${flames}</g></svg>`;
@@ -23119,7 +23295,7 @@ function renderBattle() {
   // to come back. When a turn that takes your orders comes up, it goes back on its own (and in a
   // spar where you command someone else, it shows whoever is waiting on you).
   if (state.phase === 'choose') {
-    if (state.inspectTurn !== state.active) { state.inspect = null; state.inspectTurn = state.active; }
+    if (state.inspectTurn !== state.active) { state.inspect = null; state.chipsOn = null; state.inspectTurn = state.active; }
   } else state.inspectTurn = null;
   const mine = state.teams.p.find((x) => x.you);
   const d = (state.inspect && unitBy(state.inspect)) || (state.phase === 'choose' ? act : mine) || act;
@@ -23127,6 +23303,7 @@ function renderBattle() {
   // Light the deck up whenever the game is waiting on you ('choose' only ever means your champion).
   $('.deck').classList.toggle('your-turn', state.phase === 'choose' && d === act);
   for (const u of allUnits()) $(`#u-${u.uid}`)?.classList.toggle('viewing', !!state.inspect && u === d);
+  for (const u of allUnits()) $(`#u-${u.uid}`)?.classList.toggle('chipsOn', state.chipsOn === u.uid);
   renderSatchel(d);
   if (!d || ['won', 'lost', 'cleared'].includes(state.phase) && !act) {
     const over = ['won', 'lost', 'cleared'].includes(state.phase);

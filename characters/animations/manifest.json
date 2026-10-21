@@ -814,29 +814,6 @@
       "hitMs": 520
     }
   },
-  "shazrak": {
-    "idle": {
-      "src": "shazrak-idle.webp",
-      "w": 350,
-      "h": 265,
-      "footX": 150,
-      "footY": 255,
-      "frames": 18,
-      "frameMs": 75,
-      "ms": 1350
-    },
-    "attack": {
-      "src": "shazrak-attack.webp",
-      "w": 350,
-      "h": 265,
-      "footX": 150,
-      "footY": 255,
-      "frames": 30,
-      "frameMs": 40,
-      "ms": 1200,
-      "hitMs": 520
-    }
-  },
   "automatonx": {
     "idle": {
       "src": "automatonx-idle.webp",
