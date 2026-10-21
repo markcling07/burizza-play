@@ -2529,17 +2529,61 @@ svg.art .spentblade { opacity: 0; }
 /* ================================================================
    LANDSCAPE-FIRST — the rotate gate.
 
-   Burizza is designed to be played horizontally. On a phone held
-   upright, this full-screen gate covers the (still-present) portrait
-   layout and asks the player to turn sideways. It is pure CSS and
-   needs no script: it shows ONLY under the same breakpoint the
-   portrait-phone layout uses, so the instant the phone rotates to
-   landscape the query stops matching, the gate disappears, and the
-   landscape layout is already there underneath. Tablets and desktop
-   (wider than 700px) keep the roomy layout in either orientation —
-   the gate is a phone concern, where upright is genuinely too cramped.
+   Burizza is designed to be played horizontally. On a phone held upright this
+   full-screen gate REPLACES the game and asks the player to turn sideways. Pure
+   CSS, no script: it shows under one media query, so the instant the phone turns
+   the query stops matching and the landscape layout builds in its place.
+
+   WHY display:none AND NOT visibility:hidden. This gate existed before and was
+   removed for crashing iOS Safari on rotation (6d20aaa). It had the right idea —
+   it tried to spare the phone "rendering 50+ SVGs it can't see yet" — but reached
+   for `visibility: hidden; height: 0`, which hides pixels without freeing
+   anything: the boxes are still laid out, the layers still rasterise, and all 113
+   keyframe animations keep right on compositing behind the cover. So an upright
+   phone paid for the whole battlefield, invisibly, and rotating asked it to hold
+   the portrait layers and the landscape ones at the same instant. That is the
+   memory spike that killed the tab. `display: none` is the one that actually
+   destroys the boxes and stops the animations: measured on a loaded battle it took
+   the rendered element count from 3459 to 0 and the running animations from 175 to
+   26, and rotation now builds one layout instead of briefly owning two.
+
+   Those 26 are worth naming rather than rounding away. `display: none` stops CSS
+   keyframes, but it does NOT stop SMIL (`<animate>` inside the champion SVGs) or
+   anything started through `element.animate()`, and the sprites use both. They go on
+   ticking while hidden. They no longer rasterise, which is the part that cost memory,
+   so this is the cheap residue rather than the problem — and killing it would mean
+   scripting the gate, which is exactly the orientation JS this design avoids on
+   purpose. Left deliberately, written down so the next person doesn't think it's zero.
+
+   The gate is for PHONES, so it also asks for a coarse pointer. Width alone would
+   catch a narrow desktop window, and a player who cannot rotate their monitor
+   would be locked out of the game with no way back.
    ================================================================ */
-#rotateGate { display: none; }   /* inert: the activating portrait media query stays removed (6d20aaa, iOS crash) */
+#rotateGate { display: none; }
+@media (orientation: portrait) and (max-width: 700px) and (pointer: coarse) {
+  .wrap, #overlay { display: none !important; }
+  #rotateGate {
+    display: flex; position: fixed; inset: 0; z-index: 9000;
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: calc(28px + env(safe-area-inset-top)) 28px calc(28px + env(safe-area-inset-bottom));
+    text-align: center; -webkit-user-select: none; user-select: none;
+    background:
+      radial-gradient(130% 80% at 50% 8%, rgba(232, 165, 72, .12), transparent 62%),
+      var(--bg);
+  }
+  .rgCard { display: grid; gap: 16px; justify-items: center; max-width: 320px; }
+  .rgPhone {
+    width: 88px; height: 88px; color: var(--accent);
+    transform-origin: 50% 50%; animation: rgTip 2.8s ease-in-out infinite;
+  }
+  .rgPhone svg { width: 100%; height: 100%; display: block;
+    filter: drop-shadow(0 6px 16px rgba(232, 165, 72, .25)); }
+  #rotateGate h2 {
+    margin: 0; font-family: var(--font-display); font-weight: 600;
+    font-size: 1.5rem; line-height: 1.14; color: var(--fg);
+  }
+  #rotateGate p { margin: 0; font-size: .96rem; line-height: 1.4; color: var(--muted); }
+}
 /* The phone tips upright -> sideways -> back: the gesture we're asking for. */
 @keyframes rgTip {
   0%, 26%  { transform: rotate(0deg); }
@@ -2979,15 +3023,32 @@ svg.art .spentblade { opacity: 0; }
    the right. What it did not have was a short screen in mind, or a notch:
    top: 60px is a sixth of a 390px viewport, and .dock sat at a flat left:
    10px where the cutout is in landscape. */
+/* LANDSCAPE PHONES: the town.
+
+   Every selector here is prefixed #villageScreen, and that is load-bearing rather than tidy.
+   This block used to read `.dock { ... }`, `.townHud { ... }`, `#placePanel { ... }` — and
+   every one of those elements is styled again at lines ~3174-3244, BELOW this point. Same
+   specificity, later rule wins, so the whole block was dead from the day it was written: the
+   town has never actually had a landscape layout, and the notch handling everyone assumed was
+   here never once applied. Prefixing with the screen's id outranks the bare class wherever it
+   sits, so these survive someone moving CSS around later — which is the trap that ate them.
+
+   In landscape the notch is on a SIDE, so the left and right corners both need insetting;
+   .battleDock is the one that never had it even in intent. */
 @media (orientation: landscape) and (max-height: 540px) {
-  #placePanel {
+  #villageScreen #placePanel {
     top: calc(8px + env(safe-area-inset-top)); bottom: calc(8px + env(safe-area-inset-bottom));
     right: calc(10px + env(safe-area-inset-right)); width: min(380px, 46%);
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
   }
-  .dock { left: calc(10px + env(safe-area-inset-left)); }
-  .townHud { left: calc(8px + env(safe-area-inset-left)); }
-  .battleBtn { min-height: 42px; padding: 5px 15px 5px 12px; }
+  #villageScreen .dock { left: calc(10px + env(safe-area-inset-left)); }
+  #villageScreen .townHud { left: calc(8px + env(safe-area-inset-left)); }
+  #villageScreen .battleDock { right: calc(10px + env(safe-area-inset-right)); }
+  /* The warband faces are 32px, which is a cursor's target, not a thumb's. This file already
+     holds coarse pointers to 40 elsewhere (see `.say .btn`); the dock never got the same.
+     The Battle button is left alone — it is already 48x48, comfortably over the bar. */
+  #villageScreen .dock button { min-height: 40px; min-width: 40px; justify-content: center; }
+  #villageScreen .dock .faces span { width: 40px; height: 40px; }
 }
 
 /* Portrait phones: champion select and the Skills screen. A small title, a compact sticky tray
@@ -3858,6 +3919,41 @@ button.wpic { border: none; background: none; padding: 0; cursor: pointer; }
   .smoke, .flame, .glow, .lit, .flag, .plume, .swing, .ferris, .mill, .townie > div, .purse.gain, .npc, .npc .bob, .npc .face, .qmark { animation: none !important; }
   .npc.walker .face { transform: scaleX(var(--f0)); }
   .ember { display: none; }
+}
+
+/* ================================================================
+   THUMBS, NOT CURSORS — the last word in the stylesheet, deliberately.
+
+   Everything a finger has to hit gets 40px. The file already held two corners of
+   the game to that bar (`.say .btn`, and the kbd hints it hides on touch) but the
+   buttons you press most never got it: champion select's Back / Save warband / New
+   champion sat at 32px, its faction and role filters at 32, and the Skills screen's
+   +1 Rank at 23 — a third of a fingertip, and the control you tap most on that page.
+
+   Keyed on `pointer: coarse` rather than a width or an orientation, because this is
+   a question about the input device and nothing else: a phone in either orientation
+   wants it, a narrow desktop window emphatically does not, and keeping it off mice
+   means the desktop layout this was all designed around is left exactly as it was.
+
+   It sits at the END of the sheet on purpose. These selectors are low-specificity
+   on purpose too (they should be easy to override deliberately), which in this file
+   makes them easy to override BY ACCIDENT — the town's whole landscape block was
+   silently dead for exactly that reason. Last writer wins, so this goes last.
+   ================================================================ */
+@media (pointer: coarse) {
+  .btn, .fbtn, .rkup, .dock button, .act, .speedBtn, .wxPill { min-height: 40px; }
+  .fbtn, .rkup { display: inline-flex; align-items: center; }
+  .rkup { padding-inline: 12px; }
+  /* A short word is still a whole button: the "All" filter is 19px of text, and a 19px-wide
+     target between two neighbours is a mis-tap waiting to happen. Needs `#filters` to land —
+     `#filters .fbtn` at line ~450 sets `padding: 5px 4px; min-width: 0`, and a bare `.fbtn`
+     loses to it on specificity no matter that this block is last. The irony is noted. */
+  #filters .fbtn { min-width: 40px; padding-inline: 10px; }
+  /* The skills. Pressed every turn of every fight, and the smallest thing on the screen. */
+  .act { min-width: 40px; }
+  /* .ainfo stays at 17px ON PURPOSE. It rides in the corner of .act, so growing it to 40
+     would have it swallow the very button it annotates — the fix would cost more taps
+     than it saves. Small and deliberate is not the same as missed. */
 }
 </style>
 
