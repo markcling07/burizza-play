@@ -3013,6 +3013,30 @@ svg.art .spentblade { opacity: 0; }
   #selectScreen .roster .pick .pic { max-width: none; }
   /* It is fixed to the viewport, so it needs the inset itself. */
   .topBack { right: max(12px, calc(12px + env(safe-area-inset-right))); }
+
+  /* THE SKILLS SCREEN. Champion select got a landscape layout; this never did, so it stayed
+     the desktop stack at phone height — the whole PAGE scrolled 2429px on a 390px screen, and
+     the first thing to leave was the header you steer with. Everything above the skill list
+     scrolled away: who you are editing, the way back, and the champion switcher.
+
+     So the screen becomes the viewport and the list does the scrolling instead of the page.
+     The tray is pinned as its own row, .loadout takes the rest and scrolls inside it, and
+     .lwho sticks to the top of that scroller — switching champion no longer means scrolling
+     back up two thousand pixels to find the tabs.
+
+     It also gets a gutter. .tray carries 14px of its own padding and .loadout carries none, so
+     the skills sat hard against the screen edge while the header above them was inset — which
+     reads as unfinished on a phone, and is the edge the notch eats in landscape. */
+  #skillsScreen {
+    height: 100%; min-height: 0; display: grid; gap: 8px; padding: 8px;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  #skillsScreen .tray { padding: 8px; gap: 6px; }
+  #skillsScreen .loadout { min-height: 0; overflow-y: auto; overscroll-behavior: contain; gap: 12px; }
+  #skillsScreen .lwho {
+    position: sticky; top: 0; z-index: 2;
+    padding-block: 4px; background: var(--bg);
+  }
 }
 
 /* LANDSCAPE PHONES: the village.
