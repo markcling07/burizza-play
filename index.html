@@ -2588,7 +2588,19 @@ svg.art .spentblade { opacity: 0; }
    would be locked out of the game with no way back.
    ================================================================ */
 #rotateGate { display: none; }
-@media (orientation: portrait) and (max-width: 700px) and (pointer: coarse) {
+/* THE GATE IS OFF. Asked for on 2026-10-21: no card, no blocker — a phone held upright plays the
+   portrait layout like any other size. The rules below are kept rather than deleted because they
+   carry something expensive to re-learn (see the block above): the FIRST version of this gate was
+   removed for crashing iOS Safari, and the reason was `visibility: hidden`, which hides pixels and
+   frees nothing — boxes still laid out, layers still rasterised, every animation still compositing
+   behind the cover. `display: none` is what actually tears the subtree down, measured at 3459
+   rendered elements to 0 and 175 running animations to 26.
+
+   WHICH MATTERS MORE NOW THAN IT DID, because with the gate off an upright phone renders the whole
+   game again — exactly the load that was suspected of killing the tab. If portrait turns out to
+   crash, this is the switch: put `and (pointer: coarse)` back on the line below and it returns,
+   already fixed. Nothing else needs changing. */
+@media (orientation: portrait) and (max-width: 700px) and (pointer: coarse) and (min-width: 99999px) {
   .wrap, #overlay { display: none !important; }
   #rotateGate {
     display: flex; position: fixed; inset: 0; z-index: 9000;
