@@ -5081,7 +5081,8 @@ function rollWeather(except) {
    (see pv() uses): firstHitDR, critFx, vs, aoeBonus, mendPct, killHeal, immune, execute,
    guardian, startFx, allyDR, critMult, dotBoost, lowHeal, grudge, lastStand, startStacks,
    weakenPoisoned, allyRegen, critVs, dodge, fxLonger, onHitTaken, healMp, riposte, extraHit, hexVuln,
-   retribution, spellBacklash, haste.
+   retribution, spellBacklash, haste, cdr (a share off every cooldown the champion owns, capped by
+   CDR_CAP and read through cdrOf — Patchwork's Well Oiled).
    ================================================================== */
 const D = (name, desc, cd, mult, o = {}) => ({ name, desc, cd, mult, o, kind: 'damage', target: o.aoe ? 'allEnemies' : 'enemy' });
 const H = (name, desc, cd, mult, o = {}) => ({ name, desc, cd, mult, o, kind: 'heal', target: o.all ? 'allAllies' : 'ally' });
@@ -5203,8 +5204,26 @@ const ROSTER = [
                 shoots at does nothing at all. Drawing the fire onto the thing
                 shots glance off is the whole fantasy, and it is what makes the
                 two turns of giving up your own offence worth taking. */
-             { name: 'Bunker', desc: 'Bulwark-7 drives its anchors into the ground for 2 turns and roars for every enemy\'s attention. While it holds, anything thrown, fired or blown at it glances off and whoever walks up to it does a quarter damage — but it cannot move or strike, and may only Stand Up. One ally may be sent into its lee: nothing can reach them at all, and each of their turns is spent either holding or stepping back out. Vents 30 Heat.', cd: 5, kind: 'bunker', target: 'ally', o: { move: false, heat: -30 } }],
-    passive: P('Reactive Plating', 'The first hit he takes each turn deals 30% less damage.', { firstHitDR: 0.3 }) },
+             { name: 'Bunker', desc: 'Bulwark-7 drives its anchors into the ground for 2 turns and roars for every enemy\'s attention. While it holds, anything thrown, fired or blown at it glances off and whoever walks up to it does a quarter damage — but it cannot move or strike, and may only Stand Up. One ally may be sent into its lee: nothing can reach them at all, and each of their turns is spent either holding or stepping back out. Vents 30 Heat.', cd: 5, kind: 'bunker', target: 'ally', o: { move: false, heat: -30 } },
+             /* A tank's reach. He is the slowest thing on the field (agi 0.8) and cannot chase
+                anyone, so instead of closing the distance he takes it away: the haul is bar
+                ground rather than damage, and the same feet that refuse a knockback refuse
+                this (Dug In, the Slow March). The roar is the half that matters — hauling a
+                shooter out of position and then letting it pick a new mark has only moved the
+                problem along, so the pull and the taunt are deliberately one action. */
+             D('Tow Chain', 'Deals 90% ATK damage and hauls the target 200 back along the speed bar. Bulwark-7 roars as he reels them in, taunting every enemy for 2 turns.', 3, 0.9, { knockback: 200, selfFx: [['taunt', 2]] }),
+             /* Bunker's little brother: the same instinct at a tenth of the commitment. Bunker
+                takes him out of the game for two turns in exchange for being unkillable; this
+                costs one action and leaves him free to walk and swing, so it buys the ordinary
+                half-damage ward instead of making him untouchable. Sealing the plates is also
+                how a machine sheds heat, so it vents on the way shut. */
+             B('Bulkhead', 'Seals his plating shut for 2 turns: he takes half damage and no new curse will take hold on him. Vents 30 Heat.', 4, 'self', [['shield', 2], ['immune', 2]], { heat: -30 })],
+    passive: P('Reactive Plating', 'The first hit he takes each turn deals 30% less damage.', { firstHitDR: 0.3 }),
+    /* The alternative to Reactive Plating: Plating is the safe pick that shaves every opening
+       blow, this one answers back. It reads off the attacker rather than the damage, so it does
+       nothing at all against a shooter — the trade is "better against the people who walk up to
+       me, worthless against the ones who don't". */
+    passiveAlt: P('Counterweight', 'All that mass swings back: a melee attacker who strikes him has a 25% chance to be left Staggered by the recoil.', { onHitTaken: { chance: 0.25, melee: true, fx: [['stagger', 1]] } }) },
   { id: 'sawtooth', name: 'Sawtooth', faction: 'mech', role: 'melee', bio: 'Scrapper with buzzsaw arms.',
     mods: { atk: 1.1, hp: 0.95, agi: 1.1 },
     look: { body: 'mech', main: '#9b5d3c', trim: '#ffd166', weapon: 'saw' },
@@ -5213,8 +5232,31 @@ const ROSTER = [
              D('Grinder', 'Strikes 3 times for 55% ATK damage each. Applies Bleed for 3 turns.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
              D('Shrapnel Spin', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2 }),
              D('Limb Shear', 'Deals 150% ATK damage. Ignores armor. 60% bonus damage to Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed' }),
-             B('Rev Up', 'Increases damage by 30% for 2 turns. Reduces all cooldowns by 1.', 4, 'self', [['empower', 3]], { reduceCd: true })],
-    passive: P('Serrated', 'Critical hits apply Bleed for 3 turns.', { critFx: [['bleed', 3, 0.3]] }) },
+             B('Rev Up', 'Increases damage by 30% for 2 turns. Reduces all cooldowns by 1.', 4, 'self', [['empower', 3]], { reduceCd: true }),
+             /* The opener his kit never had. Everything else he owns is a knife looking for a
+                soft target; this is the skill that MAKES one, and it is deliberately the worst
+                damage in his kit so that opening with it is a real choice rather than a free
+                one. Sunder outlasts Exposed on purpose: the armour stays off long enough for
+                the warband to use it, the vulnerability is his own short window. */
+             D('Tooth Breaker', 'Deals 120% ATK damage. Sunders the target\'s armor for 3 turns and leaves them Exposed for 2.', 3, 1.2, { fx: [['sunder', 3], ['exposed', 2]] }),
+             /* The Flywheel skill. Five thin cuts is the most hits on any one target in his kit,
+                which is exactly what his Nature multiplies — over 50 Heat this is six. Builds
+                heat hard: this is the skill that pushes him into Flywheel range for the NEXT
+                one, and over the line if he leans on it.
+                The Bleed is a FLAT fx and not a chanceFx, and that is not a style choice.
+                chanceFx reads its third number as the probability and then calls addFx with no
+                value at all (see applyHitEffects) — so a chanceFx Bleed applies the status and
+                ticks for ZERO. Every other chanceFx in the file is a valueless status (Silence,
+                Stagger) for exactly that reason. A DoT has to come through fx, where the third
+                number is the share of ATK it ticks for. Kept under Grinder's 0.30 so Grinder
+                stays the better opener and this stays the volume-and-heat option. */
+             D('Buzz Lash', 'Strikes 5 times for 34% ATK damage each and leaves the target Bleeding for 3 turns. Builds 45 Heat.', 4, 0.34, { hits: 5, fx: [['bleed', 3, 0.22]], heat: 45 })],
+    passive: P('Serrated', 'Critical hits apply Bleed for 3 turns.', { critFx: [['bleed', 3, 0.3]] }),
+    /* Serrated makes MORE bleeds, this makes them WORSE — so the two are a real fork rather
+       than a strict upgrade, and this one is the pick for a player who is already applying
+       Bleed on purpose (Grinder, Buzz Lash) instead of fishing for crits. Both are dead
+       weight against the Union and the Pale Host, who have no blood to spill. */
+    passiveAlt: P('Ragged Edge', 'The blades leave a worse wound than they need to: every Bleed he opens runs half again as deep.', { dotBoost: { bleed: 1.5 } }) },
   { id: 'arclight', name: 'Arclight', faction: 'mech', role: 'ranged', bio: 'Tesla-coil sniper unit.',
     mods: {},
     look: { body: 'mech', main: '#4d6a8f', trim: '#7fe3ff', weapon: 'gun', orb: '#7fe3ff' },
@@ -5224,8 +5266,24 @@ const ROSTER = [
              D('Discharge', 'Deals 100% ATK lightning damage. Cannot miss. Burns 25 MP from target as bonus damage.', 3, 1.0, { element: 'lightning', noDodge: true, manaBurn: 25 }),
              D('Overload Coil', 'Deals 170% ATK lightning damage. Cannot miss. Applies Mana Leak for 3 turns. Builds 45 Heat.', 4, 1.7, { element: 'lightning', noDodge: true, fx: [['leak', 3]], heat: 45 }),
              D('Static Field', 'Deals 55% ATK lightning damage to all enemies. Cannot miss. Applies Slow for 2 turns.', 4, 0.55, { aoe: true, element: 'lightning', noDodge: true, fx: [['slow', 2]] }),
-             B('Jump Start', 'Jolts an ally to the top of the speed bar. They take their next turn immediately after Arclight.', 5, 'ally', [], { jumpstart: true, notSelf: true })],
-    passive: P('Feedback Loop', 'Her lightning deals 25% more damage to targets with Mana Leak.', { vs: { fx: 'leak', bonus: 0.25, element: 'lightning' } }) },
+             B('Jump Start', 'Jolts an ally to the top of the speed bar. They take their next turn immediately after Arclight.', 5, 'ally', [], { jumpstart: true, notSelf: true }),
+             /* Her Nature and the lightning bonus both key off SOAKED, and until now she had no
+                way to cause it — Arc Transfer was a Tideborn ally's gift, dead weight in any
+                warband without one. This is the self-setup: no element of its own, deliberately
+                mediocre damage, and the whole point is the turn AFTER it. It vents rather than
+                builds, because blowing the condensers is how the water gets out of her. */
+             D('Condenser Burst', 'Deals 80% ATK damage to all enemies and leaves them Soaked for 2 turns — her lightning strikes the soaked a third harder, and the spark leaps on to a second mark. Vents 20 Heat.', 4, 0.8, { aoe: true, fx: [['soaked', 2]], heat: -20 }),
+             /* The grid-killer. Discharge burns a flat 25 MP off one target; this takes a SHARE
+                off the whole warband, so it is worth most against a field of full casters and
+                nothing at all against the Union, who carry no mana to burn. Unlike Discharge the
+                mana it destroys is not turned into damage — denial is the entire payment. */
+             D('Brownout', 'Deals 60% ATK lightning damage to all enemies. Cannot miss. Burns away a third of the mana each of them is carrying.', 4, 0.6, { aoe: true, element: 'lightning', noDodge: true, manaBurnPct: 0.33 })],
+    passive: P('Feedback Loop', 'Her lightning deals 25% more damage to targets with Mana Leak.', { vs: { fx: 'leak', bonus: 0.25, element: 'lightning' } }),
+    /* The same flag as Feedback Loop pointed at the other half of her kit, which makes the two
+       a genuine fork: Leak is the mana build (Arc Bolt, Overload Coil), Soaked is the storm
+       build (Condenser Burst, her Nature, a Tideborn ally, a Thunderstorm sky). Bigger number
+       than Feedback Loop because it stacks on top of the x1.3 the soaked already take. */
+    passiveAlt: P('Storm Caller', 'Her lightning deals 30% more damage to Soaked enemies — and with Condenser Burst she no longer needs a Tideborn to soak them for her.', { vs: { fx: 'soaked', bonus: 0.3, element: 'lightning' } }) },
   { id: 'howitzer', name: 'Howitzer', faction: 'mech', role: 'ranged', bio: 'Walking artillery platform.',
     mods: { hp: 1.1, agi: 0.75, atk: 1.05 },
     look: { body: 'mech', main: '#5f6b52', trim: '#ff7a45', weapon: 'cannon' },
@@ -5234,8 +5292,23 @@ const ROSTER = [
              D('Siege Shell', 'Deals 230% ATK damage. Builds 50 Heat.', 5, 2.3, { heat: 50 }),
              D('AP Round', 'Deals 150% ATK damage. Ignores armor.', 3, 1.5, { pierce: true }),
              D('Mortar Walk', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2 }),
-             D('Shell Shock', 'Deals 110% ATK damage. Staggers target for 1 turn. Sunders armor for 3 turns.', 3, 1.1, { fx: [['stagger', 1], ['sunder', 3]] })],
-    passive: P('Big Guns', 'AoE attacks deal 20% bonus damage.', { aoeBonus: 0.2 }) },
+             D('Shell Shock', 'Deals 110% ATK damage. Staggers target for 1 turn. Sunders armor for 3 turns.', 3, 1.1, { fx: [['stagger', 1], ['sunder', 3]] }),
+             /* Area denial, which no gun in his kit did: every other shell he has lands once and
+                is over. This one leaves the enemy ground burning (the same single field Drekka's
+                Molotov lights, so the two overwrite rather than stack). Low direct damage on
+                purpose — it is paid for over the three turns of Burn and the two the ground
+                holds, and a Downpour or a Thunderstorm sky makes it close to worthless. */
+             D('Incendiary Shell', 'Deals 65% ATK damage to all enemies and sets them Burning for 3 turns. The ground where it lands keeps burning for 2 turns.', 4, 0.65, { aoe: true, fx: [['burn', 3, 0.3]], groundFire: 2 }),
+             /* Suppression: the artillery answer to being outrun. The whole enemy warband loses
+                bar ground, which on a gun carriage that cannot be pushed back itself (Dug In) is
+                a straight tempo swing. The damage is the lowest in his kit because the shove is
+                the skill; Mortar Walk is still the pick when he wants the field dead. */
+             D('Creeping Barrage', 'Deals 50% ATK damage to all enemies and throws each of them 150 back along the speed bar.', 4, 0.5, { aoe: true, knockback: 150 })],
+    passive: P('Big Guns', 'AoE attacks deal 20% bonus damage.', { aoeBonus: 0.2 }),
+    /* Big Guns pays on every shell he fires; this one pays double on the target he has already
+       knocked over, so it is the single-target pick against the pick that rewards spreading
+       shots. Shell Shock staggers on a 3-turn cooldown, so he can set this up himself. */
+    passiveAlt: P('Ranging Shot', 'A mark already off its feet is a mark he does not miss: +25% critical chance against Staggered enemies.', { critVs: { fx: 'stagger', bonus: 0.25 } }) },
   { id: 'patchwork', name: 'Patchwork', faction: 'mech', role: 'support', bio: 'Repair drone with welding arms.',
     mods: { def: 1.2 },
     look: { body: 'mech', main: '#a39a86', trim: '#8be28b', weapon: 'wrench' },
@@ -5248,8 +5321,34 @@ const ROSTER = [
              // Bolt-On rides the field's clock, not his own: every turn ANY unit takes — friend or
              // foe — is one of the weld's four (see THE TURN PULSE). While bolted on he still acts,
              // keeps every blessing and curse ticking on him, and can still be broken by a sweep.
-             B('Bolt-On', 'Patchwork bolts himself to an ally\'s back. At each of the next 4 turns anyone takes, friend or foe, he mends them 15 HP. No single blow can find him while he rides — though area attacks still catch him, and everything on him keeps ticking. The weld gives after the 4th mend, or the moment either of them falls.', 5, 'ally', [['patchrig', 99]], { latch: true, notSelf: true, aiTarget: 'lowest' })],
-    passive: P('Maintenance Drone', 'At the start of his turn, his most hurt ally recovers 5% of their max HP.', { mendPct: 0.05 }) },
+             B('Bolt-On', 'Patchwork bolts himself to an ally\'s back. At each of the next 4 turns anyone takes, friend or foe, he mends them 15 HP. No single blow can find him while he rides — though area attacks still catch him, and everything on him keeps ticking. The weld gives after the 4th mend, or the moment either of them falls.', 5, 'ally', [['patchrig', 99]], { latch: true, notSelf: true, aiTarget: 'lowest' }),
+             /* PREVENTION, not repair. Every other thing he does arrives after the damage has
+                already landed; this is the one that gets there first, and it is the answer to
+                the burst his heals cannot outrun — 300% ATK of Field Weld is worth nothing to
+                an ally who is killed outright. Steel in the way, so it is not a mend at all:
+                no Oil Can vent, and the halved-healing skies (Grave Pall) do not touch it. */
+             /* aiTarget 'lowest', and it has to be said out loud: an ally-targeted buff with no
+                aiTarget falls through to "whoever hits hardest" (see aiChoose), which is right
+                for Overclock and exactly wrong for this. A plate is prevention — it belongs on
+                whoever is closest to dying, the same call Bolt-On makes. */
+             B('Plate Patch', 'Rivets a scrap plate over an ally: they take half damage for 2 turns. Not a mend — just steel in the way, so nothing that weakens healing weakens this.', 3, 'ally', [['shield', 2]], { aiTarget: 'lowest' }),
+             /* The support's one piece of offence, and it is a spanner rather than a gun: he
+                does no damage with it at all, he takes the enemy's TURN. Dragged back a quarter
+                of the bar and Slowed on top, so the ground is lost and then re-crossed slowly.
+                Dug In and the Slow March shrug the drag off, which keeps it from being the
+                flat answer to every fast threat on the field. */
+             B('Throw a Wrench', 'Pitches a wrench into the works: the enemy is dragged 250 back along the speed bar and Slowed for 2 turns. Deals no damage — it costs them the turn instead.', 4, 'enemy', [['slow', 2]], { dragBack: 250 })],
+    passive: P('Maintenance Drone', 'At the start of his turn, his most hurt ally recovers 5% of their max HP.', { mendPct: 0.05 }),
+    /* Maintenance Drone is a slow trickle of healing; this is the pick for a player who would
+       rather have the kit itself come round again — it is a share off every cooldown he owns,
+       so it is worth the most on his long ones (Bolt-On and Scrapbot at 5, Coolant Flush at 4)
+       and turns Plate Patch into something close to a standing ward.
+       A QUARTER, not a fifth, and the reason is the badge rather than the balance: cdFor leaves
+       a fraction, and cdText only spells out quarters (CD_FRAC), so a fifth off turns his 3-turn
+       skills into 2.4 and prints them as "3" — the player pays for CDR and sees nothing change.
+       At 0.25 every cooldown he owns lands on a quarter (2 -> 1½, 3 -> 2¼, 4 -> 3, 5 -> 3¾) and
+       the badge shows the thing they bought. First passive in the game to carry cdr at all. */
+    passiveAlt: P('Well Oiled', 'He keeps his own gearing greased: every cooldown he has comes back a quarter faster.', { cdr: 0.25 }) },
 
   // ---- Bloodtusk Horde (Orc) ----
   { id: 'krug', name: 'Krug Skullsplitter', short: 'Krug', faction: 'orc', role: 'melee', bio: 'Two-axe berserker.',
@@ -5260,9 +5359,25 @@ const ROSTER = [
              D('Blood Frenzy', 'Strikes 6 times for 38% ATK damage each, alternating between front and back rows. Costs 10% of own max HP.', 4, 0.38, { selfCost: 0.1, rampage: 6 }),
              D('Reckless Swing', 'Deals 170% ATK damage, then bounces to a random enemy for 100% ATK. Exposes self for 1 turn (+25% damage taken).', 3, 1.7, { bounce: 0.6, selfFx: [['exposed', 1]] }),
              D('Twin Axes', 'Strikes 2 times for 85% ATK damage each. Applies Bleed for 3 turns.', 3, 0.85, { hits: 2, fx: [['bleed', 3, 0.3]] }),
-             B('Warchief\'s Fury', 'Enrages self for 2 turns: +35% damage.', 4, 'self', [['enraged', 3]])],
+             B('Warchief\'s Fury', 'Enrages self for 2 turns: +35% damage.', 4, 'self', [['enraged', 3]]),
+             /* The committed swing the name always promised. Armour means nothing to it and it
+                is paid for in his own blood, which is the whole berserker bargain — and the
+                blood is not only a cost: it walks him toward Red Mist, where the axes start
+                coming twice as often. Deliberately the most expensive thing in his kit. */
+             D('Headtaker', 'Deals 200% ATK damage and ignores armor entirely. Costs 12% of his own health — and the redder the mist, the faster the axes come back.', 4, 2.0, { pierce: true, selfCost: 0.12 }),
+             /* The one piece of control a berserker gets, and it is still a charge rather than a
+                hold: he cannot stop anyone, he can only knock them back down the bar and leave
+                them leaking. Krug has no answer at all to a shooter who outruns him; this is it. */
+             D('Red Charge', 'Deals 120% ATK damage, hurls the target 250 back along the speed bar, and opens a Bleed for 3 turns.', 3, 1.2, { knockback: 250, fx: [['bleed', 3, 0.25]] })],
     passive: P('Bloodlust', 'Defeating an enemy heals him for 20% of his max HP.', { killHeal: 0.2 }),
-    passiveAlt: P('Grudge Axe', 'The blow that would kill him leaves him standing on 0 HP, outlined in red. On the next turn, whoever\'s it is, he hurls his axe at his killer, and it bounces on until every enemy in reach has been hit once - each hit for 100% of his attack, never dodged. Then he falls. Once per battle.', { grudge: 1 }) },
+    /* Two alternatives now, so passiveAlt is a list (ids 'alt' and 'alt2' — see altList/altId).
+       Grudge Axe stays index 0 so older saves keep the choice they already made. */
+    passiveAlt: [P('Grudge Axe', 'The blow that would kill him leaves him standing on 0 HP, outlined in red. On the next turn, whoever\'s it is, he hurls his axe at his killer, and it bounces on until every enemy in reach has been hit once - each hit for 100% of his attack, never dodged. Then he falls. Once per battle.', { grudge: 1 }),
+      /* Bloodlust feeds him, Grudge Axe avenges him, and this one feeds the warband instead:
+         the crack he opens is worth more to the four people swinging after him than to him.
+         Exposed rather than Bleed on purpose — Serrated already owns crit-into-Bleed, and the
+         Horde would rather everything that lands next hurt more than add another trickle. */
+      P('Splitting Blow', 'A critical hit from him cracks the target open: Exposed for 2 turns, so every blow his warband lands next hurts more.', { critFx: [['exposed', 2]] })] },
   { id: 'mogra', name: 'Mogra Ironhide', short: 'Mogra', faction: 'orc', role: 'melee', bio: 'Shield-and-mace bruiser.',
     mods: { hp: 1.15, def: 1.25, atk: 0.9 },
     look: { body: 'orc', main: '#4a4e5c', trim: '#b07d3e', skin: '#7a9a5e', weapon: 'hammer', shield: '#6b4f32' },
@@ -5271,8 +5386,24 @@ const ROSTER = [
              B('Iron Hide', 'Taunts all enemies for 3 turns. Shields self for 2 turns. Reflects 40% of damage taken for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2], ['thorns', 2]]),
              D('Ground Pound', 'Deals 55% ATK damage to all enemies. 40% chance to Stagger each target.', 4, 0.55, { aoe: true, quake: true, chanceFx: [['stagger', 1, 0.4]] }),
              D('Bonebreaker', 'Deals 140% ATK damage. Sunders armor for 3 turns.', 3, 1.4, { fx: [['sunder', 3]] }),
-             B('Hold the Line', 'Shields self for 2 turns. Reflects 40% of damage taken for 2 turns. Heals for 120% ATK.', 4, 'self', [['shield', 2], ['thorns', 2]], { heal: 1.2 })],
-    passive: P('Thick Skull', 'Immune to Stun and Stagger.', { immune: ['stun', 'stagger'] }) },
+             B('Hold the Line', 'Shields self for 2 turns. Reflects 40% of damage taken for 2 turns. Heals for 120% ATK.', 4, 'self', [['shield', 2], ['thorns', 2]], { heal: 1.2 }),
+             /* Mitigation at the SOURCE. Every other defensive thing she owns works on her own
+                body — shield, thorns, taunt — which does nothing for the four people behind
+                her. Weaken is 0.7 on everything the target swings at anyone, so this is the
+                first thing in her kit that protects the warband rather than her. Cheap and
+                short-cooldown because it wants to be kept up, not saved. */
+             D('Shield Crush', 'Deals 100% ATK damage and crushes them against the boss of the shield: Weakened for 3 turns, so everything they swing lands 30% softer.', 2, 1.0, { fx: [['weaken', 3]] }),
+             /* The hard answer to a melee threat that walked past her. Rooted is not a stun —
+                they still act, they simply cannot cross the field to do it, so a berserker is
+                left swinging at nothing while a shooter barely notices. That asymmetry is the
+                point: it is a tank's tool for pinning the thing that came for the back line. */
+             D('Gore and Pin', 'Deals 130% ATK damage and Roots the target for 2 turns: it can still act, but it cannot cross the field to do it.', 3, 1.3, { fx: [['rooted', 2]] })],
+    passive: P('Thick Skull', 'Immune to Stun and Stagger.', { immune: ['stun', 'stagger'] }),
+    /* Thick Skull is the one that lets her keep acting; this is the one that makes being hit
+       cost the attacker something. It reads off the attacker's role, so it is worthless against
+       a line of shooters and very good against the melee who have to come to her — and it
+       stacks the same Weaken that Shield Crush lays, which is the build this points at. */
+    passiveAlt: P('Hidebound', 'Her hide turns the strength out of a blow: a melee attacker who strikes her has a 25% chance to walk away Weakened for 2 turns.', { onHitTaken: { chance: 0.25, melee: true, fx: [['weaken', 2]] } }) },
   { id: 'vashka', name: 'Vashka Spearthrower', short: 'Vashka', faction: 'orc', role: 'ranged', bio: 'Javelin hunter of the steppe.',
     mods: { agi: 1.1 },
     look: { body: 'orc', main: '#6b4f32', trim: '#c9b28a', skin: '#5f8a62', hair: '#2b1b12', weapon: 'spear' },
@@ -5281,8 +5412,22 @@ const ROSTER = [
              D('Gutpiercer', 'Deals 160% ATK damage. Ignores armor. Applies Bleed for 3 turns.', 4, 1.6, { pierce: true, fx: [['bleed', 3, 0.3]] }),
              D('Hunter\'s Mark', 'Deals 60% ATK damage. Exposes target for 2 turns: +25% damage taken.', 3, 0.6, { fx: [['exposed', 3]] }),
              D('Pinning Throw', 'Deals 130% ATK damage. Ignores armor. Applies Slow for 2 turns.', 3, 1.3, { pierce: true, fx: [['slow', 3]] }),
-             D('Volley of Spears', 'Deals 55% ATK damage to all enemies. Applies Bleed for 3 turns.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.25]] })],
-    passive: P('Steppe Hunter', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }) },
+             D('Volley of Spears', 'Deals 55% ATK damage to all enemies. Applies Bleed for 3 turns.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.25]] }),
+             /* The payoff skill her kit was missing. Two of her five already open a Bleed
+                (Gutpiercer, Volley of Spears) and nothing in the kit cashed that in — bonusVs
+                is a flat x1.6 against a bleeding mark, so this is the follow-up throw that
+                makes opening one worth the turn. Ordinary against anything still unwounded. */
+             D('Cull the Weak', 'Deals 150% ATK damage — and 60% more again if the mark is already Bleeding.', 3, 1.5, { bonusVs: 'bleed' }),
+             /* Her one piece of warband play. Hunter's Mark exposes a single target; this lays
+                the same opening across the whole line and slows them into the bargain, so the
+                four people throwing after her all collect. Low damage on purpose: it is a
+                setup throw, and Volley of Spears is still the pick when she wants them dead. */
+             D('Hobbling Cast', 'Deals 60% ATK damage to all enemies, Slows them for 2 turns and leaves every one of them Exposed for 2.', 4, 0.6, { aoe: true, fx: [['slow', 2], ['exposed', 2]] })],
+    passive: P('Steppe Hunter', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }),
+    /* The fork: Steppe Hunter pays on a mark that is already dying, this one pays on a mark she
+       has marked herself — and marking is half her kit (Hunter's Mark, Hobbling Cast). The
+       early-fight passive against the late-fight one, rather than a straight upgrade. */
+    passiveAlt: P('Marked for the Pot', 'Everything she throws hits an Exposed mark a quarter harder — and putting that mark on them is half of what she does.', { vs: { fx: 'exposed', bonus: 0.25 } }) },
   { id: 'drekka', name: 'Drekka Firegut', short: 'Drekka', faction: 'orc', role: 'ranged', bio: 'Bomb and firepot thrower.',
     mods: {},
     look: { body: 'orc', main: '#7a3b2e', trim: '#e8a548', skin: '#7d9a4f', weapon: 'pot' },
@@ -5292,8 +5437,25 @@ const ROSTER = [
              D('Napalm Jar', 'Deals 90% ATK fire damage. Applies Burn for 3 turns and Slow for 2 turns.', 3, 0.9, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2]] }),
              D('Cinder Spray', 'Deals 50% ATK fire damage to all enemies. Cannot miss. Applies Blind for 2 turns.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
              D('Sticky Tar', 'Deals 80% ATK fire damage. Applies Burn for 3 turns, Slow for 2 turns, and Sunder for 3 turns.', 4, 0.8, { magic: true, fx: [['burn', 3, 0.3], ['slow', 2], ['sunder', 3]] }),
-             D('Molotov', 'Fuse: detonates after 1 turn. Deals 75% ATK fire damage to all enemies. Cannot miss. Applies Burn for 3 turns. Sets ground ablaze for 2 turns. Removes Soaked, applies Dry.', 5, 0.75, { magic: true, aoe: true, noDodge: true, attackType: 'arch', fuse: 1, fx: [['burn', 3, 0.3], ['dry', 2]], groundFire: 2 })],
-    passive: P('Pyromaniac', 'Deals 25% more damage to Burning enemies.', { vs: { fx: 'burn', bonus: 0.25 } }) },
+             D('Molotov', 'Fuse: detonates after 1 turn. Deals 75% ATK fire damage to all enemies. Cannot miss. Applies Burn for 3 turns. Sets ground ablaze for 2 turns. Removes Soaked, applies Dry.', 5, 0.75, { magic: true, aoe: true, noDodge: true, attackType: 'arch', fuse: 1, fx: [['burn', 3, 0.3], ['dry', 2]], groundFire: 2 }),
+             /* THE POT WITH NO FIRE IN IT. Every other thing she throws is fire and magic, which
+                means a Downpour, a Thunderstorm or one fireproof enemy turns her off completely
+                — six skills and a passive, all dead at once. This is deliberately physical (no
+                `magic`) and deliberately Bleeds instead of Burning, so it is the one she still
+                has in the rain. It has its own PROJ_SKILL entry for the same reason: without
+                one the pot catch-all in projectileFor would fly it as a firebomb. */
+             D('Shrapnel Bomb', 'Deals 95% ATK damage to all enemies and opens a Bleed for 3 turns. No fire in this one — just nails, so the rain does nothing to it.', 4, 0.95, { aoe: true, fx: [['bleed', 3, 0.25]] }),
+             /* Her only real single-target blow. Firepot is a 100% opener and everything else
+                she owns is an area throw, so a boss with nobody standing near it was the one
+                fight where she had nothing to say. The bounce is 0.35 of the skill's own 1.7,
+                which is the 60% the text promises — splash, not a second full hit. */
+             D('Blastcap', 'Deals 170% ATK fire damage to one target, and the blast carries into a second enemy for 60%.', 4, 1.7, { magic: true, bounce: 0.35 })],
+    passive: P('Pyromaniac', 'Deals 25% more damage to Burning enemies.', { vs: { fx: 'burn', bonus: 0.25 } }),
+    /* Pyromaniac needs the mark alight to pay, and everything that lights them is fire — so in
+       a Downpour, or against anything fireproof, Drekka's whole kit and her passive go out at
+       once. This is the other half of the fork: it pays on the SHAPE of what she throws rather
+       than on fire, so Shrapnel Bomb and a rained-out Powder Keg still collect. */
+    passiveAlt: P('Wide Spread', 'She packs them to scatter rather than to burn: every area blast she throws deals 20% more.', { aoeBonus: 0.2 }) },
   { id: 'hesk', name: 'Old Mother Hesk', short: 'Hesk', faction: 'orc', role: 'support', bio: 'Shaman who keeps the war drums.',
     mods: { hp: 1.05 },
     look: { body: 'orc', main: '#4b3d5e', trim: '#d8c8a8', skin: '#8a9d6a', hair: '#d8d8d8', weapon: 'staff', orb: '#e0645a' },
@@ -5303,8 +5465,23 @@ const ROSTER = [
              B('Bone Charm', 'Cleanses all debuffs from an ally. Grants Debuff Immunity for 2 turns.', 4, 'ally', [['immune', 3]], { cleanse: true, aiTarget: 'debuffed' }),
              H('Ancestor\'s Balm', 'Heals an ally for 200% ATK. Applies Regen for 3 turns. Grants Debuff Immunity.', 3, 2.0, { fx: [['regen', 3, 0.6], ['immune', 3]] }),
              B('Totem of Stone', 'Shields all allies for 1 turn. Applies Thorns for 2 turns.', 4, 'allAllies', [['shield', 1], ['thorns', 2]]),
-             B('Quickstep Drums', 'Hastens all allies for 2 turns: increased speed bar movement.', 5, 'allAllies', [['haste', 3]])],
-    passive: P('Ancestral Watch', 'The first time an ally drops below 30% HP, the spirits Ward them for 2 turns.', { guardian: 0.3 }) },
+             B('Quickstep Drums', 'Hastens all allies for 2 turns: increased speed bar movement.', 5, 'allAllies', [['haste', 3]]),
+             /* Hesk had no way to touch the enemy at all — six skills, every one of them aimed
+                at her own side, so against a warband that out-heals the Horde she could only
+                watch. These two are curses rather than damage (0.7 and 0.8 are the lowest
+                mults in the faction): the Hex is the answer to a healer, halving everything
+                that mends them, and it is laid across the whole line at once. */
+             D('Ancestors\' Rebuke', 'Deals 70% ATK damage to all enemies and lays a Hex on them for 3 turns: every mend they take is halved.', 4, 0.7, { magic: true, aoe: true, fx: [['hex', 3]] }),
+             /* ...and the answer to a caster. Silence leaves them Attack and Guard and nothing
+                else, which on a support or a mage is most of a turn taken away. Single-target
+                and short-cooldown so it is a choice about WHO, not a blanket shutdown. */
+             D('Bind the Breath', 'Deals 80% ATK damage and Silences the target for 3 turns: nothing but Attack and Guard until it lifts.', 3, 0.8, { magic: true, fx: [['silence', 3]] })],
+    passive: P('Ancestral Watch', 'The first time an ally drops below 30% HP, the spirits Ward them for 2 turns.', { guardian: 0.3 }),
+    /* Ancestral Watch fires once, reactively, and only ever on her own side. This one is the
+       pick for a player using the two curses above: a turn more of Hex, Silence or Weaken is
+       worth more than a single ward, and it is the only thing in the Horde that makes a debuff
+       outlast the turn it was meant to cover. */
+    passiveAlt: P('Long Memory', 'The ancestors do not let go: every curse she lays — Hex, Silence, Weaken and the rest — holds a turn longer.', { fxLonger: 1 }) },
 
   // ---- Kingdom of Aldmere (Human) ----
   { id: 'wren', name: 'Wren', faction: 'human', role: 'melee', bio: 'Spellblade of the Aldmere guard.',
@@ -5315,9 +5492,24 @@ const ROSTER = [
              D('Thunderclap', 'Deals 130% ATK lightning damage. Cannot miss. 45% chance to Stun.', 4, 1.3, { element: 'lightning', noDodge: true, stun: 0.45 }),
              D('Arcane Edge', 'Deals 100% ATK damage + 20% of current MP as bonus damage.', 3, 1.0, { manaDamage: 0.2 }),
              D('Mageslayer', 'Deals 110% ATK damage. Burns 30 MP from target as bonus damage. Silences for 2 turns.', 4, 1.1, { manaBurn: 30, fx: [['silence', 3]] }),
-             D('Runed Thrust', 'Deals 140% ATK damage + 15% of current MP as bonus damage. Sunders armor for 3 turns.', 3, 1.4, { manaDamage: 0.15, fx: [['sunder', 3]] })],
+             D('Runed Thrust', 'Deals 140% ATK damage + 15% of current MP as bonus damage. Sunders armor for 3 turns.', 3, 1.4, { manaDamage: 0.15, fx: [['sunder', 3]] }),
+             /* Every blow in her kit was single-target, so a warband of casters could simply
+                spread out and keep paying. This is the mana war fought across the whole line
+                at once — a fifth of what each of them is carrying, which is worth everything
+                against five casters and precisely nothing against the Ironclad. */
+             D('Spellbreak Arc', 'Deals 70% ATK damage to all enemies and burns away a fifth of the mana each of them is carrying.', 4, 0.7, { aoe: true, slash: true, manaBurnPct: 0.2 }),
+             /* The follow-up to Mageslayer. She has been able to Silence since the start and
+                never had a reason to care afterwards; this is the blow that cashes it in
+                (bonusVs is a flat x1.6) and renews the gag on the way through, so a silenced
+                caster stays silenced as long as she keeps choosing this. */
+             D('Null Edge', 'Deals 130% ATK damage — and 60% more again against a Silenced target, whose silence is renewed for another 2 turns.', 3, 1.3, { bonusVs: 'silence', fx: [['silence', 2]] })],
     passive: P('Arcane Ward', 'Starts every battle Shielded for her first 2 turns.', { startFx: [['shield', 3]] }),
-    passiveAlt: P('Heroic', 'When a melee attacker strikes at one of her allies, 15% chance Wren throws herself into its path — she takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.15 }) },
+    /* Two alternatives now (ids 'alt' and 'alt2'); Heroic stays index 0 so older saves keep it. */
+    passiveAlt: [P('Heroic', 'When a melee attacker strikes at one of her allies, 15% chance Wren throws herself into its path — she takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.15 }),
+      /* The mageslayer build in one line, and it closes a loop: a crit Silences, and Null Edge
+         hits a Silenced mark 60% harder. Arcane Ward is two turns of safety at the start;
+         this one pays for the whole fight, but only against a warband that casts. */
+      P('Disrupting Edge', 'A critical hit from her cuts the words off mid-breath: Silenced for 2 turns.', { critFx: [['silence', 2]] })] },
   { id: 'garrick', name: 'Sir Garrick Vane', short: 'Garrick', faction: 'human', role: 'melee', bio: 'Heavily armored paladin.',
     mods: { hp: 1.1, def: 1.25, atk: 0.9, agi: 0.85 },
     look: { body: 'human', helm: true, main: '#d7dbe4', trim: '#d9b44a', skin: '#c68f6a', weapon: 'hammer', shield: '#3e5a8c' },
@@ -5327,10 +5519,28 @@ const ROSTER = [
              D('Consecrate', 'Deals 45% ATK holy damage to all enemies. Cannot miss. Heals all allies for 80% ATK.', 4, 0.45, { magic: true, aoe: true, noDodge: true, allyHeal: 0.8 }),
              D('Hammer of Judgement', 'Deals 150% ATK holy damage. Cannot miss. 40% chance to Stun.', 4, 1.5, { magic: true, noDodge: true, stun: 0.4 }),
              B('Lionheart', 'Taunts all enemies for 3 turns. Wards self for 2 turns: -60% damage taken.', 5, 'self', [['taunt', 3], ['ward', 2]]),
-             B('Shieldbearer', 'Garrick steps in front of an ally and stands there for 2 turns: every blow meant for them lands on him instead, physical or magical, and half the time his shield turns aside a quarter of what he catches. Only a lobbed shot arcs over him.', 4, 'ally', [], { bodyguard: 2, notSelf: true, aiTarget: 'lowest' })],
+             B('Shieldbearer', 'Garrick steps in front of an ally and stands there for 2 turns: every blow meant for them lands on him instead, physical or magical, and half the time his shield turns aside a quarter of what he catches. Only a lobbed shot arcs over him.', 4, 'ally', [], { bodyguard: 2, notSelf: true, aiTarget: 'lowest' }),
+             /* The one hard blow in a kit built entirely out of protection. Everything else he
+                owns either shields somebody, taunts, or trades a little damage for a heal, so
+                against a warband that simply ignored him he had nothing to make them stop.
+                Holy and unmissable like the rest of his offence, and it opens the armour for
+                the four people standing behind him. */
+             D('Castigate', 'Deals 160% ATK holy damage. Cannot miss. Sunders armor for 3 turns.', 3, 1.6, { magic: true, noDodge: true, fx: [['sunder', 3]] }),
+             /* Reach. Agi 0.85 makes him the second-slowest champion in the game and every tool
+                he has works only on what is already in front of him — a shooter that stayed at
+                the back was simply out of the conversation. Shares its shape with Bulwark's Tow
+                Chain (haul, then hold) quite deliberately: it is the move a shield-carrier
+                makes, and the two differ where it matters — his hits harder and shoves less. */
+             D('Shield Charge', 'Deals 110% ATK damage, drives the target 200 back along the speed bar, and roars every enemy onto him for 2 turns.', 3, 1.1, { knockback: 200, selfFx: [['taunt', 2]] })],
     passive: P('Retribution', 'When he takes a hit, every enemy takes 20% of that damage.', { retribution: 0.2 }),
     passiveAlt: [P('Shield of the Realm', 'While he stands, his allies take 10% less damage.', { allyDR: 0.1 }),
-                 P('Heroic', 'When a melee attacker strikes at one of his allies, 25% chance Sir Garrick throws himself into its path — he takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.25 })] },
+                 P('Heroic', 'When a melee attacker strikes at one of his allies, 25% chance Sir Garrick throws himself into its path — he takes the blow in their place, then answers with a full 100% counter.', { heroic: 0.25 }),
+                 /* His other three all spend him on somebody else — Retribution answers what he
+                    has already taken, Shield of the Realm thins what his allies take, Heroic
+                    steps in front of them. This is the only one that keeps HIM up, which is
+                    the thing his Nature never does: Sworn Shield saves an ally once, and this
+                    saves the man holding the shield once. */
+                 P('Last Oath', 'Once per battle the blow that would fell him leaves him standing on 1 HP — the oath is not finished with him yet.', { lastStand: true })] },
   { id: 'mara', name: 'Mara Holt', short: 'Mara', faction: 'human', role: 'ranged', bio: 'Musketeer with a steady hand.',
     mods: { agi: 0.9, atk: 1.05 },
     // Covering Fire is her Nature: every `watch` turns taken on the field by anyone, she snaps
@@ -5343,8 +5553,22 @@ const ROSTER = [
              D('Powder Shot', 'Channels for 2 turns, then fires for 220% ATK damage. +70% crit chance. Mara is Exposed while aiming. Silence, Stun or Bash cancels the shot. Target must still be alive and targetable when it fires.', 4, 2.2, { critBonus: 0.7, aim: 2 }),
              D('Ricochet', 'Deals 90% ATK damage. Bounces to a random enemy for 60% ATK.', 3, 0.9, { bounce: 0.6 }),
              D('Pistol Whip', 'Deals 100% ATK damage. 40% chance to Stagger.', 2, 1.0, { chanceFx: [['stagger', 1, 0.4]] }),
-             D('Volley Fire', 'Deals 55% ATK damage to all enemies. +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 })],
-    passive: P('Deadeye', 'Her critical hits deal double damage instead of +50%.', { critMult: 2 }) },
+             D('Volley Fire', 'Deals 55% ATK damage to all enemies. +20% crit chance.', 4, 0.55, { aoe: true, critBonus: 0.2 }),
+             /* Nothing she carried ignored armour, so a heavily plated front line blunted her
+                whole kit no matter how often she crit. The ball goes through and keeps going:
+                0.35 of its own 1.4 is the 50% the text promises. */
+             D('Punch-Through', 'Deals 140% ATK damage and ignores armor entirely — and the ball carries on into a second enemy for 50%.', 4, 1.4, { pierce: true, bounce: 0.35 }),
+             /* Her kit is five different ways to improve a DICE ROLL — +25%, +70%, +20% crit
+                chance — and a sniper who misses the critical at the wrong moment has nothing.
+                This is the one shot that is not a gamble. Modest base damage precisely because
+                the multiplier is guaranteed: with Deadeye up it is 240%, which is why it costs
+                a 4-turn cooldown and is still the pick only when the shot has to land. */
+             D('Called Shot', 'Deals 120% ATK damage and always strikes critically — and a critical of hers, with Deadeye up, is double.', 4, 1.2, { alwaysCrit: true })],
+    passive: P('Deadeye', 'Her critical hits deal double damage instead of +50%.', { critMult: 2 }),
+    /* Deadeye is the high-variance pick: it pays only when the roll comes in, and pays nothing
+       on the shots that do not. This is the flat one — no dice at all, just more damage on
+       anything already going down, which is what her Covering Fire keeps finding. */
+    passiveAlt: P('Finishing Round', 'A mark already below a third of its health is one she does not waste: 35% more damage to it.', { execute: { below: 0.33, bonus: 0.35 } }) },
   { id: 'aldous', name: 'Aldous Emberfall', short: 'Aldous', faction: 'human', role: 'ranged', bio: 'Pyromancer of the royal college.',
     mods: { hp: 0.95 },
     look: { body: 'human', main: '#7a2e3a', trim: '#e8a548', skin: '#e2b48f', hair: '#d9d4c7', weapon: 'staff', orb: '#ff8a3d' },
@@ -5353,8 +5577,24 @@ const ROSTER = [
              D('Inferno', 'Deals 60% ATK fire damage to all enemies + 15% of current MP as bonus damage. Cannot miss. Applies Burn for 3 turns.', 5, 0.6, { magic: true, aoe: true, noDodge: true, manaDamage: 0.15, fx: [['burn', 3, 0.3]] }),
              D('Ignite', 'Deals 100% ATK fire damage. Cannot miss. 60% bonus damage to Burning targets.', 3, 1.0, { magic: true, noDodge: true, bonusVs: 'burn' }),
              D('Flame Lance', 'Deals 150% ATK fire damage. Cannot miss. Ignores armor. Applies Burn for 3 turns.', 4, 1.5, { magic: true, pierce: true, noDodge: true, fx: [['burn', 3, 0.35]] }),
-             B('Mantle of Flame', 'Empowers self: +30% damage for 2 turns. Shields self for 2 turns.', 4, 'self', [['empower', 3], ['shield', 2]])],
-    passive: P('Kindling', 'His Burns deal 50% more damage.', { dotBoost: { burn: 1.5 } }) },
+             B('Mantle of Flame', 'Empowers self: +30% damage for 2 turns. Shields self for 2 turns.', 4, 'self', [['empower', 3], ['shield', 2]]),
+             /* Ignite, but across the line. He had exactly one skill that cashed in a Burn and
+                it could only ever cash in one at a time, which is backwards for a mage whose
+                other area skill sets the whole warband alight. Same x1.6 against anything
+                already lit; ordinary against anything that is not, so Inferno still has to go
+                first and the order of his turns actually matters. */
+             D('Backdraft', 'Deals 100% ATK fire damage to all enemies. Cannot miss. 60% more against anything already Burning.', 4, 1.0, { magic: true, aoe: true, noDodge: true, bonusVs: 'burn' }),
+             /* His Nature feeds on fire already (Ember-Warm: +5 MP a turn while anything
+                burns), and this is the deliberate version of it — he takes the mana straight
+                out of the caster and spends it on the blow. Gives a pyromancer who was
+                helpless against anything fireproof a reason to point at a mage instead. */
+             D('Draw the Ember', 'Deals 90% ATK fire damage. Cannot miss. Burns 30 MP out of the target and spends it as bonus damage.', 3, 0.9, { magic: true, noDodge: true, manaBurn: 30 })],
+    passive: P('Kindling', 'His Burns deal 50% more damage.', { dotBoost: { burn: 1.5 } }),
+    /* Kindling wins the long fight: it pays over three turns of Burn, and nothing at all in
+       the first exchange. This is the opposite end — the whole of its value lands in the
+       opening two turns, before anything is alight, which is exactly when a mage with 0.95 HP
+       is most likely to be picked off. Fast-fight pick against slow-fight pick. */
+    passiveAlt: P('Kindled', 'He arrives already alight: Empowered for his first 2 turns, +30% damage.', { startFx: [['empower', 3]] }) },
   { id: 'liesl', name: 'Sister Liesl', short: 'Liesl', faction: 'human', role: 'support', bio: 'Cleric of the dawn chapel.',
     mods: {},
     look: { body: 'human', main: '#e9e4d8', trim: '#d9b44a', skin: '#f0c9a6', hair: '#c9a25e', weapon: 'staff', orb: '#fff1b8' },
@@ -5364,8 +5604,26 @@ const ROSTER = [
              B('Guardian Angel', 'Shields an ally for 2 turns. Applies Regen for 3 turns.', 4, 'ally', [['shield', 2], ['regen', 3, 0.6]], { aiTarget: 'lowest' }),
              B('Benediction', 'Wards an ally for 2 turns: -60% damage taken. Grants Debuff Immunity.', 4, 'ally', [['ward', 2], ['immune', 3]], { aiTarget: 'lowest' }),
              D('Censure', 'Deals 70% ATK holy damage. Cannot miss. Applies Weaken and Blind for 2 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['blind', 3]] }),
-             B('First Light', 'Pushes an ally 25% up the speed bar. Heals for 120% ATK.', 4, 'ally', [], { surge: 250, heal: 1.2 })],
-    passive: P('Mercy', 'Her healing is 30% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.3 } }) },
+             B('First Light', 'Pushes an ally 25% up the speed bar. Heals for 120% ATK.', 4, 'ally', [], { surge: 250, heal: 1.2 }),
+             /* PREVENTION, which is the one kind of defence she did not own. Four of her six
+                skills mend damage after it has landed and the fifth wards a single ally; this
+                takes 35% off everything the enemy warband throws for two turns, which is worth
+                more than any single heal and is not healing at all — so a Grave Pall sky, a
+                Hex, or anything else that halves mending leaves it untouched. */
+             D('Dawnbreak', 'Deals 60% ATK holy damage to all enemies. Cannot miss. Blinds them for 2 turns: 35% of what they swing goes wide.', 4, 0.6, { magic: true, aoe: true, noDodge: true, fx: [['blind', 2]] }),
+             /* Sacred Light cleanses one ally. Against a warband that curses the whole line at
+                once — Ancestors' Rebuke, Cinder Spray, Dirge of the Deep — cleansing them one
+                at a time loses the race. This is the answer, and the Immunity on the back of
+                it is what stops the curse simply landing again next turn. Her Nature is that
+                no pall and no hex dims her, so wiping curses off everyone is squarely hers. */
+             B('Absolution', 'Strips every curse from the whole warband and leaves them proof against new ones for 2 turns.', 5, 'allAllies', [['immune', 2]], { cleanse: true })],
+    passive: P('Mercy', 'Her healing is 30% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.3 } }),
+    /* Mercy is reactive and aimed at one body: it only ever pays once somebody is already
+       halfway dead. This pays from the first bell and pays for everyone — a warband that acts
+       more often takes fewer turns to end the fight, which is the healer's other way of
+       keeping people alive. Nothing to do with mending, so it is the pick for a band that
+       would rather not need her. */
+    passiveAlt: P('Dawnward March', 'The chapel bell sets the pace: while she stands, the whole warband moves 12% faster along the speed bar.', { haste: 0.12 }) },
 
   // ---- Stoneleaf Accord (Elves & Dwarves) ----
   { id: 'durgan', name: 'Durgan Anvilbeard', short: 'Durgan', faction: 'stone', race: 'dwarf', role: 'melee', bio: 'Dwarf hammer warrior.',
@@ -5376,8 +5634,24 @@ const ROSTER = [
              D('Mountain Breaker', 'Deals 150% ATK damage. Sunders armor for 3 turns (-40% DEF).', 4, 1.5, { fx: [['sunder', 3]] }),
              D('Anvil Strike', 'Deals 120% ATK damage. Gains 1 Fortify stack.', 3, 1.2, { selfStacks: 1 }),
              D('Forge Strike', 'Strikes 2 times for 80% ATK damage each. Gains 1 Fortify stack.', 3, 0.8, { hits: 2, selfStacks: 1 }),
-             D('Quake Hammer', 'Deals 60% ATK damage to all enemies. Sunders armor for 3 turns.', 4, 0.6, { aoe: true, fx: [['sunder', 3]] })],
-    passive: P('Grudge', 'Deals 20% more damage to the last enemy that hit him.', { grudge: 0.2 }) },
+             D('Quake Hammer', 'Deals 60% ATK damage to all enemies. Sunders armor for 3 turns.', 4, 0.6, { aoe: true, fx: [['sunder', 3]] }),
+             /* Reach, and the heaviest blow he owns. Everything else in his kit waits for the
+                enemy to come to him, which is fine for a dwarf right up against a line that
+                would rather shoot. The Fortify stack is the point as much as the damage: it
+                is the only skill here that braces him on the turn he commits. */
+             D('Anvil Drop', 'Deals 175% ATK damage and drives the target 200 back along the speed bar. He sets his feet behind it: 1 Fortify stack.', 4, 1.75, { knockback: 200, selfStacks: 1 }),
+             /* The dwarf way of holding a line, and the thing the Accord's melee could not do:
+                Hilda taunts by standing still (Stand Firm), this one taunts by hitting everyone
+                at once. Two stacks on the way in, because an AoE taunt is an invitation and he
+                should be 16% harder to hurt by the time it is answered. */
+             D('Hold the Pass', 'Deals 90% ATK damage to all enemies and roars every one of them onto him for 2 turns. Braces for the answer: 2 Fortify stacks.', 4, 0.9, { aoe: true, selfFx: [['taunt', 2]], selfStacks: 2 })],
+    passive: P('Grudge', 'Deals 20% more damage to the last enemy that hit him.', { grudge: 0.2 }),
+    /* Grudge pays him back for being hit; this makes being hit cost the attacker instead, and
+       it is the only passive in the Accord that answers a blow rather than absorbing it. Reads
+       off the attacker's role, so it is worthless against shooters and very good against the
+       melee who have to walk into a dwarf — and the Sunder it leaves feeds the rest of his kit,
+       which is three different ways of opening armour. */
+    passiveAlt: P('Hammer and Anvil', 'Dwarf plate is harder than most edges: a melee attacker who strikes him has a 30% chance to come away Sundered for 2 turns.', { onHitTaken: { chance: 0.3, melee: true, fx: [['sunder', 2]] } }) },
   { id: 'hilda', name: 'Hilda Stonewall', short: 'Hilda', faction: 'stone', race: 'dwarf', role: 'melee', bio: 'Dwarf shieldmaiden.',
     mods: { hp: 1.15, def: 1.3, atk: 0.85, agi: 0.8 },
     look: { body: 'dwarf', main: '#40597a', trim: '#c9a25e', skin: '#ecbfa0', hair: '#e8c872', weapon: 'axe', shield: '#8a5a32' },
@@ -5386,8 +5660,28 @@ const ROSTER = [
              B('Stand Firm', 'Taunts all enemies for 3 turns. Shields self for 2 turns.', 4, 'self', [['taunt', 3], ['shield', 2]]),
              B('Shieldwall', 'Shields an ally for 2 turns. Hilda gains 2 Fortify stacks.', 4, 'ally', [['shield', 2]], { selfStacks: 2, aiTarget: 'lowest' }),
              D('Boulder Toss', 'Deals 130% ATK damage. Applies Slow for 2 turns.', 3, 1.3, { fx: [['slow', 3]] }),
-             B('Bulwark of the Accord', 'Shields all allies for 1 turn. Hilda gains 2 Fortify stacks.', 5, 'allAllies', [['shield', 1]], { selfStacks: 2 })],
-    passive: P('Unbreakable', 'Once per battle, a blow that would knock her out leaves her at 1 HP.', { lastStand: true }) },
+             B('Bulwark of the Accord', 'Shields all allies for 1 turn. Hilda gains 2 Fortify stacks.', 5, 'allAllies', [['shield', 1]], { selfStacks: 2 }),
+             /* Something to hit with. Four of her five skills shield somebody and the fifth is
+                a 1.0 opener, so at atk 0.85 a warband that ignored her could simply let her
+                stand there. Staggers rather than stuns because Shield Bash already owns the
+                stun roll, and the stack keeps her own trade intact on an offensive turn. */
+             D('Mountainside', 'Deals 150% ATK damage and leaves the target Staggered. Gains 1 Fortify stack.', 3, 1.5, { fx: [['stagger', 1]], selfStacks: 1 }),
+             /* Her armour was never the problem — being CURSED through it was. Fortify cuts
+                damage and nothing in her kit touched a Hex, a Weaken or a Sunder, so the clean
+                answer to a shieldmaiden was to debuff her rather than hit her.
+                NOTE for whoever reads this next: the `immune` STATUS here (the Charmed effect,
+                which refuses new bad statuses for a couple of turns) is a different machine
+                from the `immune` PASSIVE flag on Seamless Plate below, which permanently bars
+                a named list. Same word, two mechanisms. */
+             B('Set in Stone', 'Plants her feet for 2 turns: no new curse will take hold on her, and she gains 2 Fortify stacks.', 4, 'self', [['immune', 2]], { selfStacks: 2 })],
+    passive: P('Unbreakable', 'Once per battle, a blow that would knock her out leaves her at 1 HP.', { lastStand: true }),
+    /* Unbreakable is one enormous save, once. This is the small one that never stops: the two
+       statuses that undo a tank specifically — Sunder opens the armour she is built out of,
+       Exposed multiplies everything that lands — simply never apply. Against a warband with
+       no shredder it is worth nothing at all, which is what makes it a choice rather than a
+       strict upgrade. Her Nature already caps Fortify at four (32% off), and this protects
+       the armour that stacking is multiplying. */
+    passiveAlt: P('Seamless Plate', 'There is no gap in dwarf-work: Sunder and Exposed never take hold on her.', { immune: ['sunder', 'exposed'] }) },
   { id: 'aelira', name: 'Aelira Swiftwind', short: 'Aelira', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf longbow archer.',
     mods: { agi: 1.2, crit: 0.15 },
     look: { body: 'elf', main: '#3f7a4f', trim: '#d9c58a', skin: '#f0d2b4', hair: '#e8d9a0', weapon: 'bow' },
@@ -5396,8 +5690,25 @@ const ROSTER = [
              D('Hawkeye', 'Deals 160% ATK damage. Guaranteed critical hit.', 4, 1.6, { alwaysCrit: true }),
              D('Arrow Rain', 'Deals 50% ATK damage to all enemies.', 3, 0.5, { aoe: true }),
              D('Piercing Shot', 'Deals 150% ATK damage. Ignores armor and shields.', 3, 1.5, { pierce: true, ignoreShield: true }),
-             B('Steady Aim', 'Empowers self: +30% damage for 2 turns. Gains 3 Precision stacks.', 4, 'self', [['empower', 3]], { selfStacks: 3 })],
-    passive: P('Keen Eye', 'Starts every battle with 3 Precision stacks.', { startStacks: 3 }) },
+             B('Steady Aim', 'Empowers self: +30% damage for 2 turns. Gains 3 Precision stacks.', 4, 'self', [['empower', 3]], { selfStacks: 3 }),
+             /* More rolls of the dice she is loading. An elf gets +10% crit per Precision
+                stack, so a three-arrow skill asks that question three times in one turn —
+                which is worth far more to her than one bigger arrow. The +20% is on every
+                shaft, so at a full draw each of the three is looking at a very high crit. */
+             D('Threadneedle', 'Strikes 3 times for 55% ATK damage each, with +20% crit chance on every arrow.', 3, 0.55, { hits: 3, critBonus: 0.2 }),
+             /* The skill her Nature was asking for. Fletcher's Line means a hit costs her ONE
+                stack instead of the whole draw — which only matters if she can actually avoid
+                being hit, and she had no way to. Evade turns aside the next thing that could
+                miss, so it protects the draw rather than her health; the bar push gets her out
+                of the return fire, and the stack pays her for the turn she did not shoot. */
+             B('Loose and Move', 'Looses and steps away: 20% up the speed bar, 1 Precision stack, and the next thing thrown at her goes wide.', 4, 'self', [['evade', 1]], { surge: 200, selfStacks: 1 })],
+    passive: P('Keen Eye', 'Starts every battle with 3 Precision stacks.', { startStacks: 3 }),
+    /* Keen Eye is front-loaded: three stacks at the first bell, and nothing afterwards. This
+       one pays on every single turn instead, and it compounds with the thing she is best at —
+       an extra arrow is an extra crit roll at her crit, not just more damage. Worth most on
+       Swift Arrows and Threadneedle, worth nothing on Hawkeye, so the two passives genuinely
+       point at different halves of her kit. */
+    passiveAlt: P('Second Nock', 'Every many-arrow skill of hers looses one arrow more.', { extraHit: 1 }) },
   { id: 'faelan', name: 'Faelan Thornshot', short: 'Faelan', faction: 'stone', race: 'elf', role: 'ranged', bio: 'Elf who tips his crossbow bolts with venom.',
     mods: {},
     look: { body: 'elf', main: '#2f4f3a', trim: '#9ac46b', skin: '#d9b08c', hair: '#2b2b2b', weapon: 'crossbow' },
@@ -5406,8 +5717,24 @@ const ROSTER = [
              D('Thornvolley', 'Deals 60% ATK damage to all enemies. Applies Poison for 3 turns and Slow for 2 turns.', 5, 0.6, { aoe: true, fx: [['poison', 3, 0.25], ['slow', 2]] }),
              D('Envenom', 'Deals 100% ATK damage. 60% bonus damage to Poisoned targets.', 3, 1.0, { bonusVs: 'poison' }),
              D('Crippling Bolt', 'Deals 110% ATK damage. Applies Poison for 3 turns and Slow for 2 turns.', 3, 1.1, { fx: [['poison', 3, 0.3], ['slow', 2]] }),
-             D('Toxic Barrage', 'Strikes 3 times for 50% ATK damage each. Applies Poison for 3 turns.', 4, 0.5, { hits: 3, fx: [['poison', 3, 0.3]] })],
-    passive: P('Debilitating Venom', 'While he stands, Poisoned enemies deal 15% less damage.', { weakenPoisoned: 0.15 }) },
+             D('Toxic Barrage', 'Strikes 3 times for 50% ATK damage each. Applies Poison for 3 turns.', 4, 0.5, { hits: 3, fx: [['poison', 3, 0.3]] }),
+             /* His passive already takes 15% off what a poisoned thing hits for; this takes
+                another 35% of its swings away entirely. The two stack into the real answer to
+                a melee warband, and it is defence bought with an attack — which is the only
+                kind of defence an archer with no shield has ever had. */
+             D('Blinding Toxin', 'Deals 90% ATK damage, Blinds for 2 turns — 35% of what they swing goes wide — and Poisons for 3.', 3, 0.9, { fx: [['blind', 2], ['poison', 3, 0.3]] }),
+             /* The deep dose, and the one skill in his kit that cares about his NATURE rather
+                than his passive. Crawling Venom hops a poison to a fresh body when its host
+                dies, carrying whatever turns were left on it — so a 4-turn poison is not just
+                33% more ticks, it is a longer fuse for the hop as well. Armour-ignoring so the
+                opening dose actually lands on the plated front line it has to get through. */
+             D('Marrowrot', 'Deals 150% ATK damage and ignores armor. The Poison it leaves runs 4 turns instead of 3 — and crawls on with whatever is left of them.', 4, 1.5, { pierce: true, fx: [['poison', 4, 0.35]] })],
+    passive: P('Debilitating Venom', 'While he stands, Poisoned enemies deal 15% less damage.', { weakenPoisoned: 0.15 }),
+    /* Debilitating Venom is defensive — the poison makes them hit softer. This is the same
+       venom read as a weapon: half again on every tick, across a kit where five of seven
+       skills apply it. It is the poison twin of Kindling and Ragged Edge, and the fork is the
+       honest one: blunt the warband, or kill it faster. */
+    passiveAlt: P('Rotgut', 'The venom goes deeper than it looks: every Poison he lays ticks for half again.', { dotBoost: { poison: 1.5 } }) },
   { id: 'elowen', name: 'Elowen Greenmantle', short: 'Elowen', faction: 'stone', race: 'elf', role: 'support', bio: 'Elf druid of the deep wood.',
     mods: { agi: 1.1 },
     look: { body: 'elf', main: '#5e8a4a', trim: '#e3d27a', skin: '#f0d2b4', hair: '#c96a3c', weapon: 'staff', orb: '#9fe08a' },
@@ -5417,9 +5744,30 @@ const ROSTER = [
              D('Entangle', 'Deals 70% ATK damage. Roots target: Applies Slow for 2 turns and Stagger.', 3, 0.7, { magic: true, fx: [['slow', 2], ['stagger', 1]], roots: true }),
              B('Barkskin', 'Shields an ally for 2 turns. Wards for 2 turns: -60% damage taken.', 4, 'ally', [['shield', 2], ['ward', 2]], { aiTarget: 'lowest' }),
              D('Thornlash', 'Deals 80% ATK damage. Roots target: Applies Slow and Exposed for 2 turns (+25% damage taken).', 3, 0.8, { magic: true, fx: [['slow', 2], ['exposed', 3]], roots: true }),
-             B('Wind at the Back', 'Hastens an ally for 3 turns. Removes Slow.', 4, 'ally', [['haste', 4]], { shedSlow: true })],
+             B('Wind at the Back', 'Hastens an ally for 3 turns. Removes Slow.', 4, 'ally', [['haste', 4]], { shedSlow: true }),
+             /* Her control was all single-target — Entangle and Thornlash take one enemy out
+                of the walk at a time, which is no answer at all to a line that charges
+                together. This is the same briar across the whole field. Deliberately the
+                weakest damage she has: the Slow is the skill, the 60% is a courtesy.
+                `roots: true` is the ART flag (it grows thorns at the feet of a landed Slow),
+                not the `rooted` STATUS — the same thing her other two do, kept consistent. */
+             D('Grasping Roots', 'Deals 60% ATK damage to all enemies and Slows them for 2 turns — the briars come up through the whole line at once.', 4, 0.6, { magic: true, aoe: true, fx: [['slow', 2]], roots: true }),
+             /* No mending in this one, and that is the point: everything else she gives the
+                warband arrives as health, which a Hex halves and a Grave Pall thins. Thorns is
+                paid by whoever is swinging, so nothing that weakens healing touches it — and
+                on a band that is already being focused it turns the focus into a cost. Pairs
+                with Barkskin rather than repeating it: that wards one ally, this arms all of
+                them. */
+             B('Oaken Vigil', 'Every ally bristles for 2 turns: 40% of what strikes them is thrown straight back.', 4, 'allAllies', [['thorns', 2]])],
     passive: P('Forest Stride', 'While she stands, all allies move 20% faster on the speed bar.', { haste: 0.2 }),
-    passiveAlt: P('Verdant Aura', 'While she stands, all allies regenerate an extra 2% of max HP each turn.', { allyRegen: 0.02 }) },
+    /* Three now (ids 'alt' and 'alt2'); Verdant Aura keeps index 0 so older saves are safe. */
+    passiveAlt: [P('Verdant Aura', 'While she stands, all allies regenerate an extra 2% of max HP each turn.', { allyRegen: 0.02 }),
+      /* The other two are warband auras that do nothing for what she actually spends her turns
+         on — and she spends them on holding the enemy still. Three of her eight skills land a
+         Slow, Exposed or Stagger (Entangle, Thornlash and the new Grasping Roots), and a turn
+         more on each is the difference between a line that is inconvenienced and one that
+         never arrives. The control build, against the two support builds. */
+      P('Deeproot', 'The wood does not let go: every Slow, Exposed and Weaken she lays holds a turn longer.', { fxLonger: 1 })] },
 
   // ---- The Tideborn ----
   { id: 'tharos', name: 'Tharos Razorfin', short: 'Tharos', faction: 'tide', role: 'melee', bio: 'Shark-folk trident warrior.',
@@ -5431,8 +5779,25 @@ const ROSTER = [
              D('Riptide', 'Deals 120% ATK damage. Knocks target back on the speed bar.', 3, 1.2, { knockback: 300, watersweep: true }),
              D('Feeding Frenzy', 'Strikes 3 times for 55% ATK damage each. 60% bonus damage to Bleeding targets.', 4, 0.55, { hits: 3, bonusVs: 'bleed' }),
              D('Undertow', 'Deals 60% ATK damage to all enemies. Knocks all targets back on the speed bar.', 4, 0.6, { aoe: true, knockback: 200, watersweep: true, slam: true }),
-             { name: 'Anchor Chain', desc: 'A great anchor crashes from above and roots an enemy for 2 of its turns or until the anchor is broken — whichever comes first. The rooted enemy can still act, but it cannot cross the field: no melee attacks, run-in spells, or moves to an ally. Ranged attacks and in-place casts still land. The host can strike the anchor on itself. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} }],
-    passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }) },
+             { name: 'Anchor Chain', desc: 'A great anchor crashes from above and roots an enemy for 2 of its turns or until the anchor is broken — whichever comes first. The rooted enemy can still act, but it cannot cross the field: no melee attacks, run-in spells, or moves to an ally. Ranged attacks and in-place casts still land. The host can strike the anchor on itself. The anchor stands as a unit of its own — targetable, untouched by area attacks, and broken only by 4 blows of any size.', cd: 5, kind: 'anchor', target: 'enemy', o: {} },
+             /* THE SETUP HIS WHOLE KIT WAS WAITING FOR. Four of his skills and his passive all
+                ask the same question — is this one Bleeding? — and the only way to make it true
+                was Trident Lunge, one mark at a time. This opens the whole line at once, so
+                Blood in the Water, Feeding Frenzy and Blood Scent all turn on together. Low
+                damage on purpose: it is a turn spent making the next three turns worth more. */
+             D('Chum the Water', 'Deals 70% ATK damage to all enemies and opens a Bleed on every one of them for 3 turns.', 4, 0.7, { aoe: true, fx: [['bleed', 3, 0.25]] }),
+             /* And the bite at the end of it. Armour was the one thing that blunted a kit built
+                out of 55%-and-60% multi-hits, so this is the single heavy blow that ignores it
+                — and it feeds him, which nothing else of his does. The lifesteal is on a damage
+                skill rather than a mend, so the Tideborn's one melee bruiser can hold a front
+                line without the support spending a turn on him. */
+             D('Gutter', 'Deals 180% ATK damage, ignores armor entirely, and drinks 30% of what it deals.', 4, 1.8, { pierce: true, lifesteal: 0.3 })],
+    passive: P('Blood Scent', '+20% crit chance against Bleeding targets.', { critVs: { fx: 'bleed', bonus: 0.2 } }),
+    /* Blood Scent is the whole-fight passive and it needs a cut to pay. This one needs nothing:
+       a mark below 40% is a mark he hits harder whether or not anyone has opened it. The fork
+       is "build around Bleed" against "finish what the warband started", which matters because
+       four of his skills already care about Bleed and none of them care about health. */
+    passiveAlt: P('Red Water', 'He does not need a cut to find them: 30% more damage to anything already below 40% health.', { execute: { below: 0.4, bonus: 0.3 } }) },
   { id: 'grubble', name: 'Grubblefin', faction: 'tide', role: 'melee', bio: 'Gurgling brawler gone cold, plated in rime.',
     mods: { hp: 1.2, agi: 0.9, atk: 1.15 },
     look: { body: 'tide', crest: 'fish', skin: '#79b9d8', main: '#2b4a66', trim: '#9fe8ff', weapon: 'sword' },
@@ -5442,8 +5807,26 @@ const ROSTER = [
              B('Slippery Scales', 'Evades all dodgeable attacks for 1 turn.', 4, 'self', [['evade', 1]]),
              D('Barnacle Bite', 'Deals 100% ATK damage. Applies Bleed for 3 turns and Slow for 2 turns.', 2, 1.0, { fx: [['bleed', 3, 0.25], ['slow', 2]] }),
              D('Tail Whip', 'Deals 60% ATK damage to all enemies. 35% chance to Stagger each target.', 4, 0.6, { aoe: true, chanceFx: [['stagger', 1, 0.35]] }),
-             D('Choking Bite', 'Deals 90% ATK damage. Applies Choke for 2 turns: using a skill causes Silence on the next turn.', 3, 0.9, { fx: [['choke', 3]] })],
-    passive: P('Frostplate', 'The first hit he takes each turn deals 25% less damage.', { firstHitDR: 0.25 }) },
+             D('Choking Bite', 'Deals 90% ATK damage. Applies Choke for 2 turns: using a skill causes Silence on the next turn.', 3, 0.9, { fx: [['choke', 3]] }),
+             /* SNAPBACK, DELIBERATELY TRIGGERED. His Nature answers every attack that MISSES
+                him for 50%, and until now the only way to miss him was luck: Slippery Scales
+                made him hard to hit but gave the enemy no reason to swing. This does both
+                halves — it drags every one of them onto him and then makes them whiff, so the
+                Nature that reads as a passive consolation becomes a thing he can aim.
+                The taunt is on him (selfFx), so it is his turn that buys the whole exchange. */
+             B('Bait the Hook', 'Roars every enemy onto him for 2 turns and goes slippery for 1: anything that can miss him will — and every miss is answered.', 5, 'self', [['taunt', 2], ['evade', 1]]),
+             /* The armour answer. Rimebite, Glacial Frenzy and Tail Whip are all thin repeated
+                blows, which is exactly the shape that a heavy front line blunts worst — each
+                hit pays the defence separately. Four cuts that ignore armour entirely is the
+                version of his own trick that works against plate. */
+             D('Icebreaker', 'Strikes 4 times for 45% ATK damage each, and every cut ignores armor.', 4, 0.45, { hits: 4, pierce: true })],
+    passive: P('Frostplate', 'The first hit he takes each turn deals 25% less damage.', { firstHitDR: 0.25 }),
+    /* Frostplate softens what lands; this charges for it. Between the two he is either hard to
+       hurt or expensive to touch — and the second reads off the attacker's role, so it is dead
+       weight against shooters and very good against the melee that Bait the Hook has just
+       dragged onto him. Note it does not overlap his Nature: Snapback answers a MISS, this
+       answers a HIT, so a champion running both punishes either outcome. */
+    passiveAlt: P('Gnashing', 'Land a blow on him and he is already biting: 25% chance to answer a melee hit for 70%.', { riposte: { chance: 0.25, mult: 0.7 } }) },
   { id: 'seraphine', name: 'Seraphine Wavecaller', short: 'Seraphine', faction: 'tide', role: 'ranged', bio: 'Siren whose song drowns sailors.',
     mods: { agi: 1.05 },
     look: { body: 'elf', fin: true, skin: '#9fd0c8', hair: '#3d6fb0', main: '#2a7f8f', trim: '#e9e4d8', weapon: 'orb', orb: '#f2c6d8' },
@@ -5453,8 +5836,23 @@ const ROSTER = [
              D('Dirge of the Deep', 'Deals 50% ATK damage to all enemies. Cannot miss. Applies Weaken for 2 turns.', 4, 0.5, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 2]] }),
              D('Drowning Chorus', 'Deals 60% ATK damage to all enemies. Cannot miss. Applies Slow and Blind for 2 turns.', 4, 0.6, { magic: true, aoe: true, noDodge: true, fx: [['slow', 2], ['blind', 2]] }),
              B('Song of the Depths', 'Shields all allies for 1 turn. Empowers all allies: +30% damage for 2 turns.', 5, 'allAllies', [['shield', 1], ['empower', 3]]),
-             B('Turncoat Verse', 'Forces an enemy to attack their most wounded ally. Target loses 50% of its speed bar.', 5, 'enemy', [], { turncoat: true })],
-    passive: P('Echo', 'Her Silence, Weaken and other lasting debuffs last 1 turn longer.', { fxLonger: 1 }) },
+             B('Turncoat Verse', 'Forces an enemy to attack their most wounded ally. Target loses 50% of its speed bar.', 5, 'enemy', [], { turncoat: true }),
+             /* Her one real blow. Six skills and the biggest number among them was 1.0, which
+                made her a champion who could stop a fight but never end one — against anything
+                immune to control she simply had no answer. Silences on the way through, and
+                Echo turns that into four turns, which is most of a caster's fight. */
+             D('Abyssal Note', 'Deals 170% ATK damage. Cannot miss. Silences the target for 3 turns.', 4, 1.7, { magic: true, noDodge: true, fx: [['silence', 3]] }),
+             /* The siren's actual legend: she takes the voice, and here that means the mana.
+                Her Nature already halves what she pays at High Tide, so this is the other side
+                of the same coin — she spends less and they spend more. A quarter of whatever
+                each is carrying, which is ruinous against a line of casters and worth exactly
+                nothing against the Ironclad, who carry none. */
+             D('Hollow the Throat', 'Deals 70% ATK damage to all enemies. Cannot miss. Burns away a quarter of the mana each of them is carrying.', 4, 0.7, { magic: true, aoe: true, noDodge: true, manaBurnPct: 0.25 })],
+    passive: P('Echo', 'Her Silence, Weaken and other lasting debuffs last 1 turn longer.', { fxLonger: 1 }),
+    /* Echo makes the gag last; this makes it worth something. Two of her skills Silence, so
+       the mark she wants to hit is usually one she has already quieted — and unlike Echo it
+       pays on the very turn it lands rather than on the turn after. Duration against damage. */
+    passiveAlt: P('Hush the Deep', 'A voice she has already taken cannot ward itself: 25% more damage to a Silenced enemy.', { vs: { fx: 'silence', bonus: 0.25 } }) },
   { id: 'octavia', name: 'Octavia Inkveil', short: 'Octavia', faction: 'tide', role: 'ranged', bio: 'Octopus-folk ink caster.',
     mods: {},
     look: { body: 'tide', crest: 'octo', skin: '#9b6aa8', main: '#4b3d6e', trim: '#e3d27a', weapon: 'orb', orb: '#5a4a8a' },
@@ -5464,8 +5862,22 @@ const ROSTER = [
              D('Tentacle Snare', 'Deals 90% ATK damage. Applies Slow for 2 turns.', 3, 0.9, { fx: [['slow', 3]] }),
              D('Ink Whip', 'Deals 120% ATK damage. Cannot miss. Applies Blind for 2 turns.', 3, 1.2, { magic: true, noDodge: true, fx: [['blind', 3]] }),
              D('Crushing Grip', 'Deals 160% ATK damage. Silences target for 2 turns.', 4, 1.6, { fx: [['silence', 3]] }),
-             { name: 'Stinging Veil', desc: 'Octavia flings a pink jellyfish that clamps onto an enemy, shocking it for 15 magic at once and 15 more every 3 turns, whoever takes them. The jelly stands as a unit of its own — targetable, untouched by area attacks, and burst only by 3 blows of any size.', cd: 4, kind: 'jelly', target: 'enemy', o: {} }],
-    passive: P('Ink Sac', 'When hit, 25% chance to Blind the attacker.', { onHitTaken: { chance: 0.25, fx: [['blind', 2]] } }) },
+             { name: 'Stinging Veil', desc: 'Octavia flings a pink jellyfish that clamps onto an enemy, shocking it for 15 magic at once and 15 more every 3 turns, whoever takes them. The jelly stands as a unit of its own — targetable, untouched by area attacks, and burst only by 3 blows of any size.', cd: 4, kind: 'jelly', target: 'enemy', o: {} },
+             /* Eight arms, and until now she fought with one. Every blow she had was a single
+                heavy cast, which is the wrong shape for a champion whose passive, Nature and
+                half her kit are about blinding: a blinded enemy misses 35% of the time, and
+                thin repeated hits are what punish a defence that only fails sometimes. */
+             D('Eight Arms', 'Strikes 4 times for 50% ATK damage each. Cannot miss.', 4, 0.5, { hits: 4, magic: true, noDodge: true }),
+             /* The heavy ink. Ink Whip blinds for 120% and Crushing Grip silences for 160%;
+                this is the one that does both halves of what she is for — takes their sight
+                AND the strength out of what they swing at whoever they aim at instead. */
+             D('Abyssal Ink', 'Deals 150% ATK damage. Cannot miss. Blinds and Weakens the target for 2 turns.', 3, 1.5, { magic: true, noDodge: true, fx: [['blind', 2], ['weaken', 2]] })],
+    passive: P('Ink Sac', 'When hit, 25% chance to Blind the attacker.', { onHitTaken: { chance: 0.25, fx: [['blind', 2]] } }),
+    /* Ink Sac blinds defensively and at random; this cashes in every blinding she does on
+       purpose. Four of her eight skills land a Blind, so it is nearly always live — which is
+       the trade: Ink Sac protects her when she is being hit, this one pays only while she is
+       the one doing the hitting. */
+    passiveAlt: P('Clouded Eyes', 'A mark that cannot see her takes the worse for it: 25% more damage to a Blinded enemy.', { vs: { fx: 'blind', bonus: 0.25 } }) },
   { id: 'maren', name: 'Maren Pearlheart', short: 'Maren', faction: 'tide', role: 'support', bio: 'Pearl priestess of the reef.',
     mods: {},
     look: { body: 'tide', crest: 'fish', skin: '#7fb3a8', main: '#e9e4d8', trim: '#f2c6d8', weapon: 'staff', orb: '#fff7e6' },
@@ -5478,9 +5890,26 @@ const ROSTER = [
              /* The only thing in the game that lands a Bash. Deliberately dodgeable, unlike her
                 Riptide Crash: a shard that misses carries no Bash with it (applyHitEffects only runs
                 on a hit), so an agile warband is not simply frozen out by one cast. */
-             D('Rimefall', 'Deals 60% ATK damage to all enemies (arcing). Applies Bash for 2 turns to each target hit. Dodged shards apply no Bash.', 5, 0.6, { magic: true, aoe: true, attackType: 'arch', fx: [['bash', 2]] })],
+             D('Rimefall', 'Deals 60% ATK damage to all enemies (arcing). Applies Bash for 2 turns to each target hit. Dodged shards apply no Bash.', 5, 0.6, { magic: true, aoe: true, attackType: 'arch', fx: [['bash', 2]] }),
+             /* The answer to the fight she could not win. Four of her six skills mend, which is
+                worth nothing against a warband that simply out-heals the damage — and she had
+                no way to touch that. A Hex halves everything that mends them, so this is the
+                healer's own weapon turned around. Single-target on purpose: Hesk's Rebuke lays
+                the same curse across a whole line, and the Tideborn should not also have that. */
+             D('Salt the Reef', 'Deals 70% ATK damage. Cannot miss. Hexes the target for 3 turns: every mend it takes is halved.', 3, 0.7, { magic: true, noDodge: true, fx: [['hex', 3]] }),
+             /* And the tempo piece. Riptide Crash weakens the line and Rimefall bashes it, but
+                nothing she had actually bought the warband TIME — which is the other way a
+                support keeps people alive. Low damage, never misses, and it is the skill that
+                Spring Tide below is built to pay on. */
+             D('Undertow Grasp', 'Deals 80% ATK damage to all enemies. Cannot miss. Slows every one of them for 2 turns.', 4, 0.8, { magic: true, aoe: true, noDodge: true, fx: [['slow', 2]] })],
     passive: P('Backwash', 'Each time an enemy uses a skill, it takes damage equal to 10% of its current HP.', { spellBacklash: 0.1 }),
-    passiveAlt: P('Tidecaller', 'Her heals also restore 8 MP.', { healMp: 8 }) },
+    /* Three now (ids 'alt' and 'alt2'); Tidecaller keeps index 0 so older saves are safe. */
+    passiveAlt: [P('Tidecaller', 'Her heals also restore 8 MP.', { healMp: 8 }),
+      /* Backwash punishes casters and Tidecaller feeds them; neither does anything for the
+         four area skills she now throws. This is the fork for a Maren played as the warband's
+         artillery rather than its well — and it reads off the SHAPE of the skill, so unlike
+         Backwash it pays against a warband that never casts at all. */
+      P('Spring Tide', 'The reef gives everything at once: every area attack of hers lands 20% harder.', { aoeBonus: 0.2 })] },
 
   // ---- The Crimson Court (Vampires & Demons) — no ranged ----
   { id: 'vesper', name: 'Vesper Nightshade', short: 'Vesper', faction: 'crimson', role: 'melee', bio: 'Vampire lord and duelist.',
@@ -5492,8 +5921,23 @@ const ROSTER = [
              D('Exsanguinate', 'Deals 200% ATK damage. Lifesteals 50%. Applies Bleed for 3 turns.', 4, 2.0, { lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
              D('Night Waltz', 'Strikes 3 times for 50% ATK damage each.', 3, 0.5, { hits: 3 }),
              D('Throat Tear', 'Deals 150% ATK damage. Ignores armor. Lifesteals 50%. Applies Bleed for 3 turns.', 3, 1.5, { pierce: true, lifesteal: 0.5, fx: [['bleed', 3, 0.3]] }),
-             B('Mist Form', 'Evades all dodgeable attacks for 1 turn. Heals for 150% ATK.', 4, 'self', [['evade', 1]], { heal: 1.5, mist: true })],
-    passive: P('Riposte', 'When hit in melee, 20% chance to strike back for 60%.', { riposte: { chance: 0.2, mult: 0.6 } }) },
+             B('Mist Form', 'Evades all dodgeable attacks for 1 turn. Heals for 150% ATK.', 4, 'self', [['evade', 1]], { heal: 1.5, mist: true }),
+             /* His first area skill, and it had to be one that still feeds him — the Court pays
+                for every cast in its own blood, so a champion of theirs who spends health on a
+                skill that gives none back is losing the exchange twice. 30% rather than the 50%
+                his single-target blows drink: spread across a line that is a great deal of
+                health coming home, and it should not be strictly better than picking one. */
+             D('Scarlet Veil', 'Deals 70% ATK damage to all enemies and drinks 30% of everything it deals.', 4, 0.7, { aoe: true, lifesteal: 0.3 }),
+             /* The one thing a vampire lord was conspicuously missing. Six skills and not one of
+                them could stop a turn — against anything he could not simply out-duel he had no
+                answer at all. Low damage because the charm IS the skill, and unmissable because
+                a gaze that can be dodged is not a gaze. */
+             D('Gaze of the Count', 'Deals 90% ATK damage. Cannot miss. 50% chance to hold the mark where it stands, Stunned.', 4, 0.9, { magic: true, noDodge: true, stun: 0.5 })],
+    passive: P('Riposte', 'When hit in melee, 20% chance to strike back for 60%.', { riposte: { chance: 0.2, mult: 0.6 } }),
+    /* Riposte pays when he is being hit; this pays when he is doing the hitting. Two of his
+       skills open a Bleed and nothing in the kit ever cashed one in, so this is the duellist's
+       build — cut first, then press — against the counter-puncher's. */
+    passiveAlt: P('Taste for It', 'Blood in the air sharpens him: 25% more damage to anything already Bleeding.', { vs: { fx: 'bleed', bonus: 0.25 } }) },
   { id: 'malgrath', name: 'Malgrath the Unbound', short: 'Malgrath', faction: 'crimson', role: 'melee', bio: 'Demon brute freed from the pit.',
     mods: { hp: 1.15, atk: 1.05, def: 0.9, agi: 0.85 },
     look: { body: 'demon', main: '#2d2230', trim: '#e8a548', skin: '#a8323a', horn: '#1f1a1f', eye: '#ffd166', weapon: 'axe' },
@@ -5503,8 +5947,24 @@ const ROSTER = [
              B('Demonic Roar', 'Taunts all enemies for 3 turns. Empowers self: +30% damage for 2 turns.', 4, 'self', [['taunt', 3], ['empower', 3]]),
              D('Pit Chains', 'Deals 130% ATK damage. Knocks target back on the speed bar. Exposes for 2 turns (+25% damage taken).', 3, 1.3, { knockback: 250, fx: [['exposed', 3]] }),
              D('Sulphur Breath', 'Deals 55% ATK fire damage to all enemies. Cannot miss. Applies Burn for 3 turns and Blind for 2 turns.', 4, 0.55, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.3], ['blind', 2]] }),
-             B('Blood Pact', 'Malgrath binds the warband in blood. The next 3 blows he takes are split evenly between him and every living ally — with three beside him he carries a quarter of each.', 4, 'self', [['bloodpact', 99]], { charges: 3 })],
-    passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }) },
+             B('Blood Pact', 'Malgrath binds the warband in blood. The next 3 blows he takes are split evenly between him and every living ally — with three beside him he carries a quarter of each.', 4, 'self', [['bloodpact', 99]], { charges: 3 }),
+             /* Infernal Toll, aimed. Hellfire Slam scatters it across the line as a rider on an
+                area burn, which means the one enemy he actually wants taxed — the caster — gets
+                it only by luck. This puts it on a chosen throat, ignores the armour that was
+                blunting his only other single-target blow, and cannot miss. */
+             D('Brand', 'Deals 140% ATK fire damage. Cannot miss. Ignores armor. Applies Burn for 3 turns and Infernal Toll for 2.', 3, 1.4, { magic: true, noDodge: true, pierce: true, fx: [['burn', 3, 0.3], ['toll', 3]] }),
+             /* The ground opens. His two area skills both land once and are over; this one
+                leaves the enemy ground burning behind it, which is the demon version of taking
+                territory. He is Pit-Forged, so the fire he leaves can never be turned back on
+                him — Burn simply does not take from him, whoever lights it. */
+             D('Hellmouth', 'Deals 85% ATK fire damage to all enemies and leaves the ground they stand on alight for 2 turns. Cannot miss. Applies Burn for 3 turns.', 4, 0.85, { magic: true, aoe: true, noDodge: true, fx: [['burn', 3, 0.3]], groundFire: 2 })],
+    passive: P('Brimstone Hide', 'Melee attackers who hit him catch fire.', { onHitTaken: { chance: 1, melee: true, fx: [['burn', 3, 0.25]] } }),
+    /* Brimstone Hide answers the one who hit him; this bills the whole line for it. He is the
+       champion who taunts everything onto himself (Demonic Roar) and then splits what lands
+       (Blood Pact), so a passive that converts being hit into damage on EVERYONE is the build
+       those two were always pointing at. Reads off the blow, not the attacker's role, so unlike
+       Brimstone Hide it answers shooters too. */
+    passiveAlt: P('Hell Answers', 'Every blow he takes is billed to all of them: each enemy takes 15% of what he just absorbed.', { retribution: 0.15 }) },
   { id: 'seraxa', name: 'Seraxa Thornwing', short: 'Seraxa', faction: 'crimson', role: 'melee', bio: 'Winged demon blade dancer — her feet never touch the ash.',
     mods: { hp: 0.9, agi: 1.3 }, floats: true,
     nature: { name: 'On the Wing', desc: 'Her feet never touch the ash: she flies to her marks, and nothing that needs footing — Stagger, the quaking earth — can take hold of her.' },
@@ -5513,8 +5973,24 @@ const ROSTER = [
              D('Dance of Knives', 'Strikes 5 times for 40% ATK damage each.', 4, 0.4, { hits: 5 }),
              D('Shadowstep', 'Deals 110% ATK damage. Cannot miss. +30% crit chance.', 3, 1.1, { noDodge: true, critBonus: 0.3 }),
              D('Wing Carve', 'Strikes 4 times for 45% ATK damage each. Applies Bleed for 3 turns.', 4, 0.45, { hits: 4, fx: [['bleed', 3, 0.25]] }),
-             B('Predator\'s Grace', 'Evades all dodgeable attacks for 1 turn. Empowers self: +30% damage for 2 turns.', 4, 'self', [['evade', 1], ['empower', 3]])],
-    passive: P('Flurry', 'Her multi-hit skills strike one extra time.', { extraHit: 1 }) },
+             B('Predator\'s Grace', 'Evades all dodgeable attacks for 1 turn. Empowers self: +30% damage for 2 turns.', 4, 'self', [['evade', 1], ['empower', 3]]),
+             /* THE SKILL THAT ACTUALLY USES HER WINGS. She has floats and a Nature built on
+                never touching the ground, and not one of her five did anything with it — every
+                blow she had was a blade dancer's, which any champion with feet could throw.
+                `hurl` is the flag for a blow that comes down out of the sky: no run-in, and
+                nothing standing in the way is between her and the mark, so a bodyguard cannot
+                take it and a counter cannot answer it. Her one heavy blow, to pay for that. */
+             D('Stoop', 'She folds her wings and drops. 200% ATK damage from directly above: cannot miss, ignores armor, and nobody can step into its path.', 4, 2.0, { noDodge: true, pierce: true, hurl: true }),
+             /* Her first area skill, and it is shaped to be hers rather than anyone's: two thin
+                passes rather than one blast, so Flurry turns it into three. A champion whose
+                passive adds a hit should have something for it to add to besides single marks. */
+             D('Razor Gale', 'Strikes every enemy 2 times for 40% ATK damage each.', 4, 0.4, { aoe: true, hits: 2 })],
+    passive: P('Flurry', 'Her multi-hit skills strike one extra time.', { extraHit: 1 }),
+    /* Flurry is damage; this is position. She is the fastest champion in the game (agi 1.3) and
+       her whole fantasy is being where she chooses — so the fork is "hit harder each turn"
+       against "take more turns", and a quarter of the bar on every kill compounds in a way
+       Flurry cannot. Worth nothing in a fight she is not closing out, which is the trade. */
+    passiveAlt: P('Blood Rush', 'Every mark she drops carries her onward: a fifth of the speed bar, the moment it falls.', { killSpeed: 200 }) },
   { id: 'gorehound', name: 'Gorehound', faction: 'crimson', role: 'melee', bio: 'Two-headed hellhound of the Court\'s kennels. Cut one down and it comes apart into two.',
     mods: { hp: 1.05, agi: 1.1 },
     look: { body: 'direhound', main: '#4a1f1f', trim: '#ff7a2f', eye: '#ffd166' },
@@ -5525,8 +6001,27 @@ const ROSTER = [
              D('Savage Maul', 'Deals 110% ATK damage. Exposes target for 2 turns: +25% damage taken.', 3, 1.1, { fx: [['exposed', 3]] }),
              D('Hamstring', 'Deals 100% ATK damage. Applies Slow for 2 turns and Bleed for 3 turns.', 2, 1.0, { fx: [['slow', 2], ['bleed', 3, 0.3]] }),
              D('Feral Lunge', 'Deals 190% ATK damage. Exposes self for 1 turn (+25% damage taken).', 4, 1.9, { selfFx: [['exposed', 1]] }),
-             { name: 'Come Apart', desc: `Both heads tear loose and run as two hounds — ${GORE_SPLIT_SPEED}× speed on the bar, ${GORE_SPLIT_BLOWS} blows each to put down whatever size they come in, and neither takes orders. While they run there is no Gorehound to aim at: nothing can be singled out, area attacks wash past, and anything thrown or queued at him finds nothing where he stood. Once each hound still standing has taken ${GORE_SPLIT_TURNS} turns they fold back together, at the health he left with. Put both hounds down and there is nothing left to come back.`, cd: 5, kind: 'split', target: 'self', o: {} }],
-    passive: P('Tear Apart', 'When Gorehound falls, both heads tear free as a pair of Hell Pups — 100 HP each, 1.5× faster on the speed bar, still yours to command, and each has a 40% chance to throw itself in front of a melee blow meant for an ally.', {}) },
+             { name: 'Come Apart', desc: `Both heads tear loose and run as two hounds — ${GORE_SPLIT_SPEED}× speed on the bar, ${GORE_SPLIT_BLOWS} blows each to put down whatever size they come in, and neither takes orders. While they run there is no Gorehound to aim at: nothing can be singled out, area attacks wash past, and anything thrown or queued at him finds nothing where he stood. Once each hound still standing has taken ${GORE_SPLIT_TURNS} turns they fold back together, at the health he left with. Put both hounds down and there is nothing left to come back.`, cd: 5, kind: 'split', target: 'self', o: {} },
+             /* The payoff bite. Three of his skills open a Bleed and not one of them ever cashed
+                one in — he was a hound that wounded things and then kept wounding them. Armour
+                was the other hole: everything he had was 1.0-1.2 and bounced off plate. */
+             D('Throat Lock', 'Deals 140% ATK damage and ignores armor — and 60% more again if the mark is already Bleeding.', 3, 1.4, { pierce: true, bonusVs: 'bleed' }),
+             /* And the skill that opens it fastest. Three bites rather than one, so against a
+                mark that is already cut it is three chances at a crit, and against one that is
+                not it is the quickest way to make Throat Lock worth throwing next turn. */
+             D('Worry the Wound', 'Bites 3 times for 55% ATK damage each and leaves the mark Bleeding for 3 turns.', 3, 0.55, { hits: 3, fx: [['bleed', 3, 0.25]] })],
+    passive: P('Tear Apart', 'When Gorehound falls, both heads tear free as a pair of Hell Pups — 100 HP each, 1.5× faster on the speed bar, still yours to command, and each has a 40% chance to throw itself in front of a melee blow meant for an ally.', {}),
+    /* HEADS UP — Tear Apart carries NO FLAG. Its options are {}, and the mechanic actually
+       rides `splitOnDeath: 2` on the champion above: makeUnit copies it straight off the
+       character (not off pv), and the death path reads it from the unit. So the effect fires
+       whether or not the passive is equipped.
+       That is not new and this alternative does not cause it — a player could already drop
+       Tear Apart for two generic passives and keep the pups. But an alternative makes it a
+       choice somebody will actually make, so it is worth saying out loud: picking Kennel
+       Master below does NOT cost you the pups today, which means Gorehound effectively gets
+       both. The fix is to give Tear Apart a real flag and gate splitOnDeath on it; that is a
+       change to combat behaviour for existing saves, so it is flagged rather than done here. */
+    passiveAlt: P('Gorge', 'Every throat he closes feeds him: 15% of his maximum health back on a kill.', { killHeal: 0.15 }) },
   { id: 'morwenna', name: 'Morwenna Bloodweaver', short: 'Morwenna', faction: 'crimson', role: 'support', bio: 'Blood witch of the Court.',
     mods: {},
     look: { body: 'vampire', main: '#5a1f2e', cape: '#2a1018', trim: '#d9b44a', skin: '#efe4ea', hair: '#c9c2d6', weapon: 'staff', orb: '#c0303f' },
@@ -5537,8 +6032,25 @@ const ROSTER = [
              B('Crimson Mend', `Open a blood channel for 3 turns. At the start of each of her turns it mends every ally — summoned units included — for ${Math.round(CRIMSON_MEND_PCT * 100)}% of their max HP, and costs Morwenna ${Math.round(CRIMSON_MEND_PCT * 100)}% of hers.`, 4, 'self', [['bloodchannel', 3]], { channel: true }),
              D('Wither', 'Deals 70% ATK damage. Cannot miss. Applies Weaken and Sunder for 3 turns.', 3, 0.7, { magic: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] }),
              B('Blood Ward', 'Next 3 hits on any ally are halved; Morwenna takes the other half. Hits on Morwenna are not shared.', 4, 'self', [['bloodward', 99]], { charges: 3 }),
-             B('Quickened Blood', 'Hastens an ally for 2 turns. Heals for 100% ATK.', 4, 'ally', [['haste', 3]], { heal: 1.0, notSelf: true })],
-    passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }) },
+             B('Quickened Blood', 'Hastens an ally for 2 turns. Heals for 100% ATK.', 4, 'ally', [['haste', 3]], { heal: 1.0, notSelf: true }),
+             /* Her ninth skill, and the first thing in the kit that is purely an attack. Blight
+                Hex lays the curse her passive is built on but only at 60%, so the Hex she most
+                wants up arrives attached to her weakest blow. This one carries it on a real
+                hit, and opens a Bleed the Hex then stops them mending — the wound and the
+                reason it will not close, in one cast. */
+             D('Open the Vein', 'Deals 110% ATK damage. Cannot miss. Applies Bleed for 3 turns and Hex for 3: the wound will not close.', 3, 1.1, { magic: true, noDodge: true, fx: [['bleed', 3, 0.3], ['hex', 3]] }),
+             /* Wither, across the line. Weaken and Sunder together are the two halves of making
+                an enemy warband harmless — hitting softer and being easier to hit — and she
+                could only ever do it to one of them at a time. Lowest damage in her kit on
+                purpose: the debuff is the whole payload. */
+             D('Blood Fog', 'Deals 60% ATK damage to all enemies. Cannot miss. Applies Weaken and Sunder for 3 turns.', 4, 0.6, { magic: true, aoe: true, noDodge: true, fx: [['weaken', 3], ['sunder', 3]] })],
+    passive: P('Withering Curse', 'While she stands, Hexed enemies take 15% more damage.', { hexVuln: 0.15 }),
+    /* The Court's own law, turned outward. Withering Curse needs her to land a Hex first and
+       pays the warband for it; this needs nothing and bills the enemy for simply playing. It
+       is the most on-the-nose passive in the faction — the Crimson Court pays for every skill
+       in blood, and this makes everyone else pay too — and it is the pick against a warband
+       full of casters, where Withering Curse is the pick against one she can curse. */
+    passiveAlt: P('Blood Price', 'The Court\'s law laid on everyone: each enemy skill costs its caster 8% of the blood they have left.', { spellBacklash: 0.08 }) },
   // ---- The Pale Host (Undead) ----
   { id: 'mordrek', name: 'Mordrek the Interred', short: 'Mordrek', faction: 'undead', role: 'melee', bio: 'Dug himself out, and brought his own marker with him.',
     mods: { atk: 1.05, hp: 1.05, agi: 0.95 },
@@ -5548,8 +6060,30 @@ const ROSTER = [
              D('Last Rites', 'Strikes 2 times for 110% ATK damage each. Ignores armor. Pins target until Mordrek\'s next turn: cannot act. Pin breaks if Mordrek falls.', 5, 1.1, { pierce: true, hits: 2, hurl: true, pin: true }),
              D('Graveside Chill', 'Deals 85% ATK damage to all enemies. Applies Fear for 2 turns.', 4, 0.85, { aoe: true, gust: true, fx: [['fear', 2]] }),
              D('Bonebreaker', 'Strikes 2 times for 75% ATK damage each. Sunders armor for 3 turns.', 3, 0.75, { hits: 2, fx: [['sunder', 3]] }),
-             S('Plant the Marker', 'Step forward and drive the cross into the ground. The Grave Cross stands as a unit of its own and Taunts every enemy until it has taken 6 blows, whatever their size; then it flies back to his hand. While it is planted, Mordrek cannot use his basic Attack.', 4, 'gravecross')],
-    passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }) },
+             S('Plant the Marker', 'Step forward and drive the cross into the ground. The Grave Cross stands as a unit of its own and Taunts every enemy until it has taken 6 blows, whatever their size; then it flies back to his hand. While it is planted, Mordrek cannot use his basic Attack.', 4, 'gravecross'),
+             /* GRAVE'S REACH, and the one piece of engine this faction was always owed. `gravpull`
+                has been read at the per-target line of every damage skill since the Riftborn went
+                in — it draws gravPullFx, a ring that collapses inward on the mark instead of
+                blowing outward — and not one skill in the game has ever set it. A whole animation
+                the engine knows how to play, wired to nothing. It belongs to the Pale Host by its
+                own name, so it goes here, on the champion who dug himself out: the ground opens
+                under the mark and what is down there takes hold of its legs. Rooted rather than
+                Slowed on purpose — Slow is a tax on a unit's speed, Rooted stops it crossing the
+                field at all, which is what hands reaching out of the earth actually do. */
+             D('Grave\'s Reach', 'Deals 115% ATK damage. The ground opens and the dead take hold: Roots the target for 2 turns — it can still act, but it cannot cross the field to do it.', 3, 1.15, { gravpull: true, fx: [['rooted', 2]] }),
+             /* His Nature is called The Slow March, and until now nothing in the kit marched. Every
+                other melee skill in the game opens with dashTo — a run-in at the mark. `groundSlam`
+                is the one flag that refuses it: the caster walks into the enemy formation, brings
+                the weapon down once, and every hit lands off that single slam with no per-target
+                swing. That is his Nature's name made into an attack, so it is the lowest multiplier
+                he owns and hits the whole line. */
+             D('Dead March', 'Deals 90% ATK damage to all enemies. He does not charge: he walks into the line and brings the marker down once.', 4, 0.9, { aoe: true, groundSlam: true })],
+    passive: P('Second Grave', 'He has been buried once already, and knows how to take his time about it: standing Undying, he endures two blows instead of one.', { undyingHits: 2 }),
+    /* Second Grave buys him another blow; this buys his curses another turn. He is the Host's
+       control carrier — Fear on two skills, Sunder on a third, Rooted on the fourth — so fxLonger
+       is worth more on him than on anyone else in the faction, and the choice is a real one:
+       stand longer, or hold the enemy longer. Reads straight off the faction rule, too. */
+    passiveAlt: P('Grave-Patient', 'The dead are in no hurry: every curse he lays holds a turn longer.', { fxLonger: 1 }) },
   { id: 'barrow', name: 'Barrow', faction: 'undead', role: 'melee', bio: 'A barrow-wight in the grave-plate of a lord nobody remembers.',
     mods: { hp: 1.25, def: 1.35, atk: 0.85, agi: 0.75 },
     look: { body: 'wight', main: '#5c6350', trim: '#c7b98a', skin: '#b9c0a6', cape: '#2b302a', weapon: 'headstone', weaponScale: 1.3, offhand: 'gravefence', offhandScale: 1.45 },
@@ -5560,8 +6094,32 @@ const ROSTER = [
              D('Crypt Breaker', 'Deals 155% ATK damage. Ignores armor.', 3, 1.55, { pierce: true }),
              B('Hold the Grave', 'Shields self for 2 turns. Applies Thorns for 3 turns.', 4, 'self', [['thorns', 3], ['shield', 2]]),
              B('Graveyard Fence', 'Protects an ally champion for 2 turns. Blocks all melee and direct ranged attacks. AoE and arcing attacks still hit. Melee allies behind the fence cannot attack out; ranged allies fire over it freely.', 4, 'ally', [['protected', 2]], { championsOnly: true, fence: true, aiTarget: 'lowest' }),
-             { name: 'Burrow', desc: 'Barrow buries himself in the grave-dirt for 1 round, holding his place on the speed bar: nothing can target him, and area attacks pass over him. He climbs back out when the round is up.', cd: 5, kind: 'burrow', target: 'self', o: {} }],
-    passive: P('Feast of the Fallen', 'Whenever anything on the field dies, friend or foe, he drinks 15% of his current HP. The grave feeds him directly, so the Pale Host\'s halved mending does not touch it.', { deathHeal: 0.15 }) },
+             { name: 'Burrow', desc: 'Barrow buries himself in the grave-dirt for 1 round, holding his place on the speed bar: nothing can target him, and area attacks pass over him. He climbs back out when the round is up.', cd: 5, kind: 'burrow', target: 'self', o: {} },
+             /* The heaviest champion in the game (hp 1.25, def 1.35) and the slowest (agi 0.75),
+                and he had no way to spend that mass on anything but standing still. `knockback`
+                shoves the mark back down the speed bar, which is the one offensive thing a wall
+                is entitled to: it does not kill, it delays. Note what it does NOT do to his own
+                faction-mate — Mordrek's Slow March refuses to be moved, so this is a reminder
+                that the flag asks permission (charNat.anchor || charNat.march) before it drags. */
+             D('Weight of the Mound', 'Deals 125% ATK damage and shoves the target 200 back along the speed bar. 25% chance to Stun. Nothing that refuses to be moved is moved.', 3, 1.25, { knockback: 200, stun: 0.25 }),
+             /* THE NINTH SKILL, and the deepest kit in the game — nobody can go further, because
+                'i' is the last id the pool has (ACTIVE_IDS + EXTRA_IDS = 9).
+
+                Graveyard Fence puts a railing between an ally and the world; this puts HIM there.
+                They are not the same tool and the difference is the point: the fence stops melee
+                and straight shots but lets area and arcing attacks through, and it shuts his own
+                melee allies in behind it. A bodyguard catches everything aimed at the ward,
+                physical or magical, and costs the ally nothing. Second use of `bodyguard` in the
+                game after Garrick's Shieldbearer, deliberately: it is the tank archetype's verb,
+                and the Host's wall has as much claim on it as the Kingdom's does. */
+             B('The Lord\'s Due', 'Barrow steps in front of an ally champion and stands there for 3 turns: every blow meant for them lands on him instead, physical or magical. Only a lobbed shot arcs over him.', 4, 'ally', [], { bodyguard: 3, notSelf: true, championsOnly: true, aiTarget: 'lowest' })],
+    passive: P('Feast of the Fallen', 'Whenever anything on the field dies, friend or foe, he drinks 15% of his current HP. The grave feeds him directly, so the Pale Host\'s halved mending does not touch it.', { deathHeal: 0.15 }),
+    /* Feast of the Fallen pays him later, once bodies start dropping; this pays him immediately,
+       and immediately is exactly when the Pale Host is in trouble. The whole faction crosses the
+       speed bar 5% slower, so the Host reliably eats the opening exchange before it has acted —
+       and a Taunt that is already up when the battle starts puts that exchange on the champion
+       built to take it. First startFx Taunt in the game; the others are all Shield or Empower. */
+    passiveAlt: P('First Out of the Ground', 'He is up before the rest of them, and he wants to be seen: Taunts every enemy for his first 2 turns.', { startFx: [['taunt', 3]] }) },
   { id: 'cadris', name: 'Cadris Gravecall', short: 'Cadris', faction: 'undead', role: 'ranged', bio: 'Raises what the road leaves behind, and spends it freely.',
     mods: {},
     look: { body: 'revenant', main: '#d6cfb6', trim: '#3f5244', weapon: 'staff', orb: '#8ee6a0' },
@@ -5570,9 +6128,29 @@ const ROSTER = [
              D('Charnel Volley', 'Strikes all enemies 2 times for 85% ATK damage each.', 5, 0.85, { aoe: true, hits: 2 }),
              S('Shambling Rise', 'Summons a 1-HP Shambler. It attacks immediately, attacks once more if still alive, then dies. Uncontrollable. Not covered by Undying.', 3, 'zombie'),
              D('Rot Shot', 'Deals 110% ATK damage. Applies Poison for 3 turns.', 3, 1.1, { fx: [['poison', 3, 0.3]] }),
-             D('Marrow Pierce', 'Deals 150% ATK damage. Ignores armor.', 3, 1.5, { pierce: true })],
+             D('Marrow Pierce', 'Deals 150% ATK damage. Ignores armor.', 3, 1.5, { pierce: true }),
+             /* Five damage skills and a summon, and not one thing that stopped anybody doing
+                anything. Choke is the right curse for him rather than Silence: Silence shuts the
+                enemy's skills off outright, Choke lets them cast and bills them for it on the
+                next turn. That is a necromancer's bargain, not a mute button — and it is the
+                second use of `choke` in the game, after Grubblefin's Choking Bite. */
+             D('Grip of the Grave', 'Deals 115% ATK damage. Applies Choke for 3 turns: using a skill leaves the target Silenced on the following turn.', 3, 1.15, { fx: [['choke', 3]] }),
+             /* His one area skill was Charnel Volley, which is simply damage twice over. This one
+                trades almost all of that damage for the whole enemy line losing its place in the
+                queue — `knockback` resolves per target, so an AoE carrying it shoves five units
+                back at once. The cheapest multiplier in his kit and the most disruptive thing he
+                owns; against a warband that has just all come up on the bar together it is close
+                to a free round. */
+             D('Charnel Tide', 'Deals 60% ATK damage to all enemies and shoves each of them 150 back along the speed bar.', 5, 0.6, { aoe: true, knockback: 150 })],
     // "Toll" here is the DEATH TOLL — a count of the fallen, nothing to do with the field's clock.
-    passive: P('Toll of the Dead', 'Deals 5% more damage for every body lying on the field, whoever it belonged to.', { deadScale: 0.05 }) },
+    passive: P('Toll of the Dead', 'Deals 5% more damage for every body lying on the field, whoever it belonged to.', { deadScale: 0.05 }),
+    /* The two corpse-counting flags in the engine are NOT the same count, and that difference is
+       this whole choice. deadScale (Toll of the Dead) counts every body on the field — including
+       his own spent Shamblers and his own fallen warband, which is why it is only 5% a head.
+       killStack counts enemy dead only, so it pays nothing for his own losses and can pay far
+       more per body. Toll suits him raising and spending Shamblers all battle; Grave-Debt suits
+       a long fight he is winning. Capped at 40% so five enemy bodies is the ceiling, not a rout. */
+    passiveAlt: P('Grave-Debt', 'He collects only from the enemy: 8% more damage for every foe lying dead, up to 40%.', { killStack: { per: 0.08, max: 0.4 } }) },
   { id: 'vaun', name: 'Vaun Shroudfletch', short: 'Vaun', faction: 'undead', role: 'ranged', bio: 'Snaps out its own ribs for shot. Never needs to breathe to steady a throw.',
     mods: { atk: 1.1, agi: 1.05, hp: 0.95 },
     look: { body: 'skeleton', main: '#e2dcc4', trim: '#44523f', weapon: 'slingstaff' },
@@ -5581,8 +6159,34 @@ const ROSTER = [
              D('Pall of Bones', 'Strikes all enemies 2 times for 70% ATK damage each. Applies Blind for 2 turns.', 5, 0.7, { aoe: true, hits: 2, fx: [['blind', 2]] }),
              D('Withering Shot', 'Deals 110% ATK damage. Applies Weaken and Sunder for 3 turns.', 3, 1.1, { fx: [['weaken', 3], ['sunder', 3]] }),
              D('Graveshot', 'Deals 165% ATK damage. 50% bonus damage to Poisoned targets.', 3, 1.65, { bonusVs: 'poison' }),
-             D('Scatter of Bones', 'Deals 55% ATK damage to all enemies. Applies Bleed for 3 turns.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.22]] })],
-    passive: P('Deathmark', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }) },
+             D('Scatter of Bones', 'Deals 55% ATK damage to all enemies. Applies Bleed for 3 turns.', 4, 0.55, { aoe: true, fx: [['bleed', 3, 0.22]] }),
+             /* He snaps his own ribs out for shot, so a rib that carries on into the next body is
+                the obvious thing for him to throw and nobody had given it to him. `bounce` fires
+                one more swing at a random OTHER enemy at a share of the multiplier — second use in
+                the game after Ricochet, and the only one on a thrown bone rather than a bullet. */
+             D('Rib-Splitter', 'Deals 120% ATK damage, and the bone carries on into another enemy at random for 60% of that.', 3, 1.2, { bounce: 0.6 }),
+             /* HOLD THE SHOT, and the reason it is his. His Nature is Breathless — no breath to
+                hold, no waver in the cords — and it has only ever meant one thing: his basic
+                Attack cannot be dodged. Nothing else in the kit touched it.
+
+                `aim` is the flag for a shot held across turns: it goes off a set number of Revs
+                later, whoever acts in between, and the caster stands Exposed while holding it.
+                Every other champion pays for that with nerves; the whole joke of this one is that
+                he has no lungs to run out of. It is the single hardest-hitting shot in the faction
+                because it is also the easiest to lose — Silence, Stun or Bash cancels it outright,
+                and if the mark burrows or climbs into Mortessa's coffin the round flies over the
+                spot and finds nothing (fireAim handles both, and it does not go looking for
+                somebody else: he was aiming at them). The art degrades to his own sling and
+                bone-shot rather than Mara's musket, because takeAim falls through playClip to the
+                generic cast and aim poses when a champion has no powder clips of their own. */
+             D('Hold the Shot', 'Takes aim for 2 turns, then looses for 230% ATK damage with +50% crit chance. Vaun is Exposed while holding it. Silence, Stun or Bash cancels the shot. The mark must still be alive and in reach when it goes off.', 5, 2.3, { aim: 2, critBonus: 0.5 })],
+    passive: P('Deathmark', 'Deals 25% more damage to enemies below half HP.', { execute: { below: 0.5, bonus: 0.25 } }),
+    /* Deathmark is a finisher's passive: it pays him for picking off one wounded target, and it
+       pays nothing at all for the first half of every enemy's health bar. He is also the faction's
+       only champion with two area skills, and they got no help from it whatever. This is the other
+       half of him — Pall of Bones and Scatter of Bones both hit the whole line 20% harder — and the
+       pick against five healthy enemies where Deathmark is the pick against one nearly dead. */
+    passiveAlt: P('Scattercast', 'Everything he throws wide lands harder: his area shots deal 20% more damage.', { aoeBonus: 0.2 }) },
   { id: 'mortessa', name: 'Mortessa', faction: 'undead', role: 'support', bio: 'Necromancer of the Pale Host. Brings the coffin everywhere, for anyone.',
     mods: { def: 1.1 },
     look: { body: 'haunted', main: '#3c4a42', trim: '#9fc4a2', skin: '#ddd8cb', hair: '#f1efe6', eye: '#8ee6a0', weapon: 'coffin', orb: '#8ee6a0' },
@@ -5592,8 +6196,29 @@ const ROSTER = [
              C('Coffin', 'Seals an ally for 2 turns: untargetable, immune to AoE, but cannot be healed. Level 5: cleanses debuffs on exit. Level 10: exits with Shield.', 4),
              B('Hex of Ruin', 'Applies Hex to an enemy for 3 turns: healing received halved.', 3, 'enemy', [['hex', 4]]),
              D('Soul Siphon', 'Deals 110% ATK damage. Cannot miss. Lifesteals 50%.', 3, 1.1, { magic: true, noDodge: true, lifesteal: 0.5 }),
-             B('Stolen Hours', 'Drags an enemy 25% back on the speed bar. Applies Leaden for 2 turns: cooldowns do not tick down.', 5, 'enemy', [['leaden', 2]], { dragBack: 250 })],
-    passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }) },
+             B('Stolen Hours', 'Drags an enemy 25% back on the speed bar. Applies Leaden for 2 turns: cooldowns do not tick down.', 5, 'enemy', [['leaden', 2]], { dragBack: 250 }),
+             /* The Host's only healer had exactly one heal, and it was single-target. Every other
+                support in the game carries something that reaches the whole warband; she did not.
+                What makes this hers rather than generic is her Nature: The Dead Listen exempts her
+                mending from the Pale Host's halved healing, and that exemption is checked against
+                the HEALER, not the patient (healUnit reads charNat(src).gravetongue). So this one
+                skill mends four grave-flesh allies at full value where the same skill on anybody
+                else in the game would pay half to each of them. Kept to 140% precisely because of
+                that — the multiplier looks modest and lands at double. */
+             H('Chorus of the Interred', 'Heals every ally for 140% ATK. The grave does not halve what she gives.', 5, 1.4, { all: true }),
+             /* Hex of Ruin halves what an enemy heals; this stops them casting at all. She is the
+                faction's answer to an enemy support, and she had the soft version of that and not
+                the hard one. No damage on it on purpose: it is a pure control skill from the
+                champion whose entire kit is control and mending. */
+             B('Pall of Silence', 'Silences an enemy for 3 turns: nothing but Attack and Guard until it lifts.', 5, 'enemy', [['silence', 3]], { aiTarget: 'debuffed' })],
+    passive: P('Keeper of the Coffin', 'Her mending is 35% stronger on allies below half HP.', { lowHeal: { below: 0.5, bonus: 0.35 } }),
+    /* Keeper of the Coffin is burst: it waits for somebody to be nearly dead and then pays out
+       big. This is the opposite shape — a small mend to the most hurt of the Host at the start of
+       every one of her turns, whether or not she spends the turn healing, which means she can
+       spend her turns on Hexes and Stolen Hours and still be mending. And because mendPct routes
+       through healUnit with HER as the source, The Dead Listen applies to it too: 4% of max HP to
+       grave-flesh, not 2%. Second use of the flag after Patchwork's Maintenance Drone. */
+    passiveAlt: P('The Dead Are Tended', 'At the start of each of her turns, the most hurt of the Host recovers 4% of their maximum HP — and because it is her doing, the grave does not halve it.', { mendPct: 0.04 }) },
 
   // ---- The Stray Banner (no unified resource; each carries their own) ----
   { id: 'riven', name: 'Riven', faction: 'stray', role: 'ranged', bio: 'A hooded blade-thrower: he aims once, throws real swords, and calls them home.',
@@ -5603,9 +6228,27 @@ const ROSTER = [
              D('Emptied Hands', `★ Ultimate. Throws every sword in his hand at one enemy, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, attackType: 'horizontal' }),
              D('Fan of Blades', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands.', 4, 0.8, { magic: true, swordTargets: true, attackType: 'horizontal' }),
              B('Recall Swords', `No cooldown; takes his turn, and only when a sword is out. Every sword stuck in an enemy rips out and flies home to him. Each enemy a sword is pulled from Bleeds for ${RIVEN_RECALL_BLEED_TURNS} turns: ${Math.round(RIVEN_RECALL_BLEED * 100)}% of his attack per turn for every sword pulled out of it. Then he strikes 30% harder for ${VHARO_RECALL_TURNS} turns.`, 0, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
-             B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS })],
+             B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS }),
+             D('Command the Fallen', 'Every blade of his standing in any enemy tears free at once and turns on a single mark, one strike each for 75% ATK. Costs him nothing from his hands, and needs at least one blade already buried in something.', 4, 0.75, { swordCommand: true, magic: true, attackType: 'horizontal' }),
+             D('Blade Harvest', 'Reaches into one body and pulls his blades back out of it — they come home to his hands, as many as his hands can still hold. Deals no damage, and works with his hands empty.', 2, 0, { swordHarvest: true })],
+    /* THE TWO ABOVE ARE NOT NEW. The engine has carried their whole machinery all along — the
+       usable gate, the validTargets filter, the counting, the animations, the log lines, even an
+       AI weight for Harvest — and the comment above throwsFromHand says so outright: "belonged to
+       Command the Fallen and Blade Harvest, since taken out of his kit; no skill carries them
+       now." Two finished mechanics with nothing wired to them. Giving them back is the whole of
+       this; not a line of their behaviour is written here.
+
+       They are also the two halves of the problem his Nature creates. Everything he does is
+       weaker the emptier his hands, and his only way of refilling them was Recall Swords, which
+       costs his turn and brings back EVERYTHING — including the blades doing useful work. Command
+       spends what is already buried without touching his hands; Harvest takes one body's worth
+       back without disturbing the rest. */
     nature: { name: 'Unblinking', desc: `He aims on his turn and the blades fly at the next Rev. His throws never miss. Each blade that lands is spent into the body it finds, and killing that body gives the blade back; one that is turned aside or finds nothing comes home. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
-    passive: P('Dead Aim', '+8% critical hit chance: what he aims at, he hits clean.', { stat: { crit: 0.08 } }) },
+    passive: P('Dead Aim', '+8% critical hit chance: what he aims at, he hits clean.', { stat: { crit: 0.08 } }),
+    /* makeUnit has added `ps.dodge` to a champion's base dodge since dodge existed, and no passive
+       in the game has ever set it — the hook was built and left empty. It belongs to the one who
+       throws from across the field and folds the moment anything reaches him (hp 0.85). */
+    passiveAlt: P('Never There', 'He is never quite where the blade was: +10% dodge.', { dodge: 0.1 }) },
   { id: 'automatonx', name: 'Orin', faction: 'stray', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
     mods: { atk: 1.0, hp: 0.95, agi: 1.15 },
     look: { body: 'bot', main: '#6d7482', trim: '#e8a548', eye: '#ffcf6b' },
@@ -5614,9 +6257,21 @@ const ROSTER = [
              B('Seize the Arm', `Orin clamps onto an enemy and disarms them for ${ORIN_GRIP_TURNS} turns, grinding ${Math.round(ORIN_GRIP_DMG * 100)}% ATK damage every Rev he holds on. Orin is fully exposed while gripping — any hit will kill him.`, 4, 'enemy', [], { grip: true }),
              S('Rush Bot', `Welds a bot that charges the moment it lands: it drains ${Math.round(ORIN_RUSH_DRAIN * 100)}% of a random enemy's max HP, then runs to a random ally — healing them for the stolen amount and boosting their turn bar by 25%.`, 4, 'rushbot', {}),
              B('Overclock', 'Pushes an ally up the speed bar. Empowers them: +30% damage for 2 turns.', 3, 'ally', [['empower', 3]], { overclock: true, aiTarget: 'lowest' }),
-             H('Hammer Weld', `Heals an ally for ${Math.round(ORIN_WELD_MULT * 100)}% ATK. On anything cast rather than born — a bot, a hot hull — mends ${Math.round((ORIN_WELD_METAL - 1) * 100)}% more and vents ${ORIN_WELD_VENT} Heat. Best of all on the back he is already bolted to.`, 3, ORIN_WELD_MULT, { weld: true, weldBeam: true })],
+             H('Hammer Weld', `Heals an ally for ${Math.round(ORIN_WELD_MULT * 100)}% ATK. On anything cast rather than born — a bot, a hot hull — mends ${Math.round((ORIN_WELD_METAL - 1) * 100)}% more and vents ${ORIN_WELD_VENT} Heat. Best of all on the back he is already bolted to.`, 3, ORIN_WELD_MULT, { weld: true, weldBeam: true }),
+             /* His one way of spending Heat was overheating by accident. `steam` walks him out to
+                midfield, vents, and walks him home — second use in the game after Bulwark-7's
+                Steam Vent, and the only one on a champion who is not an Ironclad. It is also his
+                first area attack: a support with six skills and no way to touch more than one. */
+             D('Blow the Valve', 'Deals 70% ATK damage to all enemies. He walks out, opens himself up and vents the whole bar into them.', 4, 0.7, { aoe: true, steam: true }),
+             /* He rivets plate onto people. Thorns and a mend in one cast, which is the mechanic's
+                shape rather than a number: the ally he patches also starts biting back. */
+             B('Plate Rig', 'Rivets spare plate onto an ally: Thorns for 3 turns, and a weld that mends them as it goes.', 4, 'ally', [['thorns', 3]], { heal: 1.0, aiTarget: 'lowest', notSelf: true })],
     nature: { name: 'Foundry-Cast', desc: 'Built in the Union\'s own moulds. Runs on Heat, not mana — every action fills the overheat bar.', heat: 1 },
-    passive: P('Foundry-Cast', 'Built in the Union\'s own moulds: +10% Heat damage and the overheat bar fills a little slower.', { stat: { heatMult: 0.1 } }) },
+    passive: P('Foundry-Cast', 'Built in the Union\'s own moulds: +10% Heat damage and the overheat bar fills a little slower.', { stat: { heatMult: 0.1 } }),
+    /* Foundry-Cast is about what HE puts out; this is about what he leaves behind in whoever he
+       just welded. He is the only mender in the warband who runs on no mana at all, which makes
+       handing mana out a thing only he can do for free. */
+    passiveAlt: P('Tap the Line', 'Whatever he mends, he also tops up: every heal of his restores 15 MP to the ally as well.', { healMp: 15 }) },
   { id: 'shazrak', name: 'Fin-Keeper Shazrak', faction: 'stray', role: 'support', bio: 'A sound-shaper who moves the war to his own time.',
     mods: { atk: 0.9, hp: 1.0, agi: 1.1 },
     look: { body: 'wraith', main: '#2a2440', trim: '#5fcad1', eye: '#5fcad1' },
@@ -5627,8 +6282,19 @@ const ROSTER = [
              S('Storm Cairn', 'Raises a cairn that looses a shock at the soundest enemy every third Rev, for 2% of their health.', 4, 'tot_shock', { mp: 30 }),
              S('Bulwark Stone', 'Raises a brittle stone that draws every enemy blow and throws it back, split evenly among them. Two blows and it breaks.', 4, 'tot_taunt', { mp: 30 }),
              B('Binding Chord', 'Pins an enemy for a turn, and a quarter-turn more for every stone of his standing. Shocks them while they are held. Bash, Stun or Silence on Shazrak snaps the note.', 5, 'enemy', [], { reshHold: true, mp: 35 }),
-             B('Mana Battery', 'Hands half of what Shazrak is holding to an ally.', 4, 'ally', [], { battery: true, mp: 0, aiTarget: 'lowest' })],
-    passive: P('Shared Burden', `Carries ${Math.round(RESH_MANA_SHARE * 100)}% of every ally's casting cost from his own pool; when he runs dry the caster covers the rest. +25 max MP and +3 MP every turn.`, { stat: { mp: 25, mpRegen: 3 } }) },
+             B('Mana Battery', 'Hands half of what Shazrak is holding to an ally.', 4, 'ally', [], { battery: true, mp: 0, aiTarget: 'lowest' }),
+             /* NINE AND TEN, and the reason EXTRA_IDS grew a letter. Five of his eight were stones,
+                which left him with three things to do on a turn when two were already standing and
+                a third would only pull down the oldest. These are both things to do with the turn
+                he would otherwise spend re-raising. */
+             D('Dissonance', 'Deals 60% ATK magic damage to all enemies and tears a fifth of the mana out of each of them. Costs 30 MP.', 4, 0.6, { aoe: true, magic: true, manaBurnPct: 0.2, mp: 30 }),
+             B('Hold the Note', 'Holds one long note over the warband: for 3 turns no new curse takes hold on any of them. Costs 30 MP.', 5, 'allAllies', [['immune', 3]], { mp: 30 })],
+    passive: P('Shared Burden', `Carries ${Math.round(RESH_MANA_SHARE * 100)}% of every ally's casting cost from his own pool; when he runs dry the caster covers the rest. +25 max MP and +3 MP every turn.`, { stat: { mp: 25, mpRegen: 3 } }),
+    /* Shared Burden pays for the warband's casting; this pays for his own. Five of his skills raise
+       a stone and every one of them is on a cooldown, so a quarter off every cooldown he owns is
+       worth more to him than to anyone — and it is the straight alternative to carrying the
+       warband, which is the choice worth having. Second use of cdr after Patchwork's Well Oiled. */
+    passiveAlt: P('Keeping Time', 'He sets the tempo and keeps to it: every cooldown he has comes back a quarter faster.', { cdr: 0.25 }) },
   { id: 'zulkan', name: "Zul'kan", faction: 'stray', role: 'melee', bio: 'Red orc exile. Controls the battlefield through bash and displacement.',
     mods: { hp: 1.2, def: 1.2, atk: 0.95, agi: 0.85 },
     look: { body: 'orc', main: '#8a2a1a', trim: '#c47a3a', skin: '#a04030', weapon: 'hammer' },
@@ -5638,8 +6304,33 @@ const ROSTER = [
              B('War Cry', 'Taunts all enemies for 1 turn. Forced swings trigger Retaliatory Bash.', 4, 'self', [['taunt', 2]], { mp: 20 }),
              D('Seismic Toss', 'Deals 120% ATK damage. Requires: target is Bashed. Bounces to another enemy for 100% ATK. Both are Bashed for 1 turn. Costs 20 MP.', 3, 1.2, { requireFx: 'bash', bounce: 1.0, fx: [['bash', 1]], mp: 20 }),
              B('Iron Stance', `Braces: takes 50% less damage for 2 turns and Retaliatory Bash becomes a certainty.`, 4, 'self', [['ward', 2]], { ironStance: true, mp: 20 }),
-             D('Tremor', 'Deals 55% ATK damage to all enemies. Drags all targets back on the speed bar. Costs 25 MP.', 3, 0.55, { aoe: true, dragBack: 150, mp: 25 })],
-    passive: P('Retaliatory Bash', `Enemies that strike him have a ${Math.round(ZULKAN_RETALIATORY * 100)}% chance to be bashed for 1 turn.`, { retaliatory: { chance: ZULKAN_RETALIATORY, fx: ['bash', 1] } }) },
+             /* `dragBack` is read, but only inside buffSkill — and Tremor is a damage skill, so it
+                went to damageSkill and the shove never happened. `knockback` is the same push read
+                on the damage path, which is where this skill has always lived. It also means
+                Tremor now obeys the Natures that refuse to be moved (Dug In, The Slow March),
+                which dragBack would have done too. */
+             D('Tremor', 'Deals 55% ATK damage to all enemies and shoves each of them back along the speed bar. Nothing that refuses to be moved is moved. Costs 25 MP.', 3, 0.55, { aoe: true, knockback: 150, mp: 25 }),
+             /* `quake` is the melee one-slam area attack: he does not run a circuit of the line,
+                he hits the ground once and the tremor rolls out, nearest first. Second use in the
+                game after Krug's Ground Pound, and the obvious shape for a hammer this size. */
+             D('Shockwave', 'Deals 80% ATK damage to all enemies. One blow into the ground; it rolls out from him, reaching the nearest first. Costs 25 MP.', 4, 0.8, { aoe: true, quake: true, mp: 25 }),
+             /* The swing he should not take, and the one his passive is built to forgive. Exposed
+                is a real cost — every blow lands 25% harder on him for two turns — but Retaliatory
+                Bash bills every one of those blows back, so the reckless option is genuinely his
+                rather than simply bad. The heaviest single blow in his kit by a long way. */
+             D('Haymaker', 'Deals 185% ATK damage and bashes. The swing opens him right up: he is Exposed for 2 turns afterwards. Costs 25 MP.', 4, 1.85, { fx: [['bash', 1]], selfFx: [['exposed', 2]], mp: 25 })],
+    /* RETALIATORY BASH, which did nothing at all. `retaliatory` was declared here and read nowhere
+       in the engine, so the 25% never rolled — and two of his own skills (War Cry, Iron Stance)
+       describe themselves in terms of it. `onHitTaken` is the flag that already does exactly this,
+       carried by four other champions; the passive moves onto it rather than growing a second
+       mechanism beside it. No `melee: true`, because his text says every enemy that strikes him,
+       not every enemy that closes. */
+    passive: P('Retaliatory Bash', `Enemies that strike him have a ${Math.round(ZULKAN_RETALIATORY * 100)}% chance to be bashed for 1 turn — a certainty while Iron Stance holds.`, { onHitTaken: { chance: ZULKAN_RETALIATORY, fx: [['bash', 1]] } }),
+    /* Retaliatory Bash waits to be hit; this one goes and gets it. Same status, opposite posture,
+       and it is the pick when he is the one closing rather than the one being swung at — which is
+       also when Haymaker and Shockwave want to be in the loadout. critFx is the flag three other
+       champions already crit into a status with; his is the first to crit into a hard control. */
+    passiveAlt: P('Skullcracker', 'When he lands a critical hit, the mark goes down bashed for a turn — no roll about it.', { critFx: [['bash', 1]] }) },
   { id: 'ryuunosuke', name: 'Ryuunosuke', faction: 'stray', role: 'melee', bio: 'Masterless samurai with a permanent shadow clone.',
     mods: { atk: 1.15, hp: 0.9, agi: 1.2 },
     look: { body: 'wraith', main: '#1a1a2a', trim: '#c04848', eye: '#c04848' },
@@ -5649,7 +6340,13 @@ const ROSTER = [
              B('Mark of Death', `Marks an enemy for ${RYUU_MARK_TURNS} turns: the clone targets only them, and they take ${Math.round(RYUU_MARK_BONUS * 100)}% more damage from Ryuunosuke.`, 4, 'enemy', [['deathmark', RYUU_MARK_TURNS]], { aiTarget: 'highest', mp: 20 }),
              B('Smoke Veil', 'Vanishes for 1 turn. Untargetable, but his clone keeps striking.', 4, 'self', [['cloak', 1]], { mp: 20 }),
              D('Twin Slash', 'Deals 180% ATK damage. Guaranteed critical hit. Ryuunosuke and clone strike together. Costs 25 MP.', 4, 1.8, { alwaysCrit: true, twinSlash: true, mp: 25 }),
-             D('Blade Dance', 'Strikes all enemies 2 times for 50% ATK damage each. Costs 30 MP.', 4, 0.5, { aoe: true, hits: 2, mp: 30 })],
+             D('Blade Dance', 'Strikes all enemies 2 times for 50% ATK damage each. Costs 30 MP.', 4, 0.5, { aoe: true, hits: 2, mp: 30 }),
+             /* Mark of Death hands out a status and nothing in his kit ever read it back. Now that
+                the AI actually puts the mark on the biggest threat rather than the nearest corpse
+                (see aiChoose), the mark is worth following up — so here is the follow-up: the one
+                blow he owns that asks whether the mark is there. */
+             D('Severance', 'Deals 140% ATK damage, ignoring armor — and 60% more again on a target carrying his Mark of Death. Costs 20 MP.', 3, 1.4, { pierce: true, bonusVs: 'deathmark', mp: 20 }),
+             D('Lingering Cut', 'Deals 115% ATK damage and leaves a cut that will not close: Bleed for 3 turns. Costs 15 MP.', 3, 1.15, { fx: [['bleed', 3, 0.3]], mp: 15 })],
     passive: P('Shadow Step', `Defeating an enemy fills his speed bar by ${Math.round(RYUU_KILL_SPEED / 10)}%.`, { killSpeed: RYUU_KILL_SPEED }),
     passiveAlt: P('Killing Intent', '+5% damage for every dead enemy, up to +20%.', { killStack: { per: 0.05, max: 0.2 } }) },
 ];
@@ -8506,9 +9203,16 @@ const passiveSlots = (lv) => PASSIVE_SLOTS + SLOT_UNLOCKS.filter((s) => s.kind =
 // use it rather than ACTIVE_IDS wherever the champion is known.
 const ACTIVE_IDS = ['a', 'b', 'c', 'd', 'e'];
 const SIXTH_ID = 'f';
-// Beyond the five: 'f' for a sixth skill, 'g' for a seventh (Barrow's Burrow). Same rule — they widen
-// the pool to choose from, never the slots.
-const EXTRA_IDS = [SIXTH_ID, 'g'];
+// Beyond the five: 'f' for a sixth skill, 'g' for a seventh (Barrow's Burrow), 'h' for an eighth
+// (most of the roster now), 'i' for a ninth — Morwenna alone, whose seven was already the deepest
+// kit in the game before the Court's expansion. Same rule throughout: they widen the pool to
+// choose from, never the slots. A champion with nine still brings only ACTIVE_SLOTS of them, and
+// autoLoadout decides which (protecting any one-off mechanic — see the comment there).
+/* Ten ids, because Shazrak carries ten skills — five of them stones, which is a kit shape nobody
+   else has. The POOL is what grows here; the six equippable slots do not move, so a tenth skill is
+   one more thing to choose between rather than one more thing to bring. 'j' is the last letter this
+   needs for now, and the harness has a check that fails the moment somebody needs 'k'. */
+const EXTRA_IDS = [SIXTH_ID, 'g', 'h', 'i', 'j'];
 // Fewer than five works too (Riven carries four): the pool is only the slots the kit actually fills.
 const activeIdsOf = (c) => (c ? [...ACTIVE_IDS, ...EXTRA_IDS].filter((id, i) => c.skills[i]) : ACTIVE_IDS);
 // Neutral skills: class-free actives any champion can equip in an active slot.
@@ -8559,7 +9263,12 @@ const altId = (i) => (i === 0 ? 'alt' : `alt${i + 1}`);
 const altIndex = (id) => (id === 'alt' ? 0 : /^alt\d+$/.test(id) ? +id.slice(3) - 1 : -1);
 const passiveById = (c, id) => (id === 'own' ? c.passive : altIndex(id) >= 0 ? altList(c)[altIndex(id)] : GENERIC_PASSIVES[id]);
 const passivePool = (c) => ['own', ...altList(c).map((_, i) => altId(i)), ...GENERIC_KEYS];
-const activeById = (c, id) => NEUTRAL_SKILLS[id] || c.skills[{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6 }[id]];
+/* Derived from the id lists rather than a hand-written map. It used to be a literal running a..i,
+   which meant widening EXTRA_IDS for Shazrak's tenth skill left the letter in the pool and
+   unresolvable here — activeIdsOf handed out 'j' and this returned undefined for it. Reading the
+   same two arrays everything else reads is the only way the two cannot drift apart again. */
+const SKILL_IDS = [...ACTIVE_IDS, ...EXTRA_IDS];
+const activeById = (c, id) => NEUTRAL_SKILLS[id] || (SKILL_IDS.indexOf(id) >= 0 ? c.skills[SKILL_IDS.indexOf(id)] : undefined);
 
 /* THE TRAINING YARD — a neutral skill or a learned passive is a technique, and a champion has to
    drill at the yard before they can carry one into battle. Each technique takes a few drills; the
@@ -8607,11 +9316,36 @@ function grandfatherTraining() {
 function autoLoadout(c, lv) {
   const pas = ['own'];
   if (passiveSlots(lv) > 1) pas.push(c.role === 'melee' ? 'toughness' : c.role === 'ranged' ? 'keenedge' : MANA.pool[c.faction] ? 'deepwell' : 'secondwind');
-  // More skills than slots (Barrow's seven): the extras still come, in place of the last basics,
-  // so an AI-run champion brings every kind of skill it has to a fight.
+  /* More skills than slots (Barrow's seven, and most of the roster since): the extras still
+     come, in place of the last basics, so an AI-run champion brings every kind of skill it has
+     to a fight.
+
+     WHICH slot yields is the whole of this. It used to be purely positional — walk down from
+     n-2 and overwrite — and that is fine until the skill sitting in the doomed slot is the
+     champion's one-off MECHANIC rather than another swing. Bulwark-7 is the case that forced
+     this: his Bunker sits at index 4, so the moment he learned a seventh skill the auto-pick
+     quietly dropped it, and an AI or recruit Bulwark would never anchor again — a skill with
+     its own kind, its own two screens (Stand Up / Step Out) and a dozen rules behind it,
+     switched off by an off-by-one in a slot number.
+
+     So a slot only yields if it holds an ORDINARY skill: damage, heal or buff. Anything that
+     carries its own kind — bunker, burrow, split, anchor, jelly, coffin, revive, summon — is
+     stepped over and the extra goes further down instead. Slots 0 and 1 are never touched
+     either: those are the cheap opener and the ★ signature.
+
+     This changes no saved loadout: ids still mean exactly the skill they always did (see
+     activeById). It only changes what gets auto-picked for a champion nobody has chosen for. */
   const n = activeSlots(lv), pool = activeIdsOf(c);
   const act = pool.slice(0, n);
-  pool.slice(n).forEach((id, i) => { if (n - 2 - i > 1) act[n - 2 - i] = id; });
+  const ORDINARY = ['damage', 'heal', 'buff'];
+  const canYield = (id) => ORDINARY.includes(activeById(c, id)?.kind);
+  let slot = n - 2;
+  for (const id of pool.slice(n)) {
+    while (slot > 1 && !canYield(act[slot])) slot--;
+    if (slot <= 1) break;   // nothing ordinary left to give up — the extra simply stays out
+    act[slot] = id;
+    slot--;
+  }
   return { act, pas };
 }
 
@@ -8907,6 +9641,8 @@ function validTargets(u, sk) {
     let foes = singleFoes(u);
     // Blade Harvest pulls his own blades home: only a body with some in it, and no line or taunt stops that.
     if (sk.o?.swordHarvest) return foes.filter((f) => (f.lodged || 0) > 0);
+    // Seismic Toss: a follow-up, so it only offers the bodies already carrying the status it needs.
+    if (sk.o?.requireFx) foes = foes.filter((f) => has(f, sk.o.requireFx));
     // Graveyard Fence: an iron fence turns aside a MELEE attacker closing in (not a hurled or gust
     // skill, which come over the top). A ranged attacker may still aim at whoever stands behind it,
     // but a straight shot glances off the iron (fenceStops, in damageSkill) - so the AI looks for an
@@ -8978,6 +9714,11 @@ function usable(u, sk) {
   if (sk.o?.recall && u.swords + (u.barrierSwords || 0) >= u.maxSwords) return false;   // nothing out in a body to call
   if (sk.o?.barrier && (u.swords < sk.o.barrier || has(u, 'barrier'))) return false;
   if (sk.o?.swordCommand && !foesOf(u).some((f) => f.hp > 0 && (f.lodged || 0) > 0)) return false;   // no blade of his is out in a body
+  // SEISMIC TOSS (Zul'kan): "Requires: target is Bashed" was written on the skill and enforced
+  // nowhere — `requireFx` had no read-site, so the follow-up could be thrown at anyone at any time.
+  // Nothing to throw at means the skill is not offered at all; validTargets narrows it to the
+  // bodies that actually carry the status.
+  if (sk.o?.requireFx && !foesOf(u).some((f) => f.hp > 0 && has(f, sk.o.requireFx))) return false;
   if (u.cooldowns[sk.id] > EPS) return false;   // fractional now: a hair above zero is still ready
   // Fenced in (Graveyard Fence): the wall holds both ways. A MELEE unit behind it cannot swing
   // out past its own fence — its basic Attack and every melee damage skill are shut off (a hurled
@@ -9226,6 +9967,11 @@ function powerMult(u) {
   if (runsHot(u)) m *= 1 + (u.heat / 250) * (1 + (u.heatMult || 0));
   if (u.faction === 'human' && u.combo) m *= 1 + disciplineBonus() + (charNat(u).rhythm ? 0.05 : 0);   // Wren: Spellblade's Rhythm
   if (u.faction === 'tide' && highTide()) m *= 1.25;
+  // RED BLOOD (Zul'kan's Nature). Declared since he was written and read by nothing until now: the
+  // flag sat on his nature entry, ZULKAN_RED_HP and ZULKAN_RED_BONUS existed only inside the
+  // sentence describing them, and the champion simply did not hit harder however low he got. The
+  // other half of the Nature — his bash holding a turn longer — is in applyHitEffects.
+  if (charNat(u).redblood && u.hp / u.maxHp < ZULKAN_RED_HP) m *= 1 + ZULKAN_RED_BONUS;
   if (pv(u).deadScale) m *= 1 + pv(u).deadScale * deadCount();   // Cadris: Toll of the Dead
   if (pv(u).killStack) { const df = state.teams[u.side === 'p' ? 'e' : 'p'].filter(x => x.hp <= 0 && !x.inert).length; if (df > 0) m *= 1 + Math.min(pv(u).killStack.per * df, pv(u).killStack.max); }
   // Two on the Trail (Vashka's Nature): hunter and called beast strike harder side by side.
@@ -9508,7 +10254,10 @@ function strikeOnce(u, t, mult, label, o) {
   }
   // Defender passives that answer a hit (Ink Sac, Brimstone Hide, Riposte). Counters never chain.
   const oh = TP.onHitTaken;
-  if (oh && !o.counter && t.hp > 0 && u.hp > 0 && (!oh.melee || u.role === 'melee') && chance(oh.chance)) {
+  // Iron Stance (Zul'kan): while he is braced, the answer is not a chance — it lands every time.
+  // The marker rides on the ward the brace itself put up, the same way Entangle marks its Slow.
+  const braced = !!has(t, 'ward')?.ironStance;
+  if (oh && !o.counter && t.hp > 0 && u.hp > 0 && (!oh.melee || u.role === 'melee') && (braced || chance(oh.chance))) {
     for (const [id, turns, val] of oh.fx) addFx(u, id, turns, val ? Math.round(t.atk * val) : 0);
   }
   // Heroic's answer: the guardian who stepped in lands a guaranteed full counter on the attacker.
@@ -9589,8 +10338,17 @@ function applyHitEffects(u, t, o) {
   for (const [id, turns, val] of o.fx || []) {
     const boost = P.dotBoost?.[id] || 1;
     const fuse = id === 'burn' && charNat(u).longfuse ? 1 : 0;   // Drekka's Nature: her Burns burn a turn longer
-    addFx(t, id, turns + fuse + (P.fxLonger && FX[id].kind === 'bad' ? P.fxLonger : 0), val ? Math.round(u.atk * val * boost) : 0);
+    // Red Blood (Zul'kan): below the threshold his bash holds a turn longer. Same shape as Drekka's
+    // longfuse above, and the other half of the Nature wired up in powerMult.
+    const red = id === 'bash' && charNat(u).redblood && u.hp / u.maxHp < ZULKAN_RED_HP ? 1 : 0;
+    addFx(t, id, turns + fuse + red + (P.fxLonger && FX[id].kind === 'bad' ? P.fxLonger : 0), val ? Math.round(u.atk * val * boost) : 0);
     ownFx(u, t, id);
+  }
+  /* GROUND SLAM's splash (Zul'kan). `splashBash` was declared on the skill and read nowhere, so the
+     "bashes all other enemies" half of its description never happened. The shock goes out from the
+     mark to the rest of the open line — not to the mark again, and not to anyone already down. */
+  if (o.splashBash && t.hp > 0) {
+    for (const f of openFoes(u)) if (f !== t && f.hp > 0) addFx(f, 'bash', o.splashBash);
   }
   // Entangle: mark the Slow it landed as rooted, so thorny roots grow at the target's feet (syncStatusFx).
   if (o.roots && has(t, 'slow')) has(t, 'slow').roots = true;
@@ -10709,6 +11467,10 @@ async function buffSkill(u, t, sk) {
     // Mist Form: mark the Evasive as being made of mist. Grubblefin's scales, Seraxa's wings and a
     // Smoke Bomb all hand out the same status, and none of them should come with Vesper's red fog.
     if (o.mist && has(a, 'evade')) has(a, 'evade').mist = true;
+    // Iron Stance (Zul'kan): mark the ward the brace just raised, so strikeOnce knows his answer is
+    // a certainty while it lasts. Marked on the STATUS rather than the unit so it cannot outlive the
+    // brace — a dispel takes the ward and the certainty together.
+    if (o.ironStance && has(a, 'ward')) has(a, 'ward').ironStance = true;
     /* JUMP START — the ally is thrown to the head of the speed bar. advanceClock picks whoever has the
        least ground left to cover, so a unit standing ON the end has none and goes next; the caster has
        just been sent back to the start by their own turn, so nothing can get in between. A softer
@@ -11434,7 +12196,12 @@ function aiChoose(u) {
     if (open.length) opts = open;
     // A Dispel goes to whoever is carrying the most, not to whoever is weakest — stripping a bare
     // champion while the shielded one stands next to them is the one way to waste it.
-    t = sk.o?.strip ? [...opts].sort((a, b) => blessings(b) - blessings(a))[0]
+    // Mark of Death (Ryuunosuke) asks for 'highest' and never got it: aiTarget was only ever read in
+    // the ALLY branch below, so an enemy-targeting skill's preference was silently ignored. A mark
+    // that buys bonus damage for several turns belongs on the thing worth killing, not the thing
+    // nearest death — so 'highest' means the biggest threat still standing.
+    t = sk.o?.aiTarget === 'highest' ? [...opts].sort((a, b) => b.maxHp * b.atk - a.maxHp * a.atk)[0]
+      : sk.o?.strip ? [...opts].sort((a, b) => blessings(b) - blessings(a))[0]
       : chance(0.6) ? [...opts].sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0] : pick(opts);
   } else if (sk.target === 'ally') {
     const opts = validTargets(u, sk);
@@ -22546,6 +23313,11 @@ const PROJ_SKILL = {
   'Molotov': { kind: 'molotov', arc: true, impact: 'fire', lift: DREKKA_LIFT },
   'Napalm Jar': { kind: 'napalm', arc: true, impact: 'fire', lift: DREKKA_LIFT },
   'Powder Keg': { kind: 'keg', arc: true, impact: 'boom', lift: DREKKA_LIFT },
+  /* Shrapnel Bomb is the one pot of hers with no fire in it, so it must not reach the 'pot'
+     catch-all in projectileFor — that hands every unlisted throw of Drekka's a fire projectile
+     and a fire impact. It flies as flak (the same burst Howitzer's Flak Burst uses) on her own
+     lift, so it reads as nails rather than flame. */
+  'Shrapnel Bomb': { kind: 'flak', arc: true, impact: 'flak', lift: DREKKA_LIFT },
   // Kingdom of Aldmere
   'Aimed Shot': { kind: 'tracer' },
   'Powder Shot': { kind: 'slug', impact: 'smoke' },

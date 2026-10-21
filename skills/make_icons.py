@@ -1524,15 +1524,6 @@ def _():
             + '<path d="M48 44 H56 M52 40 V48" stroke="#ffd166" stroke-width="2.6"/>')
 
 
-@icon('Bloodhound')
-def _():
-    paw = ('<ellipse cx="0" cy="3" rx="5" ry="4.2" fill="url(#demon)"/>'
-           '<circle cx="-5" cy="-4" r="2" fill="url(#demon)"/><circle cx="-1.7" cy="-6.5" r="2" fill="url(#demon)"/>'
-           '<circle cx="1.7" cy="-6.5" r="2" fill="url(#demon)"/><circle cx="5" cy="-4" r="2" fill="url(#demon)"/>')
-    return (g(paw, 20, 44, -20, 1.1) + g(paw, 38, 26, -20, 1.1)
-            + g(drop(), 30, 44, 0, .5) + g(drop(), 48, 40, 0, .6) + g(drop(), 46, 14, 0, .45) + g(drop(), 16, 24, 0, .4))
-
-
 @icon('Withering Curse')
 def _():
     petals = ''.join(g('<ellipse cx="0" cy="-6" rx="4.5" ry="7" fill="#5a1f3a"/>', 30, 24, a) for a in range(0, 360, 72))
@@ -2085,11 +2076,11 @@ CATALOG = {
         ('Built to Hold', 'Bulwark-7 · Nature', 'passive'), ('Flywheel', 'Sawtooth · Nature', 'passive'),
         ('Arc Transfer', 'Arclight · Nature', 'passive'), ('Dug In', 'Howitzer · Nature', 'passive'),
         ('Oil Can', 'Patchwork · Nature', 'passive'),
-        ('Piston Punch', 'Bulwark-7', 'skill'), ('Steam Vent', 'Bulwark-7', 'skill'), ('Hydraulic Slam', 'Bulwark-7', 'sig'), ('Piledriver', 'Bulwark-7', 'skill'), ('Bunker Down', 'Bulwark-7', 'skill'), ('Reactive Plating', 'Bulwark-7', 'passive'),
-        ('Rip Saw', 'Sawtooth', 'skill'), ('Shrapnel Spin', 'Sawtooth', 'skill'), ('Grinder', 'Sawtooth', 'sig'), ('Limb Shear', 'Sawtooth', 'skill'), ('Rev Up', 'Sawtooth', 'skill'), ('Serrated', 'Sawtooth', 'passive'),
-        ('Arc Bolt', 'Arclight', 'skill'), ('Discharge', 'Arclight', 'skill'), ('Chain Surge', 'Arclight', 'sig'), ('Overload Coil', 'Arclight', 'skill'), ('Static Field', 'Arclight', 'skill'), ('Feedback Loop', 'Arclight', 'passive'),
-        ('Flak Burst', 'Howitzer', 'skill'), ('AP Round', 'Howitzer', 'skill'), ('Siege Shell', 'Howitzer', 'sig'), ('Mortar Walk', 'Howitzer', 'skill'), ('Shell Shock', 'Howitzer', 'skill'), ('Big Guns', 'Howitzer', 'passive'),
-        ('Field Weld', 'Patchwork', 'skill'), ('Overclock', 'Patchwork', 'skill'), ('Assemble Scrapbot', 'Patchwork', 'sig'), ('Jury Rig', 'Patchwork', 'skill'), ('Coolant Flush', 'Patchwork', 'skill'), ('Maintenance Drone', 'Patchwork', 'passive'),
+        ('Piston Punch', 'Bulwark-7', 'skill'), ('Steam Vent', 'Bulwark-7', 'skill'), ('Hydraulic Slam', 'Bulwark-7', 'sig'), ('Piledriver', 'Bulwark-7', 'skill'), ('Bunker', 'Bulwark-7', 'skill'), ('Tow Chain', 'Bulwark-7', 'skill'), ('Bulkhead', 'Bulwark-7', 'skill'), ('Reactive Plating', 'Bulwark-7', 'passive'), ('Counterweight', 'Bulwark-7', 'passive'),
+        ('Rip Saw', 'Sawtooth', 'skill'), ('Shrapnel Spin', 'Sawtooth', 'skill'), ('Grinder', 'Sawtooth', 'sig'), ('Limb Shear', 'Sawtooth', 'skill'), ('Rev Up', 'Sawtooth', 'skill'), ('Tooth Breaker', 'Sawtooth', 'skill'), ('Buzz Lash', 'Sawtooth', 'skill'), ('Serrated', 'Sawtooth', 'passive'), ('Ragged Edge', 'Sawtooth', 'passive'),
+        ('Arc Bolt', 'Arclight', 'skill'), ('Discharge', 'Arclight', 'skill'), ('Chain Surge', 'Arclight', 'sig'), ('Overload Coil', 'Arclight', 'skill'), ('Static Field', 'Arclight', 'skill'), ('Condenser Burst', 'Arclight', 'skill'), ('Brownout', 'Arclight', 'skill'), ('Feedback Loop', 'Arclight', 'passive'), ('Storm Caller', 'Arclight', 'passive'),
+        ('Flak Burst', 'Howitzer', 'skill'), ('AP Round', 'Howitzer', 'skill'), ('Siege Shell', 'Howitzer', 'sig'), ('Mortar Walk', 'Howitzer', 'skill'), ('Shell Shock', 'Howitzer', 'skill'), ('Incendiary Shell', 'Howitzer', 'skill'), ('Creeping Barrage', 'Howitzer', 'skill'), ('Big Guns', 'Howitzer', 'passive'), ('Ranging Shot', 'Howitzer', 'passive'),
+        ('Field Weld', 'Patchwork', 'skill'), ('Overclock', 'Patchwork', 'skill'), ('Assemble Scrapbot', 'Patchwork', 'sig'), ('Jury Rig', 'Patchwork', 'skill'), ('Coolant Flush', 'Patchwork', 'skill'), ('Plate Patch', 'Patchwork', 'skill'), ('Throw a Wrench', 'Patchwork', 'skill'), ('Maintenance Drone', 'Patchwork', 'passive'), ('Well Oiled', 'Patchwork', 'passive'),
         ('Beam Shot', 'Scrapbot (summon)', 'skill'),
         ('Beam Burst', 'Scrapbot (summon)', 'skill'),
     ]),
@@ -2098,11 +2089,11 @@ CATALOG = {
         ('Red Mist', 'Krug · Nature', 'passive'), ('Tusk and Board', 'Mogra · Nature', 'passive'),
         ('Two on the Trail', 'Vashka · Nature', 'passive'), ('Long Fuse', 'Drekka · Nature', 'passive'),
         ("Ancestors' Whisper", 'Hesk · Nature', 'passive'),
-        ('Cleave', 'Krug Skullsplitter', 'skill'), ('Reckless Swing', 'Krug Skullsplitter', 'skill'), ('Blood Frenzy', 'Krug Skullsplitter', 'sig'), ('Twin Axes', 'Krug Skullsplitter', 'skill'), ("Warchief's Fury", 'Krug Skullsplitter', 'skill'), ('Bloodlust', 'Krug Skullsplitter', 'passive'), ('Grudge Axe', 'Krug Skullsplitter', 'passive'),
-        ('Skull Rattler', 'Mogra Ironhide', 'skill'), ('Ground Pound', 'Mogra Ironhide', 'skill'), ('Iron Hide', 'Mogra Ironhide', 'sig'), ('Bonebreaker', 'Mogra Ironhide', 'skill'), ('Hold the Line', 'Mogra Ironhide', 'skill'), ('Thick Skull', 'Mogra Ironhide', 'passive'),
-        ('Call the War Boar', 'Vashka Spearthrower', 'skill'), ("Hunter's Mark", 'Vashka Spearthrower', 'skill'), ('Gutpiercer', 'Vashka Spearthrower', 'sig'), ('Pinning Throw', 'Vashka Spearthrower', 'skill'), ('Volley of Spears', 'Vashka Spearthrower', 'skill'), ('Steppe Hunter', 'Vashka Spearthrower', 'passive'),
-        ('Firepot', 'Drekka Firegut', 'skill'), ('Napalm Jar', 'Drekka Firegut', 'skill'), ('Powder Keg', 'Drekka Firegut', 'sig'), ('Cinder Spray', 'Drekka Firegut', 'skill'), ('Sticky Tar', 'Drekka Firegut', 'skill'), ('Pyromaniac', 'Drekka Firegut', 'passive'),
-        ('Spirit Ward', 'Old Mother Hesk', 'skill'), ('Bone Charm', 'Old Mother Hesk', 'skill'), ('Drums of the Horde', 'Old Mother Hesk', 'sig'), ("Ancestor's Balm", 'Old Mother Hesk', 'skill'), ('Totem of Stone', 'Old Mother Hesk', 'skill'), ('Quickstep Drums', 'Old Mother Hesk', 'skill'), ('Ancestral Watch', 'Old Mother Hesk', 'passive'),
+        ('Cleave', 'Krug Skullsplitter', 'skill'), ('Reckless Swing', 'Krug Skullsplitter', 'skill'), ('Blood Frenzy', 'Krug Skullsplitter', 'sig'), ('Twin Axes', 'Krug Skullsplitter', 'skill'), ("Warchief's Fury", 'Krug Skullsplitter', 'skill'), ('Headtaker', 'Krug Skullsplitter', 'skill'), ('Red Charge', 'Krug Skullsplitter', 'skill'), ('Bloodlust', 'Krug Skullsplitter', 'passive'), ('Grudge Axe', 'Krug Skullsplitter', 'passive'), ('Splitting Blow', 'Krug Skullsplitter', 'passive'),
+        ('Skull Rattler', 'Mogra Ironhide', 'skill'), ('Ground Pound', 'Mogra Ironhide', 'skill'), ('Iron Hide', 'Mogra Ironhide', 'sig'), ('Bonebreaker', 'Mogra Ironhide', 'skill'), ('Hold the Line', 'Mogra Ironhide', 'skill'), ('Shield Crush', 'Mogra Ironhide', 'skill'), ('Gore and Pin', 'Mogra Ironhide', 'skill'), ('Thick Skull', 'Mogra Ironhide', 'passive'), ('Hidebound', 'Mogra Ironhide', 'passive'),
+        ('Call the War Boar', 'Vashka Spearthrower', 'skill'), ("Hunter's Mark", 'Vashka Spearthrower', 'skill'), ('Gutpiercer', 'Vashka Spearthrower', 'sig'), ('Pinning Throw', 'Vashka Spearthrower', 'skill'), ('Volley of Spears', 'Vashka Spearthrower', 'skill'), ('Cull the Weak', 'Vashka Spearthrower', 'skill'), ('Hobbling Cast', 'Vashka Spearthrower', 'skill'), ('Steppe Hunter', 'Vashka Spearthrower', 'passive'), ('Marked for the Pot', 'Vashka Spearthrower', 'passive'),
+        ('Firepot', 'Drekka Firegut', 'skill'), ('Napalm Jar', 'Drekka Firegut', 'skill'), ('Powder Keg', 'Drekka Firegut', 'sig'), ('Cinder Spray', 'Drekka Firegut', 'skill'), ('Sticky Tar', 'Drekka Firegut', 'skill'), ('Shrapnel Bomb', 'Drekka Firegut', 'skill'), ('Blastcap', 'Drekka Firegut', 'skill'), ('Pyromaniac', 'Drekka Firegut', 'passive'), ('Wide Spread', 'Drekka Firegut', 'passive'),
+        ('Spirit Ward', 'Old Mother Hesk', 'skill'), ('Bone Charm', 'Old Mother Hesk', 'skill'), ('Drums of the Horde', 'Old Mother Hesk', 'sig'), ("Ancestor's Balm", 'Old Mother Hesk', 'skill'), ('Totem of Stone', 'Old Mother Hesk', 'skill'), ('Quickstep Drums', 'Old Mother Hesk', 'skill'), ("Ancestors' Rebuke", 'Old Mother Hesk', 'skill'), ('Bind the Breath', 'Old Mother Hesk', 'skill'), ('Ancestral Watch', 'Old Mother Hesk', 'passive'), ('Long Memory', 'Old Mother Hesk', 'passive'),
         ('Gore', 'War Boar (summon)', 'skill'),
         ('Tusk Charge', 'War Boar (summon)', 'skill'),
     ]),
@@ -2110,21 +2101,21 @@ CATALOG = {
         ('Shieldbearer', 'Sir Garrick Vane', 'skill'), ('Heroic', 'Wren / Garrick · alt passive', 'passive'),
         ("Spellblade's Rhythm", 'Wren · Nature', 'passive'), ('Sworn Shield', 'Garrick · Nature', 'passive'),
         ('Ember-Warm', 'Aldous · Nature', 'passive'), ('Undimmed', 'Liesl · Nature', 'passive'),
-        ('Power Slash', 'Wren', 'skill'), ('Arcane Edge', 'Wren', 'skill'), ('Thunderclap', 'Wren', 'sig'), ('Mageslayer', 'Wren', 'skill'), ('Runed Thrust', 'Wren', 'skill'), ('Arcane Ward', 'Wren', 'passive'),
-        ('Smite', 'Sir Garrick Vane', 'skill'), ('Consecrate', 'Sir Garrick Vane', 'skill'), ('Oathguard', 'Sir Garrick Vane', 'sig'), ('Hammer of Judgement', 'Sir Garrick Vane', 'skill'), ('Lionheart', 'Sir Garrick Vane', 'skill'), ('Retribution', 'Sir Garrick Vane', 'passive'), ('Shield of the Realm', 'Sir Garrick Vane', 'passive'),
-        ('Aimed Shot', 'Mara Holt', 'skill'), ('Ricochet', 'Mara Holt', 'skill'), ('Powder Shot', 'Mara Holt', 'sig'), ('Pistol Whip', 'Mara Holt', 'skill'), ('Volley Fire', 'Mara Holt', 'skill'), ('Deadeye', 'Mara Holt', 'passive'),
-        ('Fireball', 'Aldous Emberfall', 'skill'), ('Ignite', 'Aldous Emberfall', 'skill'), ('Inferno', 'Aldous Emberfall', 'sig'), ('Flame Lance', 'Aldous Emberfall', 'skill'), ('Mantle of Flame', 'Aldous Emberfall', 'skill'), ('Kindling', 'Aldous Emberfall', 'passive'),
-        ('Sacred Light', 'Sister Liesl', 'skill'), ('Guardian Angel', 'Sister Liesl', 'skill'), ('Prayer of Dawn', 'Sister Liesl', 'sig'), ('Benediction', 'Sister Liesl', 'skill'), ('Censure', 'Sister Liesl', 'skill'), ('First Light', 'Sister Liesl', 'skill'), ('Mercy', 'Sister Liesl', 'passive'),
+        ('Power Slash', 'Wren', 'skill'), ('Arcane Edge', 'Wren', 'skill'), ('Thunderclap', 'Wren', 'sig'), ('Mageslayer', 'Wren', 'skill'), ('Runed Thrust', 'Wren', 'skill'), ('Arcane Ward', 'Wren', 'passive'), ('Spellbreak Arc', 'Wren', 'skill'), ('Null Edge', 'Wren', 'skill'), ('Disrupting Edge', 'Wren', 'passive'),
+        ('Smite', 'Sir Garrick Vane', 'skill'), ('Consecrate', 'Sir Garrick Vane', 'skill'), ('Oathguard', 'Sir Garrick Vane', 'sig'), ('Hammer of Judgement', 'Sir Garrick Vane', 'skill'), ('Lionheart', 'Sir Garrick Vane', 'skill'), ('Retribution', 'Sir Garrick Vane', 'passive'), ('Shield of the Realm', 'Sir Garrick Vane', 'passive'), ('Castigate', 'Sir Garrick Vane', 'skill'), ('Shield Charge', 'Sir Garrick Vane', 'skill'), ('Last Oath', 'Sir Garrick Vane', 'passive'),
+        ('Aimed Shot', 'Mara Holt', 'skill'), ('Ricochet', 'Mara Holt', 'skill'), ('Powder Shot', 'Mara Holt', 'sig'), ('Pistol Whip', 'Mara Holt', 'skill'), ('Volley Fire', 'Mara Holt', 'skill'), ('Deadeye', 'Mara Holt', 'passive'), ('Punch-Through', 'Mara Holt', 'skill'), ('Called Shot', 'Mara Holt', 'skill'), ('Finishing Round', 'Mara Holt', 'passive'),
+        ('Fireball', 'Aldous Emberfall', 'skill'), ('Ignite', 'Aldous Emberfall', 'skill'), ('Inferno', 'Aldous Emberfall', 'sig'), ('Flame Lance', 'Aldous Emberfall', 'skill'), ('Mantle of Flame', 'Aldous Emberfall', 'skill'), ('Kindling', 'Aldous Emberfall', 'passive'), ('Backdraft', 'Aldous Emberfall', 'skill'), ('Draw the Ember', 'Aldous Emberfall', 'skill'), ('Kindled', 'Aldous Emberfall', 'passive'),
+        ('Sacred Light', 'Sister Liesl', 'skill'), ('Guardian Angel', 'Sister Liesl', 'skill'), ('Prayer of Dawn', 'Sister Liesl', 'sig'), ('Benediction', 'Sister Liesl', 'skill'), ('Censure', 'Sister Liesl', 'skill'), ('First Light', 'Sister Liesl', 'skill'), ('Mercy', 'Sister Liesl', 'passive'), ('Dawnbreak', 'Sister Liesl', 'skill'), ('Absolution', 'Sister Liesl', 'skill'), ('Dawnward March', 'Sister Liesl', 'passive'),
     ]),
     'stone': ('Stoneleaf Accord', [
         ('Anvil-Patient', 'Durgan · Nature', 'passive'), ('Deep Foundation', 'Hilda · Nature', 'passive'),
         ("Fletcher's Line", 'Aelira · Nature', 'passive'), ('Crawling Venom', 'Faelan · Nature', 'passive'),
         ('Evergreen', 'Elowen · Nature', 'passive'),
-        ('Hammerfall', 'Durgan Anvilbeard', 'skill'), ('Anvil Strike', 'Durgan Anvilbeard', 'skill'), ('Mountain Breaker', 'Durgan Anvilbeard', 'sig'), ('Forge Strike', 'Durgan Anvilbeard', 'skill'), ('Quake Hammer', 'Durgan Anvilbeard', 'skill'), ('Grudge', 'Durgan Anvilbeard', 'passive'),
-        ('Shield Bash', 'Hilda Stonewall', 'skill'), ('Shieldwall', 'Hilda Stonewall', 'skill'), ('Stand Firm', 'Hilda Stonewall', 'sig'), ('Boulder Toss', 'Hilda Stonewall', 'skill'), ('Bulwark of the Accord', 'Hilda Stonewall', 'skill'), ('Unbreakable', 'Hilda Stonewall', 'passive'),
-        ('Swift Arrows', 'Aelira Swiftwind', 'skill'), ('Arrow Rain', 'Aelira Swiftwind', 'skill'), ('Hawkeye', 'Aelira Swiftwind', 'sig'), ('Piercing Shot', 'Aelira Swiftwind', 'skill'), ('Steady Aim', 'Aelira Swiftwind', 'skill'), ('Keen Eye', 'Aelira Swiftwind', 'passive'),
-        ('Venom Bolt', 'Faelan Thornshot', 'skill'), ('Envenom', 'Faelan Thornshot', 'skill'), ('Thornvolley', 'Faelan Thornshot', 'sig'), ('Crippling Bolt', 'Faelan Thornshot', 'skill'), ('Toxic Barrage', 'Faelan Thornshot', 'skill'), ('Debilitating Venom', 'Faelan Thornshot', 'passive'),
-        ('Regrowth', 'Elowen Greenmantle', 'skill'), ('Entangle', 'Elowen Greenmantle', 'skill'), ('Bloom of Spring', 'Elowen Greenmantle', 'sig'), ('Barkskin', 'Elowen Greenmantle', 'skill'), ('Thornlash', 'Elowen Greenmantle', 'skill'), ('Wind at the Back', 'Elowen Greenmantle', 'skill'), ('Forest Stride', 'Elowen Greenmantle', 'passive'), ('Verdant Aura', 'Elowen Greenmantle', 'passive'),
+        ('Hammerfall', 'Durgan Anvilbeard', 'skill'), ('Anvil Strike', 'Durgan Anvilbeard', 'skill'), ('Mountain Breaker', 'Durgan Anvilbeard', 'sig'), ('Forge Strike', 'Durgan Anvilbeard', 'skill'), ('Quake Hammer', 'Durgan Anvilbeard', 'skill'), ('Grudge', 'Durgan Anvilbeard', 'passive'), ('Anvil Drop', 'Durgan Anvilbeard', 'skill'), ('Hold the Pass', 'Durgan Anvilbeard', 'skill'), ('Hammer and Anvil', 'Durgan Anvilbeard', 'passive'),
+        ('Shield Bash', 'Hilda Stonewall', 'skill'), ('Shieldwall', 'Hilda Stonewall', 'skill'), ('Stand Firm', 'Hilda Stonewall', 'sig'), ('Boulder Toss', 'Hilda Stonewall', 'skill'), ('Bulwark of the Accord', 'Hilda Stonewall', 'skill'), ('Unbreakable', 'Hilda Stonewall', 'passive'), ('Mountainside', 'Hilda Stonewall', 'skill'), ('Set in Stone', 'Hilda Stonewall', 'skill'), ('Seamless Plate', 'Hilda Stonewall', 'passive'),
+        ('Swift Arrows', 'Aelira Swiftwind', 'skill'), ('Arrow Rain', 'Aelira Swiftwind', 'skill'), ('Hawkeye', 'Aelira Swiftwind', 'sig'), ('Piercing Shot', 'Aelira Swiftwind', 'skill'), ('Steady Aim', 'Aelira Swiftwind', 'skill'), ('Keen Eye', 'Aelira Swiftwind', 'passive'), ('Threadneedle', 'Aelira Swiftwind', 'skill'), ('Loose and Move', 'Aelira Swiftwind', 'skill'), ('Second Nock', 'Aelira Swiftwind', 'passive'),
+        ('Venom Bolt', 'Faelan Thornshot', 'skill'), ('Envenom', 'Faelan Thornshot', 'skill'), ('Thornvolley', 'Faelan Thornshot', 'sig'), ('Crippling Bolt', 'Faelan Thornshot', 'skill'), ('Toxic Barrage', 'Faelan Thornshot', 'skill'), ('Debilitating Venom', 'Faelan Thornshot', 'passive'), ('Blinding Toxin', 'Faelan Thornshot', 'skill'), ('Marrowrot', 'Faelan Thornshot', 'skill'), ('Rotgut', 'Faelan Thornshot', 'passive'),
+        ('Regrowth', 'Elowen Greenmantle', 'skill'), ('Entangle', 'Elowen Greenmantle', 'skill'), ('Bloom of Spring', 'Elowen Greenmantle', 'sig'), ('Barkskin', 'Elowen Greenmantle', 'skill'), ('Thornlash', 'Elowen Greenmantle', 'skill'), ('Wind at the Back', 'Elowen Greenmantle', 'skill'), ('Forest Stride', 'Elowen Greenmantle', 'passive'), ('Verdant Aura', 'Elowen Greenmantle', 'passive'), ('Grasping Roots', 'Elowen Greenmantle', 'skill'), ('Oaken Vigil', 'Elowen Greenmantle', 'skill'), ('Deeproot', 'Elowen Greenmantle', 'passive'),
     ]),
     'tide': ('The Tideborn', [
         ('Anchor Chain', 'Tharos Razorfin', 'skill'), ('Stinging Veil', 'Octavia Inkveil', 'skill'),
@@ -2132,22 +2123,22 @@ CATALOG = {
         ('Tide-Runner', 'Tharos · Nature', 'passive'), ('Snapback', 'Grubblefin · Nature', 'passive'),
         ('Sea-Sung', 'Seraphine · Nature', 'passive'), ('Vanish in Ink', 'Octavia · Nature', 'passive'),
         ('Gift of the Reef', 'Maren · Nature', 'passive'),
-        ('Trident Lunge', 'Tharos Razorfin', 'skill'), ('Riptide', 'Tharos Razorfin', 'skill'), ('Blood in the Water', 'Tharos Razorfin', 'sig'), ('Feeding Frenzy', 'Tharos Razorfin', 'skill'), ('Undertow', 'Tharos Razorfin', 'skill'), ('Blood Scent', 'Tharos Razorfin', 'passive'),
-        ('Rimebite', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Glacial Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Choking Bite', 'Grubblefin', 'skill'), ('Frostplate', 'Grubblefin', 'passive'),
-        ("Siren's Hush", 'Seraphine Wavecaller', 'skill'), ('Dirge of the Deep', 'Seraphine Wavecaller', 'skill'), ('Lure Song', 'Seraphine Wavecaller', 'sig'), ('Drowning Chorus', 'Seraphine Wavecaller', 'skill'), ('Song of the Depths', 'Seraphine Wavecaller', 'skill'), ('Echo', 'Seraphine Wavecaller', 'passive'),
-        ('Ink Double', 'Octavia Inkveil', 'skill'), ('Tentacle Snare', 'Octavia Inkveil', 'skill'), ('Ink Cloud', 'Octavia Inkveil', 'sig'), ('Ink Whip', 'Octavia Inkveil', 'skill'), ('Crushing Grip', 'Octavia Inkveil', 'skill'), ('Ink Sac', 'Octavia Inkveil', 'passive'),
-        ('Healing Tide', 'Maren Pearlheart', 'skill'), ('Tide Pool', 'Maren Pearlheart', 'skill'), ('Pearl Barrier', 'Maren Pearlheart', 'sig'), ('Reef Bloom', 'Maren Pearlheart', 'skill'), ('Riptide Crash', 'Maren Pearlheart', 'skill'), ('Rimefall', 'Maren Pearlheart', 'skill'), ('Backwash', 'Maren Pearlheart', 'passive'), ('Tidecaller', 'Maren Pearlheart', 'passive'),
+        ('Trident Lunge', 'Tharos Razorfin', 'skill'), ('Riptide', 'Tharos Razorfin', 'skill'), ('Blood in the Water', 'Tharos Razorfin', 'sig'), ('Feeding Frenzy', 'Tharos Razorfin', 'skill'), ('Undertow', 'Tharos Razorfin', 'skill'), ('Blood Scent', 'Tharos Razorfin', 'passive'), ('Chum the Water', 'Tharos Razorfin', 'skill'), ('Gutter', 'Tharos Razorfin', 'skill'), ('Red Water', 'Tharos Razorfin', 'passive'),
+        ('Rimebite', 'Grubblefin', 'skill'), ('Slippery Scales', 'Grubblefin', 'skill'), ('Glacial Frenzy', 'Grubblefin', 'sig'), ('Barnacle Bite', 'Grubblefin', 'skill'), ('Tail Whip', 'Grubblefin', 'skill'), ('Choking Bite', 'Grubblefin', 'skill'), ('Frostplate', 'Grubblefin', 'passive'), ('Bait the Hook', 'Grubblefin', 'skill'), ('Icebreaker', 'Grubblefin', 'skill'), ('Gnashing', 'Grubblefin', 'passive'),
+        ("Siren's Hush", 'Seraphine Wavecaller', 'skill'), ('Dirge of the Deep', 'Seraphine Wavecaller', 'skill'), ('Lure Song', 'Seraphine Wavecaller', 'sig'), ('Drowning Chorus', 'Seraphine Wavecaller', 'skill'), ('Song of the Depths', 'Seraphine Wavecaller', 'skill'), ('Echo', 'Seraphine Wavecaller', 'passive'), ('Abyssal Note', 'Seraphine Wavecaller', 'skill'), ('Hollow the Throat', 'Seraphine Wavecaller', 'skill'), ('Hush the Deep', 'Seraphine Wavecaller', 'passive'),
+        ('Ink Double', 'Octavia Inkveil', 'skill'), ('Tentacle Snare', 'Octavia Inkveil', 'skill'), ('Ink Cloud', 'Octavia Inkveil', 'sig'), ('Ink Whip', 'Octavia Inkveil', 'skill'), ('Crushing Grip', 'Octavia Inkveil', 'skill'), ('Ink Sac', 'Octavia Inkveil', 'passive'), ('Eight Arms', 'Octavia Inkveil', 'skill'), ('Abyssal Ink', 'Octavia Inkveil', 'skill'), ('Clouded Eyes', 'Octavia Inkveil', 'passive'),
+        ('Healing Tide', 'Maren Pearlheart', 'skill'), ('Tide Pool', 'Maren Pearlheart', 'skill'), ('Pearl Barrier', 'Maren Pearlheart', 'sig'), ('Reef Bloom', 'Maren Pearlheart', 'skill'), ('Riptide Crash', 'Maren Pearlheart', 'skill'), ('Rimefall', 'Maren Pearlheart', 'skill'), ('Backwash', 'Maren Pearlheart', 'passive'), ('Tidecaller', 'Maren Pearlheart', 'passive'), ('Salt the Reef', 'Maren Pearlheart', 'skill'), ('Undertow Grasp', 'Maren Pearlheart', 'skill'), ('Spring Tide', 'Maren Pearlheart', 'passive'),
         ('Ink Lash', 'Ink Illusion (summon)', 'skill'),
     ]),
     'crimson': ('The Crimson Court', [
         ('Tear Apart', 'Gorehound', 'passive'),
         ('Noble Blood', 'Vesper · Nature', 'passive'), ('Pit-Forged', 'Malgrath · Nature', 'passive'),
         ('Slips the Line', 'Gorehound · Nature', 'passive'), ('Overflowing Cup', 'Morwenna · Nature', 'passive'),
-        ('Crimson Lunge', 'Vesper Nightshade', 'skill'), ('Night Waltz', 'Vesper Nightshade', 'skill'), ('Execute', 'Vesper Nightshade', 'sig'), ('Exsanguinate', 'Vesper Nightshade', 'skill'), ('Throat Tear', 'Vesper Nightshade', 'skill'), ('Mist Form', 'Vesper Nightshade', 'skill'), ('Riposte', 'Vesper Nightshade', 'passive'),
-        ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Blood Pact', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'),
-        ('Kiss of Ruin', 'Seraxa Thornwing', 'skill'), ('Shadowstep', 'Seraxa Thornwing', 'skill'), ('Dance of Knives', 'Seraxa Thornwing', 'sig'), ('Wing Carve', 'Seraxa Thornwing', 'skill'), ("Predator's Grace", 'Seraxa Thornwing', 'skill'), ('Flurry', 'Seraxa Thornwing', 'passive'),
-        ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Come Apart', 'Gorehound', 'skill'), ('Bloodhound', 'Gorehound', 'passive'),
-        ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Quickened Blood', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'),
+        ('Crimson Lunge', 'Vesper Nightshade', 'skill'), ('Night Waltz', 'Vesper Nightshade', 'skill'), ('Execute', 'Vesper Nightshade', 'sig'), ('Exsanguinate', 'Vesper Nightshade', 'skill'), ('Throat Tear', 'Vesper Nightshade', 'skill'), ('Mist Form', 'Vesper Nightshade', 'skill'), ('Riposte', 'Vesper Nightshade', 'passive'), ('Scarlet Veil', 'Vesper Nightshade', 'skill'), ('Gaze of the Count', 'Vesper Nightshade', 'skill'), ('Taste for It', 'Vesper Nightshade', 'passive'),
+        ('Hellfire Slam', 'Malgrath the Unbound', 'skill'), ('Demonic Roar', 'Malgrath the Unbound', 'skill'), ('Infernal Wrath', 'Malgrath the Unbound', 'sig'), ('Pit Chains', 'Malgrath the Unbound', 'skill'), ('Sulphur Breath', 'Malgrath the Unbound', 'skill'), ('Blood Pact', 'Malgrath the Unbound', 'skill'), ('Brimstone Hide', 'Malgrath the Unbound', 'passive'), ('Brand', 'Malgrath the Unbound', 'skill'), ('Hellmouth', 'Malgrath the Unbound', 'skill'), ('Hell Answers', 'Malgrath the Unbound', 'passive'),
+        ('Kiss of Ruin', 'Seraxa Thornwing', 'skill'), ('Shadowstep', 'Seraxa Thornwing', 'skill'), ('Dance of Knives', 'Seraxa Thornwing', 'sig'), ('Wing Carve', 'Seraxa Thornwing', 'skill'), ("Predator's Grace", 'Seraxa Thornwing', 'skill'), ('Flurry', 'Seraxa Thornwing', 'passive'), ('Stoop', 'Seraxa Thornwing', 'skill'), ('Razor Gale', 'Seraxa Thornwing', 'skill'), ('Blood Rush', 'Seraxa Thornwing', 'passive'),
+        ('Rend', 'Gorehound', 'skill'), ('Savage Maul', 'Gorehound', 'skill'), ('Hellhound Howl', 'Gorehound', 'sig'), ('Hamstring', 'Gorehound', 'skill'), ('Feral Lunge', 'Gorehound', 'skill'), ('Come Apart', 'Gorehound', 'skill'), ('Throat Lock', 'Gorehound', 'skill'), ('Worry the Wound', 'Gorehound', 'skill'), ('Gorge', 'Gorehound', 'passive'),
+        ('Blight Hex', 'Morwenna Bloodweaver', 'skill'), ('Blood Siphon', 'Morwenna Bloodweaver', 'skill'), ('Blood Communion', 'Morwenna Bloodweaver', 'sig'), ('Crimson Mend', 'Morwenna Bloodweaver', 'skill'), ('Wither', 'Morwenna Bloodweaver', 'skill'), ('Blood Ward', 'Morwenna Bloodweaver', 'skill'), ('Quickened Blood', 'Morwenna Bloodweaver', 'skill'), ('Withering Curse', 'Morwenna Bloodweaver', 'passive'), ('Open the Vein', 'Morwenna Bloodweaver', 'skill'), ('Blood Fog', 'Morwenna Bloodweaver', 'skill'), ('Blood Price', 'Morwenna Bloodweaver', 'passive'),
     ]),
     'undead': ('The Pale Host', [
         ('The Slow March', 'Mordrek · Nature', 'passive'), ('Lord of the Mound', 'Barrow · Nature', 'passive'),
@@ -2158,6 +2149,11 @@ CATALOG = {
         ('Bone Dart', 'Cadris Gravecall', 'skill'), ('Shambling Rise', 'Cadris Gravecall', 'skill'), ('Charnel Volley', 'Cadris Gravecall', 'sig'), ('Rot Shot', 'Cadris Gravecall', 'skill'), ('Marrow Pierce', 'Cadris Gravecall', 'skill'), ('Toll of the Dead', 'Cadris Gravecall', 'passive'),
         ('Shroudcast', 'Vaun Shroudfletch', 'skill'), ('Withering Shot', 'Vaun Shroudfletch', 'skill'), ('Pall of Bones', 'Vaun Shroudfletch', 'sig'), ('Graveshot', 'Vaun Shroudfletch', 'skill'), ('Scatter of Bones', 'Vaun Shroudfletch', 'skill'), ('Deathmark', 'Vaun Shroudfletch', 'passive'),
         ('Grave Mend', 'Mortessa', 'skill'), ('Coffin', 'Mortessa', 'skill'), ('Second Burial', 'Mortessa', 'sig'), ('Hex of Ruin', 'Mortessa', 'skill'), ('Soul Siphon', 'Mortessa', 'skill'), ('Stolen Hours', 'Mortessa', 'skill'), ('Keeper of the Coffin', 'Mortessa', 'passive'),
+        ("Grave's Reach", 'Mordrek the Interred', 'skill'), ('Dead March', 'Mordrek the Interred', 'skill'), ('Grave-Patient', 'Mordrek the Interred', 'passive'),
+        ('Weight of the Mound', 'Barrow', 'skill'), ("The Lord's Due", 'Barrow', 'skill'), ('First Out of the Ground', 'Barrow', 'passive'),
+        ('Grip of the Grave', 'Cadris Gravecall', 'skill'), ('Charnel Tide', 'Cadris Gravecall', 'skill'), ('Grave-Debt', 'Cadris Gravecall', 'passive'),
+        ('Rib-Splitter', 'Vaun Shroudfletch', 'skill'), ('Hold the Shot', 'Vaun Shroudfletch', 'skill'), ('Scattercast', 'Vaun Shroudfletch', 'passive'),
+        ('Chorus of the Interred', 'Mortessa', 'skill'), ('Pall of Silence', 'Mortessa', 'skill'), ('The Dead Are Tended', 'Mortessa', 'passive'),
         ('Clawing Grasp', 'Shambler (summon)', 'skill'),
     ]),
     'riftborn': ('The Riftborn', [
@@ -2193,6 +2189,11 @@ CATALOG = {
         ('Ground Slam', "Zul'kan", 'skill'), ('Skyward Smash', "Zul'kan", 'sig'),
         ('War Cry', "Zul'kan", 'skill'), ('Seismic Toss', "Zul'kan", 'skill'),
         ('Iron Stance', "Zul'kan", 'skill'), ('Tremor', "Zul'kan", 'skill'),
+        ('Command the Fallen', 'Riven', 'skill'), ('Blade Harvest', 'Riven', 'skill'), ('Never There', 'Riven', 'passive'),
+        ('Blow the Valve', 'Orin', 'skill'), ('Plate Rig', 'Orin', 'skill'), ('Tap the Line', 'Orin', 'passive'),
+        ('Dissonance', 'Fin-Keeper Shazrak', 'skill'), ('Hold the Note', 'Fin-Keeper Shazrak', 'skill'), ('Keeping Time', 'Fin-Keeper Shazrak', 'passive'),
+        ('Shockwave', "Zul'kan", 'skill'), ('Haymaker', "Zul'kan", 'skill'), ('Skullcracker', "Zul'kan", 'passive'),
+        ('Severance', 'Ryuunosuke', 'skill'), ('Lingering Cut', 'Ryuunosuke', 'skill'),
     ]),
     'cog': ('The Cogbound', [
         ('Foundry-Cast', 'Orin', 'passive'),
@@ -2243,12 +2244,49 @@ def _():
             + speed_lines(9, 20, 3, 9, 6, '#f0a73a') + speed_lines(47, 20, 3, 9, 6, '#f0a73a'))
 
 
-@icon('Bunker Down')
+# Bunker's own gradients, carried over from the hand-drawn icon this glyph replaces.
+# Glyph-local defs are fine — frame() drops the glyph inside the same <svg> (cf. RV_DEFS).
+BK_DEFS = ('<defs>'
+           '<linearGradient id="bkSteel" x1="0" y1="0" x2="0" y2="1">'
+           '<stop offset="0" stop-color="#b9c4d8"/><stop offset="1" stop-color="#6b7792"/></linearGradient>'
+           '<linearGradient id="bkGround" x1="0" y1="0" x2="0" y2="1">'
+           '<stop offset="0" stop-color="#5a4a36"/><stop offset="1" stop-color="#3a2f22"/></linearGradient>'
+           '</defs>')
+
+
+@icon('Bunker')
 def _():
-    return (g(heater('url(#iron)', '#f0a73a'), 32, 33, 0, 1.12)
-            + poly('M23 26 L32 34 L41 26', '#ffd166', 2.6)
-            + poly('M23 37 L32 45 L41 37', '#ffd166', 2.6)
-            + twinkle(12, 16, .8, '#f0a73a') + twinkle(52, 16, .8, '#f0a73a'))
+    """PORTED FROM THE HAND-DRAWN skills/bunker.svg — do not "simplify" back to a shield.
+
+    That file was bespoke art (the hull driven into the ground, anchors bitten in, two rounds
+    glancing off the plating) and it was NOT produced by this script, so every run quietly
+    overwrote it with a generic heater-shield glyph. The art is the better read — it draws the
+    actual skill rather than a shield that could be any ward in the game — but it was missing
+    the faction frame every other icon wears, which made it the one odd tile in the set.
+    Keeping it here gets both: the original drawing, inside the house frame, reproducible.
+
+    The paths are the originals in absolute 0-64 coordinates, scaled about their own centre so
+    they sit inside the frame's safe area (~8..56) instead of running to the tile edge.
+    """
+    art = (
+        # the ground it is driven into
+        '<path d="M4 48 h56 v10 H4 z" fill="url(#bkGround)"/>'
+        '<path d="M4 48 h56" stroke="#7d6a4e" stroke-width="2" fill="none"/>'
+        # the hull: a squat, braced block
+        '<path d="M14 26 h36 a4 4 0 0 1 4 4 v18 H10 V30 a4 4 0 0 1 4 -4 z" fill="url(#bkSteel)"/>'
+        # the vision slit
+        '<rect x="18" y="33" width="28" height="6" rx="2" fill="#1b2130"/>'
+        '<rect x="18" y="33" width="28" height="2.5" rx="1.2" fill="#f0a73a" opacity=".55"/>'
+        # anchors, bitten into the earth
+        '<path d="M14 48 l-4 8 M50 48 l4 8" stroke="#2b3243" stroke-width="3.4" fill="none"/>'
+        '<path d="M22 48 v7 M42 48 v7" stroke="#2b3243" stroke-width="2.6" fill="none"/>'
+        # two rounds glancing off the plating
+        '<path d="M30 10 l0 9" stroke="#f0a73a" stroke-width="2.6" fill="none"/>'
+        '<path d="M30 22 q6 2 11 -5" stroke="#f0a73a" stroke-width="2.6" fill="none"/>'
+        '<path d="M46 12 l-3 7" stroke="#f0a73a" stroke-width="2.2" opacity=".7" fill="none"/>'
+        '<path d="M44 21 q5 2 9 -3" stroke="#f0a73a" stroke-width="2.2" opacity=".7" fill="none"/>'
+    )
+    return BK_DEFS + f'<g transform="translate(32 34) scale(.84) translate(-32 -34)">{art}</g>'
 
 
 @icon('Limb Shear')
@@ -2307,6 +2345,198 @@ def _():
             + g(drop('url(#water)'), 22, 38, 0, 1.5) + g(drop('url(#water)'), 34, 46, 0, 1.2)
             + g(drop('url(#water)'), 44, 36, 0, 1.0)
             + arc_lines(32, 20, 14, 2, 150, '#b4f4ff', 90, 2.0))
+
+
+# ---- Ironclad Union, third wave
+@icon('Tow Chain')
+def _():
+    # Reach and drag: the hook out at the end of a heavy chain, and an arrow hauling it all back.
+    links = ''.join(g('<ellipse rx="4.6" ry="3" fill="url(#iron)" stroke-width="1.2"/>'
+                      '<ellipse rx="2.2" ry="1.2" fill="#2a2e3a" stroke="none"/>', x, y, -38)
+                    for x, y in ((11, 51), (17, 46), (23, 41), (29, 36), (35, 31)))
+    hook = (poly('M0 -12 L0 -4 A7 7 0 1 0 -8 2', '#c9ccd8', 3.2)
+            + '<rect x="-2.8" y="-16" width="5.6" height="5.5" rx="1.6" fill="url(#gold)"/>')
+    return (links + g(hook, 45, 27, 20)
+            + line(14, 20, 32, 20, '#ffd166', 2.4)
+            + poly('M22 13 L13 20 L22 27', '#ffd166', 2.6))
+
+
+@icon('Bulkhead')
+def _():
+    # Buttoned up: two slabs of plate driven shut on a sealed seam, half of everything stops here.
+    rivets = ''.join(f'<circle cx="{x}" cy="{y}" r="1.8" fill="#f0a73a" stroke-width="1"/>'
+                     for x, y in ((13, 24), (13, 44), (51, 24), (51, 44)))
+    return ('<rect x="8" y="18" width="21" height="31" rx="2.5" fill="url(#iron)"/>'
+            + '<rect x="35" y="18" width="21" height="31" rx="2.5" fill="url(#iron)"/>'
+            + '<path d="M11 31 H26 M11 38 H26 M38 31 H53 M38 38 H53" stroke-width="1.4"/>'
+            + rivets
+            + '<rect x="28" y="15" width="8" height="37" rx="2" fill="url(#steel)"/>'
+            + '<path d="M32 19 V48" stroke="#5d6780" stroke-width="1.2" fill="none"/>'
+            + line(16, 11, 26, 11, '#ffd166', 2.2) + poly('M22 7 L27 11 L22 15', '#ffd166', 2.2)
+            + line(48, 11, 38, 11, '#ffd166', 2.2) + poly('M42 7 L37 11 L42 15', '#ffd166', 2.2))
+
+
+@icon('Counterweight')
+def _():
+    # The hit is answered: all that mass on its pivot swings back through whoever walked up.
+    weight = ('<path d="M-11 -9 L11 -9 L14 11 L-14 11 Z" fill="url(#iron)"/>'
+              '<path d="M-9 -2 H9 M-10 5 H10" stroke-width="1.4"/>'
+              '<rect x="-3.4" y="-15" width="6.8" height="6.5" rx="1.6" fill="url(#steel)"/>')
+    return ('<circle cx="44" cy="12" r="3.8" fill="url(#steel)"/>'
+            + line(44, 12, 31, 26, '#9aa3b5', 3.0)
+            + '<path d="M53 29 Q52 47 37 51" fill="none" stroke="#ffd166" stroke-width="2.2" stroke-dasharray="4 4" opacity=".9"/>'
+            + poly('M43 45 L36 51 L44 55', '#ffd166', 2.2)
+            + g(weight, 26, 37, 0, 1.15)
+            + stun_stars(19, 13, 18))
+
+
+@icon('Tooth Breaker')
+def _():
+    # Armour peeled back off a cracked plate, and the tooth it cost him to do it.
+    plate = ('<path d="M12 18 L30 11 L48 18 L46 40 Q40 50 30 54 Q20 50 14 40 Z" fill="url(#iron)"/>'
+             '<path d="M16 22 L30 16 L44 22 L42.5 39 Q38 46 30 49 Q22 46 17.5 39 Z" fill="url(#steel)" stroke-width="1.2"/>')
+    peel = '<path d="M44 21 L57 15 L53 29 L42.5 31 Z" fill="url(#steel)" stroke-width="1.2"/>'
+    return (plate + peel
+            + poly('M30 14 L25 24 L33 30 L26 38 L31 50', '#c81e2a', 2.2)
+            + g('<path d="M-6 7 L0 -7 L6 7 Z" fill="url(#steel)"/>', 15, 48, 22, .9)
+            + g('<path d="M-3.5 3 L1 -4 L4 3 Z" fill="#c9ccd8" stroke-width="1"/>', 9, 36, -35)
+            + twinkle(52, 44, .7, '#ffd166'))
+
+
+@icon('Buzz Lash')
+def _():
+    # Five thin cuts in one pass, blades still spinning at either end of the flurry.
+    cuts = ''.join(poly(f'M{x} 11 Q{x - 4} 32 {x - 9} 53', '#f4f7fc', 1.6) for x in (17, 26, 35, 44, 53))
+    return (glow('<circle cx="46" cy="15" r="10" fill="#ff9a2e"/>'
+                 '<circle cx="18" cy="47" r="9" fill="#ff9a2e"/>', .55)
+            + cuts
+            + g(sawblade(8, 10), 46, 15, 20, .8) + g(sawblade(8, 10), 18, 47, -15, .8)
+            + twinkle(54, 42, .7, '#ffd166'))
+
+
+@icon('Ragged Edge')
+def _():
+    # Not a clean saw edge — a torn one, and the wound under it runs deeper for it.
+    return (glow('<path d="M12 30 H52 V41 H12 Z" fill="#9a0f1c"/>', .5)
+            + '<path d="M10 14 H54 V30 L49 43 L45 29 L39 41 L35 28 L29 42 L24 27 L19 39 L14 28 L10 36 Z" fill="url(#steel)"/>'
+            + '<path d="M13 20 H51" stroke-width="1.2" fill="none"/>'
+            + poly('M10 36 L14 28 L19 39 L24 27 L29 42 L35 28 L39 41 L45 29 L49 43 L54 30', '#c9ccd8', 1.6)
+            + g(drop(), 48, 51, 0, .9) + g(drop(), 34, 52, 0, .7) + g(drop(), 20, 47, 0, .55)
+            + twinkle(16, 18, .6, '#ffd166'))
+
+
+@icon('Condenser Burst')
+def _():
+    # Soaking the field: the condensers blowing off, all water and mist. The lightning comes later.
+    tank = ('<rect x="23" y="38" width="18" height="18" rx="4" fill="url(#iron)"/>'
+            '<rect x="19" y="33" width="26" height="5.5" rx="2" fill="#f0a73a"/>'
+            '<path d="M27 44 H37 M27 50 H37" stroke-width="1.4"/>'
+            '<rect x="13" y="41" width="7" height="5.5" rx="1.6" fill="url(#steel)"/>'
+            '<rect x="44" y="41" width="7" height="5.5" rx="1.6" fill="url(#steel)"/>')
+    return (arc_lines(32, 33, 12, 3, 190, '#b4f4ff', -90, 2.2, 6)
+            + g(drop('url(#water)'), 32, 13, 0, 1.2)
+            + g(drop('url(#water)'), 17, 22, 0, .9) + g(drop('url(#water)'), 47, 22, 0, .9)
+            + g(drop('url(#water)'), 12, 33, 0, .7) + g(drop('url(#water)'), 52, 33, 0, .7)
+            + tank)
+
+
+@icon('Brownout')
+def _():
+    # The lights going out: a coil dimming from the top down, the mana running off the bottom of it.
+    coil = ''.join(f'<ellipse cx="32" cy="{y}" rx="13" ry="4.4" fill="none" stroke="#5d6780" stroke-width="3" opacity="{o}"/>'
+                   for y, o in ((17, .95), (25, .7), (33, .5), (41, .3)))
+    return ('<rect x="28" y="9" width="8" height="8" rx="2" fill="url(#iron)"/>'
+            + coil
+            + line(13, 26, 13, 40, '#4d7ec0', 2.2) + poly('M8 35 L13 42 L18 35', '#4d7ec0', 2.2)
+            + line(51, 26, 51, 40, '#4d7ec0', 2.2) + poly('M46 35 L51 42 L56 35', '#4d7ec0', 2.2)
+            + g(drop('url(#mana)'), 24, 50, 0, .85) + g(drop('url(#mana)'), 34, 54, 0, .65)
+            + twinkle(44, 14, .6, '#9aa3b5'))
+
+
+@icon('Storm Caller')
+def _():
+    # Lightning and water in the same picture: her bolt going into ground that is already soaked.
+    return (glow(g(zap('#a6ecff'), 32, 23, 0, .95), .55) + g(zap(), 32, 23, 0, .9)
+            + burst(32, 43, 3, 8, 8, '#eaffff')
+            + poly('M8 46 Q20 40 32 46 T56 46', '#b4f4ff', 2.6)
+            + poly('M10 54 Q22 48 34 54 T58 54', '#2a86b8', 2.4)
+            + g(drop('url(#water)'), 15, 36, 0, .7) + g(drop('url(#water)'), 49, 36, 0, .7))
+
+
+@icon('Incendiary Shell')
+def _():
+    # Fire over an area: the shell coming apart nose-first and the ground still burning after.
+    shell = ('<path d="M0 -14 C4 -9 5 -5 5 -1 V10 H-5 V-1 C-5 -5 -4 -9 0 -14 Z" fill="url(#steel)"/>'
+             '<rect x="-5" y="4" width="10" height="7" fill="url(#gold)"/>'
+             '<rect x="-5" y="-2" width="10" height="3" fill="#e0455a"/>')
+    return ('<rect x="6" y="51" width="52" height="6" rx="2" fill="#5a4a3a"/>'
+            + glow(burst(32, 40, 8, 20, 11, '#ff7a2f'), .6)
+            + burst(32, 40, 6, 15, 11, 'url(#fireR)')
+            + g(flame(), 15, 45, 0, .55) + g(flame(), 49, 45, 0, .55)
+            + g(shell, 32, 20, 180, .95)
+            + twinkle(13, 23, .7, '#ffd166') + twinkle(51, 23, .7, '#ffd166'))
+
+
+@icon('Creeping Barrage')
+def _():
+    # The barrage walking across the ground, each blast bigger than the last, shoving the line along.
+    craters = ''.join(f'<ellipse cx="{x}" cy="51" rx="{r}" ry="2.6" fill="#15121d" stroke="none" opacity=".55"/>'
+                      for x, r in ((12, 4), (25, 5), (40, 6.5)))
+    return ('<rect x="6" y="51" width="52" height="6" rx="2" fill="#5a4a3a"/>' + craters
+            + burst(12, 44, 2.6, 7, 8, '#ffd166')
+            + burst(25, 42, 3.2, 9.5, 9, '#ffd166')
+            + burst(40, 38, 4, 12, 10, 'url(#fireR)')
+            + '<path d="M9 21 H41" stroke="#f0a73a" stroke-width="2.4" stroke-dasharray="5 4" fill="none"/>'
+            + poly('M42 15 L50 21 L42 27', '#ffd166', 2.4))
+
+
+@icon('Ranging Shot')
+def _():
+    # The range is found: the sight settled on a mark that is already off its feet.
+    mark = ('<rect x="-5" y="-8" width="10" height="17" rx="3" fill="url(#iron)"/>'
+            '<circle cx="0" cy="-13" r="5" fill="url(#steel)"/>'
+            '<path d="M-5 9 L-8 16 M5 9 L8 16" stroke-width="2.2"/>')
+    return (g(mark, 31, 36, 16, .95)
+            + '<circle cx="32" cy="32" r="18" fill="none" stroke="#f0a73a" stroke-width="2.4"/>'
+            + '<path d="M32 46 V57 M7 32 H18 M46 32 H57" fill="none" stroke="#ffd166" stroke-width="2.4"/>'
+            + '<circle cx="32" cy="32" r="2.6" fill="#ffd166"/>'
+            + stun_stars(45, 13, 16))
+
+
+@icon('Plate Patch')
+def _():
+    # Steel, not medicine: a scrap plate riveted straight over the hole. Deliberately no cross.
+    rivets = ''.join(f'<circle cx="{x}" cy="{y}" r="2" fill="url(#gold)" stroke-width="1"/>'
+                     for x, y in ((-10, -7), (10, -7), (-10, 7), (10, 7)))
+    patch = ('<rect x="-14" y="-11" width="28" height="22" rx="2" fill="url(#steel)"/>'
+             '<path d="M-14 0 H14" stroke-width="1.2" fill="none"/>' + rivets)
+    return ('<rect x="8" y="14" width="48" height="36" rx="4" fill="url(#iron)"/>'
+            + '<path d="M8 24 H56 M8 40 H56" stroke-width="1.2" fill="none"/>'
+            + '<path d="M15 21 L27 18 L35 26 L32 40 L19 41 L11 31 Z" fill="#15121d" stroke="none"/>'
+            + poly('M15 21 L11 31 L19 41', '#6a7180', 1.4)
+            + g(patch, 38, 34, -8)
+            + twinkle(16, 46, .7, '#ffd166') + twinkle(52, 19, .6, '#f0a73a'))
+
+
+@icon('Throw a Wrench')
+def _():
+    # The works jammed: a wrench tumbling in head-first and the gear stopping on it.
+    return (g(gear(13, 9, '#7a8296'), 38, 38, 0, 1.1)
+            + arc_lines(38, 38, 20, 2, 80, '#9aa3b5', -40, 2.0, 4)
+            + g(wrench(), 24, 24, 140)
+            + burst(32, 31, 3, 8, 8, '#ffd166')
+            + speed_lines(7, 13, 3, 10, 5, '#f0a73a'))
+
+
+@icon('Well Oiled')
+def _():
+    # Everything runs quicker: one drop of oil and a gear that no longer fights its own teeth.
+    return (g(gear(12, 9, '#9aa3b5'), 32, 38, 0, 1.3)
+            + '<circle cx="32" cy="38" r="5" fill="url(#gold)"/><circle cx="32" cy="38" r="1.8" fill="#2a2a33"/>'
+            + glow(g(drop('#f0a73a'), 32, 18, 0, 1.5), .35)
+            + g(drop('url(#wood)'), 32, 18, 0, 1.5)
+            + speed_lines(45, 26, 3, 9, 5, '#ffd166')
+            + twinkle(14, 24, .7, '#ffd166'))
 
 
 # ---- Bloodtusk Horde
@@ -2385,6 +2615,333 @@ def _():
             + g(skull('#d8c8a8'), 32, 22, 0, .62)
             + '<rect x="19" y="50" width="26" height="6" rx="2" fill="#6b4f32"/>'
             + arc_lines(32, 34, 20, 2, 110, '#9aa3b5', 0, 2.0) + arc_lines(32, 34, 20, 2, 110, '#9aa3b5', 180, 2.0))
+
+
+# ---- Bloodtusk Horde, second rank: the skills and passives added after the first pass.
+# House rules these follow: the orc accent is #d48c3c, hide/clay/bone/wood for gear, #e0242f and
+# url(#blood) for blood, #bff0ff for anything the ancestors touch, #c89eff for a curse.
+
+# Krug Skullsplitter --------------------------------------------------------
+@icon('Headtaker')
+def _():
+    """The committed swing: armour-piercing and paid for in his own blood.
+
+    Deliberately not a clean cut — the helm is drawn as two halves already knocked apart and
+    tipped off each other, so the blow reads as finished and ruinous rather than mid-parry.
+
+    THE AXE HEAD MUST NOT SIT ON THE HELM. Both were steel/iron greys in the first pass and
+    at 140px they fused into one silver bowl with red inside — no axe left in the tile at all.
+    The head is now kept clear of the halves against the dark ground, carries a white edge
+    highlight, and the halves are pushed down into the corners and darkened to bronze so the
+    two never share a value.
+    """
+    def half(s):
+        return (f'<path d="M{-13*s} 7 C{-13*s} -8 {-8*s} -16 {-1*s} -16 L{-2*s} 7 Z" fill="#8a6a44"/>'
+                f'<path d="M{-15*s} 7 H{-1*s} V11 H{-15*s} Z" fill="#4a3422"/>'
+                f'<path d="M{-11.5*s} -4 H{-2.5*s} V-0.5 H{-11.5*s} Z" fill="#15121d" stroke-width="1"/>')
+    # A bespoke head rather than axe(): it needs a white edge highlight to stay off the helm.
+    bigaxe = ('<rect x="-2.2" y="-21" width="4.4" height="42" rx="1.8" fill="url(#wood)"/>'
+              '<path d="M-3 -19 L-8.5 -17 L-8.5 -9 L-3 -8 Z" fill="url(#iron)"/>'
+              '<path d="M-2 -18 L7 -22 Q22 -14 19 2 Q13 -3 7 -4 L-2 -7 Z" fill="url(#steel)"/>'
+              '<path d="M7 -21.5 Q21 -14 18.5 1" fill="none" stroke="#fff6e0" stroke-width="2"/>'
+              '<rect x="-3.2" y="-21.5" width="6.4" height="4" rx="1.2" fill="url(#iron)"/>')
+    return (glow('<circle cx="32" cy="40" r="11" fill="#e0242f"/>', .45)
+            + '<path d="M8 12 Q34 12 54 34 Q33 19 8 12 Z" fill="#ffd9b0" opacity=".8" stroke="none"/>'
+            + '<path d="M8 12 Q34 12 54 34" fill="none" stroke="#ff8a6a" stroke-width="1.4"/>'
+            + g(half(1), 19, 49, -26, .8) + g(half(-1), 45, 50, 28, .8)
+            + g(bigaxe, 32, 20, 135, 1.05)
+            + g(drop(), 12, 30, 0, .7) + g(drop(), 54, 18, 0, .55) + g(drop(), 32, 57, 0, .45))
+
+
+@icon('Red Charge')
+def _():
+    """Shoulder first, speed lines behind, and the mark shoved back down the bar.
+
+    A bare pauldron is not enough: on its own the plate read as a brown dome, closer to a
+    tent than to anything running. The tusked head tucked in over the top of it is what
+    turns the shape into an orc with his shoulder down.
+    """
+    pauldron = ('<path d="M-13 14 Q-16 -5 -4 -12 Q9 -17 13 -3 Q15 8 11 14 Z" fill="url(#hide)"/>'
+                '<path d="M-9 11 Q-10 -3 -2 -8 Q6 -11 10 -1" fill="none" stroke="#b07d3e" stroke-width="1.8"/>'
+                + burst(4, -13, 2, 6, 6, 'url(#iron)'))
+    head = ('<circle cx="0" cy="0" r="7" fill="#7a9a5e"/>'
+            '<path d="M-3 4 Q-5 9 -3 11 Q-1 7 -0.5 5 Z M3 4 Q5 9 3 11 Q1 7 .5 5 Z" fill="url(#bone)" stroke-width="1"/>'
+            '<circle cx="3" cy="-1.5" r="1.7" fill="#2a1a1a" stroke="none"/>'
+            '<path d="M-6 -4 Q0 -7 6 -5" fill="none" stroke="#4a6238" stroke-width="1.6"/>')
+    return (g(speed_lines(0, 0, 3, 13, 7, '#ff8a6a', 0, .85), 5, 36)
+            + g(pauldron, 22, 40, 14, .98)
+            + g(head, 35, 26, 18, 1.0)
+            + glow(burst(48, 32, 4, 12, 9, '#e0242f'), .6)
+            + burst(48, 32, 4, 10, 9, '#ff8a3d')
+            + poly('M47 18 L55 29 L47 40', '#ffd166', 2.4)
+            + g(drop(), 50, 50, 0, .6))
+
+
+@icon('Splitting Blow')
+def _():
+    """Not a bleed: a plate cracked open, so the four swinging after him all collect.
+
+    Bone-gold fractures on iron on purpose — nothing red anywhere, or it reads as Bleed.
+    """
+    def crack(a, r0=7.5, r1=20.5):
+        ar = math.radians(a)
+        dx, dy = math.cos(ar), math.sin(ar)
+        px, py = -dy, dx
+        pts = []
+        for i, off in enumerate((0, 2.6, -2.6, 0)):
+            t = r0 + (r1 - r0) * i / 3
+            pts.append(f'{32 + t * dx + off * px:.1f} {32 + t * dy + off * py:.1f}')
+        return poly('M' + ' L'.join(pts), '#ffd166', 2.0)
+    plate = 'M32 10 L50 20 L50 42 L32 53 L14 42 L14 20 Z'
+    return (f'<path d="{plate}" fill="url(#iron)"/>'
+            + f'<path d="{plate}" fill="none" stroke="#9aa3b5" stroke-width="1.4"/>'
+            + ''.join(crack(a) for a in (-90, -38, 18, 66, 126, 182, 236))
+            + glow(burst(32, 32, 3.5, 11, 8, '#ffd166'), .75)
+            + burst(32, 32, 3.5, 9.5, 8, '#ffd166')
+            + '<circle cx="32" cy="32" r="3.2" fill="#2a1a1a"/>')
+
+
+# Mogra Ironhide -----------------------------------------------------------
+@icon('Shield Crush')
+def _():
+    """The boss of the shield driven forward, and what it hits buckling away from it.
+
+    The bent-away brackets on the right are the Weaken: the shape is crumpling, not stunned.
+    """
+    return (g(speed_lines(0, 0, 3, 11, 7, '#d8c8a8', 0, .7), 7, 33)
+            + g(heater('url(#hide)', '#b07d3e'), 27, 33, 16, 1.06)
+            + burst(28, 32, 4, 9.5, 7, '#d48c3c')
+            + glow(burst(46, 30, 4, 11, 9, '#ffd166'), .6)
+            + burst(46, 30, 3.5, 9, 9, '#ffd166')
+            + poly('M49 17 Q42 25 50 33', '#9aa3b5', 2.4)
+            + poly('M50 38 Q43 44 51 50', '#9aa3b5', 2.0)
+            + poly('M55 42 V52 M51.5 48.5 L55 53 L58.5 48.5', '#8a9a7a', 2.0))
+
+
+@icon('Gore and Pin')
+def _():
+    """Rooted, not stunned: it is still awake under there, it simply cannot leave.
+
+    The stake goes through into the ground and the tusks keep it there — no stun stars, which
+    is the whole distinction the skill text draws.
+    """
+    tusk = ('<path d="M0 0 Q1 -14 16 -18 Q4 -11 5.5 0 Z" fill="url(#bone)"/>'
+            '<path d="M2 -3 Q3 -11 12 -15" fill="none" stroke="#fbf4e2" stroke-width="1.2"/>')
+    held = ('<path d="M24 50 Q23 37 33 34 Q45 32 49 50 Z" fill="#6a4f68"/>'
+            '<circle cx="32" cy="29" r="6" fill="#6a4f68"/>'
+            '<path d="M27 40 L17 45 M45 41 L53 47" stroke="#6a4f68" stroke-width="4"/>'
+            '<path d="M28 27 L25 21 M36 27 L39 21" stroke="#3a2a3a" stroke-width="2.4"/>')
+    return ('<rect x="8" y="48" width="48" height="8" rx="2" fill="#5a4636"/>'
+            + '<path d="M20 48 L15 56 M34 48 L29 56 M47 48 L42 56" stroke-width="1.4"/>'
+            + held
+            + '<path d="M38 11 H44 V40 L41 49 L38 40 Z" fill="url(#iron)"/>'
+            + '<rect x="35.5" y="9" width="11" height="4" rx="1.6" fill="#8a5a32"/>'
+            + '<path d="M41 15 V38" stroke="#dfe6f2" stroke-width="1"/>'
+            + g(tusk, 8, 47, -2, 1.0) + g(tusk, 11, 34, 18, .82)
+            + burst(27, 33, 3, 7.5, 8, '#e0242f')
+            + g(drop(), 52, 38, 0, .55))
+
+
+@icon('Hidebound')
+def _():
+    """Hitting her takes the strength out of YOU: the blade comes off the hide drooping.
+
+    Plain brown bands read as stacked planks, so each layer carries a stitch run along its
+    trailing edge — that is the one cue that says cured hide rather than wood. The weapon
+    needs its hilt and pommel too, or the bent blade reads as a hook instead of a sword.
+    """
+    layer = 'M0 -23 Q-11 0 0 23 L9 23 Q-2 0 9 -23 Z'
+    stitch = ('<path d="M7 -18 Q-3 0 7 18" fill="none" stroke="#d8bf96" stroke-width="1.3"'
+              ' stroke-dasharray="2.4 3.2"/>')
+    return (f'<path d="{layer}" fill="#3a2b20" transform="{T(14, 32)}"/>'
+            + f'<g transform="{T(14, 32)}">{stitch}</g>'
+            + f'<path d="{layer}" fill="#5e4836" transform="{T(23, 32)}"/>'
+            + f'<g transform="{T(23, 32)}">{stitch}</g>'
+            + f'<path d="{layer}" fill="url(#hide)" transform="{T(32, 32)}"/>'
+            + f'<g transform="{T(32, 32)}">{stitch}</g>'
+            + poly('M57 12 L46 22 Q39 28 41 37 Q43 44 37 48', '#aab4c7', 3.0)
+            + g('<rect x="-7" y="-2" width="14" height="4" rx="1.6" fill="url(#gold)"/>'
+                '<rect x="-1.8" y="1.5" width="3.6" height="7" fill="#5a3520"/>'
+                '<circle cy="10" r="2.6" fill="url(#gold)"/>', 58, 9, 135, 1.0)
+            + twinkle(45, 19, .85, '#fff1c0') + twinkle(38, 43, .6, '#fff1c0')
+            + poly('M48 44 V53 M44.5 49.5 L48 54 L51.5 49.5', '#8a9a7a', 2.0))
+
+
+# Vashka Spearthrower ------------------------------------------------------
+@icon('Cull the Weak')
+def _():
+    """The finishing throw: the javelin goes into a mark that is already leaking."""
+    return ('<circle cx="42" cy="41" r="11.5" fill="#e0242f" fill-opacity=".14" stroke="none"/>'
+            + '<circle cx="42" cy="41" r="11.5" fill="none" stroke="#e0242f" stroke-width="2.4"/>'
+            + '<path d="M42 25 V30 M42 52 V57 M26 41 H31 M53 41 H58" stroke="#e0242f" stroke-width="2.2"/>'
+            + g(speed_lines(0, 0, 3, 10, 5, '#c9b28a', 0, .7), 9, 11, 45)
+            + g(spear(), 26, 25, 135, 1.0)
+            + g(drop(), 34, 54, 0, .8) + g(drop(), 50, 52, 0, .6) + g(drop(), 22, 44, 0, .5))
+
+
+@icon('Hobbling Cast')
+def _():
+    """A bola out of her hand and the whole line tangled and marked behind it."""
+    weights = ('<circle cx="-14" cy="-7" r="4.2" fill="url(#clay)"/>'
+               '<circle cx="14" cy="-9" r="4.2" fill="url(#clay)"/>'
+               '<circle cx="2" cy="13" r="4.2" fill="url(#clay)"/>')
+    bola = (poly('M0 0 L-12 -6 M0 0 L12 -8 M0 0 L1.6 11', '#c9b28a', 2.0) + weights)
+    marks = ''.join('<circle cx="%d" cy="46" r="5.4" fill="none" stroke="#e0242f" stroke-width="2.2"/>'
+                    '<circle cx="%d" cy="46" r="1.8" fill="#e0242f"/>' % (x, x) for x in (16, 32, 48))
+    return (arc_lines(32, 22, 17, 2, 150, '#d8c8a8', -90, 1.6)
+            + g(bola, 32, 21, -12, 1.0)
+            + poly('M8 50 Q16 40 24 50 Q32 60 40 50 Q48 40 56 50', '#c9b28a', 2.4)
+            + marks
+            + twinkle(13, 28, .6, '#ffd166') + twinkle(52, 30, .6, '#ffd166'))
+
+
+@icon('Marked for the Pot')
+def _():
+    """Singled out for later: her brand painted straight onto the mark, still wet.
+
+    The silhouette needs a rim light. Pure #2a1f1a on the Horde's brown ground is only a
+    shade darker than the tile and the figure dissolves at small sizes, so it is lifted to
+    #3a2b22 and edged in #6b5240 to hold its shape.
+    """
+    return ('<path d="M14 54 Q15 37 32 33 Q49 37 50 54 Z" fill="#3a2b22" stroke="#6b5240"/>'
+            + '<circle cx="32" cy="23" r="8.4" fill="#3a2b22" stroke="#6b5240"/>'
+            + '<path d="M24 16 L21 8 L28 13 Z M40 16 L43 8 L36 13 Z" fill="#3a2b22" stroke="#6b5240"/>'
+            + poly('M23 38 L32 48 L41 38', '#e0242f', 3.0)
+            + '<circle cx="32" cy="36" r="2.8" fill="#e0242f"/>'
+            + g(drop(), 23, 45, 0, .45) + g(drop(), 41, 45, 0, .45)
+            + '<path d="M9 18 V32 M13 16 V30 M17 18 V30" stroke="#c9b28a" stroke-width="2"/>'
+            + twinkle(51, 20, .65, '#d48c3c'))
+
+
+# Drekka Firegut -----------------------------------------------------------
+@icon('Shrapnel Bomb')
+def _():
+    """THE POT WITH NO FIRE IN IT — keep it that way.
+
+    No flame(), no url(#fire)/url(#fireR), no warm glow: the entire point of the skill is that
+    it is the one thing she throws that a Downpour cannot put out. Steel, clay and blood only.
+    """
+    def nail(x, y, rot, sc=1.0):
+        return g('<path d="M0 -13 L1.5 -9 L1.5 7 L0 11 L-1.5 7 L-1.5 -9 Z" fill="url(#steel)"/>'
+                 '<rect x="-3.4" y="-14" width="6.8" height="3" rx="1.2" fill="url(#iron)"/>', x, y, rot, sc)
+    def shard(x, y, rot, sc=1.0):
+        return g('<path d="M0 -8 L4.5 1 L-1 8 L-3.5 0 Z" fill="url(#iron)"/>', x, y, rot, sc)
+    return ('<path d="M20 36 Q18 50 24 55 H40 Q46 50 44 36 Z" fill="url(#clay)"/>'
+            + '<path d="M20 42 Q32 47 44 42" fill="none" stroke="#7a3a1e" stroke-width="1.8"/>'
+            + '<path d="M22 34 L19 44 Q27 38 30 32 Z M42 34 L45 44 Q37 38 34 32 Z" fill="#8a4a28"/>'
+            + burst(32, 30, 5, 13, 10, '#9aa3b5')
+            + burst(32, 30, 3, 8, 8, '#dfe6f2')
+            + nail(32, 11, 0, 1.0) + nail(14, 20, -48, .9) + nail(50, 20, 48, .9)
+            + nail(8, 36, -84, .8) + nail(56, 36, 84, .8)
+            + shard(21, 14, -30, .95) + shard(44, 13, 26, .95) + shard(52, 30, 70, .8)
+            + g(drop(), 12, 50, 0, .55) + g(drop(), 52, 48, 0, .5))
+
+
+@icon('Blastcap')
+def _():
+    """One target takes the blast; the shock carries into a second for a share of it."""
+    return (glow(burst(25, 28, 8, 22, 11, 'url(#fireR)'), .65)
+            + burst(25, 28, 8, 20, 11, '#d9361a')
+            + burst(25, 28, 5, 13, 10, 'url(#fireR)')
+            + g(flame(), 25, 28, 0, .62)
+            + arc_lines(25, 28, 24, 2, 56, '#ff8a3d', 30, 1.8)
+            + glow(burst(50, 45, 4, 12, 9, 'url(#fireR)'), .6)
+            + burst(50, 45, 4, 10.5, 9, '#ff8a3d')
+            + burst(50, 45, 2, 5.5, 7, '#fff6c2')
+            + twinkle(13, 48, .6, '#ffd166'))
+
+
+@icon('Wide Spread')
+def _():
+    """Coverage, not heat: she packs them to scatter, so the fan is wide and the shards cold."""
+    frags = ''
+    for i, a in enumerate((-162, -138, -114, -90, -66, -42, -18)):
+        ar = math.radians(a)
+        r = 25 if i % 2 else 21
+        frags += g('<path d="M0 -6 L3.6 .8 L-.8 6 L-3 0 Z" fill="url(#iron)"/>',
+                   32 + r * math.cos(ar), 50 + r * math.sin(ar), a + 90, .95 if i % 2 else .8)
+    return (arc_lines(32, 50, 17, 2, 168, '#d48c3c', -90, 1.8, 9)
+            + poly('M8 44 L4 36 M56 44 L60 36', '#d48c3c', 1.8)
+            + '<path d="M24 50 Q23 42 32 40 Q41 42 40 50 Z" fill="url(#clay)"/>'
+            + '<rect x="26" y="37" width="12" height="4" rx="1.6" fill="#8a4a28"/>'
+            + frags
+            + '<rect x="8" y="50" width="48" height="6" rx="2" fill="#5a4636"/>')
+
+
+# Old Mother Hesk ----------------------------------------------------------
+@icon("Ancestors' Rebuke")
+def _():
+    """The dead lean over the whole line at once and halve every mend they take."""
+    skulls = (g(skull('#d8c8a8'), 16, 22, -14, .6)
+              + g(skull('#e8dcc4'), 32, 16, 0, .72)
+              + g(skull('#d8c8a8'), 48, 22, 14, .6))
+    marks = ''
+    for x in (16, 32, 48):
+        pts = ' '.join(f'{x + 6 * math.cos(math.radians(a)):.1f},{46 + 6 * math.sin(math.radians(a)):.1f}'
+                       for a in range(-90, 270, 60))
+        marks += (f'<polygon points="{pts}" fill="#2a1030" stroke="#c89eff" stroke-width="2"/>'
+                  f'<path d="M{x - 3.4} {49.4} L{x + 3.4} {42.6}" stroke="#c89eff" stroke-width="1.8"/>')
+    return (glow('<ellipse cx="32" cy="24" rx="22" ry="14" fill="#bff0ff"/>', .4)
+            + skulls
+            + poly('M16 31 Q14 36 16 39 M32 26 Q34 33 32 38 M48 31 Q50 36 48 39', '#c89eff', 1.8)
+            + marks
+            + twinkle(9, 12, .6, '#bff0ff') + twinkle(55, 13, .55, '#bff0ff'))
+
+
+@icon('Bind the Breath')
+def _():
+    """Silenced: the spirit-cord goes round the jaw and nothing but a grunt gets out.
+
+    LEATHER AND GOLD, not spirit-blue, and no disc over the mouth. The first version drew the
+    binding in pale cyan with a bright circle at the centre: at 140px it read as a mask with a
+    single big eye (closer to a dragonfly than a gagged jaw), at 32px it was unreadable mush,
+    and the colour sat outside the Horde's palette altogether — it looked like another
+    faction's icon on the shelf. The cord is the subject of this skill, so it is the brightest
+    thing in the tile, and it is wrapped and knotted rather than crossed.
+    """
+    cord, knot, lip = '#d9a85c', '#8a5a28', '#f0cf90'
+    # The muzzle: orc green, two tusks in bone, the mouth line shut underneath the binding.
+    jaw = ('<path d="M17 20 Q32 14 47 20 Q47 43 32 51 Q17 43 17 20 Z" fill="#8a9d6a"/>'
+           '<path d="M23 35 Q32 38 41 35" fill="none" stroke="#2a1a1a" stroke-width="2.2"/>'
+           '<path d="M24 35 Q22 26 25 22 Q26 28 28 33 Z" fill="url(#bone)" stroke-width="1.2"/>'
+           '<path d="M40 35 Q42 26 39 22 Q38 28 36 33 Z" fill="url(#bone)" stroke-width="1.2"/>')
+    # Two turns of cord drawn right across the mouth, running off both edges of the tile.
+    cords = poly('M9 30 Q32 25 55 30', cord, 3.6) + poly('M9 41 Q32 46 55 41', cord, 3.6)
+    # ...and the wrap that holds them: a short band bound across both turns, with its tie.
+    wrap = ('<rect x="26.5" y="28" width="11" height="15" rx="3.2" fill="' + knot + '"/>'
+            '<path d="M29 32.5 h6 M29 38.5 h6" stroke="' + lip + '" stroke-width="1.5" fill="none"/>')
+    return jaw + cords + wrap + twinkle(12, 17, .55, cord) + twinkle(52, 18, .5, cord)
+
+
+@icon('Long Memory')
+def _():
+    """The ancestors do not let go: a closed cord of bound beads, knotted and knotted again.
+
+    RING GLOW, NEVER A FILLED DISC, and no loose cord ends above the top knot. The first pass
+    put a blurred filled circle behind the loop and two tails curling off the knot: at 140px
+    the disc read as a flat grey coin behind the beads and the tails read as antennae, so the
+    whole tile looked like a bug rather than a cord. The centre is left empty for the hex
+    sigil — the curse is the thing being held on to, so it belongs inside the loop.
+    """
+    beads = ''
+    for i in range(10):
+        a = math.radians(-90 + i * 36)
+        x, y = 32 + 16 * math.cos(a), 34 + 16 * math.sin(a)
+        fill = '#e0645a' if i % 5 == 0 else 'url(#bone)'
+        beads += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{3.4 if i % 5 == 0 else 2.8}" fill="{fill}"/>'
+    # An overhand knot: two mirrored loops pulled through each other, not a ring with a cross.
+    knot = (poly('M-8 5 Q-11 -6 -2 -5 Q6 -4 4 6', '#c9b28a', 2.4)
+            + poly('M8 5 Q11 -6 2 -5 Q-6 -4 -4 6', '#c9b28a', 2.4))
+    hexpts = ' '.join(f'{32 + 7 * math.cos(math.radians(a)):.1f},{34 + 7 * math.sin(math.radians(a)):.1f}'
+                      for a in range(-90, 270, 60))
+    return (glow('<circle cx="32" cy="34" r="16" fill="none" stroke="#bff0ff" stroke-width="6"/>', .45)
+            + '<circle cx="32" cy="34" r="16" fill="none" stroke="#8a5a32" stroke-width="4.4"/>'
+            + '<circle cx="32" cy="34" r="16" fill="none" stroke="#c9b28a" stroke-width="2.4"/>'
+            + f'<polygon points="{hexpts}" fill="#2a1030" stroke="#c89eff" stroke-width="2"/>'
+            + '<path d="M28.2 37.8 L35.8 30.2" stroke="#c89eff" stroke-width="1.8"/>'
+            + beads
+            + g(knot, 32, 14, 0, .95)
+            + twinkle(13, 47, .6, '#bff0ff') + twinkle(51, 48, .55, '#bff0ff'))
 
 
 # ---- Kingdom of Aldmere
@@ -3136,6 +3693,364 @@ def _():
             + g(plus('url(#heal)'), 32, 26, 0, .55))
 
 
+# ---- The Pale Host, second wave ------------------------------------------
+# The older Pale Host tiles above use their colours as literals; these name them, which is how the
+# newer faction blocks (TD_*, CR_*) are written. Same values, so the two waves sit together.
+UD_PALE = '#8ee696'     # the pact's pale green, from PAL['undead']
+UD_PALE_HI = '#dcffe6'
+UD_MOSS = '#9fe8b4'
+UD_BONE = '#e2dcc4'
+UD_DIRT = '#4a2410'     # the churned grave-dirt Burrow already digs
+UD_GRAVITY = '#6b74c8'  # the engine's own gravity ring (burst-gravity), for Grave's Reach alone
+
+
+@icon("Grave's Reach")
+def _():
+    # The one tile in the game that draws what `gravpull` draws: a ring COLLAPSING inward (the
+    # engine runs its ring animation in reverse), with a hand coming up through it and the mark's
+    # foot held fast. Two rings, the outer one faint, to read as inward motion at 32px.
+    return ('<circle cx="32" cy="34" r="20" fill="none" stroke="' + UD_GRAVITY + '" stroke-width="2" opacity=".45"/>'
+            + '<circle cx="32" cy="34" r="13.5" fill="none" stroke="' + INK + '" stroke-width="4.4"/>'
+            + '<circle cx="32" cy="34" r="13.5" fill="none" stroke="' + UD_GRAVITY + '" stroke-width="2.8"/>'
+            + '<path d="M8 52 Q20 42 32 41 Q44 42 56 52 Z" fill="url(#clay)"/>'
+            + '<path d="M16 49 Q24 45 31 47 M36 46 Q45 45 50 50" stroke="' + UD_DIRT + '" stroke-width="1.4" fill="none"/>'
+            + g(bonehand('url(#bone)'), 32, 36, 0, 1.15)
+            + twinkle(49, 17, .75, UD_PALE_HI))
+
+
+@icon('Dead March')
+def _():
+    # He does not charge. The marker goes down UPRIGHT — rotating it put the crossbar where a
+    # sword's hilt sits and the whole tile read as a stabbed dagger — and the weight goes into the
+    # floor, running out both ways along the line he walked into.
+    return (g(gravecross('url(#iron)'), 32, 22, 0, .92)
+            + '<path d="M5 44 H59" stroke="' + INK + '" stroke-width="6.4"/>'
+            + '<path d="M5 44 H59" stroke="' + UD_MOSS + '" stroke-width="3"/>'
+            + burst(32, 44, 3, 8.5, 8, UD_PALE)
+            + poly('M10 53 Q18 47 25 52', UD_MOSS, 2.2)
+            + poly('M39 52 Q46 47 54 53', UD_MOSS, 2.2))
+
+
+@icon('Weight of the Mound')
+def _():
+    # All that mass, landed: the slab down flat, the mark shoved back off its feet (the house's
+    # drag-back arrow sweeping left) and seeing stars.
+    return (g(headstone('url(#iron)', 1.1), 30, 40, 14)
+            + '<path d="M8 48 H56" stroke="' + INK + '" stroke-width="5.6"/>'
+            + '<path d="M8 48 H56" stroke="#6b6054" stroke-width="2.6"/>'
+            + poly('M50 57 L18 57', UD_PALE, 3)
+            + '<path d="M22 53 l-6 4 l6 4 z" fill="' + UD_PALE + '" stroke="' + INK + '" stroke-width="1.4"/>'
+            + stun_stars(38, 14, 22))
+
+
+@icon("The Lord's Due")
+def _():
+    # The wight steps in front: his grave-plate filling the tile, the one he covers tucked small
+    # behind it, and a shot glancing off the face rather than reaching them.
+    return (g(husk(0, 0, .8, '#5c6350'), 45, 30)
+            + g(heater('url(#iron)', 'url(#steel)'), 28, 32, 0, 1.12)
+            + g(plus('url(#graveR)'), 28, 31, 0, .42)
+            + poly('M58 10 L44 20', UD_PALE, 2.6)
+            + poly('M44 20 L56 27', UD_PALE_HI, 2.2)
+            + twinkle(44, 20, .7, UD_PALE_HI))
+
+
+@icon('Grip of the Grave')
+def _():
+    # A bone hand closed round a throat, and it took three passes to read as one. Drawn in the same
+    # pale as the mark it became the figure's LEGS; drawn as a matched pair reaching in from both
+    # sides it became a bowtie. So: one hand, big, coming up across the throat from below-right
+    # with the fingers plainly over it, and the mark behind it as a flat dark silhouette.
+    return (g(husk(0, 0, 1.1, '#2b352e'), 30, 26)
+            + arc_lines(30, 19, 5, 2, 44, UD_MOSS, -90, 1.8)   # kept clear of the rim: at y=10 the outer arc clipped the frame
+            + g(bonehand('url(#bone)'), 41, 48, -46, 1.45)
+            + twinkle(14, 46, .65, UD_PALE))
+
+
+@icon('Charnel Tide')
+def _():
+    # A wave with bones in it, rolling across the whole line, and the back-arrow underneath: the
+    # payload is everyone losing their place, not the damage.
+    bones = ''.join(g(bone_shard(13, 'url(#bone)'), x, y, r, s)
+                    for x, y, r, s in ((20, 26, -24, .95), (34, 20, 8, 1.0), (47, 27, 32, .85)))
+    return ('<path d="M4 40 Q14 28 24 36 Q34 44 44 34 Q54 24 60 36 L60 48 H4 Z" fill="url(#grave)"/>'
+            + '<path d="M4 40 Q14 28 24 36 Q34 44 44 34 Q54 24 60 36" fill="none" stroke="' + UD_PALE + '" stroke-width="2.4"/>'
+            + bones
+            + poly('M48 55 L16 55', UD_PALE_HI, 2.8)
+            + '<path d="M20 51 l-6 4 l6 4 z" fill="' + UD_PALE_HI + '" stroke="' + INK + '" stroke-width="1.4"/>')
+
+
+@icon('Rib-Splitter')
+def _():
+    # His own rib, thrown, and the kink where it carries on into a second body. The bend is the
+    # whole skill, so it gets the brightest line.
+    return (poly('M10 18 L34 30 L54 20', UD_MOSS, 2.4)
+            + g(bone_shard(19, 'url(#bone)'), 24, 24, 27, 1.05)
+            + g(bone_shard(14, 'url(#bone)'), 46, 24, -28, .85)
+            + twinkle(34, 30, 1.0, UD_PALE_HI)
+            + twinkle(56, 17, .7, UD_PALE))
+
+
+@icon('Hold the Shot')
+def _():
+    # No breath to run out of, so he simply keeps holding it: the sling drawn and STILL, the mark
+    # ringed, and the pale pips counting the Revs it waits.
+    return ('<path d="M18 12 Q10 32 18 52" fill="none" stroke="' + INK + '" stroke-width="6"/>'
+            + '<path d="M18 12 Q10 32 18 52" fill="none" stroke="#8a7a62" stroke-width="3"/>'
+            + '<path d="M18 12 L30 32 L18 52" fill="none" stroke="' + UD_BONE + '" stroke-width="2"/>'
+            + g(bone_shard(15, 'url(#bone)'), 36, 32, 0, .95)
+            + crosshair(50, 32, 7, UD_PALE, 2)
+            + twinkle(24, 15, .6, UD_PALE_HI) + twinkle(24, 49, .6, UD_PALE_HI))
+
+
+@icon('Chorus of the Interred')
+def _():
+    # Three of them singing at once, and the mend coming back up over all three — her Nature means
+    # it reaches grave-flesh whole, so the glow is drawn FULL rather than guttering.
+    return (g(skull(), 18, 36, -8, .72) + g(skull(), 32, 32, 0, .82) + g(skull(), 46, 36, 8, .72)
+            + arc_lines(32, 20, 9, 3, 58, UD_MOSS, -90, 2.2)
+            + glow(f'<circle cx="32" cy="22" r="11" fill="url(#heal)"/>', .5)
+            + g(plus('url(#heal)'), 32, 15, 0, .45))
+
+
+@icon('Pall of Silence')
+def _():
+    # The song stopped. Drawn on a DRAPE rather than the heater shape the first pass used — that
+    # silhouette is a shield, and it collided with Barrow's The Lord's Due two tiles away. Wide,
+    # soft-hemmed cloth behind, the note struck through in front, and no damage anywhere on it.
+    return ('<path d="M7 16 Q32 7 57 16 L57 40 Q50 48 43 42 Q36 36 29 43 Q22 50 15 42 L7 36 Z" fill="url(#shroud)"/>'
+            + '<path d="M7 16 Q32 7 57 16" fill="none" stroke="' + UD_BONE + '" stroke-width="2" opacity=".55"/>'
+            + g(note(UD_BONE), 30, 30, 0, 1.0)
+            + poly('M14 47 L50 13', UD_PALE, 3.4))
+
+
+@icon('Grave-Patient')
+def _():
+    # Every curse he lays holds a turn longer. A headstone with a hex on it read as a crossed-out
+    # pill and said nothing about duration, so this is the curse sigil with the house's "goes round
+    # again" ring sweeping it — open at the head, arrowhead coming back round to close the loop.
+    return ('<path d="M32 10 A22 22 0 1 1 15.4 17.5" fill="none" stroke="' + INK + '" stroke-width="5.6"/>'
+            + '<path d="M32 10 A22 22 0 1 1 15.4 17.5" fill="none" stroke="' + UD_PALE + '" stroke-width="2.8"/>'
+            + '<path d="M26 5 L33 10.5 L26 15.5 Z" fill="' + UD_PALE + '" stroke="' + INK + '" stroke-width="1.4"/>'
+            + hex_mark(32, 34, 11, '#241233', '#c89eff')
+            + twinkle(49, 48, .7, UD_PALE_HI))
+
+
+@icon('First Out of the Ground')
+def _():
+    # Up before the rest of them, and wanting to be seen: the marker breaking the mound with the
+    # taunt flaring off it. The lines are the game's draw-every-eye flare, not damage.
+    return (g(mound(), 32, 44, 0, 1.25)
+            + g(headstone('url(#iron)', .95), 32, 44, -8)
+            + speed_lines(10, 14, 3, 9, 7, UD_PALE, -90)
+            + burst(32, 22, 4, 11, 9, 'url(#graveR)')
+            + twinkle(32, 22, .8, UD_PALE_HI))
+
+
+@icon('Grave-Debt')
+def _():
+    # He collects only from the enemy, so the tally is enemy skulls — three of them struck through
+    # as paid, and the bar that is the 40% ceiling.
+    return (g(skull(), 18, 28, 0, .62) + g(skull(), 32, 28, 0, .62) + g(skull(), 46, 28, 0, .62)
+            + '<path d="M10 44 H54" stroke="' + INK + '" stroke-width="5"/>'
+            + '<path d="M10 44 H54" stroke="' + UD_PALE + '" stroke-width="2.4"/>'
+            + poly('M12 20 L52 20', UD_MOSS, 2)
+            + twinkle(54, 48, .7, UD_PALE_HI))
+
+
+@icon('Scattercast')
+def _():
+    # Loose bones read as Scatter of Bones, which he already owns. The passive is about area shots
+    # landing HARDER, so the tile is three marks taking one each — the spread AND the impact.
+    marks = ''.join(g(husk(0, 0, .62, '#2f3a33'), x, y) for x, y in ((15, 24), (32, 44), (49, 24)))
+    hits = ''.join(g(bone_shard(11, 'url(#bone)'), x, y, r, .85)
+                   for x, y, r in ((17, 14, -62), (32, 32, 0), (47, 14, 62)))
+    return (marks + hits
+            + twinkle(15, 22, .8, UD_PALE_HI) + twinkle(32, 42, .8, UD_PALE_HI)
+            + twinkle(49, 22, .8, UD_PALE_HI))
+
+
+@icon('The Dead Are Tended')
+def _():
+    # She keeps at it whether or not she spends the turn on it: the coffin open and the mend
+    # falling in, drop by drop, and whole rather than halved because it is hers.
+    return (g(coffin_shape('url(#wood)'), 32, 34, 0, 1.0)
+            + '<path d="M22 22 Q32 16 42 22" fill="none" stroke="' + UD_BONE + '" stroke-width="2.4"/>'
+            + glow(f'<circle cx="32" cy="32" r="10" fill="url(#heal)"/>', .55)
+            + g(plus('url(#heal)'), 32, 32, 0, .5)
+            + g(drop('url(#heal)'), 32, 12, 0, .66))
+
+# ---- The Stray Banner, second wave ---------------------------------------
+SB_STONE = '#8d93a8'    # Shazrak's raised stone, from his own cairn tiles
+SB_SOUND = '#5fcad1'    # his aqua, from PAL['stray'] and the sound_wave default
+SB_HEAT = '#e8a548'     # Orin's foundry orange, from his look.trim
+SB_PLATE = '#6d7482'    # and the plate he rivets on
+
+
+@icon('Command the Fallen')
+def _():
+    # Centred, because at x=44 the blades ran off the right edge of the tile. Three blades turning
+    # in on one ring in the middle, with room round all of it.
+    return (RV_DEFS
+            + glow(f'<circle cx="32" cy="32" r="11" fill="{RV_GREEN}"/>', .7)
+            + ''.join(rv_at(32, 32, a, .6, 3) for a in (150, 210, 30))
+            + f'<circle cx="32" cy="32" r="8.5" fill="none" stroke="{INK}" stroke-width="3.6"/>'
+            + f'<circle cx="32" cy="32" r="8.5" fill="none" stroke="#f2fff8" stroke-width="2"/>'
+            + twinkle(32, 32, .85, '#ffffff'))
+
+
+@icon('Blade Harvest')
+def _():
+    # The other direction: blades coming OUT of one body and home to an open hand. The body stays
+    # standing — this takes his ammunition back, not its life.
+    return (RV_DEFS
+            + g(husk(0, 0, 1.05, '#3f3a46'), 44, 32)
+            + ''.join(rv_at(16, 30 + dy, 180, .5, 2) for dy in (-9, 0, 9))
+            + f'<circle cx="9" cy="30" r="4.6" fill="{RV_GREEN}" stroke="{INK}" stroke-width="1.6"/>'
+            + twinkle(44, 14, .65, '#f2fff8'))
+
+
+@icon('Never There')
+def _():
+    # Both figures were near-black on a near-black tile. The after-image is an OUTLINE now and the
+    # blade is bright and going through where he used to be — he is the solid one, already clear.
+    return (RV_DEFS
+            + g('<path d="M-10 13 Q-10 2 -5 -.5 Q-7.5 -3.5 -7 -7.5 Q-6 -13 0 -13 Q6 -13 7 -7.5 Q7.5 -3.5 5 -.5 Q10 2 10 13 Z" '
+                f'fill="none" stroke="{RV_GREEN}" stroke-width="2" opacity=".55" stroke-dasharray="4 3"/>', 22, 34, 0, 1.15)
+            + g(husk(0, 0, 1.15, '#4a5560'), 45, 32)
+            + rv_at(22, 32, 15, .62, 0)
+            + speed_lines(9, 20, 3, 9, 7, RV_GREEN, 180)
+            + twinkle(45, 15, .7, '#f2fff8'))
+
+
+@icon('Blow the Valve')
+def _():
+    # He opens himself up and lets the whole bar go into the line. Vent plate at the bottom, three
+    # hard jets, and the heat colour doing the work so it does not read as Shazrak's sound.
+    return (f'<rect x="20" y="42" width="24" height="10" rx="3" fill="{SB_PLATE}" stroke="{INK}" stroke-width="2"/>'
+            + f'<path d="M24 46 H40" stroke="#3a3f4a" stroke-width="2"/>'
+            + ''.join(poly(f'M{x} 40 Q{x + dx} 26 {x + dx * 2} 12', SB_HEAT, 3.2)
+                      for x, dx in ((24, -4), (32, 0), (40, 4)))
+            + glow(f'<ellipse cx="32" cy="22" rx="16" ry="12" fill="{SB_HEAT}"/>', .4)
+            + twinkle(16, 16, .7, '#ffd9a0') + twinkle(50, 15, .6, '#ffd9a0'))
+
+
+@icon('Plate Rig')
+def _():
+    # Spare plate riveted onto somebody. The first pass drew the panel alone and it read as a
+    # basket, so the ALLY is in the tile now — dark, back turned — with the plate strapped across
+    # them, the rivets holding it and the spikes standing off it. Mend glow behind.
+    return (glow('<circle cx="32" cy="32" r="15" fill="url(#heal)"/>', .45)
+            + g(husk(0, 0, 1.5, '#333b47'), 32, 30)
+            + f'<path d="M19 26 H45 L43 43 Q32 48 21 43 Z" fill="{SB_PLATE}" stroke="{INK}" stroke-width="2.2"/>'
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="1.9" fill="{SB_HEAT}" stroke="{INK}" stroke-width="1"/>'
+                      for x, y in ((24, 30), (40, 30), (25, 39), (39, 39)))
+            + ''.join(poly(f'M{x} 26 L{x + dx} 15', '#cfd6e2', 2.6) for x, dx in ((23, -4), (32, 0), (41, 4))))
+
+
+@icon('Dissonance')
+def _():
+    # The note that takes something away. Two waves out of phase, crossing, and the mana coming
+    # loose where they meet — his aqua for the sound, the game's blue for what it tears out.
+    return (sound_wave(10, 32, 3, 7, 120, 0, SB_SOUND)
+            + sound_wave(54, 32, 3, 7, 120, 180, SB_SOUND)
+            + ''.join(g(drop('url(#mana)'), x, y, 0, s)
+                      for x, y, s in ((32, 20, .75), (27, 36, .6), (38, 38, .55)))
+            + twinkle(32, 50, .7, '#bfe9ff'))
+
+
+@icon('Hold the Note')
+def _():
+    # One long note held over the whole warband: the note itself, and the dome it keeps up. Three
+    # heads under it, so it reads as the warband rather than one ally.
+    return (f'<path d="M10 40 A22 22 0 0 1 54 40" fill="none" stroke="{INK}" stroke-width="5.4"/>'
+            + f'<path d="M10 40 A22 22 0 0 1 54 40" fill="none" stroke="{SB_SOUND}" stroke-width="2.8"/>'
+            + glow(f'<path d="M10 40 A22 22 0 0 1 54 40 Z" fill="{SB_SOUND}"/>', .22)
+            + ''.join(g(husk(0, 0, .5, '#3a4450'), x, 42) for x in (20, 32, 44))
+            + g(note(SB_SOUND), 32, 24, 0, .78))
+
+
+@icon('Keeping Time')
+def _():
+    # He sets the tempo. A metronome rather than another clock face: the game already has an
+    # hourglass for the grave and a ring for Grave-Patient, and this is a beat, not a duration.
+    return (f'<path d="M32 10 L46 50 H18 Z" fill="{SB_STONE}" stroke="{INK}" stroke-width="2.2"/>'
+            + f'<path d="M32 14 L32 46" stroke="{INK}" stroke-width="3.6"/>'
+            + f'<path d="M32 14 L32 46" stroke="{SB_SOUND}" stroke-width="1.8"/>'
+            + f'<rect x="26" y="26" width="12" height="5" rx="1.6" fill="{SB_SOUND}" stroke="{INK}" stroke-width="1.6"/>'
+            + arc_lines(32, 14, 7, 2, 70, SB_SOUND, -90, 2)
+            + twinkle(48, 18, .6, '#bff0f4'))
+
+
+@icon('Shockwave')
+def _():
+    # One blow into the ground and it rolls out from him, nearest first. The hammer head is DOWN
+    # and already landed — the tile is the ring leaving, not the swing arriving.
+    return (f'<rect x="24" y="8" width="16" height="13" rx="3" fill="{SB_PLATE}" stroke="{INK}" stroke-width="2"/>'
+            + f'<rect x="30" y="18" width="4" height="16" fill="#6b4a2a" stroke="{INK}" stroke-width="1.6"/>'
+            + burst(32, 38, 4, 11, 10, ZK_RED)
+            + zk_floor(44)
+            + ''.join(poly(d, ZK_RED, 2.4) for d in ('M8 52 Q18 44 26 50', 'M38 50 Q46 44 56 52')))
+
+
+@icon('Haymaker')
+def _():
+    # Third pass. A round mass with knuckle LINES on it reads as a ball however the lines are
+    # drawn, so the fist is squared off now: flat striking face on the right, four knuckle ridges
+    # standing proud of it, thumb across the front. Impact where it lands, and the dashed red ring
+    # round the whole tile for the Exposed he wears afterwards.
+    fist = ('<path d="M-13 -10 L4 -11 Q12 -11 12 -4 L12 5 Q12 12 4 12 L-13 11 Q-16 0 -13 -10 Z" fill="#7ea04e" stroke="#2f3d1c" stroke-width="1.8"/>'
+            '<path d="M12 -7 q4 0 4 3.4 q0 3.4 -4 3.4 Z" fill="#7ea04e" stroke="#2f3d1c" stroke-width="1.5"/>'
+            '<path d="M12 0 q4 0 4 3.4 q0 3.4 -4 3.4 Z" fill="#7ea04e" stroke="#2f3d1c" stroke-width="1.5"/>'
+            '<path d="M-6 -10 V11 M1 -10.5 V11.5" stroke="#2f3d1c" stroke-width="1.6"/>'
+            '<path d="M-13 3 Q-5 5 0 9" stroke="#2f3d1c" stroke-width="1.8" fill="none"/>')
+    return (f'<circle cx="32" cy="32" r="23" fill="none" stroke="{ZK_RED}" stroke-width="2.2" opacity=".5" stroke-dasharray="5 4"/>'
+            + speed_lines(10, 34, 3, 10, 8, ZK_RED, 0)
+            + g(fist, 26, 34, -8, 1.15)
+            + burst(49, 30, 3, 8, 9, ZK_RED)
+            + twinkle(49, 14, .75, '#ffd166'))
+
+
+@icon('Skullcracker')
+def _():
+    # The crit that splits it. The orc head was too small to read under the crack, so the head
+    # fills the tile now and the split is a single heavy bone-white line straight down through it.
+    return (g(zk_head(), 32, 32, 0, 1.75)
+            + poly('M26 8 L36 26 L28 34 L38 52', '#f7f1e0', 3.6)
+            + stun_stars(32, 11, 24)
+            + twinkle(52, 46, .8, ZK_RED))
+
+
+@icon('Severance')
+def _():
+    # The follow-up to his own mark: the mark still hanging there, and one cut straight through it.
+    return (f'<circle cx="34" cy="30" r="12" fill="none" stroke="{CRIMSON}" stroke-width="2.6" opacity=".75"/>'
+            + f'<path d="M26 22 L42 38 M42 22 L26 38" stroke="{CRIMSON}" stroke-width="2.2" opacity=".75"/>'
+            + slash(10, 48, 54, 12, 3.6)
+            + twinkle(52, 14, .8, '#ffffff'))
+
+
+@icon('Lingering Cut')
+def _():
+    # A cut that will not close. One clean stroke and the bleeding under it, drawn with the
+    # game's bleed red so it reads as the status rather than as more blade.
+    return (poly('M12 16 Q32 30 52 46', '#e8eaf2', 3.4)
+            + ''.join(g(drop('url(#blood)'), x, y, 0, s)
+                      for x, y, s in ((24, 34, .7), (34, 44, .6), (44, 52, .5)))
+            + twinkle(14, 14, .7, '#ffffff'))
+
+
+@icon('Tap the Line')
+def _():
+    # Whatever he mends he also tops up: the weld bead, and the mana running back down the line
+    # into the ally. Heat colour going in, mana colour coming out.
+    return (f'<path d="M12 44 Q32 34 52 44" fill="none" stroke="{INK}" stroke-width="5.4"/>'
+            + f'<path d="M12 44 Q32 34 52 44" fill="none" stroke="{SB_PLATE}" stroke-width="2.8"/>'
+            + glow(f'<circle cx="32" cy="38" r="9" fill="{SB_HEAT}"/>', .5)
+            + g(plus('url(#heal)'), 32, 38, 0, .5)
+            + ''.join(g(drop('url(#mana)'), x, y, 0, s) for x, y, s in ((20, 22, .7), (32, 14, .8), (44, 22, .7)))
+            + twinkle(52, 30, .6, '#bfe9ff'))
+
 # ---- The Riftborn --------------------------------------------------------
 
 # Riftborn helpers
@@ -3778,6 +4693,1409 @@ def _():
             + poly('M32 47 L32 21 M25 28 L32 20 L39 28', '#ffd166', 2.0)
             + twinkle(18, 22, .65) + twinkle(47, 44, .55))
 
+
+# ================================================================ third-wave Kingdom of Aldmere
+# Wren taking a caster's mana off them, Garrick spending himself to hold the line, Mara ignoring
+# armour, Aldous working in areas instead of bolts, Liesl trading the healing for light.
+# Everything here stays on the Aldmere ground - deep blue with the gold accent - and mana blue
+# appears only where magic is actually being moved, so it never reads as part of the tile.
+ALD_GOLD = '#e0bb55'
+ALD_LIGHT = '#fff3c4'
+ALD_MANA = '#7fc6ff'
+ALD_MARK = '#4d6188'    # a faceless mark, light enough to hold against both ends of the blue tile
+ALD_SELF = '#3e5a8c'    # one of theirs: the same blue as Garrick's shield face
+ALD_CURSE = '#b07ae0'
+
+
+def ald_shard(x, y, rot, s=1.0, fill=ALD_MANA):
+    """A splinter of something broken coming apart off the edge."""
+    return g(f'<path d="M0 -5 L3.4 1 L-2.4 4 Z" fill="{fill}"/>', x, y, rot, s)
+
+
+# Wren ---------------------------------------------------------------------
+@icon('Spellbreak Arc')
+def _():
+    # One stroke along the whole line, and the blue going out of every one of them. The sweep is
+    # the subject, so it is a tapered blade-crescent rather than a swoosh behind a sword: Power
+    # Slash already owns sword-plus-arc, and a second sword here only crowded the three marks.
+    #
+    # The crescent arches UP over the marks, and the mana comes off the underside of the blade.
+    # Two earlier cuts both failed on the drops: sagging arc with drops beneath it is a mouth
+    # with tears under it (three sad faces), and loose drops ABOVE the arc is just rain falling
+    # on a hill. Hung off the blade's inner edge, they are what the stroke took off them.
+    marks = ''.join(husk(x, 48, .46, ALD_MARK) for x in (14, 32, 50))
+    sweep = f'<path d="M8 46 Q33 10 58 32 L52 38 Q32 33 8 46 Z" fill="{ALD_LIGHT}" opacity=".92"/>'
+    return (marks + glow(sweep, .5) + sweep
+            + poly('M8 46 Q33 10 58 32', ALD_GOLD, 1.4)
+            + poly('M52 38 Q32 33 9 45', ALD_MANA, 1.6)
+            + g(drop('url(#mana)'), 16, 45, 0, .55) + g(drop('url(#mana)'), 31, 41, 0, .68)
+            + g(drop('url(#mana)'), 45, 40, 0, .5)
+            + twinkle(9, 29, .55, ALD_MANA) + twinkle(56, 18, .5, ALD_MANA))
+
+
+@icon('Null Edge')
+def _():
+    # The negation sigil cut into the blade, and a mark whose mouth is already tied shut.
+    # The gag is leather and gold (Bind the Breath's grammar for silence), not a second sigil.
+    sigil = (f'<circle r="6.6" fill="none" stroke="{ALD_MANA}" stroke-width="2.6"/>'
+             f'<line x1="-4.7" y1="4.7" x2="4.7" y2="-4.7" stroke="{ALD_MANA}" stroke-width="2.6"/>')
+    return (husk(46, 38, .8, ALD_MARK)
+            + poly('M40 32 H52', ALD_GOLD, 2.4)
+            + '<circle cx="46" cy="32" r="2.4" fill="#8a5a28"/>'
+            + g(sword(), 23, 34, 22, 1.0)
+            + glow(g(sigil, 26, 26, 0, 1.0), .65) + g(sigil, 26, 26, 0, 1.0)
+            + burst(36, 32, 3, 9, 8, '#ffd166')
+            + twinkle(13, 51, .6, ALD_MANA))
+
+
+@icon('Disrupting Edge')
+def _():
+    # The crit lands and the word breaks: the ring of the spell comes apart off the edge.
+    ring = (f'<path d="M34.6 14.6 A10 10 0 0 1 49 9.3" fill="none" stroke="{ALD_MANA}" stroke-width="2.8"/>'
+            f'<path d="M53.4 14.6 A10 10 0 0 1 39 26.7" fill="none" stroke="{ALD_MANA}" stroke-width="2.8"/>')
+    return (g(sword(), 26, 38, 40, .9) + ring
+            + ald_shard(54, 7, 25, .9) + ald_shard(36, 32, 200, .8) + ald_shard(56, 25, 70, .7)
+            + glow(burst(41, 22, 3, 11, 9, '#ffd166'), .8) + burst(41, 22, 3, 10, 9, '#ffd166')
+            + twinkle(14, 24, .7, ALD_LIGHT))
+
+
+# Garrick ------------------------------------------------------------------
+@icon('Castigate')
+def _():
+    # The hammer already in the plate, inside the shaft of light that sent it. The armour is
+    # the point of the skill (it sunders), so it is a curved plate that is visibly split.
+    #
+    # The hammer comes down on the diagonal. Straight down (rotate 180) puts a long thin shaft
+    # above a wide flat head and the whole thing reads as a broom standing in a doorway; the
+    # tilt is what makes it a hammer, which is why Smite and Hammerfall both use one.
+    shaft = '<path d="M23 4 H42 L52 44 H14 Z" fill="#ffe08a" opacity=".3" stroke="none"/>'
+    plate = ('<path d="M11 47 Q32 38 53 47 L51 56 H13 Z" fill="url(#iron)"/>'
+             '<path d="M16 51 Q32 44 48 51" fill="none" stroke="#5d6780" stroke-width="1.4"/>'
+             '<circle cx="17" cy="53" r="1.4" fill="#2a2a33"/><circle cx="47" cy="53" r="1.4" fill="#2a2a33"/>')
+    crack = ('<path d="M39 42 L34 49 L39 56 M30 45 L25 51 L28 56" fill="none"'
+             ' stroke="#15121d" stroke-width="2.6"/>')
+    return (glow(shaft, .8) + shaft + plate + crack
+            + g(hammer('url(#gold)'), 33, 25, 158, 1.05)
+            + ald_shard(52, 38, 50, .9, '#6b7489')
+            + glow(burst(40, 46, 4, 12, 9, '#fff1b8'), .7) + burst(40, 46, 4, 11, 9, '#fff1b8')
+            + twinkle(14, 16, .8) + twinkle(52, 14, .7))
+
+
+@icon('Shield Charge')
+def _():
+    # Shield first, then the impact, then whoever was standing there going backwards.
+    return (speed_lines(5, 34, 3, 12, 7, '#ffffff', 0, .75)
+            + g(heater(ALD_SELF, 'url(#gold)'), 24, 34, -12, 1.05)
+            + '<circle cx="24" cy="33" r="4.6" fill="url(#gold)"/>'
+            + burst(40, 32, 4, 10, 9, '#ffd166')
+            + g(husk(0, 0, .64, ALD_MARK), 47, 37, 22)
+            + stun_stars(46, 17, 15))
+
+
+@icon('Last Oath')
+def _():
+    # A shield that has already lost pieces of itself and is still up, with one spark of him
+    # left on the boss. Deliberately NOT a clean shield: the bite out of the rim and the chips
+    # leaving the frame are what say "one hit from gone".
+    bite = '<path d="M36 10 L49 13 L44 26 L34 19 Z" fill="#15121d" opacity=".9" stroke="none"/>'
+    cracks = ('<path d="M41 24 L34 32 L38 44 M37 27 L26 31 L21 43" fill="none"'
+              ' stroke="#15121d" stroke-width="2.8"/>')
+    return (g(heater(ALD_SELF, 'url(#gold)'), 31, 31, -12, 1.12) + bite + cracks
+            + ald_shard(55, 12, 25, .95, '#2a3a5c') + ald_shard(13, 16, -150, .8, '#2a3a5c')
+            + ald_shard(50, 48, 160, .7, '#2a3a5c')
+            + glow('<circle cx="29" cy="34" r="6" fill="#ffd060"/>', .95)
+            + twinkle(29, 34, .95, ALD_LIGHT))
+
+
+# Mara ---------------------------------------------------------------------
+@icon('Punch-Through')
+def _():
+    # In one side of the plate and out the far side, with the hole it left behind. The ball is
+    # round and the line through the tile is straight: armour did not change its mind for it.
+    plate = ('<rect x="-12" y="-17" width="24" height="34" rx="3.5" fill="url(#iron)"/>'
+             '<path d="M-12 -6 H12 M-12 6 H12" stroke-width="1"/>'
+             '<circle cx="-8" cy="-13" r="1.3" fill="#2a2a33"/><circle cx="8" cy="13" r="1.3" fill="#2a2a33"/>')
+    hole = ('<circle cx="28" cy="30" r="5.4" fill="#0b1020"/>'
+            '<circle cx="28" cy="30" r="7.6" fill="none" stroke="#ffd166" stroke-width="1.8"/>'
+            '<path d="M28 21 L28 17 M19 30 L15 31 M28 39 L28 43 M36.5 31 L41 32" fill="none"'
+            ' stroke="#ffd166" stroke-width="1.6"/>')
+    return ('<path d="M6 36 L56 25" fill="none" stroke="#ffd166" stroke-width="1.6"'
+            ' stroke-dasharray="4 3" opacity=".8"/>'
+            + g(plate, 27, 32, -8) + hole
+            + speed_lines(37, 27, 3, 9, 5, '#ffd166', 0, .85)
+            + '<circle cx="51" cy="26" r="4.4" fill="url(#steel)"/>'
+            + '<circle cx="49.6" cy="24.6" r="1.4" fill="#ffffff" stroke="none" opacity=".9"/>'
+            + twinkle(14, 49, .6, '#e9e4d8'))
+
+
+@icon('Called Shot')
+def _():
+    # Aimed Shot is the crosshair on its own; this one is the crosshair already locked on a body,
+    # one line in with no spread, and a tick: it is not a gamble.
+    return (husk(32, 36, .92, ALD_MARK)
+            + '<path d="M8 53 L23 42" fill="none" stroke="#ffd166" stroke-width="1.8"'
+              ' stroke-dasharray="4 3"/>'
+            + crosshair(32, 33, 11, ALD_GOLD, 2.2)
+            + '<circle cx="32" cy="33" r="2.6" fill="#e0455a"/>'
+            + poly('M42 14 L47 20 L56 8', ALD_GOLD, 2.6)
+            + twinkle(13, 17, .7, ALD_LIGHT))
+
+
+@icon('Finishing Round')
+def _():
+    # The round she keeps for the one that is nearly down: the cartridge, the chevron, the
+    # sliver of health left under it.
+    cart = ('<path d="M-5 -7 Q0 -17 5 -7 Z" fill="url(#steel)"/>'
+            '<rect x="-5" y="-7" width="10" height="17" rx="1.4" fill="url(#gold)"/>'
+            '<rect x="-6.4" y="8" width="12.8" height="4.4" rx="1.4" fill="#8a5a14"/>'
+            '<path d="M-5 -1 H5" stroke-width="1"/>')
+    return (g(cart, 32, 22, 0, 1.0)
+            + poly('M20 36 L32 46 L44 36', ALD_GOLD, 3.2)
+            + '<rect x="11" y="50" width="42" height="7" rx="3.5" fill="#1b2438"/>'
+            + '<rect x="13" y="52" width="9" height="3" rx="1.5" fill="#e0455a" stroke="none"/>'
+            + twinkle(50, 17, .7, ALD_LIGHT))
+
+
+# Aldous -------------------------------------------------------------------
+@icon('Backdraft')
+def _():
+    # A wall of fire going out sideways across the whole line, not a bolt at one of them: the
+    # crenellated front is wide, and the arcs behind it are the roll.
+    marks = ''.join(husk(x, 19, .46, ALD_MARK) for x in (14, 32, 50))
+    wall = ('<path d="M5 56 Q8 36 14 45 Q18 26 25 41 Q32 22 39 41 Q46 26 50 45 Q56 36 59 56 Z"'
+            ' fill="url(#fire)"/>')
+    core = ('<path d="M14 56 Q17 44 22 50 Q27 38 32 48 Q37 38 42 50 Q47 44 50 56 Z"'
+            ' fill="#ffe680" opacity=".85"/>')
+    return (marks + arc_lines(32, 58, 24, 3, 116, '#ffb347', -90, 2.0, 4.5)
+            + glow(wall, .7) + wall + core
+            + twinkle(9, 23, .7, '#ffd166') + twinkle(55, 23, .65, '#ffd166'))
+
+
+@icon('Draw the Ember')
+def _():
+    # THE WHOLE POINT IS THE COLOUR CHANGE. Mana comes out of the mark blue and arrives at him
+    # orange, so the stream is drawn in two halves and both ends are present in the tile: blue
+    # drops on the right, his flame on the left, the hand-over in the middle.
+    return (husk(49, 38, .66, ALD_MARK)
+            + poly('M44 30 Q38 17 29 20', ALD_MANA, 3.4)
+            + poly('M29 20 Q19 23 16 33', '#ff8a3d', 3.4)
+            + g(drop('url(#mana)'), 40, 22, 0, .7) + g(drop('url(#mana)'), 47, 29, 0, .55)
+            + g(flame(), 22, 21, -28, .36)
+            + glow(g(flame(), 17, 42, 0, .82), .75) + g(flame(), 17, 42, 0, .78)
+            + twinkle(54, 20, .65, ALD_MANA) + twinkle(33, 50, .6, '#ffd166'))
+
+
+@icon('Kindled')
+def _():
+    # He turns up already alight. A figure standing in the fire, not a fireball being thrown:
+    # no bolt, no arm, no target - just him and the wreath.
+    return (glow('<circle cx="32" cy="34" r="18" fill="#ff8a3d"/>', .45)
+            + arc_lines(32, 36, 20, 2, 300, '#ff8a3d', -90, 2.2, 5)
+            + husk(32, 38, .95, ALD_SELF)
+            + g(flame(), 14, 38, -14, .58) + g(flame(), 50, 38, 14, .58)
+            + g(flame(), 32, 16, 0, .46)
+            + twinkle(13, 19, .7, '#ffd166') + twinkle(51, 19, .7, '#ffd166'))
+
+
+# Liesl --------------------------------------------------------------------
+@icon('Dawnbreak')
+def _():
+    # Dawn over the whole field: the rays run right over the marks, and both of them have their
+    # arms up over their eyes.
+    def shielding(x, y, s):
+        return g(husk(0, 0, 1, ALD_MARK)
+                 + poly('M-9 -1 L-14 -12', ALD_MARK, 2.6) + poly('M9 -1 L14 -12', ALD_MARK, 2.6),
+                 x, y, 0, s)
+    rays = ''.join(g('<path d="M-2.2 0 L0 -27 L2.2 0 Z" fill="#ffe08a" opacity=".55" stroke="none"/>', 32, 26, a)
+                   for a in range(0, 360, 30))
+    return (rays + glow('<circle cx="32" cy="26" r="13" fill="#ffd060"/>', .9)
+            + burst(32, 26, 7, 17, 12, '#ffe08a')
+            + '<circle cx="32" cy="26" r="8.5" fill="#fffbe6"/>'
+            + shielding(14, 46, .56) + shielding(50, 46, .56)
+            + twinkle(10, 22, .6, ALD_LIGHT) + twinkle(54, 20, .55, ALD_LIGHT))
+
+
+@icon('Absolution')
+def _():
+    # NOT A HEAL. No cross, no plus(), no url(#heal) anywhere near it: the subject is the curse
+    # leaving. Three of theirs standing in a pool of dawn, the hexes lifting off them and coming
+    # apart into dust before they reach the top of the tile.
+    marks = ''.join(husk(x, 42, .52, ALD_MARK) for x in (14, 32, 50))
+    wisps = (poly('M14 32 q-5 -6 0 -11 q5 -5 0 -10', ALD_CURSE, 2.4)
+             + poly('M32 30 q5 -6 0 -11 q-5 -5 0 -10', ALD_CURSE, 2.4)
+             + poly('M50 32 q-5 -6 0 -11 q5 -5 0 -10', ALD_CURSE, 2.4))
+    dust = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#c89eff" opacity="{o}" stroke="none"/>'
+                   for x, y, r, o in ((14, 7, 1.7, .5), (19, 11, 1.1, .35), (32, 5, 1.7, .5),
+                                      (26, 9, 1.1, .35), (50, 7, 1.7, .5), (44, 11, 1.1, .35)))
+    return (glow('<ellipse cx="32" cy="50" rx="24" ry="7" fill="#ffd060"/>', .75)
+            + f'<ellipse cx="32" cy="50" rx="23" ry="6.5" fill="#ffd060" fill-opacity=".28"'
+              f' stroke="{ALD_GOLD}" stroke-width="2.2"/>'
+            + marks + wisps + dust
+            + twinkle(8, 20, .65, ALD_LIGHT) + twinkle(56, 20, .6, ALD_LIGHT))
+
+
+@icon('Dawnward March')
+def _():
+    # The chapel bell setting the pace, and the pace running out ahead of it.
+    bell = ('<rect x="-2.4" y="-19" width="4.8" height="4.5" rx="1.6" fill="#8a5a14"/>'
+            '<path d="M-13 8 Q-13 -9 0 -15 Q13 -9 13 8 Z" fill="url(#gold)"/>'
+            '<path d="M-16 8 H16 L13.5 13 H-13.5 Z" fill="#f0d08a"/>'
+            '<path d="M-7 -4 Q0 -8 7 -4" fill="none" stroke="#8a5a14" stroke-width="1.4"/>'
+            '<circle cx="0" cy="16.5" r="3.2" fill="#8a5a14"/>')
+    return (arc_lines(28, 28, 16, 3, 86, ALD_GOLD, 0, 2.2, 4.5)
+            + g(bell, 28, 28, -12, 1.0)
+            + speed_lines(41, 48, 3, 11, 6, ALD_LIGHT, 0, .8)
+            + twinkle(14, 13, .7, ALD_LIGHT))
+
+
+# ================================================================ Stoneleaf Accord, third wave
+# The Accord is two peoples under one banner and the icons keep them apart on sight:
+# Durgan's and Hilda's read as stone, iron and anvil work; Aelira's, Faelan's and Elowen's
+# as wood, leaf and arrow work. Nothing in this block crosses that line.
+STL_ACC = '#a8d06b'     # the Accord's pale green, from PAL['stone']
+STL_SPARK = '#ffd166'   # the forge spark the dwarf icons already use
+STL_ROOT = '#6b4422'    # root / haft brown
+STL_GREEN = '#4c9a28'   # living green for vines and rot
+
+
+def anvil(fill='url(#iron)', face='#9aa3b5'):
+    """A blacksmith's anvil, origin at the centre of its face. Anvil Strike's silhouette,
+    which is the one the Accord's dwarf icons have already taught: wide face, waist, horn."""
+    return (f'<path d="M-17 0 H17 Q17 6 11 7 L9 12 H15 V18 H-11 V12 H-5 L-7 7 Q-15 6 -17 0 Z" fill="{fill}"/>'
+            f'<path d="M17 0 Q25 0 27 -3 Q25 4 17 4 Z" fill="{fill}"/>'
+            f'<path d="M-17 0 H17" stroke="{face}" stroke-width="1.2"/>')
+
+
+def dwarf(x, y, s=1, plate='url(#iron)', beard='#d8c8a8'):
+    """A squat braced dwarf of the Accord: brimmed helm, a beard over the breastplate.
+    Origin at his chest; he spans roughly 26 wide and 35 tall at s=1."""
+    return g(f'<path d="M-13 17 Q-13 2 -7 -1 H7 Q13 2 13 17 Z" fill="{plate}"/>'
+             '<rect x="-7" y="-6.4" width="14" height="6.6" fill="#d2a87c"/>'
+             f'<path d="M-7 -1.5 Q-9 10 0 14 Q9 10 7 -1.5 Z" fill="{beard}"/>'
+             f'<path d="M-9 -9 Q-9 -18 0 -18 Q9 -18 9 -9 Z" fill="{plate}"/>'
+             '<rect x="-10.5" y="-10" width="21" height="4.4" rx="1.6" fill="#5d6780"/>'
+             '<circle cx="-3.6" cy="-3.6" r="1.4" fill="#15121d" stroke="none"/>'
+             '<circle cx="3.6" cy="-3.6" r="1.4" fill="#15121d" stroke="none"/>', x, y, 0, s)
+
+
+def longbow(wood='#8a5a32', string='#d8ca9e'):
+    """An elven longbow, target to the right: the stave bows toward the target, the string
+    runs straight down the near side, so an arrow laid on it points right. Origin at the grip."""
+    return (f'<path d="M-3 -21 Q10 0 -3 21" fill="none" stroke="{INK}" stroke-width="6.4"/>'
+            f'<path d="M-3 -21 Q10 0 -3 21" fill="none" stroke="{wood}" stroke-width="3.4"/>'
+            f'<path d="M-3 -21 L-3 21" stroke="{string}" stroke-width="1.3"/>'
+            '<path d="M6 -4 Q9 0 6 4" fill="none" stroke="#5e3a1c" stroke-width="2.6"/>')
+
+
+def prybar(fill='url(#steel)'):
+    """A prying tool: chisel tip at the origin, shaft running out along -x to a thin bent heel.
+    Kept skinny on purpose - any thickness at the far end and it starts to read as a hammer."""
+    return (f'<path d="M4 4.5 L-3.5 -4.5 L-16 -2.4 L-20 -8 L-23 -5 L-19 0.6 L-16 2.2 Z" fill="{fill}"/>'
+            '<path d="M-19.5 -6.6 L-21.6 -5" stroke="#5d6780" stroke-width="1.2"/>')
+
+
+# ---- Durgan Anvilbeard (dwarf)
+@icon('Anvil Drop')
+def _():
+    # The heaviest thing in the Accord, dropped: the anvil is already down and the target is
+    # still in the air. Falling streaks above, impact burst at the foot, the body flung clear.
+    return ('<path d="M13 4 V15 M23 2 V13" stroke="' + STL_SPARK + '" stroke-width="2.6" opacity=".6"/>'
+            + '<rect x="4" y="52" width="56" height="6" rx="2" fill="#4a3a2e"/>'
+            + '<path d="M16 52 L12 58 M30 52 L26 58" stroke-width="1.4"/>'
+            + g(anvil(), 23, 27, -8, .86)
+            + glow(burst(31, 46, 5, 13, 10, STL_SPARK), .6)
+            + burst(31, 46, 4, 10, 10, STL_SPARK)
+            + speed_lines(36, 37, 3, 8, 7, '#d8c8a8', 0, .55)
+            + g(husk(0, 0, .78, '#6a6054'), 52, 37, 26))
+
+
+@icon('Hold the Pass')
+def _():
+    # He plants himself in the gap and everything on the field turns to him: the two cliff walls
+    # pinch in, the attention comes from both sides, and he is already set in the middle of it.
+    cliff = ('<path d="M0 52 V-28 L10 -18 L13 2 L11 52 Z" fill="#474e5b"/>'
+             '<path d="M0 -28 L6 -8 L11 52 M6 -8 L13 2" fill="none" stroke="#32373f" stroke-width="1.8"/>')
+    aim = ('<path d="M0 0 H11 M6 -5 L11 0 L6 5" fill="none" stroke="' + INK + '" stroke-width="5"/>'
+           '<path d="M0 0 H11 M6 -5 L11 0 L6 5" fill="none" stroke="#d8c8a8" stroke-width="2.4"/>')
+    # Four arrows all levelled at him and none of them near the helm: anything drawn up by his
+    # head reads as antlers growing out of it.
+    return (g(cliff, 1, 8) + g('<g transform="scale(-1 1)">' + cliff + '</g>', 63, 8)
+            + '<rect x="13" y="50" width="38" height="6" rx="2" fill="#4a3a2e"/>'
+            + dwarf(32, 33, .95)
+            + g(aim, 14, 31, 0, .85) + g('<g transform="scale(-1 1)">' + aim + '</g>', 50, 31, 0, .85)
+            + g(aim, 14, 13, 22, .75) + g('<g transform="scale(-1 1)">' + aim + '</g>', 50, 13, -22, .75))
+
+
+@icon('Hammer and Anvil')
+def _():
+    # Hitting him costs you your edge. His plate is the anvil: the sword comes down on it and
+    # stops as a stump, and every shard in the air is sword, not armour. A heater-shaped plate
+    # just read as a shield, so the armour here is a riveted band - unmistakably worn, not held.
+    band = ('<path d="M9 44 Q32 37 55 44 L54 52 Q32 59 10 52 Z" fill="url(#iron)"/>'
+            '<path d="M12 45.5 Q32 39.5 52 45.5 L51.5 50 Q32 55.5 12.5 50 Z" fill="url(#steel)" stroke-width="1.2"/>'
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="1.4" fill="#5d6780" stroke="none"/>'
+                      for x, y in ((15, 48), (23, 45.6), (32, 44.7), (41, 45.6), (49, 48))))
+    broken = ('<path d="M-4 -24 H4 L3.8 -9 L2.4 -1 L1.2 -7.5 L-0.4 -2 L-1.6 -8.5 L-3 -2.5 L-3.8 -9.5 Z" fill="url(#steel)"/>'
+              '<line x1="0" y1="-22" x2="0" y2="-11" stroke="#5d6780" stroke-width="1"/>'
+              '<rect x="-10" y="-28.4" width="20" height="4.4" rx="1.6" fill="url(#gold)"/>'
+              '<rect x="-2.2" y="-36" width="4.4" height="8" fill="#5a3520"/>'
+              '<circle cx="0" cy="-38" r="3" fill="url(#gold)"/>')
+    tip = '<path d="M0 -8 L2.8 -2 L2.4 6 L-2.4 6 L-2.8 -2 Z" fill="#dfe6f2"/>'
+    chip = '<path d="M0 0 L7 2.6 L2 6 Z" fill="#dfe6f2"/>'
+    return (band
+            + g(broken, 29, 42, 6, 1.0)
+            + glow(burst(30, 41, 3.4, 10, 9, STL_SPARK), .5)
+            + burst(30, 41, 2.8, 7.5, 9, STL_SPARK)
+            + g(tip, 44, 32, 115, 1.1)
+            + g(chip, 14, 31, 160, .95) + g(chip, 42, 15, -35, .85) + g(chip, 18, 16, -150, .7))
+
+
+# ---- Hilda Stonewall (dwarf)
+@icon('Mountainside')
+def _():
+    # Not a thrown rock: a slab of the mountain itself, swung through, and what it caught is
+    # still coming apart about it. Moss on the top face so it reads as mountain, not rubble.
+    slab = ('<path d="M-17 -6 L-6 -18 L10 -15 L18 -2 L12 14 L-5 18 L-16 8 Z" fill="#7a8290"/>'
+            '<path d="M-6 -18 L-2 -3 L12 14 M-2 -3 L-16 8 M-2 -3 L18 -2" fill="none" stroke="#4e5560" stroke-width="1.6"/>'
+            '<path d="M-6 -18 L10 -15 L18 -2" fill="none" stroke="#7d9b52" stroke-width="2.6"/>')
+    return (speed_lines(4, 32, 3, 12, 7, '#c9b28a', 0, .65)
+            + g(slab, 23, 33, -8, 1.0)
+            + glow(burst(44, 31, 4, 11, 9, STL_SPARK), .55)
+            + burst(44, 31, 3.4, 9, 9, STL_SPARK)
+            + g(husk(0, 0, .76, '#6a6054'), 50, 39, 24)
+            + stun_stars(48, 13, 16))
+
+
+@icon('Set in Stone')
+def _():
+    # She stops moving on purpose: heels together, toes out, and the stone coming up the greave
+    # from the foot along a jagged line. The two hexes thrown at her break on the way in.
+    # Both boots facing the same way just read as a pair of suitcases, hence the mirrored stance.
+    boot = ('<path d="M-7 -20 H7 L6 -14 H-6 Z" fill="#5d6780"/>'
+            '<path d="M-5.6 -14 H5.6 L6.6 -2 L15 3 L16 10 H-6.6 L-6 -2 Z" fill="url(#iron)"/>'
+            '<path d="M-6 -8 H6.2" stroke="#5d6780" stroke-width="1.8"/>')
+    stone = ('<path d="M-6.3 -3 L-2.5 -6 L1.5 -3 L6 -5.5 L6.6 -2 L15 3 L16 10 H-6.6 Z" fill="#8b93a1"/>'
+             '<path d="M-1.5 -2.5 L0 5 M6 1 L9 6" fill="none" stroke="#5a616e" stroke-width="1.4"/>')
+    hexin = ('<path d="M0 0 L8 9" fill="none" stroke="#b07ae0" stroke-width="3.2"/>'
+             '<path d="M-3 9 L3 15" fill="none" stroke="#b07ae0" stroke-width="2.6" opacity=".75"/>'
+             '<path d="M12 4 l4 2.4 l-4 2.4 l-2.4 -2.4 Z" fill="#e2c4f6" stroke-width="1"/>')
+    return ('<path d="M7 45 H57 L53 57 H11 Z" fill="#5a606c"/>'
+            + '<path d="M19 45 L16 57 M33 45 L31 57 M45 45 L47 57" fill="none" stroke="#3e444f" stroke-width="1.6"/>'
+            + g('<g transform="scale(-1 1)">' + boot + stone + '</g>', 22, 37, 0, .88)
+            + g(boot + stone, 42, 37, 0, .88)
+            + g(hexin, 8, 5) + g('<g transform="scale(-1 1)">' + hexin + '</g>', 56, 5)
+            + burst(18, 16, 2.6, 7.5, 8, '#c79aec') + burst(46, 16, 2.6, 7.5, 8, '#c79aec'))
+
+
+@icon('Seamless Plate')
+def _():
+    # There is no gap to exploit: the panels lap over one another with a BRIGHT edge instead of
+    # a dark join, and the pry bar has nothing to catch - it is skidding off the shoulder.
+    # The notched neckline matters: without it the lapped bands read as a bell, not a cuirass.
+    laps = ''.join(f'<path d="M{a} {b} Q32 {c} {64 - a} {b} L{63 - a} {d} Q32 {e} {a + 1} {d} Z" fill="url(#steel)"/>'
+                   f'<path d="M{a} {b} Q32 {c} {64 - a} {b}" fill="none" stroke="#eaf1f8" stroke-width="1.8"/>'
+                   for a, b, c, d, e in ((17, 28, 21, 36, 31), (18, 36, 30, 44, 39), (21, 44, 38, 51, 47)))
+    rivets = ''.join(f'<circle cx="{x}" cy="{y}" r="1.3" fill="#5d6780" stroke="none"/>'
+                     for x, y in ((21, 31), (43, 31), (22, 39), (42, 39), (25, 47), (39, 47)))
+    return ('<path d="M14 26 L22 17 L27 21 H37 L42 17 L50 26 L48 44 Q40 55 32 58 Q24 55 16 44 Z" fill="url(#iron)"/>'
+            + laps + rivets
+            + g(prybar(), 45, 31, 112)
+            + '<path d="M50 25 L56 22 M49 19 L53 14" fill="none" stroke="#d8c8a8" stroke-width="2.2" opacity=".8"/>')
+
+
+# ---- Aelira Swiftwind (elf)
+@icon('Threadneedle')
+def _():
+    # Three shots, one needle's eye. The ring is small on purpose - the whole read is that the
+    # group is tighter than the gap it goes through.
+    sh = ('url(#steel)', STL_ACC, 34)
+    return ('<ellipse cx="44" cy="32" rx="8" ry="10.5" fill="none" stroke="' + INK + '" stroke-width="6"/>'
+            '<ellipse cx="44" cy="32" rx="8" ry="10.5" fill="none" stroke="url(#gold)" stroke-width="3"/>'
+            + g(arrow(*sh), 33.8, 27.5, 100, .85)
+            + g(arrow(*sh), 32.4, 32, 90, .92)
+            + g(arrow(*sh), 33.8, 36.5, 80, .85)
+            + twinkle(53, 15, .85, '#ffffff'))
+
+
+@icon('Loose and Move')
+def _():
+    # Shoot, then slip. She is on the right now with two of herself fading out behind her; the
+    # shot has gone, and the arrow coming back for her is through the space she left.
+    return (g(longbow('#6b4422', '#b3a584'), 16, 33, 0, .76, ' opacity=".26"')
+            + g(longbow('#7a4f2c', '#c6b891'), 26, 33, 0, .88, ' opacity=".5"')
+            + g(longbow(), 38, 34, 0, 1.0)
+            + g(arrow('url(#steel)', STL_ACC, 24), 44, 18, 90, .8)
+            + g(arrow('url(#iron)', '#9aa3b5', 26), 18, 46, 215, .75)
+            + speed_lines(8, 12, 3, 10, 6, '#d4ffb0', 0, .55))
+
+
+@icon('Second Nock')
+def _():
+    # One string, two nocks, two arrows away together: one more arrow in every volley.
+    return (g(longbow(), 24, 32, 0, 1.0)
+            + g(arrow('url(#steel)', STL_ACC, 34), 35.5, 26, 90, .85)
+            + g(arrow('url(#steel)', STL_ACC, 34), 35.5, 38, 90, .85)
+            + twinkle(51, 15, .8, STL_ACC))
+
+
+# ---- Faelan Thornshot (elf)
+@icon('Blinding Toxin')
+def _():
+    # Venom across the eyes: the splash lands on the face and both eyes are struck out under it.
+    # The head gets a jaw and a neck - a bare oval reads as a stone, not as somebody blinded.
+    head = ('<path d="M19 30 Q19 14 32 14 Q45 14 45 30 Q45 42 39 47 L39 52 H25 L25 47 Q19 42 19 30 Z" fill="#6a6054"/>'
+            '<path d="M26 43 Q32 47 38 43" fill="none" stroke="#443e36" stroke-width="2"/>')
+    splat = ('<path d="M11 25 Q19 17 27 23 Q33 16 40 21 Q48 15 53 26 Q48 34 40 30 '
+             'Q33 36 26 31 Q18 36 11 25 Z" fill="url(#poison)"/>')
+    return (glow('<ellipse cx="32" cy="26" rx="21" ry="11" fill="#b8ff6a"/>', .5)
+            + head + splat
+            + '<path d="M21 22 L29 30 M29 22 L21 30 M35 23 L43 31 M43 23 L35 31" fill="none" stroke="' + INK + '" stroke-width="3.2"/>'
+            + '<circle cx="14" cy="16" r="2.2" fill="#b8ff6a"/><circle cx="51" cy="14" r="1.8" fill="#b8ff6a"/>'
+            + '<circle cx="47" cy="37" r="1.6" fill="#b8ff6a"/>'
+            + g(drop('url(#poison)'), 21, 40, 0, .62) + g(drop('url(#poison)'), 44, 43, 0, .5))
+
+
+@icon('Marrowrot')
+def _():
+    # Not a splash on the outside: the bolt is in past the head and the rot is travelling the
+    # bone from the wound outward. The bone is drawn over the bolt's tip so the depth shows.
+    bone = ('<path d="M-21 -5 Q-27 -9 -26 -2.5 Q-30 0 -26 3 Q-27 9 -21 5.5 L21 5.5 Q27 9 26 3 '
+            'Q30 0 26 -2.5 Q27 -9 21 -5 Z" fill="url(#bone)"/>')
+    return (glow('<circle cx="33" cy="36" r="13" fill="#8adc4a"/>', .45)
+            + g(bolt('url(#poison)', '#9ac46b', 32), 23.2, 27.1, 140, 1.05)
+            + g(bone, 32, 36, -22, 1.05)
+            # Branching, not a stripe: a single green line along the bone reads as decoration.
+            + ''.join(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{ry}" fill="#5e7a2a" stroke="none"'
+                      f' transform="rotate(-22 {x} {y})"/>'
+                      for x, y, rx, ry in ((39, 30, 3.4, 2.2), (45, 28, 2.4, 1.6), (23, 39, 2.8, 1.8)))
+            + poly('M30 34 Q39 30 47 26', STL_GREEN, 2.2)
+            + poly('M36 32 L38 37 M42 29 L45 33 M33 33 L32 28', STL_GREEN, 1.4)
+            + poly('M30 35 Q24 39 18 42', STL_GREEN, 1.8)
+            + poly('M25 38 L24 43 M21 40 L20 36', STL_GREEN, 1.2)
+            + '<ellipse cx="29.5" cy="33" rx="4.2" ry="2.6" fill="#2b3a1c" transform="rotate(-22 29.5 33)"/>'
+            + g(drop('url(#poison)'), 45, 49, 0, .6))
+
+
+@icon('Rotgut')
+def _():
+    # The same venom, run down thicker: one drop with a dark concentrate sitting in the middle
+    # of it, and the green arrow the Accord uses for "more".
+    return (glow('<circle cx="32" cy="30" r="14" fill="#b8ff6a"/>', .45)
+            + g(drop('url(#poison)'), 30, 30, 0, 2.4)
+            + g(drop('#2a5a16'), 30, 32, 0, 1.25)
+            + '<ellipse cx="25" cy="22" rx="2.6" ry="3.6" fill="#eaffc0" stroke="none" opacity=".75" transform="rotate(-25 25 22)"/>'
+            + '<path d="M50 48 V34 M44.5 39.5 L50 33 L55.5 39.5" fill="none" stroke="' + STL_ACC + '" stroke-width="2.6"/>')
+
+
+# ---- Elowen Greenmantle (elf)
+@icon('Grasping Roots')
+def _():
+    # The whole line held at once: the ground splits and the briars come up through it with
+    # three of them already caught.
+    held = (husk(15, 34, .62, '#6a6054') + husk(32, 29, .72, '#6a6054') + husk(49, 34, .62, '#6a6054'))
+    roots = (poly('M11 52 C11 42 19 44 16 36', STL_ROOT, 2.8)
+             + poly('M32 50 C28 40 37 40 33 27', STL_ROOT, 3.0)
+             + poly('M53 52 C53 42 45 44 48 36', STL_ROOT, 2.8))
+    wraps = (poly('M9 37 Q15 33 21 37', STL_GREEN, 2.2)
+             + poly('M25 32 Q32 28 39 32', STL_GREEN, 2.4)
+             + poly('M43 37 Q49 33 55 37', STL_GREEN, 2.2))
+    thorns = ''.join(f'<path d="M{x} {y} l{dx} {dy} l2 1.6 Z" fill="#9ac46b" stroke-width="1"/>'
+                     for x, y, dx, dy in ((15, 42, -4, -3), (34, 37, 4, -3), (49, 42, 4, -3)))
+    return ('<path d="M4 50 Q32 44 60 50 L60 58 H4 Z" fill="#4a3a2e"/>'
+            + '<path d="M14 49 L11 58 M32 47 L29 58 M48 49 L45 58" fill="none" stroke="#2f251c" stroke-width="1.6"/>'
+            + held + roots + wraps + thorns)
+
+
+@icon('Oaken Vigil')
+def _():
+    # The warband armoured in thorns, not healed: a closed ring of bark grown round all three
+    # of them, thorns out, and the blow that came for them skidding off into one.
+    ring = ('<circle cx="32" cy="35" r="19" fill="none" stroke="' + INK + '" stroke-width="9.6"/>'
+            '<circle cx="32" cy="35" r="19" fill="none" stroke="url(#wood)" stroke-width="6"/>'
+            + ''.join(f'<path d="M{32 + 19 * math.cos(math.radians(a)):.1f} {35 + 19 * math.sin(math.radians(a)):.1f} '
+                      f'l{2.6 * math.cos(math.radians(a)):.1f} {2.6 * math.sin(math.radians(a)):.1f}" '
+                      f'stroke="#5a3a1c" stroke-width="2" fill="none"/>' for a in range(15, 360, 30)))
+    thorns = ''.join(g('<path d="M-3.2 0 L0 -7.5 L3.2 0 Z" fill="#9ac46b"/>',
+                       round(32 + 22.4 * math.cos(math.radians(a)), 1),
+                       round(35 + 22.4 * math.sin(math.radians(a)), 1), a + 90)
+                     for a in range(0, 360, 45))
+    blade = ('<path d="M0 0 L5 -14 L10.5 -11 L4.5 2 Z" fill="url(#steel)"/>'
+             '<path d="M7 -14 L13.5 -10.5" stroke="url(#gold)" stroke-width="3"/>')
+    return (thorns + ring
+            + husk(24, 38, .46, '#6f7f5e') + husk(40, 38, .46, '#6f7f5e') + husk(32, 32, .5, '#8a9a74')
+            + g(blade, 47, 22, 0, 1.0)
+            + glow(burst(45.5, 23.5, 3, 8.5, 8, STL_SPARK), .5)
+            + burst(45.5, 23.5, 2.6, 7, 8, STL_SPARK)
+            + '<path d="M52 29 Q57 32 55 38" fill="none" stroke="#d8c8a8" stroke-width="2" opacity=".75"/>')
+
+
+@icon('Deeproot')
+def _():
+    # It holds longer because it is holding onto something: the taproot is down past the soil
+    # with its fingers closed over the stone, and it is not letting go.
+    sprout = ('<path d="M32 25 V10" fill="none" stroke="#3f7a4f" stroke-width="3.6"/>'
+              '<path d="M32 18 C25 18 20 13 19 7 C26 6 31 11 32 18 Z" fill="url(#leaf)"/>'
+              '<path d="M32 22 C39 22 44 18 45 12 C38 11 33 15 32 22 Z" fill="url(#leaf)"/>')
+    # A solid bar of soil read as a plank across the middle and rock()'s default clay read as a
+    # crate: the soil is a crumbling layer now and the stone is stone-grey.
+    return (sprout
+            + '<path d="M4 23 Q32 19 60 23 L60 28 Q51 33 45 28 Q37 33 30 28 Q22 33 15 28 Q8 32 4 27 Z" fill="#52402f"/>'
+            + '<circle cx="12" cy="35" r="1.4" fill="#6b5641" stroke="none"/>'
+            + '<circle cx="54" cy="33" r="1.2" fill="#6b5641" stroke="none"/>'
+            + g(rock('#7a8290'), 32, 44, 0, 1.45)
+            + poly('M32 25 C34 34 30 41 33 53', STL_ROOT, 5.0)
+            + poly('M32 32 C25 34 19 33 15 39', STL_ROOT, 2.8)
+            + poly('M33 36 C41 38 46 35 51 41', STL_ROOT, 2.8)
+            + poly('M33 51 C38 56 29 58 26 52', STL_ROOT, 2.4)
+            + twinkle(51, 14, .7, STL_ACC))
+
+
+# ================================================================ The Tideborn, third wave
+# One faction, five bodies, and the icons have to keep them apart on sight. The rule the
+# existing Tideborn set already set down, and which nothing in this block crosses:
+#   Tharos   - teeth, trident, blood in the water
+#   Grubble  - rime, ice-blue, biting back
+#   Seraphine- the note, sound rings, the voice
+#   Octavia  - ink, tentacles, suckers
+#   Maren    - pearl, reef pink, water
+TD_ACC = '#7fe3d8'      # the faction's pale aqua, from PAL['tide']
+TD_DEEP = '#14485a'     # the deep-water fill Dirge of the Deep and Tide Pool already use
+TD_ICE = '#bff3ff'      # Grubblefin's rime
+TD_ICE_HI = '#eafaff'
+TD_STEEL_ICE = '#dff4ff'
+TD_RED = '#b8202e'      # the blood Blood in the Water leaves behind
+TD_RED_HI = '#ff8a8a'
+TD_INK = '#5a4a8a'      # Octavia's ink, mid tone
+TD_INK_DK = '#2a1d40'
+TD_PEARL = '#f2c6d8'    # Maren's reef pink
+TD_HEX = '#c89eff'      # the house's "mend halved" purple (cf. Ancestors' Rebuke)
+TD_BODY = '#6a6054'     # the faceless mark husk() is drawn in
+
+
+def fin(fill='#53687a'):
+    """A dorsal fin, origin at its base, swept back to the right. The silhouette is Blood in
+    the Water's, scaled down: a rounded triangle reads as a tent, the swept tip reads as shark."""
+    return f'<path d="M-11 7 Q-5 -15 11 -24 Q6 -9 11 7 Z" fill="{fill}"/>'
+
+
+def shark(fill='#0d2a34', eye='#ff6a7a'):
+    """A shark from the side, NOSE UP, origin at the body centre: the thing coming up from
+    underneath. A silhouette on purpose - a face would make it a portrait, not a shadow.
+    Body, dorsal, pectoral and tail are separate pieces so the ink outline draws the shape."""
+    return (f'<path d="M0 -21 C6 -13 7 -4 6 4 C5 11 3 15 0 18 C-3 15 -5 11 -6 4 C-7 -4 -6 -13 0 -21 Z" fill="{fill}"/>'
+            f'<path d="M4 -4 L13 6 L3 5 Z" fill="{fill}"/>'
+            f'<path d="M-4 1 L-12 8 L-3 7 Z" fill="{fill}"/>'
+            f'<path d="M0 12 L8 23 L0 17 L-8 23 Z" fill="{fill}"/>'
+            f'<path d="M-4.6 -8 L-1.2 -6.6 M-4.2 -11 L-.8 -9.6" stroke="#9fb8c2" stroke-width="1" fill="none" opacity=".75"/>'
+            f'<circle cx="-2.8" cy="-13" r="1.5" fill="{eye}" stroke="none"/>')
+
+
+def tentacle(fill=TD_INK):
+    """One of Octavia's arms: base at the origin, reaching out along +x, tapering to a hook.
+    Tapered on purpose - a constant-width stroke reads as a strap, not an arm."""
+    return (f'<path d="M0 -6 C12 -6 20 -2.4 27 4 C19 1.2 10 2.2 0 6 Z" fill="{fill}"/>'
+            '<circle cx="7" cy="-1.6" r="1.3" fill="#e8dcff" stroke="none"/>'
+            '<circle cx="13" cy=".4" r="1.1" fill="#e8dcff" stroke="none"/>'
+            '<circle cx="18.5" cy="2.4" r="1" fill="#e8dcff" stroke="none"/>')
+
+
+def throat(x, y, s=1, fill=TD_BODY):
+    """A mark with the song being drawn out of it: husk(), clean, with the mana leaving just
+    clear of the head. Marking the figure itself only ever defaces it - a patch on the chest
+    reads as a pendant and a flare on the crown turns the whole thing into a tied sack."""
+    return husk(x, y, s, fill) + g(drop('url(#mana)'), x, y - 14.5 * s, 0, .5 * s)
+
+
+def down_arrow(x, y, h=11, color='#b07ae0', w=2.6):
+    """The house's "less of it" arrow (Dirge of the Deep, Withering Curse)."""
+    return (f'<path d="M{x} {y - h / 2} V{y + h / 2} M{x - 4.4} {y + h / 2 - 4.6} L{x} {y + h / 2 + 1} '
+            f'L{x + 4.4} {y + h / 2 - 4.6}" fill="none" stroke="{color}" stroke-width="{w}"/>')
+
+
+def hex_mark(x, y, r=7, fill='#2a1030', edge=TD_HEX):
+    """A hex sigil with the bar through it: the game's mark for a mend that will not pay."""
+    pts = ' '.join(f'{x + r * math.cos(math.radians(a)):.1f},{y + r * math.sin(math.radians(a)):.1f}'
+                   for a in range(-90, 270, 60))
+    return (f'<polygon points="{pts}" fill="{fill}" stroke="{edge}" stroke-width="2"/>'
+            f'<path d="M{x - r * .55:.1f} {y + r * .55:.1f} L{x + r * .55:.1f} {y - r * .55:.1f}" '
+            f'stroke="{edge}" stroke-width="1.8"/>')
+
+
+# ---- Tharos Razorfin (shark-folk)
+@icon('Chum the Water')
+def _():
+    # The whole line opened at once. The stain is drawn FLAT - no ink outline and no highlight
+    # curves on it, because an outlined lobed blob with folds in it reads as a brain - and the
+    # three fins cut the surface above it, with the waterline laid over their bases.
+    # NOTHING SYMMETRICAL AND NOTHING HANGING OFF THE BOTTOM. A tidy red mass with three
+    # tendrils under it reads as an animal with legs, every time; a plume has to be lopsided,
+    # with loose clots drifting off it, and no two edges alike.
+    plume = ('<path d="M11 39 C8 33 15 28 22 31 C27 26 37 28 39 34 C45 31 52 35 50 40 '
+             'C52 46 43 50 37 46 C31 50 21 49 18 44 C12 45 10 42 11 39 Z" fill="#a81a26" stroke="none"/>')
+    clots = ''.join(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{ry}" fill="#9a1420" stroke="none"'
+                    f' transform="rotate({r} {x} {y})"/>'
+                    for x, y, rx, ry, r in ((52, 47, 4.4, 3, 20), (15, 48, 3.4, 2.4, -25),
+                                            (44, 26, 2.8, 2, 35), (25, 52, 2.4, 1.6, 10)))
+    return (glow('<ellipse cx="31" cy="39" rx="26" ry="12" fill="#d8303c"/>', .55)
+            + plume + clots
+            # The far fin is mirrored so the two outer ones lean INTO the middle: three fins all
+            # swept the same way read as a shoal going past, not as a ring closing.
+            + g(fin('#5b7183'), 14, 25, 12, .58) + g(fin('#6b8496'), 31, 24, 0, .72)
+            + g('<g transform="scale(-1 1)">' + fin('#5b7183') + '</g>', 50, 25, 12, .52)
+            + f'<path d="M3 24 Q13 20 23 24 T43 24 T61 23" fill="none" stroke="{TD_ACC}" stroke-width="2.2" opacity=".85"/>'
+            + '<path d="M3 15 H10 M4 19 H9 M54 15 H61 M55 19 H60" stroke="#b4f4ff" stroke-width="1.8" opacity=".55"/>')
+
+
+@icon('Gutter')
+def _():
+    # Straight through the plate and it drinks on the way out: the middle prong is clear of the
+    # far face, and the blood is tracking BACK down the shaft to the hand, not dripping off it.
+    plate = ('<path d="M38 11 H50 Q53 11 53 15 V49 Q53 53 50 53 H38 Z" fill="url(#steel)"/>'
+             '<path d="M41.5 11 V53" stroke="#5d6780" stroke-width="1.4" fill="none"/>'
+             + ''.join(f'<circle cx="47" cy="{y}" r="1.4" fill="#5d6780" stroke="none"/>' for y in (16, 25, 39, 48)))
+    return (plate
+            + '<ellipse cx="45" cy="32" rx="6" ry="4.4" fill="#15121d" stroke="none"/>'
+            + g(trident(), 28, 32, 90, 1.0)
+            + glow(burst(41, 32, 3, 9, 9, '#ff6a7a'), .55)
+            + burst(41, 32, 2.6, 7, 9, '#ff8a8a')
+            # Back along the shaft, not dripping off it - and said with the arrow the Tideborn
+            # already use for "pulled back" (Backwash, Riptide). Drops strung along the shaft
+            # only ever read as a red sausage, however they are spaced.
+            + f'<path d="M41 35 Q26 37 12 36" fill="none" stroke="{TD_RED_HI}" stroke-width="2" opacity=".85"/>'
+            + '<path d="M34 45 H16 M16 45 L21 40 M16 45 L21 50" fill="none" stroke="#15121d" stroke-width="4.8"/>'
+            + '<path d="M34 45 H16 M16 45 L21 40 M16 45 L21 50" fill="none" stroke="#e8545e" stroke-width="2.4"/>'
+            + g(drop(), 36, 23, 0, .55))
+
+
+@icon('Red Water')
+def _():
+    # Not a fresh cut: the mark is already tipping over and sinking, and the shadow underneath
+    # is on its way up to finish it. Reddened water, bubbles going the other way.
+    return (glow('<ellipse cx="32" cy="36" rx="25" ry="19" fill="#a81825"/>', .5)
+            + f'<path d="M5 16 Q13 12 21 16 T37 16 T59 15" fill="none" stroke="{TD_ACC}" stroke-width="2" opacity=".6"/>'
+            # Slumped and going down, NOT rolled over: past about 30 degrees husk() stops being
+            # head-and-shoulders and becomes a brown lump. The sinking is said by the bubbles
+            # going up past it and by the shadow coming the other way.
+            + g(husk(0, 0, .8, TD_BODY), 21, 25, 24)
+            + g(drop(), 13, 14, 0, .55) + '<path d="M15 20 Q13 18 13.5 16" fill="none" stroke="#e8545e" stroke-width="2"/>'
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="none" stroke="{TD_ICE}" stroke-width="1.2" opacity=".7"/>'
+                      for x, y, r in ((31, 15, 2.6), (37, 9, 1.8), (10, 33, 1.6)))
+            + g(shark(), 38, 38, -20, .88))
+
+
+# ---- Grubblefin (rime-plated brawler)
+@icon('Bait the Hook')
+def _():
+    # Come and try. The bait is the thing on offer, the jaws are the thing on offer's bill -
+    # drawn BEHIND the hook and already open, so the order of events reads left to right.
+    # Clear water between the bait and the jaws: set close they fuse and the bait reads as a
+    # tongue hanging out of the mouth.
+    jaw = g(jaws('#5fb2dc'), 45, 42, -12, .7)
+    bait = ('<path d="M20 35 C14 35 13 42 18 45 C24 48 31 45 30 39 C29 36 25 35 20 35 Z" fill="#c0505e"/>'
+            '<path d="M19 38 Q23 39 26 42" fill="none" stroke="#f2a0a8" stroke-width="1.4"/>')
+    hook = (poly('M21 12 V30 C21 41 32 41 32.5 30', '#cfe8f5', 3.0)
+            + '<path d="M32.5 30.5 L27.5 25.5" fill="none" stroke="#cfe8f5" stroke-width="2.4"/>'
+            + '<circle cx="21" cy="11" r="3.2" fill="none" stroke="#cfe8f5" stroke-width="2.2"/>')
+    return (jaw + bait + hook
+            + twinkle(14, 16, .8, TD_ICE_HI) + twinkle(53, 20, .6, TD_ICE_HI)
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="none" stroke="{TD_ICE}" stroke-width="1.2" opacity=".7"/>'
+                      for x, y, r in ((13, 45, 2.6), (18, 52, 1.8), (50, 15, 1.6))))
+
+
+@icon('Icebreaker')
+def _():
+    # Four thin cuts, and plate is no answer to them: each sliver is edged like an icicle and
+    # goes clean past both edges of the plate instead of stopping at it.
+    plate = ('<path d="M11 18 H53 Q56 18 56 22 V42 Q56 46 53 46 H11 Q8 46 8 42 V22 Q8 18 11 18 Z" fill="url(#steel)"/>'
+             '<path d="M8 32 H56" stroke="#8d97aa" stroke-width="1.2" fill="none"/>'
+             + ''.join(f'<circle cx="{x}" cy="{y}" r="1.3" fill="#5d6780" stroke="none"/>'
+                       for x, y in ((13, 22), (13, 42), (51, 22), (51, 42))))
+    sliver = ('<path d="M-2 -23 L2.2 -21.5 L3.4 -8 L1.4 -3 L3.4 4 L1.2 10 L2.6 21.5 L-2.6 23 '
+              'L-1.2 10 L-3.4 4 L-1.4 -3 L-3.4 -8 Z" fill="' + TD_STEEL_ICE + '"/>'
+              '<path d="M-1 -19 L1.4 -8 L-.4 -3 L1.4 4 L-.4 10 L.6 19" fill="none" stroke="#9fd8ee" stroke-width="1"/>')
+    return (plate
+            + ''.join(g(sliver, x, 32, 20, 1.0) for x in (15, 26, 37, 48))
+            + twinkle(11, 11, .7, TD_ICE_HI) + twinkle(54, 53, .6, TD_ICE_HI))
+
+
+@icon('Gnashing')
+def _():
+    # Land a blow and the blow is what he bites. The sword is already in the mouth and chipping,
+    # and the cold comes off the bite - not off him.
+    chip = '<path d="M0 0 L6.4 2.4 L1.6 5.6 Z" fill="#dfe6f2"/>'
+    return (g(sword('url(#steel)'), 46, 20, 212, .8)
+            + g(jaws('#5fb2dc'), 29, 38, -8, 1.12)
+            + glow(burst(35, 32, 3.4, 10, 9, TD_ICE_HI), .5)
+            + burst(35, 32, 2.8, 7.5, 9, '#ffffff')
+            + g(chip, 46, 36, 25, .95) + g(chip, 19, 22, -150, .8)
+            + twinkle(13, 16, .8, TD_ICE_HI) + twinkle(50, 51, .6, TD_ICE_HI))
+
+
+# ---- Seraphine Wavecaller (siren)
+@icon('Abyssal Note')
+def _():
+    # ONE note, and it is the heaviest thing she has: a single thick ring driven down into the
+    # dark, with what it landed on already under the water and out of air.
+    return ('<path d="M6 32 Q32 26 58 32 V56 H6 Z" fill="#0b2b36"/>'
+            + f'<path d="M6 32 Q32 26 58 32" fill="none" stroke="{TD_ACC}" stroke-width="1.6" opacity=".7"/>'
+            + g(note('#ffffff'), 32, 19, 0, 1.05)
+            # Three thinning rings, not one fat one: a single heavy white arc under the note
+            # stops being a sound wave and becomes a bowl with the note sitting in it.
+            + arc_lines(32, 22, 15, 3, 140, TD_ICE_HI, 90, 3.0, 5)
+            + g(husk(0, 0, .56, '#417080'), 32, 50, 10)
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="none" stroke="{TD_ICE}" stroke-width="1.2" opacity=".65"/>'
+                      for x, y, r in ((19, 48, 2.4), (46, 46, 2), (14, 54, 1.6))))
+
+
+@icon('Hollow the Throat')
+def _():
+    # The siren's actual legend: she takes the voice, and the voice is the mana. Three throats
+    # paying up at once, her sigil holding what comes out of them.
+    sigil = (glow('<circle cx="32" cy="17" r="11" fill="#6fb0ff"/>', .5)
+             + f'<circle cx="32" cy="17" r="9.6" fill="#123a52" stroke="{TD_PEARL}" stroke-width="2.4"/>'
+             + g(note('#ffffff'), 31, 17, 0, .6))
+    marks = (throat(13, 47, .68) + throat(32, 50, .68) + throat(51, 47, .68))
+    streams = (poly('M14 35 Q17 30 25 24', 'url(#mana)', 2.6)
+               + poly('M32 38 Q33 33 32 28', 'url(#mana)', 2.8)
+               + poly('M50 35 Q47 30 39 24', 'url(#mana)', 2.6))
+    motes = (g(drop('url(#mana)'), 18, 30, 30, .5) + g(drop('url(#mana)'), 46, 30, -30, .5))
+    return marks + streams + motes + sigil
+
+
+@icon('Hush the Deep')
+def _():
+    # A voice she has already taken cannot ward itself. The mouth is sealed shut and the seal
+    # is splitting - the crack is the brightest thing in the tile, because the crack is the skill.
+    # Two false starts worth recording: a teal band over the lips buried them (dark on dark,
+    # with the ties reading as barrel staves), and a thin mouth under big stitches read as a
+    # row of X's. The mouth has to be LARGE and bright, the stitching small and only on one
+    # side - and the break comes through the other side, which is the whole point of the skill.
+    # Cupid's bow on the top lip and a fuller bottom one: a plain symmetrical almond with a
+    # line through it is an eye, not a mouth.
+    lips = ('<path d="M9 32 Q17 20 24 24 Q28 17 32 23 Q36 17 40 24 Q47 20 55 32 Z" fill="#f2c6d8"/>'
+            '<path d="M9 32 Q21 50 32 50 Q43 50 55 32 Z" fill="#c9849f"/>'
+            '<path d="M9 32 H55" stroke="#6e3f52" stroke-width="2.4" fill="none"/>')
+    stitches = ''.join(f'<path d="M{x - 3} 27 L{x + 3} 37 M{x + 3} 27 L{x - 3} 37" fill="none" '
+                       f'stroke="#8fd0e6" stroke-width="2"/>' for x in (17, 26))
+    return (glow('<ellipse cx="32" cy="32" rx="24" ry="14" fill="#2a7f8f"/>', .4)
+            + lips + stitches
+            + poly('M41 12 L36 22 L44 31 L37 41 L42 52', TD_ICE_HI, 2.8)
+            + glow(burst(40, 31, 3, 9, 9, '#ffffff'), .5)
+            + burst(40, 31, 2.4, 6.5, 9, '#ffffff')
+            + f'<path d="M47 24 L52 21 M32 43 L27 47" fill="none" stroke="{TD_ICE}" stroke-width="1.8" opacity=".75"/>')
+
+
+# ---- Octavia Inkveil (octopus-folk)
+@icon('Eight Arms')
+def _():
+    # Four arms in at once from four sides, four separate little hits. The middle is left to
+    # the ink on purpose: one burst in the centre would read as a single heavy cast.
+    arms = (g(tentacle(TD_INK), 7, 10, 42) + g(tentacle(TD_INK_DK), 57, 10, 138)
+            + g(tentacle(TD_INK_DK), 7, 54, -42) + g(tentacle(TD_INK), 57, 54, -138))
+    hits = ''.join(burst(x, y, 2, 4.8, 8, '#fff6dc') for x, y in ((26, 26), (38, 26), (26, 38), (38, 38)))
+    return (glow('<circle cx="32" cy="32" r="10" fill="' + TD_INK_DK + '"/>', .6)
+            + arms + hits)
+
+
+@icon('Abyssal Ink')
+def _():
+    # Both halves of what she is for: the ink is over its face so it cannot see, and the arms
+    # have gone out of it so what it swings is worth less.
+    # The ink has to stop ABOVE the chin and the arms have to hang clear of the body, or the
+    # silhouette is a dome with a cloud on it - a tree, not somebody who has been blinded.
+    head = ('<path d="M25 30 Q25 16 32 16 Q39 16 39 30 Q39 37 36 40 L28 40 Q25 37 25 30 Z" fill="' + TD_BODY + '"/>'
+            '<path d="M28 36 Q32 38 36 36" fill="none" stroke="#443e36" stroke-width="2"/>')
+    torso = ('<path d="M21 44 Q32 40 43 44 L42 48 H22 Z" fill="#584f46"/>'
+             '<path d="M24 48 H40 L41 56 H23 Z" fill="#584f46"/>')
+    # Hanging, not curved back in: a pair of arms that bow out and round reads as handles.
+    arms = (poly('M22 46 Q18 50 19 56', TD_BODY, 3.4) + poly('M42 46 Q46 50 45 56', TD_BODY, 3.4))
+    splat = ('<path d="M11 22 Q18 13 26 19 Q32 10 39 16 Q48 10 53 21 Q49 30 40 27 Q33 34 26 28 '
+             'Q18 33 11 22 Z" fill="url(#ink)"/>')
+    drips = ('<path d="M18 28 Q17 33 19 37 M31 31 Q32 36 30 40 M45 27 Q47 32 45 35" fill="none" '
+             'stroke="' + TD_INK_DK + '" stroke-width="2.6"/>')
+    return (arms + head + torso
+            + glow('<ellipse cx="32" cy="22" rx="22" ry="12" fill="' + TD_INK + '"/>', .5)
+            + splat + drips
+            + down_arrow(55, 44, 11))
+
+
+@icon('Clouded Eyes')
+def _():
+    # It cannot see what is hitting it: both eyes still open behind the ink, and the blow coming
+    # in low on the other side of the veil where they are not looking.
+    eyes = ''.join(f'<ellipse cx="{x}" cy="28" rx="7.6" ry="5.6" fill="#fff6dc"/>'
+                   f'<circle cx="{x}" cy="28" r="2.8" fill="#15121d" stroke="none"/>'
+                   f'<path d="M{x - 7} 24 Q{x} 20.5 {x + 7} 24" fill="none" stroke="#9a86a8" stroke-width="1.4"/>'
+                   for x in (21, 43))
+    veil = ('<path d="M5 18 Q32 12 59 18 L59 31 Q52 38 45 34 Q38 30 32 35 Q25 40 18 35 Q11 30 5 36 Z" '
+            'fill="url(#ink)" opacity=".76"/>')
+    blade = ('<path d="M0 -12 L3 -3 L2.6 7 L-2.6 7 L-3 -3 Z" fill="url(#steel)"/>'
+             '<rect x="-5.6" y="6.5" width="11.2" height="3" rx="1.2" fill="#9aa3b5"/>')
+    return (eyes + veil
+            + g(blade, 48, 54, 208, 1.0)
+            + glow(burst(40, 46, 3.2, 9.5, 9, '#ffffff'), .5)
+            + burst(40, 46, 2.6, 7, 9, '#ffffff')
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="{TD_INK_DK}" stroke="none" opacity=".8"/>'
+                      for x, y, r in ((11, 44, 2.4), (20, 49, 1.8))))
+
+
+# ---- Maren Pearlheart (reef priestess)
+@icon('Salt the Reef')
+def _():
+    # The healer's own weapon turned round. NO CROSS ANYWHERE IN THIS TILE: salt going down
+    # over the coral, the coral curling up grey, and her glow broken into a guttering ring
+    # with the game's "mend halved" hex sitting in it.
+    # Antler coral, drawn as STRAIGHT forked segments - curved strokes at several angles come
+    # out as a tangle of worms every time. The living stock is reef pink, the tips are bleached
+    # bone-grey and drooping, which is what dying coral actually looks like and is the one cue
+    # that still works at 32px.
+    stock = (poly('M29 56 V44', '#b07a95', 5.0)
+             + poly('M29 46 L19 38', '#b07a95', 4.0)
+             + poly('M29 46 L39 38', '#b07a95', 4.0)
+             + poly('M29 45 V35', '#b07a95', 3.6))
+    # Bare tapered ends, no round caps: a blob on the end of every limb reads as a knuckle,
+    # and five limbs with knuckles on them read as a little man.
+    tips = (poly('M19 38 L16 44', '#bdb4ba', 3.2)
+            + poly('M39 38 L42 44', '#bdb4ba', 3.2)
+            + poly('M29 36 L27 30', '#bdb4ba', 3.0))
+    # A second, smaller head of coral: one stand on its own reads as a figure with its arms
+    # out, two read as a reef.
+    stock += poly('M13 56 V48', '#a06d87', 3.6) + poly('M13 50 L8 44', '#a06d87', 2.8)
+    tips += poly('M8 44 L6 49', '#b3aab0', 2.4)
+    salt = ''.join(g('<path d="M0 -4.4 L3.4 0 L0 4.4 L-3.4 0 Z" fill="#eef7fb"/>', x, y, r, s)
+                   for x, y, r, s in ((14, 14, 14, 1.0), (27, 10, -18, .88), (41, 14, 24, .96),
+                                      (51, 22, -12, .8), (20, 25, 32, .7), (36, 24, -26, .62)))
+    grains = ''.join(f'<circle cx="{x}" cy="{y}" r="1.1" fill="#eef7fb" stroke="none"/>'
+                     for x, y in ((22, 18), (33, 17), (46, 20), (10, 24), (54, 14), (30, 28)))
+    # The glow going out, drawn as a glow and not as a ring: a dashed halo round the coral
+    # only put more pink stubs beside the limbs and made the whole thing read as a scarecrow.
+    return (glow('<ellipse cx="29" cy="47" rx="15" ry="9" fill="' + TD_PEARL + '"/>', .3)
+            + g(twinkle(0, 0, .7, TD_PEARL), 12, 42, 0, 1, ' opacity=".45"')
+            + g(twinkle(0, 0, .5, TD_PEARL), 46, 32, 0, 1, ' opacity=".25"')
+            + stock + tips + salt + grains
+            + hex_mark(48, 48, 7.4))
+
+
+@icon('Undertow Grasp')
+def _():
+    # The whole line taken off its feet and set down slower. One current hooking back on itself,
+    # three marks going over with it, each tipped further than the one before.
+    # Three of them, stood well apart, each tipped further than the one before it - shoulder to
+    # shoulder they merge into one caterpillar, and past about 45 degrees a husk stops being a
+    # body. The current runs BEHIND them at waist height; carried high it reads as a rainbow.
+    return (f'<path d="M6 50 Q19 45 32 50 T58 49 V56 H6 Z" fill="{TD_DEEP}"/>'
+            + poly('M58 24 Q42 18 31 25 Q22 31 23 39', 'url(#water)', 3.8)
+            + poly('M53 29 Q43 25 36 29', TD_ACC, 1.8)
+            + '<path d="M23 40 L10 35 L13 49 Z" fill="#b4f4ff"/>'
+            + g(husk(0, 0, .62, TD_BODY), 50, 41, -22)
+            + g(husk(0, 0, .62, TD_BODY), 36, 43, -36)
+            + g(husk(0, 0, .62, TD_BODY), 22, 45, -50)
+            # Foam closing over their feet, drawn in front: it is the water that has them.
+            + f'<path d="M8 50 Q16 45 24 50 T40 50 T58 49" fill="none" stroke="#b4f4ff" stroke-width="2.4" opacity=".9"/>'
+            + g(drop('url(#water)'), 54, 13, 0, .55)
+            + g(drop('url(#water)'), 44, 9, 0, .4))
+
+
+@icon('Spring Tide')
+def _():
+    # Everything at once, right across the field: one crest carried the full width of the tile,
+    # foam running off both edges, with a pearl riding in the trough so it stays hers.
+    # Passive, so the tile is a ROUND medallion: the sea has to be a shape that stays inside
+    # the rim. A full-width rectangle of water hangs out of the circle at both bottom corners.
+    return (f'<path d="M2 44 Q32 38 62 44 Q51 58 32 58 Q13 58 2 44 Z" fill="{TD_DEEP}"/>'
+            + '<path d="M4 47 C5 26 17 13 34 14 C49 15 59 26 54 36 C51 42 42 42 41 35 '
+              'C40 29 34 28 31 32 C26 38 29 45 36 49 Z" fill="url(#water)"/>'
+            + '<path d="M11 43 C12 27 21 18 33 18 C44 18 52 25 52 32" fill="none" stroke="#ffffff" '
+              'stroke-width="1.8" opacity=".85"/>'
+            + f'<path d="M2 50 Q13 45 24 50 T46 49 T62 50" fill="none" stroke="{TD_ICE}" stroke-width="2.2" opacity=".8"/>'
+            + '<circle cx="46" cy="45" r="4" fill="url(#pearl)"/>'
+            + twinkle(20, 10, .72, TD_ICE_HI) + twinkle(48, 11, .6, TD_ICE_HI)
+            + f'<circle cx="11" cy="16" r="2" fill="none" stroke="{TD_ICE}" stroke-width="1.2" opacity=".7"/>')
+
+
+# ================================================================ The Crimson Court, third wave
+# One faction, two bloodlines, and the icons have to keep them apart on sight. The split the
+# existing Court set already set down, and which nothing in this block crosses:
+#   Vesper   - blood, the rapier, pale dark elegance
+#   Malgrath - hellfire, horns, chains, scorched ground
+#   Seraxa   - wings, pink blades, speed
+#   Gorehound- teeth, jaws, paws, feral orange
+#   Morwenna - the hex purple laid over the blood red
+# The trap this faction sets is that nearly everything in it is red on a dark wine ground, so a
+# tile can collapse into one indistinct red smear. The rule used throughout below: separate by
+# VALUE, not hue - bone cream, steel, gold and the grey-brown of a faceless mark carry the
+# silhouettes, and the reds are only ever the thing being done to them.
+CR_ACC = '#e0455a'       # PAL['crimson'] accent
+CR_RED = '#b8202e'
+CR_RED_DK = '#8e1420'
+CR_RED_HI = '#ff6a7a'
+CR_BONE = '#fbf4e2'
+CR_BONE_D = '#d6c6a6'
+CR_BODY = '#5f574a'      # the faceless mark: a cool grey-brown, well off the wine ground
+CR_BODY_D = '#4a4338'
+CR_BODY_HI = '#736a5b'
+CR_PLUM = '#3d1f4a'      # Seraxa's wing, from Wing Carve
+CR_PLUM_D = '#2a1430'
+CR_PINK = '#e05a9a'
+CR_PINK_HI = '#ff9ad0'
+CR_HEX = '#d07aff'       # Morwenna's hex, from Blight Hex
+CR_HEX_D = '#2a0f30'
+CR_HOUND = '#8a3a3a'     # the Gorehound's lip, from Tear Apart
+CR_EMBER = '#ff7a2f'
+CR_GOLD = '#ffd166'
+CR_FLESH = '#c8a096'
+CR_LIP = '#e8bac6'
+CR_LIP_D = '#bd7e90'
+
+
+def cr_mark(x, y, s=1, fill=CR_BODY, lean=0, stride=0):
+    """A faceless mark WITH LEGS - husk() is head and shoulders only, and half this wave needs
+    somebody standing in a line or caught mid-step. Head clear of the shoulders, arms hanging
+    and tapered, legs as two separate strokes: a single blocky trunk reads as a bollard.
+    Spans roughly 20 x 36 at s=1, so s=.55 puts three of them across a tile with air between."""
+    legs = (poly(f'M-3 2 L{-3.5 - stride * .45:.1f} 14', fill, 3.0)
+            + poly(f'M3 2 Q{3 + stride * .6:.1f} 8 {3 + stride:.1f} 13', fill, 3.0))
+    arms = poly('M-6.5 -10 Q-10 -4.5 -9 3', fill, 2.6) + poly('M6.5 -10 Q10 -4.5 9 3', fill, 2.6)
+    body = (f'<circle cx="0" cy="-17" r="5" fill="{fill}"/>'
+            f'<path d="M-7 -12 Q0 -14.5 7 -12 L5 2 H-5 Z" fill="{fill}"/>')
+    return g(arms + legs + body, x, y, lean, s)
+
+
+def cr_fallen(x, y, s=1, fill=CR_BODY):
+    """A body that is already down, drawn LYING: head out clear at one end, one arm flung and
+    one leg trailing. A rotated husk() past about 30 degrees stops being a body and becomes a
+    brown lump (the Tideborn wave learned this the hard way), so the prone pose is drawn."""
+    return g(f'<circle cx="-15" cy="-3" r="5.6" fill="{fill}"/>'
+             f'<path d="M-11 -7 Q-1 -9.5 9 -5.5 L14 3 H-10 Z" fill="{fill}"/>'
+             + poly('M-4 -8 Q2 -14 10 -13', fill, 3.0)
+             + poly('M12 -1 Q18 2 21 -4', fill, 3.0), x, y, 0, s)
+
+
+def cr_crescent(x, y, rot=0, s=1, fill='#fff0f6', edge=CR_PINK):
+    """One wind-blade: a crescent with two sharp points. Thin on purpose - a fat crescent reads
+    as a moon, and six moons in a tile read as nothing at all."""
+    return g(f'<path d="M-13 3 Q0 -10 13 3 Q0 -3.5 -13 3 Z" fill="{fill}"/>'
+             f'<path d="M-10 1.6 Q0 -6.5 10 1.6" fill="none" stroke="{edge}" stroke-width="1.2" opacity=".8"/>',
+             x, y, rot, s)
+
+
+def cr_bite(x, y, rot=0, s=1, color=CR_BONE):
+    """One bite mark: two OPPOSED rows of teeth with a clear gap between them, drawn as two
+    zigzag strips (the same construction jaws() uses for its teeth). Punctures scattered
+    individually round an ellipse came out as broken glass every single time, and three of
+    those on one spot came out as a smashed window."""
+    up = (f'<path d="M-12 -5 Q0 -13 12 -5 L9.5 .5 L7 -4.5 L4.5 1 L2 -5 L-.5 1 L-3 -5 L-5.5 1 '
+          f'L-8 -4.5 L-10.5 .5 Z" fill="{color}" stroke-width="1.2"/>')
+    lo = (f'<path d="M-11 6 Q0 13 11 6 L8.5 .5 L6 5.5 L3.5 0 L1 6 L-1.5 0 L-4 5.5 L-6.5 0 '
+          f'L-9 5 Z" fill="{color}" stroke-width="1.2"/>')
+    return g(up + lo, x, y, rot, s)
+
+
+def cr_sigil(fill=CR_GOLD, core='#fff1a0'):
+    """Malgrath's brand: a horned downward triangle with the bar through it. Origin at centre,
+    spans about 28 x 26."""
+    return (f'<path d="M-10 -8 H10 L0 11 Z" fill="none" stroke="{fill}" stroke-width="3"/>'
+            f'<path d="M-6.5 -1 H6.5" stroke="{fill}" stroke-width="2.6" fill="none"/>'
+            f'<path d="M-10 -8 L-14 -14 M10 -8 L14 -14" stroke="{fill}" stroke-width="2.6" fill="none"/>'
+            f'<circle cx="0" cy="3" r="2.2" fill="{core}" stroke="none"/>')
+
+
+def cr_horned(x, y, s=1, fill='url(#demon)', horn='#2a1a1f'):
+    """A horned head, the Court's demon read (cf. Demonic Roar, Infernal Wrath)."""
+    return g(f'<path d="M-8 -11 C-15 -15 -17 -22 -13 -28 C-12 -22 -8 -19 -4 -15 Z" fill="{horn}"/>'
+             f'<path d="M8 -11 C15 -15 17 -22 13 -28 C12 -22 8 -19 4 -15 Z" fill="{horn}"/>'
+             f'<path d="M-10 -2 C-10 -11 -5 -15 0 -15 C5 -15 10 -11 10 -2 C10 3 7 5 6 6 L6 11 H-6 V6 C-7 5 -10 3 -10 -2 Z" fill="{fill}"/>'
+             f'<path d="M-6.5 -4.5 L-2 -3 M6.5 -4.5 L2 -3" stroke-width="1.4"/>'
+             f'<circle cx="-4.2" cy="-2" r="2" fill="{CR_GOLD}" stroke="none"/>'
+             f'<circle cx="4.2" cy="-2" r="2" fill="{CR_GOLD}" stroke="none"/>', x, y, s=s)
+
+
+def cr_droop(x, y, rot=0, s=1):
+    """A blade hanging point-down out of a hand: the Court's "swings for less" cue, small enough
+    to put one in each of three marks' fists."""
+    return g('<path d="M0 0 L2.4 4 L1.9 18 L-1.9 18 L-2.4 4 Z" fill="url(#steel)"/>'
+             '<rect x="-5.4" y="-2.4" width="10.8" height="3.2" rx="1.4" fill="#8d97aa"/>', x, y, rot, s)
+
+
+def cr_plate(x, y, s=1, pits=True):
+    """A small breastplate for a mark to be wearing, so a line skill can show armour coming
+    apart. Shaped, not a rectangle: shoulders, a waist and a centre seam."""
+    out = (f'<path d="M-7 -8 Q0 -11 7 -8 L6 6 Q3 9.5 0 10 Q-3 9.5 -6 6 Z" fill="url(#iron)"/>'
+           f'<path d="M-5.6 -6 Q0 -8.4 5.6 -6" fill="none" stroke="#b6c0d0" stroke-width="1.2"/>'
+           f'<path d="M0 -8 V9" fill="none" stroke="#5d6780" stroke-width="1"/>')
+    if pits:
+        out += ''.join(f'<circle cx="{cx}" cy="{cy}" r="1.4" fill="#2a1016" stroke="none"/>'
+                       for cx, cy in ((-3.2, -3), (2.6, 0), (-1.4, 4)))
+    return g(out, x, y, 0, s)
+
+
+# ---- Vesper Nightshade (vampire lord)
+@icon('Scarlet Veil')
+def _():
+    # Both halves of what it does: one sheet of it over the whole line, and every thread of it
+    # running back out of them to one point off the left edge, where he is.
+    # The curtain is drawn FLAT - no ink outline, no highlight curves - because an outlined
+    # lobed sheet with folds in it reads as an organ. The hem is ragged and uneven; a scalloped
+    # hem of equal lobes reads as bunting. The marks stand clear below it with daylight between
+    # their heads and the hem, or the whole top half fuses into one red mass.
+    curtain = ('<path d="M3 5 H61 V22 Q56 31 51 24 Q46 17 40 26 Q34 33 29 24 Q24 16 18 26 '
+               'Q12 33 8 25 Q6 21 3 23 Z" fill="#a81a26" stroke="none"/>')
+    folds = ('<path d="M12 7 V24 M20 7 V25 M29 7 V23 M38 7 V25 M46 7 V23 M54 7 V24" fill="none" '
+             'stroke="#78101c" stroke-width="1.6" opacity=".75"/>')
+    marks = cr_mark(26, 48, .58) + cr_mark(40, 50, .62) + cr_mark(53, 47, .54)
+    # Thin, bright, and all three ending in the SAME place: three red curves that merely wander
+    # look like spilt blood, three that converge look like a draw.
+    threads = (poly('M24 42 Q17 40 13 36', '#ff9aa4', 2.0)
+               + poly('M37 43 Q25 42 14 37', '#ff9aa4', 2.0)
+               + poly('M51 41 Q31 46 15 38', '#ff9aa4', 2.0))
+    hits = ''.join(burst(x, y, 1.3, 4, 8, CR_RED_HI, extra=' stroke-width="1"')
+                   for x, y in ((26, 42), (40, 43), (53, 41)))
+    return (glow('<rect x="4" y="6" width="56" height="20" fill="#d8303c"/>', .45)
+            + curtain + folds + threads + hits + marks
+            + glow(f'<circle cx="11" cy="33" r="7" fill="{CR_RED_HI}"/>', .7)
+            + g(drop(), 11, 33, 0, 1.15)
+            + f'<path d="M21 30 L15 34 L21 38" fill="none" stroke="{CR_BONE}" stroke-width="2.2"/>')
+
+
+@icon('Gaze of the Count')
+def _():
+    # Held by a look and nothing else: no weapon anywhere in the tile. The eyes are drawn with
+    # a cream sclera and a red iris - two glowing red lozenges on a wine ground are just two
+    # red lozenges, it is the almond lid and the pale white that make them eyes.
+    eye = (f'<path d="M-11 0 Q0 -8.5 11 0 Q0 8.5 -11 0 Z" fill="#f6efdc"/>'
+           f'<circle cx="0" cy="0" r="4.6" fill="#c0303f"/>'
+           f'<circle cx="0" cy="0" r="1.9" fill="#15121d" stroke="none"/>'
+           f'<path d="M-11 0 Q0 -8.5 11 0" fill="none" stroke="#3a1018" stroke-width="1.6"/>')
+    return (glow('<ellipse cx="19" cy="18" rx="12" ry="8" fill="#ff3a4a"/>'
+                 '<ellipse cx="45" cy="18" rx="12" ry="8" fill="#ff3a4a"/>', .75)
+            + g(eye, 19, 18, -7, .96) + g(eye, 45, 18, 7, .96)
+            # Two lines of sight landing on the ONE mark, so the skill cannot be read as an aura
+            + f'<path d="M21 26 Q27 33 31 38 M43 26 Q37 33 33 38" fill="none" stroke="{CR_ACC}" '
+              f'stroke-width="1.6" opacity=".7"/>'
+            # Caught mid-stride, trailing foot still off the floor, and pinned there
+            + cr_mark(32, 45, .74, CR_BODY, 0, 8)
+            + f'<path d="M13 44 H19 M45 44 H51" fill="none" stroke="{CR_ACC}" stroke-width="2.6"/>'
+            + f'<path d="M13 40 V48 M51 40 V48" fill="none" stroke="{CR_ACC}" stroke-width="2"/>'
+            + '<path d="M36 57 Q40 55 44 57" fill="none" stroke="#6b5f52" stroke-width="1.6" opacity=".7"/>'
+            + twinkle(22, 32, .7, CR_GOLD) + twinkle(43, 31, .6, CR_GOLD))
+
+
+@icon('Taste for It')
+def _():
+    # The smell of it is the trigger, so the drop is still in the air and the mouth is already
+    # open under it. Two things learned the hard way here: a red drop with a red GLOW behind it
+    # stops being a drop and becomes a flame, so the drop gets a white highlight and no halo;
+    # and two symmetrical wisps rising above a mouth read as horns, so the scenting is said
+    # with flat squiggles either side of the drop instead.
+    gape = '<path d="M11 32 Q32 19 53 32 Q32 51 11 32 Z" fill="#2a0a12"/>'
+    upper = ('<path d="M9 32 Q18 17 26 23 Q29 16 32 22 Q35 16 38 23 Q46 17 55 32 Q32 22 9 32 Z" '
+             f'fill="{CR_LIP}"/>')
+    lower = f'<path d="M11 33 Q32 55 53 33 Q32 42 11 33 Z" fill="{CR_LIP_D}"/>'
+    fangs = ''.join(f'<path d="M{x - 3.2} 28 L{x + 3.2} 28 L{x + .6} 44 Z" fill="{CR_BONE}"/>'
+                    for x in (23, 41))
+    tongue = '<path d="M24 40 Q32 48 40 40 Q32 44 24 40 Z" fill="#9a1420" stroke="none"/>'
+    return (glow(f'<ellipse cx="32" cy="34" rx="22" ry="12" fill="{CR_RED_DK}"/>', .4)
+            + gape + tongue + upper + lower + fangs
+            + f'<path d="M32 4 V8" fill="none" stroke="{CR_RED_HI}" stroke-width="2" opacity=".8"/>'
+            + g(drop(), 32, 14, 0, 1.05)
+            + '<ellipse cx="30.2" cy="14" rx="1.4" ry="2.2" fill="#ffd9d9" stroke="none"/>'
+            + f'<path d="M9 15 Q13 11 17 15 Q21 19 25 15 M55 15 Q51 11 47 15 Q43 19 39 15" '
+              f'fill="none" stroke="{CR_ACC}" stroke-width="1.8" opacity=".55"/>')
+
+
+# ---- Malgrath the Unbound (demon brute)
+@icon('Brand')
+def _():
+    # ONE of them, seared. The tile is a single figure filling it, so it can never be mistaken
+    # for a line skill: no second mark anywhere, and the sigil is dead centre on its chest.
+    # The plate is what says "ignores armor" - it is scorched through round the sigil and three
+    # flakes of it have curled off, which is a thing only heat does. An earlier pass put a tidy
+    # orange ellipse round the brand and the whole tile read as a speaker grille; the scorch is
+    # now an irregular patch with no two edges alike.
+    mark = husk(32, 28, 1.5, CR_BODY_D)
+    plate = ('<path d="M16 32 Q32 27 48 32 L46 50 Q40 57 32 58 Q24 57 18 50 Z" fill="url(#steel)"/>'
+             '<path d="M20 35 Q32 31 44 35" fill="none" stroke="#8d97aa" stroke-width="1.4"/>'
+             + ''.join(f'<circle cx="{x}" cy="37" r="1.3" fill="#5d6780" stroke="none"/>'
+                       for x in (21, 43)))
+    scorch = ('<path d="M18 42 C19 34 27 30 34 33 C42 29 49 36 47 44 C48 52 38 57 32 53 '
+              'C24 56 17 50 18 42 Z" fill="#1d0c05" stroke="none"/>'
+              '<path d="M18 42 C19 34 27 30 34 33 C42 29 49 36 47 44 C48 52 38 57 32 53 '
+              'C24 56 17 50 18 42 Z" fill="none" stroke="#a84a18" stroke-width="2"/>')
+    flakes = ('<path d="M17 31 Q10 27 12 20 Q16 27 22 29 Z" fill="#c9d2e0"/>'
+              '<path d="M47 31 Q54 28 53 21 Q48 28 42 29 Z" fill="#aeb8c8"/>'
+              '<path d="M25 57 Q22 61 16 60 Q22 57 24 53 Z" fill="#c9d2e0"/>')
+    return (mark + plate + flakes + scorch
+            + glow(g(cr_sigil('#ff6a1a'), 32, 43, 0, .92), .85)
+            + g(cr_sigil(CR_GOLD, '#ffffff'), 32, 43, 0, .76)
+            + g(flame(), 51, 18, 22, .44) + g(flame(), 12, 16, -20, .38)
+            + twinkle(54, 42, .7, CR_GOLD) + twinkle(10, 42, .6, CR_EMBER))
+
+
+@icon('Hellmouth')
+def _():
+    # The ground itself, right across the width, and it stays open. The crust is a lit EARTH
+    # brown so the fissure can be near-black inside it: crust and crack both drawn dark made
+    # one coal heap with a campfire on it. Five flames of five different heights - a row of
+    # matching flames reads as a fence.
+    crust = ('<path d="M2 45 Q11 42 19 46 Q27 50 35 45 Q44 41 52 46 Q57 49 62 45 V60 H2 Z" '
+             'fill="#44210f"/>'
+             '<path d="M2 45 Q11 42 19 46 Q27 50 35 45 Q44 41 52 46 Q57 49 62 45" fill="none" '
+             'stroke="#6b3418" stroke-width="1.6"/>')
+    fissure = ('<path d="M5 48 L14 44 L22 49 L31 43 L40 48 L49 43 L59 48 L51 55 L41 50 L32 56 '
+               'L22 51 L13 55 Z" fill="#0a0404" stroke="none"/>'
+               '<path d="M5 48 L14 44 L22 49 L31 43 L40 48 L49 43 L59 48" fill="none" '
+               'stroke="#ffae4d" stroke-width="2.2"/>')
+    cracks = ('<path d="M10 57 L14 53 M27 58 L29 54 M45 57 L43 53 M55 56 L53 52" fill="none" '
+              'stroke="#ff7a2f" stroke-width="1.8" opacity=".9"/>')
+    fires = (g(flame(), 32, 31, 0, .98) + g(flame(), 19, 35, -12, .74)
+             + g(flame(), 45, 34, 11, .8) + g(flame(), 10, 39, -20, .5)
+             + g(flame(), 55, 39, 18, .54))
+    return (glow('<ellipse cx="32" cy="40" rx="28" ry="16" fill="#ff5a1a"/>', .7)
+            + fires + crust + fissure + cracks
+            + twinkle(13, 14, .8, CR_GOLD) + twinkle(50, 12, .65, CR_EMBER)
+            + f'<circle cx="24" cy="16" r="1.6" fill="{CR_EMBER}" stroke="none" opacity=".85"/>'
+            + f'<circle cx="41" cy="19" r="1.3" fill="{CR_GOLD}" stroke="none" opacity=".85"/>')
+
+
+@icon('Hell Answers')
+def _():
+    # Hit him and all of them pay. The order of events has to be legible: the blow comes in on
+    # ONE side, the burst is where it lands, and the fire goes OUT from him to three marks on
+    # the other three sides. Streaks with a flame at the far end, not flames on their own -
+    # loose flames in a ring read as a campfire. The marks are cr_mark and not husk: at this
+    # size a husk is a headstone, and three headstones round a demon is a graveyard.
+    marks = (cr_mark(14, 46, .48) + cr_mark(49, 47, .48) + cr_mark(50, 17, .44))
+    streaks = (poly('M26 40 Q20 43 16 43', CR_EMBER, 2.4)
+               + poly('M38 40 Q44 43 48 44', CR_EMBER, 2.4)
+               + poly('M39 27 Q46 21 50 19', CR_EMBER, 2.4))
+    return (glow(f'<circle cx="32" cy="33" r="15" fill="{CR_EMBER}"/>', .5)
+            + streaks + marks
+            + g(flame(), 14, 40, -8, .38) + g(flame(), 49, 41, 8, .38) + g(flame(), 51, 11, 14, .34)
+            + cr_horned(32, 36, .92)
+            + g(mace(), 14, 15, 140, .72)
+            + glow(burst(24, 25, 3, 9, 9, '#ffffff'), .6)
+            + burst(24, 25, 2.4, 6.5, 9, '#ffffff'))
+
+
+# ---- Seraxa Thornwing (winged blade dancer)
+@icon('Stoop')
+def _():
+    # From the sky, and the tile has to say sky: the diver is at the TOP with clear air under
+    # it, the mark is on a ground line at the very bottom, and the only thing between them is
+    # the dive. Wings swept UP and back and held close - wings spread level read as a glide,
+    # and a glide is not a stoop. The thing underneath is a standing figure, not a mound: a
+    # hunched silhouette on a baseline is a hill, whatever it is meant to be.
+    diver = (g(wing(CR_PLUM), 27, 17, 228, 1.0)
+             + g('<g transform="scale(-1 1)">' + wing(CR_PLUM_D) + '</g>', 37, 17, 132, .95)
+             + f'<path d="M27.5 26 Q32 29.5 36.5 26 L34.5 7 H29.5 Z" fill="{CR_PLUM}"/>'
+             + f'<circle cx="32" cy="30" r="4.8" fill="{CR_PLUM}"/>'
+             + poly('M28.5 23 Q26 16 27.5 9', CR_PLUM, 2.2) + poly('M35.5 23 Q38 16 36.5 9', CR_PLUM, 2.2)
+             + f'<circle cx="30.1" cy="30" r="1.3" fill="{CR_PINK_HI}" stroke="none"/>'
+             + f'<circle cx="33.9" cy="30" r="1.3" fill="{CR_PINK_HI}" stroke="none"/>')
+    streak = f'<path d="M28.8 33 H35.2 L32 45 Z" fill="{CR_PINK_HI}"/>'
+    chevrons = ''.join(f'<path d="M{x - 5} {y} L{x} {y + 5} L{x + 5} {y}" fill="none" '
+                       f'stroke="{CR_PINK}" stroke-width="2.2" opacity="{o}"/>'
+                       for x, y, o in ((12, 20, .9), (12, 28, .65), (12, 36, .4),
+                                       (52, 20, .9), (52, 28, .65), (52, 36, .4)))
+    return (chevrons
+            + '<path d="M9 58 H55" fill="none" stroke="#4a4038" stroke-width="2.6"/>'
+            + cr_mark(32, 49, .52)
+            + glow(streak, .8) + streak + diver
+            + glow(burst(32, 41, 3, 9.5, 9, '#ffffff'), .6)
+            + burst(32, 41, 2.4, 6.8, 9, '#ffffff'))
+
+
+@icon('Razor Gale')
+def _():
+    # Many thin cuts over a line, in TWO passes. The two passes are said by two bands at two
+    # heights going opposite ways, each with its own long guide arc behind it: six crescents
+    # scattered at random would just be confetti.
+    passA = (cr_crescent(15, 15, 16, .8) + cr_crescent(33, 12, 14, .92) + cr_crescent(50, 16, 18, .8))
+    passB = (cr_crescent(18, 31, -16, .74, '#f4bdd6') + cr_crescent(36, 33, -14, .86, '#f4bdd6')
+             + cr_crescent(53, 29, -18, .72, '#f4bdd6'))
+    guides = (f'<path d="M4 23 Q32 10 60 22" fill="none" stroke="{CR_PINK_HI}" stroke-width="1.4" opacity=".55"/>'
+              f'<path d="M60 38 Q32 28 4 37" fill="none" stroke="{CR_PINK}" stroke-width="1.4" opacity=".45"/>')
+    marks = cr_mark(14, 50, .5) + cr_mark(32, 52, .54) + cr_mark(50, 50, .5)
+    cuts = ''.join(f'<path d="M{x - 3} {y - 2} L{x + 3} {y + 2}" fill="none" stroke="{CR_RED_HI}" '
+                   f'stroke-width="1.8"/>' for x, y in ((14, 44), (32, 45), (50, 44)))
+    return (guides + marks + cuts + passB + passA
+            + twinkle(7, 44, .6, CR_PINK_HI) + twinkle(57, 45, .5, CR_PINK_HI))
+
+
+@icon('Blood Rush')
+def _():
+    # A kill carries her ONWARD. Speed, not mending: no cross, no plus(), no url(#heal) - the
+    # whole tile is a trail, a lean and two forward chevrons. The body she left is already down
+    # and BEHIND her, which is what makes this a kill trigger rather than a sprint. Her torso
+    # carries a pink edge so it does not disappear into its own wings.
+    flier = ('<path d="M-5 10 Q0 12 5 10 L3.5 -8 H-3.5 Z" fill="#6b3f80"/>'
+             + '<circle cx="0" cy="-12" r="4.8" fill="#6b3f80"/>'
+             + poly('M-5 4 Q-9 9 -8 14', '#5a3570', 2.4) + poly('M5 4 Q9 9 8 14', '#5a3570', 2.4)
+             + f'<circle cx="-1.6" cy="-12.5" r="1.4" fill="{CR_PINK_HI}" stroke="none"/>')
+    wings = (g(wing(CR_PLUM_D), -5, -5, 172, 1.05) + g(wing(CR_PLUM), -4, 3, 202, .95))
+    return (speed_lines(8, 22, 3, 15, 6, CR_PINK_HI, 0, .9)
+            + speed_lines(10, 36, 3, 12, 5, CR_PINK, 0, .6)
+            + cr_fallen(22, 49, .72) + g(drop(), 10, 45, 0, .5) + g(drop(), 35, 54, 0, .42)
+            + g(wings + flier, 41, 28, 14, 1.0)
+            + f'<path d="M47 19 L53 28 L47 37 M53 19 L58 28 L53 37" fill="none" '
+              f'stroke="{CR_PINK_HI}" stroke-width="2.6"/>')
+
+
+# ---- Gorehound (two-headed hellhound)
+@icon('Throat Lock')
+def _():
+    # The finishing bite: the thing is ALREADY opened - head wrenched back off the shoulders,
+    # the throat bare and running, the gorget on it already split - and the jaws have closed
+    # over the gorget, not over clean plate. The jaws are deliberately held to about half the
+    # tile; at full size they swallow the victim and all that is left is a toothy oval.
+    throat = (f'<path d="M15 22 L29 20 L33 44 L19 46 Z" fill="{CR_BODY_HI}"/>'
+              f'<path d="M20 22 L23 45" fill="none" stroke="#8a8071" stroke-width="1.4" opacity=".7"/>')
+    head = (f'<circle cx="19" cy="15" r="9.4" fill="{CR_BODY}"/>'
+            f'<path d="M10 12 L13 20 L20 22 Z" fill="{CR_BODY}"/>')
+    shoulders = f'<path d="M10 58 Q12 48 24 45 Q36 48 38 58 Z" fill="{CR_BODY_D}"/>'
+    gorget = g('<path d="M-13 -5.5 H13 L11 5.5 H-11 Z" fill="url(#steel)"/>'
+               '<path d="M-11.5 0 H11.5" fill="none" stroke="#8d97aa" stroke-width="1.2"/>'
+               '<path d="M-5 -5.5 L-3 -1 L-6 1.5 L-4 5.5" fill="none" stroke="#1d1a24" stroke-width="1.6"/>'
+               '<path d="M2 -5.5 L3.4 -2 L1.6 1" fill="none" stroke="#1d1a24" stroke-width="1.2" opacity=".8"/>'
+               '<path d="M7 -5.5 L4.5 -1.5 L9 1 L7 5.5" fill="none" stroke="#1d1a24" stroke-width="1.6"/>'
+               '<path d="M-13 -2 L-18 1 L-13 4.5 Z" fill="#1d1a24" stroke-width="1"/>', 26, 34, 6, 1.0)
+    return (head + throat + shoulders
+            + f'<path d="M24 24 Q28 34 26 44" fill="none" stroke="{CR_RED}" stroke-width="3.2"/>'
+            + gorget
+            + g(jaws(CR_HOUND), 44, 33, -28, .92)
+            + glow(burst(36, 33, 3, 9, 9, CR_RED_HI), .55)
+            + burst(36, 33, 2.4, 6.4, 9, '#ffd9d9')
+            + g(drop(), 22, 53, 0, .85) + g(drop(), 31, 57, 0, .6) + g(drop(), 46, 51, 0, .5)
+            + f'<path d="M11 36 L7 40 M15 44 L11 48" fill="none" stroke="{CR_EMBER}" '
+              f'stroke-width="2" opacity=".7"/>')
+
+
+@icon('Worry the Wound')
+def _():
+    # Not one big bite: the same spot taken THREE times, fast. The last bite is bright and
+    # square on, the two before it are dimmer and half behind it, so the count is readable in
+    # one look without the three of them turning into a pile of shards. The jaws are already
+    # coming back in, and the motion arcs behind them say it is going to happen again.
+    patch = ('<path d="M19 26 C25 19 38 20 44 27 C50 34 46 45 38 47 C29 50 20 45 18 38 '
+             'C16 33 17 29 19 26 Z" fill="#7e1020" stroke="none"/>')
+    return (glow('<ellipse cx="31" cy="35" rx="17" ry="14" fill="#c01e2c"/>', .45)
+            + patch
+            + cr_bite(26, 27, -40, .52, CR_BONE_D) + cr_bite(39, 43, 34, .5, CR_BONE_D)
+            + cr_bite(32, 35, -8, .74)
+            + arc_lines(14, 14, 11, 3, 66, CR_EMBER, 42, 1.8, 4)
+            + g(jaws(CR_HOUND), 16, 16, 40, .76)
+            + g(drop(), 24, 55, 0, .8) + g(drop(), 44, 53, 0, .6) + g(drop(), 52, 43, 0, .45))
+
+
+@icon('Gorge')
+def _():
+    # A kill feeds him: the maw is down ON the body and the red is running UP into it, which is
+    # the whole passive. The flow TAPERS - wide where it leaves the body, narrow where it goes
+    # in - because a constant-width red band between a body and a mouth is a drinking straw
+    # and reads either way; the arrowhead at the mouth end fixes the direction for good.
+    flow = ('<path d="M38 27 L42 29 L31 46 L19 48 Z" fill="#c01e2c"/>'
+            '<path d="M24 46 L39 29" fill="none" stroke="#ff8a8a" stroke-width="1.8" opacity=".9"/>'
+            + ''.join(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#ff8a8a" stroke="none" opacity=".8"/>'
+                      for cx, cy, r in ((33, 37, 1.6), (28, 43, 1.3))))
+    return (glow('<ellipse cx="30" cy="40" rx="20" ry="14" fill="#a81825"/>', .4)
+            + cr_fallen(24, 48, .9)
+            + flow
+            + f'<path d="M32 36 L39 29 L41 37" fill="none" stroke="{CR_BONE}" stroke-width="2.4"/>'
+            + g(jaws(CR_HOUND), 44, 21, -38, .95)
+            + g(drop(), 13, 37, 0, .55) + g(drop(), 32, 56, 0, .45)
+            + f'<path d="M52 36 L56 40 M47 43 L50 47" fill="none" stroke="{CR_EMBER}" '
+              f'stroke-width="2" opacity=".65"/>')
+
+
+# ---- Morwenna Bloodweaver (blood witch)
+@icon('Open the Vein')
+def _():
+    # Two things at once and both have to show: the vein is open (a gash across a bared forearm,
+    # blood leaving it) AND it is hexed (her sigil on the wound, with two hooks holding the lips
+    # apart so it cannot close). Three corrections from the first pass: the limb has a FIST and
+    # a sleeve cuff, because a plain tapered bar with a highlight down its length is a log; the
+    # gash is big and bright, because the wound is the skill; and the hex ring is dashed, which
+    # is what keeps a hexagon laid over an arm from reading as a bangle.
+    arm = g(f'<path d="M-26 -8 L13 -6.5 Q19 -5.5 19 0 Q19 5.5 13 6.5 L-26 8 Z" fill="{CR_FLESH}"/>'
+            f'<circle cx="19" cy="0" r="8" fill="{CR_FLESH}"/>'
+            '<path d="M14 -4.5 L22 -3.5 M14 0 L23 0 M14 4.5 L22 3.5" fill="none" stroke="#9a6a66" stroke-width="1.3"/>'
+            '<path d="M-28 -9 H-19 V9 H-28 Z" fill="#3a2234"/>'
+            '<path d="M-19 -9 V9" fill="none" stroke="#5a3850" stroke-width="1.4"/>', 30, 32, 30, 1.0)
+    vein = g(f'<path d="M-17 3 Q-6 1 6 3" fill="none" stroke="#7a3a5e" stroke-width="2" opacity=".8"/>', 30, 32, 30, 1.0)
+    # Lopsided on purpose, and with the pale lip on ONE side only: a symmetrical lens with a
+    # bright middle and a pale rim top and bottom is an eye, which is exactly what the first
+    # pass of this tile drew.
+    gash = g('<path d="M-13 1.5 C-9 -2.5 -4 -1.5 0 -4 C5 -2 9 -3.5 13 -.5 C9 3.5 4 2 0 4.5 '
+             'C-5 2.5 -9 4.5 -13 1.5 Z" fill="#280810"/>'
+             '<path d="M-10 .8 C-6 -1.4 -2 -.6 1 -1.8 C5 -.6 8 -1.4 10.5 0 C8 1.8 4 1 1 2.2 '
+             'C-3 1 -7 2.4 -10 .8 Z" fill="#cf1f2b" stroke="none"/>'
+             f'<path d="M-13 1.5 C-9 -2.5 -4 -1.5 0 -4 C5 -2 9 -3.5 13 -.5" fill="none" '
+             f'stroke="{CR_LIP}" stroke-width="1.8"/>',
+             24, 28, 120, 1.0)
+    ring = ' '.join(f'{24 + 12.5 * math.cos(math.radians(a)):.1f},{28 + 12.5 * math.sin(math.radians(a)):.1f}'
+                    for a in range(-90, 270, 60))
+    return (arm
+            + f'<path d="M27 33 Q24 42 26 50" fill="none" stroke="{CR_RED}" stroke-width="3"/>'
+            + vein + gash
+            + glow(f'<circle cx="24" cy="28" r="13" fill="{CR_HEX}"/>', .22)
+            + f'<polygon points="{ring}" fill="none" stroke="{CR_HEX}" stroke-width="1.8" '
+              f'stroke-dasharray="4.5 3.2" opacity=".95"/>'
+            + f'<path d="M16 21 Q12 25 15 29 M32 35 Q36 31 33 27" fill="none" stroke="{CR_HEX}" '
+              f'stroke-width="2.2"/>'
+            + g(drop(), 22, 50, 0, .9) + g(drop(), 33, 55, 0, .6) + g(drop(), 13, 48, 0, .5)
+            + twinkle(45, 13, .7, CR_HEX) + twinkle(11, 16, .55, CR_HEX))
+
+
+@icon('Blood Fog')
+def _():
+    # The whole line worn down at once. Three marks stood well apart, each with its blade
+    # hanging point-down out of its fist and its breastplate pitted through, standing in a low
+    # red mist. The mist is LOBES at partial opacity, not a filled band: a solid slab of red
+    # across the bottom third reads as a pool of blood, which is a different skill entirely.
+    def worn(x, y, s):
+        return (cr_mark(x, y, s) + cr_plate(x, y - 5.5 * s, s * 1.05)
+                + cr_droop(x + 9.6 * s, y + 2 * s, 12, s * .95))
+    lobes = (f'<path d="M2 47 Q9 39 17 45 Q24 50 31 43 Q39 37 46 44 Q53 50 62 43 V60 H2 Z" '
+             f'fill="{CR_RED_DK}" stroke="none" opacity=".52"/>'
+             f'<path d="M2 53 Q11 47 21 52 Q30 57 39 51 Q49 46 62 52 V60 H2 Z" '
+             f'fill="{CR_RED}" stroke="none" opacity=".34"/>'
+             + ''.join(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="{CR_RED}" '
+                       f'stroke="none" opacity=".26"/>'
+                       for cx, cy, rx, ry in ((16, 42, 11, 5), (38, 40, 12, 5.5), (55, 43, 8, 4)))
+             + f'<path d="M2 47 Q9 39 17 45 Q24 50 31 43 Q39 37 46 44 Q53 50 62 43" fill="none" '
+               f'stroke="{CR_RED_HI}" stroke-width="1.6" opacity=".5"/>')
+    wisps = (f'<path d="M12 44 Q16 38 13 33 M38 43 Q42 37 39 32 M54 45 Q58 40 55 36" fill="none" '
+             f'stroke="{CR_RED_HI}" stroke-width="1.8" opacity=".5"/>')
+    return (glow(f'<ellipse cx="32" cy="48" rx="29" ry="12" fill="{CR_RED}"/>', .45)
+            + worn(14, 33, .6) + worn(32, 31, .66) + worn(50, 34, .6)
+            + lobes + wisps
+            + down_arrow(54, 15, 12, CR_HEX, 2.6)
+            + twinkle(9, 13, .6, CR_HEX))
+
+
+@icon('Blood Price')
+def _():
+    # Her law, laid on everybody: a cast weighed against blood, and the blood is the heavier
+    # pan. The beam is GOLD, not red - a red balance on a wine ground disappears, and the whole
+    # point of this tile is the shape of the scales. The drop sits clear ABOVE its pan so the
+    # bowl still reads; sat in the bowl it just covers it up.
+    def pan(x, y):
+        return (f'<path d="M{x - 8.5} {y} Q{x} {y + 8} {x + 8.5} {y} Z" fill="url(#gold)"/>'
+                f'<path d="M{x - 8.5} {y} H{x + 8.5}" fill="none" stroke="#8a5a14" stroke-width="1.4"/>')
+    beam = '<path d="M14 24 L49 15 L50 19.5 L15 28.5 Z" fill="url(#gold)"/>'
+    strings = ('<path d="M14.6 26.5 L7.5 38 M14.6 26.5 L21.5 38 M49.2 17.5 L42.5 29 M49.2 17.5 L56 29" '
+               'fill="none" stroke="#c9a04a" stroke-width="1.6"/>')
+    post = ('<rect x="29.6" y="18" width="5" height="32" fill="url(#gold)"/>'
+            '<path d="M22 50 H42 L45 57 H19 Z" fill="url(#gold)"/>'
+            '<path d="M32 13 L37 21 H27 Z" fill="url(#gold)"/>')
+    hexpan = ' '.join(f'{49 + 6.6 * math.cos(math.radians(a)):.1f},{22.5 + 6.6 * math.sin(math.radians(a)):.1f}'
+                      for a in range(-90, 270, 60))
+    return (post + beam + strings + pan(14.5, 38) + pan(49, 29)
+            + glow(f'<circle cx="14.5" cy="31" r="7" fill="{CR_RED_HI}"/>', .55)
+            + g(drop(), 14.5, 31, 0, 1.0)
+            + f'<polygon points="{hexpan}" fill="{CR_HEX_D}" stroke="{CR_HEX}" stroke-width="2.2"/>'
+            + twinkle(49, 22.5, .5, CR_HEX)
+            + twinkle(10, 15, .6, CR_ACC) + twinkle(55, 47, .5, CR_HEX))
 
 def frame(faction, kind, glyph, name):
     top, bot, acc = PAL[faction]
