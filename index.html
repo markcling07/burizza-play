@@ -3370,6 +3370,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
    fly off the village. */
 .tideRing { transform-box: fill-box; transform-origin: 50% 50%; animation: tideRing 5.1s linear infinite; }
 @keyframes tideRing { from { transform: scale(.28); opacity: .6; } to { transform: scale(1.18); opacity: 0; } }
+/* The Dynamo's mast. Charge does not fade, it stops — so this blinks rather than breathes, on
+   three staggered offsets so the arcs never fire together. The opposite rhythm to the spring. */
+.dynArc { animation: dynArc 3.4s steps(1, end) infinite; }
+@keyframes dynArc { 0%, 7% { opacity: .95; } 8%, 14% { opacity: 0; } 15%, 19% { opacity: .8; } 20%, 100% { opacity: 0; } }
 /* Bounty Board: pinned parchment notices */
 .notices { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; padding: 6px 2px; }
 .notice {
@@ -4322,7 +4326,7 @@ const SAVE_KEY = 'burizza.profile.v1';
 // recruits = the TEAM_SIZE − 1 champion ids the AI plays beside you.
 const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {}, stones: {} }, home: [], pets: { owned: [], active: null },
   hero: null, level: 1, xp: 0, recruits: [],
-  tideBoon: false, // the Tide Shrine was entreated: the next battle opens under Downpour (see openingSky)
+  skyBoon: null,   // a faction ground was asked for its weather: the next battle opens under it (see openingSky)
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
   recruitLoadouts: {},   // skills you chose for recruits, per champion id; a recruit with none auto-picks
   packs: {},       // each champion's backpack: PACK_SLOTS slots, one item in each (see BACKPACKS)
@@ -4339,8 +4343,15 @@ function loadProfile() {
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
     // stash gains shelves over time (weapons came after trinkets), so merge it rather than replace it.
-    if (saved && typeof saved.gold === 'number')
-      return { ...p, ...saved, stats: { ...p.stats, ...saved.stats }, stash: { ...p.stash, ...saved.stash } };
+    if (saved && typeof saved.gold === 'number') {
+      const out = { ...p, ...saved, stats: { ...p.stats, ...saved.stats }, stash: { ...p.stash, ...saved.stash } };
+      // The Tide Shrine shipped a boolean tideBoon before the faction grounds generalised it into
+      // skyBoon, which names a weather. A save made in that window is carrying a paid-for Downpour;
+      // honour it rather than pocketing the gold.
+      if (out.tideBoon && !out.skyBoon) out.skyBoon = 'rain';
+      delete out.tideBoon;
+      return out;
+    }
   } catch (err) { /* private window or blocked storage: start fresh */ }
   return p;
 }
@@ -4961,9 +4972,11 @@ const WEATHER = {
   quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. Again and again the floor bucks and everyone on the speed bar is thrown back a step — they catch their footing and press on toward their turn. Flyers feel nothing.' },
 };
 const WEATHER_EVERY = 3;
-/* What the Tide Shrine asks. Priced against a Market draught rather than a forge tier: this buys
-   one battle's opening sky, not a lasting advantage, and it can just as easily arm the enemy. */
-const TIDE_COST = 40;
+/* What a faction ground asks to call its weather. Priced against a Market draught rather than a
+   forge tier: this buys one battle's opening sky, not a lasting advantage, and most skies can
+   just as easily arm the other side. Flat across the eight — the skies differ enough in what
+   they do that pricing them apart would be guessing at a balance nobody has played yet. */
+const SKY_COST = 40;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
 // 'brim' is never rolled — it is drawn whenever ash is, and hands the sky to the Ash Storm after it.
 // 'dusk' (Nightfall) likewise: drawn whenever moon is, and hands the sky to the Blood Moon after it.
@@ -4981,19 +4994,25 @@ const DUSK_MISS = 0.15;         // extra miss chance on ranged attacks in the da
 // Draw the next sky. Drawing an Ash Storm gives you its herald instead: Brimstone Fall comes
 // first and newRound hands the sky to the ash after it, so no ash ever arrives unannounced.
 /* What sky a battle opens under. Normally Clear — battles deliberately start calm and the first
-   turn of the weather is round 4 (wxNext) — but an entreaty at the Tide Shrine puts the Downpour
-   in from the opening round, which is the whole of what you paid for: rain at round 4 would be
-   a different promise. The boon is spent HERE rather than at the shrine, so gold buys a battle
-   fought in the rain and not merely a flag set before you wander off to do something else.
+   turn of the weather is round 4 (wxNext) — but a faction ground that has been paid puts ITS sky
+   in from the opening round, which is the whole of what was bought: weather arriving at round 4
+   would be a different promise. The boon is spent HERE rather than at the ground, so gold buys a
+   battle actually fought under that sky and not a flag set before wandering off somewhere else.
 
-   Worth knowing before you buy: Downpour favours the Tideborn whoever is fighting under it, so
-   entreating it against a Tideborn warband arms them too. It also douses Ironclad Heat, which is
-   the usual reason to want it. */
+   Every faction owns a weather (WEATHER[].favors), so this is one mechanism for all eight rather
+   than eight copies of it: the ground sells its own sky, and which sky that is comes from the
+   faction table. Note that a faction's own weather is not automatically kind to them — the
+   Ironclad's Thunderstorm douses the Heat their whole engine runs on. */
 function openingSky() {
-  if (!profile.tideBoon) return 'clear';
-  profile.tideBoon = false;
-  return 'rain';
+  const k = profile.skyBoon;
+  if (!k || !WEATHER[k]) return 'clear';
+  profile.skyBoon = null;
+  return k;
 }
+// The sky a faction's ground can call: the one that favours them. Keyed off WEATHER so adding a
+// ground never means repeating the pairing anywhere.
+const FACTION_SKY = Object.fromEntries(Object.entries(WEATHER)
+  .filter(([, w]) => w.favors).map(([k, w]) => [w.favors, k]));
 
 function rollWeather(except) {
   const opts = Object.entries(SEASON_WEATHER).filter(([k]) => k !== except);
@@ -17359,8 +17378,10 @@ const PLACES = {
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
   tide:   { name: 'Tide Shrine', kick: 'Entreat', blurb: 'Ask the Tideborn for rain, and fight your next battle under their sky.',
             flavor: 'Warden Nesh keeps the only standing water for thirty miles — a spring that wells up through the rock and will not go still. The Tideborn walked inland until they found it and have not moved since.' },
+  mech:   { name: 'The Dynamo', kick: 'Charge', blurb: 'Run the Ironclad boiler hot enough to pull a storm down on your next battle.',
+            flavor: 'Foreman Calder has thrown smoke and charge at this sky for eleven years. The Tideborn found their water; the Ironclad built their weather, and the scrap heap behind the mast is every version of it that did not work.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide', 'mech'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 // With the Expedition Gate open, the warband waits on the road out of it, facing the gate.
 const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
@@ -18155,6 +18176,37 @@ const teamMinis = (withSkills = false) => state.team.map((id, i) => {
     <figcaption>${name}<small>${you ? 'You' : 'Recruit'}</small></figcaption>${withSkills ? bandSkillsHTML(id) + bandPackHTML(id) : ''}</figure>`;
 }).join('');
 
+/* Every faction ground sells the same thing in its own voice: the sky that favours its people,
+   in from the opening round of your next battle. One renderer for all eight, so a new ground is
+   its art plus three lines of flavour and nothing else. `intro` and `outro` are the only parts
+   that differ; the state — can you afford it, have you already asked, what does the sky do — is
+   the same question everywhere and is answered here once.
+
+   Deliberately shows the sky's FULL description rather than a summary, including the parts that
+   hurt. The Ironclad storm douses Ironclad Heat; a player should read that before paying, not
+   discover it in round one. */
+function skyGroundHTML(faction, intro, buyLabel, outro) {
+  const sky = FACTION_SKY[faction], wx = WEATHER[sky];
+  const held = profile.skyBoon === sky, other = profile.skyBoon && profile.skyBoon !== sky;
+  const broke = profile.gold < SKY_COST;
+  return `${intro}
+    <p class="label">What the sky does</p>
+    <p class="rumor">“${wx.desc}”</p>
+    ${held
+      ? `<p class="note"><b>The asking is made.</b> Your next battle opens under ${wx.name} instead of Clear Skies,
+           and it is spent on that battle whether or not it helps.</p>`
+      : other
+        ? `<p class="note">Another ground already has your coin: your next battle opens under
+             <b>${WEATHER[profile.skyBoon].name}</b>. Pay here and ${wx.name} takes its place — one sky at a time.</p>`
+        : `<p class="note">Your next battle would open under Clear Skies, with the weather first turning at round ${1 + WEATHER_EVERY}.
+             This puts ${wx.name} in from the opening round instead.</p>`}
+    <div class="btns">
+      <button class="btn${held || broke ? '' : ' primary'}" type="button" data-k="skycall:${faction}"${held || broke ? ' disabled' : ''}>
+        ${held ? 'Already asked' : broke ? `Need ${SKY_COST} gold` : `${buyLabel} · ${SKY_COST}g`}</button>
+    </div>
+    ${outro}`;
+}
+
 const PLACE_BODY = {
   arena() {
     if (state.runPending) {
@@ -18589,23 +18641,22 @@ const PLACE_BODY = {
   },
 
   tide() {
-    const cost = TIDE_COST, held = !!profile.tideBoon, broke = profile.gold < cost;
-    const wx = WEATHER.rain;
-    return `<p class="note">Warden Nesh will not sell you rain. She will carry the asking, and the spring answers
-        when it feels like answering — which, for ${cost} gold toward the keeping of it, is most days.</p>
-      <p class="label">What the sky does</p>
-      <p class="rumor">“${wx.desc}”</p>
-      ${held
-        ? `<p class="note"><b>The asking is made.</b> Your next battle opens under ${wx.name} instead of Clear Skies.
-             It is spent on that battle whether or not it helps — and remember whose sky it is.</p>`
-        : `<p class="note">Your next battle would open under Clear Skies, with the weather first turning at round ${1 + WEATHER_EVERY}.
-             An entreaty puts ${wx.name} in from the opening round instead.</p>`}
-      <div class="btns">
-        <button class="btn${held || broke ? '' : ' primary'}" type="button" data-k="tidecall"${held || broke ? ' disabled' : ''}>
-          ${held ? 'Already asked' : broke ? `Need ${cost} gold` : `Entreat the tide · ${cost}g`}</button>
-      </div>
-      <p class="note">The Tideborn fight best in their own weather, so this arms them as readily as you.
-        Against the Ironclad it is worth more than it costs: Downpour washes their Heat out entirely.</p>`;
+    return skyGroundHTML('tide',
+      `<p class="note">Warden Nesh will not sell you rain. She will carry the asking, and the spring answers
+        when it feels like answering — which, for ${SKY_COST} gold toward the keeping of it, is most days.</p>`,
+      'Entreat the tide',
+      `<p class="note">The Tideborn fight best in their own weather, so this arms them as readily as you.
+        Against the Ironclad it is worth more than it costs: Downpour washes their Heat out entirely.</p>`);
+  },
+
+  mech() {
+    return skyGroundHTML('mech',
+      `<p class="note">Foreman Calder runs the Dynamo hot and lets the stacks do the rest. Enough smoke and charge
+        thrown at a dry sky and the sky answers — ${SKY_COST} gold buys the coal to throw.</p>`,
+      'Run the Dynamo',
+      `<p class="note">Read that twice before you pay: the storm the Ironclad call is the one that soaks them, and
+        a doused machine builds no Heat at all. They run it anyway — the lightning is worth more to them than the
+        furnace is. Against anyone leaning on Burn it is worth more still.</p>`);
   },
 
   tavern() {
@@ -19780,6 +19831,82 @@ function townPlaces() {
     out.tide = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
   }
 
+  /* THE DYNAMO — Ironclad ground, on the high shoulder north-east of the gate road.
+
+     The Tideborn found their water and built around it. The Ironclad brought their weather with
+     them: a boiler run hot enough to throw smoke and charge at a dry sky until the sky answers.
+     So the whole plot is one machine and its leavings — a riveted drum, two stacks always
+     venting, a lattice mast with a copper head that arcs, cooling fins, and the scrap of
+     everything that failed before this one worked. No thatch, no timber, nothing grown. The
+     only curve on the plot is a pressure vessel, because pressure vessels have to be round.
+
+     Deliberately unlike the shrine across the map: warm light at the base where the furnace is,
+     cold light at the top where the charge is, and never still in either place. */
+  {
+    const [cx, cy] = FACTION_PLOTS.mech;
+    const STEEL = '#6a7079', DARK = '#3b414a', RUST = '#8a5436', BRASS = '#c9a23f', ARC = '#9fd8ff';
+
+    // The pad it all stands on: poured, oil-stained, only just bigger than the machine.
+    let s = disc(cx + .3, cy + .3, 2.95, 'rgba(0,0,0,.34)', 0, NS);
+    s += disc(cx, cy, 2.75, '#3c3c44', 0, NS) + disc(cx, cy, 2.55, '#4a4a54', 0, NS);
+    s += disc(cx - .5, cy + .4, .55, '#2e2b30', 0, `${NS} opacity=".7"`);   // spill
+
+    // THE BOILER. A riveted pressure drum, banded, with the furnace mouth open at its foot.
+    // Dark body against a bright cap: at village zoom the silhouette is all you get, and a
+    // mid-grey cylinder on a grey pad reads as fog. The rivets are what say "made", not "grown".
+    s += cyl(cx, cy, 1.3, 46, '#4d535c') + disc(cx, cy, 1.3, shade(STEEL, .3), 46);
+    for (const z of [12, 26, 40]) s += disc(cx, cy, 1.36, '#2f343b', z, NS);
+    for (const z of [12, 26, 40]) {
+      for (let i = 1; i <= 5; i++) {
+        const [rx2, ry2] = P2(cx + 1.3 * Math.cos(Math.PI * i / 6), cy + 1.3 * Math.sin(Math.PI * i / 6), z + 2);
+        s += `<circle cx="${n1(rx2)}" cy="${n1(ry2)}" r="1.2" fill="#8d949d"${NS}/>`;
+      }
+    }
+    s += line3([cx + 1.3, cy, 0], [cx + 1.3, cy, 46], '#2f343b', 2);   // the welded seam
+    const [fx, fy] = P2(cx + .9, cy + .9, 0);
+    s += glowAt(fx, fy + 2, 18) + `<path d="M${n1(fx - 8)} ${n1(fy)} v-11 a8 8 0 0 1 16 0 v11z" fill="#1a1013"/>`
+      + `<path d="M${n1(fx - 5)} ${n1(fy - 1)} q3 -8 5 -9 q3 5 5 9z" class="flame" fill="#ff8a2f"${NS}/>`;
+
+    // Two stacks off the drum's shoulder, the taller one working harder.
+    for (const [ox, oy, hh, r] of [[-.75, -.2, 62, .32], [.15, -.85, 48, .26]]) {
+      s += cyl(cx + ox, cy + oy, r, hh, DARK) + disc(cx + ox, cy + oy, r, '#2b3037', hh);
+      s += disc(cx + ox, cy + oy, r + .07, RUST, hh - 6, `${NS} opacity=".5"`);
+      const [sx2, sy2] = P2(cx + ox, cy + oy, hh);
+      s += smokeAt(sx2, sy2 - 6, hh > 55 ? 10 : 7);
+    }
+
+    // THE MAST. A lattice of four legs drawn as crossed stays, a brass head, and the charge
+    // jumping off it — the reason the Ironclad can ask the sky for anything at all.
+    const mx = cx - 1.55, my = cy + 1.2, MH = 74;
+    for (const [ax, ay] of [[-.34, -.34], [.34, -.34], [-.34, .34], [.34, .34]])
+      s += line3([mx + ax, my + ay, 0], [mx + ax * .22, my + ay * .22, MH], '#2d333b', 3.4);
+    for (const z of [14, 30, 46, 60]) {
+      const k = 1 - z / MH * .78;
+      s += line3([mx - .34 * k, my - .34 * k, z], [mx + .34 * k, my + .34 * k, z], '#353c45', 2.4)
+        + line3([mx - .34 * k, my + .34 * k, z], [mx + .34 * k, my - .34 * k, z], '#353c45', 2.4);
+    }
+    const [hx, hy] = P2(mx, my, MH);
+    s += `<circle cx="${n1(hx)}" cy="${n1(hy)}" r="7" fill="${BRASS}"/><circle cx="${n1(hx - 2)}" cy="${n1(hy - 2)}" r="2.4" fill="#f0d892"/>`;
+    s += light(hx, hy, 150, .7);
+    [0, 1, 2].forEach((i) => {
+      const d2 = [[-26, 16], [22, 13], [-6, 26]][i];
+      s += `<path class="dynArc" style="animation-delay:-${i * 1.1}s" d="M${n1(hx)} ${n1(hy)} l${d2[0] * .4} ${-d2[1] * .55} l${d2[0] * .22} ${d2[1] * .5} l${d2[0] * .38} ${-d2[1] * .75}"
+        stroke="${ARC}" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"${NS}/>`;
+    });
+
+    // Cooling fins along the near edge, and the heap of everything that failed first.
+    for (let i = 0; i < 5; i++) s += box(cx + 1.5, cy + .2 + i * .34, .5, .12, 16 + (i % 2) * 5, '#5d646d');
+    for (const [ox, oy, w2, h2, col] of [[-1.3, 2.3, .55, 9, RUST], [-.7, 2.6, .4, 6, '#5d646d'], [-1.75, 2.75, .45, 7, '#4e555e']])
+      s += box(cx + ox, cy + oy, w2, w2, h2, col);
+
+    // Free-standing at the back of the pad, flat on, same as the shrine's. Bolting it to the drum
+    // was the obvious idea and the wrong one twice over: a pressure vessel is round, so there is
+    // no flat wall to take a board, and the wall skew for a gy-facing side is +ky/kx — the other
+    // sign tilted the board up the wrong diagonal and laid it straight across the machine.
+    s += nameBoard(...P2(cx - .2, cy - 3.4, 52), 118, 21, 0, 'The Dynamo');
+    out.mech = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
+  }
+
   // THE ARMORY: a stone-and-timber hall beside the Ironsmith, a weapon rack and an armor stand out front.
   {
     const [gx, gy, w, d, h] = [15, 30.4, 3.6, 3, 44], wall = '#8a8070', fy = gy + d;
@@ -20046,6 +20173,7 @@ const TOWN_LABELS = {
   pets: 'Pet House: adopt a pet to walk at your side',
   cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
   tide: 'Tide Shrine: the Tideborn spring, north-east of the gate — ask for rain',
+  mech: 'The Dynamo: the Ironclad boiler on the high ground — pull down a storm',
 };
 
 /* VILLAGE STAGE — Cinderhold fills the screen. The map, townies and NPCs share #townView: one
@@ -20204,12 +20332,15 @@ function villageAction(k) {
   if (verb === 'fight') return startGauntlet();
   if (verb === 'duel') return startDuel(Number(arg));
   if (verb === 'gjoin') { joinGuild(arg); return render(); }
-  // The Tide Shrine. Guarded on both the gold and the boon, because the panel's disabled button is
-  // a courtesy and not a lock — villageAction is reachable from anywhere a data-k is.
-  if (verb === 'tidecall') {
-    if (profile.tideBoon || profile.gold < TIDE_COST) return;
-    walletSpend(TIDE_COST, 'tide:entreat');
-    profile.tideBoon = true;
+  /* A faction ground calling its weather. Guarded on the faction, the gold and the sky already
+     held, because the panel's disabled button is a courtesy and not a lock — villageAction is
+     reachable from anywhere a data-k is, so every condition the panel draws is re-checked here.
+     Paying at a second ground replaces the first rather than stacking: one sky at a time. */
+  if (verb === 'skycall') {
+    const sky = FACTION_SKY[arg];
+    if (!sky || profile.skyBoon === sky || profile.gold < SKY_COST) return;
+    walletSpend(SKY_COST, `sky:${arg}`);
+    profile.skyBoon = sky;
     saveProfile();
     return render();
   }
