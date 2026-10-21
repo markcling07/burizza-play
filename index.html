@@ -177,6 +177,34 @@ body[data-screen="select"] .top { display: none; }
   padding: 2px 1px 4px; text-align: center; background: none; border: 0; box-shadow: none;
 }
 #factionList .roster .pick .badge { top: -2px; right: 2px; width: 18px; height: 18px; font-size: .66rem; }
+/* THE CORNER PICK. Takes the place of the wide button that used to sit in the panel below the
+   roster: you add someone by pressing their face, not by reading a sentence underneath it.
+   Bottom-right, diagonally opposite the .badge so status and action never sit on each other, and
+   over the art rather than the name — the art has slack, the name does not. */
+#factionList .roster .pickNow {
+  /* Anchored to the ART's corner, not the tile's. .pic is centred and capped at 96px, so on a wide
+     desktop track the tile runs far past the face and a plain `right: 0` left the + stranded in
+     empty space halfway to the next champion. max() collapses to 0 once the tile is 96px or
+     narrower, which is every phone, so the mobile placement is untouched. */
+  position: absolute; right: max(0px, calc(50% - 48px)); bottom: 20px; z-index: 2;
+  display: grid; place-items: center; width: 28px; height: 28px; padding: 0; cursor: pointer;
+  border-radius: 50%; border: 1px solid var(--line); background: var(--panel);
+  color: var(--fg); font: inherit; font-size: 1.1rem; line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+  transition: border-color .15s, background .15s, color .15s;
+}
+#factionList .roster .pickNow:hover, #factionList .roster .pickNow:focus-visible {
+  border-color: var(--accent); color: var(--accent); outline: none;
+}
+/* 28px of circle, 40px of target. The thumb rule at the foot of this sheet wants 40 and it is
+   right, but a 40px disc on a 97px tile is a button with a champion behind it rather than the
+   other way round. So the drawn size stays 28 and the hit area grows underneath it instead —
+   the one place where what you press and what you see are deliberately different sizes. */
+#factionList .roster .pickNow::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
+#factionList .roster .pickNow.out { color: var(--muted); }         /* already yours: this takes them away */
+#factionList .roster .pickNow[hidden] { display: none; }           /* beats the grid display above */
+/* What the panel's button used to say, now that the button itself lives on the tile. */
+.rdhead .rdstate { color: var(--muted); font-size: .84rem; align-self: center; }
 #factionList .roster .pick .pic { width: 100%; max-width: 96px; height: auto; aspect-ratio: 1; grid-row: auto; transition: filter .15s, transform .15s; }
 #factionList .roster .pick .pic > img, #factionList .roster .pick .pic > svg { width: 100%; height: 100%; display: block; }
 #factionList .roster .pick .nm { padding: 0; font-size: .68rem; line-height: 1.12; overflow-wrap: anywhere; }
@@ -16988,11 +17016,12 @@ function buildSelect() {
   $('#factionList').innerHTML = FACTION_KEYS.map((k) => {
     const f = FACTIONS[k];
     const tiles = ROSTER.filter((c) => c.faction === k).map((c) => `
-      <button class="pick" type="button" data-id="${c.id}" id="pick-${c.id}" data-role="${c.role}" data-tank="${isTank(c) ? 1 : 0}" aria-expanded="false">
+      <div class="pick" role="button" tabindex="0" data-id="${c.id}" id="pick-${c.id}" data-role="${c.role}" data-tank="${isTank(c) ? 1 : 0}" aria-expanded="false">
         <div class="pic"><span class="tok body-${c.look.body}"><span class="face">${spriteSVG(c.id)}</span></span></div>
         <span class="nm">${c.name}</span>
         <span class="badge" hidden></span>
-      </button>`).join('');
+        <button class="pickNow" type="button" data-pickact="${c.id}" hidden></button>
+      </div>`).join('');
     return `<section class="faction" data-faction="${k}">
       <header><h2>${f.name}</h2>
         <p class="fmeta"><span>${f.mechanic}</span><span>${(() => { const w = Object.values(WEATHER).find((x) => x.favors === k); return w ? `Favored by ${w.name}` : 'No sky favours them'; })()}</span><span>Mana: ${poolLabel(k)}</span></p></header>
@@ -17008,6 +17037,21 @@ function buildSelect() {
     if (act) { togglePick(act.dataset.pickact); return; }
     const b = ev.target.closest('.pick');
     if (b) { state.openPick = state.openPick === b.dataset.id ? null : b.dataset.id; state.pickSkill = null; renderSelect(); }
+  });
+
+  /* .pick is a div rather than a button, because it now CONTAINS one (.pickNow) and a button
+     inside a button is invalid — the parser closes the outer one and the tile falls apart. A div
+     with role=button gets the semantics back but not the keyboard, so Enter and Space are wired
+     by hand to match what the native button did. Space is also the page-scroll key, hence the
+     preventDefault. */
+  $('#factionList').addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Enter' && ev.key !== ' ' && ev.key !== 'Spacebar') return;
+    const b = ev.target.closest('.pick');
+    if (!b || ev.target.closest('.pickNow')) return;   // the inner button keeps its own native keys
+    ev.preventDefault();
+    state.openPick = state.openPick === b.dataset.id ? null : b.dataset.id;
+    state.pickSkill = null;
+    renderSelect();
   });
 
   /* Put the skill card away. Anything that is not the card itself and not a
@@ -17084,10 +17128,13 @@ function pickDetailHTML(c) {
     : i > 0 ? 'Send home'
     : creating && !t[0] ? 'Choose as your champion'
     : 'Recruit';
-  const locked = i === 0 && !creating;
+  /* The pick button that used to sit here moved onto the tile itself (the + / − in its corner,
+     see .pickNow) — taking someone on is a thing you do to a FACE in the roster, not a sentence
+     you read in a panel below it. `label` survives because the corner has room for a symbol and
+     not a word: it is what the control announces to a screen reader. */
   return `<div class="rdhead">
       <div><b>${c.name}</b><span class="roles"><span class="role ${c.role}">${ROLES[c.role].label}</span>${isTank(c) ? '<span class="role melee" title="Has a taunt in their kit">Tank</span>' : ''}</span></div>
-      <button class="btn small${i < 0 ? ' primary' : ''}" type="button" data-pickact="${c.id}"${locked ? ' disabled' : ''}>${label}</button></div>
+      <span class="rdstate">${label}</span></div>
     ${pickSkillsHTML(c)}`;
 }
 
@@ -17197,6 +17244,20 @@ function renderSelect() {
     badge.hidden = i < 0;
     badge.textContent = i === 0 ? '★' : i;
     badge.title = i === 0 ? 'You' : `Recruit ${i}`;
+    /* The corner control is the ACTION; the badge above it is the STATUS. It carries the same four
+       states the detail panel's button used to spell out in words, which is all a 28px corner has
+       room for: in the band you can send them home, out of it you can take them on, and the one
+       case you cannot undo — your champion, once the run has started — shows nothing at all. */
+    const act = b.querySelector('.pickNow');
+    const locked = i === 0 && !creating;
+    act.hidden = locked;
+    act.textContent = i >= 0 ? '−' : '+';
+    act.classList.toggle('out', i >= 0);
+    act.setAttribute('aria-label', i === 0 ? 'Choose someone else'
+      : i > 0 ? `Send ${charById(b.dataset.id).name} home`
+      : creating && !t[0] ? `Choose ${charById(b.dataset.id).name} as your champion`
+      : `Recruit ${charById(b.dataset.id).name}`);
+    act.title = act.getAttribute('aria-label');
   });
 
   $('#slots').innerHTML = Array.from({ length: TEAM_SIZE }, (_, i) => {
