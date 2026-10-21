@@ -3364,6 +3364,12 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .swing { animation: swing 3s ease-in-out infinite alternate; }
 .ferris { animation: ferris 40s linear infinite; }
 .mill { animation: ferris 24s linear infinite; }
+/* The Tide Shrine's spring. Three rings running out to the rim on a stagger, so the water is
+   never still — the one thing that has to read as Tideborn from across the map. fill-box because
+   these are <ellipse> in map space: without it they would scale about the whole SVG's origin and
+   fly off the village. */
+.tideRing { transform-box: fill-box; transform-origin: 50% 50%; animation: tideRing 5.1s linear infinite; }
+@keyframes tideRing { from { transform: scale(.28); opacity: .6; } to { transform: scale(1.18); opacity: 0; } }
 /* Bounty Board: pinned parchment notices */
 .notices { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; padding: 6px 2px; }
 .notice {
@@ -4316,6 +4322,7 @@ const SAVE_KEY = 'burizza.profile.v1';
 // recruits = the TEAM_SIZE − 1 champion ids the AI plays beside you.
 const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {}, stones: {} }, home: [], pets: { owned: [], active: null },
   hero: null, level: 1, xp: 0, recruits: [],
+  tideBoon: false, // the Tide Shrine was entreated: the next battle opens under Downpour (see openingSky)
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
   recruitLoadouts: {},   // skills you chose for recruits, per champion id; a recruit with none auto-picks
   packs: {},       // each champion's backpack: PACK_SLOTS slots, one item in each (see BACKPACKS)
@@ -4954,6 +4961,9 @@ const WEATHER = {
   quake: { name: 'Earthquake',   favors: null,    desc: 'Emberhollow Cave only: no weather reaches that deep, but the rock itself moves. Again and again the floor bucks and everyone on the speed bar is thrown back a step — they catch their footing and press on toward their turn. Flyers feel nothing.' },
 };
 const WEATHER_EVERY = 3;
+/* What the Tide Shrine asks. Priced against a Market draught rather than a forge tier: this buys
+   one battle's opening sky, not a lasting advantage, and it can just as easily arm the enemy. */
+const TIDE_COST = 40;
 // Season 1, Ashfall Road: Ash Storms are twice as common. Future seasons can use their own mix.
 // 'brim' is never rolled — it is drawn whenever ash is, and hands the sky to the Ash Storm after it.
 // 'dusk' (Nightfall) likewise: drawn whenever moon is, and hands the sky to the Blood Moon after it.
@@ -4970,6 +4980,21 @@ const DUSK_MISS = 0.15;         // extra miss chance on ranged attacks in the da
 
 // Draw the next sky. Drawing an Ash Storm gives you its herald instead: Brimstone Fall comes
 // first and newRound hands the sky to the ash after it, so no ash ever arrives unannounced.
+/* What sky a battle opens under. Normally Clear — battles deliberately start calm and the first
+   turn of the weather is round 4 (wxNext) — but an entreaty at the Tide Shrine puts the Downpour
+   in from the opening round, which is the whole of what you paid for: rain at round 4 would be
+   a different promise. The boon is spent HERE rather than at the shrine, so gold buys a battle
+   fought in the rain and not merely a flag set before you wander off to do something else.
+
+   Worth knowing before you buy: Downpour favours the Tideborn whoever is fighting under it, so
+   entreating it against a Tideborn warband arms them too. It also douses Ironclad Heat, which is
+   the usual reason to want it. */
+function openingSky() {
+  if (!profile.tideBoon) return 'clear';
+  profile.tideBoon = false;
+  return 'rain';
+}
+
 function rollWeather(except) {
   const opts = Object.entries(SEASON_WEATHER).filter(([k]) => k !== except);
   const herald = (k) => (k === 'ash' ? 'brim' : k === 'moon' ? 'dusk' : k);
@@ -13402,7 +13427,7 @@ function startBattle(retry) {
   state.opening = true;
   state.phase = 'busy'; state.pending = null; state.reward = null; state.log = [];
   state.killXp = 0; state.kills = 0;   // what your champion's killing blows earn here, paid out at the end
-  state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0; state.quakeJolt = null;
+  state.weather = openingSky(); state.nextWeather = rollWeather(state.weather); state.quake = 0; state.quakeJolt = null;
   state.groundFire = null;   // Molotov's ground fire never carries between battles
   state.reusedItems = {};    // every reusable backpack piece winds again for a fresh fight (itemWound)
   state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;   // battles open under Clear Skies; the first change is at round 4
@@ -14148,7 +14173,7 @@ function expHallField() {
   state.inspect = null; state.inspectTurn = null; state.chipsOn = null; state.frontline = { p: 0, e: 0 };
   for (const u of allUnits()) u.pos = 0;
   state.opening = false; state.phase = 'idle'; state.pending = null; state.reward = null; state.log = [];
-  state.weather = 'clear'; state.nextWeather = rollWeather('clear'); state.quake = 0; state.quakeJolt = null; state.groundFire = null;
+  state.weather = openingSky(); state.nextWeather = rollWeather(state.weather); state.quake = 0; state.quakeJolt = null; state.groundFire = null;
   state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;
   state.screen = 'battle';
   state.token++;
@@ -17332,8 +17357,10 @@ const PLACES = {
             flavor: 'Elder Ysolde has watched every faction march down Ashfall Road. Ask, and she will tell you how they fight.' },
   tavern: { name: 'The Smoldering Mug', kick: 'Rest', blurb: 'Rumors, tips and the tales told of you.',
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
+  tide:   { name: 'Tide Shrine', kick: 'Entreat', blurb: 'Ask the Tideborn for rain, and fight your next battle under their sky.',
+            flavor: 'Warden Nesh keeps the only standing water for thirty miles — a spring that wells up through the rock and will not go still. The Tideborn walked inland until they found it and have not moved since.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 // With the Expedition Gate open, the warband waits on the road out of it, facing the gate.
 const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
@@ -18561,6 +18588,26 @@ const PLACE_BODY = {
         <a href="map.html" target="_blank" rel="noopener">Study the map</a>.</p>`;
   },
 
+  tide() {
+    const cost = TIDE_COST, held = !!profile.tideBoon, broke = profile.gold < cost;
+    const wx = WEATHER.rain;
+    return `<p class="note">Warden Nesh will not sell you rain. She will carry the asking, and the spring answers
+        when it feels like answering — which, for ${cost} gold toward the keeping of it, is most days.</p>
+      <p class="label">What the sky does</p>
+      <p class="rumor">“${wx.desc}”</p>
+      ${held
+        ? `<p class="note"><b>The asking is made.</b> Your next battle opens under ${wx.name} instead of Clear Skies.
+             It is spent on that battle whether or not it helps — and remember whose sky it is.</p>`
+        : `<p class="note">Your next battle would open under Clear Skies, with the weather first turning at round ${1 + WEATHER_EVERY}.
+             An entreaty puts ${wx.name} in from the opening round instead.</p>`}
+      <div class="btns">
+        <button class="btn${held || broke ? '' : ' primary'}" type="button" data-k="tidecall"${held || broke ? ' disabled' : ''}>
+          ${held ? 'Already asked' : broke ? `Need ${cost} gold` : `Entreat the tide · ${cost}g`}</button>
+      </div>
+      <p class="note">The Tideborn fight best in their own weather, so this arms them as readily as you.
+        Against the Ironclad it is worth more than it costs: Downpour washes their Heat out entirely.</p>`;
+  },
+
   tavern() {
     const s = profile.stats;
     return `<p class="rumor">“${TIPS[state.tip % TIPS.length]}”</p>
@@ -19377,6 +19424,22 @@ function roundBoard(cx, cy, r, t, z0, z1, W, text) {
 
 // Each place: [depth (gx + gy at the middle of its footprint, for the draw order; past 1000 outside the walls),
 // drawing (its nameboard included)]. The middle, not the front corner, so whoever stands at a door is in front.
+/* THE FACTION QUARTER. Cinderhold's core is full — the places inside the wall are shoulder to
+   shoulder — so a faction that keeps its own ground keeps it OUT, in the north-east woods past
+   the Expedition Gate. The Tideborn are the first. The rest are empty clearings until built.
+
+   Plots are listed, not computed, because a plot has to satisfy four things at once and they
+   fight each other harder than they look:
+     - outside the wall     gx > 38.6 (the wall runs tiles 3..37 both ways)
+     - on the map           gx + gy <= 74 and gx - gy <= 36, or the art runs off the 2400x1400 edge
+     - off the east road    the road is gy 19.7..23.3 wherever gx > 36, and a plot is ~3 tiles across
+     - clear of neighbours  8 tiles centre to centre, which is what one shrine plus its approach needs
+   The band those four leave is narrow. Siting the next faction means checking all four by hand —
+   do not assume there is room just because the woods look empty. */
+const FACTION_PLOTS = {
+  tide: [42, 12],
+};
+
 function townPlaces() {
   const P2 = (gx, gy, z) => [isoX(gx, gy), isoY(gx, gy, z)];
   const out = {};
@@ -19634,6 +19697,76 @@ function townPlaces() {
     out.cave = [1060, s];   // outside the wall: drawn among the outer forest
   }
 
+  /* THE TIDE SHRINE — the Tideborn's own ground, and the first of the faction quarter.
+
+     Sited OUT in the north-east woods rather than squeezed into the village: Cinderhold's core is
+     full, and a faction keeping its own rite should not be sharing a wall with the Jeweler. The
+     plot comes from FACTION_PLOTS, which keeps a clearing for each of the seven — the other six
+     are empty ground today and the forest already steps around them.
+
+     Drawn as Tideborn and nothing else. An ash valley has no sea, so what the Tideborn have here
+     is the one place water gathers: a spring that wells up through the rock and never goes still.
+     Everything above it is built the way people build who came from the coast — a ribbed shell
+     for a roof, coral uprights, driftwood and net, stones banded where the water marks them.
+     Nothing here is a village hut repainted blue; the only straight timber on the plot is salvage. */
+  {
+    const [cx, cy] = FACTION_PLOTS.tide, R = 2.7;
+    const DEEP = '#12303c', MID = '#1d4a5c', LIT = '#2f7f96', FOAM = '#58a6bd';
+    const STONE = '#4e5a66', SHELL = '#d9c6ad', SHELL2 = '#b4997f', CORAL = '#c98b7a', KELP = '#3d6b52';
+
+    // The spring. Rings of colour from the rim inward, darkest where it is deepest.
+    let s = disc(cx + .35, cy + .35, R + .45, 'rgba(0,0,0,.32)', 0, NS);
+    s += disc(cx, cy, R + .2, '#3a4350', 0, NS);          // the wet rock lip, always darker than dry ground
+    s += disc(cx, cy, R, DEEP, 0, NS);
+    s += disc(cx, cy, R - .45, MID, 0, NS);
+    s += disc(cx, cy, R - 1.05, LIT, 0, NS);
+    s += disc(cx - .22, cy - .22, R - 1.8, FOAM, 0, `${NS} opacity=".5"`);
+    // It never goes still — three rings, started a beat apart, running out to the rim forever.
+    for (let i = 0; i < 3; i++)
+      s += disc(cx, cy, R - .8, 'none', 0, ` stroke="${FOAM}" stroke-width="1.8" opacity=".55" class="tideRing" style="animation-delay:-${i * 1.7}s"`);
+    const [px, py] = P2(cx, cy, 0);
+    s += light(px, py, 170, .5);                          // cold light off the water, for the night veil
+
+    // THE SHELL. A ribbed half-shell on a banded stone plinth, mouth facing the village.
+    const sx = cx - 1.45, sy = cy - 1.45;
+    s += disc(sx + .25, sy + .25, 1.5, 'rgba(0,0,0,.3)', 0, NS);
+    s += cyl(sx, sy, 1.25, 24, '#5a6672') + disc(sx, sy, 1.25, '#6b7884', 24);
+    for (const z of [7, 15]) s += disc(sx, sy, 1.27, FOAM, z, `${NS} opacity=".22"`);   // old water lines
+    s += cone(sx, sy, 1.32, 24, 42, SHELL, [SHELL, SHELL2, 9]);
+    const [dx, dy] = P2(sx + .88, sy + .88, 0);
+    s += `<path d="M${n1(dx - 9)} ${n1(dy)} v-15 a9 9 0 0 1 18 0 v15z" fill="#0c2029"/>`;
+    s += `<path d="M${n1(dx)} ${n1(dy - 2)} v-13" stroke="${FOAM}" stroke-width="1.6" opacity=".45" fill="none"/>`;
+
+    // Coral grown into uprights either side of the mouth — the Tideborn build with what grows.
+    for (const [ox, oy, hh] of [[-1.55, .55, 30], [.55, -1.6, 24]]) {
+      const [qx, qy] = P2(sx + ox, sy + oy, 0);
+      s += `<path d="M${n1(qx)} ${n1(qy)} q-5 -${n1(hh * .55)} 1 -${n1(hh)} q6 ${n1(hh * .5)} 3 ${n1(hh)} z" fill="${CORAL}"/>`
+        + `<path d="M${n1(qx + 1)} ${n1(qy - hh * .6)} q7 -4 9 -12" stroke="${CORAL}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+    }
+
+    // Tide pillars round the water, each banded where the spring marks it.
+    [-25, 50, 125, 200].forEach((a, i) => {
+      const t = a * Math.PI / 180;
+      const tx = cx + (R + .6) * Math.cos(t), ty = cy + (R + .6) * Math.sin(t), hh = 18 + i * 4;
+      s += cyl(tx, ty, .25, hh, STONE);
+      const [bx, by] = P2(tx, ty, hh * .42);
+      s += `<ellipse cx="${n1(bx)}" cy="${n1(by)}" rx="${n1(.25 * RX)}" ry="${n1(.25 * RY)}" fill="${FOAM}" opacity=".5"${NS}/>`;
+    });
+
+    // Driftwood frame on the approach, with a net slung between and kelp drying on it.
+    const postA = [cx + 1.1, cy + 3.3], postB = [cx + 3.3, cy + 1.1];
+    for (const [qx, qy] of [postA, postB]) s += cyl(qx, qy, .17, 34, '#6a5a4a');
+    s += line3([...postA, 34], [...postB, 34], '#6a5a4a', 3);
+    for (let i = 1; i <= 4; i++) {
+      const f = i / 5, mx = postA[0] + (postB[0] - postA[0]) * f, my = postA[1] + (postB[1] - postA[1]) * f;
+      s += line3([mx, my, 33], [mx, my, 33 - (i % 2 ? 11 : 7)], '#7d6f5c', 1.4);
+      if (i % 2) s += line3([mx, my, 24], [mx + .25, my + .25, 16], KELP, 2.6);
+    }
+
+    s += nameBoard(...P2(cx - .2, cy - R - 1.1, 58), 142, 24, 0, 'Tide Shrine');
+    out.tide = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
+  }
+
   // THE ARMORY: a stone-and-timber hall beside the Ironsmith, a weapon rack and an armor stand out front.
   {
     const [gx, gy, w, d, h] = [15, 30.4, 3.6, 3, 44], wall = '#8a8070', fy = gy + d;
@@ -19840,7 +19973,10 @@ function buildTownMap() {
   for (const [gx, gy] of INSIDE_TREES) add(gx + gy, tree(gx, gy, .9 + rnd() * .3, rnd() < .15 ? 2 : 0));
 
   // The forest outside the walls, kept off the roads.
-  const nearRoad = (gx, gy) => (Math.abs(gy - 21.5) < 1.8 && gx > 36) || (Math.abs(gx - 21) < 1.8 && gy > 36) || (Math.abs(gx - 11.5) < 2.6 && gy > 36 && gy < 46) || Math.hypot(gx - 12, gy - 48) < 4.2 || Math.hypot(gx - 29.5, gy - 41) < 4;
+  // Kept clear: the roads, the cave mouth, the workshop yard — and every faction plot, so the
+  // woods open around a shrine instead of growing through its water.
+  const nearRoad = (gx, gy) => (Math.abs(gy - 21.5) < 1.8 && gx > 36) || (Math.abs(gx - 21) < 1.8 && gy > 36) || (Math.abs(gx - 11.5) < 2.6 && gy > 36 && gy < 46) || Math.hypot(gx - 12, gy - 48) < 4.2 || Math.hypot(gx - 29.5, gy - 41) < 4
+    || Object.values(FACTION_PLOTS).some(([px, py]) => Math.hypot(gx - px, gy - py) < 4.6);
   for (let gy = -10; gy <= 54; gy += 1.9) {
     for (let gx = -10; gx <= 54; gx += 1.9) {
       const jx = gx + (rnd() - .5) * 1.4, jy = gy + (rnd() - .5) * 1.4;
@@ -19891,6 +20027,7 @@ const TOWN_LABELS = {
   pvp: 'Proving Grounds: duel rival warbands for gold', academy: 'The Academy: champion chart, library and lessons', workshop: 'The Workshop: craft supplies, tomes and trinkets from materials', gate: 'Expedition Gate: dungeons along Ashfall Road',
   pets: 'Pet House: adopt a pet to walk at your side',
   cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
+  tide: 'Tide Shrine: the Tideborn spring, north-east of the gate — ask for rain',
 };
 
 /* VILLAGE STAGE — Cinderhold fills the screen. The map, townies and NPCs share #townView: one
@@ -20049,6 +20186,15 @@ function villageAction(k) {
   if (verb === 'fight') return startGauntlet();
   if (verb === 'duel') return startDuel(Number(arg));
   if (verb === 'gjoin') { joinGuild(arg); return render(); }
+  // The Tide Shrine. Guarded on both the gold and the boon, because the panel's disabled button is
+  // a courtesy and not a lock — villageAction is reachable from anywhere a data-k is.
+  if (verb === 'tidecall') {
+    if (profile.tideBoon || profile.gold < TIDE_COST) return;
+    walletSpend(TIDE_COST, 'tide:entreat');
+    profile.tideBoon = true;
+    saveProfile();
+    return render();
+  }
   if (verb === 'hunt') return startHunt(arg);
   if (verb === 'dungeon') return startDungeon(arg);
   if (verb === 'expedition') return startExpedition(arg);
