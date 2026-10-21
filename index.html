@@ -19424,20 +19424,33 @@ function roundBoard(cx, cy, r, t, z0, z1, W, text) {
 
 // Each place: [depth (gx + gy at the middle of its footprint, for the draw order; past 1000 outside the walls),
 // drawing (its nameboard included)]. The middle, not the front corner, so whoever stands at a door is in front.
-/* THE FACTION QUARTER. Cinderhold's core is full — the places inside the wall are shoulder to
-   shoulder — so a faction that keeps its own ground keeps it OUT, in the north-east woods past
-   the Expedition Gate. The Tideborn are the first. The rest are empty clearings until built.
+/* THE FACTION GROUNDS. Cinderhold's core is full — the places inside the wall are shoulder to
+   shoulder — so a faction that keeps its own ground keeps it OUT, past the wall. One plot each,
+   ringing the village: the Tideborn east of the gate, and the rest around the circle. Only the
+   Tideborn plot is built; the other seven are reserved ground.
 
-   Plots are listed, not computed, because a plot has to satisfy four things at once and they
-   fight each other harder than they look:
-     - outside the wall     gx > 38.6 (the wall runs tiles 3..37 both ways)
-     - on the map           gx + gy <= 74 and gx - gy <= 36, or the art runs off the 2400x1400 edge
-     - off the east road    the road is gy 19.7..23.3 wherever gx > 36, and a plot is ~3 tiles across
-     - clear of neighbours  8 tiles centre to centre, which is what one shrine plus its approach needs
-   The band those four leave is narrow. Siting the next faction means checking all four by hand —
-   do not assume there is room just because the woods look empty. */
+   Sited by search rather than by eye, against every constraint at once:
+     - outside the wall     the wall spans tiles 1.4..38.6 both ways; a plot is 3.4 tiles across
+     - on solid ground      the art must sit between y=380, where the ground starts, and the
+                            bottom edge — anything higher hangs the building in the sky, which is
+                            why the forest loop stops at 380 too
+     - inside the frame     with a roomier envelope than the Tide Shrine needs (it measures
+                            -139..+171 x, -127..+72 y), so a later faction may build taller
+     - off every road       all fourteen ROADS segments, by half their width plus the plot
+     - clear of landmarks   the cave mouth, the workshop yard, both gate towers
+     - clear of each other  8 tiles minimum; the set below manages 11.5
+   903 centres satisfy all of that, so there is far more room than the first pass suggested —
+   the earlier note that the band was narrow was wrong, and wrong because it only ever looked
+   north-east. Re-run the search in the commit for c1b242a's successor before moving one. */
 const FACTION_PLOTS = {
-  tide: [42, 12],
+  mech:    [33.5, -2],     // Ironclad — the high ground north-east, above the gate road
+  stray:   [22, -2],       // Stray Banner — north, where the road leaves the village
+  orc:     [54.5, 19],     // Bloodtusk — furthest east, well beyond the Expedition Gate
+  human:   [42, 31.5],     // Aldmere — south-east, between the gate and the south road
+  stone:   [6.5, 42],      // Stoneleaf — deep in the western woods
+  tide:    [42, 12],       // The Tideborn — east of the gate, at the spring. BUILT.
+  crimson: [-8, 28],       // The Crimson Court — far west, off on its own
+  undead:  [25.5, 48],     // The Pale Host — south past the workshop, at the edge of the map
 };
 
 function townPlaces() {
@@ -19973,10 +19986,15 @@ function buildTownMap() {
   for (const [gx, gy] of INSIDE_TREES) add(gx + gy, tree(gx, gy, .9 + rnd() * .3, rnd() < .15 ? 2 : 0));
 
   // The forest outside the walls, kept off the roads.
-  // Kept clear: the roads, the cave mouth, the workshop yard — and every faction plot, so the
-  // woods open around a shrine instead of growing through its water.
+  // Kept clear: the roads, the cave mouth, the workshop yard — and any faction plot that has
+  // actually been BUILT, so the woods open around a shrine instead of growing through its water.
+  // Keyed on PLACES rather than FACTION_PLOTS: seven of the eight plots are reserved ground with
+  // nothing on them yet, and clearing those would cut seven bald rings in the forest around
+  // nothing at all. A plot earns its clearing by becoming a place, which happens in the same
+  // commit that draws it — so this needs no upkeep.
+  const builtPlot = (k) => !!PLACES[k];
   const nearRoad = (gx, gy) => (Math.abs(gy - 21.5) < 1.8 && gx > 36) || (Math.abs(gx - 21) < 1.8 && gy > 36) || (Math.abs(gx - 11.5) < 2.6 && gy > 36 && gy < 46) || Math.hypot(gx - 12, gy - 48) < 4.2 || Math.hypot(gx - 29.5, gy - 41) < 4
-    || Object.values(FACTION_PLOTS).some(([px, py]) => Math.hypot(gx - px, gy - py) < 4.6);
+    || Object.entries(FACTION_PLOTS).some(([k, [px, py]]) => builtPlot(k) && Math.hypot(gx - px, gy - py) < 4.6);
   for (let gy = -10; gy <= 54; gy += 1.9) {
     for (let gx = -10; gx <= 54; gx += 1.9) {
       const jx = gx + (rnd() - .5) * 1.4, jy = gy + (rnd() - .5) * 1.4;
