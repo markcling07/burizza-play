@@ -3372,6 +3372,16 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 @keyframes tideRing { from { transform: scale(.28); opacity: .6; } to { transform: scale(1.18); opacity: 0; } }
 /* The Dynamo's mast. Charge does not fade, it stops — so this blinks rather than breathes, on
    three staggered offsets so the arcs never fire together. The opposite rhythm to the spring. */
+/* The Accord Stones. Mist does not pulse or blink — it leans. A long, slow, almost-still drift,
+   deliberately the dullest motion on the map: that hollow is the quiet one. */
+.mistLie { transform-box: fill-box; transform-origin: 50% 50%; animation: mistLie 19s ease-in-out infinite alternate; }
+@keyframes mistLie { from { transform: translateX(-5px) scaleX(.97); } to { transform: translateX(6px) scaleX(1.04); } }
+/* The Quiet Acre. The slowest thing on the map by a wide margin, and that is the characterisation:
+   fire flickers, charge blinks, mist leans — the dead breathe. Nine seconds a cycle. */
+.paleWake { animation: paleWake 9s ease-in-out infinite alternate; }
+@keyframes paleWake { from { opacity: .3; } to { opacity: .85; } }
+.lantGlow { animation: lantGlow 4.6s ease-in-out infinite alternate; }
+@keyframes lantGlow { from { opacity: .65; } to { opacity: 1; } }
 .dynArc { animation: dynArc 3.4s steps(1, end) infinite; }
 @keyframes dynArc { 0%, 7% { opacity: .95; } 8%, 14% { opacity: 0; } 15%, 19% { opacity: .8; } 20%, 100% { opacity: 0; } }
 /* Bounty Board: pinned parchment notices */
@@ -17408,16 +17418,22 @@ const PLACES = {
             flavor: 'Hesta Brewhold keeps the ale hot and the fire high. Travelers trade stories there, and some of them are even true.' },
   tide:   { name: 'Tide Shrine', kick: 'Entreat', blurb: 'Ask the Tideborn for rain, and fight your next battle under their sky.',
             flavor: 'Warden Nesh keeps the only standing water for thirty miles — a spring that wells up through the rock and will not go still. The Tideborn walked inland until they found it and have not moved since.' },
-  mech:   { name: 'The Dynamo', kick: 'Charge', blurb: 'Run the Ironclad boiler hot enough to pull a storm down on your next battle.',
+  mech:   { name: 'Dynamo', kick: 'Charge', blurb: 'Run the Ironclad boiler hot enough to pull a storm down on your next battle.',
             flavor: 'Foreman Calder has thrown smoke and charge at this sky for eleven years. The Tideborn found their water; the Ironclad built their weather, and the scrap heap behind the mast is every version of it that did not work.' },
-  orc:    { name: 'The Ashpyre', kick: 'Stoke', blurb: 'Feed the Bloodtusk fire and open your next battle under a burning sky.',
+  orc:    { name: 'Ashpyre', kick: 'Stoke', blurb: 'Feed the Bloodtusk fire and open your next battle under a burning sky.',
             flavor: 'Grukka Ashmaw has kept this pyre lit since before the village had a wall, on a bare shelf of rock where nothing will grow back. The Horde did not build a shrine or a machine. They built a fire, and they have never once let it go out.' },
-  stray:  { name: 'The Long Camp', kick: 'Hire', blurb: 'Pay the Stray Banner to hold the sky still for a whole battle.',
+  undead: { name: 'Quiet Acre', kick: 'Keep vigil', blurb: 'Sit with the Pale Host until the grey comes down over your next battle.',
+            flavor: "The only faction ground with no keeper, because the Host do not consider the post vacant. Leave the gold on the lychgate post and wait. Nobody has ever seen it taken, and nobody has ever had to leave it twice." },
+  crimson: { name: 'Red House', kick: 'Call', blurb: 'Call on the Crimson Court, and your next battle is fought under their moon.',
+            flavor: "Nobody in Cinderhold has been inside. A card goes under the door and an answer comes back the same night, in a hand nobody recognises, agreeing to terms you did not offer. Countess Ilsabet Vane has never once been seen in daylight, which the village has decided not to think about." },
+  stone:  { name: 'Accord Stones', kick: 'Ask', blurb: 'Ask the Stoneleaf for mist, and fight your next battle in it.',
+            flavor: "Stonewarden Dunn and an elf who will not give a name keep the ring together, which mostly means keeping each other to the terms. The dwarves cut the gate, the elves grew the tree through it, and neither side has conceded a stone in four hundred years." },
+  stray:  { name: 'Long Camp', kick: 'Hire', blurb: 'Pay the Stray Banner to hold the sky still for a whole battle.',
             flavor: "Captain Vey has camped on the north road for two seasons and calls it passing through. No sky favours the Stray Banner — that is rather the point of them — so what they sell is everyone else's not getting theirs either." },
-  human:  { name: 'The Dawnhall', kick: 'Petition', blurb: 'Ask Aldmere for the dawn, and open your next battle in its light.',
+  human:  { name: 'Dawnhall', kick: 'Petition', blurb: 'Ask Aldmere for the dawn, and open your next battle in its light.',
             flavor: "Sister-Marshal Edda Rhys holds Aldmere's charter for Cinderhold out of a stone hall on the east street — the only faction that asked permission, paid for the plot and filed the deed. The others keep ground outside the wall. The Kingdom keeps an address." },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide', 'mech', 'orc', 'human', 'stray'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide', 'mech', 'orc', 'human', 'stray', 'stone', 'crimson', 'undead'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 // With the Expedition Gate open, the warband waits on the road out of it, facing the gate.
 const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
@@ -18234,7 +18250,7 @@ function skyGroundHTML(faction, intro, buyLabel, outro) {
   const otherName = other ? (WEATHER[SKY_HERALD[profile.skyBoon]] || WEATHER[profile.skyBoon]).name : '';
   return `${intro}
     <p class="label">What the sky does</p>
-    ${hw ? `<p class="rumor">“${hw.desc}”</p><p class="note">And then the storm it called for:</p>` : ''}
+    ${hw ? `<p class="rumor">“${hw.desc}”</p><p class="note">And then what it brings up behind it:</p>` : ''}
     <p class="rumor">“${wx.desc}”</p>
     ${held
       ? `<p class="note"><b>The asking is made.</b> ${holds
@@ -18696,6 +18712,41 @@ const PLACE_BODY = {
       'Entreat the tide',
       `<p class="note">The Tideborn fight best in their own weather, so this arms them as readily as you.
         Against the Ironclad it is worth more than it costs: Downpour washes their Heat out entirely.</p>`);
+  },
+
+  undead() {
+    return skyGroundHTML('undead',
+      `<p class="note">There is nobody to pay. You leave ${SKY_COST} gold on the lychgate post, sit the hour
+        out, and walk back without having agreed to anything out loud.</p>`,
+      'Keep the vigil',
+      `<p class="note">The bluntest trade in the village: a quarter off every mending on the field, yours
+        included. It is the only sky that attacks healing itself rather than helping anyone hit — so it is
+        worth most against a line that is being held together by a healer, and it is actively a mistake if
+        yours is. The Host hardly notice: grave-flesh mends badly anyway, and an Undying cannot be healed
+        at all.</p>`);
+  },
+
+  crimson() {
+    return skyGroundHTML('crimson',
+      `<p class="note">You do not meet anyone. A card goes under the door, and before you have reached the
+        wall again the ${SKY_COST} gold is gone from your purse and the terms are agreed.</p>`,
+      'Call on the Court',
+      `<p class="note">Read the first sky, not just the second. Night comes down before the moon does, and
+        in the dark <b>ranged attacks miss 15% more</b> — the Court has no ranged fighters at all, so it
+        costs them nothing and taxes everyone who shoots. Then the moon, and every lifesteal on the field
+        doubles. If you are leaning on archers or guns this is the worst forty gold in the village; if you
+        are in close with anything that drinks, there is nothing better.</p>`);
+  },
+
+  stone() {
+    return skyGroundHTML('stone',
+      `<p class="note">Dunn hears the asking out, consults the elf, and the two of them take an unhurried
+        while about it. ${SKY_COST} gold, and the hollow gives up its mist for a day.</p>`,
+      'Ask the Accord',
+      `<p class="note">The only sky that helps whoever is already winning the exchange: the extra dodging
+        falls on both warbands, and a ten-percent miss hurts the side that needed the hit. The Accord's own
+        halves pull opposite ways under it — an elf who goes untouched sharpens, a dwarf who gets hit
+        hardens — so it rewards a line that is holding, and does very little for one that is collapsing.</p>`);
   },
 
   stray() {
@@ -19850,6 +19901,214 @@ function townPlaces() {
     out.cave = [1060, s];   // outside the wall: drawn among the outer forest
   }
 
+  /* THE QUIET ACRE — Pale Host ground, south past the workshop at the bottom of the map.
+
+     The last of the eight, and the only faction that did not need a building. The Court keeps a
+     house, Aldmere keeps an address, the Banner keeps a tent — the Host keep a field, because
+     what they need from a place is only that it has room and nobody disturbs it. Barrow mound,
+     headstones out of true, a lychgate with the gate long gone, and one grave standing open that
+     nobody is in a hurry to fill.
+
+     Every other plot is lit by something that burns or something that shines. This one is lit
+     from UNDERNEATH — the same pale green an Undying stands up in — coming out of the open grave
+     and the cracks in the mound. It does not flicker like fire, it does not blink like charge; it
+     breathes, very slowly, because the dead are in no hurry. Nothing on the plot is upright, and
+     nothing is new.
+
+     IT LEANS NORTH ON PURPOSE. The anchor is at y=1289 and the frame ends at 1400, so there are
+     only ~110px of ground below it — a graveyard's natural sprawl would run straight off the
+     bottom edge. The mound, the gate and the stones are all placed up-map of the grave. */
+  {
+    const [cx, cy] = FACTION_PLOTS.undead;
+    const EARTH = '#37332d', STONE = '#6e6a64', PALE = '#9fe0b0', BONE = '#cdbfa6', ROT = '#4a4236';
+
+    // Turned earth, gone sour. No moss, no grass — this ground does not grow things.
+    let s = disc(cx + .3, cy + .3, 3.1, 'rgba(0,0,0,.36)', 0, NS);
+    s += disc(cx, cy, 2.85, EARTH, 0, NS) + disc(cx - .2, cy - .35, 2.3, '#413c35', 0, NS);
+
+    // The barrow, up-map of everything so the plot grows away from the frame edge.
+    s += disc(cx - .35, cy - 1.75, 1.5, '#474036', 0, NS);
+    s += cyl(cx - .35, cy - 1.75, 1.2, 13, '#4e473b') + disc(cx - .35, cy - 1.75, 1.2, '#565040', 13);
+    for (const [ox, oy] of [[-.5, -.2], [.35, .25], [-.1, -.6]]) {        // cracks, lit from inside
+      const [kx, ky] = P2(cx - .35 + ox, cy - 1.75 + oy, 13);
+      s += light(kx, ky, 70, .5);
+      s += `<path d="M${n1(kx - 5)} ${n1(ky)} q4 -2 9 1" stroke="${PALE}" stroke-width="2" fill="none" class="paleWake" opacity=".8"${NS}/>`;
+    }
+
+    // THE OPEN GRAVE, at the anchor: a cut rectangle with the light coming up out of it.
+    const gx0 = cx - .45, gy0 = cy + .05;
+    s += poly([isoP(gx0, gy0, 0), isoP(gx0 + .9, gy0, 0), isoP(gx0 + .9, gy0 + .62, 0), isoP(gx0, gy0 + .62, 0)], '#15180f', NS);
+    const [ogx, ogy] = P2(gx0 + .45, gy0 + .31, 0);
+    s += light(ogx, ogy, 150, .75);
+    s += `<ellipse cx="${n1(ogx)}" cy="${n1(ogy)}" rx="16" ry="8" fill="${PALE}" opacity=".30" class="paleWake"${NS}/>`;
+    s += `<ellipse cx="${n1(ogx)}" cy="${n1(ogy)}" rx="9" ry="4.5" fill="${PALE}" opacity=".55" class="paleWake" style="animation-delay:-3s"${NS}/>`;
+    s += box(gx0 + .95, gy0 + .1, .5, .42, 7, '#4a4336');                  // the spoil heap beside it
+    s += line3([gx0 + 1.1, gy0 - .35, 0], [gx0 + 1.35, gy0 - .2, 17], ROT, 2.6);   // a spade left in it
+
+    // Headstones, none of them true. Two have gone over entirely.
+    [[-1.9, -.5, 17, -7], [-1.2, .85, 14, 5], [.75, -.95, 19, -3], [1.6, .15, 13, 9],
+     [.25, 1.25, 15, -11], [-2.1, 1.0, 11, 14]].forEach(([ox, oy, hh, lean], i) => {
+      const [hx2, hy2] = P2(cx + ox, cy + oy, 0);
+      s += `<g transform="rotate(${lean} ${n1(hx2)} ${n1(hy2)})">`
+        + `<path d="M${n1(hx2 - 6)} ${n1(hy2)} v-${n1(hh - 5)} a6 5.5 0 0 1 12 0 v${n1(hh - 5)}z" fill="${i % 3 ? STONE : shade(STONE, -.14)}"/>`
+        + `<path d="M${n1(hx2 - 3)} ${n1(hy2 - hh + 3)} h6 M${n1(hx2 - 3)} ${n1(hy2 - hh + 8)} h6" stroke="${shade(STONE, -.3)}" stroke-width="1.1"/></g>`;
+    });
+
+    // The lychgate: posts still standing, the gate itself gone years ago.
+    for (const oy of [-.55, .5]) s += cyl(cx - 2.6, cy + oy, .17, 30, ROT);
+    s += box(cx - 2.72, cy - .68, .3, 1.3, 5, shade(ROT, .1), 30);
+    s += line3([cx - 2.6, cy - .55, 24], [cx - 2.6, cy + .5, 21], ROT, 1.6);
+
+    // What the ground gives back up. Nothing dramatic — the Host are tidy about it.
+    for (const [ox, oy] of [[1.15, 1.05], [-1.55, -1.0]]) {
+      const [bx4, by4] = P2(cx + ox, cy + oy, 0);
+      s += `<ellipse cx="${n1(bx4)}" cy="${n1(by4)}" rx="5" ry="4" fill="${BONE}" opacity=".8"${NS}/>`
+        + `<circle cx="${n1(bx4 - 1.6)}" cy="${n1(by4 - .5)}" r="1.1" fill="#2b2720"/><circle cx="${n1(bx4 + 1.6)}" cy="${n1(by4 - .5)}" r="1.1" fill="#2b2720"/>`;
+    }
+
+    s += nameBoard(...P2(cx - .2, cy - 3.2, 46), 112, 21, 0, 'Quiet Acre');
+    out.undead = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
+  }
+
+  /* THE RED HOUSE — Crimson Court ground, furthest west, standing by itself.
+
+     Everything else on this map is wide. The Ashpyre spreads, the Accord lies in a hollow, the
+     Long Camp sprawls because it is coming down tomorrow. The Court builds UP: one narrow house
+     of pale cold stone, too tall for its footprint, black iron at the ground and red light in
+     every window. It is the only plot with a door nobody is invited through.
+
+     No fire — that is the Horde's. No water — that is the shrine's. What stands at the foot of
+     the steps is a basin, and what is in the basin is not water either. The Court keeps no mana
+     and pays for everything in blood; the plot says so once, quietly, and does not labour it.
+
+     HEIGHT IS THE WHOLE IDEA AND THE PLOT CANNOT AFFORD MUCH. Its anchor sits at y=540 and the
+     ground line is 380, so there are 160px of sky above it and no more. The house takes 130 of
+     them, and the nameplate goes on the WALL rather than on a post above the roof, which is both
+     what a manor would do and the only way the sign fits. */
+  {
+    const [cx, cy] = FACTION_PLOTS.crimson;
+    const STONE = '#8e8894', IRON = '#1b1820', BLOOD = '#8e1b2e', GLASS = '#d9354a', THORN = '#2e2228';
+    const W = 1.35, D = 1.15, H = 96, x0 = cx - W / 2, y0 = cy - D / 2;
+
+    // Flagged ground, swept, nothing growing on it.
+    let s = disc(cx + .3, cy + .3, 2.5, 'rgba(0,0,0,.36)', 0, NS);
+    s += disc(cx, cy, 2.3, '#3b353f', 0, NS) + disc(cx, cy, 1.95, '#4a434f', 0, NS);
+
+    s += box(x0 - .16, y0 - .12, W + .32, D + .24, 5, shade(STONE, -.22));   // the plinth
+    s += box(x0, y0, W, D, H, STONE);
+    s += hip(x0, y0, W, D, H, 30, IRON, .24);
+    const [fin, finY] = P2(cx, cy, H + 30);
+    s += `<path d="M${n1(fin)} ${n1(finY)} v-9" stroke="${IRON}" stroke-width="2.4"/>`
+      + `<circle cx="${n1(fin)}" cy="${n1(finY - 11)}" r="2.6" fill="${BLOOD}"/>`;
+
+    // Tall narrow windows, lit red, on both faces we can see. `lit` registers a light for the night.
+    for (const z of [26, 50, 74]) {
+      s += onLeft(y0 + D, x0 + .3, x0 + .55, z, z + 13, GLASS, ' class="lit"');
+      s += onLeft(y0 + D, x0 + .82, x0 + 1.07, z, z + 13, GLASS, ' class="lit"');
+      s += onRight(x0 + W, y0 + .28, y0 + .52, z, z + 13, shade(GLASS, -.2), ' class="lit"');
+    }
+    // The door: taller than a person needs, shut.
+    const [dx3, dy3] = P2(cx, y0 + D, 0);
+    s += `<path d="M${n1(dx3 - 6)} ${n1(dy3)} v-20 a6 6 0 0 1 12 0 v20z" fill="${IRON}"/>`;
+    s += `<circle cx="${n1(dx3 + 3)}" cy="${n1(dy3 - 11)}" r="1.5" fill="${BLOOD}"/>`;
+
+    // Iron railings across the front, and the basin at the foot of the steps.
+    for (let i = 0; i <= 7; i++) {
+      const u = x0 - .25 + i * .26;
+      s += line3([u, y0 + D + .55, 0], [u, y0 + D + .55, 13], IRON, 1.8);
+    }
+    s += line3([x0 - .25, y0 + D + .55, 13], [x0 + W + .25, y0 + D + .55, 13], IRON, 2.2);
+    s += cyl(cx - 1.35, cy + .95, .46, 9, shade(STONE, -.12)) + disc(cx - 1.35, cy + .95, .46, '#2a1118', 9);
+    s += disc(cx - 1.35, cy + .95, .33, BLOOD, 9.5, `${NS} opacity=".9"`);
+
+    // Bare thorns. Nothing here is in leaf, and that is not the season's doing.
+    for (const [ox, oy, hh] of [[1.5, -.5, 30], [-1.55, -1.0, 24], [1.2, 1.35, 20]]) {
+      const [bx3, by3] = P2(cx + ox, cy + oy, 0);
+      s += `<path d="M${n1(bx3)} ${n1(by3)} q-3 -${n1(hh * .6)} 1 -${n1(hh)}" stroke="${THORN}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+        + `<path d="M${n1(bx3 + .5)} ${n1(by3 - hh * .55)} l-7 -6 M${n1(bx3 + .8)} ${n1(by3 - hh * .78)} l8 -5"
+             stroke="${THORN}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+    }
+
+    s += wallBoard('L', y0 + D, x0 + .08, x0 + W - .08, 6, 16, 'Red House');
+    out.crimson = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
+  }
+
+  /* THE ACCORD STONES — Stoneleaf ground, deep in the western woods beyond the cave trail.
+
+     The Accord is two peoples, and the plot has to be both or it is neither. Dwarves go on the
+     left: a trilithon, squared and chisel-dressed, the only true right angles in the western
+     woods. Elves go on the right: a great tree nobody planted, lanterns hung in it, roots run
+     out over the dwarf-work because they got here second and did not move the stones. Between
+     them a flat pact stone, cut by one side and carved by the other, which is the whole treaty.
+
+     Their virtues are opposites — the elf who is never touched, the dwarf who takes everything
+     and hardens — so the halves do not match and are not supposed to. What joins them is the
+     mist lying in the hollow, which is the sky they sell and the reason the ring is sited in a
+     dip rather than on a rise.
+
+     Quietest plot on the map: no fire, no machine, no fabric. Only the lanterns move. */
+  {
+    const [cx, cy] = FACTION_PLOTS.stone;
+    const GRANITE = '#7d7a72', MOSS = '#4a6b4a', BARK = '#4a3a2c', LEAF = '#3f6b45', LANT = '#cfe8a0';
+
+    // The hollow. Moss, not grass — nothing here has been walked on in a long time.
+    let s = disc(cx + .3, cy + .3, 3.2, 'rgba(0,0,0,.32)', 0, NS);
+    s += disc(cx, cy, 2.95, '#3d4a3a', 0, NS) + disc(cx, cy, 2.5, MOSS, 0, NS);
+    s += disc(cx - .3, cy + .2, 1.7, '#55785a', 0, `${NS} opacity=".7"`);
+
+    // DWARF WORK, left: a trilithon, squared and chisel-dressed. The only true right angles out here.
+    for (const oy of [-1.15, .35]) s += box(cx - 2.1, cy + oy, .44, .44, 32, GRANITE);
+    s += box(cx - 2.16, cy - 1.22, .56, 2.05, 8, shade(GRANITE, .06), 32);
+    for (let i = 0; i < 5; i++) {   // chisel marks down the near upright
+      const [mx3, my3] = P2(cx - 1.88, cy + .35, 6 + i * 5.5);
+      s += `<path d="M${n1(mx3 - 4)} ${n1(my3)} l6 -2" stroke="${shade(GRANITE, -.22)}" stroke-width="1.3" fill="none"/>`;
+    }
+
+    // An arc of standing stones behind, older and leaning — these were here before the dressing.
+    [[-.4, -2.2, 24], [.9, -2.0, 20], [1.9, -1.2, 26], [-1.5, -2.0, 18]].forEach(([ox, oy, hh], i) => {
+      s += cyl(cx + ox, cy + oy, .3, hh, shade(GRANITE, -.1));
+      s += disc(cx + ox, cy + oy, .3, shade(GRANITE, .05), hh);
+      const [kx, ky] = P2(cx + ox, cy + oy, hh * .55);
+      if (i % 2) s += `<ellipse cx="${n1(kx)}" cy="${n1(ky)}" rx="7" ry="4" fill="${MOSS}" opacity=".55"${NS}/>`;
+    });
+
+    // ELF WORK, right: a tree nobody planted, with lanterns in it. Its roots run out over the
+    // dwarf-work, because the elves got here second and did not move the stones.
+    // Taller and far lighter than a forest tree on purpose. At first draw this was LEAF-dark at 44
+    // high and vanished completely into the woods behind it — the elf half of the Accord simply was
+    // not there. A great tree has to out-read a thousand ordinary ones, so: 70 up, a pale lit crown,
+    // and a rim where the lantern light catches it.
+    const [trx, try_] = [cx + 1.55, cy + .55];
+    s += disc(trx + .25, try_ + .25, 1.15, 'rgba(0,0,0,.34)', 0, NS);
+    s += cyl(trx, try_, .54, 70, BARK) + disc(trx, try_, .54, shade(BARK, .14), 70);
+    for (const [ro, rl] of [[-1.6, 1.25], [-.6, 1.6], [.8, 1.35]])
+      s += `<path d="M${isoP(trx, try_, 4)} Q${isoP(trx + ro * .5, try_ + rl * .3, 2)} ${isoP(trx + ro, try_ + rl, 0)}"
+        stroke="${BARK}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+    const [cax, cay] = P2(trx, try_, 70);
+    for (const [ox, oy, r3, col] of [[-22, 6, 28, '#4e7f4e'], [20, -2, 30, '#5f9455'], [-4, -22, 34, '#74ab62'], [6, 8, 26, '#568a50']])
+      s += `<ellipse cx="${n1(cax + ox)}" cy="${n1(cay + oy)}" rx="${r3}" ry="${n1(r3 * .76)}" fill="${col}"/>`;
+    s += `<ellipse cx="${n1(cax - 6)}" cy="${n1(cay - 20)}" rx="26" ry="19" fill="#8fc473" opacity=".5"${NS}/>`;
+    for (const [ox, oy] of [[-26, 12], [18, 4], [-2, -16], [8, 20]]) {
+      s += light(cax + ox, cay + oy, 110, .6);
+      s += `<circle cx="${n1(cax + ox)}" cy="${n1(cay + oy)}" r="3.6" fill="${LANT}" class="lantGlow"/>`;
+      s += `<path d="M${n1(cax + ox)} ${n1(cay + oy - 4)} v-7" stroke="${shade(BARK, .2)}" stroke-width="1.2"/>`;
+    }
+
+    // THE PACT STONE between them: cut by one side, carved by the other.
+    s += box(cx - .45, cy + 1.25, .95, .62, 6, shade(GRANITE, .08));
+    const [pcx, pcy] = P2(cx + .02, cy + 1.56, 6);
+    s += `<path d="M${n1(pcx - 9)} ${n1(pcy - 1)} h7" stroke="${shade(GRANITE, -.3)}" stroke-width="1.6"/>`
+      + `<path d="M${n1(pcx + 2)} ${n1(pcy - 3)} q4 4 0 7" stroke="${shade(LEAF, -.1)}" stroke-width="1.6" fill="none"/>`;
+
+    // The mist that lies in the hollow — the sky they sell, pooled on the ground that sells it.
+    for (let i = 0; i < 3; i++)
+      s += disc(cx - .2 + i * .25, cy + .1, 2.3 - i * .35, '#cfd8d2', 3 + i * 3,
+        `${NS} opacity=".16" class="mistLie" style="animation-delay:-${i * 3.1}s"`);
+
+    s += nameBoard(...P2(cx - .1, cy - 3.3, 54), 122, 22, 0, 'Accord Stones');
+    out.stone = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
+  }
+
   /* THE LONG CAMP — Stray Banner ground, on the north road where it leaves the village.
 
      The others built. The Stray Banner pitched. Everything here comes down in an hour and goes on
@@ -19907,7 +20166,7 @@ function townPlaces() {
     for (const ox of [-2.45, -1.65]) { const [wx2, wy2] = P2(cx + ox, cy - .84, 4);
       s += `<circle cx="${n1(wx2)}" cy="${n1(wy2)}" r="6" fill="none" stroke="#4a3c2e" stroke-width="2.4"/>`; }
 
-    s += nameBoard(...P2(cx - .1, cy - 3.0, 50), 124, 21, 0, 'The Long Camp');
+    s += nameBoard(...P2(cx - .1, cy - 3.0, 50), 108, 21, 0, 'Long Camp');
     out.stray = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
   }
 
@@ -19969,7 +20228,7 @@ function townPlaces() {
         + `<path d="M${n1(px3 + 2.5)} ${n1(py3 + 7)} l6 1 l0 4 l-6 -1z" fill="${GOLD}"/>`;
     }
 
-    s += wallBoard('L', y0 + D, x0 + .15, x0 + W - .15, 16, 26, 'The Dawnhall');
+    s += wallBoard('L', y0 + D, x0 + .15, x0 + W - .15, 16, 26, 'Dawnhall');
     out.human = [cx + cy, s];   // inside the wall: sorts with the town, not the outer ring
   }
 
@@ -20115,7 +20374,7 @@ function townPlaces() {
     // was the obvious idea and the wrong one twice over: a pressure vessel is round, so there is
     // no flat wall to take a board, and the wall skew for a gy-facing side is +ky/kx — the other
     // sign tilted the board up the wrong diagonal and laid it straight across the machine.
-    s += nameBoard(...P2(cx - .2, cy - 3.4, 52), 118, 21, 0, 'The Dynamo');
+    s += nameBoard(...P2(cx - .2, cy - 3.4, 52), 92, 21, 0, 'Dynamo');
     out.mech = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
   }
 
@@ -20176,7 +20435,7 @@ function townPlaces() {
     for (let i = 0; i < 4; i++) s += box(cx - 2.9 + i * .22, cy + 1.9, .2, .9, 5 + i % 2 * 3, i % 2 ? '#4a362c' : '#5a4435');
     s += box(cx - 2.95, cy + 1.85, .95, .18, 11, '#3b2a22');
 
-    s += nameBoard(...P2(cx - .1, cy - 3.6, 54), 116, 21, 0, 'The Ashpyre');
+    s += nameBoard(...P2(cx - .1, cy - 3.6, 54), 96, 21, 0, 'Ashpyre');
     out.orc = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
   }
 
@@ -20451,10 +20710,13 @@ const TOWN_LABELS = {
   pets: 'Pet House: adopt a pet to walk at your side',
   cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
   tide: 'Tide Shrine: the Tideborn spring, north-east of the gate — ask for rain',
-  mech: 'The Dynamo: the Ironclad boiler on the high ground — pull down a storm',
-  orc: 'The Ashpyre: the Bloodtusk fire, furthest east — stoke it for a burning sky',
-  human: 'The Dawnhall: the Aldmere chapter house on the east street — petition for the dawn',
-  stray: 'The Long Camp: the Stray Banner on the north road — hire them to hold the sky still',
+  mech: 'Dynamo: the Ironclad boiler on the high ground — pull down a storm',
+  orc: 'Ashpyre: the Bloodtusk fire, furthest east — stoke it for a burning sky',
+  human: 'Dawnhall: the Aldmere chapter house on the east street — petition for the dawn',
+  stray: 'Long Camp: the Stray Banner on the north road — hire them to hold the sky still',
+  stone: 'Accord Stones: the Stoneleaf ring in the western woods — ask for mist',
+  crimson: 'Red House: the Crimson Court, furthest west — call for their moon',
+  undead: 'Quiet Acre: the Pale Host burial field, south past the workshop — keep vigil for the pall',
 };
 
 /* VILLAGE STAGE — Cinderhold fills the screen. The map, townies and NPCs share #townView: one
