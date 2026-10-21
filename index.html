@@ -4326,7 +4326,7 @@ const SAVE_KEY = 'burizza.profile.v1';
 // recruits = the TEAM_SIZE − 1 champion ids the AI plays beside you.
 const blankProfile = () => ({ gold: 60, gear: {}, items: {}, quests: {}, stash: { items: {}, trinkets: {}, weapons: {}, equipment: {}, stones: {} }, home: [], pets: { owned: [], active: null },
   hero: null, level: 1, xp: 0, recruits: [],
-  skyBoon: null,   // a faction ground was asked for its weather: the next battle opens under it (see openingSky)
+  skyBoon: null,   // a faction ground was asked for its weather: the next battle opens under it (see openingWeather)
   loadout: null,   // your champion's chosen skills: { act: ['a', 'b'], pas: ['own'] } (see SKILL LOADOUT)
   recruitLoadouts: {},   // skills you chose for recruits, per champion id; a recruit with none auto-picks
   packs: {},       // each champion's backpack: PACK_SLOTS slots, one item in each (see BACKPACKS)
@@ -5002,12 +5002,25 @@ const DUSK_MISS = 0.15;         // extra miss chance on ranged attacks in the da
    Every faction owns a weather (WEATHER[].favors), so this is one mechanism for all eight rather
    than eight copies of it: the ground sells its own sky, and which sky that is comes from the
    faction table. Note that a faction's own weather is not automatically kind to them — the
-   Ironclad's Thunderstorm douses the Heat their whole engine runs on. */
-function openingSky() {
-  const k = profile.skyBoon;
-  if (!k || !WEATHER[k]) return 'clear';
+   Ironclad's Thunderstorm douses the Heat their whole engine runs on.
+
+   TWO OF THE EIGHT SKIES ARE HERALDED and that has to be honoured here, not left to the caller.
+   An Ash Storm is announced by a Brimstone Fall and a Blood Moon by a Nightfall — rollWeather()
+   never returns either storm directly, only its herald, which is why one never arrives unwarned.
+   So a ground selling the Bloodtusk's Ash Storm is really selling the Brimstone Fall that brings
+   it, and the follow-on has to be wired by hand: the obvious `nextWeather = rollWeather(weather)`
+   rolls a fresh random sky after the herald and quietly drops the storm that was paid for. This
+   returns the whole opening state — what blows now, what follows it, and when — so the caller
+   cannot get that pairing wrong. */
+const SKY_HERALD = { ash: 'brim', moon: 'dusk' };   // storm -> the sky that announces it
+const SKY_FOLLOWS = { brim: 'ash', dusk: 'moon' };  // herald -> the storm it hands over to
+function openingWeather() {
+  const asked = profile.skyBoon;
+  if (!asked || !WEATHER[asked]) return { weather: 'clear', next: rollWeather('clear'), turnsAt: 1 + WEATHER_EVERY };
   profile.skyBoon = null;
-  return k;
+  const open = SKY_HERALD[asked] || asked;
+  const hold = open === 'brim' ? BRIMSTONE_ROUNDS : open === 'dusk' ? DUSK_ROUNDS : WEATHER_EVERY;
+  return { weather: open, next: SKY_FOLLOWS[open] || rollWeather(open), turnsAt: 1 + hold };
 }
 // The sky a faction's ground can call: the one that favours them. Keyed off WEATHER so adding a
 // ground never means repeating the pairing anywhere.
@@ -13446,10 +13459,11 @@ function startBattle(retry) {
   state.opening = true;
   state.phase = 'busy'; state.pending = null; state.reward = null; state.log = [];
   state.killXp = 0; state.kills = 0;   // what your champion's killing blows earn here, paid out at the end
-  state.weather = openingSky(); state.nextWeather = rollWeather(state.weather); state.quake = 0; state.quakeJolt = null;
+  const sky0 = openingWeather();   // Clear unless a faction ground was paid; heralds handled there
+  state.weather = sky0.weather; state.nextWeather = sky0.next; state.quake = 0; state.quakeJolt = null;
   state.groundFire = null;   // Molotov's ground fire never carries between battles
   state.reusedItems = {};    // every reusable backpack piece winds again for a fresh fight (itemWound)
-  state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;   // battles open under Clear Skies; the first change is at round 4
+  state.wxNext = sky0.turnsAt; state.wxFx = null;   // normally round 4; a herald hands over sooner
   state.screen = 'battle';
   state.token++;
   $('#overlay').hidden = true;
@@ -14192,8 +14206,9 @@ function expHallField() {
   state.inspect = null; state.inspectTurn = null; state.chipsOn = null; state.frontline = { p: 0, e: 0 };
   for (const u of allUnits()) u.pos = 0;
   state.opening = false; state.phase = 'idle'; state.pending = null; state.reward = null; state.log = [];
-  state.weather = openingSky(); state.nextWeather = rollWeather(state.weather); state.quake = 0; state.quakeJolt = null; state.groundFire = null;
-  state.wxNext = 1 + WEATHER_EVERY; state.wxFx = null;
+  const sky1 = openingWeather();   // Clear unless a faction ground was paid; heralds handled there
+  state.weather = sky1.weather; state.nextWeather = sky1.next; state.quake = 0; state.quakeJolt = null; state.groundFire = null;
+  state.wxNext = sky1.turnsAt; state.wxFx = null;
   state.screen = 'battle';
   state.token++;
   log(`${e.name}, ${ch.name}. No monsters here: the warband readies itself before the first road.`, 'sys');
@@ -17380,8 +17395,10 @@ const PLACES = {
             flavor: 'Warden Nesh keeps the only standing water for thirty miles — a spring that wells up through the rock and will not go still. The Tideborn walked inland until they found it and have not moved since.' },
   mech:   { name: 'The Dynamo', kick: 'Charge', blurb: 'Run the Ironclad boiler hot enough to pull a storm down on your next battle.',
             flavor: 'Foreman Calder has thrown smoke and charge at this sky for eleven years. The Tideborn found their water; the Ironclad built their weather, and the scrap heap behind the mast is every version of it that did not work.' },
+  orc:    { name: 'The Ashpyre', kick: 'Stoke', blurb: 'Feed the Bloodtusk fire and open your next battle under a burning sky.',
+            flavor: 'Grukka Ashmaw has kept this pyre lit since before the village had a wall, on a bare shelf of rock where nothing will grow back. The Horde did not build a shrine or a machine. They built a fire, and they have never once let it go out.' },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide', 'mech'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide', 'mech', 'orc'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 // With the Expedition Gate open, the warband waits on the road out of it, facing the gate.
 const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
@@ -18187,19 +18204,26 @@ const teamMinis = (withSkills = false) => state.team.map((id, i) => {
    discover it in round one. */
 function skyGroundHTML(faction, intro, buyLabel, outro) {
   const sky = FACTION_SKY[faction], wx = WEATHER[sky];
+  // A heralded sky does not arrive on its own: what actually opens the battle is its herald, and
+  // the storm follows. Show BOTH descriptions and name the herald in the state line, because what
+  // lands in round one is a Brimstone Fall and the panel would otherwise promise an Ash Storm.
+  const herald = SKY_HERALD[sky], hw = herald && WEATHER[herald];
+  const opensAs = hw ? hw.name : wx.name;
   const held = profile.skyBoon === sky, other = profile.skyBoon && profile.skyBoon !== sky;
   const broke = profile.gold < SKY_COST;
+  const otherName = other ? (WEATHER[SKY_HERALD[profile.skyBoon]] || WEATHER[profile.skyBoon]).name : '';
   return `${intro}
     <p class="label">What the sky does</p>
+    ${hw ? `<p class="rumor">“${hw.desc}”</p><p class="note">And then the storm it called for:</p>` : ''}
     <p class="rumor">“${wx.desc}”</p>
     ${held
-      ? `<p class="note"><b>The asking is made.</b> Your next battle opens under ${wx.name} instead of Clear Skies,
+      ? `<p class="note"><b>The asking is made.</b> Your next battle opens under ${opensAs}${hw ? `, with the ${wx.name} behind it` : ''},
            and it is spent on that battle whether or not it helps.</p>`
       : other
         ? `<p class="note">Another ground already has your coin: your next battle opens under
-             <b>${WEATHER[profile.skyBoon].name}</b>. Pay here and ${wx.name} takes its place — one sky at a time.</p>`
+             <b>${otherName}</b>. Pay here and ${opensAs} takes its place — one sky at a time.</p>`
         : `<p class="note">Your next battle would open under Clear Skies, with the weather first turning at round ${1 + WEATHER_EVERY}.
-             This puts ${wx.name} in from the opening round instead.</p>`}
+             This puts ${opensAs} in from the opening round instead${hw ? `, and the ${wx.name} follows it` : ''}.</p>`}
     <div class="btns">
       <button class="btn${held || broke ? '' : ' primary'}" type="button" data-k="skycall:${faction}"${held || broke ? ' disabled' : ''}>
         ${held ? 'Already asked' : broke ? `Need ${SKY_COST} gold` : `${buyLabel} · ${SKY_COST}g`}</button>
@@ -18647,6 +18671,17 @@ const PLACE_BODY = {
       'Entreat the tide',
       `<p class="note">The Tideborn fight best in their own weather, so this arms them as readily as you.
         Against the Ironclad it is worth more than it costs: Downpour washes their Heat out entirely.</p>`);
+  },
+
+  orc() {
+    return skyGroundHTML('orc',
+      `<p class="note">Grukka Ashmaw keeps the pyre and will not be hurried. Feed it enough and the mountain
+        notices — ${SKY_COST} gold of fuel, and what comes back down is not weather so much as an argument.</p>`,
+      'Feed the pyre',
+      `<p class="note">The Horde does not pretend this one is safe. The sky burns first and the meteors do not
+        care whose side anyone is on — yours take the same tenth of their health as theirs do, and it can
+        finish someone already hurt. What follows is the Horde's own wind, and Rage pays better the worse
+        your warband is doing. That is the whole trade: take the hit, hit harder for it.</p>`);
   },
 
   mech() {
@@ -19907,6 +19942,67 @@ function townPlaces() {
     out.mech = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
   }
 
+  /* THE ASHPYRE — Bloodtusk ground, furthest east of anything, past the gate and past the Dynamo.
+
+     The Tideborn found water and built round it. The Ironclad built a machine to make weather.
+     The Horde did neither: they lit a fire and have never let it out, and everything on the plot
+     is either the fire, feeding the fire, or what the fire left. No walls, no roof, no floor —
+     the ground is burnt to slag in a ring and nothing has grown back. A pyre of whole trunks on
+     a cairn, tusks and trophy poles driven in around it, a fuel heap, and ash drifting off the
+     top. The only worked thing out here is a stack of split wood, and that is worked for burning.
+
+     The warmest plot on the map by a distance, and the point of contrast: the shrine is cold and
+     still, the Dynamo is cold light over a warm furnace, this is all furnace. */
+  {
+    const [cx, cy] = FACTION_PLOTS.orc;
+    const SLAG = '#3a2b26', EMBER = '#ff7a2f', CHAR = '#2a211f', BONE = '#cdbfa6', HIDE = '#7a4a2e';
+
+    // Burnt ground: slag in a ring, charred bare at the middle, with embers still live in it.
+    let s = disc(cx + .3, cy + .3, 3.3, 'rgba(0,0,0,.34)', 0, NS);
+    s += disc(cx, cy, 3.1, SLAG, 0, NS) + disc(cx, cy, 2.5, '#49332a', 0, NS) + disc(cx, cy, 1.9, CHAR, 0, NS);
+    for (const [ox, oy, r2] of [[-1.5, .9, .3], [1.3, 1.4, .22], [.6, -1.7, .26], [-1.9, -.6, .2]])
+      s += disc(cx + ox, cy + oy, r2, '#8a3b1c', 0, `${NS} opacity=".75"`);
+
+    // The cairn, and the pyre built on it: whole trunks leaned into a cone, not sawn timber.
+    s += cyl(cx, cy, 1.15, 9, '#5a4a44') + disc(cx, cy, 1.15, '#6b5a52', 9);
+    for (let i = 0; i < 9; i++) {
+      const t = Math.PI * 2 * i / 9 + .3;
+      const bx = cx + .95 * Math.cos(t), by = cy + .95 * Math.sin(t);
+      s += line3([bx, by, 9], [cx + .12 * Math.cos(t), cy + .12 * Math.sin(t), 42], i % 2 ? '#4a362c' : '#3b2a22', 4.2);
+    }
+    const [px2, py2] = P2(cx, cy, 20);
+    s += glowAt(px2, py2, 40) + light(px2, py2, 260, 1);
+    // The fire itself: three tongues on different beats so it never reads as one shape.
+    [[-9, 34, 0], [2, 44, -.9], [10, 30, -1.8]].forEach(([dx2, hh, delay]) => {
+      s += `<path class="flame" style="animation-delay:${delay}s" d="M${n1(px2 + dx2 - 7)} ${n1(py2 + 6)}
+        q4 -${n1(hh * .55)} 7 -${n1(hh)} q5 ${n1(hh * .5)} 8 ${n1(hh)} q2 ${n1(hh * .3)} -1 ${n1(hh * .18)} z" fill="${EMBER}"${NS}/>`;
+    });
+    s += `<path class="flame" style="animation-delay:-1.3s" d="M${n1(px2 - 3)} ${n1(py2 + 2)} q3 -16 5 -24 q4 14 6 24z" fill="#ffd166"${NS}/>`;
+    const [sx3, sy3] = P2(cx, cy, 58);
+    s += smokeAt(sx3, sy3 - 4, 13);
+
+    // Trophy poles round the fire: tusks lashed on, hide strips, one skull facing the village.
+    [[-2.2, -.4, 40], [1.6, -2.0, 34], [2.3, 1.1, 44], [-.9, 2.3, 30]].forEach(([ox, oy, hh], i) => {
+      s += line3([cx + ox, cy + oy, 0], [cx + ox, cy + oy, hh], '#4a3a2c', 3.4);
+      const [tx, ty] = P2(cx + ox, cy + oy, hh);
+      if (i % 2) {
+        s += `<path d="M${n1(tx - 9)} ${n1(ty)} q4 -9 9 -3" stroke="${BONE}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`
+          + `<path d="M${n1(tx + 9)} ${n1(ty)} q-4 -9 -9 -3" stroke="${BONE}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;
+      } else {
+        s += `<path d="M${n1(tx)} ${n1(ty + 1)} l7 4 l-1 9 l-6 4 l-6 -4 l-1 -9z" fill="${BONE}"/>`
+          + `<circle cx="${n1(tx - 2.5)}" cy="${n1(ty + 7)}" r="1.5" fill="#3a2b26"/><circle cx="${n1(tx + 2.5)}" cy="${n1(ty + 7)}" r="1.5" fill="#3a2b26"/>`;
+      }
+      s += `<path d="M${n1(tx + 1)} ${n1(ty + 12)} q6 5 3 13" stroke="${HIDE}" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".85"/>`;
+    });
+
+    // What is left to burn, stacked where the heat does not reach.
+    for (let i = 0; i < 4; i++) s += box(cx - 2.9 + i * .22, cy + 1.9, .2, .9, 5 + i % 2 * 3, i % 2 ? '#4a362c' : '#5a4435');
+    s += box(cx - 2.95, cy + 1.85, .95, .18, 11, '#3b2a22');
+
+    s += nameBoard(...P2(cx - .1, cy - 3.6, 54), 116, 21, 0, 'The Ashpyre');
+    out.orc = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
+  }
+
   // THE ARMORY: a stone-and-timber hall beside the Ironsmith, a weapon rack and an armor stand out front.
   {
     const [gx, gy, w, d, h] = [15, 30.4, 3.6, 3, 44], wall = '#8a8070', fy = gy + d;
@@ -20174,6 +20270,7 @@ const TOWN_LABELS = {
   cave: 'Emberhollow Cave: hunt monsters for XP and gold, outside the west wall',
   tide: 'Tide Shrine: the Tideborn spring, north-east of the gate — ask for rain',
   mech: 'The Dynamo: the Ironclad boiler on the high ground — pull down a storm',
+  orc: 'The Ashpyre: the Bloodtusk fire, furthest east — stoke it for a burning sky',
 };
 
 /* VILLAGE STAGE — Cinderhold fills the screen. The map, townies and NPCs share #townView: one
