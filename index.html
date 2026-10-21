@@ -5019,6 +5019,10 @@ function openingWeather() {
   if (!asked || !WEATHER[asked]) return { weather: 'clear', next: rollWeather('clear'), turnsAt: 1 + WEATHER_EVERY };
   profile.skyBoon = null;
   const open = SKY_HERALD[asked] || asked;
+  // The Stray Banner's bargain is the only one that buys a sky NOT turning. Infinity rather than a
+  // big number: `state.round >= state.wxNext` can then never come true, so the weather clock simply
+  // never fires and nothing else has to know this case exists.
+  if (open === 'clear') return { weather: 'clear', next: 'clear', turnsAt: Infinity };
   const hold = open === 'brim' ? BRIMSTONE_ROUNDS : open === 'dusk' ? DUSK_ROUNDS : WEATHER_EVERY;
   return { weather: open, next: SKY_FOLLOWS[open] || rollWeather(open), turnsAt: 1 + hold };
 }
@@ -5026,6 +5030,17 @@ function openingWeather() {
 // ground never means repeating the pairing anywhere.
 const FACTION_SKY = Object.fromEntries(Object.entries(WEATHER)
   .filter(([, w]) => w.favors).map(([k, w]) => [w.favors, k]));
+/* The Stray Banner is the one faction no weather favours, and that is the point of them — they are
+   nobody's people and no sky takes their side. Their ground therefore sells the ABSENCE of weather:
+   Clear Skies HELD for the whole battle, which denies every other faction the sky that would have
+   favoured them. Mercenaries selling neutrality.
+
+   Mapped here rather than by writing `favors: 'stray'` onto Clear Skies, which is the obvious move
+   and a bad one twice over. `favors` is not a label — favored() pays a x1.2 damage multiplier — and
+   Clear Skies is the sky every battle opens under, so that one word would hand the Stray Banner a
+   permanent 20% in the opening rounds of every fight in the game. It would also make Clear Skies'
+   own description ("No faction is favored") a lie. */
+FACTION_SKY.stray = 'clear';
 
 function rollWeather(except) {
   const opts = Object.entries(SEASON_WEATHER).filter(([k]) => k !== except);
@@ -17397,8 +17412,12 @@ const PLACES = {
             flavor: 'Foreman Calder has thrown smoke and charge at this sky for eleven years. The Tideborn found their water; the Ironclad built their weather, and the scrap heap behind the mast is every version of it that did not work.' },
   orc:    { name: 'The Ashpyre', kick: 'Stoke', blurb: 'Feed the Bloodtusk fire and open your next battle under a burning sky.',
             flavor: 'Grukka Ashmaw has kept this pyre lit since before the village had a wall, on a bare shelf of rock where nothing will grow back. The Horde did not build a shrine or a machine. They built a fire, and they have never once let it go out.' },
+  stray:  { name: 'The Long Camp', kick: 'Hire', blurb: 'Pay the Stray Banner to hold the sky still for a whole battle.',
+            flavor: "Captain Vey has camped on the north road for two seasons and calls it passing through. No sky favours the Stray Banner — that is rather the point of them — so what they sell is everyone else's not getting theirs either." },
+  human:  { name: 'The Dawnhall', kick: 'Petition', blurb: 'Ask Aldmere for the dawn, and open your next battle in its light.',
+            flavor: "Sister-Marshal Edda Rhys holds Aldmere's charter for Cinderhold out of a stone hall on the east street — the only faction that asked permission, paid for the plot and filed the deed. The others keep ground outside the wall. The Kingdom keeps an address." },
 };
-const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide', 'mech', 'orc'];
+const PLACE_ORDER = ['home', 'arena', 'pvp', 'guild', 'train', 'academy', 'cave', 'gate', 'bounty', 'forge', 'armory', 'jeweler', 'market', 'pets', 'workshop', 'carnival', 'elder', 'tavern', 'tide', 'mech', 'orc', 'human', 'stray'];
 const TOWNIE_SPOTS = [[1200, 898], [1099, 870], [1301, 870], [1144, 921]];   // [map x, map y of the feet] around the bonfire
 // With the Expedition Gate open, the warband waits on the road out of it, facing the gate.
 const GATE_SPOTS = [[1700, 1098], [1768, 1112], [1722, 1140], [1790, 1154]];
@@ -18209,6 +18228,7 @@ function skyGroundHTML(faction, intro, buyLabel, outro) {
   // lands in round one is a Brimstone Fall and the panel would otherwise promise an Ash Storm.
   const herald = SKY_HERALD[sky], hw = herald && WEATHER[herald];
   const opensAs = hw ? hw.name : wx.name;
+  const holds = sky === 'clear';   // the Stray Banner sells the sky NOT turning, not a sky arriving
   const held = profile.skyBoon === sky, other = profile.skyBoon && profile.skyBoon !== sky;
   const broke = profile.gold < SKY_COST;
   const otherName = other ? (WEATHER[SKY_HERALD[profile.skyBoon]] || WEATHER[profile.skyBoon]).name : '';
@@ -18217,13 +18237,18 @@ function skyGroundHTML(faction, intro, buyLabel, outro) {
     ${hw ? `<p class="rumor">“${hw.desc}”</p><p class="note">And then the storm it called for:</p>` : ''}
     <p class="rumor">“${wx.desc}”</p>
     ${held
-      ? `<p class="note"><b>The asking is made.</b> Your next battle opens under ${opensAs}${hw ? `, with the ${wx.name} behind it` : ''},
+      ? `<p class="note"><b>The asking is made.</b> ${holds
+            ? 'Your next battle is fought under a sky that never turns.'
+            : `Your next battle opens under ${opensAs}${hw ? `, with the ${wx.name} behind it` : ''},`}
            and it is spent on that battle whether or not it helps.</p>`
       : other
         ? `<p class="note">Another ground already has your coin: your next battle opens under
-             <b>${otherName}</b>. Pay here and ${opensAs} takes its place — one sky at a time.</p>`
-        : `<p class="note">Your next battle would open under Clear Skies, with the weather first turning at round ${1 + WEATHER_EVERY}.
-             This puts ${opensAs} in from the opening round instead${hw ? `, and the ${wx.name} follows it` : ''}.</p>`}
+             <b>${otherName}</b>. Pay here and ${holds ? 'the sky holds clear instead' : `${opensAs} takes its place`} — one sky at a time.</p>`
+        : holds
+          ? `<p class="note">Your next battle already opens under Clear Skies — but the weather turns at round ${1 + WEATHER_EVERY}
+               and keeps turning. This stops it: clear from the first round to the last, and nobody gets the sky that favours them.</p>`
+          : `<p class="note">Your next battle would open under Clear Skies, with the weather first turning at round ${1 + WEATHER_EVERY}.
+               This puts ${opensAs} in from the opening round instead${hw ? `, and the ${wx.name} follows it` : ''}.</p>`}
     <div class="btns">
       <button class="btn${held || broke ? '' : ' primary'}" type="button" data-k="skycall:${faction}"${held || broke ? ' disabled' : ''}>
         ${held ? 'Already asked' : broke ? `Need ${SKY_COST} gold` : `${buyLabel} · ${SKY_COST}g`}</button>
@@ -18671,6 +18696,29 @@ const PLACE_BODY = {
       'Entreat the tide',
       `<p class="note">The Tideborn fight best in their own weather, so this arms them as readily as you.
         Against the Ironclad it is worth more than it costs: Downpour washes their Heat out entirely.</p>`);
+  },
+
+  stray() {
+    return skyGroundHTML('stray',
+      `<p class="note">Captain Vey does not ask what you are fighting or who for. ${SKY_COST} gold, and the
+        Banner stands in the weather's way for one battle — their own trick, and the only one they have that
+        no sky can take back off them.</p>`,
+      'Hire the Banner',
+      `<p class="note">The only bargain in the village that gives you nothing: no damage, no healing, no
+        favour. What it does is take everyone else's away — no Ash Storm at round four, no Blood Moon
+        rising, no Downpour to douse anybody. Worth most against a faction whose sky is the reason they
+        are frightening, and worth nothing at all if you were counting on one of your own.</p>`);
+  },
+
+  human() {
+    return skyGroundHTML('human',
+      `<p class="note">Edda Rhys takes the petition at a desk, writes it in a book, and reads back what it costs
+        before she takes the ${SKY_COST} gold. Aldmere does nothing by acclamation.</p>`,
+      'Petition for the dawn',
+      `<p class="note">The gentlest of the eight and the only one that opens by healing — which it does for
+        <b>both</b> warbands, so a hurt enemy gets up with you. Worth most when your own line is thin and
+        theirs is not, and worth least as a finisher. Discipline doubling under it is the Kingdom's own
+        reward for fighting the way they fight: never the same action twice running.</p>`);
   },
 
   orc() {
@@ -19516,7 +19564,10 @@ function roundBoard(cx, cy, r, t, z0, z1, W, text) {
    Tideborn plot is built; the other seven are reserved ground.
 
    Sited by search rather than by eye, against every constraint at once:
-     - outside the wall     the wall spans tiles 1.4..38.6 both ways; a plot is 3.4 tiles across
+     - outside the wall     the wall spans tiles 1.4..38.6 both ways; a plot is 3.4 tiles across.
+                            Aldmere alone sits INSIDE it, deliberately, and so answers to the
+                            interior test instead: clearance against every building's real drawn
+                            geometry, which left exactly one gap in the whole town
      - on solid ground      the art must sit between y=380, where the ground starts, and the
                             bottom edge — anything higher hangs the building in the sky, which is
                             why the forest loop stops at 380 too
@@ -19532,7 +19583,10 @@ const FACTION_PLOTS = {
   mech:    [33.5, -2],     // Ironclad — the high ground north-east, above the gate road
   stray:   [22, -2],       // Stray Banner — north, where the road leaves the village
   orc:     [54.5, 19],     // Bloodtusk — furthest east, well beyond the Expedition Gate
-  human:   [42, 31.5],     // Aldmere — south-east, between the gate and the south road
+  // Aldmere is the exception and means it: a kingdom takes a plot in the town, not a camp outside
+  // it. The one interior gap with clearance, found by testing the real drawn geometry rather than
+  // bounding boxes — see THE DAWNHALL. Its outer-ring plot, [42, 31.5], is given up and free.
+  human:   [30.25, 8.75],  // Aldmere — INSIDE the east wall, between Your House and the Jeweler
   stone:   [6.5, 42],      // Stoneleaf — deep in the western woods
   tide:    [42, 12],       // The Tideborn — east of the gate, at the spring. BUILT.
   crimson: [-8, 28],       // The Crimson Court — far west, off on its own
@@ -19794,6 +19848,129 @@ function townPlaces() {
     for (const [dx, dy, r] of [[-120, 4, 16], [118, 12, 20], [70, 28, 12]]) s += `<circle cx="${n1(x + dx)}" cy="${n1(y + dy)}" r="${r}" fill="#4a4450"/>`;
     s += nameBoard(x - 6, y - 84, 176, 26, 0, 'Emberhollow Cave');   // nailed to the rock over the mouth
     out.cave = [1060, s];   // outside the wall: drawn among the outer forest
+  }
+
+  /* THE LONG CAMP — Stray Banner ground, on the north road where it leaves the village.
+
+     The others built. The Stray Banner pitched. Everything here comes down in an hour and goes on
+     the cart: canvas on poles, a fire in a scrape, crates for furniture, a rack of other people's
+     weapons. Nothing is squared to anything else and nothing matches, because none of it was
+     bought together — the one pole that IS permanent carries scraps of every banner they have
+     ever fought under, which is the nearest thing they have to a flag of their own.
+
+     Sited on the road out rather than off in the woods: a company that sells itself camps where
+     the work walks past. It is the only faction ground you pass on your way anywhere. */
+  {
+    const [cx, cy] = FACTION_PLOTS.stray;
+    const CANVAS = '#b9a883', ROPE = '#6b5a46', DIRT = '#4a4038';
+    const BANNERS = ['#c0303f', '#e8a548', '#6fb5e6', '#6cc28a', '#c48be0', '#e0645a'];
+
+    let s = disc(cx + .3, cy + .3, 3.1, 'rgba(0,0,0,.3)', 0, NS);
+    s += disc(cx, cy, 2.85, DIRT, 0, NS) + disc(cx - .3, cy - .2, 2.1, '#565046', 0, NS);   // trodden flat
+
+    // Two tents, deliberately not matching and not aligned: a big ridge one and a small bell.
+    const [tx, ty] = [cx - 1.25, cy - 1.0];
+    s += box(tx, ty, 1.7, 1.25, 11, shade(CANVAS, -.12));
+    s += gable(tx, ty, 1.7, 1.25, 11, 20, CANVAS, shade(CANVAS, -.15), 'x', .34);
+    const [mx2, my2] = P2(tx + 1.7, ty + .62, 0);
+    s += `<path d="M${n1(mx2 - 6)} ${n1(my2)} v-15 l6 -4 l6 4 v15z" fill="#2e2822"/>`;          // the flap, open
+    s += line3([tx - .3, ty - .25, 31], [tx - .95, ty - .8, 0], ROPE, 1.6);                     // guy lines
+    s += line3([tx + 2, ty + 1.5, 31], [tx + 2.6, ty + 2.05, 0], ROPE, 1.6);
+
+    s += cyl(cx + 1.35, cy - .55, .62, 9, shade(CANVAS, -.1));
+    s += cone(cx + 1.35, cy - .55, .72, 9, 26, CANVAS, [CANVAS, shade(CANVAS, -.14), 6]);
+
+    // The fire in a scrape of stones, smaller than anything the Horde would call a fire.
+    const [fx2, fy2] = P2(cx + .15, cy + 1.15, 0);
+    for (let i = 0; i < 7; i++) {
+      const t = Math.PI * 2 * i / 7;
+      s += `<circle cx="${n1(fx2 + 13 * Math.cos(t))}" cy="${n1(fy2 + 6.5 * Math.sin(t))}" r="2.6" fill="#6b6258"${NS}/>`;
+    }
+    s += glowAt(fx2, fy2 - 3, 15);
+    s += `<path class="flame" d="M${n1(fx2 - 4)} ${n1(fy2)} q2 -11 4 -14 q3 7 4 14z" fill="#ff9a3f"${NS}/>`;
+    s += `<path class="flame" style="animation-delay:-.7s" d="M${n1(fx2 + 1)} ${n1(fy2)} q2 -8 3 -10 q2 5 3 10z" fill="#ffd166"${NS}/>`;
+
+    // THE BANNER POLE. Every colour they have ever been paid to carry, none of them theirs.
+    const [bx2, by2] = [cx - 2.0, cy + 1.3];
+    s += line3([bx2, by2, 0], [bx2, by2, 62], '#5a4a3a', 3.4);
+    const [pxb, pyb] = P2(bx2, by2, 62);
+    BANNERS.forEach((col, i) => {
+      const yy = pyb + 4 + i * 8.5, wdt = 13 - (i % 3) * 2;
+      s += `<path class="flag" style="animation-delay:-${i * .35}s" d="M${n1(pxb + 1)} ${n1(yy)} l${wdt} ${n1(2 + i % 2)} l0 6 l${-wdt} ${n1(-1 - i % 2)}z" fill="${col}"/>`;
+    });
+
+    // A rack of other people's weapons, and the cart it all goes back on.
+    s += box(cx + 1.5, cy + 1.3, .12, .9, 14, ROPE) + box(cx + 2.25, cy + 1.3, .12, .9, 14, ROPE);
+    s += line3([cx + 1.5, cy + 1.75, 14], [cx + 2.37, cy + 1.75, 14], ROPE, 2);
+    for (let i = 0; i < 4; i++) s += line3([cx + 1.65 + i * .22, cy + 1.7, 15], [cx + 1.72 + i * .22, cy + 1.86, 0], i % 2 ? '#9aa3b5' : '#8a6a4a', 2.2);
+    s += box(cx - 2.5, cy - 1.5, 1.0, .62, 9, '#6b5a46');
+    for (const ox of [-2.45, -1.65]) { const [wx2, wy2] = P2(cx + ox, cy - .84, 4);
+      s += `<circle cx="${n1(wx2)}" cy="${n1(wy2)}" r="6" fill="none" stroke="#4a3c2e" stroke-width="2.4"/>`; }
+
+    s += nameBoard(...P2(cx - .1, cy - 3.0, 50), 124, 21, 0, 'The Long Camp');
+    out.stray = [1000 + cx + cy, s];   // outside the wall: drawn among the outer forest
+  }
+
+  /* THE DAWNHALL — Aldmere ground, and the only one of the eight INSIDE the wall.
+
+     The other factions keep their ground out in the ring because they are not of this place: the
+     Horde camps, the Ironclad build works, the Tideborn found water. Aldmere is a kingdom, and a
+     kingdom does not camp outside a village it considers its own — it takes a plot on the street,
+     pays for it, and puts up something square. So this is the one plot on the town side of the
+     wall, between Your House and the Jeweler, looking down the road out of the Expedition Gate.
+
+     Finding room took measuring rather than guessing. Cinderhold's interior is genuinely full:
+     testing every half-tile against the real drawn geometry of every building (isPointInFill, not
+     bounding boxes — the Arena is a 4.6-tile circle whose box swallows half the north quarter)
+     left exactly ONE spot with clearance, and it takes a building of 1.75 tiles' radius. Hence a
+     hall and not a keep. If this ever needs moving, re-run that test; do not eyeball it.
+
+     Built as Aldmere: dressed stone, a true gable, a bell tower, banners hung square, and a
+     gilded sun over the door for the dawn they sell. Everything on the plot is symmetrical,
+     which is the whole character of them — the Ashpyre is a fire nobody arranged, and this is a
+     building someone drew first. */
+  {
+    const [cx, cy] = FACTION_PLOTS.human;
+    const STONE = '#b9ae99', SLATE = '#3e5a8c', GOLD = '#e8c37a', DEEP = '#2b3f63';
+    const W = 2.2, D = 1.7, H = 30, x0 = cx - W / 2, y0 = cy - D / 2;
+
+    let s = disc(cx + .25, cy + .25, 1.75, 'rgba(0,0,0,.3)', 0, NS);
+    s += box(x0 - .18, y0 - .14, W + .36, D + .28, 4, '#8f8778');          // the footing course
+    s += box(x0, y0, W, D, H, STONE);
+    s += gable(x0, y0, W, D, H, 20, SLATE, STONE, 'x');
+
+    // The door on the near face, under a gilded sun — the dawn they sell, over the way in.
+    const [dx2, dy2] = P2(cx, y0 + D, 0);
+    s += `<path d="M${n1(dx2 - 7)} ${n1(dy2)} v-14 a7 7 0 0 1 14 0 v14z" fill="#3a2f28"/>`;
+    s += glowAt(dx2 + 13, dy2 - 11, 11);                                    // the door lantern
+    // The gilded sun goes on the GABLE END, not over the door: the nameboard hangs on the long
+    // front wall at the same height, and the two were drawn on top of each other.
+    const [sux, suy] = P2(x0 + W, cy, 36);
+    s += `<circle cx="${n1(sux)}" cy="${n1(suy)}" r="5.5" fill="${GOLD}"/>`;
+    for (let i = 0; i < 8; i++) {
+      const t = Math.PI * 2 * i / 8;
+      s += `<path d="M${n1(sux + 7 * Math.cos(t))} ${n1(suy + 7 * Math.sin(t))} l${n1(3 * Math.cos(t))} ${n1(3 * Math.sin(t))}"
+        stroke="${GOLD}" stroke-width="1.6" stroke-linecap="round"/>`;
+    }
+
+    // The bell tower on the far corner, slate-capped with a gold finial.
+    const tx = x0 + W - .62, ty = y0 + .04;
+    s += box(tx, ty, .62, .62, 46, shade(STONE, .05)) + hip(tx, ty, .62, .62, 46, 16, SLATE, .14);
+    const [bx, by] = P2(tx + .31, ty + .31, 62);
+    s += `<circle cx="${n1(bx)}" cy="${n1(by - 2)}" r="3" fill="${GOLD}"/>`;
+    s += onLeft(ty, tx + .1, tx + .52, 30, 40, '#241c18');                  // the bell's open arch
+    s += `<path d="M${n1(isoX(tx + .31, ty) - 4)} ${n1(isoY(tx + .31, ty, 37))} a4 4 0 0 1 8 0z" fill="${GOLD}"/>`;
+
+    // Banners hung square either side of the door, because of course they are.
+    for (const ox of [-W / 2 - .1, W / 2 + .1]) {
+      s += line3([cx + ox, y0 + D + .12, 0], [cx + ox, y0 + D + .12, 34], '#6b5a46', 2.6);
+      const [px3, py3] = P2(cx + ox, y0 + D + .12, 34);
+      s += `<path d="M${n1(px3)} ${n1(py3 + 2)} l11 2 l0 17 l-5.5 -3.5 l-5.5 3.5z" fill="${SLATE}"/>`
+        + `<path d="M${n1(px3 + 2.5)} ${n1(py3 + 7)} l6 1 l0 4 l-6 -1z" fill="${GOLD}"/>`;
+    }
+
+    s += wallBoard('L', y0 + D, x0 + .15, x0 + W - .15, 16, 26, 'The Dawnhall');
+    out.human = [cx + cy, s];   // inside the wall: sorts with the town, not the outer ring
   }
 
   /* THE TIDE SHRINE — the Tideborn's own ground, and the first of the faction quarter.
@@ -20206,7 +20383,12 @@ function buildTownMap() {
     add(gx + gy, lamp(gx, gy));
   const INSIDE_TREES = [[6, 7.5], [11.5, 7.5], [7.5, 13.5], [18, 11], [27, 8], [31, 9], [35, 8], [35.5, 18], [35.5, 26.5], [26, 36], [30.5, 30],
     [18, 29.5], [13, 30], [6, 28.5], [6.5, 20], [11, 21.5], [5, 23.2], [17.5, 36], [7, 36], [25, 30.5], [9.6, 26.6]];
-  for (const [gx, gy] of INSIDE_TREES) add(gx + gy, tree(gx, gy, .9 + rnd() * .3, rnd() < .15 ? 2 : 0));
+  // The town's own trees step aside for a built faction plot the same way the forest does outside —
+  // the Dawnhall went up on a spot that had a tree at [31, 9] standing in the middle of it.
+  for (const [gx, gy] of INSIDE_TREES) {
+    if (Object.entries(FACTION_PLOTS).some(([k, [px, py]]) => !!PLACES[k] && Math.hypot(gx - px, gy - py) < 2.6)) continue;
+    add(gx + gy, tree(gx, gy, .9 + rnd() * .3, rnd() < .15 ? 2 : 0));
+  }
 
   // The forest outside the walls, kept off the roads.
   // Kept clear: the roads, the cave mouth, the workshop yard — and any faction plot that has
@@ -20271,6 +20453,8 @@ const TOWN_LABELS = {
   tide: 'Tide Shrine: the Tideborn spring, north-east of the gate — ask for rain',
   mech: 'The Dynamo: the Ironclad boiler on the high ground — pull down a storm',
   orc: 'The Ashpyre: the Bloodtusk fire, furthest east — stoke it for a burning sky',
+  human: 'The Dawnhall: the Aldmere chapter house on the east street — petition for the dawn',
+  stray: 'The Long Camp: the Stray Banner on the north road — hire them to hold the sky still',
 };
 
 /* VILLAGE STAGE — Cinderhold fills the screen. The map, townies and NPCs share #townView: one
@@ -23768,7 +23952,11 @@ function renderBattle() {
     : exp ? 'No weather reaches these chambers. Only the dark and whatever the vault keeps.' : W.desc;
   // When the sky turns, not what it turns into: naming it ahead of time let you plan around a
   // Blood Moon or an Ash Storm before it arrived. The omen sky still warns of Brimstone Fall.
-  $('#wxNext').innerHTML = under ? '' : `The sky turns ${left === 1 ? 'next round' : `in ${left} rounds`}`;
+  // A sky bought from the Stray Banner never turns (wxNext is Infinity), so it says so instead of
+  // counting down to a round that will not arrive.
+  $('#wxNext').innerHTML = under ? ''
+    : !Number.isFinite(left) ? 'The sky holds'
+    : `The sky turns ${left === 1 ? 'next round' : `in ${left} rounds`}`;
 
   renderTrack(state.moving ? 400 : 300);
 
