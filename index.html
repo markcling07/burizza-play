@@ -1368,6 +1368,42 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   transform-origin: bottom center; transform: scaleY(0); opacity: 0; transition: transform .45s ease-out .25s, opacity .3s ease .25s; }
 .unit.buried .body > .mound { transform: none; opacity: 1; filter: drop-shadow(0 0 6px rgba(126, 230, 150, .3)) drop-shadow(0 3px 3px rgba(0, 0, 0, .5)); }
 .unit.buried .plate, .unit.buried .chips { position: relative; z-index: 4; opacity: .8; }
+/* THE BUNKER (bunkerSkill / .unit.bunkered): Bulwark-7's anchor rig deploys — side plates drop in,
+   four pitons punch into the ground one after another, and the powered rail along the base breathes
+   amber for as long as the anchors hold. The entry runs off the class landing, so it plays once when
+   the state begins and never restarts on a re-render; leaving the state fades the rig out on the
+   opacity transition (every exit shares it: stood up, stepped out, broken open, expired). */
+.body > .anchors { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; opacity: 0; }
+/* VISIBILITY IS A PLAIN FLIP — no transition and no animation ever touches the rig's own opacity.
+   Both were tried and both have the same failure: their clock is the document timeline, and in a
+   frame that has never painted (the Skill Lab's stage loads hidden) that timeline sits at zero —
+   a running transition holds its FROM value over even an inline style, and a backwards-filled
+   animation holds its first frame. Either way the rig stays invisible while the state says
+   bunkered. So the state sets the value outright, and the entry flourish lives on the CHILDREN,
+   moving only TRANSFORMS: frozen at frame zero they stand a few pixels adrift — never unseen. */
+.unit.bunkered .body > .anchors { opacity: 1; }
+.unit.bunkered .upic { filter: saturate(.8) brightness(.9); }   /* powered down into a wall: holding, not fighting */
+.unit.bunkered .anchors .pl { animation: bkrPlate .4s cubic-bezier(.2, .8, .3, 1.15) backwards; }
+.unit.bunkered .anchors .plR { animation-delay: .07s; }
+.unit.bunkered .anchors .sp { animation: bkrSpike .22s cubic-bezier(.5, 0, 1, .4) backwards; }
+.unit.bunkered .anchors .s2 { animation-delay: .1s; } .unit.bunkered .anchors .s3 { animation-delay: .17s; } .unit.bunkered .anchors .s4 { animation-delay: .24s; }
+.unit.bunkered .anchors .core { animation: bkrCore 2.4s ease-in-out .5s infinite; }
+@keyframes bkrPlate { from { transform: translateY(-14px); } }   /* transforms only: see the note on .anchors */
+@keyframes bkrSpike { from { transform: translateY(-11px); } }
+@keyframes bkrCore { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }   /* frozen at frame zero it idles at .5 — lit either way */
+/* THE LEE (.unit.lee): the sheltered ally ducks in place behind a parapet of the bunker's own steel.
+   The crouch rides the shared .upic transition (translate/scale, like aloft and buried); the parapet
+   rises on its own short transition in front of the sprite. */
+.body > .shelter { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 4; opacity: 0; }
+.unit.lee .body > .shelter { opacity: 1; }   /* the same plain flip as .anchors above */
+.unit.lee .body > .shelter > * { animation: shelterUp .3s ease-out backwards; }   /* transforms only, on the children */
+@keyframes shelterUp { from { transform: translateY(9px); } }
+.unit.lee .upic { translate: 0 6%; scale: .95; filter: brightness(.88); }
+.unit.lee .plate, .unit.lee .chips { opacity: .85; }
+@media (prefers-reduced-motion: reduce) {
+  .unit.bunkered .anchors .pl, .unit.bunkered .anchors .sp, .unit.bunkered .anchors .core,
+  .unit.lee .body > .shelter > * { animation: none; }
+}
 /* THE GRAVEYARD FENCE (Barrow's Obstacle): a row of iron railings with spear tops rises before
    the protected unit, on the side it faces its enemies, lit the Pale Host's grave-green. It is
    scenery, not a unit — pointer-events stay off so clicks fall through to the figure behind it. */
@@ -11837,7 +11873,12 @@ function leaveBunker(host, why) {
     ally.bunkerHost = null;
     float(ally, 'Out of cover', 'fx');
   }
-  host.effects = host.effects.filter((e) => e.id !== 'bunker');
+  /* The taunt goes WITH the anchors, on every exit. The comment on bunkerSkill promises it — "a
+     taunt outliving the plating would leave Bulwark holding every eye on the field with none of the
+     armour that made that a good idea" — and natural expiry keeps that promise only by accident, the
+     two clocks ticking out side by side. Stand Up was the path where they parted: the plating gone,
+     the taunt still up, every enemy still obliged to swing at a machine no longer built to take it. */
+  host.effects = host.effects.filter((e) => e.id !== 'bunker' && e.id !== 'taunt');
   host.bunkerOpen = false;
   const line = why === 'dead' ? `${host.name} is broken open, and the cover with it.`
     : why === 'stood' ? `${host.name} unlocks its anchors and stands up.`
@@ -11849,6 +11890,20 @@ function leaveBunker(host, why) {
 /* Bulwark anchors, and the chosen ally steps into the lee. */
 async function bunkerSkill(u, t) {
   await castPose(u);
+  /* THE SLAM. The machine heaves up off its pistons and comes down HARD — the ground answers
+     (tremor, dust) at the moment of impact, not at the end of the clip, and the anchor rig itself
+     deploys off the render() below, where the bunkered class lands (see .unit.bunkered). */
+  const slam = pose(u, [
+    { transform: 'none' },
+    { transform: 'translateY(-7px) scaleY(1.04)', offset: 0.42, easing: 'cubic-bezier(.3,0,.7,1)' },
+    { transform: 'translateY(2px) scaleY(.93) scaleX(1.07)', offset: 0.62, easing: 'cubic-bezier(.6,0,1,.4)' },
+    { transform: 'none' },
+  ], 520);
+  await wait(320);   // the frame hits the dirt here
+  tremorFx(300);
+  burst(u, 'smoke');
+  burst(u, 'roar');   // ...and the roar for every eye on the field is a thing you can see
+  if (slam) await done(slam, beat(520));
   burst(u, 'shield');
   addFx(u, 'bunker', BUNKER_TURNS);
   /* The taunt is inherited from the Bunker Down this skill replaced, and it is
@@ -12160,7 +12215,16 @@ async function doAction(u, sk, t) {
     await wait(360);
   }
   else if (sk.kind === 'bunker') await bunkerSkill(u, t);
-  else if (sk.kind === 'standup') { await castPose(u); leaveBunker(u, 'stood'); render(); await wait(360); }
+  else if (sk.kind === 'standup') {
+    await castPose(u);
+    // The reverse of the slam: the machine pushes up off the anchors and shakes the dust off.
+    // The rig itself fades on the .anchors opacity transition once render() drops the class.
+    pose(u, [{ transform: 'translateY(2px) scaleY(.95)' }, { transform: 'translateY(-4px) scaleY(1.03)', offset: 0.55 }, { transform: 'none' }], 380);
+    burst(u, 'smoke');
+    leaveBunker(u, 'stood');
+    render();
+    await wait(420);
+  }
   // Stepping out is the ally's own door; the machine stays anchored behind them.
   else if (sk.kind === 'stepout') {
     const host = bunkerHostOf(u);
@@ -12834,6 +12898,44 @@ const COFFIN_ART = `<ellipse cx="50" cy="94" rx="22" ry="4.2" fill="#000" opacit
   <path d="M33 79 H67" stroke="#5d6975" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
   <path d="M50 40 V68 M40 50 H60" stroke="#7ee696" stroke-width="3.6" stroke-linecap="round" opacity=".92"/>
   <path d="M37 14 L63 14 L75 34 L59 94 L41 94 L25 34 Z" fill="none" stroke="#7ee696" stroke-width="1" opacity=".3"/>`;
+
+/* THE BUNKER'S ANCHOR RIG (.anchors, shown by .unit.bunkered). Bulwark-7 anchored: splayed side
+   plates braced to the ground, four pitons driven in along the base, and a powered amber rail lit
+   between them — his own steel (#7d8aa3 / #f0a73a), so the rig reads as part of the machine and not
+   as a buff drawn on him. Symmetric on purpose: enemy units mirror their sprites, and a one-sided
+   rig would brace the wrong way on that side. The classes (.pl/.plR, .sp .s1–.s4, .core) are what
+   the CSS staggers when the state lands. */
+const ANCHOR_ART = `<ellipse cx="50" cy="94" rx="40" ry="6" fill="#000" opacity=".38"/>
+  <g class="pl plL">
+    <path d="M23 56 L35 61 L35 92 L17 92 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M22 66 L35 69 M20 78 L35 80" stroke="#434c5e" stroke-width="1.6"/>
+    <circle cx="26" cy="72" r="1.4" fill="#f0a73a"/><circle cx="25" cy="85" r="1.4" fill="#f0a73a"/>
+  </g>
+  <g class="pl plR">
+    <path d="M77 56 L65 61 L65 92 L83 92 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M78 66 L65 69 M80 78 L65 80" stroke="#434c5e" stroke-width="1.6"/>
+    <circle cx="74" cy="72" r="1.4" fill="#f0a73a"/><circle cx="75" cy="85" r="1.4" fill="#f0a73a"/>
+  </g>
+  <g class="sp s1"><rect x="29.4" y="83.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M30 86 h5 l-2.5 11 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s2"><rect x="41.9" y="85.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M42.5 88 h5 l-2.5 10 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s3"><rect x="53.9" y="85.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M54.5 88 h5 l-2.5 10 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s4"><rect x="66.4" y="83.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M67 86 h5 l-2.5 11 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="core">
+    <path d="M19 92 H81" stroke="#f0a73a" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>
+    <circle cx="50" cy="92" r="2.6" fill="#ffd28a"/>
+  </g>`;
+
+/* THE LEE (.shelter, shown by .unit.lee). The ally sent behind the bunker ducks in place behind a
+   plated parapet raised in FRONT of them (z above the sprite), in the bunker's steel and amber so
+   the two read as one work. In place rather than walked across the field: the sheltered champion
+   still owns their tile, their chips and their turn — the parapet plus the crouch (.unit.lee .upic)
+   says "unreachable" without moving a unit the layout still has to account for. */
+const SHELTER_ART = `<ellipse cx="50" cy="96" rx="36" ry="4.5" fill="#000" opacity=".35"/>
+  <path d="M15 96 L15 58 Q50 50 85 58 L85 96 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M15 68 Q50 60 85 68 M15 78 Q50 71 85 78 M15 88 Q50 82 85 88" fill="none" stroke="#434c5e" stroke-width="2"/>
+  <path d="M15 58 Q50 50 85 58" fill="none" stroke="#f0a73a" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M26 60 V96 M50 55 V96 M74 60 V96" stroke="#434c5e" stroke-width="1.6" opacity=".7"/>
+  <g fill="#f0a73a"><circle cx="32" cy="72" r="1.3"/><circle cx="50" cy="66" r="1.3"/><circle cx="68" cy="72" r="1.3"/><circle cx="38" cy="84" r="1.2"/><circle cx="62" cy="84" r="1.2"/></g>`;
 
 async function hurlCross(u, t, i, sk) {
   await strikePose(u, false, sk);   // he lifts his cross to the sky and calls the next one down
@@ -21473,11 +21575,19 @@ function buildTownMap() {
     [[21, 21], [21, 6.5], 1.8], [[21, 28.5], [9, 28.5], 1.8], [[31, 21.5], [31, 17], 1.4], [[12, 28.5], [12, 39.5], 1.4], [[12, 39.5], [10.6, 43.5], 1.2], [[10.6, 43.5], [12, 47], 1.2],
     [[21, 9], [17.5, 9], 1.4], [[33.4, 21.5], [33.4, 24], 1.2], [[22.1, 40.7], [27.2, 40.7], 1.3], [[21, 30], [27.5, 33.5], 1.4],
   ];
-  for (const [a, b, w] of ROADS) ground += road(a, b, w + .4, '#5e4c38') + road(a, b, w, roadCol);
+  /* TWO PASSES: every border first, then every fill. Drawn pairwise (border, fill, border, fill…),
+     each later road's dark border printed straight across the fills of the roads before it, so every
+     junction wore a dark bar — measured at 127,107,81 against the road's 160,138,106 before this.
+     With all the fills painted after all the borders, a crossing is just more road. The two bend
+     discs on the cave trail ride along in both passes for the same reason: a fill disc alone patched
+     the elbow's surface but left its border notched. */
+  for (const [a, b, w] of ROADS) ground += road(a, b, w + .4, '#5e4c38');
+  ground += disc(12, 39.5, .9, '#5e4c38', 0, NS) + disc(10.6, 43.5, .8, '#5e4c38', 0, NS);
+  for (const [a, b, w] of ROADS) ground += road(a, b, w, roadCol);
+  ground += disc(12, 39.5, .7, roadCol, 0, NS) + disc(10.6, 43.5, .6, roadCol, 0, NS);   // the trail's bends out to the cave
   ground += disc(21, 21, 4.3, '#5e4c38', 0, NS) + disc(21, 21, 4, '#8f7d68', 0, NS)
     + disc(21, 21, 3.1, 'none', 0, ' stroke="#6e5e4c" stroke-width="3" stroke-dasharray="16 9"')
     + disc(21, 21, 2.1, 'none', 0, ' stroke="#6e5e4c" stroke-width="3" stroke-dasharray="12 8"');
-  ground += disc(12, 39.5, .6, roadCol, 0, NS) + disc(10.6, 43.5, .6, roadCol, 0, NS);   // the trail's bends out to the cave
 
   // The square's bonfire.
   {
@@ -21586,13 +21696,20 @@ function buildTownMap() {
 const NIGHT = { color: '#0b0a1f', depth: .5 };
 function nightLayer() {
   const holes = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r)}" fill="url(#nightHole)" opacity="${l.a}"/>`).join('');
-  const pools = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r * .75)}" fill="url(#warmPool)" opacity="${(l.a * .45).toFixed(2)}"/>`).join('');
+  /* The pools composite PLAINLY — no mix-blend-mode: screen. The blend looked a touch more luminous,
+     but a blended group over this many stacked svg layers came up as GARBAGE on first paint — giant
+     pale road-angled slabs across the sky and forest ("overlapping stuff", reported from play
+     2026-10-22). Any repaint healed it (toggling the group off and on cleared the slabs with nothing
+     else changed), which marks it as a compositor first-paint artifact rather than geometry: all 104
+     lights measured sane (r 64–260, every one inside the map). Plain alpha at .55 instead of blended
+     .45 keeps the warmth, and draws the same on every load. */
+  const pools = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r * .75)}" fill="url(#warmPool)" opacity="${(l.a * .55).toFixed(2)}"/>`).join('');
   return `<defs>
       <radialGradient id="nightHole"><stop offset="0" stop-color="#000"/><stop offset=".45" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
       <radialGradient id="warmPool"><stop offset="0" stop-color="#ffb35c" stop-opacity=".6"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
       <mask id="nightMask" maskUnits="userSpaceOnUse" x="0" y="0" width="${MAP_W}" height="${MAP_H}"><rect width="${MAP_W}" height="${MAP_H}" fill="#fff"/>${holes}</mask>
     </defs>
-    <g class="night" pointer-events="none"><rect width="${MAP_W}" height="${MAP_H}" fill="${NIGHT.color}" opacity="${NIGHT.depth}" mask="url(#nightMask)"/><g style="mix-blend-mode:screen">${pools}</g></g>`;
+    <g class="night" pointer-events="none"><rect width="${MAP_W}" height="${MAP_H}" fill="${NIGHT.color}" opacity="${NIGHT.depth}" mask="url(#nightMask)"/><g>${pools}</g></g>`;
 }
 const TOWN_LABELS = {
   arena: 'The Arena: fight the gauntlet', elder: "Elder's Hut: lore and rules", carnival: 'Carnival: games that pay out gold',
@@ -22041,7 +22158,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${runsHot(u) && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
+      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg><svg class="anchors" viewBox="0 0 100 100" aria-hidden="true">${ANCHOR_ART}</svg><svg class="shelter" viewBox="0 0 100 100" aria-hidden="true">${SHELTER_ART}</svg></div>
     </div>`;
 }
 
@@ -25311,6 +25428,10 @@ function renderBattle() {
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
     el.classList.toggle('buried', buried(u));
+    // THE BUNKER, both halves: the machine braced in its anchor rig, the ally ducked behind the
+    // parapet. State classes like buried above — bunkerSkill plays the slam, these hold the look.
+    el.classList.toggle('bunkered', u.hp > 0 && bunkered(u));
+    el.classList.toggle('lee', u.hp > 0 && !!has(u, 'sheltered'));
     el.classList.toggle('aloft', aloft(u));   // Skyward Smash: up there, and not to be reached
     el.classList.toggle('apart', apart(u));   // Come Apart: he is not on the field to be seen or struck
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
