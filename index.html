@@ -2722,17 +2722,31 @@ svg.art .spentblade { opacity: 0; }
    below is the whole orientation story; the JS runs once at boot and listens for nothing.
 
    dvh/dvw with vh/vw fallbacks: on phones the URL bar grows and shrinks the real viewport, and
-   the static units would leave a dead strip under it. */
+   the static units would leave a dead strip under it.
+
+   WHY THE FRAME IS CENTERED, NOT PUSHED OFF THE RIGHT EDGE (2026-10-23). The upright-phone frame
+   used to live at left:100% and be dragged back across the screen by rotate(90°) about its
+   top-left. It filled the screen and input mapped through it — but its LAYOUT BOX sat entirely
+   off the right edge, and a browser that scores an iframe's on-screen-ness from the untransformed
+   box reads that as off-screen and PAUSES ITS requestAnimationFrame. setTimeout keeps running, so
+   the turn logic lived while every rAF-driven animation — every skill effect, bolt, dash, idle
+   bob — froze solid: the game played but nothing moved. Measured in Playwright: an iframe whose
+   box is off-screen gets 0 rAF ticks/sec in both WebKit and Chromium; a transform that paints it
+   back rescues rAF ONLY where the engine's intersection math folds in the transform, and iOS
+   Safari was flagged from day one as having its own opinions about iframes. The cure is to stop
+   depending on that: rotate about the CENTRE so the box stays centred on the viewport, genuinely
+   intersecting it. Output is pixel-identical — same 90° fill, same through-frame input — but no
+   off-screen heuristic can mistake a centred box, so rAF is never throttled. */
 html.shell body > :not(#rotor) { display: none !important; }
 html.shell #rotateGate { display: none !important; }   /* the shell IS the answer to portrait; never both */
 #rotor { position: fixed; inset: 0; background: #000; }
 #rotor iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; }
 @media (orientation: portrait) {
   html.shell #rotor iframe {
-    left: 100%; top: 0;
+    left: 50%; top: 50%;
     width: 100vh; width: 100dvh;
     height: 100vw; height: 100dvw;
-    transform: rotate(90deg); transform-origin: 0 0;
+    transform: translate(-50%, -50%) rotate(90deg); transform-origin: center center;
   }
 }
 
