@@ -26132,8 +26132,19 @@ try { window.claude?.hot?.snapshot?.(() => ({ state })); } catch (err) { /* not 
    landscape-shaped viewport. fr is checked first so the inner copy can never shell again;
    framed-without-fr means a bench (lab, sim, phone.html) owns this frame and sizes its own stage;
    ?shell=1 forces the shell on for desktop testing, where the pointer is fine and the predicate
-   below would pass on the game. Decided once at boot, no listeners — the CSS media query carries
-   every orientation flip from here, and the inner viewport never changes shape anyway. */
+   below would pass on the game. Decided once at boot, no orientation listeners — the CSS media
+   query carries every flip from here, and the inner viewport never changes shape anyway.
+
+   THE WATCHDOG (2026-10-23). A real phone showed the one thing every bench is incapable of
+   showing: the frame itself dying — white screen, the browser's own "can't open this page"
+   where the game should be. No desktop, no emulated iPhone reproduces it, so the shell stops
+   assuming the frame will live and starts requiring PROOF. The inner copy, once booted, tells
+   its parent so; it also tells on itself if it crashes, or if the frame handed it a viewport
+   that is not the landscape rectangle this whole scheme exists to provide. Silence or bad news
+   inside twelve seconds — generous enough for a cold cell-network load of this one fat file —
+   and the shell dismantles itself and boots the game INLINE, right here in the outer page,
+   which is exactly the boot that shipped before the shell existed. The worst phone in the
+   world now gets yesterday's game instead of a white rectangle. */
 const SHELL = (() => {
   try {
     const q = new URLSearchParams(location.search);
@@ -26143,7 +26154,14 @@ const SHELL = (() => {
     return matchMedia('(pointer: coarse)').matches && Math.min(innerWidth, innerHeight) <= 700;
   } catch (e) { return false; }
 })();
-function buildShell() {
+// Framed BY THE SHELL specifically (fr, and genuinely not top) — the voice that reports back.
+// Benches frame without fr and are never spoken to; ?fr typed into a top-level URL is ignored.
+const FR_SHELL = (() => {
+  try { return new URLSearchParams(location.search).has('fr') && window.self !== window.top; }
+  catch (e) { return false; }
+})();
+if (FR_SHELL) addEventListener('error', () => { try { parent.postMessage('burizza:dead', '*'); } catch (e) {} });
+function buildShell(data) {
   document.documentElement.classList.add('shell');
   const q = new URLSearchParams(location.search);
   q.set('fr', '1');
@@ -26153,10 +26171,32 @@ function buildShell() {
   f.src = `${location.pathname}?${q}`;
   f.title = 'Burizza';
   f.setAttribute('allow', 'autoplay; fullscreen');
+  f.setAttribute('scrolling', 'no');   // old iOS grows a scrollable frame to its content; never invite that
   r.appendChild(f);
   document.body.appendChild(r);
+  let done = false;
+  const bail = () => {
+    if (done) return; done = true;
+    clearTimeout(leash); removeEventListener('message', onWord);
+    r.remove();
+    document.documentElement.classList.remove('shell');
+    (NET.on ? netBoot() : Promise.resolve()).finally(() => start(data));
+  };
+  const onWord = (e) => {
+    if (e.origin !== location.origin || e.source !== f.contentWindow) return;
+    if (e.data === 'burizza:alive') { done = true; clearTimeout(leash); removeEventListener('message', onWord); }
+    else if (e.data === 'burizza:dead' || e.data === 'burizza:misfit') bail();
+  };
+  addEventListener('message', onWord);
+  const leash = setTimeout(bail, 12000);
 }
 const netReady = NET.on && !SHELL ? netBoot() : Promise.resolve();
-const launch = (data) => SHELL ? buildShell() : netReady.finally(() => start(data));
+const launch = (data) => SHELL ? buildShell(data) : netReady.finally(() => {
+  start(data);
+  // Booted inside the shell's frame: report. A portrait or degenerate viewport here means the
+  // frame is NOT the landscape rectangle the shell promised (the iOS sizing suspect from day
+  // one) — report misfit and let the outer page fall back to the inline boot instead.
+  if (FR_SHELL) { try { parent.postMessage(innerWidth >= innerHeight ? 'burizza:alive' : 'burizza:misfit', '*'); } catch (e) {} }
+});
 window.claude?.hot?.ready ? window.claude.hot.ready(launch) : launch(window.claude?.hot?.data ?? {});
 </script>
