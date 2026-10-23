@@ -2708,48 +2708,6 @@ svg.art .spentblade { opacity: 0; }
   .rgPhone { animation: none; transform: rotate(90deg); }
 }
 
-/* ================================================================
-   THE SIDEWAYS SHELL (buildShell, end of script). Asked for 2026-10-22: no card, no blocker —
-   the game is simply HORIZONTAL, however the phone is held. On a phone this page boots as a thin
-   holder that frames ITSELF (index.html?fr=1) and lays the frame across the screen: upright phone,
-   frame rotated 90°; phone on its side, frame straight. Either way the INNER viewport is the same
-   landscape rectangle — the game inside never rotates, never even resizes on an orientation flip.
-
-   Why a frame and not a transform on the game: the game measures itself with
-   getBoundingClientRect (stageBox and ~20 other sites), which answers in screen space. A rotated
-   ancestor swaps every axis and all of that math lands sideways. A frame's inside IS its own
-   screen — content never sees the parent's transform, which phone.html proves all day. The CSS
-   below is the whole orientation story; the JS runs once at boot and listens for nothing.
-
-   dvh/dvw with vh/vw fallbacks: on phones the URL bar grows and shrinks the real viewport, and
-   the static units would leave a dead strip under it.
-
-   WHY THE FRAME IS CENTERED, NOT PUSHED OFF THE RIGHT EDGE (2026-10-23). The upright-phone frame
-   used to live at left:100% and be dragged back across the screen by rotate(90°) about its
-   top-left. It filled the screen and input mapped through it — but its LAYOUT BOX sat entirely
-   off the right edge, and a browser that scores an iframe's on-screen-ness from the untransformed
-   box reads that as off-screen and PAUSES ITS requestAnimationFrame. setTimeout keeps running, so
-   the turn logic lived while every rAF-driven animation — every skill effect, bolt, dash, idle
-   bob — froze solid: the game played but nothing moved. Measured in Playwright: an iframe whose
-   box is off-screen gets 0 rAF ticks/sec in both WebKit and Chromium; a transform that paints it
-   back rescues rAF ONLY where the engine's intersection math folds in the transform, and iOS
-   Safari was flagged from day one as having its own opinions about iframes. The cure is to stop
-   depending on that: rotate about the CENTRE so the box stays centred on the viewport, genuinely
-   intersecting it. Output is pixel-identical — same 90° fill, same through-frame input — but no
-   off-screen heuristic can mistake a centred box, so rAF is never throttled. */
-html.shell body > :not(#rotor) { display: none !important; }
-html.shell #rotateGate { display: none !important; }   /* the shell IS the answer to portrait; never both */
-#rotor { position: fixed; inset: 0; background: #000; }
-#rotor iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; }
-@media (orientation: portrait) {
-  html.shell #rotor iframe {
-    left: 50%; top: 50%;
-    width: 100vh; width: 100dvh;
-    height: 100vw; height: 100dvw;
-    transform: translate(-50%, -50%) rotate(90deg); transform-origin: center center;
-  }
-}
-
 /* Portrait phones: the battle fits one screen. Ladder on top, the arena,
    a slim speed bar, your actions as a grid of icon buttons, then the latest log lines. */
 @media (orientation: portrait) and (max-width: 700px) {
@@ -26141,76 +26099,7 @@ try { window.claude?.hot?.snapshot?.(() => ({ state })); } catch (err) { /* not 
 // screens, so everything that reads `profile` sees the account, not the cache.
 // `launch` must stay clear of the hot?.ready token: the headless harness slices
 // the script at that token's first appearance, which has to remain the last line.
-/* THE SIDEWAYS SHELL (CSS at html.shell / #rotor). Top-level on a phone, this page boots nothing:
-   it builds a rotor and frames ITSELF (?fr=1), and the inner copy boots normally inside a
-   landscape-shaped viewport. fr is checked first so the inner copy can never shell again;
-   framed-without-fr means a bench (lab, sim, phone.html) owns this frame and sizes its own stage;
-   ?shell=1 forces the shell on for desktop testing, where the pointer is fine and the predicate
-   below would pass on the game. Decided once at boot, no orientation listeners — the CSS media
-   query carries every flip from here, and the inner viewport never changes shape anyway.
-
-   THE WATCHDOG (2026-10-23). A real phone showed the one thing every bench is incapable of
-   showing: the frame itself dying — white screen, the browser's own "can't open this page"
-   where the game should be. No desktop, no emulated iPhone reproduces it, so the shell stops
-   assuming the frame will live and starts requiring PROOF. The inner copy, once booted, tells
-   its parent so; it also tells on itself if it crashes, or if the frame handed it a viewport
-   that is not the landscape rectangle this whole scheme exists to provide. Silence or bad news
-   inside twelve seconds — generous enough for a cold cell-network load of this one fat file —
-   and the shell dismantles itself and boots the game INLINE, right here in the outer page,
-   which is exactly the boot that shipped before the shell existed. The worst phone in the
-   world now gets yesterday's game instead of a white rectangle. */
-const SHELL = (() => {
-  try {
-    const q = new URLSearchParams(location.search);
-    if (q.has('fr')) return false;
-    if (window.self !== window.top) return false;
-    if (q.has('shell')) return true;
-    return matchMedia('(pointer: coarse)').matches && Math.min(innerWidth, innerHeight) <= 700;
-  } catch (e) { return false; }
-})();
-// Framed BY THE SHELL specifically (fr, and genuinely not top) — the voice that reports back.
-// Benches frame without fr and are never spoken to; ?fr typed into a top-level URL is ignored.
-const FR_SHELL = (() => {
-  try { return new URLSearchParams(location.search).has('fr') && window.self !== window.top; }
-  catch (e) { return false; }
-})();
-if (FR_SHELL) addEventListener('error', () => { try { parent.postMessage('burizza:dead', '*'); } catch (e) {} });
-function buildShell(data) {
-  document.documentElement.classList.add('shell');
-  const q = new URLSearchParams(location.search);
-  q.set('fr', '1');
-  const r = document.createElement('div');
-  r.id = 'rotor';
-  const f = document.createElement('iframe');
-  f.src = `${location.pathname}?${q}`;
-  f.title = 'Burizza';
-  f.setAttribute('allow', 'autoplay; fullscreen');
-  f.setAttribute('scrolling', 'no');   // old iOS grows a scrollable frame to its content; never invite that
-  r.appendChild(f);
-  document.body.appendChild(r);
-  let done = false;
-  const bail = () => {
-    if (done) return; done = true;
-    clearTimeout(leash); removeEventListener('message', onWord);
-    r.remove();
-    document.documentElement.classList.remove('shell');
-    (NET.on ? netBoot() : Promise.resolve()).finally(() => start(data));
-  };
-  const onWord = (e) => {
-    if (e.origin !== location.origin || e.source !== f.contentWindow) return;
-    if (e.data === 'burizza:alive') { done = true; clearTimeout(leash); removeEventListener('message', onWord); }
-    else if (e.data === 'burizza:dead' || e.data === 'burizza:misfit') bail();
-  };
-  addEventListener('message', onWord);
-  const leash = setTimeout(bail, 12000);
-}
-const netReady = NET.on && !SHELL ? netBoot() : Promise.resolve();
-const launch = (data) => SHELL ? buildShell(data) : netReady.finally(() => {
-  start(data);
-  // Booted inside the shell's frame: report. A portrait or degenerate viewport here means the
-  // frame is NOT the landscape rectangle the shell promised (the iOS sizing suspect from day
-  // one) — report misfit and let the outer page fall back to the inline boot instead.
-  if (FR_SHELL) { try { parent.postMessage(innerWidth >= innerHeight ? 'burizza:alive' : 'burizza:misfit', '*'); } catch (e) {} }
-});
+const netReady = NET.on ? netBoot() : Promise.resolve();
+const launch = (data) => netReady.finally(() => start(data));
 window.claude?.hot?.ready ? window.claude.hot.ready(launch) : launch(window.claude?.hot?.data ?? {});
 </script>
