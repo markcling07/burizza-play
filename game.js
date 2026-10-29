@@ -7479,9 +7479,10 @@ const alliedBunker = (u) => alliesOf(u).find((a) => a.uid !== u.uid && a.hp > 0 
 // are back out. Only the bunker's own clock runs, so it still opens after its turns.
 const inBunker = (u) => bunkered(u) || sheltered(u);
 const fxFrozen = (u, e) => inBunker(u) && e.id !== 'bunker' && e.id !== 'sheltered';
-// The bunker's arrow shows while it is a player-controlled ally's turn and that ally can take cover in it.
+// The bunker's arrow shows while it is a player-controlled ally's turn and that ally can take cover in it
+// (and steps aside while the player is aiming some other skill, when a tap on it could not mean "hide").
 function coverCalls(host) {
-  if (state.phase !== 'choose') return false;
+  if (state.phase !== 'choose' || state.pending) return false;
   const a = unitBy(state.active);
   return !!a && a.side === host.side && a.uid !== host.uid && !sheltered(a) && commandable(a)
     && alliedBunker(a) === host && usable(a, TAKE_COVER);
@@ -9812,6 +9813,13 @@ function pendingAction(u) {
 }
 
 function onUnit(uid) {
+  /* A tap on a bunker that is calling your champion in (its "Take cover" arrow is up) IS Take Cover.
+     It used to fall through to the inspect below and swap the deck to Bulwark's own locked tiles,
+     hiding the very Take Cover button the arrow was pointing the player at. */
+  if (state.phase === 'choose' && !state.pending) {
+    const host = unitBy(uid);
+    if (host && host.hp > 0 && bunkered(host) && coverCalls(host)) return void onSkill(TAKE_COVER.id);
+  }
   // Not picking a target: the tap shows that fighter in the deck (your own champion brings yours back).
   if (state.phase !== 'choose' || !state.pending) {
     const t = unitBy(uid);
