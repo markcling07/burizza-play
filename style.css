@@ -1648,33 +1648,37 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   .unit.empowered .empowerfx::after { animation: none; opacity: .85; }
 }
 .charmfx { display: none; }
+/* CHARMED: two flat rings hugging the fighter, one at the waist and one at the feet, each a little
+   narrower than the figure (measured off the owner's sketch over Bulwark-7). Sized as shares of the
+   figure's box, so they fit a summon or a boss as well as a champion. */
 .unit.charmed .charmfx {
-  display: block; position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+  display: block; position: absolute; inset: 0;
   pointer-events: none; z-index: 6;
 }
 .unit.charmed .charmfx::before, .unit.charmed .charmfx::after {
-  content: ''; position: absolute; border-radius: 50%;
+  content: ''; position: absolute; border-radius: 50%; aspect-ratio: 1; height: auto; translate: 0 -50%;
   border: 2.5px solid #3ddc60;
   box-shadow: 0 0 6px rgba(61, 220, 96, .5);
-  width: 70px; height: 70px; left: -35px; top: -35px;
 }
-.unit.charmed .charmfx::before {
+.unit.charmed .charmfx::before {   /* the waist */
+  width: 90%; left: 5%; top: 58%;
   animation: charmOrbit1 3s linear infinite;
 }
-.unit.charmed .charmfx::after {
+.unit.charmed .charmfx::after {    /* the feet */
+  width: 80%; left: 10%; top: 88%;
   animation: charmOrbit2 3s linear infinite;
 }
 @keyframes charmOrbit1 {
-  0%   { transform: rotateX(70deg) rotateZ(0deg); }
-  100% { transform: rotateX(70deg) rotateZ(360deg); }
+  0%   { transform: rotateX(78deg) rotateZ(0deg); }
+  100% { transform: rotateX(78deg) rotateZ(360deg); }
 }
 @keyframes charmOrbit2 {
-  0%   { transform: rotateX(70deg) rotateZ(120deg); }
-  100% { transform: rotateX(70deg) rotateZ(480deg); }
+  0%   { transform: rotateX(78deg) rotateZ(120deg); }
+  100% { transform: rotateX(78deg) rotateZ(480deg); }
 }
 .unit.down .charmfx { display: none; }
 @media (prefers-reduced-motion: reduce) {
-  .unit.charmed .charmfx::before, .unit.charmed .charmfx::after { animation: none; opacity: .7; }
+  .unit.charmed .charmfx::before, .unit.charmed .charmfx::after { animation: none; transform: rotateX(78deg); opacity: .7; }
 }
 .hastefx { display: none; }
 .unit.hastened .hastefx {
