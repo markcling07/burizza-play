@@ -972,7 +972,7 @@ const ROSTER = [
     nature: { name: 'Flywheel', desc: 'At 50 Heat or more his many-cut skills cut once more — the blades are already spinning.', flywheel: 1 },
     skills: [D('Rip Saw', 'Strikes 2 times for 70% ATK damage each.', 2, 0.7, { hits: 2, bigSaw: true }),   // bigSaw: see ripSawSwing
              D('Grinder', 'Strikes 3 times for 55% ATK damage each. Applies Bleed for 3 turns.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
-             D('Shrapnel Spin', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2 }),
+             D('Shrapnel Spin', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2, sawThrow: true }),   // sawThrow: see discSawThrow
              D('Limb Shear', 'Deals 150% ATK damage. Ignores armor. 60% bonus damage to Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed' }),
              B('Rev Up', 'Increases damage by 30% for 2 turns. Reduces all cooldowns by 1.', 4, 'self', [['empower', 3]], { reduceCd: true }),
              /* The opener his kit never had. Everything else he owns is a knife looking for a
@@ -6768,11 +6768,12 @@ async function damageSkill(u, t, sk) {
   // rather than running in, so this joins the gust and the sweep in holding
   // its ground. Without it a melee Bulwark would dash into the enemy line and
   // then blow steam over everyone from inside it.
-  const melee = (u.role === 'melee' || o.dash) && !o.hurl && !o.gust && !o.watersweep && !o.steam;
+  // A thrown saw (Shrapnel Spin) is flung from where he stands, melee or not: no run-in, no projectile.
+  const melee = (u.role === 'melee' || o.dash) && !o.hurl && !o.gust && !o.watersweep && !o.steam && !o.sawThrow;
   const onSelf = melee && targets.every((tg) => tg.attach && tg.hostUid === u.uid);
   const preFace = u.face;
   if (onSelf) { u.face = u.side === 'p' ? 270 : 90; render(); await wait(200); }   // turn around to swing at the thing on your back
-  const proj = melee || o.hurl || o.gust || o.watersweep || o.steam ? null : projectileFor(u, sk);
+  const proj = melee || o.hurl || o.gust || o.watersweep || o.steam || o.sawThrow ? null : projectileFor(u, sk);
   let trip = melee && !onSelf && !o.groundSlam ? await dashTo(u, targets) : null;   // reassigned if a Double Attack charges in again
   /* Hydraulic Slam walks INTO the middle of their formation rather than
      running at one of them, and keeps its own way home: the rings go out along
@@ -6819,7 +6820,7 @@ async function damageSkill(u, t, sk) {
   // Tharos holds his ground: the trident goes up for a Riptide and down into the floor for an
   // Undertow, and the wave rolls out to the targets either way.
   else if (o.watersweep) { await (o.slam ? tridentSlam(u) : tridentRaise(u)); waterSweep(u, targets); }
-  else if (!melee && !o.hurl) await aimPose(u, sk);
+  else if (!melee && !o.hurl && !o.sawThrow) await aimPose(u, sk);   // a thrown saw winds up per throw (discSawThrow)
   if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
   /* Sighted Throw (swordCount) and Emptied Hands (swordBurst): his blades leave ONE BY ONE - each flies and lands before the next is
      thrown, so you see every sword travel. Fired together they would fly the same line and read as one. */
@@ -6911,6 +6912,14 @@ async function damageSkill(u, t, sk) {
         if (tg.hp <= 0 || u.hp <= 0) break;
         await hitOnce(tg, sk.mult);
       }
+    }
+  }
+  // Shrapnel Spin: one flat disk saw thrown across their whole line per hit, cutting each as it reaches them.
+  else if (o.sawThrow) {
+    for (let i = 0; i < hits; i++) {
+      const live = targets.filter((tg) => tg.hp > 0);
+      if (!live.length || u.hp <= 0) break;
+      await discSawThrow(u, i, live, (tg) => hitOnce(tg, sk.mult));
     }
   } else for (const tg of targets) {
     for (let i = 0; i < hits; i++) {
@@ -18508,6 +18517,56 @@ async function ripSawSwing(u, i, sk, tg) {
   }, c.ms);
   await sleep(SAW_CUT.hitMs);
   return true;
+}
+
+/* SHRAPNEL SPIN (Sawtooth): he flings a giant disk saw flat across the enemy warband and it whirls
+   back to his hand — once per hit, so twice (three times on a hot Flywheel). He stays where he
+   stands. It leaves his hand on the thrust of his attack clip (frame 12, where SAW_TRACK puts the
+   hand), lies flat as it flies (the blade squashed to an edge-on ellipse, still spinning), and
+   carves through the line in a sweep: top to bottom on the first throw, bottom to top on the next.
+   Each enemy is cut the moment it reaches them (onReach), not all at once at the end. */
+const DISC_RELEASE_MS = 480;   // frame 12 of his attack clip: the arm is out
+async function discSawThrow(u, pass, tgs, onReach) {
+  const s = stageBox(u), arena = $('#arena').getBoundingClientRect(), d = facing(u);
+  const pts = tgs.map((t) => { const e = stageBox(t); return e && { t, x: e.x, y: e.top + e.h * 0.55 }; }).filter(Boolean)
+    .sort((a, b) => (pass % 2 ? b.y - a.y : a.y - b.y));
+  if (reduced || !s || !pts.length) { for (const p of pts) await onReach(p.t); return; }
+  // The wind-up: his own thrust where he has a clip, a recoil where he has not.
+  const img = animImg(u), c = animOf(u)?.attack;
+  if (c && playAttack(u, true, null) != null) await sleep(DISC_RELEASE_MS);
+  else await aimPose(u);
+  // Out of his hand: the hand's spot at the release frame, read off the clip's box on the field.
+  let from = { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.55 };
+  if (img && c) {
+    const r = img.getBoundingClientRect(), [hx, hy] = SAW_TRACK.attack[12];
+    const fx = actorEl(u).classList.contains('lookW') ? 1 - hx / c.w : hx / c.w;
+    from = { x: r.left + fx * r.width - arena.left, y: r.top + (hy / c.h) * r.height - arena.top };
+  }
+  const path = [from, ...pts, from];
+  const legs = path.slice(1).map((p, i) => Math.hypot(p.x - path[i].x, p.y - path[i].y));
+  const total = legs.reduce((a, b) => a + b, 0) || 1;
+  let run = 0;
+  const offs = [0, ...legs.map((l) => (run += l) / total)];
+  const ms = beat(Math.max(650, total / 1.1));
+  const size = Math.round(s.w * 1.35);
+  const el = document.createElement('div');
+  el.className = 'discSaw';
+  el.innerHTML = `<i>${SAW_ART}</i>`;
+  Object.assign(el.style, { width: `${size}px`, height: `${size}px`, margin: `${-size / 2}px 0 0 ${-size / 2}px` });
+  $('#arena').appendChild(el);
+  el.animate(path.map((p, i) => ({ translate: `${p.x}px ${p.y}px`, offset: offs[i] })), { duration: ms, easing: 'linear', fill: 'forwards' });
+  const t0 = performance.now();
+  for (let i = 0; i < pts.length; i++) {
+    const due = t0 + offs[i + 1] * ms - performance.now();
+    if (due > 0) await sleep(due);
+    if (pts[i].t.hp <= 0) continue;
+    burst(pts[i].t, 'flak');   // sparks off them as the teeth go through
+    slashFx(pts[i].t, Math.sign(pts[i].x - path[i].x) || d);
+    await onReach(pts[i].t);
+  }
+  const left = t0 + ms - performance.now();
+  if (left > 0) await sleep(left);   // back in his hand
+  el.remove();
 }
 
 /* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).

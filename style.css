@@ -1520,7 +1520,13 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .sawRig.revving .sawBlade { filter: drop-shadow(0 0 4px rgba(255, 170, 60, .9)); }
 @keyframes sawSpin { to { rotate: 360deg; } }
 .unit.down .upic .sawRig { display: none; }
-/* ...and the cut it tears down (or up) its mark (sawRip). The durations are set inline from the clip's frames. */
+/* SHRAPNEL SPIN's thrown disk saw (discSawThrow): the same blade, laid flat — squashed to an edge-on
+   ellipse — and still spinning as it flies. Placed by translate in arena pixels; above the fighters. */
+.discSaw { position: absolute; left: 0; top: 0; z-index: 120; pointer-events: none;
+  filter: drop-shadow(0 0 5px rgba(255, 170, 60, .85)) drop-shadow(0 3px 2px rgba(0, 0, 0, .45)); }
+.discSaw i { display: block; width: 100%; height: 100%; scale: 1 .32; }
+.discSaw svg { display: block; width: 100%; height: 100%; overflow: visible; animation: sawSpin .14s linear infinite; }
+/* ...and the cut Rip Saw tears down (or up) its mark (sawRip). The durations are set inline from the clip's frames. */
 .sawRip { position: absolute; left: 50%; top: -6%; width: 22%; height: 112%; translate: -50% 0; z-index: 4; pointer-events: none;
   animation: sawRipFade linear forwards; }
 .sawRip svg { width: 100%; height: 100%; display: block; overflow: visible; transform-origin: 50% 0; scale: 1 0;
