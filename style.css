@@ -1520,6 +1520,20 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .sawRig.revving .sawBlade { filter: drop-shadow(0 0 4px rgba(255, 170, 60, .9)); }
 @keyframes sawSpin { to { rotate: 360deg; } }
 .unit.down .upic .sawRig { display: none; }
+/* LIMB SHEAR's grind (limbShearGrind / grindFx): the blade on his hand spins flat out, sparks spray back
+   off the cut, and the damage comes off as small tick numbers that all rise from the same spot. */
+.sawRig.grinding .sawBlade svg { animation-duration: .09s; }
+.grindSparks { position: absolute; width: 0; height: 0; z-index: 120; pointer-events: none; }
+.grindSparks i { position: absolute; left: -1px; top: -4px; width: 2px; height: 8px; border-radius: 1px;
+  background: linear-gradient(#fff, #ffd27a 45%, #ff8a2b); box-shadow: 0 0 3px #ffb347;
+  animation: grindSpark .32s linear infinite; animation-delay: var(--dl); }
+@keyframes grindSpark {
+  from { transform: rotate(var(--a)) translateY(0) scaleY(.6); opacity: 1; }
+  to { transform: rotate(var(--a)) translateY(-26px) scaleY(1.2); opacity: 0; }
+}
+.grindSparks.west { scale: -1 1; }   /* the spray leaves the far side of the cut, whichever way he faces */
+.float.tick { font-size: .78rem; animation-duration: .9s; }
+.float.tick.crit { font-size: .9rem; }
 /* SHRAPNEL SPIN's thrown disk saw (discSawThrow): the same blade, laid flat — squashed to an edge-on
    ellipse — and still spinning as it flies. Placed by translate in arena pixels; above the fighters. */
 .discSaw { position: absolute; left: 0; top: 0; z-index: 120; pointer-events: none;

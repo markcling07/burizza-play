@@ -25,6 +25,7 @@ and licence, and the blanket statement above no longer applies to that row.
 | NPC art | `characters/npcs/<id>.svg` | SVG | `0 0 100 100` | `<id>.svg` |
 | Skill icon | `skills/<slug>.svg` | SVG | `viewBox="0 0 64 64"` | skill name slugged: `Siren's Hush` → `sirens-hush.svg` |
 | Animation | `characters/animations/<id>-<action>.{gif,webp}` | GIF + WebP pair | — | `aelira-idle.webp` |
+| Held still | `characters/animations/<id>-<pose>.webp` | WebP only (one frame) | same box as the clip it was cut from | `sawtooth-thrust.webp`: frame 13 of `sawtooth-attack.webp`, held through Limb Shear's grind |
 
 The faction → folder map is `ART_FOLDER` in `index.html`; `stone` lives in
 `stoneleaf`, `tide` in `tideborn`, every other faction in a folder of its own

@@ -973,7 +973,7 @@ const ROSTER = [
     skills: [D('Rip Saw', 'Strikes 2 times for 70% ATK damage each.', 2, 0.7, { hits: 2, bigSaw: true }),   // bigSaw: see ripSawSwing
              D('Grinder', 'Strikes 3 times for 55% ATK damage each. Applies Bleed for 3 turns.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
              D('Shrapnel Spin', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2, sawThrow: true }),   // sawThrow: see discSawThrow
-             D('Limb Shear', 'Deals 150% ATK damage. Ignores armor. 60% bonus damage to Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed' }),
+             D('Limb Shear', 'Deals 150% ATK damage. Ignores armor. 60% bonus damage to Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed', grind: true }),   // grind: see limbShearGrind
              B('Rev Up', 'Increases damage by 30% for 2 turns. Reduces all cooldowns by 1.', 4, 'self', [['empower', 3]], { reduceCd: true }),
              /* The opener his kit never had. Everything else he owns is a knife looking for a
                 soft target; this is the skill that MAKES one, and it is deliberately the worst
@@ -6008,7 +6008,8 @@ function strikeOnce(u, t, mult, label, o) {
   knock(t, crit);
   if (crit && u.side === 'p' && !o.counter) questEvent('crit');   // bounties count your crits (not riposte counters)
   const mIcon = o.element ? `${ELEM_ICON[o.element] || '✨'} ` : '';   // magic / elemental hits show their element
-  float(t, crit ? `${mIcon}${taken}!` : `${mIcon}${taken}`, crit ? 'crit' : 'dmg');   // a linked target pops only its own share
+  // A linked target pops only its own share. A grind (Limb Shear) pops nothing here: its ticks are the number.
+  if (!o.grind) float(t, crit ? `${mIcon}${taken}!` : `${mIcon}${taken}`, crit ? 'crit' : 'dmg');
   log(`${u.name}'s ${label} hits ${t.name} for ${dmg}${crit ? ' (critical)' : ''}.`, u.side);
 
   if (u.faction === 'tide' && t.hp > 0) addFx(t, 'soaked', 2, 0, true);
@@ -6064,7 +6065,7 @@ function strikeOnce(u, t, mult, label, o) {
   // closes in to strike a Mech. Ranged units trade fire from afar and are never seared.
   if (runsHot(u) && u.role === 'melee') searContact(u, t);   // a melee Mech's blow sears the enemy it struck
   if (runsHot(t) && u.role === 'melee') searContact(t, u);   // striking a hot Mech up close burns the attacker
-  return { dmg, crit };
+  return { dmg, crit, taken };   // taken: what the target's own number shows (a grind ticks it out)
 }
 
 // Restores mana (capped at max). Returns how much was actually gained.
@@ -6863,6 +6864,7 @@ async function damageSkill(u, t, sk) {
     }
     render();
     await wait(o.rampage ? RAMPAGE_GAP : hits > 1 ? 130 : 160);
+    return r;
   };
   /* RAMPAGE (Blood Frenzy): he throws himself at the one he was sent at, then CUTS BACK AND FORTH
      through the warband - every blow crossing to the other line from the one before it, front to back
@@ -6930,6 +6932,8 @@ async function damageSkill(u, t, sk) {
       // there is no swing of his to play at each of them.
       else if (o.groundSlam && melee) { /* no per-target swing */ }
       else if (o.bigSaw && melee && await ripSawSwing(u, i, sk, tg)) { /* Rip Saw: the swollen blade has ripped through (see ripSawSwing) */ }
+      // Limb Shear: the blow lands inside the grind, which plays its damage out as ticks (limbShearGrind).
+      else if (o.grind && melee) { await limbShearGrind(u, tg, () => hitOnce(tg, sk.mult)); continue; }
       else if (melee) await strikePose(u, false, sk, 1, tg);
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
@@ -18360,7 +18364,7 @@ function fetchClip(src) {
 function prefetchClips() {
   for (const u of allUnits()) {
     const a = animOf(u);
-    if (a) for (const k of Object.keys(a)) if (k === 'attack' || k === 'load' || k === 'shot' || k.startsWith('s-')) fetchClip(a[k].src);
+    if (a) for (const k of Object.keys(a)) if (k === 'attack' || k === 'load' || k === 'shot' || k === 'thrust' || k.startsWith('s-')) fetchClip(a[k].src);
   }
 }
 
@@ -18420,6 +18424,7 @@ const SAW_REPEAT_MS = 960;  // frame 24: the arm has come back round, so the nex
 const SAW_CUT = { from: 12, to: 20, hitMs: 640, leap: 95, dip: 6, slide: 11, reach: 9 };
 const SAW_TRACK = {
   idle: [224, 187],
+  thrust: [266, 195],   // the held thrust (sawtooth-thrust.webp, his attack clip's frame 13): arm out, saw forward
   attack: [[223, 184], [222, 184], [219, 184], [215, 185], [210, 186], [205, 187], [201, 188], [198, 189],
     [195, 189], [194, 189], [192, 190], [201, 191], [240, 190], [266, 195], [270, 193], [265, 201],
     [268, 199], [264, 201], [269, 197], [267, 203], [270, 201], [267, 202], [266, 199], [257, 194],
@@ -18567,6 +18572,107 @@ async function discSawThrow(u, pass, tgs, onReach) {
   const left = t0 + ms - performance.now();
   if (left > 0) await sleep(left);   // back in his hand
   el.remove();
+}
+
+/* LIMB SHEAR (Sawtooth): he thrusts the saw into the mark's body and holds it there — the blade on
+   his hand swollen big and spinning, both of them shaking, sparks spraying off the cut (grindFx) —
+   and the damage comes off as a run of
+   ticks until it reaches exactly what the blow dealt. The blow itself is ONE strikeOnce, rolled the
+   moment the teeth bite, so crits, armour, the Bleed bonus, shields, counters and a kill all resolve
+   exactly as they always have; only the showing of it is spread out. While the ticks run, the bar
+   reads grindShown (what has come off so far) and a fatal blow keeps them standing until the last
+   tick (render reads grindShown for both). The single number strikeOnce would pop is held back
+   (o.grind), so the ticks ARE the number. */
+const GRIND_MS = 1300, GRIND_TICKS = 9;
+// A tick's number: from the same spot every time, not stacked down the body like ordinary pops.
+function tickFloat(t, n, crit) {
+  const host = document.querySelector(`#u-${t.uid} .upic`);
+  if (!host || n <= 0) return;
+  const el = document.createElement('span');
+  el.className = `float tick ${crit ? 'crit' : 'dmg'}`;
+  el.textContent = n;
+  el.style.marginLeft = `${Math.round((Math.random() - 0.5) * 22)}px`;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+// The grind's look, started; returns the function that ends it.
+function grindFx(u, t) {
+  const s = stageBox(u), e = stageBox(t), b = bodyEl(u), tb = bodyEl(t);
+  if (reduced || !s || !e || !b) return () => {};
+  const d = facing(u), arena = $('#arena').getBoundingClientRect();
+  const img = animImg(u), a = animOf(u), still = a?.thrust, blob = still && clipBlobs.get(still.src), upic = b.querySelector('.upic');
+  // Where the saw is: on his outstretched hand in the held thrust (see SAW_TRACK), or out in front on the plain art.
+  let hand = { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.55 }, rig = null, url = null;
+  if (img && blob) {
+    // He holds the thrust — arm out, saw pointed at them — for as long as the grind lasts. A still of
+    // his attack clip's thrust frame, because an animated WebP cannot be paused on a frame.
+    url = URL.createObjectURL(blob);
+    sizeClip(img, still, u.side);
+    img.src = url;
+    const r = img.getBoundingClientRect(), [hx, hy] = SAW_TRACK.thrust;
+    const fx = actorEl(u).classList.contains('lookW') ? 1 - hx / still.w : hx / still.w;
+    hand = { x: r.left + fx * r.width - arena.left, y: r.top + (hy / still.h) * r.height - arena.top };
+    // The blade on his hand swells big over the painted one and spins flat out.
+    img.parentElement.querySelector('.sawRig')?.remove();
+    img.insertAdjacentHTML('afterend', `<div class="sawRig revving grinding" aria-hidden="true"><i class="sawBlade">${SAW_ART}</i></div>`);
+    rig = img.nextElementSibling;
+    for (const k of ['--aw', '--ah', '--ax']) rig.style.setProperty(k, img.style.getPropertyValue(k));
+    Object.assign(rig.firstElementChild.style, { width: `${(2 * SAW_R / still.w) * 100}%`, translate: sawAt(SAW_TRACK.thrust) });
+    rig.firstElementChild.animate([{ scale: 1 }, { scale: SAW_BIG * 1.08, offset: 0.7 }, { scale: SAW_BIG }], { duration: 200, easing: 'ease-out', fill: 'forwards' });
+  }
+  // He presses in until the saw sits on their body, then shakes there.
+  const aim = { x: e.x - d * e.w * 0.1, y: e.top + e.h * 0.5 };
+  const dx = d * Math.max(-s.w * 0.2, Math.min(s.w, (aim.x - hand.x) * d));
+  const dy = Math.max(-s.h * 0.35, Math.min(s.h * 0.35, aim.y - hand.y));
+  const anims = [];
+  if (upic) {
+    anims.push(upic.animate([{ translate: '0 0' }, { translate: `${dx}px ${dy}px` }], { duration: 140, easing: 'ease-out', fill: 'forwards' }));
+    anims.push(upic.animate([{ rotate: '0deg' }, { rotate: `${d * 1.6}deg` }, { rotate: `${-d * 1.2}deg` }, { rotate: '0deg' }], { duration: 90, iterations: Infinity }));
+  }
+  const tup = tb?.querySelector('.upic');
+  if (tup) anims.push(tup.animate([{ translate: '0 0' }, { translate: `${d * 1.5}px -1px` }, { translate: `${-d}px 1px` }, { translate: '0 0' }], { duration: 70, iterations: Infinity }));
+  // Sparks spraying back off the cut, the way the blade is turning.
+  const sp = document.createElement('div');
+  sp.className = 'grindSparks';
+  if (d < 0) sp.classList.add('west');
+  Object.assign(sp.style, { left: `${hand.x + dx}px`, top: `${hand.y + dy}px` });
+  sp.innerHTML = [-70, -50, -35, -20, -5, 10, 25].map((ang, k) => `<i style="--a:${ang}deg;--dl:${-k * 45}ms"></i>`).join('');
+  $('#arena').appendChild(sp);
+  return () => {
+    sp.remove();
+    for (const an of anims) an.cancel();
+    if (upic) upic.animate([{ translate: `${dx}px ${dy}px` }, { translate: '0 0' }], { duration: 160, easing: 'ease-in' });
+    rig?.remove();
+    if (url && img.src === url) {   // back to his resting loop, the blade back to its painted size
+      const rest = restClip(u, a);
+      sizeClip(img, rest, u.side);
+      img.src = ANIM_DIR + rest.src;
+      URL.revokeObjectURL(url);
+    }
+  };
+}
+async function limbShearGrind(u, t, land) {
+  const before = t.hp;
+  const stop = grindFx(u, t);
+  await wait(200);   // the teeth find the cut
+  t.grindShown = before;   // the bar holds while the ticks take it down
+  const r = await land();   // the blow, exactly as it always lands — its number held back (o.grind)
+  // The ticks add up to the blow's own number (what the single pop would have said, overkill and all),
+  // and the bar is paced to reach what the blow actually left on the very last tick — so a killing
+  // blow grinds the whole way and they drop at the end of it, not halfway with ticks still coming.
+  const sum = r && !r.miss ? r.taken ?? r.dmg : 0, lost = Math.max(0, before - t.hp);
+  if (!sum) { delete t.grindShown; stop(); render(); return; }
+  for (let k = 1, done = 0; k <= GRIND_TICKS; k++) {
+    const n = Math.round((sum * k) / GRIND_TICKS) - done;   // rounded so the run adds up to exactly `sum`
+    done += n;
+    t.grindShown = before - Math.round((lost * k) / GRIND_TICKS);
+    tickFloat(t, n, r.crit);
+    render();
+    await wait(GRIND_MS / GRIND_TICKS);
+  }
+  delete t.grindShown;
+  stop();
+  render();
 }
 
 /* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).
@@ -21093,7 +21199,7 @@ function renderTrack(ms) {
     el.classList.toggle('stagger', isStagger && !isFrozen);
     el.classList.toggle('halt', halted && !isFrozen);
     el.classList.toggle('slow', isSlow && !isFrozen && !isStagger);
-    el.classList.toggle('down', u.hp <= 0);
+    el.classList.toggle('down', (u.grindShown ?? u.hp) <= 0);   // mid-grind a fatal blow is not shown until its last tick
     el.classList.toggle('silenced', !!has(u, 'silence') && u.hp > 0);
     el.classList.toggle('hastened', !!has(u, 'haste') && u.hp > 0);
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
@@ -21268,7 +21374,9 @@ function renderBattle() {
   for (const u of allUnits()) {
     const el = $(`#u-${u.uid}`);
     if (!el) continue;
-    const hpShown = u.grudge ? 0 : u.hp;   // Grudge Axe: held on 1, shown as the 0 it really is
+    // Grudge Axe: held on 1, shown as the 0 it really is. Mid-grind (Limb Shear), the bar shows what the
+    // ticks have taken so far, not the blow's full result.
+    const hpShown = u.grudge ? 0 : u.grindShown ?? u.hp;
     el.querySelector('.bar.hp .fill').style.width = `${(hpShown / u.maxHp) * 100}%`;
     el.querySelector('.bar.hp span').textContent = u.summon ? `${hpShown}`   // a summon's short bar only has room for what is left
       : u.inert && u.attach !== 'anchor' ? `${hpShown} / ${u.maxHp} blows` : `${hpShown} / ${u.maxHp}`;
@@ -21342,7 +21450,7 @@ function renderBattle() {
     el.classList.toggle('leaking', !!has(u, 'leak') && u.hp > 0);
     syncWardArt(el, u);                                                     // ...and his shield is drawn lit
     syncHeldWeapon(el, u);                                                  // ...and everyone holds the weapon they racked
-    el.classList.toggle('down', u.hp <= 0);
+    el.classList.toggle('down', (u.grindShown ?? u.hp) <= 0);   // mid-grind a fatal blow is not shown until its last tick
     el.classList.toggle('acting', state.active === u.uid && !state.moving && !['won', 'lost', 'cleared'].includes(state.phase));
     // The Pale Host's Undying stand, and Mortessa's coffin: both are states you need to see at a glance.
     el.classList.toggle('undying', undyingOn(u));

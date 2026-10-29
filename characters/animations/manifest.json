@@ -244,6 +244,16 @@
       "frameMs": 40,
       "ms": 1280,
       "hitMs": 520
+    },
+    "thrust": {
+      "src": "sawtooth-thrust.webp",
+      "w": 400,
+      "h": 280,
+      "footX": 150,
+      "footY": 265,
+      "frames": 1,
+      "frameMs": 0,
+      "ms": 0
     }
   },
   "arclight": {
