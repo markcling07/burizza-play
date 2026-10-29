@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Harrowgate Footman (monster) - Ashfall Road art v2. House soldier: kettle helm, wine-and-gold
+     livery tabard over a studded brigandine, a halberd grounded at his side.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="hf-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0c7a4"/><stop offset=".55" stop-color="#d49c76"/><stop offset="1" stop-color="#a26f50"/></linearGradient>
+    <linearGradient id="hf-wine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a3f5a"/><stop offset=".5" stop-color="#55283d"/><stop offset="1" stop-color="#341626"/></linearGradient>
+    <linearGradient id="hf-wineD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a2234"/><stop offset="1" stop-color="#26101b"/></linearGradient>
+    <linearGradient id="hf-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbe39a"/><stop offset=".5" stop-color="#d9b44a"/><stop offset="1" stop-color="#94742a"/></linearGradient>
+    <linearGradient id="hf-iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset=".5" stop-color="#9aa3b5"/><stop offset="1" stop-color="#5c6476"/></linearGradient>
+    <linearGradient id="hf-ironD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8790a2"/><stop offset="1" stop-color="#454c5c"/></linearGradient>
+    <linearGradient id="hf-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5038"/><stop offset=".5" stop-color="#553624"/><stop offset="1" stop-color="#34211a"/></linearGradient>
+    <linearGradient id="hf-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a5e3c"/><stop offset="1" stop-color="#4e321f"/></linearGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".38"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- the halberd, grounded behind him -->
+    <rect x="66.6" y="14" width="2.6" height="80" rx="1" fill="url(#hf-wood)"/>
+    <path d="M67.4 22 v6 M68.4 40 v7 M67.6 60 v6" stroke="#3a2410" stroke-width=".4" opacity=".5"/>
+    <path d="M67.9 6 L70.4 15 L65.4 15 Z" fill="url(#hf-iron)"/>
+    <path d="M69.2 16 Q78 15 80.5 22 Q78.5 28 69.2 27 Z" fill="url(#hf-iron)"/>
+    <path d="M71 18 Q76.5 18.5 78.4 22 M71 25.2 Q76.2 25.3 78.4 22.4" stroke="#fff" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M66.6 18 L60.5 15.6 L61.4 21 L66.6 20.6 Z" fill="url(#hf-ironD)"/>
+    <rect x="65.8" y="27" width="4.2" height="2.2" rx=".6" fill="url(#hf-gold)"/>
+    <path d="M66.2 29.2 Q64.5 33 65.6 36.5 Q67 33 68 29.2" fill="#55283d"/>
+    <!-- back arm -->
+    <path d="M40 43 Q35 51 35.5 60 L41 61 Q41.5 54 45 48 Z" fill="url(#hf-wineD)"/>
+    <circle cx="38.2" cy="61.6" r="3" fill="#a26f50"/>
+    <!-- legs: hose and boots -->
+    <path d="M42 70 h8 l-.5 16 h-8 z" fill="url(#hf-wineD)"/>
+    <path d="M52.5 70 h8 l1 16 h-8 z" fill="url(#hf-wine)"/>
+    <path d="M40.5 85 h10 v3 l2.5 2 v3.6 h-13.2 z" fill="url(#hf-leather)"/>
+    <path d="M53 85 h9.6 v3 l3.2 2 v3.6 h-13.6 z" fill="url(#hf-leather)"/>
+    <path d="M41.5 87.5 h8 M54 87.5 h8" stroke="#2a1a13" stroke-width=".6" opacity=".6"/>
+    <!-- brigandine: studded coat showing below and at the arms -->
+    <path d="M39.5 46 Q50 41 61.5 46 L63 72 Q50 75 38 72 Z" fill="url(#hf-ironD)"/>
+    <g fill="#d6dbe4">
+      <circle cx="41" cy="66" r=".7"/><circle cx="44" cy="68.5" r=".7"/><circle cx="47" cy="70" r=".7"/><circle cx="53" cy="70" r=".7"/><circle cx="56" cy="68.6" r=".7"/><circle cx="59.4" cy="66.5" r=".7"/><circle cx="61.4" cy="70" r=".7"/><circle cx="40" cy="70" r=".7"/>
+    </g>
+    <!-- livery tabard -->
+    <path d="M42 45 Q50 42 58.5 45 L59.5 70.5 L55.5 68 L52.5 72 L50 68.6 L47.5 72 L44.5 68 L40.6 70.5 Z" fill="url(#hf-wine)"/>
+    <path d="M42 45 Q50 42 58.5 45 L59.5 70.5 L55.5 68 L52.5 72 L50 68.6 L47.5 72 L44.5 68 L40.6 70.5 Z" stroke="url(#hf-gold)" stroke-width="1" fill="none"/>
+    <!-- the house sigil: a gold gatehouse -->
+    <path d="M46.5 53 v7.5 h7 v-7.5 l-1.2 -1.4 l-1.2 1.4 l-1.1 -1.4 l-1.2 1.4 l-1.1 -1.4 Z" fill="url(#hf-gold)"/>
+    <path d="M49 60.5 v-3 Q50 55.5 51 57.5 v3" fill="#341626"/>
+    <!-- sword belt -->
+    <path d="M40.5 62.6 Q50 60.8 60.4 62.6 L60.6 65 Q50 63.2 40.4 65 Z" fill="url(#hf-leather)"/>
+    <rect x="48.4" y="61.6" width="3.4" height="3.2" rx=".5" fill="url(#hf-gold)"/>
+    <!-- arming sword at the hip -->
+    <path d="M42 64 L37 79" stroke="#2a1a13" stroke-width="2.4"/>
+    <path d="M40.6 61.8 L44.4 63.6" stroke="url(#hf-gold)" stroke-width="1.6"/>
+    <!-- gorget and shoulders -->
+    <path d="M42.5 42.5 Q50 39.5 57.5 42.5 L57 46 Q50 43.6 43 46 Z" fill="url(#hf-iron)"/>
+    <path d="M37.5 44.5 Q41 40.5 45.5 42.5 L44 49 Q40 49 37.5 47.5 Z" fill="url(#hf-iron)"/>
+    <path d="M55 42.5 Q60 40.5 63 44.5 L62.6 48 Q58.5 49 56 48.5 Z" fill="url(#hf-iron)"/>
+    <path d="M39 43.5 Q41.5 42 44 42.8 M56.5 42.6 Q59.5 41.8 61.6 43.6" stroke="#fff" stroke-width=".6" fill="none" opacity=".7"/>
+    <!-- head -->
+    <path d="M45.5 32 Q46 26 51 25.5 Q56.5 25.6 57.4 31.5 Q58 37 55 40 Q51.5 42.2 48 40.5 Q45.5 38 45.5 32 Z" fill="url(#hf-skin)"/>
+    <path d="M47 37 Q50 41.5 55.5 39.2" stroke="#6b5040" stroke-width="2" fill="none" opacity=".35"/>
+    <path d="M57.2 32 L59.2 34.6 L57.4 35.4" fill="#d49c76"/>
+    <circle cx="54.6" cy="32.4" r=".9" fill="#2a1a13"/>
+    <path d="M52.8 30.6 L56.2 30" stroke="#5a3a28" stroke-width=".8"/>
+    <path d="M54 37.4 Q55.6 37.8 56.8 37.2" stroke="#7a4632" stroke-width=".6" fill="none"/>
+    <!-- kettle helm -->
+    <path d="M44.4 31 Q44.8 21.5 51.2 21 Q57.6 21.3 58.4 30.6 Z" fill="url(#hf-iron)"/>
+    <path d="M40.6 31.4 Q51 28.6 62 31.2 L60.8 33.2 Q51 30.8 41.6 33.4 Z" fill="url(#hf-ironD)"/>
+    <path d="M51.2 21 L51.2 30" stroke="#5c6476" stroke-width=".8"/>
+    <path d="M46.2 26.8 Q47.6 22.8 51 22.4" stroke="#fff" stroke-width=".9" fill="none" opacity=".75"/>
+    <path d="M42 31.4 Q51 29.4 60.6 31.2" stroke="#d6dbe4" stroke-width=".5" fill="none" opacity=".7"/>
+    <!-- front arm gripping the halberd -->
+    <path d="M56.5 45 Q62.5 47 65 53 L66 56 L61.5 58 L59.8 54 Q57.6 51 54.5 50.5 Z" fill="url(#hf-wine)"/>
+    <path d="M60.5 49.4 Q63 51.5 64 54" stroke="#341626" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M62.2 55.6 Q66 53 69.8 55.2 Q70.6 58.4 67.8 60.4 Q64 61 62.2 58.6 Z" fill="url(#hf-skin)"/>
+    <path d="M66.6 56.2 h4 M66.2 58.4 h4" stroke="#a26f50" stroke-width=".6"/>
+    <path d="M60.5 54.5 L65.2 53.8" stroke="url(#hf-gold)" stroke-width="1"/>
+  </g>
+</svg>

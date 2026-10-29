@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Grave Hound (monster) - Ashfall Road art v2. A watchdog buried with its master and dug back up:
+     a gaunt grey mastiff, the hide torn open over the ribs, hackles up and lips curled off red gums,
+     a heavy spiked collar with a tarnished name tag, grave dirt to the elbows, eyes like coals.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="gv-hide" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a8494"/><stop offset=".5" stop-color="#4a4650"/><stop offset="1" stop-color="#29262e"/></linearGradient>
+    <linearGradient id="gv-hideD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#47434e"/><stop offset="1" stop-color="#1c1a20"/></linearGradient>
+    <linearGradient id="gv-hideH" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#a9a3b2"/><stop offset="1" stop-color="#4a4650" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gv-collar" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c46e68"/><stop offset=".5" stop-color="#9a4a4a"/><stop offset="1" stop-color="#5a2728"/></linearGradient>
+    <linearGradient id="gv-iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2e4ea"/><stop offset=".5" stop-color="#8d919c"/><stop offset="1" stop-color="#4a4d56"/></linearGradient>
+    <linearGradient id="gv-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6c27a"/><stop offset=".5" stop-color="#9a8a46"/><stop offset="1" stop-color="#5a5028"/></linearGradient>
+    <linearGradient id="gv-bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2ecd9"/><stop offset="1" stop-color="#b0a68c"/></linearGradient>
+    <linearGradient id="gv-dirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5c4632"/><stop offset="1" stop-color="#2f241a"/></linearGradient>
+    <radialGradient id="gv-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff0d6"/><stop offset=".45" stop-color="#ff6a4a"/><stop offset="1" stop-color="#ff6a4a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gv-maw" cx=".6" cy=".4" r=".7"><stop offset="0" stop-color="#5a1f22"/><stop offset="1" stop-color="#1a0b0c"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="30" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- far legs -->
+    <path d="M30 58 Q34.6 58.6 38.2 62.6 Q38.4 66.6 37.2 70 Q35 75.6 32.4 81.4 Q32.2 86 33.4 90 L29.2 90.4 Q28 85.6 28.2 81 Q29.4 76.6 30.4 72 Q28.6 66 30 58 Z" fill="url(#gv-hideD)"/>
+    <path d="M28.4 89.6 Q31.6 88 34.8 89.8 L36.4 92 Q36.2 94 34.6 94 L28.4 94 Q27.2 91.8 28.4 89.6 Z" fill="#2a2420"/>
+    <path d="M51.6 58 Q55.8 57 57.4 61.4 L57.8 70 L57.4 82.6 Q57.6 86.4 58.4 89.6 L54 90.2 Q53.2 86.4 53.4 83 L53 70 Q51.4 64.6 51.6 58 Z" fill="url(#gv-hideD)"/>
+    <path d="M53.2 89.6 Q56.6 88 59.8 89.6 L61.4 92 Q61.2 94 59.6 94 L53.2 94 Q52 91.8 53.2 89.6 Z" fill="#2a2420"/>
+    <path d="M53.2 80 Q55.6 78.6 57.6 80.4 L57.8 85.6 Q55.4 84.6 53.6 86 Z M28.6 79 Q30.8 77.8 32.8 79.6 L32.6 84 Q30.4 83.2 28.6 84.4 Z" fill="url(#gv-dirt)" opacity=".85"/>
+    <!-- bare rat tail -->
+    <path d="M21.6 47.4 Q13.6 49.4 11.6 57.6 Q10.6 63.6 6.6 67.4 Q9.4 63.4 9.8 57.6 Q11.2 51 20.6 50.4 Z" fill="url(#gv-hideD)"/>
+    <path d="M16.4 50.6 l.6 1.2 M13.6 53.6 l1 .9 M12 57.4 l1.2 .5 M11.2 61.4 l1.2 .3" stroke="#6a6474" stroke-width=".6" opacity=".7"/>
+    <!-- body: deep chest, starved waist -->
+    <path d="M21 47.6 Q24 43.2 29.4 43.4 Q35 44.4 39 47.6 Q46 46 51 43.6 Q55.4 41.6 59 41.8 Q62 41.4 64 40 L71 43 L71.6 56 Q69.6 61 67.6 64.6 Q65.4 68.8 59.6 68.6 Q53 68 48 64.6 Q42 61.4 36.6 62 Q33 63 31 66.4 Q25 64.6 21.8 58.4 Q20 53 21 47.6 Z" fill="url(#gv-hide)"/>
+    <path d="M24.4 45 Q31 43.2 37.4 46.6 M43.6 46.6 Q50.6 43.6 58 42.4" stroke="url(#gv-hideH)" stroke-width="1.6" fill="none" opacity=".7"/>
+    <path d="M47 62.6 Q53 66.6 60 67" stroke="#1c1a20" stroke-width=".7" fill="none" opacity=".55"/>
+    <g fill="#5c5766" opacity=".8"><path d="M33.6 52 q2.4 -1.2 4 .6 q-1.4 2 -3.6 1.4 z"/><path d="M58.6 49.6 q2 -.8 3 .8 q-1.2 1.4 -2.8 .8 z"/></g>
+    <!-- spine knuckling through the hide -->
+    <g fill="#77717f"><circle cx="40.6" cy="48" r="1"/><circle cx="44" cy="46.8" r="1"/><circle cx="47.4" cy="45.7" r="1"/><circle cx="50.8" cy="44.4" r="1"/><circle cx="26.4" cy="44.6" r="1"/></g>
+    <!-- the hide torn open over the ribs -->
+    <path d="M41.6 48.4 L44 47.2 L46.6 48.2 L49.4 46.6 L52.2 47.8 L55.2 47 L55.6 51.6 L54.2 53.6 L55.4 56.6 L52 58.6 L48.6 57.6 L45 59 L42.6 56.2 L43.4 53 Z" fill="#9a4a4a"/>
+    <path d="M42.6 49.2 L44.4 48.4 L46.6 49.2 L49.4 47.8 L52 48.8 L54.4 48.2 L54.6 51.4 L53.2 53.6 L54.2 56 L51.8 57.6 L48.6 56.6 L45.2 57.8 L43.6 55.6 L44.2 52.8 Z" fill="#221a1f"/>
+    <path d="M45.2 48.8 Q44.2 52.6 45.6 57.4 M48 48.4 Q47.2 52.4 48.4 56.8 M50.8 48.6 Q50 52.4 51.2 57.2 M53.6 48.6 Q53 51.6 53.6 55.4" stroke="url(#gv-bone)" stroke-width="1.5" fill="none"/>
+    <path d="M41.6 48.4 L44 47.2 L46.6 48.2 L49.4 46.6 L52.2 47.8 L55.2 47" stroke="#a59fae" stroke-width=".6" fill="none" opacity=".8"/>
+    <!-- near hind leg, coiled -->
+    <path d="M22 46.4 Q17.6 50.4 18.4 58 Q19.2 64.8 21.6 70 Q20.2 75.4 18.6 80.6 Q18.8 85.8 20.6 90 L25 90.4 Q24.6 85 25.2 81.6 Q28.4 75.6 30.6 69.8 Q34 62.8 33.4 55 Q32.4 47.4 27.4 45.2 Z" fill="url(#gv-hide)"/>
+    <path d="M22.4 46.4 Q25.4 43.8 28.6 46.2 Q27 48.4 24 48.4 Z" fill="url(#gv-bone)"/>
+    <path d="M30.2 58 Q30.8 64 28.6 69.2 M21.6 70 Q23.2 72.6 23.8 76" stroke="#29262e" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M20 52 Q20 60 22.6 66" stroke="#fff" stroke-width=".8" fill="none" opacity=".3"/>
+    <circle cx="19.8" cy="80.6" r="1.6" fill="#6a6474"/>
+    <path d="M19.8 89.6 Q23 88 26.2 90 L27.8 92.2 Q27.6 94 26 94 L19.6 94 Q18.4 91.8 19.8 89.6 Z" fill="#3a3330"/>
+    <path d="M20.2 82.4 Q22.6 81 24.8 82.8 L24.8 87.4 Q22.4 86.6 20.6 88 Z M23.6 70.4 Q26.4 68.8 29 70.8 Q27.6 73.4 25.2 73.8 Z" fill="url(#gv-dirt)" opacity=".85"/>
+    <path d="M22.2 92.2 v1.6 M24.4 92 v1.8" stroke="#1d1a17" stroke-width=".5" opacity=".7"/>
+    <path d="M26.6 92.6 l1.6 .4 M26.4 93.6 l1.6 .3" stroke="#d8cfb6" stroke-width=".6" opacity=".8"/>
+    <!-- hackles up along the neck -->
+    <path d="M51.6 44.2 l1.4 -3.2 l1.2 2.2 l1.6 -3.4 l1 2.6 l1.6 -3 l1 2.6 l1.4 -2.4 l.4 3.6 Z" fill="url(#gv-hide)"/>
+    <!-- near foreleg, braced -->
+    <path d="M58.6 55.6 Q63.8 54.2 66.4 58.8 Q67.4 64.6 66.4 70.4 L67 82 Q68.6 86 70.2 89.4 L65.6 90.2 Q63.8 86.4 63.2 83.4 L61.8 71.4 Q58.8 66.4 58.6 55.6 Z" fill="url(#gv-hide)"/>
+    <circle cx="60" cy="64.6" r="1.5" fill="#77717f"/>
+    <circle cx="64.8" cy="83" r="1.8" fill="#5a5562"/>
+    <path d="M64.4 89.4 Q68 87.6 71.4 89.4 L73.4 91.8 Q73.4 94 71.4 94 L64.4 94 Q63.2 91.6 64.4 89.4 Z" fill="#3a3330"/>
+    <path d="M62 75.6 Q64.6 74.4 66.6 76.2 L66.8 80.6 Q64.2 79.6 62.6 81.2 Z M64 85.6 Q66.8 84.2 68.8 86.2 L69.4 89 Q66.6 88.2 64.8 89.4 Z" fill="url(#gv-dirt)" opacity=".85"/>
+    <path d="M67.2 92 v1.8 M69.4 91.8 v2" stroke="#1d1a17" stroke-width=".5" opacity=".7"/>
+    <path d="M72.2 92.4 l1.8 .4 M72 93.5 l1.7 .3" stroke="#d8cfb6" stroke-width=".6" opacity=".8"/>
+    <path d="M60 58 Q61.4 66 62.4 72" stroke="#fff" stroke-width=".7" fill="none" opacity=".3"/>
+    <!-- the spiked collar -->
+    <path d="M58.2 42.2 L57 37.2 L60.6 41.2 Z M61.4 40.6 L61.6 35.8 L63.8 39.8 Z M61.6 60.4 L60.4 64.6 L63.6 60.8 Z" fill="url(#gv-iron)"/>
+    <path d="M58.4 41.4 Q61.4 39.6 64.4 39 Q67.4 48.8 67.6 58.8 Q64.6 60.6 61.6 60.8 Q61.6 50 58.4 41.4 Z" fill="url(#gv-collar)"/>
+    <path d="M59.8 42.4 Q62.8 50.2 63 59.6 M63.2 40.4 Q65.8 49.2 66 58.8" stroke="#5a2728" stroke-width=".5" fill="none" opacity=".75"/>
+    <g fill="url(#gv-iron)"><circle cx="61.2" cy="45.6" r="1"/><circle cx="62.6" cy="50.6" r="1"/><circle cx="63.2" cy="55.4" r="1"/></g>
+    <path d="M59.6 41.8 Q61.6 40.6 63.6 40.2" stroke="#e0908a" stroke-width=".6" fill="none" opacity=".8"/>
+    <!-- head: big, lowered, snarling -->
+    <path d="M63.6 40 Q67.4 33.4 74.6 32.2 Q80.4 31.6 83 34.8 Q84.6 37.8 87 38.8 L91.8 40.2 Q94.6 40.8 94.8 43.2 Q94.8 45.8 93.2 46.6 L93 47.8 Q89.4 47.6 86 49.4 Q84 50.2 82.6 50.4 Q86.2 52 89.6 52.2 L91.4 52.6 Q90.8 56 86.4 57.2 Q80 58.6 74.2 57.2 Q69 55.6 66.4 51 Q63.4 46 63.6 40 Z" fill="url(#gv-hide)"/>
+    <path d="M68.4 35.6 Q73.4 32.6 79 32.8" stroke="url(#gv-hideH)" stroke-width="1.8" fill="none" opacity=".8"/>
+    <path d="M67.6 35.2 Q66 30.2 69 28.4 Q71.6 30.6 72.2 34.6 Z" fill="url(#gv-hideD)"/>
+    <path d="M68.4 29.6 l1 1.4 l-.4 1.4" stroke="#1c1a20" stroke-width=".5" fill="none"/>
+    <path d="M71.4 47 Q73.6 51.6 77.6 53.6 M80.4 53.6 Q82 55.6 81 57.2" stroke="#1c1a20" stroke-width=".65" fill="none" opacity=".55"/>
+    <path d="M83.4 41.2 l2.8 2.4" stroke="#9a4a4a" stroke-width=".8" opacity=".8"/>
+    <!-- the snarl: lips curled off red gums -->
+    <path d="M82.8 50.2 Q87.6 48 93 47.8 L91.8 52.4 Q87 52.4 82.8 50.2 Z" fill="url(#gv-maw)"/>
+    <path d="M83.4 49.6 Q87.6 47 93.2 47 L93 48.2 Q87.6 48.2 83.6 50.4 Z M84.2 51.2 Q88 52.6 91.8 52.6 L91.6 53.6 Q87.6 53.6 83.8 52 Z" fill="#b2575a"/>
+    <path d="M89.2 48 L90.8 48 L89.9 51.9 Z M85.6 49 L86.8 48.8 L86.2 51.2 Z M91.6 48 l.5 1.3 l.5 -1.3 Z M87.6 52.6 L89.2 52.6 L88.6 49.4 Z M90.6 52.4 l.4 -1 l.4 1 Z M84.2 50.4 l.6 1 l.6 -.9 Z" fill="#ece5cc"/>
+    <path d="M86.4 45.6 Q87.8 44.2 89.4 45 M85.4 43.6 Q86.8 42.2 88.6 42.8 M88 46.8 Q89.4 45.8 90.8 46.4" stroke="#1c1a20" stroke-width=".6" fill="none" opacity=".75"/>
+    <ellipse cx="93.4" cy="43" rx="1.6" ry="1.5" fill="#1c1a20"/>
+    <path d="M92.8 42.1 q.6 -.4 1.2 0" stroke="#8a8494" stroke-width=".5" fill="none"/>
+    <path d="M86.2 57 q.5 2.4 -.3 4.2" stroke="#d8d0d8" stroke-width=".6" fill="none" opacity=".5"/>
+    <!-- coal-red eye under a knotted brow -->
+    <ellipse cx="78.6" cy="40" rx="2.5" ry="1.9" fill="#1a1316"/>
+    <circle cx="78.8" cy="40" r="3.4" fill="url(#gv-eye)"/>
+    <circle cx="79" cy="39.9" r="1" fill="#fff4dc"/>
+    <path d="M75.6 37.4 Q79 35.8 82 38.2" stroke="#1c1a20" stroke-width="1.2" fill="none"/>
+    <path d="M77.4 34.8 Q79.8 35.2 81.2 36.8" stroke="#1c1a20" stroke-width=".55" fill="none" opacity=".6"/>
+    <!-- the tarnished name tag -->
+    <circle cx="65.8" cy="60.6" r="1" fill="none" stroke="url(#gv-iron)" stroke-width=".6"/>
+    <path d="M64.2 61.6 h3.4 v2.6 Q65.9 66.6 64.2 64.2 Z" fill="url(#gv-brass)"/>
+    <path d="M64.8 62.6 h2 M64.9 63.6 h1.6" stroke="#4a4220" stroke-width=".4" opacity=".7"/>
+    <circle cx="66.8" cy="64.2" r=".5" fill="#6f9a7c" opacity=".8"/>
+  </g>
+</svg>

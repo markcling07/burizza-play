@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The Tide Mother (boss) - Ashfall Road art v2. A ship's figurehead the sea brought to life: flaking
+     carved wood, kelp-and-wave hair, a coral crown, a gaping sea-lit mouth, arms spread with a trident,
+     and a twisting column of seawater for legs. Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="tm-paint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef4f4"/><stop offset=".5" stop-color="#b9cbd1"/><stop offset="1" stop-color="#7894a2"/></linearGradient>
+    <linearGradient id="tm-paintD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#94aab4"/><stop offset="1" stop-color="#566f7e"/></linearGradient>
+    <linearGradient id="tm-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b48c64"/><stop offset=".5" stop-color="#86623f"/><stop offset="1" stop-color="#523a26"/></linearGradient>
+    <linearGradient id="tm-gown" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3c5e76"/><stop offset=".5" stop-color="#213a4c"/><stop offset="1" stop-color="#0f1e2a"/></linearGradient>
+    <linearGradient id="tm-gilt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6d79c"/><stop offset=".5" stop-color="#ae9658"/><stop offset="1" stop-color="#6a5832"/></linearGradient>
+    <linearGradient id="tm-hair" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c5068"/><stop offset=".5" stop-color="#213a4c"/><stop offset="1" stop-color="#122230"/></linearGradient>
+    <linearGradient id="tm-kelp" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a9a44"/><stop offset=".5" stop-color="#58682a"/><stop offset="1" stop-color="#323e18"/></linearGradient>
+    <linearGradient id="tm-water" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3f7d96" stop-opacity=".95"/><stop offset=".5" stop-color="#213a4c" stop-opacity=".95"/><stop offset="1" stop-color="#16303f" stop-opacity=".95"/></linearGradient>
+    <linearGradient id="tm-spill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6fffb" stop-opacity=".95"/><stop offset="1" stop-color="#7fe3d4" stop-opacity=".1"/></linearGradient>
+    <linearGradient id="tm-coral" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc4b4"/><stop offset=".5" stop-color="#f07a6a"/><stop offset="1" stop-color="#b04444"/></linearGradient>
+    <linearGradient id="tm-bronze" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4f2e4"/><stop offset=".5" stop-color="#5fae9e"/><stop offset="1" stop-color="#2c5e56"/></linearGradient>
+    <linearGradient id="tm-shaft" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b4a690"/><stop offset="1" stop-color="#6a5e50"/></linearGradient>
+    <radialGradient id="tm-maw" cx=".5" cy=".6" r=".6"><stop offset="0" stop-color="#e6fffb"/><stop offset=".35" stop-color="#7fe3d4"/><stop offset="1" stop-color="#0c2a30"/></radialGradient>
+    <radialGradient id="tm-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f2fffd"/><stop offset=".45" stop-color="#7fe3d4"/><stop offset="1" stop-color="#7fe3d4" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tm-aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7fe3d4" stop-opacity=".35"/><stop offset="1" stop-color="#7fe3d4" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="30" ry="4" fill="#000" opacity=".4"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- hair of kelp and breaking waves, streaming back -->
+    <path d="M57 9 Q48 3.6 36 6 Q26 8 18 5.4 Q11 4 8.6 9 Q7.6 13.6 11.6 15 Q14.4 15.4 14.6 12.6 Q16 16.6 13 19 Q8.4 21 9 26 Q10 30.4 14.6 30.4 Q17 29.6 16.6 27.4 Q18 32 14 35 Q9.6 38 11 42.6 Q12.6 46.4 17.4 46 Q19.6 45.4 19.4 43.2 Q20.4 48 17.6 50.6 Q16 54.6 20.4 55.6 Q24.6 56 27.6 52.6 Q32 47.6 36 43 Q41 37.6 46 35 Q51 32 54 28 Z" fill="url(#tm-hair)"/>
+    <path d="M14.6 12.6 Q20 14 26 12.6 Q36 10.4 46 11 M16.6 27.4 Q24 27 32 23.6 Q40 20.4 50 19.6 M19.4 43.2 Q26 41 32 36.4 Q38 31.6 48 27.6" stroke="#3f7d96" stroke-width="2.4" fill="none" opacity=".55"/>
+    <path d="M30 6.4 Q22 8 18 5.4 Q11 4 8.6 9 Q7.6 13.6 11.6 15 Q14.4 15.4 14.6 12.6 M13 19 Q8.4 21 9 26 Q10 30.4 14.6 30.4 Q17 29.6 16.6 27.4 M14 35 Q9.6 38 11 42.6 Q12.6 46.4 17.4 46 Q19.6 45.4 19.4 43.2 M17.6 50.6 Q16 54.6 20.4 55.6 Q24.6 56 27.6 52.6" stroke="#e6fffb" stroke-width="1.1" fill="none" opacity=".85"/>
+    <path d="M17 6 Q24 9 34 6.6 Q44 4 52 7 M15 20 Q24 18.4 34 16.4 Q42 14.6 50 14.6 M15.6 36.4 Q24 33 32 28.6 Q40 24.4 49 22.6" stroke="#7fe3d4" stroke-width=".7" fill="none" opacity=".5"/>
+    <g fill="#e6fffb" opacity=".7"><circle cx="6.2" cy="12.6" r=".6"/><circle cx="6.4" cy="27.6" r=".55"/><circle cx="8.4" cy="44.6" r=".5"/><circle cx="14.2" cy="56.6" r=".5"/></g>
+    <!-- kelp blades through the hair -->
+    <path d="M55 12 Q46 9 38 12 Q30 15 22 12.4 Q26 11 30 11.6 Q38 9.6 46 7.6 Q51 7.4 55 10 Z" fill="url(#tm-kelp)"/>
+    <path d="M53 20 Q44 19 36 23 Q28 27 20 25.6 Q27 23.4 33 20.6 Q42 16.4 53 17.4 Z" fill="url(#tm-kelp)"/>
+    <path d="M51 28 Q42 30 36 36 Q30 42 22 44 Q27 40 30.6 35.4 Q37 28 50 25.4 Z" fill="url(#tm-kelp)"/>
+    <path d="M52 10.4 Q40 10 24 12.4 M51 18.6 Q38 19.6 22 25.4 M49.6 26.8 Q38 31 24 43" stroke="#2e3a14" stroke-width=".5" fill="none" opacity=".7"/>
+    <g fill="#9aaa4c"><circle cx="30.4" cy="11.4" r="1.1"/><circle cx="34.4" cy="21.6" r="1.1"/><circle cx="31.4" cy="35" r="1.1"/><circle cx="21.4" cy="12.6" r=".8"/></g>
+    <!-- back arm, spread wide -->
+    <path d="M46 33 Q40 32 34.6 32.6 L34.6 37.8 Q40 37.4 45 38.6 Z" fill="url(#tm-paintD)"/>
+    <path d="M35.4 32.6 Q29 30.8 24.4 28.6 L23.2 32.8 Q28.6 35 34.8 37.8 Z" fill="url(#tm-paintD)"/>
+    <circle cx="35" cy="35.2" r="2.6" fill="#7f98a6"/>
+    <path d="M24.6 28 Q20.6 26.4 18.4 28.6 Q17.6 31.6 20.6 33 Q23 33.6 24 32.4 Z" fill="url(#tm-paintD)"/>
+    <path d="M19.6 28.2 Q16.6 25.6 14 25 M18.6 30 Q15.4 29.4 13 30 M19.4 32 Q16.6 33.4 14.6 35.4" stroke="#94aab4" stroke-width="1.2" fill="none"/>
+    <path d="M30 31.6 q1.4 1.8 .8 3.8 M40.6 33 l-1 2.6" stroke="#6a4e34" stroke-width="1.6" fill="none" opacity=".75"/>
+    <path d="M26 30 Q30 32 34 33 M37 33.6 Q41 34 44.6 35" stroke="#4e6676" stroke-width=".45" fill="none" opacity=".6"/>
+    <!-- the trident, verdigris on driftwood -->
+    <rect x="84.8" y="10" width="2.2" height="72" rx=".9" fill="url(#tm-shaft)"/>
+    <path d="M85.4 20 v5 M86.2 46 v6 M85.4 64 v5" stroke="#4e4438" stroke-width=".4" opacity=".6"/>
+    <path d="M79.8 8.8 Q85.9 12.6 92 8.8 L91.6 11.8 Q85.9 15.2 80.2 11.8 Z" fill="url(#tm-bronze)"/>
+    <path d="M79.6 10.4 L79.4 4.4 L81.4 6.4 L81.6 11 Z M92.2 10.4 L92.4 4.4 L90.4 6.4 L90.2 11 Z" fill="url(#tm-bronze)"/>
+    <path d="M84.8 12.6 L85.9 3.4 L87 12.6 Z" fill="url(#tm-bronze)"/>
+    <path d="M85 14 h1.8 v3 h-1.8 Z" fill="#2c5e56"/>
+    <g fill="#e8e2d2"><circle cx="85.4" cy="58" r=".8"/><circle cx="86.6" cy="59.4" r=".6"/><circle cx="85.6" cy="72" r=".7"/></g>
+    <path d="M86.6 24 Q84 28 86.4 32 Q88.6 36 86 40" stroke="url(#tm-kelp)" stroke-width="1.1" fill="none"/>
+    <!-- below the waist, a column of the sea turning on itself -->
+    <ellipse cx="50" cy="56" rx="24" ry="32" fill="url(#tm-aura)"/>
+    <path d="M44 56 Q43 64 46 70 Q48.6 76 44 82 Q38 86 30 88 Q23.4 90 25.6 92.8 Q36 95.2 50 94.8 Q64 95.2 74.4 92.8 Q76.6 90 70 88 Q62 86 57 81 Q53.6 76 56 70 Q60 63 60.6 56 Z" fill="url(#tm-water)"/>
+    <path d="M44.4 60.6 Q52 65.6 60.4 59.4 M45.6 67.4 Q51 71.6 57.6 66 M46.4 74.6 Q50.6 78 55.2 73.4 M41 83.6 Q50 88.6 61 82.6 M29 89.6 Q50 95 72 89.4" stroke="#7fe3d4" stroke-width="1.1" fill="none" opacity=".7"/>
+    <path d="M46.6 61.8 Q51.6 64.6 56.6 62.4 M47.6 69 Q51 71 54.6 68.8 M38 86.4 Q46 89.6 56 86.4" stroke="#e6fffb" stroke-width=".55" fill="none" opacity=".75"/>
+    <path d="M44.6 58 Q43.6 66 47 71.6" stroke="#bff6ee" stroke-width=".8" fill="none" opacity=".5"/>
+    <!-- foam where she meets the floor -->
+    <path d="M25 92.4 Q27 89.6 29.6 90.6 Q31.6 88.4 34.4 90 Q37 88.6 39 90.6 M61 90.4 Q63.4 88.4 66 90 Q68.6 88.6 71 90.4 Q73.4 89.4 75 92" stroke="#e6fffb" stroke-width="1" fill="none" opacity=".8"/>
+    <g fill="#bff6ee" opacity=".75"><circle cx="22" cy="88.4" r=".8"/><circle cx="78" cy="88" r=".8"/><circle cx="25.6" cy="85" r=".55"/><circle cx="75" cy="84.4" r=".6"/><circle cx="64" cy="76" r=".55"/><circle cx="38" cy="74" r=".55"/></g>
+    <!-- carved bodice, navy paint over the wood -->
+    <path d="M45 34 Q52 30 60 31.6 Q66.6 34 67.6 40 Q68 46 64.6 50 Q62 53.6 61 57.6 L43.6 57.6 Q41.6 50 42 44 Q42.6 37.6 45 34 Z" fill="url(#tm-paint)"/>
+    <path d="M43.4 40.4 Q50 42.4 56 41.4 Q62 40 66.8 37.6 Q68.4 42 66 47 Q62.6 52 61 57.6 L43.6 57.6 Q41.8 50 43.4 40.4 Z" fill="url(#tm-gown)"/>
+    <path d="M43.4 40.4 Q50 42.4 56 41.4 Q62 40 66.8 37.6" stroke="url(#tm-gilt)" stroke-width="1.3" fill="none"/>
+    <path d="M47 45 Q48 51 46.6 57 M53 44 Q54.6 50 53.4 57 M59.4 43.6 Q61 48 59.6 53" stroke="#0c1820" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M45.6 44 Q48 42.6 52 43.4" stroke="#fff" stroke-width=".8" fill="none" opacity=".35"/>
+    <!-- a carved gilt scallop at the breast -->
+    <path d="M50.6 51.4 Q49 47.4 51.2 45 Q53.4 43.4 55.6 45 Q57.8 47.4 56.2 51.4 Z" fill="url(#tm-gilt)"/>
+    <path d="M53.4 51.2 L53.4 45 M53.4 51.2 L51.2 46.4 M53.4 51.2 L55.6 46.4 M53.4 51.2 L50.4 48.6 M53.4 51.2 L56.4 48.6" stroke="#6a5832" stroke-width=".45" opacity=".8"/>
+    <path d="M51 52 h4.8" stroke="url(#tm-gilt)" stroke-width="1.2"/>
+    <!-- flaked paint: bare wood showing on the bodice and chest -->
+    <path d="M46.4 48 L48.6 47 L49.6 49.4 L48.4 51.4 L46.4 50.8 Z M60.4 45.6 L62.6 44.4 L63.4 46.6 L61.6 47.6 Z M47.6 35.4 L50 34.2 L51.2 36.2 L49 37.4 Z" fill="url(#tm-wood)"/>
+    <!-- carved rope belt, and the gown coming apart into foam -->
+    <path d="M43.4 54.6 Q52 56.6 61.6 54.4 L61.2 57.8 Q52 60 43.6 57.8 Z" fill="url(#tm-gilt)"/>
+    <path d="M45 54.8 l1.2 3 M47.4 55.2 l1.2 3 M49.8 55.6 l1.2 3 M52.2 55.8 l1.2 3 M54.6 55.6 l1.2 3 M57 55.2 l1.2 3 M59.4 54.8 l1.2 3" stroke="#6a5832" stroke-width=".55" opacity=".8"/>
+    <path d="M43.6 58 Q45.4 61 48 59.4 Q50 62 52.6 60 Q55 62.4 57.4 60.2 Q59.6 61.6 61 58.4" stroke="#e6fffb" stroke-width="1" fill="none" opacity=".8"/>
+    <!-- neck and head: carved, the paint gone grey with salt -->
+    <path d="M53 25.6 L60.4 24.6 L61.8 33 L52.6 33.8 Z" fill="url(#tm-paintD)"/>
+    <path d="M52 18.6 Q52.6 10.6 60 9.6 Q67.6 9.4 70 16 Q71.4 20.6 70.4 24.6 L68.6 31 Q65 34.6 60.6 34.2 Q55.6 33.4 54 28.6 Q52 24 52 18.6 Z" fill="url(#tm-paint)"/>
+    <path d="M54.6 14 Q57 10.8 61 10.4" stroke="#fff" stroke-width="1" fill="none" opacity=".55"/>
+    <path d="M55 20 Q55.6 25.6 58 29 M68.4 14.6 Q69.6 18 69.4 21" stroke="#8aa2ae" stroke-width=".45" fill="none" opacity=".7"/>
+    <path d="M53.4 23.6 L55.6 22.6 L56.6 25 L54.6 26.4 Z M66.6 12.4 L68.6 12 L69 14 L67.4 14.6 Z" fill="url(#tm-wood)"/>
+    <!-- carved eyes lit with sea-light -->
+    <path d="M57.4 16.4 Q59.6 15.4 61.6 16.6 M64 16.2 Q66.4 15 68.6 16.4" stroke="#4e6676" stroke-width=".9" fill="none"/>
+    <ellipse cx="59.6" cy="18.8" rx="1.8" ry="1.2" fill="#24404e"/>
+    <ellipse cx="66.2" cy="18.6" rx="2" ry="1.3" fill="#24404e"/>
+    <circle cx="59.6" cy="18.8" r="2.4" fill="url(#tm-eye)"/>
+    <circle cx="66.2" cy="18.6" r="2.7" fill="url(#tm-eye)"/>
+    <circle cx="59.7" cy="18.8" r=".6" fill="#f2fffd"/><circle cx="66.3" cy="18.6" r=".7" fill="#f2fffd"/>
+    <path d="M67.6 19.4 L70 24 L67.8 24.8" fill="#a8bcc4"/>
+    <!-- the great mouth the sea gave her, split out of the wood -->
+    <path d="M58.6 25.6 Q64 23.6 69.4 25.4 Q69.6 31.6 65 34.6 Q60.4 34.2 58.6 25.6 Z" fill="url(#tm-maw)"/>
+    <path d="M58.6 25.6 L59.8 27.2 L60.6 25 L61.8 26.8 L62.8 24.6 L64 26.4 L65 24.4 L66 26.2 L67.2 24.6 L68 26.4 L69.4 25.4 Q64 23.6 58.6 25.6 Z" fill="#c9b08c"/>
+    <path d="M60.6 32.4 L61.4 30.8 L62.4 33.4 L63.4 31.4 L64.4 34 L65.4 32 L66.4 33.6 Q64.6 35 62.6 34.4 Z" fill="#b89c78"/>
+    <path d="M58.6 25.6 Q59.6 31 63 34 M69.4 25.4 Q69.4 30 66.6 33.6" stroke="#5a7482" stroke-width=".6" fill="none" opacity=".8"/>
+    <!-- coral crown -->
+    <path d="M54.6 11.6 Q60.6 9 68.4 11" stroke="url(#tm-coral)" stroke-width="2" fill="none"/>
+    <path d="M55.6 11 Q54.6 7.6 55.4 5.2 M55 8 Q53 6.8 52.6 5.6 M59.6 9.8 Q59.4 6.8 60.6 4.4 M60.4 6.4 Q62.2 5.6 62.6 4.4 M64.4 9.6 Q65.2 6.8 64.6 4.6 M67.6 10.6 Q69.6 8.4 70.2 5.8 M68.8 8.4 Q71 8.6 72.4 7.4" stroke="url(#tm-coral)" stroke-width="1.5" fill="none"/>
+    <g fill="#ffd6cc"><circle cx="55.4" cy="5.2" r=".9"/><circle cx="52.6" cy="5.6" r=".8"/><circle cx="60.6" cy="4.4" r=".9"/><circle cx="62.6" cy="4.4" r=".75"/><circle cx="64.6" cy="4.6" r=".85"/><circle cx="70.2" cy="5.8" r=".85"/><circle cx="72.4" cy="7.4" r=".75"/></g>
+    <!-- front arm, reaching out to grip the trident -->
+    <path d="M60 32 Q67 32 72.6 36 L70.6 41 Q66 37.6 60.6 37.4 Z" fill="url(#tm-paint)"/>
+    <path d="M70.6 36.4 Q77 35 83 32.6 L84 36.6 Q78 39 71.4 41 Z" fill="url(#tm-paint)"/>
+    <circle cx="71.4" cy="38.6" r="2.6" fill="#b2c4ca"/>
+    <path d="M62 33.6 Q67 33.6 71 36.4 M73 37 Q78 35.8 82.6 34" stroke="#fff" stroke-width=".7" fill="none" opacity=".5"/>
+    <path d="M65 35.4 L67.6 34.8 L68.2 37 L66 37.6 Z M76.4 36.4 L78.6 35.6 L79 37.6 Z" fill="url(#tm-wood)"/>
+    <path d="M82.4 31.4 Q86.4 30 88.6 32.4 Q89 36 86 37.4 Q83 37.8 82 35.6 Z" fill="url(#tm-paint)"/>
+    <path d="M84.6 31.6 Q86 33.6 87.6 33 M84.4 34.6 Q86 36 87.8 35.4" stroke="#7894a2" stroke-width=".6" fill="none"/>
+    <!-- wood grain under the paint -->
+    <path d="M61.6 34 Q66 33.8 70 37 M73.4 38.4 Q78 37 82 35.2 M47 33.4 Q52 32 57.6 33 M45.4 37.4 Q48 36.4 51 36.8 M57.6 12.6 Q55.4 15.6 55 19.6 M63 10.6 Q61.4 12 61 14" stroke="#7a8e98" stroke-width=".4" fill="none" opacity=".75"/>
+    <!-- the sea spilling from her mouth -->
+    <path d="M60.6 33 Q62.6 35.6 66 34.4 Q65.6 40 64.6 44 Q64 49 65.4 53 L62.6 53.6 Q61.4 48 62 43.6 Q62.4 38 60.6 33 Z" fill="url(#tm-spill)"/>
+    <g fill="#d6faf3" opacity=".8"><circle cx="66.6" cy="47" r=".6"/><circle cx="61.4" cy="50" r=".5"/><circle cx="67.4" cy="40.6" r=".45"/></g>
+  </g>
+</svg>

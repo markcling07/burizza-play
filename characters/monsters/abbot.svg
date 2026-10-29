@@ -1,15 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The Drowned Abbot (monster) - Burizza placeholder art.
+<!-- The Drowned Abbot (boss) - Ashfall Road art v2. The abbot who held the last mass as the river
+     broke in: a waterlogged habit and cope, a tarnished mitre wound with weed, a barnacled crozier,
+     a drowned psalter open in his other hand, and the river still running off him.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
-  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><path d="M37 42 L25 92 L75 92 L63 42 Z" fill="#16242a"/>
-  <path d="M40 46 L32 90 L68 90 L60 46 Z" fill="#6fc1b8" opacity=".35"/>
-  <rect x="41" y="72" width="8" height="21" rx="3" fill="#2a2f3f"/><rect x="51" y="72" width="8" height="21" rx="3" fill="#2a2f3f"/>
-  <rect x="37" y="42" width="26" height="34" rx="7" fill="#2c3e46"/><rect x="37" y="62" width="26" height="3.5" fill="#6fc1b8"/>
-  <path d="M38 45 L32 30 L45 41 Z M62 45 L68 30 L55 41 Z" fill="#16242a" stroke="#6fc1b8" stroke-width="1.2"/>
-  <circle cx="50" cy="30" r="11" fill="#a9c4c0"/>
-  <path d="M39 30 Q39 17 50 17.5 Q61 17 61.5 28 Q56 21 50.5 25.5 Q45 21 41.5 32 Z" fill="#d8e2e2"/>
-  <circle cx="55.5" cy="30.5" r="1.8" fill="#e0304a"/>
-  <path d="M54.5 36 l1 2.6 l1 -2.6 Z M57.5 35.6 l.9 2.4 l.9 -2.4 Z" fill="#f4f0f2"/>
-  <rect x="59" y="46" width="7" height="18" rx="3.5" fill="#2c3e46"/><rect x="61.5" y="28" width="3" height="46" rx="1" fill="#7a5434"/><circle cx="63" cy="24" r="9" fill="#6fc1b8" opacity=".25"/><circle cx="63" cy="24" r="5" fill="#6fc1b8"/>
+  <defs>
+    <linearGradient id="ab-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3e5a64"/><stop offset=".5" stop-color="#2c3e46"/><stop offset="1" stop-color="#17242a"/></linearGradient>
+    <linearGradient id="ab-robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#25363d"/><stop offset="1" stop-color="#0f181c"/></linearGradient>
+    <linearGradient id="ab-cope" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5f8a86"/><stop offset=".5" stop-color="#3d6462"/><stop offset="1" stop-color="#22403f"/></linearGradient>
+    <linearGradient id="ab-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d5e3e4"/><stop offset=".55" stop-color="#9fb6bb"/><stop offset="1" stop-color="#6c8489"/></linearGradient>
+    <linearGradient id="ab-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9d39a"/><stop offset=".5" stop-color="#9c9a5c"/><stop offset="1" stop-color="#5d6236"/></linearGradient>
+    <linearGradient id="ab-weed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f7a3e"/><stop offset="1" stop-color="#25401f"/></linearGradient>
+    <linearGradient id="ab-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff2ea" stop-opacity=".9"/><stop offset="1" stop-color="#6fc1b8" stop-opacity="0"/></linearGradient>
+    <radialGradient id="ab-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#eafffb"/><stop offset=".45" stop-color="#6fc1b8"/><stop offset="1" stop-color="#6fc1b8" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ab-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#6fc1b8" stop-opacity=".45"/><stop offset="1" stop-color="#6fc1b8" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="28" ry="4" fill="#000" opacity=".4"/>
+  <!-- the river he brought with him, pooling at his feet -->
+  <ellipse cx="50" cy="93.2" rx="24" ry="2.6" fill="#6fc1b8" opacity=".22"/>
+  <path d="M33 93.4 q4 -1.2 8 0 M57 93.6 q5 -1.4 10 0" stroke="#bff2ea" stroke-width=".5" fill="none" opacity=".5"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- the crozier: a shepherd's crook gone green with the river -->
+    <rect x="71.6" y="20" width="2.6" height="74" rx="1" fill="url(#ab-gold)"/>
+    <path d="M72.9 20 Q72.2 9 79 7.8 Q86 7.6 86.2 14 Q86.2 19 81 19.4 Q77.6 19.2 78 15.6 Q78.6 13 81 13.4" stroke="url(#ab-gold)" stroke-width="2.6" fill="none"/>
+    <circle cx="81.2" cy="14.2" r="2.2" fill="url(#ab-eye)"/>
+    <g fill="#c7d2c2"><circle cx="73" cy="44" r=".9"/><circle cx="74.2" cy="45.4" r=".7"/><circle cx="72.6" cy="70" r="1"/><circle cx="74" cy="71.4" r=".7"/><circle cx="84.2" cy="10.4" r=".7"/></g>
+    <path d="M72 30 Q69 36 71 42 M74 50 Q77 56 75 61" stroke="url(#ab-weed)" stroke-width="1.1" fill="none"/>
+    <path d="M71.6 23 h2.6 M71.6 25 h2.6" stroke="#5d6236" stroke-width=".6"/>
+    <!-- back arm holding the drowned psalter -->
+    <path d="M38 40 Q30 47 28.5 56 L34.5 58 Q35.5 51 41 46 Z" fill="url(#ab-robeD)"/>
+    <path d="M24 54 L33 51.5 L36 59 L27 61.6 Z" fill="#3a2f26"/>
+    <path d="M25 55 L33 52.7 L35.2 58.6 L27.4 60.8 Z" fill="#c9c2a6"/>
+    <path d="M29.6 53.8 L31.8 59.9" stroke="#3a2f26" stroke-width=".6"/>
+    <path d="M26.6 56.4 L29.4 55.6 M27.2 58 L30 57.2 M32 54.8 L34 54.2 M32.5 56.4 L34.6 55.8" stroke="#5a6a6a" stroke-width=".4" opacity=".8"/>
+    <path d="M27.8 61.5 q-.4 3 .4 5.5 M31.6 60.4 q.2 3.6 -.4 6.6" stroke="url(#ab-water)" stroke-width=".9" fill="none"/>
+    <!-- habit: long, heavy with water, frayed at the hem -->
+    <path d="M36 44 Q50 38 64 44 L69 90 Q66 92.6 63 90.6 Q60 93.2 57 90.8 Q53.5 93.4 50 91 Q46.5 93.4 43 90.8 Q40 93 37 90.6 Q34 92.4 31 90 Z" fill="url(#ab-robe)"/>
+    <path d="M44 50 Q42 70 41 88 M56 50 Q58 70 59.5 88" stroke="#0f181c" stroke-width=".8" fill="none" opacity=".55"/>
+    <path d="M40 48 Q38.5 62 37 76" stroke="#5f7f88" stroke-width=".7" fill="none" opacity=".45"/>
+    <!-- cope: the vestment cloak, edged in tarnished gold -->
+    <path d="M35 43 Q50 36.5 65 43 Q67 58 63 70 L58 66 Q50 69 42 66 L37 70 Q33 58 35 43 Z" fill="url(#ab-cope)"/>
+    <path d="M35 43 Q50 36.5 65 43 Q67 58 63 70 L58 66 Q50 69 42 66 L37 70 Q33 58 35 43 Z" stroke="url(#ab-gold)" stroke-width="1.2" fill="none"/>
+    <path d="M50 41 V67" stroke="url(#ab-gold)" stroke-width="2.4"/>
+    <path d="M47.4 50 h5.2 M50 47.4 v5.2" stroke="#2c3e46" stroke-width="1"/>
+    <circle cx="50" cy="58" r="1.6" fill="url(#ab-eye)"/>
+    <!-- weed hanging off the shoulders and the hem -->
+    <path d="M37 43 Q34 50 36 57 Q34.5 62 36.5 66 M41 41.6 Q39.5 47 41.5 52 M60 41.8 Q62.5 48 60.8 54 Q62.6 58 61.4 63" stroke="url(#ab-weed)" stroke-width="1.5" fill="none"/>
+    <path d="M44 90.6 q-1 2.6 .6 3.6 M56.4 90.6 q1.6 2.4 0 3.6" stroke="#355a2c" stroke-width="1" fill="none"/>
+    <!-- water running off him -->
+    <path d="M38 66 q-.4 6 .4 11 M62 66 q.6 6 -.2 12 M48 67 q.2 5 -.3 8.6" stroke="url(#ab-water)" stroke-width=".9" fill="none"/>
+    <!-- head: drowned, bloated, river-pale -->
+    <path d="M42.6 30 Q43 21.5 50.5 21 Q58 21.6 58.4 30 Q58.6 36.6 55 39.6 Q50.5 42.4 46 39.6 Q42.6 36.6 42.6 30 Z" fill="url(#ab-skin)"/>
+    <path d="M44 33 Q45 38 49 40 M57 33.6 Q56.6 37.6 53.4 40" stroke="#6c8489" stroke-width=".9" fill="none" opacity=".7"/>
+    <!-- cowl framing the face -->
+    <path d="M40.5 33 Q39.5 23 46 19.5 Q50.5 17.8 55 19.5 Q61.5 23 60.5 33 Q60 40 56 43 L58.5 43.6 Q50.5 47.6 42.5 43.6 L45 43 Q41 40 40.5 33 Z M44.4 30 Q44.6 38 50.5 40.6 Q56.4 38 56.6 30 Q56 24 50.5 23.4 Q45 24 44.4 30 Z" fill="url(#ab-robeD)" fill-rule="evenodd"/>
+    <!-- mitre, tarnished, a strand of weed caught on its peak -->
+    <path d="M44 21 Q44.6 11 50.5 6 Q56.4 11 57 21 Q50.5 18.6 44 21 Z" fill="url(#ab-cope)"/>
+    <path d="M44 21 Q44.6 11 50.5 6 Q56.4 11 57 21" stroke="url(#ab-gold)" stroke-width="1" fill="none"/>
+    <path d="M50.5 7 V19.6 M46.5 13.6 Q50.5 12 54.5 13.6" stroke="url(#ab-gold)" stroke-width="1"/>
+    <path d="M50.5 6.4 Q54.5 6 55.5 10 Q56.6 13.4 55 16" stroke="url(#ab-weed)" stroke-width="1" fill="none"/>
+    <!-- sea-glow eyes, dead mouth -->
+    <circle cx="50" cy="40" r="11" fill="url(#ab-glow)"/>
+    <circle cx="52.6" cy="30.6" r="2.6" fill="url(#ab-eye)"/>
+    <circle cx="47.2" cy="30.4" r="2.2" fill="url(#ab-eye)"/>
+    <circle cx="52.6" cy="30.6" r=".9" fill="#f2fffd"/><circle cx="47.2" cy="30.4" r=".75" fill="#f2fffd"/>
+    <path d="M47.6 36.4 Q50.4 35.4 53.6 36.6" stroke="#3d5258" stroke-width=".9" fill="none"/>
+    <path d="M50.6 37 q.4 2.4 -.2 4.6" stroke="url(#ab-water)" stroke-width=".8" fill="none"/>
+    <path d="M44.6 27.4 Q46.6 25.4 49 25.6" stroke="#fff" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- front arm raising the crozier -->
+    <path d="M59 44 Q66 46 70 51 L68 56 Q63.6 52.6 58 51 Z" fill="url(#ab-robe)"/>
+    <path d="M65 47 L72.6 44" stroke="url(#ab-gold)" stroke-width="1.1"/>
+    <path d="M69.4 49 Q71.8 46.6 75 48 Q76 51.2 73.6 53 Q70.4 53.4 69.4 51 Z" fill="url(#ab-skin)"/>
+    <path d="M71 49.4 h4.2 M70.8 51.4 h4.2" stroke="#6c8489" stroke-width=".55"/>
+    <path d="M72 53.2 q.4 3 -.2 5.4" stroke="url(#ab-water)" stroke-width=".8" fill="none"/>
+    <!-- highlights -->
+    <path d="M38.6 45.6 Q42 42 47 41" stroke="#fff" stroke-width=".9" fill="none" opacity=".35"/>
+  </g>
 </svg>

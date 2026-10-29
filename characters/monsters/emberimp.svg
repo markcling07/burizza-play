@@ -1,17 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Ember Imp (monster) - Burizza placeholder art.
+<!-- Ember Imp (monster) - Ashfall Road art v2. A wiry soot-black imp of the Spire: flame-tipped hair,
+     little leathery wings, a barbed tail, a cackling grin lit from inside, a fireball cupped in one claw.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
-  <ellipse cx="50" cy="94" rx="18" ry="3.6" fill="#000" opacity=".35"/><g transform="translate(50 94) scale(0.75) translate(-50 -94)"><path d="M42 48 L12 26 L18 42 L6 44 L20 54 L10 64 L40 62 Z" fill="#5a2020"/>
-  <path d="M42 48 L12 26 M42 52 L6 44 M41 58 L10 64" stroke="#c4472a" stroke-width="1.2" opacity=".6"/>
-  <path d="M40 76 Q22 80 24 92" stroke="#c4472a" stroke-width="3.2" fill="none" stroke-linecap="round"/>
-  <path d="M21 90 L25 96 L28 89 Z" fill="#c4472a"/>
-  <rect x="40" y="73" width="9" height="20" rx="3" fill="#2a2f3f"/><rect x="52" y="73" width="9" height="20" rx="3" fill="#2a2f3f"/>
-  <rect x="35" y="42" width="31" height="35" rx="9" fill="#3a1a1a"/><rect x="35" y="63" width="31" height="4" fill="#ff7a2f"/>
-  <circle cx="51" cy="30" r="12" fill="#c4472a"/>
-  <path d="M42 23 Q34 13 38 4 Q41 14 47.5 19 Z M57 19 Q62 11 61 3 Q67 13 61 24 Z" fill="#2a1414"/>
-  <path d="M51 26 l9 1.5" stroke="#1d2130" stroke-width="2.2" stroke-linecap="round"/>
-  <circle cx="57" cy="30" r="2.2" fill="#ffd166"/><circle cx="57" cy="30" r="4.5" fill="#ffd166" opacity=".25"/>
-  <path d="M53 37 q4 2.5 8 0" stroke="#1d2130" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <rect x="62" y="46" width="8" height="18" rx="4" fill="#c4472a"/></g>
+  <defs>
+    <linearGradient id="ei-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3a2c"/><stop offset=".5" stop-color="#4a201c"/><stop offset="1" stop-color="#2a100e"/></linearGradient>
+    <linearGradient id="ei-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43191a"/><stop offset="1" stop-color="#1c0909"/></linearGradient>
+    <linearGradient id="ei-wing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a2e24"/><stop offset=".55" stop-color="#4e1c1a"/><stop offset="1" stop-color="#2c0f0e"/></linearGradient>
+    <linearGradient id="ei-wingD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#47191a"/><stop offset="1" stop-color="#1e0a0a"/></linearGradient>
+    <linearGradient id="ei-horn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a3c38"/><stop offset=".5" stop-color="#2a1414"/><stop offset="1" stop-color="#120707"/></linearGradient>
+    <linearGradient id="ei-nail" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4e2c4"/><stop offset="1" stop-color="#9c7a5e"/></linearGradient>
+    <linearGradient id="ei-flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9451c"/><stop offset=".45" stop-color="#ff7a2f"/><stop offset="1" stop-color="#ffd166"/></linearGradient>
+    <linearGradient id="ei-flameIn" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffb347"/><stop offset="1" stop-color="#fff3b8"/></linearGradient>
+    <radialGradient id="ei-ball" cx=".45" cy=".55" r=".5"><stop offset="0" stop-color="#fffbe2"/><stop offset=".3" stop-color="#ffe08a"/><stop offset=".65" stop-color="#ff7a2f"/><stop offset="1" stop-color="#ff7a2f" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ei-halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff9a3c" stop-opacity=".5"/><stop offset="1" stop-color="#ff7a2f" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ei-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff8d8"/><stop offset=".45" stop-color="#ffd166"/><stop offset="1" stop-color="#ff9a2f" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ei-maw" cx=".55" cy=".35" r=".7"><stop offset="0" stop-color="#ffb347"/><stop offset=".45" stop-color="#d9451c"/><stop offset="1" stop-color="#4a0f0a"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="22" ry="3.6" fill="#000" opacity=".38"/>
+  <!-- a small thing: drawn at 86% about its feet -->
+  <g stroke-linejoin="round" stroke-linecap="round" transform="translate(50 94) scale(.86) translate(-50 -94)">
+    <!-- barbed tail, flicking behind -->
+    <path d="M46 72.6 Q36.5 74.5 31 80.5 Q27 85.6 23.2 83.6 Q19.6 81.4 21.4 76.6 L23.4 77.4 Q22.4 80.6 24.6 81.4 Q27.4 82.2 29.8 78.4 Q35.4 71.4 45.6 69.4 Z" fill="url(#ei-skinD)"/>
+    <path d="M22.8 77.8 Q17.4 77.2 17.4 71.2 Q19 73 21.2 72.8 Q20.2 70.2 21.6 67.6 Q24.4 71.4 25.2 76 Z" fill="url(#ei-horn)"/>
+    <!-- far wing, raised behind the head -->
+    <path d="M52 59 Q49.5 50 47 44 L45.4 39.6 Q44.4 34.6 46.4 29.4 Q47.8 33.8 48.6 36 Q50.4 33.4 53.6 32.4 Q52 37 51.4 41 Q54.4 40 57.4 41.2 Q54 45.4 55 52 Z" fill="url(#ei-wingD)"/>
+    <path d="M47 44 L46.4 29.4 M47.6 41.2 L53.6 32.4 M50 45 L57.4 41.2" stroke="#170707" stroke-width=".7" fill="none" opacity=".7"/>
+    <!-- near wing, spread back -->
+    <path d="M50.5 61 Q45 52 39.6 45.6 L38 41.6 Q36.4 36.4 37.6 30.8 Q39.6 36 40.8 37.8 Q35.4 37.8 30 35.4 Q31.4 39.6 34.6 42 Q28 42.4 22.4 40.6 Q24.2 45.6 28.8 48.2 Q24.6 50.6 21.8 54.8 Q29 54.2 33.6 55.6 Q34 61 37.4 65.6 Q41.6 63 46.2 66.8 Z" fill="url(#ei-wing)"/>
+    <path d="M50 60.4 Q44.6 52 39.6 45.6 L37.6 30.8 M39.6 45.6 L30 35.4 M39.6 45.6 L22.4 40.6 M39.6 45.6 L21.8 54.8" stroke="#240b0b" stroke-width="1" fill="none" opacity=".75"/>
+    <path d="M49.6 59.6 Q44.6 52 40.2 46.4 M38.8 43 L38 33" stroke="#c8705a" stroke-width=".6" fill="none" opacity=".5"/>
+    <path d="M37.6 30.8 L36.6 28.6 M39.6 45.6 l-1.6 -1" stroke="url(#ei-nail)" stroke-width=".8"/>
+    <!-- back arm, swung back, claws splayed -->
+    <path d="M53.4 58.4 Q47.8 58.6 45 62 Q43 64.4 41.4 66.4 L43.8 69 Q45.6 66.8 47.8 65.2 Q50.8 63.2 54.4 62.4 Z" fill="url(#ei-skinD)"/>
+    <path d="M52 58.8 Q47.4 59.4 45.2 62.2 Q43.6 64.2 42.2 65.8" stroke="#c8705a" stroke-width=".6" fill="none" opacity=".55"/>
+    <circle cx="41.8" cy="68" r="2.1" fill="#3a1614"/>
+    <path d="M40.4 66.8 L38 65.6 M39.8 68.2 L37.2 68.4 M40.4 69.6 L38.4 71.2" stroke="#7a5444" stroke-width=".8" fill="none"/>
+    <!-- back leg, pushing off -->
+    <path d="M42.4 71.6 Q48.4 71.2 51.4 75.4 Q53.4 78 52.8 80.4 Q50.6 83.6 48 86.2 L51.8 91.2 Q53.2 92.2 53.6 93.4 L52.6 94 L45 94 Q44.2 93 44.4 91.8 L44.6 88.6 Q46.8 84.8 48.6 81.8 Q44 80.8 40.6 76.6 Z" fill="url(#ei-skinD)"/>
+    <path d="M52.8 93.6 L55.2 94.2 M50.8 93.8 L52.8 94.6 M48.8 93.9 L50.2 94.7" stroke="url(#ei-nail)" stroke-width=".8"/>
+    <!-- wiry, pot-bellied body -->
+    <path d="M45 74.6 Q41.4 67.6 44 61.4 Q47 56.6 53 56 Q59.6 55.4 62.4 59.4 Q64.8 63.8 63.4 69 Q61.4 74.6 56 76.2 Q50 77.4 45 74.6 Z" fill="url(#ei-skin)"/>
+    <path d="M53.4 66.4 Q57.6 65.2 61.4 67 M54.2 70 Q57.8 69.4 60.6 70.6" stroke="#2a100e" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M45.6 64 Q46.8 59.2 51.6 57.2" stroke="#fff" stroke-width=".9" fill="none" opacity=".35"/>
+    <!-- near leg, springing forward -->
+    <path d="M51.4 72 Q58 71.6 61.8 75.8 Q64.2 78.6 63.6 81 Q61.6 84.2 59.6 86.6 L63.8 91.4 Q65.2 92.4 65.6 93.4 L64.6 94 L56.6 94 Q55.8 93 56 91.8 L56.4 88.6 Q58.4 85 60 82.2 Q54.6 81.2 50 77.2 Z" fill="url(#ei-skin)"/>
+    <path d="M55 74.4 Q59 74.8 61.6 77.6" stroke="#fff" stroke-width=".8" fill="none" opacity=".32"/>
+    <path d="M59.6 82.6 Q58 85.4 57.2 88" stroke="#2a100e" stroke-width=".6" fill="none" opacity=".55"/>
+    <path d="M65 93.6 L67.6 94.2 M63 93.8 L65.2 94.6 M61 93.9 L62.6 94.7" stroke="url(#ei-nail)" stroke-width=".85"/>
+    <!-- ember cracks in the coal-dark hide -->
+    <path d="M56.6 76.4 l1.6 1.4 l-.8 1.6 l1.2 1.2 M47.6 61.6 l1.8 1.4 l-.8 1.8 l1.4 1.2 M58.6 85.4 l-.8 1.6" stroke="#ff7a2f" stroke-width="1.1" fill="none" opacity=".8"/>
+    <path d="M56.6 76.4 l1.6 1.4 l-.8 1.6 M47.6 61.6 l1.8 1.4 l-.8 1.8" stroke="#ffe08a" stroke-width=".4" fill="none"/>
+    <!-- big pointed ear -->
+    <path d="M56.6 44.2 Q49.6 41.4 40.6 36.4 Q46.2 44.6 55.2 48.8 Z" fill="url(#ei-skin)"/>
+    <path d="M55 45.4 Q49.6 43 44.8 39.6 Q48.8 44.8 54.6 47.6 Z" fill="#2a100e" opacity=".75"/>
+    <!-- flame-tipped hair, streaming back -->
+    <path d="M62.4 37.2 Q58.6 35.4 55.6 37 Q52.2 39 51.6 42.8 Q47.2 41.2 43.6 36.6 Q48 37.8 50 37.2 Q47.4 32.8 48 28 Q51 33 53.6 33.8 Q53.4 29.6 56.4 26 Q57.4 30.6 59.4 32.6 Q61.4 30.8 61.8 28.2 Q63.8 33.2 62.4 37.2 Z" fill="url(#ei-flame)"/>
+    <path d="M60.6 36.4 Q57.4 35.6 55 37.6 Q52.8 39.8 52.4 41 Q50.4 38.6 51.2 36.4 Q50.4 33.6 51.4 31.8 Q53.4 35.2 55.6 35.6 Q55.8 32.2 57.2 30.2 Q58 33.4 60.4 34.2 Z" fill="url(#ei-flameIn)" opacity=".85"/>
+    <path d="M62.6 37.6 Q58.4 36.6 55.6 38.6 Q53 40.6 52.6 43.6 Q52.4 45.6 54 47.4 L56.6 44 Z" fill="#2a1414"/>
+    <!-- head: big, sly, lit from below -->
+    <path d="M54.2 50 Q51.8 42.4 57 38.6 Q62 35.6 67.6 37.8 Q71.4 39.4 72 43 L75.8 45.6 Q74.8 47.6 72.8 47.8 Q74.2 52 70.6 55.6 Q67 57.6 62.4 56 Q57 54.6 54.2 50 Z" fill="url(#ei-skin)"/>
+    <path d="M55.8 41.6 Q58.6 38 63.4 37.6" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>
+    <path d="M58 50.6 Q59.6 53.2 62.6 54.4" stroke="#2a100e" stroke-width=".7" fill="none" opacity=".6"/>
+    <!-- little horns -->
+    <path d="M63.4 38.4 Q62 34.2 58.8 31.4 Q62.4 32 65.2 34.4 Q66.4 36 66.4 38 Z" fill="url(#ei-horn)"/>
+    <path d="M67.2 38.8 Q67.4 35.2 66.2 32.2 Q68.8 34 69.6 37 Q69.8 38.6 69.4 40 Z" fill="url(#ei-horn)"/>
+    <path d="M62.2 34.6 Q61.2 33.4 60.2 32.6" stroke="#8a6a64" stroke-width=".5" fill="none" opacity=".7"/>
+    <!-- sly brow and the glowing eye -->
+    <path d="M63.6 40.8 Q67.4 41.4 71 43" stroke="#160707" stroke-width="1.3" fill="none"/>
+    <circle cx="67.6" cy="43.8" r="3.2" fill="url(#ei-eye)"/>
+    <ellipse cx="67.8" cy="43.9" rx="1.1" ry="1.3" fill="#fff6d0"/>
+    <circle cx="68.1" cy="44.1" r=".45" fill="#2a100e"/>
+    <!-- the cackling grin, fire behind the teeth -->
+    <path d="M60.6 48.4 Q67 50 73.8 47.4 Q73.2 52.8 68.4 54.6 Q63 54.4 60.6 48.4 Z" fill="url(#ei-maw)"/>
+    <path d="M61.6 48.9 L62.6 50.8 L63.6 49.4 L64.6 51.4 L65.6 49.8 L66.8 51.8 L67.8 49.9 L69 51.6 L70 49.5 L71.2 51 L72.2 48.9 L73.4 49.6 L73.6 47.6 Q67 50 60.6 48.4 Z" fill="#f6e9cc"/>
+    <path d="M63.6 53.4 L64.6 51.8 L65.6 53.8 L66.8 52.2 L67.8 54.4 L69 52.6 L70.2 54 L71 52.4 Q69.4 54.4 68.4 54.6 Q65 54.6 63.6 53.4 Z" fill="#e6d6b4"/>
+    <path d="M73.6 46.2 Q74.6 45.6 74.8 44.6" stroke="#2a100e" stroke-width=".6" fill="none" opacity=".7"/>
+    <!-- front arm, cupping the fireball -->
+    <path d="M56.4 58.8 Q61.6 57.4 63.6 61 Q65.6 65.4 65.6 69 L61.8 70.6 Q60.8 66.2 58 63.2 Z" fill="url(#ei-skin)"/>
+    <path d="M62.2 67.2 Q68.4 65 74.4 64 L75.4 67.8 Q69 69.4 63.6 71.6 Z" fill="url(#ei-skin)"/>
+    <circle cx="63.6" cy="69.6" r="2.2" fill="#4a201c"/>
+    <path d="M73.4 63.8 Q77.4 63 80.8 64.4 Q81.2 66.8 78.6 68.2 Q75.4 69.2 73.6 67.8 Z" fill="url(#ei-skin)"/>
+    <path d="M80.4 64.6 Q82.8 63.4 83.4 60.6 M78.6 63.8 Q80.6 61.8 80.6 59.2 M74.8 64 Q75 61.6 76.4 60" stroke="url(#ei-nail)" stroke-width="1" fill="none"/>
+    <!-- firelight catching its front -->
+    <path d="M62.8 60.4 Q64.4 64 63.6 68 M72.4 48.4 Q73.6 51.6 70.6 55 M74.6 64.6 Q77.6 64 80 64.6 M72.6 43.6 L75.2 45.6" stroke="#ffb066" stroke-width=".8" fill="none" opacity=".7"/>
+    <!-- the fireball -->
+    <circle cx="79" cy="56" r="11.5" fill="url(#ei-halo)"/>
+    <path d="M73.6 58.6 Q72.6 52.4 75.4 49.6 Q75.6 52.6 77.2 52.6 Q76.6 47.6 79.6 44.4 Q79.8 49 82 50 Q82.6 47.8 84.4 46.6 Q83.8 50.4 85 53.4 Q86.4 58.6 82.6 61.8 Q77.4 63.6 73.6 58.6 Z" fill="url(#ei-flame)"/>
+    <circle cx="79.4" cy="57.4" r="5.6" fill="url(#ei-ball)"/>
+    <circle cx="79" cy="57.8" r="2.4" fill="#fffbe2"/>
+    <!-- sparks -->
+    <g fill="#ffd166"><circle cx="86.6" cy="45.6" r=".7" opacity=".85"/><circle cx="74" cy="44" r=".55" opacity=".7"/><circle cx="88.4" cy="52" r=".5" opacity=".6"/><circle cx="46" cy="27.6" r=".6" opacity=".7"/></g>
+    <g fill="#ff7a2f"><circle cx="83.6" cy="41.6" r=".5" opacity=".6"/><circle cx="52.6" cy="23.6" r=".5" opacity=".6"/><circle cx="41.6" cy="31" r=".45" opacity=".5"/></g>
+  </g>
 </svg>

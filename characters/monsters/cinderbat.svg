@@ -1,13 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Cinder Bat (monster) - Burizza placeholder art.
+<!-- Cinder Bat (monster) - Ashfall Road art v2. A roof-nesting cave bat diving on a screech: wings
+     spread wide, their edges smouldering and burnt through in holes, sparks trailing, jaws wide open.
+     It hovers in the upper middle; its shadow is far below.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
-  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><path d="M50 52 L18 34 L25 47 L10 47 L23 57 L15 66 L43 61 Z" fill="#3a2a35"/>
-  <path d="M54 52 L86 34 L79 47 L94 47 L81 57 L89 66 L61 61 Z" fill="#3a2a35"/>
-  <path d="M44 57 L21 40 M44 59 L14 52 M60 57 L83 40 M60 59 L90 52" stroke="#ff8a3d" stroke-width="1.2" opacity=".6"/>
-  <ellipse cx="52" cy="59" rx="9" ry="12" fill="#3a2a35"/>
-  <path d="M46 49 L45 38 L50 47 Z M58 49 L60 38 L55 47 Z" fill="#3a2a35"/>
-  <circle cx="49" cy="55" r="1.7" fill="#ff8a3d"/><circle cx="55.5" cy="55" r="2" fill="#ff8a3d"/>
-  <path d="M50 62 l1 3 l1 -3 M54 62 l1 3 l1 -3" stroke="#f4f0f2" stroke-width="1"/>
-  <path d="M48 70 l-1 4 M56 70 l1 4" stroke="#3a2a35" stroke-width="2"/>
+  <defs>
+    <linearGradient id="cb-fur" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a6679"/><stop offset=".5" stop-color="#4f3746"/><stop offset="1" stop-color="#2a1d25"/></linearGradient>
+    <linearGradient id="cb-furD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#45323d"/><stop offset="1" stop-color="#1d1419"/></linearGradient>
+    <linearGradient id="cb-wing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#755466"/><stop offset=".5" stop-color="#47323f"/><stop offset="1" stop-color="#2b1e27"/></linearGradient>
+    <linearGradient id="cb-wingD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3d2c37"/><stop offset=".5" stop-color="#2c1f28"/><stop offset="1" stop-color="#170f14"/></linearGradient>
+    <linearGradient id="cb-smoulder" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d" stop-opacity="0"/><stop offset="1" stop-color="#ff6a2a" stop-opacity=".45"/></linearGradient>
+    <linearGradient id="cb-fang" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff8ea"/><stop offset=".5" stop-color="#eadfcc"/><stop offset="1" stop-color="#b9aa94"/></linearGradient>
+    <radialGradient id="cb-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff4d0"/><stop offset=".45" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
+    <radialGradient id="cb-maw" cx=".35" cy=".4" r=".7"><stop offset="0" stop-color="#9a2a22"/><stop offset="1" stop-color="#2a0a0c"/></radialGradient>
+    <radialGradient id="cb-spark" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff0c4"/><stop offset=".4" stop-color="#ffb35a"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="20" ry="3" fill="#000" opacity=".26"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- sparks shaken off behind it -->
+    <g fill="url(#cb-spark)"><circle cx="9" cy="61" r="1.8"/><circle cx="16" cy="68" r="1.4"/><circle cx="24" cy="64" r="1.2"/><circle cx="7" cy="72" r="1.1"/><circle cx="33" cy="66" r="1"/><circle cx="83" cy="56" r="1.3"/><circle cx="90" cy="49" r="1"/></g>
+    <path d="M12.5 57.5 l-2.6 3.6 M20 61 l-2.2 3.4 M29 62 l-1.6 2.8 M86.5 51.5 l1.2 2.6" stroke="#ff9a4a" stroke-width=".7" opacity=".7"/>
+    <!-- far wing: raised, behind the body, darker, one hole burnt through -->
+    <path d="M56 39 Q63 27 72 22 Q82 17 92 16 Q85 24 93 31 Q84 35 86 44 Q77 42 73 50 Q64 46 57 53 Z M81.4 29.6 q1.5 -1.3 3 -.2 q.5 1.5 -.6 2.4 q-1.5 .6 -2.5 -.3 q-.4 -1 .1 -1.9 z" fill="url(#cb-wingD)" fill-rule="evenodd"/>
+    <path d="M92 16 Q85 24 93 31 Q84 35 86 44 Q77 42 73 50 Q64 46 57 53 L62 44 Q75 38 82 26 Z" fill="url(#cb-smoulder)" opacity=".8"/>
+    <g stroke="#57414f" fill="none">
+      <path d="M56 39 Q63 27 72 22" stroke-width="2.2"/>
+      <path d="M72 22 Q82 17.5 91.5 16.3 M72 22 Q83 25 92.5 30.8 M72 22 Q80 33 85.8 43.6 M72 22 Q73 37 73 49.5" stroke-width="1"/>
+    </g>
+    <path d="M72.2 22 Q72.4 18.6 70.6 17.2" stroke="#d9cbb8" stroke-width=".9" fill="none"/>
+    <path d="M92 16 Q85 24 93 31 Q84 35 86 44 Q77 42 73 50 Q64 46 57 53" stroke="#ff8a3d" stroke-width="2.6" fill="none" opacity=".28"/>
+    <path d="M92 16 Q85 24 93 31 Q84 35 86 44 Q77 42 73 50 Q64 46 57 53" stroke="#ff8a3d" stroke-width="1" fill="none" opacity=".9"/>
+    <path d="M81.4 29.6 q1.5 -1.3 3 -.2 q.5 1.5 -.6 2.4 q-1.5 .6 -2.5 -.3 q-.4 -1 .1 -1.9 z" stroke="#ff8a3d" stroke-width=".8" fill="none" opacity=".9"/>
+    <!-- near wing: spread wide, edges smouldering, burnt through in two places -->
+    <path d="M45 41 Q37 30 27 25 Q16 20 6 22 Q13 30 6 38 Q15 43 12 52 Q21 50 26 58 Q36 52 44 57 Z M14 35.6 q1.8 -1.7 3.8 -.5 q.9 1.8 -.5 3 q-2 .9 -3.3 -.3 q-.7 -1.1 0 -2.2 z M32.6 46 q1.6 -1.2 3 0 q.4 1.6 -1 2.2 q-1.6 .3 -2.2 -.8 q-.2 -.8 .2 -1.4 z" fill="url(#cb-wing)" fill-rule="evenodd"/>
+    <path d="M6 22 Q13 30 6 38 Q15 43 12 52 Q21 50 26 58 Q36 52 44 57 L40 48 Q26 44 18 30 Z" fill="url(#cb-smoulder)"/>
+    <g stroke="#8a6a7b" fill="none">
+      <path d="M45 41 Q37 30 27 25" stroke-width="2.4"/>
+      <path d="M27 25 Q16 21 6.5 22.3 M27 25 Q16 30 6.5 37.6 M27 25 Q19 38 12.3 51.5 M27 25 Q27 42 26 57.5" stroke-width="1.15"/>
+    </g>
+    <path d="M43 38.4 Q36.5 30.5 28.5 26.4 M25.5 23.6 Q16.5 20.4 8 21.6" stroke="#fff" stroke-width=".7" fill="none" opacity=".35"/>
+    <path d="M27 25 Q25.6 21.4 27.4 19.6" stroke="#e6dac8" stroke-width="1" fill="none"/>
+    <path d="M6 22 Q13 30 6 38 Q15 43 12 52 Q21 50 26 58 Q36 52 44 57" stroke="#ff8a3d" stroke-width="2.8" fill="none" opacity=".3"/>
+    <path d="M6 22 Q13 30 6 38 Q15 43 12 52 Q21 50 26 58 Q36 52 44 57" stroke="#ff8a3d" stroke-width="1.1" fill="none" opacity=".95"/>
+    <path d="M7 37.6 Q14.5 42.5 12 51.6 M12.4 51.8 Q21 50 25.8 57.6" stroke="#ffd79a" stroke-width=".45" fill="none" opacity=".85"/>
+    <g stroke="#ff8a3d" fill="none" opacity=".95">
+      <path d="M14 35.6 q1.8 -1.7 3.8 -.5 q.9 1.8 -.5 3 q-2 .9 -3.3 -.3 q-.7 -1.1 0 -2.2 z M32.6 46 q1.6 -1.2 3 0 q.4 1.6 -1 2.2 q-1.6 .3 -2.2 -.8 q-.2 -.8 .2 -1.4 z" stroke-width="2.2" opacity=".3"/>
+      <path d="M14 35.6 q1.8 -1.7 3.8 -.5 q.9 1.8 -.5 3 q-2 .9 -3.3 -.3 q-.7 -1.1 0 -2.2 z M32.6 46 q1.6 -1.2 3 0 q.4 1.6 -1 2.2 q-1.6 .3 -2.2 -.8 q-.2 -.8 .2 -1.4 z" stroke-width=".8"/>
+    </g>
+    <!-- hind legs and the tail membrane slung between them -->
+    <path d="M46.5 55 Q44.5 59.5 43.8 64 L45.6 64.4 Q46.6 60.2 48.8 57 Z" fill="url(#cb-furD)"/>
+    <path d="M44.6 56.5 Q50.5 67 57 62.5 Q52 60 49 56 Z" fill="url(#cb-furD)"/>
+    <path d="M53 56.5 Q55.6 60 56 64.6 L57.8 64.2 Q57.4 59 55.2 55.5 Z" fill="url(#cb-fur)"/>
+    <path d="M43.6 64.2 q-.6 1.6 .4 2.6 M45 64.4 q0 1.6 1 2.4 M55.8 64.6 q-.2 1.7 .9 2.6 M57.4 64.3 q.4 1.6 1.6 2.2" stroke="#e6dac8" stroke-width=".6" fill="none"/>
+    <!-- furred body -->
+    <path d="M44.5 38 Q50 33.5 56.5 37 Q60.5 45 57.5 53.5 Q54 59.5 49 59 Q44.5 57.5 43 52 Q41.5 44 44.5 38 Z" fill="url(#cb-fur)"/>
+    <path d="M47.5 40 Q51.5 38.4 55.2 41 Q56.4 46.5 54 51.5 Q50.6 49.6 47.6 51 Q45.8 45.5 47.5 40 Z" fill="#6d4c5d" opacity=".75"/>
+    <path d="M44.6 45 l-1.6 .5 M44.4 49 l-1.7 .6 M45.4 53 l-1.4 1.1 M57.6 44 l1.6 .6 M57.4 48.4 l1.6 .8 M48 46 l1 1.4 M51.4 44 l.8 1.6 M50.4 48.2 l1 1.4 M53.4 47 l.6 1.6" stroke="#2a1d25" stroke-width=".55" opacity=".6"/>
+    <g fill="#ff9a4a"><circle cx="49.4" cy="43" r=".5"/><circle cx="53.2" cy="45.6" r=".45"/><circle cx="51" cy="50.6" r=".45"/></g>
+    <path d="M45.6 41.4 Q47 38 50.6 36.6" stroke="#fff" stroke-width=".9" fill="none" opacity=".4"/>
+    <!-- back ear, swept up -->
+    <path d="M53 27 Q48 18 48.5 9.5 Q55 14 58 23 Z" fill="url(#cb-furD)"/>
+    <path d="M53.6 24.6 Q50.8 18 50.8 13.2 Q54.4 16.6 56.4 22.4 Z" fill="#ff8a3d" opacity=".32"/>
+    <!-- the open maw behind the jaws -->
+    <path d="M62.5 34.5 L73.4 30.4 Q73.6 35.4 70.4 39.8 Q66 39.2 62.5 34.5 Z" fill="url(#cb-maw)"/>
+    <path d="M64.2 36.3 Q67 36.4 69.4 38.4" stroke="#c4473f" stroke-width="1" fill="none" opacity=".8"/>
+    <!-- lower jaw, dropped open -->
+    <path d="M62 35 Q66 38.6 70.6 39.6 Q69.8 42.2 65.6 42.2 Q61 41.6 59.4 38.4 Z" fill="url(#cb-fur)"/>
+    <path d="M68.4 39.5 L69.3 36.2 L70.2 39.6 Z M65.2 38.2 L65.8 36.2 L66.6 38.6 Z" fill="url(#cb-fang)"/>
+    <!-- head, turned to the mark -->
+    <path d="M52 31 Q52 23 59 22 Q65 22 68 26 Q71 27 73 28.5 L73.6 30.6 Q70 31.6 63 34.5 Q61 38 57 38.5 Q53 37 52 31 Z" fill="url(#cb-fur)"/>
+    <path d="M71.2 31 L71.8 35 L72.7 30.6 Z M66.8 32.6 L67.2 35.8 L68.2 32.2 Z" fill="url(#cb-fang)"/>
+    <path d="M71.8 27.6 Q73.8 27.8 74 29.8 Q72.8 30.6 71.6 29.8 Z" fill="#1f1418"/>
+    <path d="M56 34.6 Q58.5 36.4 61.6 35.6 M59.6 30.6 Q61 32 62.6 31.6" stroke="#2a1d25" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M54.2 27 Q55.6 23.4 59.4 22.6" stroke="#fff" stroke-width=".8" fill="none" opacity=".5"/>
+    <!-- front ear -->
+    <path d="M59.5 23.4 Q62 13 67.5 8.5 Q68.6 17 65.6 25 Z" fill="url(#cb-fur)"/>
+    <path d="M61 22.6 Q63.4 15.2 66.4 11.8 Q66.8 18 64.6 23.6 Z" fill="#ff8a3d" opacity=".42"/>
+    <path d="M60.6 20 Q62.4 13.6 66.4 9.8" stroke="#fff" stroke-width=".6" fill="none" opacity=".45"/>
+    <!-- ember eye -->
+    <circle cx="64.6" cy="27.4" r="3.4" fill="url(#cb-eye)"/>
+    <circle cx="64.7" cy="27.4" r="1.15" fill="#fff1c8"/>
+    <path d="M61.8 25.2 Q64.4 23.8 67.4 25.4" stroke="#2a1d25" stroke-width=".9" fill="none"/>
+    <!-- a few sparks in front -->
+    <g fill="url(#cb-spark)"><circle cx="40" cy="62" r="1"/><circle cx="62" cy="62" r="1.1"/></g>
+  </g>
 </svg>

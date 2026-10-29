@@ -3990,7 +3990,7 @@ const MONSTERS = {
     name: 'Estate Poacher', plural: 'Estate Poachers', role: 'ranged', xp: 24,
     lore: 'Kept on to thin the deer, and never fussy about what else wanders up the road.',
     mods: { hp: 0.85, atk: 1.0, def: 0.8, agi: 1.15 },
-    look: { body: 'human', main: '#3a4431', trim: '#8a6a3a', skin: '#c99a72', hair: '#4a3520', weapon: 'crossbow' },
+    look: { body: 'human', main: '#3a4431', trim: '#8a6a3a', skin: '#c99a72', hair: '#4a3520', weapon: 'bow' },   // his art draws a longbow, so he looses arrows
     skills: [{ ...ATTACK, name: "Poacher's Bolt", desc: 'Deals 100% ATK damage.' },
              D('Leg Snare', 'Deals 70% ATK damage. Applies Slow for 2 turns and Bleed for 3 turns.', 3, 0.7, { fx: [['slow', 2], ['bleed', 3, 0.25]] }),
              D('Lung Shot', 'Deals 140% ATK damage. +25% crit chance.', 3, 1.4, { critBonus: 0.25 })],

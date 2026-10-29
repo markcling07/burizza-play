@@ -1,19 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Cave Troll (monster) - Burizza placeholder art.
+<!-- Cave Troll (monster) - Ashfall Road art v2. A hulking grey-green troll, head sunk low between
+     mossy shoulders: tiny eyes, a tusked underbite, a pot belly over a hide loincloth, a broken
+     stalactite for a club, and a fresh wound already knitting shut in green light.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
-  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><path d="M32 52 Q19 66 24 84" stroke="#6d7a5a" stroke-width="9" fill="none" stroke-linecap="round" opacity=".85"/>
-  <rect x="31" y="74" width="15" height="20" rx="5" fill="#6d7a5a"/><rect x="54" y="74" width="15" height="20" rx="5" fill="#6d7a5a"/>
-  <path d="M24 80 Q19 44 44 36 Q64 31 75 44 Q83 60 77 82 Z" fill="#6d7a5a"/>
-  <path d="M30 72 h41 l-4 13 h-33 z" fill="#8a5a32"/>
-  <path d="M36 54 Q50 62 66 54" stroke="#3a4230" stroke-width="2" fill="none" opacity=".5"/>
-  <ellipse cx="66" cy="38" rx="13" ry="11" fill="#6d7a5a"/>
-  <path d="M58 33 h15" stroke="#3a4230" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="70" cy="37" r="1.9" fill="#ffd166"/>
-  <path d="M74 40 q6 2 2 6" fill="#6d7a5a" stroke="#3a4230" stroke-width="1.2"/>
-  <path d="M65 47 l1.6 -4.5 l1.6 4.5 Z M70 47 l1.4 -4 l1.4 4 Z" fill="#f1ead6"/>
-  <path d="M70 52 Q86 62 84 84" stroke="#6d7a5a" stroke-width="10" fill="none" stroke-linecap="round"/>
-  <path d="M84 86 L93 38" stroke="#7a5434" stroke-width="7" stroke-linecap="round"/>
-  <ellipse cx="93" cy="35" rx="8" ry="11" fill="#5a3d24"/>
-  <path d="M86 30 l-4 -2 M99 33 l4 -2 M93 24 v-4 M88 42 l-4 2 M99 41 l4 2" stroke="#c9d1de" stroke-width="2" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="ct-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a3b08a"/><stop offset=".5" stop-color="#6d7a5a"/><stop offset="1" stop-color="#424b35"/></linearGradient>
+    <linearGradient id="ct-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5c684b"/><stop offset="1" stop-color="#30382a"/></linearGradient>
+    <linearGradient id="ct-belly" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9c49e"/><stop offset=".5" stop-color="#85916c"/><stop offset="1" stop-color="#525c41"/></linearGradient>
+    <linearGradient id="ct-hide" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ad7d4c"/><stop offset=".5" stop-color="#8a5a32"/><stop offset="1" stop-color="#55341b"/></linearGradient>
+    <linearGradient id="ct-hideD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a4426"/><stop offset="1" stop-color="#3a2413"/></linearGradient>
+    <linearGradient id="ct-stone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6cab0"/><stop offset=".5" stop-color="#a39478"/><stop offset="1" stop-color="#635845"/></linearGradient>
+    <linearGradient id="ct-moss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8c454"/><stop offset=".6" stop-color="#6e8c30"/><stop offset="1" stop-color="#46601e"/></linearGradient>
+    <linearGradient id="ct-tusk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf4de"/><stop offset=".5" stop-color="#e6dcbf"/><stop offset="1" stop-color="#b3a684"/></linearGradient>
+    <radialGradient id="ct-regen" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#d6ffc0" stop-opacity=".9"/><stop offset=".45" stop-color="#7ee86a" stop-opacity=".45"/><stop offset="1" stop-color="#7ee86a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ct-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6c0"/><stop offset=".5" stop-color="#f0c840"/><stop offset="1" stop-color="#f0c840" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="30" ry="4" fill="#000" opacity=".4"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- back arm, hanging long, knuckles near the floor -->
+    <path d="M40 30 Q28 34 24 48 Q20.6 60 20.6 74 L27.4 75.6 Q27.4 64 29.6 54 Q32 44 41 39 Z" fill="url(#ct-skinD)"/>
+    <path d="M26.6 50 Q24.4 57 24 64 M29 44 Q26.6 47 25.6 51" stroke="#2a3122" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M18 74.4 Q16.8 80 19.4 84.6 Q24.4 87.4 28.6 84.2 Q30.4 79 27.8 74.8 Q22.8 72.4 18 74.4 Z" fill="url(#ct-skinD)"/>
+    <path d="M19.4 79.6 q3.4 1 7.2 -.2 M19.8 82.6 q3.2 1 6.6 -.2" stroke="#2a3122" stroke-width=".6" fill="none" opacity=".6"/>
+    <!-- back leg -->
+    <path d="M36 72 Q31 78 32 84 Q32.5 88 33 90 L44 90.5 Q44 86 45.5 82 Q47 77 46 72 Z" fill="url(#ct-skinD)"/>
+    <path d="M29 89 Q34 87 44 88.4 Q47 89.4 47 92 L46.6 94 L28.4 94 Q27.4 91 29 89 Z" fill="#363f2c"/>
+    <g fill="#c9bf9f"><ellipse cx="45.6" cy="92.6" rx="1.2" ry=".9"/><ellipse cx="42.6" cy="93.1" rx="1" ry=".75"/></g>
+    <!-- back flap of the loincloth -->
+    <path d="M33.4 75.6 L43 78.2 L42.2 86 L39.6 84.4 L37.2 86.8 L35.4 83.2 L33 84.6 Z" fill="url(#ct-hideD)"/>
+    <!-- the hunched torso -->
+    <path d="M36 77 Q29 66 28 52 Q27 38 34 28 Q40 18 50 16.5 Q60 16 66 24 Q70 30 69 40 Q74 50 75 60 Q76 71 69 77 Q60 82 50 81 Q41 80 36 77 Z" fill="url(#ct-skin)"/>
+    <path d="M30.6 46 Q31 35 36.6 28.6" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>
+    <path d="M34 50 Q38 58 37 66 M40 44 Q46 46 51 44 M44 30 Q47 36 46 42" stroke="#424b35" stroke-width=".8" fill="none" opacity=".5"/>
+    <!-- front leg -->
+    <path d="M54 73 Q53 79 56 84 Q57.5 87.5 57.6 90 L68.6 90 Q68 85 66.6 81 Q65 76 66 72 Z" fill="url(#ct-skin)"/>
+    <path d="M58 82 Q61 84.6 64.6 84" stroke="#424b35" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M55 88.6 Q61 86.8 69 88 Q73.6 89 74.4 92 L74.2 94 L54.6 94 Q53.6 91 55 88.6 Z" fill="url(#ct-skinD)"/>
+    <g fill="#ddd3b4"><ellipse cx="73" cy="92.6" rx="1.3" ry="1"/><ellipse cx="69.8" cy="93.1" rx="1.1" ry=".8"/><ellipse cx="66.8" cy="93.4" rx=".9" ry=".6"/></g>
+    <!-- rough hide loincloth and rope belt -->
+    <path d="M32.6 71.6 Q50 76.4 70.4 72.6 L71.4 77.2 Q50 81.6 33.4 76.4 Z" fill="url(#ct-hide)"/>
+    <path d="M49.4 77.4 L62.4 76.6 L63.4 88.4 L60.8 86.6 L58.8 89.8 L56.4 86.8 L53.8 89.4 L52 86 L49.2 87.8 Z" fill="url(#ct-hide)"/>
+    <path d="M52 79 L52.6 85 M56.4 79 L56.8 85.6 M60 78.6 L60.6 85" stroke="#4a2c14" stroke-width=".5" opacity=".6"/>
+    <path d="M33.2 74 Q50 78.6 70.8 74.8" stroke="#c9a46e" stroke-width="1" fill="none" stroke-dasharray="1.6 1.2" opacity=".75"/>
+    <!-- pot belly, hanging over the belt -->
+    <path d="M55 48 Q66 44 72.6 52 Q77.6 62 74 71 Q69 77.6 59 77.4 Q52 72 51.6 62 Q51.6 53 55 48 Z" fill="url(#ct-belly)"/>
+    <path d="M56.4 52.6 Q61 48.4 67 48.6" stroke="#fff" stroke-width="1.1" fill="none" opacity=".4"/>
+    <path d="M54.4 68 Q62 72.6 72 68.6 M66.4 64.6 q1.2 1.4 .2 2.8" stroke="#4e583e" stroke-width=".8" fill="none" opacity=".7"/>
+    <!-- the wound, already knitting shut -->
+    <circle cx="59.6" cy="56" r="8" fill="url(#ct-regen)"/>
+    <path d="M55.4 60.4 Q59.4 56.4 63.8 51.6" stroke="#5a1f1a" stroke-width="1.6" fill="none"/>
+    <path d="M55.4 60.4 Q59.4 56.4 63.8 51.6" stroke="#c96a5a" stroke-width=".5" fill="none" opacity=".8"/>
+    <path d="M56 58.2 l1.8 1.8 M58 56.2 l1.8 1.8 M60 54.2 l1.8 1.8 M62 52.2 l1.6 1.6" stroke="#d6ffc0" stroke-width=".55" opacity=".9"/>
+    <g fill="#d6ffc0"><circle cx="66.2" cy="52" r=".5"/><circle cx="53.4" cy="56" r=".45"/><circle cx="64" cy="60.6" r=".4"/><circle cx="57.6" cy="49.6" r=".4"/></g>
+    <!-- moss and lichen grown over the hump -->
+    <path d="M32.6 30.4 Q39 19.4 50 17 Q60.6 16.4 65.8 23.6 Q62 22.6 59 24.6 Q55.6 21.8 51.4 23.4 Q47.6 21 44.2 24.6 Q40.6 23.6 38 27.4 Q35.2 27.2 32.6 30.4 Z" fill="url(#ct-moss)"/>
+    <path d="M36 27 q-.6 3 .2 5.4 M44.4 24.6 q-.2 2.6 .6 4.6 M51.4 23.4 q.2 2.4 -.4 4.2 M59 24.6 q.6 2 .2 3.8" stroke="#6e8c30" stroke-width=".7" fill="none" opacity=".85"/>
+    <g fill="#ddd8ae"><circle cx="41.4" cy="21.8" r="1"/><circle cx="54" cy="19.2" r=".8"/><circle cx="60.6" cy="20.4" r=".9"/><circle cx="36.4" cy="26" r=".6"/></g>
+    <g fill="#d39a46"><circle cx="47" cy="19.8" r=".7"/><circle cx="57.4" cy="21.6" r=".5"/></g>
+    <!-- the stalactite club, grip wrapped in hide, its broken root on the floor -->
+    <path d="M75.7 52.2 L77.3 51.8 Q80 57 82.5 63.3 Q86 70.6 88.3 76.7 Q91.6 83.4 94.5 90.1 L92.6 92.4 L90.4 91.4 L88 93.6 L85.4 92.6 L83.4 94 L81.5 93.9 Q80.4 86.4 79.5 79.3 Q78.6 72 77.5 64.7 Q76.4 58.4 75.7 52.2 Z" fill="url(#ct-stone)"/>
+    <path d="M78.6 70 Q82 69.6 85 68 M79.4 76 Q83.6 75.6 87.4 73.6 M80.2 82.6 Q85 82.2 89.8 79.8 M80.8 88.4 Q86 88.2 92.2 85.2" stroke="#635845" stroke-width=".7" fill="none" opacity=".65"/>
+    <path d="M77 56 Q78 64 79.6 72 Q80.6 80 81.6 88" stroke="#fff" stroke-width=".8" fill="none" opacity=".4"/>
+    <path d="M77.2 58.2 L81.6 56.8 M77.6 60.6 L82.4 59 M78 63 L83.2 61.4" stroke="#55341b" stroke-width="1.4"/>
+    <!-- head, low and forward -->
+    <path d="M66 29 L60.6 25.4 L64.6 33.4 Z" fill="url(#ct-skinD)"/>
+    <path d="M64.4 31 Q64 23.4 70.6 22 Q77.4 21 80.4 26.4 L81.6 30.6 Q84.6 32 84 35.4 Q82.6 37.4 80.2 37 L74 38 Q68 39.4 65.6 36 Q64.6 34 64.4 31 Z" fill="url(#ct-skin)"/>
+    <path d="M66.4 27 Q67.6 23.6 71.4 22.6" stroke="#fff" stroke-width=".9" fill="none" opacity=".5"/>
+    <path d="M68 23.4 q-1.6 -1.8 -1.4 -3.8 M70.6 22.2 q-.8 -2 .2 -3.6 M73.6 21.8 q.2 -1.8 1.4 -2.8" stroke="#3a3f2c" stroke-width=".6" fill="none" opacity=".9"/>
+    <!-- the underbite: a jaw that juts past the nose -->
+    <path d="M66 36.6 Q72 38.6 80 37.4 Q84.6 37 86 39.6 Q86.4 43.4 82.4 45 Q75 46.8 69 44.4 Q65.4 42 66 36.6 Z" fill="url(#ct-skin)"/>
+    <path d="M68 41.6 Q74 44 81 42.6" stroke="#424b35" stroke-width=".7" fill="none" opacity=".55"/>
+    <path d="M68 37.8 Q74 39.4 80.6 38" stroke="#262b1e" stroke-width=".9" fill="none"/>
+    <g fill="#e6dcbf"><path d="M79.4 38 l.8 -1.6 l.9 1.5 Z"/><path d="M81.6 37.6 l.7 -1.3 l.8 1.3 Z"/></g>
+    <path d="M77 38.8 Q76 35.6 76.8 32 Q78.2 34.6 78.8 38.6 Z" fill="url(#ct-tusk)"/>
+    <path d="M83 38.2 Q82.8 35 84 32 Q85 35 84.8 38 Z" fill="url(#ct-tusk)"/>
+    <!-- heavy brow, tiny eye, big nose -->
+    <path d="M69.6 27.8 Q75 25.4 80.8 27.4 L80.6 29.2 Q75 27.8 70.2 29.8 Z" fill="#4e583e"/>
+    <circle cx="76.4" cy="30.6" r="1.9" fill="url(#ct-eye)"/>
+    <circle cx="76.5" cy="30.6" r=".55" fill="#2a2414"/>
+    <path d="M79.6 29.6 Q84.6 29 85.4 32.4 Q85 35 81.6 35.2 Q79.4 34 79.6 29.6 Z" fill="url(#ct-belly)"/>
+    <ellipse cx="83.6" cy="34" rx=".8" ry=".55" fill="#2a3122"/>
+    <!-- front arm: a slab of shoulder and a forearm like a log -->
+    <path d="M57.6 41 Q62.6 48.6 66.6 55.6 Q69.4 60.6 72 64.6 L68.4 64.6 Q65 59.4 62 54.4 Q58.4 48.6 55.4 43.4 Z" fill="#2f3826" opacity=".35"/>
+    <path d="M54 31 Q60 24 67 28 Q72 33 73.6 41 Q75.6 47 78.4 52 Q81 56 80.6 60 L73.6 63.4 Q70.4 59 68 54.6 Q64 49 60.4 44 Q55 38 54 31 Z" fill="url(#ct-skin)"/>
+    <path d="M64 42 Q67.4 46 69.4 50.6 M70.4 46 Q73.4 50 75 54" stroke="#424b35" stroke-width=".7" fill="none" opacity=".55"/>
+    <path d="M53 33 Q54.6 24.4 62.6 24.6 Q69.6 26 70.4 32.6 Q65.6 37.6 60 38.4 Q55 38 53 33 Z" fill="url(#ct-skin)"/>
+    <path d="M55 31.4 Q57.4 26.4 63 26.2" stroke="#fff" stroke-width="1" fill="none" opacity=".45"/>
+    <path d="M54.4 29 Q57.4 24.2 63.4 24.6 Q67.4 25.4 69.4 28.6 Q66 28 63.6 29.4 Q60.8 27.4 57.6 29 Q56 28.4 54.4 29 Z" fill="url(#ct-moss)"/>
+    <circle cx="61" cy="26.2" r=".7" fill="#ddd8ae"/>
+    <!-- fist round the club -->
+    <path d="M72.6 58.4 Q78 55.6 82.4 58.6 Q84.4 62.6 82.4 66.6 Q78 69 73.8 67 Q71.4 63 72.6 58.4 Z" fill="url(#ct-skin)"/>
+    <path d="M74 61.6 Q78 60.6 82.6 61.6 M74 64.4 Q78 63.6 82.6 64.4" stroke="#424b35" stroke-width=".6" fill="none" opacity=".7"/>
+    <path d="M78.4 57.4 Q82.4 57 83.4 60.4" stroke="#424b35" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M74 59.6 Q76.6 57.4 80 57.4" stroke="#fff" stroke-width=".7" fill="none" opacity=".4"/>
+  </g>
 </svg>

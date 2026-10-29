@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Brine Wraith (monster) - Ashfall Road art v2. A drowned sailor: knit watch cap, torn striped jersey,
+     a coil of wet rope, salt water pouring from his singing mouth, a twist of sea for legs. Floats.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="bw-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dcecef"/><stop offset=".5" stop-color="#9fb9c6"/><stop offset="1" stop-color="#5f7a8c"/></linearGradient>
+    <linearGradient id="bw-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7f9bb0"/><stop offset="1" stop-color="#465e70"/></linearGradient>
+    <linearGradient id="bw-shirt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#46667c"/><stop offset=".5" stop-color="#2f4a5e"/><stop offset="1" stop-color="#18293a"/></linearGradient>
+    <linearGradient id="bw-shirtD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a4254"/><stop offset="1" stop-color="#132130"/></linearGradient>
+    <linearGradient id="bw-stripe" gradientUnits="userSpaceOnUse" x1="42" y1="38" x2="66" y2="66"><stop offset="0" stop-color="#e8f8f4"/><stop offset=".5" stop-color="#a9e6dd"/><stop offset="1" stop-color="#5f9a98"/></linearGradient>
+    <linearGradient id="bw-cap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a0605a"/><stop offset=".5" stop-color="#6e3834"/><stop offset="1" stop-color="#42201f"/></linearGradient>
+    <linearGradient id="bw-rope" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9b994"/><stop offset=".5" stop-color="#92825f"/><stop offset="1" stop-color="#5a4f3c"/></linearGradient>
+    <linearGradient id="bw-weed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a8a44"/><stop offset="1" stop-color="#26421f"/></linearGradient>
+    <linearGradient id="bw-tail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f6a80" stop-opacity=".95"/><stop offset=".55" stop-color="#4f8ea0" stop-opacity=".75"/><stop offset="1" stop-color="#a9e6dd" stop-opacity=".15"/></linearGradient>
+    <linearGradient id="bw-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6fffa" stop-opacity=".95"/><stop offset="1" stop-color="#a9e6dd" stop-opacity=".1"/></linearGradient>
+    <radialGradient id="bw-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f2fffc"/><stop offset=".45" stop-color="#a9e6dd"/><stop offset="1" stop-color="#a9e6dd" stop-opacity="0"/></radialGradient>
+    <radialGradient id="bw-aura" cx=".5" cy=".45" r=".5"><stop offset="0" stop-color="#a9e6dd" stop-opacity=".22"/><stop offset="1" stop-color="#a9e6dd" stop-opacity="0"/></radialGradient>
+    <clipPath id="bw-torsoClip"><path d="M43 41 Q52 36.6 63 40 Q66 46 65 54 Q64.4 59 64.6 63 L61.6 61.4 L60 65.4 L57 62 L54.4 66.6 L51.6 62.4 L48.6 65.4 L46.4 61.6 L43.6 64.4 L41.4 61 Q40 51 43 41 Z"/></clipPath>
+    <clipPath id="bw-sleeveClip"><path d="M59 41.4 Q65.6 40 69 44.6 Q71.4 47.6 71.6 50.4 L70 49.6 L69.2 51.6 L67.8 50.6 L66.6 52.2 Q65.2 48.6 62 46.6 Z"/></clipPath>
+  </defs>
+  <ellipse cx="50" cy="94" rx="18" ry="3" fill="#000" opacity=".25"/>
+  <!-- salt water dripping off him to the floor -->
+  <ellipse cx="38" cy="93.6" rx="6" ry="1.1" fill="none" stroke="#a9e6dd" stroke-width=".5" opacity=".35"/>
+  <g fill="#a9e6dd" opacity=".6"><circle cx="36" cy="91.4" r=".6"/><circle cx="39" cy="92.6" r=".45"/><circle cx="67.6" cy="72" r=".6"/><circle cx="68.6" cy="76" r=".45"/></g>
+  <ellipse cx="53" cy="50" rx="27" ry="36" fill="url(#bw-aura)"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- below the waist, only a twist of sea -->
+    <path d="M42 58 Q40.6 70 38.4 77.6 Q35.6 85 28 88.6 Q36.4 88.4 42.4 84.4 Q50.4 78.6 54.2 70.6 Q57.2 64.4 62.4 58 Z" fill="url(#bw-tail)"/>
+    <path d="M47.4 63 Q50.6 70 45 78 Q41.6 82.6 35.6 85.6 M55.6 63.4 Q55.6 70.6 50 77.4 M43.6 66 Q43.4 72 40.6 78" stroke="#c8f4ec" stroke-width=".8" fill="none" opacity=".5"/>
+    <path d="M30.6 87.4 Q34.6 86.6 37.6 84.4 M51 73 q2 -1 2.8 -3" stroke="#f2fffc" stroke-width=".6" fill="none" opacity=".55"/>
+    <!-- the coil of rope, hanging from his back hand -->
+    <g fill="none">
+      <ellipse cx="32.6" cy="61" rx="6.4" ry="9.2" transform="rotate(-12 32.6 61)" stroke="url(#bw-rope)" stroke-width="1.8"/>
+      <ellipse cx="33.6" cy="62" rx="6" ry="8.8" transform="rotate(-8 33.6 62)" stroke="url(#bw-rope)" stroke-width="1.8"/>
+      <ellipse cx="32" cy="62.4" rx="5.6" ry="8.6" transform="rotate(-16 32 62.4)" stroke="url(#bw-rope)" stroke-width="1.8"/>
+      <ellipse cx="33.6" cy="62" rx="6" ry="8.8" transform="rotate(-8 33.6 62)" stroke="#3e3628" stroke-width="1.8" stroke-dasharray=".5 1.1" opacity=".55"/>
+      <path d="M29 69.6 Q27 75 29.4 79 Q31.4 82.6 29.6 86" stroke="url(#bw-rope)" stroke-width="1.6"/>
+      <path d="M29.6 86 l-1 1.6 M29.6 86 l.4 1.8 M29.6 86 l1.4 1.2" stroke="#92825f" stroke-width=".5"/>
+    </g>
+    <path d="M27.4 55 Q25.4 61 27.4 67 M36.6 54 Q38.6 60 36.4 66.6" stroke="url(#bw-weed)" stroke-width="1.1" fill="none"/>
+    <!-- back arm -->
+    <path d="M44.6 42 Q38.8 46 37 52 Q36 55.6 36.4 58.6 L40 59 Q40.6 55 42.2 51.6 Q44.6 48 48 46 Z" fill="url(#bw-shirtD)"/>
+    <circle cx="37.8" cy="59.8" r="2.3" fill="url(#bw-skinD)"/>
+    <path d="M36 61 q-.6 1.6 0 3 M38 62 q-.2 1.6 .4 2.8" stroke="#465e70" stroke-width=".9" fill="none"/>
+    <!-- striped jersey, torn at the hem -->
+    <path d="M43 41 Q52 36.6 63 40 Q66 46 65 54 Q64.4 59 64.6 63 L61.6 61.4 L60 65.4 L57 62 L54.4 66.6 L51.6 62.4 L48.6 65.4 L46.4 61.6 L43.6 64.4 L41.4 61 Q40 51 43 41 Z" fill="url(#bw-shirt)"/>
+    <g clip-path="url(#bw-torsoClip)">
+      <path d="M38 44 Q53 46 68 43.4 M38 48 Q53 50 68 47.4 M38 52 Q53 54 68 51.4 M38 56 Q53 58 68 55.4 M38 60 Q53 62 68 59.4 M38 64 Q53 66 68 63.4" stroke="url(#bw-stripe)" stroke-width="1.7" fill="none" stroke-linecap="butt"/>
+      <path d="M58 39 Q63 46 62.4 64 L70 64 L70 36 Z" fill="#0c1822" opacity=".28"/>
+    </g>
+    <path d="M44 45.6 Q45.6 42.4 49.6 40.8" stroke="#fff" stroke-width=".9" fill="none" opacity=".4"/>
+    <!-- weed slung over the shoulders -->
+    <path d="M45.6 40.6 Q44 46 45.4 51 Q44.2 55 45.6 58.6 M48.4 39.6 Q47.6 43.4 48.8 46.6" stroke="url(#bw-weed)" stroke-width="1.4" fill="none"/>
+    <!-- neck and drowned head -->
+    <path d="M55.6 35.4 L62.4 36.4 L62.6 41.6 L55.4 41 Z" fill="url(#bw-skinD)"/>
+    <path d="M53.6 29 Q53.4 21.6 60 20.6 Q66.6 20.4 68.4 26.6 Q69.4 31 67.8 34.6 Q66 38.6 61.6 39.4 Q57 39.6 55 36 Q53.6 33 53.6 29 Z" fill="url(#bw-skin)"/>
+    <path d="M55.6 32 Q56.8 36 60 37.8 M66.8 31.4 Q66.6 35.4 63.8 37.6" stroke="#5f7a8c" stroke-width=".8" fill="none" opacity=".7"/>
+    <path d="M54.6 25 Q53 29.6 53.8 34.6 M56 24.6 Q55 28.4 55.6 31.6" stroke="#2a3a44" stroke-width=".8" fill="none" opacity=".85"/>
+    <path d="M55.6 29.2 Q53.8 28.6 53.6 30.6 Q54 32.4 55.8 32" fill="#7f9bb0"/>
+    <!-- watch cap, sea-faded -->
+    <path d="M53.2 23 Q52.6 14.8 59.4 13.8 Q66.4 13.4 68.4 21.8 Q60.6 19.8 53.2 23 Z" fill="url(#bw-cap)"/>
+    <path d="M52.4 25.8 Q60.4 22.4 69.2 24.8 L68.8 21.4 Q60.4 18.8 52.6 22.2 Z" fill="#7e423d"/>
+    <path d="M54.6 22 v2.8 M56.8 21.2 v2.8 M59 20.6 v2.8 M61.2 20.4 v2.8 M63.4 20.6 v2.8 M65.6 21 v2.8 M67.6 21.6 v2.6" stroke="#42201f" stroke-width=".55" opacity=".75"/>
+    <path d="M55 18.8 Q56.6 15.4 60.4 14.8" stroke="#fff" stroke-width=".7" fill="none" opacity=".35"/>
+    <!-- hollow eyes lit like sea-glass -->
+    <ellipse cx="58.8" cy="28.6" rx="2.2" ry="2" fill="#1d3442"/>
+    <ellipse cx="64.6" cy="28.2" rx="2.4" ry="2.1" fill="#1d3442"/>
+    <circle cx="58.8" cy="28.6" r="2.8" fill="url(#bw-eye)"/>
+    <circle cx="64.6" cy="28.2" r="3.1" fill="url(#bw-eye)"/>
+    <circle cx="58.9" cy="28.6" r=".8" fill="#f2fffc"/><circle cx="64.7" cy="28.2" r=".9" fill="#f2fffc"/>
+    <path d="M56.8 25.8 Q58.8 25 60.6 25.8 M62.6 25.4 Q64.8 24.6 66.8 25.6" stroke="#465e70" stroke-width=".8" fill="none"/>
+    <path d="M61.8 29.4 L62.6 32 L61.6 32.4" stroke="#5f7a8c" stroke-width=".6" fill="none"/>
+    <!-- the singing mouth, and the sea coming out of it -->
+    <ellipse cx="63" cy="35" rx="2.4" ry="3" fill="#0e1c26"/>
+    <path d="M61 34.6 Q63 33.4 65.2 34.6" stroke="#5f7a8c" stroke-width=".6" fill="none" opacity=".8"/>
+    <path d="M61 36.4 Q62.6 39.2 65.4 38 Q67.6 44 67.2 50 Q67 56 68.8 62.6 L65 63.2 Q63 56.6 63.4 50 Q63.6 43.6 61 36.4 Z" fill="url(#bw-water)"/>
+    <path d="M63.2 38.4 Q64.6 43.6 64.4 49 M66 40 Q67 44 66.4 48" stroke="#fff" stroke-width=".55" fill="none" opacity=".65"/>
+    <g fill="#d6faf3" opacity=".75"><circle cx="68.6" cy="64.4" r=".7"/><circle cx="64.4" cy="65.6" r=".55"/><circle cx="70.6" cy="62" r=".45"/><circle cx="66.6" cy="67.6" r=".5"/></g>
+    <!-- front arm: torn sleeve, a ghost's forearm reaching for the mark -->
+    <path d="M59 41.4 Q65.6 40 69 44.6 Q71.4 47.6 71.6 50.4 L70 49.6 L69.2 51.6 L67.8 50.6 L66.6 52.2 Q65.2 48.6 62 46.6 Z" fill="url(#bw-shirt)"/>
+    <g clip-path="url(#bw-sleeveClip)">
+      <path d="M58 43 L72 41 M58 46.4 L72 44.4 M58 49.8 L72 47.8" stroke="url(#bw-stripe)" stroke-width="1.5" fill="none" stroke-linecap="butt"/>
+    </g>
+    <path d="M67.6 48.6 Q73 46 78 44 L79.4 47.6 Q74.2 50 69.2 52.4 Z" fill="url(#bw-skin)"/>
+    <path d="M72.4 47.2 v2.2 M71.6 48 h1.6 M71.4 49.2 q1 .8 2 0" stroke="#2f4a5e" stroke-width=".45" fill="none" opacity=".85"/>
+    <path d="M77.4 43.4 Q81 42 83.6 43.6 Q84.4 46 82 47.8 Q79.4 48.6 78 47.6 Z" fill="url(#bw-skin)"/>
+    <path d="M83 43.4 Q86 41.6 88.4 42.2 M83.8 45.2 Q87 44.8 89 46.2 M82.6 47.2 Q85 48.6 86.4 50.6" stroke="#9fb9c6" stroke-width="1.3" fill="none"/>
+    <path d="M80 48.4 q.4 2.4 -.2 4.4 M84 50.6 q.6 2 0 3.6" stroke="url(#bw-water)" stroke-width=".8" fill="none"/>
+    <path d="M60.4 41 Q65 40.6 68.4 44" stroke="#fff" stroke-width=".7" fill="none" opacity=".35"/>
+    <path d="M62.4 41.4 Q66 45 65.4 50" stroke="url(#bw-weed)" stroke-width="1.2" fill="none"/>
+    <path d="M55.4 23.6 Q58.6 21.8 62.6 21.6" stroke="#fff" stroke-width=".7" fill="none" opacity=".3"/>
+  </g>
+</svg>

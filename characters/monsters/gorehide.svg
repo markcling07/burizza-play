@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Gorehide, the Warren King (boss) - Ashfall Road art v2. A hunched, knuckle-walking troll-beast in scarred
+     red-brown hide: antler-and-bone crown, tusks, furious eyes, skulls on its belt, a giant femur club.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="gh-hide" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#946048"/><stop offset=".5" stop-color="#5a3a2a"/><stop offset="1" stop-color="#2e1c14"/></linearGradient>
+    <linearGradient id="gh-hideD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a2e20"/><stop offset="1" stop-color="#21130d"/></linearGradient>
+    <linearGradient id="gh-mane" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a3c2a"/><stop offset=".5" stop-color="#3c2118"/><stop offset="1" stop-color="#1a0d09"/></linearGradient>
+    <linearGradient id="gh-antler" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecd09c"/><stop offset=".5" stop-color="#c08a4a"/><stop offset="1" stop-color="#7a5226"/></linearGradient>
+    <linearGradient id="gh-antlerD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a87a44"/><stop offset="1" stop-color="#5e3e1c"/></linearGradient>
+    <linearGradient id="gh-bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8f0da"/><stop offset=".5" stop-color="#dccdaa"/><stop offset="1" stop-color="#9c8a68"/></linearGradient>
+    <linearGradient id="gh-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a3c28"/><stop offset=".5" stop-color="#3a2618"/><stop offset="1" stop-color="#1e140c"/></linearGradient>
+    <linearGradient id="gh-horn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3a30"/><stop offset="1" stop-color="#120c08"/></linearGradient>
+    <radialGradient id="gh-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff2c8"/><stop offset=".45" stop-color="#ff6a1f"/><stop offset="1" stop-color="#ff6a1f" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="31" ry="4" fill="#000" opacity=".4"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- far antler, behind the head -->
+    <path d="M74.1 21.4 Q80 12.8 89.6 7.6 Q82.2 14.8 77.1 24.2 Z M78.8 16.8 Q77.9 12.6 78.2 8.2 Q79.3 12.3 80.8 16.4 Z M84.1 11.5 Q84.3 7.9 85.6 4.4 Q85.6 8 85.9 11.7 Z" fill="url(#gh-antlerD)"/>
+    <!-- back arm: knuckles down on the warren floor -->
+    <path d="M30 30 Q24 36 22 48 Q20 60 19 72 Q17.6 80 16.4 86 L15.6 90 Q15 93.4 18 93.6 L25.6 93.6 Q28 93 27.4 90.4 L27.6 84 Q29 74 30.6 64 Q32.4 52 38 40 Z" fill="url(#gh-hideD)"/>
+    <path d="M17 88.6 q2.6 -1 5 0 M17.4 91.4 q3 -1 6.4 .2" stroke="#1a0d09" stroke-width=".7" fill="none" opacity=".7"/>
+    <!-- back leg -->
+    <path d="M33 64 L47 66 Q47 76 44.6 82 L45.6 88 Q48.6 89.4 49 92 Q49 93.8 46.6 93.8 L32.6 93.8 Q30.6 93.6 31.4 91.4 L33.6 87.4 Q32 80 33 64 Z" fill="url(#gh-hideD)"/>
+    <path d="M47.6 90.6 Q50.4 91.4 51.2 93.8 L47.8 93.8 Z M44.8 91.4 Q47.4 92 48 93.8 L44.6 93.8 Z" fill="url(#gh-horn)"/>
+    <!-- the hunched bulk -->
+    <path d="M26 58 Q24 40 34 28 Q42 19 52 19 Q62 19.4 68 26 Q74 33 73.6 44 Q73 56 66.4 64 Q60 71 50 72 Q38 72.6 30 68 Q26 64 26 58 Z" fill="url(#gh-hide)"/>
+    <path d="M30 66 Q40 71.6 52 71 Q62 70 66.4 64 Q60 71 50 72 Q38 72.6 30 68 Z" fill="#21130d" opacity=".5"/>
+    <!-- old scars: claw-rakes across the chest and flank -->
+    <path d="M55 43 L63 53.4 M58.4 41.6 L66 51.4 M61.8 40.6 L68.2 49.2 M33 50 L37.6 58" stroke="#21130d" stroke-width="1.8" opacity=".45"/>
+    <path d="M55 43 L63 53.4 M58.4 41.6 L66 51.4 M61.8 40.6 L68.2 49.2 M33 50 L37.6 58" stroke="#d9a888" stroke-width=".7" opacity=".85"/>
+    <path d="M44 50 q-1.6 4 -1 8 M48 52 q-1.4 3.6 -.8 7" stroke="#2e1c14" stroke-width=".8" fill="none" opacity=".6"/>
+    <!-- front leg -->
+    <path d="M50 64 L64.6 64.6 Q66 74 63.6 81.4 L64.6 88 Q68.6 89.4 69.6 92 Q69.8 93.8 67.2 93.8 L52.6 93.8 Q50.4 93.6 51 91.6 L53 87.6 Q50 78 50 64 Z" fill="url(#gh-hide)"/>
+    <path d="M53.4 80.6 q4.4 1.4 9.4 .4" stroke="#2e1c14" stroke-width=".8" fill="none" opacity=".6"/>
+    <path d="M68 90.4 Q71.2 91.2 72.2 93.8 L68.4 93.8 Z M65.2 91.2 Q68 91.8 68.8 93.8 L65 93.8 Z M62.4 91.6 Q65 92.2 65.6 93.8 L62 93.8 Z" fill="url(#gh-horn)"/>
+    <!-- hide loincloth and trophy belt -->
+    <path d="M41 62 L59 62 L58 76 L55.6 73.6 L53.6 79 L51.2 74.4 L48.8 79.6 L46.6 74 L44 77.4 Z" fill="url(#gh-leather)"/>
+    <path d="M29.6 58.6 Q48 64.6 68.4 57 L69 62 Q48 70 30.6 63.6 Z" fill="url(#gh-leather)"/>
+    <path d="M30.6 61.2 Q48 67.2 68.6 59.6" stroke="#c08a4a" stroke-width=".7" stroke-dasharray="1.4 1.6" fill="none" opacity=".8"/>
+    <!-- skulls of whatever challenged it -->
+    <path d="M34.6 64.2 v3.2 M46 66.6 v3.4 M57.6 65.6 v3" stroke="#2a1a10" stroke-width=".6"/>
+    <path d="M31.4 70.6 Q31.4 66.4 35 66.4 Q38.6 66.4 38.6 70.6 L38 73.6 L36.4 74.4 L33.6 74.4 L32 73.6 Z" fill="url(#gh-bone)"/>
+    <path d="M33.6 70.6 a1 1.1 0 1 0 .1 0 M36.6 70.6 a1 1.1 0 1 0 .1 0" fill="#2a1a10"/>
+    <path d="M33.8 74.2 v-1.2 M35 74.4 v-1.2 M36.2 74.2 v-1.2" stroke="#6a5a40" stroke-width=".4"/>
+    <path d="M42.4 70.4 Q42.6 69 44.6 69 L49 69.6 Q51.4 70.4 51.4 72 L50.8 74 Q48 75 45 74.6 Q42.4 73.6 42.4 70.4 Z" fill="url(#gh-bone)"/>
+    <ellipse cx="45.2" cy="71.4" rx="1.1" ry=".9" fill="#2a1a10"/>
+    <path d="M47.2 74.6 l.4 1.6 .8 -1.4 M49.4 74.2 l.3 1.4 .7 -1.3" stroke="#dccdaa" stroke-width=".6" fill="none"/>
+    <path d="M55 70 Q55 67.6 57.6 67.6 Q60.2 67.6 60.2 70 L59.8 72.2 L58.6 72.8 L56.6 72.8 L55.4 72.2 Z" fill="url(#gh-bone)"/>
+    <path d="M56.6 70.2 a.75 .8 0 1 0 .1 0 M58.8 70.2 a.75 .8 0 1 0 .1 0" fill="#2a1a10"/>
+    <path d="M55.6 66 L54 63.6 M59.6 66 L61.4 63.4" stroke="#dccdaa" stroke-width=".9"/>
+    <!-- the shaggy mane over hump and shoulders -->
+    <path d="M65 27.6 Q60 17.6 50 16.6 Q40 16.6 33 23 L30.6 22.6 L31.4 26 L27.6 27 L29.4 30.4 L25.6 32.8 L28 35.2 L24.6 38.6 L27.4 40.4 L24.4 45 L27.6 46 L25.6 51 Q30 47 31 42 L33.4 44.6 L34.4 40 L37.6 42 L38 37.6 L41.6 39 L41.6 34.6 L45.6 35.6 L45.2 31.6 L49.4 32.2 L49.6 28.8 L53.6 29.6 L54.4 26.6 L58.4 28.4 L60.4 26 Q63.2 28.2 65 27.6 Z" fill="url(#gh-mane)"/>
+    <path d="M34 25 Q40 19.6 47 18.6 M28.8 32 Q30.4 28 33.6 25.6" stroke="#b07a5a" stroke-width=".9" fill="none" opacity=".55"/>
+    <path d="M36 30 l-2.4 3 M42 26.6 l-2.2 3.2 M48 24.6 l-1.6 3.2 M54 24.2 l-1.2 3" stroke="#1a0d09" stroke-width=".7" opacity=".7"/>
+    <!-- the club: a giant's femur planted on the floor, bound at the grip and studded with horn -->
+    <path d="M74.4 65 Q78.2 74 81.2 84.6 L87.8 82.6 Q84.6 72 80.4 62.6 Z" fill="url(#gh-bone)"/>
+    <ellipse cx="84.2" cy="87.2" rx="5.8" ry="4.6" transform="rotate(-15 84.2 87.2)" fill="url(#gh-bone)"/>
+    <ellipse cx="90.2" cy="85" rx="4.8" ry="4.2" transform="rotate(-15 90.2 85)" fill="url(#gh-bone)"/>
+    <path d="M86.8 84.4 Q87.4 87.6 89.8 89" stroke="#9c8a68" stroke-width=".8" fill="none"/>
+    <path d="M79 70 l1.4 4.6 M80.2 79.6 q2.6 -.6 4 1.2" stroke="#9c8a68" stroke-width=".6" fill="none" opacity=".8"/>
+    <path d="M94.2 86.2 Q95.2 87 96 88.2 Q94.6 88.4 93.4 88 Z M92.4 81.4 Q93.6 79.6 95.2 78 Q94.8 80.2 93.8 82.4 Z M79.4 87.8 Q77.8 88.4 76.2 88.6 Q77.4 87.4 79 86.4 Z M87.6 82.4 Q87.8 80.4 88.6 78.6 Q89.2 80.6 89.2 82.6 Z" fill="url(#gh-horn)"/>
+    <path d="M80 88.4 q2.2 2 5 1.8 M90.8 81.2 q1.6 1 1.6 2.8" stroke="#6a1a12" stroke-width="1.1" fill="none" opacity=".6"/>
+    <path d="M75.6 67.8 l5.2 -2 M76.4 70.4 l5.2 -2" stroke="url(#gh-antler)" stroke-width="1.4"/>
+    <path d="M79.4 84.6 Q80.2 82.4 83 81.8 M87.8 81.4 Q89.8 80.2 92.2 80.8" stroke="#fff" stroke-width=".7" fill="none" opacity=".6"/>
+    <!-- front arm, heavy with muscle -->
+    <path d="M61 31 Q71 26.6 76 35.4 Q79.4 44 77.8 53 L67.4 55.4 Q66.6 46.6 62.6 40.6 Z" fill="url(#gh-hide)"/>
+    <path d="M66.6 51.4 Q72.4 46.6 78.4 50 Q82.6 55 82 62.4 L72.4 66 Q70.6 59.4 66.6 55.6 Z" fill="url(#gh-hide)"/>
+    <path d="M71 40 Q73.4 44.6 73 49 M72.4 55.4 Q75.4 58.4 75.8 62" stroke="#2e1c14" stroke-width=".8" fill="none" opacity=".6"/>
+    <path d="M70.6 37 L75 43.8 M73.4 36.4 L76.6 41.6" stroke="#d9a888" stroke-width=".7" opacity=".8"/>
+    <path d="M78 50.6 L80.6 49.6 L79.8 52.4 L82.4 52.2 L81 54.6" fill="url(#gh-mane)"/>
+    <path d="M70.6 60.6 Q76.6 56.6 81.8 59.6 Q84 63.6 81.8 67.6 Q77 69.8 72.6 67.4 Q70 64.2 70.6 60.6 Z" fill="url(#gh-hide)"/>
+    <path d="M73 61.4 l5.8 -1.2 M73 64 l6.2 -.8 M73.6 66.4 l5.6 -.6" stroke="#2e1c14" stroke-width=".6" opacity=".7"/>
+    <path d="M81.6 60.4 l1.8 -.6 M82.2 63 l1.8 -.2 M81.8 65.6 l1.6 .2" stroke="url(#gh-horn)" stroke-width="1"/>
+    <path d="M63.4 31.2 Q68.6 28.6 73 31.4" stroke="#fff" stroke-width="1" fill="none" opacity=".45"/>
+    <!-- ear, torn -->
+    <path d="M64 30.6 L57.4 27.4 L59 29.6 L58 30.4 Q60.4 32.4 63.6 34 Z" fill="url(#gh-hideD)"/>
+    <!-- head: low, broad, tusked -->
+    <path d="M61.6 31 Q62 23.6 69.6 22.4 Q77.4 21.6 80.6 26.6 L83.6 30.4 Q86.6 31 87.2 34 Q87.4 37 85 38.4 L84.8 41.6 Q83.4 44.6 79 45 L71.6 45.8 Q65 45.6 62.6 40.6 Q61 36.4 61.6 31 Z" fill="url(#gh-hide)"/>
+    <path d="M65 40 Q69 43.6 74 43.4" stroke="#2e1c14" stroke-width=".8" fill="none" opacity=".6"/>
+    <path d="M80.4 29.2 q1.6 -.4 2.6 .6 M81.4 31.4 q1.4 -.4 2.4 .6" stroke="#2e1c14" stroke-width=".6" fill="none" opacity=".7"/>
+    <ellipse cx="85.4" cy="33.2" rx="1.9" ry="1.5" fill="#2a1610"/>
+    <circle cx="86.2" cy="33.6" r=".5" fill="#0c0604"/>
+    <path d="M85.2 38.4 Q80 39.8 75.4 39.2" stroke="#1a0d09" stroke-width="1" fill="none"/>
+    <path d="M76.8 39.4 l.5 1.3 .6 -1.2 .6 1.2 .6 -1.2 .6 1.2 .5 -1.1" stroke="#f2e8cc" stroke-width=".5" fill="none"/>
+    <path d="M77.3 41.1 Q77.7 37.1 80.2 33.4 Q79.7 37.4 80.3 41.7 Z M82.6 40.4 Q83.5 37.7 85.8 35.6 Q84.9 38.3 84.6 41.2 Z" fill="url(#gh-bone)"/>
+    <path d="M63.6 29 Q65.6 25 70 24" stroke="#fff" stroke-width=".9" fill="none" opacity=".45"/>
+    <!-- the crown: a band of lashed bone, and the antlers -->
+    <path d="M63.6 25.6 Q72 21 80.4 23.6 L80.8 26.6 Q72 24.4 64.2 28.6 Z" fill="url(#gh-antler)"/>
+    <path d="M66 26.4 l.6 1 M69.4 24.8 l.4 1.1 M73 24 l.2 1.1 M76.6 24.2 l0 1.1" stroke="#5e3e1c" stroke-width=".6"/>
+    <path d="M65.9 25.8 Q65.7 23.1 65.8 20.4 Q66.9 22.9 67.7 25.4 Z M69.9 23.6 Q70.2 21 70.8 18.4 Q71.4 21 71.7 23.6 Z M74.1 23.1 Q74.8 20.7 75.8 18.4 Q76 20.9 75.9 23.3 Z" fill="url(#gh-bone)"/>
+    <path d="M66.8 25.5 Q61.8 14.8 54 6.4 Q64.3 12.7 70.4 22.5 Z M63.2 17.3 Q65.1 13 66.4 8.6 Q66.8 13.4 65.6 17.9 Z M58.8 12.3 Q59.3 8.4 59.4 4.6 Q60.7 8.3 60.8 12.1 Z M66.2 20.5 Q69.5 18.3 72 15.4 Q70.6 19.3 67.8 21.9 Z" fill="url(#gh-antler)"/>
+    <path d="M66.8 23.5 Q62.4 14.3 58.3 9.4 M64.2 16 Q65.5 13.1 66.2 10.6 M59.3 10.7 Q59.6 8.4 59.6 6.3" stroke="#fff" stroke-width=".6" fill="none" opacity=".55"/>
+    <!-- small furious eyes under a knotted brow -->
+    <path d="M67.6 27.8 L74.4 30.6 M75.4 30 L80.4 27.6" stroke="#1a0d09" stroke-width="1.5"/>
+    <circle cx="72" cy="31.4" r="2.6" fill="url(#gh-eye)"/>
+    <circle cx="78" cy="30.6" r="2.2" fill="url(#gh-eye)"/>
+    <circle cx="72" cy="31.5" r=".75" fill="#fff2c8"/>
+    <circle cx="78" cy="30.7" r=".6" fill="#fff2c8"/>
+  </g>
+</svg>

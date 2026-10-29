@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Banshee (monster) - Ashfall Road art v2. A gaunt woman-spirit mid-scream: wild white hair
+     streaming back, the jaw stretched open with the scream ringing out in front of it, both clawed
+     hands raised, a tattered grave-shroud thinning into a long tail.
+     Canvas 100x100, faces right, floats: shadow on y=94, lowest tatter ~y 90. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="bs-shroud" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#86aaa8"/><stop offset=".55" stop-color="#4a6a6a"/><stop offset=".84" stop-color="#3a5656" stop-opacity=".65"/><stop offset="1" stop-color="#2a3f3f" stop-opacity="0"/></linearGradient>
+    <linearGradient id="bs-cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c9e9d"/><stop offset=".5" stop-color="#4a6a6a"/><stop offset="1" stop-color="#2b4242"/></linearGradient>
+    <linearGradient id="bs-clothD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3f5c5c"/><stop offset="1" stop-color="#1e3030"/></linearGradient>
+    <linearGradient id="bs-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4fdfb"/><stop offset=".5" stop-color="#bfe8e2"/><stop offset="1" stop-color="#7aa49f"/></linearGradient>
+    <linearGradient id="bs-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8f4f1"/><stop offset=".5" stop-color="#abc8c3"/><stop offset="1" stop-color="#6e8f8a"/></linearGradient>
+    <linearGradient id="bs-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#88a8a3"/><stop offset="1" stop-color="#4b6965"/></linearGradient>
+    <linearGradient id="bs-claw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6fffd"/><stop offset="1" stop-color="#8fb0ab"/></linearGradient>
+    <radialGradient id="bs-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f2fffd"/><stop offset=".45" stop-color="#9ffff0"/><stop offset="1" stop-color="#9ffff0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="bs-maw" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#2c4a4a"/><stop offset="1" stop-color="#081212"/></radialGradient>
+    <radialGradient id="bs-aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#9ffff0" stop-opacity=".16"/><stop offset="1" stop-color="#9ffff0" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="48" cy="94" rx="18" ry="3" fill="#000" opacity=".25"/>
+  <ellipse cx="50" cy="48" rx="34" ry="36" fill="url(#bs-aura)"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- far arm, flung up behind the hair -->
+    <path d="M50.5 43.9 L44.1 32.9 L47.1 31.1 L53.5 42.1 Z" fill="url(#bs-skinD)"/>
+    <path d="M44.1 32.2 L42.1 17.6 L44.3 17.2 L47.1 31.8 Z" fill="url(#bs-skinD)"/>
+    <path d="M42.4 23.2 L46.4 22.4 L47.6 28.6 L45.6 27.4 L45 31.6 L43.6 28 L41.6 30.4 Z" fill="url(#bs-clothD)"/>
+    <path d="M41.4 17 Q40.8 13.6 43.2 12.8 Q45.6 12.8 45.8 15.4 Q45.2 17.4 43.2 17.8 Z" fill="url(#bs-skinD)"/>
+    <path d="M41.6 13.8 Q39 11 38.2 7 M43 12.8 Q42.4 9 43.4 5.4 M44.6 13 Q46.2 9.6 48.8 7.6 M45.6 14.8 Q48.4 13.6 50.6 14" stroke="url(#bs-claw)" stroke-width="1.1" fill="none"/>
+    <!-- the hair, streaming back -->
+    <path d="M60 19.6 Q53.6 17.4 47.6 21.6 Q41 26 31 25.2 Q24 24.4 17.6 27.6 Q23.6 29 28.6 30.6 Q20.6 32.6 13.4 37.6 Q21.4 37.6 27.4 37.4 Q20.4 42.6 15.6 49 Q24 45.4 30 43.8 Q26.8 49.6 25.4 55.4 Q32.6 49.6 37.6 46 Q43.4 45.4 48.4 44 Q53.4 40.4 55 33.6 Q55.4 25 60 19.6 Z" fill="url(#bs-hair)"/>
+    <path d="M52.6 22.6 Q42 29.6 26 28.2 M53.4 27 Q42.6 33.6 24 37.6 M53 31.4 Q44 38.4 28 41.6 M51.4 36.6 Q42.6 42.6 31 47.6" stroke="#7aa49f" stroke-width=".6" fill="none" opacity=".75"/>
+    <path d="M57.6 20.4 Q50.6 20 45 24.8 Q38 28.4 29 27" stroke="#fff" stroke-width=".9" fill="none" opacity=".6"/>
+    <path d="M51.6 20.2 Q41.6 14.4 30 17 Q40.6 17.4 47.8 21.8 Z" fill="url(#bs-hair)" opacity=".9"/>
+    <path d="M40.4 44.8 Q34.6 51.6 31.6 57.6" stroke="#bfe8e2" stroke-width=".8" fill="none" opacity=".7"/>
+    <!-- the shroud, torn, trailing off into a tail -->
+    <path d="M50.6 40.8 Q46.6 46 46.4 54 Q46 62 42 70 Q37 78 28 84 Q22.4 87.4 17.6 88 Q24.6 89.2 31.4 87.8 L33.6 89.8 Q37.6 86.6 41.4 86.2 L44.6 89.4 Q46.6 84.6 50.2 82.6 L53.4 86.4 Q54.6 80.4 57.4 76.6 Q62.2 70 63.4 60 Q64 52 62.6 45 Q57.4 40 50.6 40.8 Z" fill="url(#bs-shroud)"/>
+    <path d="M51 46 Q50 60 44.4 72 M57 47 Q57.6 61 52 76 M61.6 50 Q61.6 60 58.6 68" stroke="#1e3030" stroke-width=".7" fill="none" opacity=".55"/>
+    <path d="M48.6 44.6 Q47.6 54 47.2 61.6" stroke="#dff7f3" stroke-width="1.1" fill="none" opacity=".45"/>
+    <path d="M38.6 76.4 Q31 78 24.4 76.4 L28 79 Q33.4 80.4 38.4 79 Z" fill="#4a6a6a" opacity=".55"/>
+    <path d="M30 86.6 Q25 87 21 86.4" stroke="#bfe8e2" stroke-width=".6" fill="none" opacity=".4"/>
+    <!-- gaunt neck -->
+    <path d="M55.4 36 L61.4 38.4 L62.4 44.6 L53.6 43.6 Z" fill="url(#bs-skinD)"/>
+    <path d="M57 38.4 L58.6 43.4 M60.4 39.4 L61 43.8" stroke="#3f5a57" stroke-width=".55" opacity=".7"/>
+    <!-- the head, thrown forward into the scream -->
+    <g transform="rotate(-10 61 31)">
+      <path d="M54.6 30.4 Q54 21.6 60.6 20.4 Q65.6 20 67 24.6 L67.2 26.8 L69 29.4 L67.4 30.2 Q67.4 31 67.2 31.4 L68.8 42.4 Q67.2 46.2 63.2 45.6 Q59.4 44.4 57.4 39.8 Q55 35.2 54.6 30.4 Z" fill="url(#bs-skin)"/>
+      <path d="M58.6 31 Q60.8 29.6 62.6 30.6" stroke="#4b6965" stroke-width=".7" fill="none" opacity=".75"/>
+      <path d="M58.8 33 Q60.2 36.4 61.4 40 M58.4 40.6 Q61.6 44.8 67 44.8" stroke="#4b6965" stroke-width=".6" fill="none" opacity=".6"/>
+      <path d="M66.6 26.6 L68.4 29.2 L67 29.8" stroke="#6e8f8a" stroke-width=".5" fill="none"/>
+      <ellipse cx="63" cy="25.9" rx="2.3" ry="1.9" fill="#173030"/>
+      <ellipse cx="66.2" cy="25.5" rx="1.2" ry="1.5" fill="#173030"/>
+      <path d="M60.8 23.6 Q63.4 22.2 65.8 23.6" stroke="#3f5a57" stroke-width=".8" fill="none"/>
+      <path d="M62.8 31.6 Q66.6 30.2 67.6 32.6 L68.6 41.4 Q66.8 44.6 64 42.8 Q61.4 37.4 62.8 31.6 Z" fill="url(#bs-maw)"/>
+      <path d="M63.6 31.6 l.4 1.3 l.6 -1.2 l.5 1.2 l.6 -1.3 l.4 1 l.4 -1.1 Z M64.4 42.6 l.5 -1.1 l.5 1 l.6 -1.1 l.5 1.1 l.5 -1 Z" fill="#e6f3f0"/>
+      <path d="M54.4 31 Q53.4 21.4 60.2 19.6 Q64.4 18.8 66.6 22.4 Q61.8 21.2 59 23.6 Q56.4 26.4 56.6 32 Z" fill="url(#bs-hair)"/>
+      <path d="M56 28.6 Q56 23.6 59.6 21.2 M58.4 23 Q61.6 20.8 64.6 21.4" stroke="#7aa49f" stroke-width=".5" fill="none" opacity=".7"/>
+      <circle cx="63.2" cy="25.9" r="2.9" fill="url(#bs-eye)"/><circle cx="66.2" cy="25.5" r="1.9" fill="url(#bs-eye)"/>
+      <circle cx="63.2" cy="25.9" r=".8" fill="#f4fffd"/><circle cx="66.2" cy="25.5" r=".55" fill="#f4fffd"/>
+    </g>
+    <!-- the scream -->
+    <path d="M70.9 31.4 A6 6 0 0 1 72.2 39" stroke="#e8fffb" stroke-width="1.5" fill="none" opacity=".85"/>
+    <path d="M73.1 28.7 A9.5 9.5 0 0 1 75.6 40" stroke="#e8fffb" stroke-width="1.2" fill="none" opacity=".6"/>
+    <path d="M74.5 25.4 A13 13 0 0 1 79.8 38.3" stroke="#e8fffb" stroke-width=".9" fill="none" opacity=".35"/>
+    <!-- near arm, claws up -->
+    <path d="M60.7 43.6 L69.7 51 L67.5 53.8 L58.5 46.4 Z" fill="url(#bs-skin)"/>
+    <path d="M68 50.9 L79.2 46.9 L80 49.1 L69.2 53.9 Z" fill="url(#bs-skin)"/>
+    <circle cx="68.6" cy="52.4" r="1.9" fill="#94b2ad"/>
+    <path d="M59.4 43.4 Q65.6 46 70 51.4 L69.6 57.4 L68 54.6 L66.8 59.8 L65 55.4 L63.4 60.4 L62.4 54.8 L60.6 57.4 L59.2 50 Z" fill="url(#bs-cloth)"/>
+    <path d="M60 44 Q65.2 46.2 68.8 50.4" stroke="#dff7f3" stroke-width=".7" fill="none" opacity=".5"/>
+    <path d="M70.6 51.4 L78.4 48.2" stroke="#4b6965" stroke-width=".5" opacity=".7"/>
+    <path d="M79 49.4 Q78.4 46 80.8 45 Q83.4 44.8 83.8 47.2 Q83.2 49.4 81 50 Z" fill="url(#bs-skin)"/>
+    <path d="M79.6 45.8 Q78.6 43 79 40.4 M81.2 45 Q81.8 41.4 83.8 39.2 M82.8 45.4 Q85.4 42.4 88.4 41.2 M83.6 47.4 Q87 46.8 90 48" stroke="url(#bs-claw)" stroke-width="1.15" fill="none"/>
+  </g>
+</svg>

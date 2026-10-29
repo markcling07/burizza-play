@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Court Necromancer (monster) - Ashfall Road art v2. The Dread King's last advisor: gaunt and tall
+     in purple-black court robes, a high stiff collar fanned behind his head, a silver chain of office,
+     a staff crowned with a skull in violet flame, one hand stripped to the bone and raised to cast.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="cn-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#54457a"/><stop offset=".5" stop-color="#2a2140"/><stop offset="1" stop-color="#110c1c"/></linearGradient>
+    <linearGradient id="cn-robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2142"/><stop offset="1" stop-color="#0c0814"/></linearGradient>
+    <linearGradient id="cn-violet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cdb6f2"/><stop offset=".5" stop-color="#9a7ad0"/><stop offset="1" stop-color="#57398c"/></linearGradient>
+    <linearGradient id="cn-violetD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8e70c8"/><stop offset=".5" stop-color="#5c4194"/><stop offset="1" stop-color="#2c1d4c"/></linearGradient>
+    <linearGradient id="cn-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2dce8"/><stop offset=".55" stop-color="#b8b0c0"/><stop offset="1" stop-color="#776d84"/></linearGradient>
+    <linearGradient id="cn-bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4eedf"/><stop offset=".5" stop-color="#d8ceb6"/><stop offset="1" stop-color="#968c74"/></linearGradient>
+    <linearGradient id="cn-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a4864"/><stop offset="1" stop-color="#211826"/></linearGradient>
+    <linearGradient id="cn-silver" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f6fa"/><stop offset=".5" stop-color="#b6bac8"/><stop offset="1" stop-color="#666a7a"/></linearGradient>
+    <radialGradient id="cn-fire" cx=".5" cy=".6" r=".55"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#e6d4ff"/><stop offset=".7" stop-color="#a77ee6" stop-opacity=".85"/><stop offset="1" stop-color="#6a3fb0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="cn-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#b48cff" stop-opacity=".5"/><stop offset="1" stop-color="#b48cff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="cn-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f6eeff"/><stop offset=".45" stop-color="#b48cff"/><stop offset="1" stop-color="#b48cff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="24" ry="3.6" fill="#000" opacity=".38"/>
+  <circle cx="31" cy="15" r="11" fill="url(#cn-glow)"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- the staff and its burning skull -->
+    <path d="M29.2 22.4 L32.4 22.4 L33.2 93.4 L30.4 93.4 Z" fill="url(#cn-wood)"/>
+    <path d="M29 38.4 h3.8 v1.8 h-3.8 Z M29.4 70 h3.8 v1.8 h-3.8 Z" fill="url(#cn-silver)"/>
+    <path d="M30.2 26 L30.8 90" stroke="#8a789a" stroke-width=".5" opacity=".6"/>
+    <path d="M24.6 19.6 Q21.4 13.6 24.8 7.6 Q25.2 12 27.6 13 Q27 8 30.4 4.4 Q30.6 9 33 10.4 Q34 7.2 36.8 6 Q35.6 10 37.6 13 Q39.6 11.6 40.2 9.4 Q41.6 14.4 38.4 19.4 Z" fill="url(#cn-fire)"/>
+    <path d="M25.6 16.6 Q25.4 9.8 31 9.4 Q36.6 9.6 37 15.2 L37.8 17.6 L36.6 18.2 L36.8 21 Q34.6 22.6 31.6 22.4 L30 23.4 Q27.4 22.2 26.6 20.2 Q25.6 18.6 25.6 16.6 Z" fill="url(#cn-bone)"/>
+    <ellipse cx="33.6" cy="15.6" rx="1.7" ry="1.9" fill="#1a1024"/>
+    <ellipse cx="29.4" cy="15.8" rx="1.2" ry="1.6" fill="#1a1024" opacity=".85"/>
+    <circle cx="33.6" cy="15.8" r="1.5" fill="url(#cn-eye)"/>
+    <path d="M36.2 18.2 l.6 1.4 l-1 .2 Z" fill="#1a1024"/>
+    <path d="M32 21.6 v-1.6 M33.4 21.6 v-1.6 M34.8 21.4 v-1.4 M31.4 20.2 Q33.6 19.6 36 20" stroke="#5a4e40" stroke-width=".45" fill="none"/>
+    <path d="M27 13.4 Q28 10.6 31 10.2" stroke="#fff" stroke-width=".7" fill="none" opacity=".8"/>
+    <path d="M23.6 18 Q22.6 21.6 25.4 24.6 M39.2 18 Q40.6 21 39 24" stroke="#c9a8ff" stroke-width="1" fill="none" opacity=".55"/>
+    <!-- back arm, bell sleeve, gaunt hand on the staff -->
+    <path d="M44.6 44.4 Q38 46.4 35.2 53 L33.6 61.6 Q37.4 60.4 39.4 57.4 Q41 52.6 46.4 50.4 Z" fill="url(#cn-robeD)"/>
+    <path d="M35.2 53 L33.6 61.6 Q36 61 37.6 59.4 Z" fill="#57398c"/>
+    <path d="M30 51.6 Q32.4 50 35 51.2 Q35.6 54 34.2 55.8 Q31.6 56.6 29.8 55 Z" fill="url(#cn-skin)"/>
+    <path d="M30.6 52.8 h3.6 M30.6 54.4 h3.4" stroke="#776d84" stroke-width=".5"/>
+    <!-- robe: long, narrow, violet-edged -->
+    <path d="M42.6 44 Q50 40.6 58.6 43.6 L60.4 60 L63.8 91.4 Q50 93.8 36.4 91.4 L40 60 Z" fill="url(#cn-robe)"/>
+    <path d="M51.6 43.4 L54.2 43.2 L55.6 92.6 L52.2 92.8 Z" fill="url(#cn-violet)"/>
+    <path d="M52.8 44 L53.8 92.4" stroke="#2a1a44" stroke-width=".5" opacity=".7"/>
+    <path d="M36.4 91.4 Q50 93.8 63.8 91.4" stroke="url(#cn-violet)" stroke-width=".9" fill="none"/>
+    <path d="M44.2 50 Q42 70 39.6 90 M48.6 52 Q47.8 72 47.4 91.4 M58.4 56 Q60 74 61.4 90.6" stroke="#07040c" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M42.4 48 Q41.2 60 39.8 72" stroke="#8a76b8" stroke-width=".8" fill="none" opacity=".4"/>
+    <path d="M55 91.4 Q59 90 62.4 91.6 L63 94 H55 Z" fill="#100c18"/>
+    <!-- the high stiff collar fanned behind his head -->
+    <path d="M42 45 Q35.4 33.4 37.2 17.6 Q43.6 21.4 48.4 28 L56.6 30 Q60.6 26.6 63.4 22.2 Q64.4 34 59.4 45 Q50 41.8 42 45 Z" fill="url(#cn-robeD)"/>
+    <path d="M43.6 43.4 Q38 33 39 20.4 Q44 23.6 48 29 L56.4 31 Q59.8 28.4 62 25 Q62.4 34 58 43.4 Q50 40.6 43.6 43.4 Z" fill="url(#cn-violetD)"/>
+    <path d="M44.8 41.6 Q41.4 32.6 41.2 23.6 M48.6 41 Q46.6 34 46.6 28.6 M56.4 41.2 Q59 35 60.4 28.4" stroke="#24163e" stroke-width=".7" fill="none" opacity=".8"/>
+    <path d="M37.2 17.6 Q43.6 21.4 48.4 28 M56.6 30 Q60.6 26.6 63.4 22.2" stroke="#e2d2ff" stroke-width=".7" fill="none" opacity=".8"/>
+    <!-- head: gaunt, hollow-cheeked, black hair slicked back -->
+    <path d="M49.6 35 L55.6 35.6 L55.4 41.8 L50 41.6 Z" fill="url(#cn-skin)"/>
+    <path d="M46.2 29 Q46.4 21.6 52 20.8 Q57.6 20.8 58.6 27 L60.2 30.6 L58.6 31.4 Q59 35.6 56.4 38.2 Q53.2 40.4 50.2 39 Q47 37 46.4 33 Q46 31 46.2 29 Z" fill="url(#cn-skin)"/>
+    <path d="M52.4 31.2 Q55 33.2 54.6 37 Q52.6 35.8 51.6 33 Z" fill="#6a5e7a" opacity=".55"/>
+    <path d="M46 31 Q45 22 49.6 20 Q53.6 18.6 57.6 20.4 L55.4 22.2 Q51.4 22.2 50 26 L49.4 33.6 Q47.4 35 46.2 34.4 Z" fill="#2a2436"/>
+    <path d="M47.2 26 Q47.8 21.8 51.6 20.6" stroke="#6e6488" stroke-width=".6" fill="none" opacity=".8"/>
+    <path d="M50.4 28.4 Q49.2 28 48.8 29.6 Q49 31.4 50.6 31.2" fill="#9a90a6"/>
+    <ellipse cx="56" cy="27.6" rx="2" ry="1.5" fill="#4a3e5a" opacity=".75"/>
+    <circle cx="56.4" cy="27.8" r=".55" fill="#e6d4ff"/>
+    <path d="M54.2 25.2 Q56.4 24 58.6 25.6" stroke="#2a2436" stroke-width=".8" fill="none"/>
+    <path d="M59.6 31.4 Q60.2 31.8 59.6 32.4" stroke="#776d84" stroke-width=".5" fill="none"/>
+    <path d="M55.6 35 Q57.4 35.6 58.6 34.6" stroke="#4a3a52" stroke-width=".6" fill="none"/>
+    <path d="M54 38.2 Q56.4 39 57.4 37.6 L55.4 46 Z" fill="#2a2436"/>
+    <!-- silver chain of office -->
+    <path d="M43.4 45.4 Q46 54 51.8 55.4 Q57.4 54 58.4 44.6" stroke="url(#cn-silver)" stroke-width="1.6" fill="none" stroke-dasharray="1.3 .7"/>
+    <path d="M43.4 45.4 Q46 54 51.8 55.4 Q57.4 54 58.4 44.6" stroke="#3a3446" stroke-width=".4" fill="none" opacity=".7"/>
+    <circle cx="52" cy="57.4" r="2.6" fill="url(#cn-silver)"/>
+    <circle cx="52" cy="57.4" r="1.2" fill="url(#cn-violet)"/>
+    <!-- front arm raised, the sleeve fallen back, the hand gone to bone -->
+    <path d="M56 44 Q63 42 67.6 36.6 L71 33.4 L73.4 37.4 Q72 42 68.4 48 Q66 54 61.6 56.6 Q60.6 52 58.4 50 Z" fill="url(#cn-robe)"/>
+    <path d="M69.6 34.6 L72.8 37.6 Q71 42.6 67.6 47 Q68.8 41 69.6 34.6 Z" fill="url(#cn-violet)"/>
+    <path d="M58.4 44.4 Q63.4 42.6 67 38.4" stroke="#fff" stroke-width=".6" fill="none" opacity=".35"/>
+    <circle cx="75.4" cy="27.6" r="6.4" fill="url(#cn-glow)"/>
+    <path d="M71.2 35 L73.6 31 M72.2 35.6 L74.6 31.6" stroke="url(#cn-bone)" stroke-width="1"/>
+    <path d="M72.8 31.6 Q74.4 30 75.6 31.2 L75 32.4 Q73.8 32.4 73.2 33 Z" fill="url(#cn-bone)"/>
+    <path d="M75.2 32.4 L77.4 31.4 L78.8 31.8 M75 31 L76.8 28.2 L77.8 26.4 M74.2 30.4 L75.4 27.2 L76 25 M73.4 30.6 L73.8 27.4 L73.8 25.4 M72.6 31.4 L72.2 28.8 L71.6 27" stroke="url(#cn-bone)" stroke-width=".95" fill="none"/>
+    <g fill="#d9c4ff"><circle cx="79.6" cy="24.4" r=".6"/><circle cx="74.6" cy="21.6" r=".5"/><circle cx="80.4" cy="29.4" r=".45"/><circle cx="70.4" cy="24.6" r=".4"/></g>
+    <path d="M70.6 24 Q74.4 19.6 79.6 22.4 Q82 24.6 80.6 28" stroke="#c9a8ff" stroke-width=".8" fill="none" opacity=".7"/>
+  </g>
+</svg>

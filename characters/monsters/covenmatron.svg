@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Grandmother Yaglin (boss) - Ashfall Road art v2. The oldest witch of the hollow, huge and
+     hunched: mossy robes hung with charms and little bone dolls, a tall crooked hat, long grey hair,
+     a hooked nose over a wide grin of sharp teeth, one talon raised to beckon and the other on a
+     gnarled staff where a skull holds a green flame. Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="yg-robe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#58683c"/><stop offset=".5" stop-color="#2a331f"/><stop offset="1" stop-color="#13180d"/></linearGradient>
+    <linearGradient id="yg-robeD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2c3620"/><stop offset="1" stop-color="#0f130a"/></linearGradient>
+    <linearGradient id="yg-moss" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c7c44"/><stop offset=".5" stop-color="#3b4829"/><stop offset="1" stop-color="#1d2514"/></linearGradient>
+    <linearGradient id="yg-hat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3e4a2c"/><stop offset=".5" stop-color="#1f2616"/><stop offset="1" stop-color="#0c0f08"/></linearGradient>
+    <linearGradient id="yg-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dad8c2"/><stop offset=".5" stop-color="#b6b49c"/><stop offset="1" stop-color="#75735c"/></linearGradient>
+    <linearGradient id="yg-skinD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9c9a82"/><stop offset="1" stop-color="#5c5a46"/></linearGradient>
+    <linearGradient id="yg-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0f0e6"/><stop offset=".5" stop-color="#d8d8c8"/><stop offset="1" stop-color="#9a9a88"/></linearGradient>
+    <linearGradient id="yg-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a7a56"/><stop offset=".5" stop-color="#584a32"/><stop offset="1" stop-color="#2c2418"/></linearGradient>
+    <linearGradient id="yg-bone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8f3e2"/><stop offset=".5" stop-color="#e0d7bb"/><stop offset="1" stop-color="#a3987a"/></linearGradient>
+    <radialGradient id="yg-flame" cx=".5" cy=".65" r=".6"><stop offset="0" stop-color="#f6fff6"/><stop offset=".35" stop-color="#9fe0a0"/><stop offset="1" stop-color="#3f9a52"/></radialGradient>
+    <radialGradient id="yg-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#9fe0a0" stop-opacity=".5"/><stop offset="1" stop-color="#9fe0a0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="yg-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f4fff4"/><stop offset=".45" stop-color="#9fe0a0"/><stop offset="1" stop-color="#9fe0a0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="yg-maw" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#4a2a22"/><stop offset="1" stop-color="#160c0a"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="30" ry="4" fill="#000" opacity=".4"/>
+  <ellipse cx="46" cy="93" rx="30" ry="3" fill="#9fe0a0" opacity=".08"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- far arm raised, beckoning with hooked talons -->
+    <path d="M36.6 31.4 L31.6 21.4 L34.4 20 L39.6 30.2 Z" fill="url(#yg-skinD)"/>
+    <path d="M30.4 22.2 Q29.2 18.6 31.6 17.4 Q34.4 17 35.2 19.6 Q35 22 32.6 22.8 Z" fill="url(#yg-skinD)"/>
+    <path d="M30.4 18.6 Q27.6 15.4 28.2 11.6 Q28.8 10 29.8 11 M31.6 17.4 Q30.4 13 32.2 9.4 Q33 8.2 33.8 9.4 M33.4 17.4 Q34.4 13.4 37.2 11.4 Q38.4 10.8 38.6 12 M35 19.4 Q38 18 40.4 18.4" stroke="url(#yg-skinD)" stroke-width="1.3" fill="none"/>
+    <path d="M28.6 11.4 l.8 -.8 M32.4 9.2 l.9 -.4 M37.6 11.4 l1 .2" stroke="#2f2a1a" stroke-width=".9"/>
+    <path d="M33.4 36.4 Q31.4 30 35.6 25.4 Q39.6 23.6 41.4 27.6 L42.4 34 L39.6 32.2 L38.4 36.6 L36.4 33.4 Z" fill="url(#yg-robeD)"/>
+    <!-- the robe: one great hunched mass -->
+    <path d="M14.6 93.6 Q16 80 19.6 68 Q22 54 28 44 Q34.6 33.6 46 30.6 Q55 28.6 61 33 Q66 38 68.6 46 Q71.6 56 73 66 Q75 78 77.6 93.4 L74.4 91.6 L71.6 94 L68.4 91.4 L65 94 L61.4 91.6 L57.6 94 L54 91.4 L50.4 94 L46.6 91.6 L43 94 L39.6 91.4 L36 94 L32.6 91.6 L29 94 L25.6 91.4 L22 94 L18.4 91.6 Z" fill="url(#yg-robe)"/>
+    <path d="M24 70 Q22.6 80 23.4 90 M33 66 Q31.6 78 32.4 90.4 M44 67 Q43.4 79 44.4 90.6 M56 66 Q56.6 78 57.4 90.4 M66 64 Q67.6 76 69 90" stroke="#0f130a" stroke-width=".9" fill="none" opacity=".6"/>
+    <path d="M18.6 74 Q18 82 18.6 90" stroke="#8a9a58" stroke-width="1" fill="none" opacity=".4"/>
+    <g fill="#6d7d40" opacity=".55"><path d="M20.6 84 q2.6 -1.6 4.6 .4 q-2 1.6 -4.6 -.4 z"/><path d="M47 84.6 q3 -1.4 5 .6 q-2.4 1.4 -5 -.6 z"/><path d="M63.4 80 q2.4 -1.2 4 .6 q-2 1.2 -4 -.6 z"/></g>
+    <!-- a bare old foot, nails like horn -->
+    <path d="M70.4 90.6 Q75 88.6 79.6 90.6 Q81.4 91.6 82 93.6 L70 94 Z" fill="url(#yg-skinD)"/>
+    <path d="M79.2 91 q2.2 .2 3.2 1.8 M80 92.4 q1.8 .4 2.4 1.4 M76.6 90.4 q2 0 3 1.2" stroke="#4a4426" stroke-width=".8" fill="none"/>
+    <!-- mossy mantle over the hump -->
+    <path d="M24.4 52 Q26 40 36 33.6 Q46 28.4 56 29.6 Q64.4 31.4 68 38 Q70 44 69.4 50 L66.6 56.4 L64.6 52.6 L62.4 59.6 L59.6 54 L57 61.6 L54 55.4 L51.2 62.4 L48.4 55.8 L45.4 62 L42.8 55.6 L39.6 61 L37.4 54.8 L34 59.6 L32.4 53.8 L28.6 57.6 L28 52.4 L24.4 55.6 Z" fill="url(#yg-moss)"/>
+    <path d="M28 44 Q34 35 46 31.6" stroke="#c4d48a" stroke-width="1.2" fill="none" opacity=".35"/>
+    <g fill="#9aac5c" opacity=".6"><circle cx="34" cy="40" r=".8"/><circle cx="38.6" cy="36.6" r=".6"/><circle cx="44" cy="35" r=".9"/><circle cx="31" cy="46" r=".6"/><circle cx="48.6" cy="33.2" r=".6"/><circle cx="40.4" cy="42" r=".5"/></g>
+    <path d="M33.6 46 Q36 52 35 58 M46 40 Q47.4 48 46.4 58 M58 38 Q60.4 46 59.6 56" stroke="#1a2010" stroke-width=".7" fill="none" opacity=".6"/>
+    <!-- sash hung with charms and little bone dolls -->
+    <path d="M21.4 65.4 Q46 69.6 72.8 63.4 L73 66 Q46 72.4 21.6 68.4 Z" fill="#3a2e1e"/>
+    <path d="M22.4 66.4 Q46 70.6 72 64.4" stroke="#7a6444" stroke-width=".5" fill="none" opacity=".8"/>
+    <path d="M30.6 68.4 L30.8 70.4 M40.6 69.6 L40.6 71.4 M50.4 69.8 L50.4 72 M62.2 68.4 L62.4 70.4" stroke="#5c4a32" stroke-width=".5"/>
+    <path d="M29.6 70.4 h2.4 l.4 1 v3.4 q-1.6 1 -3.2 0 v-3.4 Z" fill="#6fc07c" opacity=".85"/>
+    <path d="M30.2 71.6 v2.8" stroke="#e6ffe8" stroke-width=".5" opacity=".8"/>
+    <circle cx="40.6" cy="73.2" r="1.9" fill="url(#yg-bone)"/>
+    <path d="M39.8 72.4 l1.6 1.6 M41.4 72.4 l-1.6 1.6" stroke="#5a5038" stroke-width=".45"/>
+    <g>
+      <circle cx="50.4" cy="73.4" r="1.6" fill="url(#yg-bone)"/>
+      <path d="M49.8 73.2 h.1 M51 73.2 h.1" stroke="#2a2418" stroke-width=".7"/>
+      <path d="M50.4 75 V80 M48.2 76.4 H52.6 M50.4 80 L49 82.8 M50.4 80 L51.8 82.8" stroke="url(#yg-bone)" stroke-width=".9" fill="none"/>
+      <path d="M49.4 76.8 l2 -.8 M49.6 78.4 l1.6 -.6" stroke="#5c4a32" stroke-width=".5"/>
+    </g>
+    <g>
+      <circle cx="62.4" cy="72" r="1.3" fill="url(#yg-bone)"/>
+      <path d="M61.9 71.8 h.1 M62.9 71.8 h.1" stroke="#2a2418" stroke-width=".6"/>
+      <path d="M62.4 73.3 V77.2 M60.8 74.4 H64 M62.4 77.2 L61.3 79.4 M62.4 77.2 L63.5 79.4" stroke="url(#yg-bone)" stroke-width=".8" fill="none"/>
+      <path d="M61.6 74.8 l1.6 -.6" stroke="#9fe0a0" stroke-width=".5"/>
+    </g>
+    <path d="M35 59 Q34 62.6 35.6 65.4 Q36.4 62.4 35 59 Z" fill="#2c2a26"/>
+    <path d="M57.6 61 l.4 2.6 M58.6 61.2 l-.2 2.4" stroke="url(#yg-bone)" stroke-width=".8"/>
+    <!-- long grey hair hanging down her back -->
+    <path d="M58.4 30 Q54 36 53.4 46 Q53.2 52 50.8 56 Q55 52 56.4 46 Q57 40 59.6 34 Z" fill="url(#yg-hair)"/>
+    <path d="M60 31 Q57.6 38 58.6 48 Q59 53 57.4 57 M56 31 Q50.4 38 49.2 47 Q48.6 51 46.4 54" stroke="#d8d8c8" stroke-width=".8" fill="none"/>
+    <!-- the gnarled staff -->
+    <ellipse cx="82.6" cy="12" rx="11" ry="11" fill="url(#yg-glow)"/>
+    <path d="M84.2 93.6 Q85.4 80 84.2 68 Q83.2 58 84.4 48 Q85.4 38 83.8 28 Q83 22 83.6 19 L81.2 19 Q80.6 22.4 81.2 28 Q82.6 38 81.8 48 Q80.6 58 81.6 68 Q82.6 80 81.6 93.6 Z" fill="url(#yg-wood)"/>
+    <path d="M82.4 26 Q83.8 32 82.8 38 M83.2 62 Q82.4 70 83.2 78" stroke="#2c2418" stroke-width=".55" fill="none" opacity=".7"/>
+    <ellipse cx="84.6" cy="59" rx="1.2" ry="1.6" fill="#3a3020"/><ellipse cx="81.8" cy="35" rx="1" ry="1.4" fill="#3a3020"/>
+    <path d="M81.6 30 Q81.4 40 81.2 46" stroke="#b8a77c" stroke-width=".5" fill="none" opacity=".6"/>
+    <path d="M81.2 19.4 Q78.4 18.2 78.2 14.6 M83.6 19.4 Q86.6 18.4 86.8 14.8" stroke="url(#yg-wood)" stroke-width="1.3" fill="none"/>
+    <path d="M84.8 21.6 Q86.6 24 86.4 27.6 M85 22 Q88.2 23.4 88.6 26.6" stroke="#5c4a32" stroke-width=".45" fill="none"/>
+    <path d="M85.6 27.2 l1.6 1.6 l-.6 .6 Z" fill="url(#yg-bone)"/>
+    <path d="M88.2 26.4 Q89.6 28.6 88.6 31.4 Q87.4 29 88.2 26.4 Z" fill="#2c2a26"/>
+    <!-- the skull and its green flame -->
+    <path d="M78.6 15.4 Q78.4 10 82.6 9.6 Q86.8 10 86.8 14.4 Q86.8 16.4 85.6 17.2 L85.4 19 L80 19 L79.8 17.2 Q78.6 16.6 78.6 15.4 Z" fill="url(#yg-bone)"/>
+    <ellipse cx="80.9" cy="14.4" rx="1.3" ry="1.5" fill="#1a2214"/><ellipse cx="84.4" cy="14.4" rx="1.3" ry="1.5" fill="#1a2214"/>
+    <circle cx="80.9" cy="14.5" r="1.4" fill="url(#yg-eye)"/><circle cx="84.4" cy="14.5" r="1.4" fill="url(#yg-eye)"/>
+    <path d="M82.6 15.8 l-.6 1.2 h1.2 Z" fill="#2a2418"/>
+    <path d="M80.6 18 h4.2 M81.6 17.4 v1.4 M82.6 17.4 v1.4 M83.6 17.4 v1.4" stroke="#6e6450" stroke-width=".4"/>
+    <path d="M79.4 13 Q79.8 10.6 82.4 10.4" stroke="#fff" stroke-width=".6" fill="none" opacity=".7"/>
+    <path d="M80 10.6 Q78.6 7.4 80.8 4.8 Q81.2 6.6 82.4 6.6 Q82 4.4 83.6 3.4 Q84 5.8 85.6 6.6 Q86 5.8 86 5 Q87.6 7.6 85.4 10.6 Q82.6 11.6 80 10.6 Z" fill="url(#yg-flame)"/>
+    <path d="M81.6 10.4 Q80.8 8.4 82.4 7 Q82.8 8.2 83.6 8.2 Q84.4 9.4 83.8 10.4 Z" fill="#f4fff2"/>
+    <!-- the head: hooked nose, a grin full of teeth -->
+    <path d="M58.6 37 Q58.4 29 65 28 Q70.6 27.6 72.4 32 L73.6 34.6 Q78.4 37 81 41.4 Q81.4 43.2 79.6 43.4 Q77.8 42.6 76.2 42.2 L75.8 44 Q76.6 45.6 75.6 47 Q75.6 49.6 73.2 51 Q68.6 52.6 64 50.2 Q59.6 47 58.6 37 Z" fill="url(#yg-skin)"/>
+    <path d="M66.2 44.8 Q71 48.4 76 44.2 Q71.6 51.4 66.2 44.8 Z" fill="url(#yg-maw)"/>
+    <path d="M67 45.4 l.5 1.2 l.6 -1 l.6 1.3 l.6 -1.1 l.6 1.3 l.6 -1.1 l.6 1.2 l.6 -1 l.6 1.1 l.6 -1.2 l.5 .9 l.5 -1.2 Z" fill="#ece4c4"/>
+    <path d="M68.8 48.6 l.5 -1.2 l.5 1.1 l.6 -1.4 l.6 1.3 l.6 -1.2 l.6 1.2 l.5 -1 l.4 1 Z" fill="#ddd3b0"/>
+    <path d="M64.6 43.4 Q66 45.6 66.2 47.6 M75.6 41.8 Q77 43.8 76.4 45.8 M63 38.4 Q64.4 41 63.6 44 M66.4 50.2 Q69.6 51.6 73 50.4" stroke="#5c5a46" stroke-width=".6" fill="none" opacity=".8"/>
+    <path d="M65.2 33.6 Q67 32.6 68.8 33.2 M64.8 31.2 Q67 30.2 69.2 30.8" stroke="#5c5a46" stroke-width=".5" fill="none" opacity=".7"/>
+    <circle cx="78.6" cy="40" r=".8" fill="#8a8870"/><circle cx="73.6" cy="49.8" r=".7" fill="#8a8870"/>
+    <ellipse cx="61.2" cy="40.6" rx="1.6" ry="2.6" fill="url(#yg-skinD)"/>
+    <ellipse cx="70.6" cy="36" rx="1.8" ry="1.3" fill="#1a1c12"/>
+    <circle cx="70.8" cy="36" r="2.3" fill="url(#yg-eye)"/>
+    <circle cx="71" cy="35.9" r=".7" fill="#f4fff4"/>
+    <path d="M67.8 33.6 Q70.8 32.2 74 34.4" stroke="#3a3826" stroke-width="1.2" fill="none"/>
+    <path d="M61.4 34.6 Q62.6 31 66 30" stroke="#fff" stroke-width=".7" fill="none" opacity=".45"/>
+    <!-- the tall crooked hat -->
+    <path d="M54.2 28.8 Q55.4 21.6 57.6 16.4 Q56.4 12.6 51.6 10.6 Q48 9.4 45.4 6.4 Q51.4 6 56.4 8.2 Q61.4 10.6 63.8 14.4 Q67.8 20.6 71.4 27.4 Z" fill="url(#yg-hat)"/>
+    <path d="M56.6 9.4 Q60 11.4 62 14.4 Q59.2 15.2 57.6 16.4" stroke="#0c0f08" stroke-width=".7" fill="none" opacity=".8"/>
+    <path d="M60.4 18.6 l3.6 -.8 l1 3.8 l-3.6 .8 Z" fill="#33402a"/>
+    <path d="M60.6 19.6 l.8 -.2 M61 21 l.8 -.2 M63.8 18.2 l.8 -.2 M64.2 19.8 l.8 -.2" stroke="#9fe0a0" stroke-width=".45" opacity=".85"/>
+    <path d="M54.4 26.2 Q62.6 24 71 25.2 L71.6 27.8 Q62.6 26.8 54 28.8 Z" fill="#3a2e1e"/>
+    <path d="M66.6 25.4 Q68.8 20 72.6 18.6 Q71 22.4 67.8 25.6 Z" fill="#20221c"/>
+    <path d="M67.4 25.2 Q69.6 21.2 72 19.4" stroke="#5a6052" stroke-width=".4" fill="none"/>
+    <path d="M46 30.6 Q60 24.6 80.6 28.4 Q82.4 29.6 80.6 30.6 Q62.6 28.2 47.4 33.2 Q44.4 32.6 46 30.6 Z" fill="url(#yg-hat)"/>
+    <path d="M47.6 31 Q61.6 26 79.4 29" stroke="#5f6e3e" stroke-width=".6" fill="none" opacity=".75"/>
+    <path d="M76.4 29.4 l.2 2.6 M76.6 32 l-.8 1.2 l1.6 0 Z" fill="none" stroke="url(#yg-bone)" stroke-width=".6"/>
+    <!-- near arm on the staff, a great draggled sleeve -->
+    <path d="M60 50.4 Q68 51.2 74 55 L78.6 58.4 Q77.6 63.6 73.6 66 L71.2 69.2 L70 65.6 L67.6 69.6 L66.4 65.2 Q62 63.6 59.4 58.6 Z" fill="url(#yg-moss)"/>
+    <path d="M61.6 52.4 Q68.6 53.4 74.6 57.2" stroke="#c4d48a" stroke-width=".7" fill="none" opacity=".4"/>
+    <path d="M64 58 Q68.6 60.6 71.6 64.6" stroke="#1a2010" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M76.4 56.6 L80.6 57.2 L80.4 61 L76.6 60.8 Z" fill="url(#yg-skinD)"/>
+    <path d="M79.6 56.2 Q82.6 54.6 85.6 56 Q86.4 58.6 85 61 Q82.4 62.2 80 60.8 Z" fill="url(#yg-skin)"/>
+    <path d="M84.2 56.2 Q87.6 56 88.4 58.2 Q88.6 60 87 60.6 M84.8 58.4 Q88 59.2 88 61.4 Q87.6 63 86.2 63 M84 60.6 Q86.4 62.2 85.6 64.2 Q85 65.2 84 65" stroke="url(#yg-skin)" stroke-width="1.2" fill="none"/>
+    <path d="M87 60.6 l-.8 .6 M86.2 63 l-.9 .3 M84 65 l-.8 -.4" stroke="#3a3420" stroke-width=".9"/>
+    <path d="M80.6 57.2 Q82.4 56.2 84.4 56.8" stroke="#fff" stroke-width=".5" fill="none" opacity=".5"/>
+  </g>
+</svg>

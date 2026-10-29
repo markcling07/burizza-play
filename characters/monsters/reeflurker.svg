@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Reef Lurker (monster) - Ashfall Road art v2. A drifting bell of stingers: a translucent dome with
+     four glowing organs and a rim of cold lights, frilled mouth-arms, and long stinging tentacles
+     trailing behind as it swims. Floats. Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="rl-bell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6f0ff" stop-opacity=".95"/><stop offset=".5" stop-color="#5fb0e8" stop-opacity=".88"/><stop offset="1" stop-color="#2c68a2" stop-opacity=".9"/></linearGradient>
+    <linearGradient id="rl-bellIn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3f8fd0"/><stop offset="1" stop-color="#183e66"/></linearGradient>
+    <linearGradient id="rl-arm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eaf7ff" stop-opacity=".95"/><stop offset=".5" stop-color="#9fd4f4" stop-opacity=".85"/><stop offset="1" stop-color="#4f90c8" stop-opacity=".8"/></linearGradient>
+    <linearGradient id="rl-armD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fb8e0" stop-opacity=".8"/><stop offset="1" stop-color="#2f6496" stop-opacity=".75"/></linearGradient>
+    <linearGradient id="rl-tent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6f0ff"/><stop offset=".6" stop-color="#8fcaf0"/><stop offset="1" stop-color="#bfe8ff" stop-opacity=".2"/></linearGradient>
+    <linearGradient id="rl-tentD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f90c8"/><stop offset="1" stop-color="#4f90c8" stop-opacity=".1"/></linearGradient>
+    <radialGradient id="rl-organ" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".4" stop-color="#bfe8ff" stop-opacity=".9"/><stop offset="1" stop-color="#bfe8ff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="rl-aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#bfe8ff" stop-opacity=".3"/><stop offset="1" stop-color="#5fb0e8" stop-opacity="0"/></radialGradient>
+    <radialGradient id="rl-dot" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#bfe8ff" stop-opacity=".8"/><stop offset="1" stop-color="#bfe8ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="18" ry="3" fill="#000" opacity=".25"/>
+  <!-- the numb, glowing water around it -->
+  <ellipse cx="52" cy="36" rx="34" ry="26" fill="url(#rl-aura)"/>
+  <g stroke-linejoin="round" stroke-linecap="round" transform="rotate(8 50 50)">
+    <!-- far tentacles, trailing behind -->
+    <g fill="none" stroke="url(#rl-tentD)" stroke-width=".9">
+      <path d="M30 49 Q27 61 31 69 Q35 77 30 89"/>
+      <path d="M43 50.2 Q41 62 44.6 71 Q48 80 43.4 90"/>
+      <path d="M57 50.2 Q58 62 55 71 Q52 80 55.4 89"/>
+      <path d="M70 49 Q72 59 68.6 68 Q65.6 77 69 86"/>
+    </g>
+    <!-- frilled mouth-arms, hanging from under the bell -->
+    <path d="M44 46 Q39.6 52 42 57.6 Q38.6 61 41 66 Q37.8 70 40 75 Q38.6 79 40.6 82.6 Q43.4 79.6 43.4 75.4 Q45.6 71 43.8 66.6 Q46.6 62 44.6 57.6 Q47.4 52.6 48 46 Z" fill="url(#rl-armD)"/>
+    <path d="M55.6 46 Q60.4 51.6 58.4 57.4 Q62 61.6 59.6 66.6 Q62.6 70.4 60 75.4 Q61.4 79.6 59 83 Q56.4 79.4 56.8 75 Q55 70.6 56.8 66.4 Q54.2 62 56 57.6 Q53.2 52.6 52 46 Z" fill="url(#rl-armD)"/>
+    <path d="M48 46 Q45 53 48.2 59 Q45.6 64.4 48.6 70 Q46.4 75.6 49.4 81 Q48.6 84.6 50.4 87.6 Q52.6 84.4 51.8 80.8 Q54.2 75.4 51.8 70 Q54.4 64.6 51.6 59 Q54.6 53 52.2 46 Z" fill="url(#rl-arm)"/>
+    <path d="M47.6 52 Q46.4 55.4 48.4 58.6 M49 64 Q47.4 67 48.8 70 M50.2 75 Q49.2 78 50.6 81" stroke="#ffffff" stroke-width=".6" fill="none" opacity=".6"/>
+    <!-- the inside of the bell, seen through its rim -->
+    <path d="M26 46.4 Q50 41 74 46.4 Q73 49.6 70 49 Q50 45.8 30 49 Q27 49.6 26 46.4 Z" fill="url(#rl-bellIn)" opacity=".85"/>
+    <!-- the bell -->
+    <path d="M24 48 Q22 30 35 21 Q50 13 65 21 Q78 30 76 48 Q73 50.2 70 48.6 Q67 51 64 49 Q61 51.4 58 49.4 Q55 51.6 52 49.6 Q49 51.6 46 49.6 Q43 51.4 40 49.4 Q37 51 34 49 Q31 50.8 28 48.6 Q26 50.2 24 48 Z" fill="url(#rl-bell)"/>
+    <!-- radial canals -->
+    <path d="M50 34 L27 47 M50 34 L34 48.6 M50 34 L42 49.4 M50 34 L58 49.4 M50 34 L66 48.6 M50 34 L73 47" stroke="#e6f6ff" stroke-width=".45" fill="none" opacity=".4"/>
+    <!-- the cavity under the jelly, and the glowing organs hung inside it -->
+    <path d="M31 47.6 Q30.6 34 40 27.6 Q50 22.4 60 27.6 Q69.4 34 69 47.6 Q50 44.4 31 47.6 Z" fill="#1f5a92" opacity=".32"/>
+    <circle cx="50" cy="36" r="12" fill="url(#rl-organ)" opacity=".45"/>
+    <g fill="url(#rl-organ)">
+      <ellipse cx="45" cy="31.6" rx="3.4" ry="2.2" opacity=".45"/><ellipse cx="55" cy="31.6" rx="3.4" ry="2.2" opacity=".45"/>
+      <ellipse cx="43.4" cy="39" rx="4.4" ry="3" opacity=".95"/><ellipse cx="56.6" cy="39" rx="4.4" ry="3" opacity=".95"/>
+    </g>
+    <path d="M40.8 40.2 Q42.6 41.8 45.4 41.4 M54.6 41.4 Q57.4 41.8 59.2 40.2" stroke="#f4fbff" stroke-width=".8" fill="none" opacity=".7"/>
+    <ellipse cx="50" cy="35.6" rx="3" ry="3.6" fill="#ffffff" opacity=".85"/>
+    <circle cx="50" cy="35.6" r="5.4" fill="url(#rl-organ)"/>
+    <path d="M50 39.2 L50 46" stroke="#e6f6ff" stroke-width="1.4" opacity=".55"/>
+    <!-- highlights on the dome -->
+    <path d="M28.6 38 Q30.6 27.6 40 21.6" stroke="#ffffff" stroke-width="1.8" fill="none" opacity=".6"/>
+    <path d="M44 18.4 Q48 17 52 17.2" stroke="#ffffff" stroke-width="1" fill="none" opacity=".55"/>
+    <path d="M66 26 Q71.4 33 72 42" stroke="#1f4f80" stroke-width="1" fill="none" opacity=".35"/>
+    <!-- bioluminescent lights along the rim and over the dome -->
+    <g fill="url(#rl-dot)">
+      <circle cx="26" cy="47.6" r="1.4"/><circle cx="31" cy="49.4" r="1.4"/><circle cx="37" cy="50" r="1.4"/><circle cx="43" cy="50.2" r="1.4"/><circle cx="49" cy="50.4" r="1.4"/><circle cx="55" cy="50.4" r="1.4"/><circle cx="61" cy="50.2" r="1.4"/><circle cx="67" cy="49.6" r="1.4"/><circle cx="73" cy="48.6" r="1.4"/>
+      <circle cx="33" cy="30" r="1.1"/><circle cx="41" cy="23.6" r="1"/><circle cx="60" cy="22.6" r="1"/><circle cx="68.6" cy="30" r="1.1"/><circle cx="71.4" cy="39.6" r="1"/><circle cx="28.6" cy="41" r="1"/>
+    </g>
+    <g fill="#ffffff"><circle cx="26" cy="47.6" r=".45"/><circle cx="37" cy="50" r=".45"/><circle cx="49" cy="50.4" r=".45"/><circle cx="61" cy="50.2" r=".45"/><circle cx="73" cy="48.6" r=".45"/></g>
+    <!-- near tentacles, beaded with stingers -->
+    <g fill="none" stroke="url(#rl-tent)" stroke-width="1.15">
+      <path d="M26 48 Q22.6 60 27 69 Q31 78 25.6 89"/>
+      <path d="M36.6 50 Q34 62 38 71.4 Q42 80 37.4 91.6"/>
+      <path d="M63 50 Q64.6 61 61.4 70 Q58 79 61.2 88.4"/>
+      <path d="M74 48 Q76.4 58 73 67 Q70 76 73.6 85"/>
+    </g>
+    <g fill="#e6f6ff" opacity=".8">
+      <circle cx="24.4" cy="58" r=".55"/><circle cx="27.6" cy="70" r=".55"/><circle cx="28" cy="80" r=".5"/><circle cx="35" cy="61" r=".55"/><circle cx="39" cy="73" r=".55"/><circle cx="39.4" cy="83" r=".5"/><circle cx="63.8" cy="60" r=".55"/><circle cx="60.6" cy="72" r=".55"/><circle cx="60" cy="81" r=".5"/><circle cx="75.4" cy="57" r=".55"/><circle cx="72.4" cy="69" r=".55"/><circle cx="72" cy="78" r=".5"/>
+    </g>
+  </g>
+  <!-- motes drifting in the cold -->
+  <g fill="#bfe8ff" opacity=".55"><circle cx="84" cy="30" r=".7"/><circle cx="88" cy="44" r=".5"/><circle cx="16" cy="36" r=".6"/><circle cx="80" cy="60" r=".5"/><circle cx="18" cy="56" r=".45"/></g>
+</svg>

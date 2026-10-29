@@ -1,11 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Magma Slime (monster) - Burizza placeholder art.
+<!-- Magma Slime (monster) - Ashfall Road art v2. A crawling pool of cooling rock: slabs of crust
+     floating on a molten body that glows through every crack, bubbling and dripping at its edge,
+     with two white-hot eyes and a grin that still spits fire. Heat shimmers off its back.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
-  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><path d="M20 94 Q16 66 40 54 Q52 46 64 54 Q86 66 82 94 Z" fill="#a8402a"/>
-  <path d="M44 55 q2 -7 5 0" fill="#a8402a"/>
-  <path d="M30 88 Q34 74 46 66 M60 86 Q66 76 74 73" stroke="#ffb347" stroke-width="2.5" fill="none" opacity=".85"/>
-  <path d="M28 90 Q26 72 40 62" stroke="#ffd8a0" stroke-width="3" fill="none" stroke-linecap="round" opacity=".45"/>
-  <circle cx="58" cy="72" r="5" fill="#1d2130"/><circle cx="71" cy="74" r="4" fill="#1d2130"/>
-  <circle cx="59.5" cy="70.5" r="1.7" fill="#ffb347"/><circle cx="72" cy="72.6" r="1.4" fill="#ffb347"/>
+  <defs>
+    <linearGradient id="ms-molten" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset=".5" stop-color="#ff9a3c"/><stop offset="1" stop-color="#d4502a"/></linearGradient>
+    <linearGradient id="ms-pool" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc35a"/><stop offset=".55" stop-color="#ff8336"/><stop offset="1" stop-color="#a8402a"/></linearGradient>
+    <linearGradient id="ms-crust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8664a"/><stop offset=".5" stop-color="#a8402a"/><stop offset="1" stop-color="#6e2618"/></linearGradient>
+    <linearGradient id="ms-crustD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a2216"/><stop offset="1" stop-color="#3e130b"/></linearGradient>
+    <linearGradient id="ms-shimmer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd08a" stop-opacity="0"/><stop offset="1" stop-color="#ffd08a" stop-opacity=".75"/></linearGradient>
+    <radialGradient id="ms-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe6"/><stop offset=".5" stop-color="#ffe08a"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ms-heat" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff8a3a" stop-opacity=".5"/><stop offset="1" stop-color="#ff8a3a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="30" ry="3.8" fill="#000" opacity=".38"/>
+  <ellipse cx="52" cy="93" rx="42" ry="3.8" fill="url(#ms-heat)"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- heat shimmer rising off its back -->
+    <path d="M40 47 q-1.6 -2.6 0 -5.2 q1.6 -2.6 0 -5.2 q-1.6 -2.6 0 -5.2 M53.6 43.6 q-1.6 -2.6 0 -5.2 q1.6 -2.6 0 -5.2 q-1.6 -2.6 0 -5.2 q1.6 -2.6 0 -5.2 M69 47 q-1.6 -2.6 0 -5.2 q1.6 -2.6 0 -5.2" stroke="url(#ms-shimmer)" stroke-width=".7" fill="none"/>
+    <!-- the molten body and the pool it crawls in -->
+    <path d="M9.6 94 C9.9 93.2 10.6 90.8 11.6 89.4 C12.6 88 14.1 86.6 15.4 85.6 C16.7 84.6 18.4 84.5 19.6 83.4 C20.8 82.3 21.4 81 22.4 79.2 C23.4 77.4 24.2 74.8 25.4 72.4 C26.6 70 28 67.1 29.6 64.8 C31.2 62.5 33.1 60.4 35 58.4 C36.9 56.4 39 54.3 41.2 52.6 C43.4 50.9 45.8 49.3 48 48.4 C50.2 47.5 52.4 47 54.4 47 C56.4 47 58.3 47.8 60 48.4 C61.7 49 62.9 50.3 64.4 50.6 C65.9 50.9 67.3 50.1 69 50.2 C70.7 50.3 72.6 50.5 74.4 51.2 C76.2 51.9 78.1 53 79.6 54.4 C81.1 55.8 82.3 57.9 83.2 59.8 C84.1 61.7 84.6 63.9 84.8 66 C85 68.1 84.5 70.3 84.6 72.4 C84.7 74.5 84.9 76.7 85.6 78.6 C86.3 80.5 87.5 82 88.6 83.6 C89.7 85.2 91.4 86.5 92.4 88.2 C93.4 89.9 94.1 93 94.4 94 Z" fill="url(#ms-molten)"/>
+    <path d="M9.6 94 Q10.6 89.6 14.6 86.4 Q22 84.2 30 85.4 Q42 83.2 52 85.8 Q64 84.4 76 86.2 Q84 84.6 89.4 85.6 Q92.6 89 94.4 94 Z" fill="url(#ms-pool)"/>
+    <!-- slabs of crust floating on it, each with a dark underside -->
+    <path d="M33.6 62.1 Q30.7 64.1 33.5 61.1 Q36.3 58.1 38.9 56 Q41.5 53.9 44.4 51.7 Q47.3 49.5 49.3 48.8 Q51.4 48.2 50.8 52.8 Q50.2 57.4 47.3 59.3 Q44.5 61.2 40.5 60.7 Q36.6 60.1 33.6 62.1 Z M52.9 52.3 Q53.4 48.1 54.3 48.1 Q55.2 48 57.2 48.7 Q59.1 49.4 61.1 50 Q63.1 50.7 62.5 52.9 Q61.8 55.1 57.1 55.8 Q52.4 56.6 52.9 52.3 Z M64.7 53.9 Q65.4 51.4 67.5 51.4 Q69.7 51.3 72 51.9 Q74.4 52.5 76.5 53.9 Q78.6 55.2 80.3 57.4 Q81.9 59.6 82.8 62.5 Q83.7 65.3 83.8 67.2 Q83.9 69.1 75.1 69.3 Q66.4 69.6 65.2 62.9 Q64.1 56.3 64.7 53.9 Z M49 60.8 Q51.9 58.7 56.9 57.9 Q61.9 57 63.2 63.5 Q64.4 70.1 59.9 72.8 Q55.3 75.5 50.3 73.6 Q45.3 71.8 45.7 67.3 Q46.2 62.9 49 60.8 Z M32.8 67.9 Q36 62 40 62.6 Q44 63.2 43.6 67.4 Q43.2 71.7 36.4 72.7 Q29.6 73.7 32.8 67.9 Z M27.9 68.9 Q29.3 66.1 32 63.9 Q34.7 61.8 31.5 67.5 Q28.4 73.2 25.3 76.4 Q22.3 79.5 24.4 75.6 Q26.5 71.7 27.9 68.9 Z M69.8 74.8 Q66.8 71.2 75.4 71.1 Q84 71 83.8 72.2 Q83.7 73.3 84 75.8 Q84.3 78.3 86 80.9 Q87.7 83.4 81.5 84.7 Q75.2 86 74 82.2 Q72.8 78.4 69.8 74.8 Z M43.6 79 Q45.4 73 51 75.2 Q56.6 77.4 60.7 74.5 Q64.7 71.6 67.5 75.1 Q70.2 78.6 71.8 82.6 Q73.5 86.6 57.6 85.8 Q41.8 84.9 43.6 79 Z M25.9 78.1 Q29 75.7 36 74.4 Q43.1 73.1 41.3 78.9 Q39.5 84.8 29.4 84.8 Q19.4 84.9 21.1 82.7 Q22.9 80.5 25.9 78.1 Z M25.8 89 Q25.3 88 27.6 87.5 Q29.9 86.9 31.5 87.6 Q33.1 88.4 31.5 89.2 Q29.8 90 28 89.9 Q26.3 89.9 25.8 89 Z M56.6 89.5 Q56.9 88.7 59 88.3 Q61.2 88 61.9 88.9 Q62.7 89.8 60.9 90.2 Q59 90.7 57.7 90.5 Q56.3 90.3 56.6 89.5 Z M83.2 90 Q82.3 89.1 83.9 88.8 Q85.4 88.4 86.1 89.2 Q86.7 89.9 85.4 90.4 Q84.1 90.9 83.2 90 Z" fill="url(#ms-crustD)" transform="translate(.5 1)"/>
+    <path d="M33.6 62.1 Q30.7 64.1 33.5 61.1 Q36.3 58.1 38.9 56 Q41.5 53.9 44.4 51.7 Q47.3 49.5 49.3 48.8 Q51.4 48.2 50.8 52.8 Q50.2 57.4 47.3 59.3 Q44.5 61.2 40.5 60.7 Q36.6 60.1 33.6 62.1 Z M52.9 52.3 Q53.4 48.1 54.3 48.1 Q55.2 48 57.2 48.7 Q59.1 49.4 61.1 50 Q63.1 50.7 62.5 52.9 Q61.8 55.1 57.1 55.8 Q52.4 56.6 52.9 52.3 Z M64.7 53.9 Q65.4 51.4 67.5 51.4 Q69.7 51.3 72 51.9 Q74.4 52.5 76.5 53.9 Q78.6 55.2 80.3 57.4 Q81.9 59.6 82.8 62.5 Q83.7 65.3 83.8 67.2 Q83.9 69.1 75.1 69.3 Q66.4 69.6 65.2 62.9 Q64.1 56.3 64.7 53.9 Z M49 60.8 Q51.9 58.7 56.9 57.9 Q61.9 57 63.2 63.5 Q64.4 70.1 59.9 72.8 Q55.3 75.5 50.3 73.6 Q45.3 71.8 45.7 67.3 Q46.2 62.9 49 60.8 Z M32.8 67.9 Q36 62 40 62.6 Q44 63.2 43.6 67.4 Q43.2 71.7 36.4 72.7 Q29.6 73.7 32.8 67.9 Z M27.9 68.9 Q29.3 66.1 32 63.9 Q34.7 61.8 31.5 67.5 Q28.4 73.2 25.3 76.4 Q22.3 79.5 24.4 75.6 Q26.5 71.7 27.9 68.9 Z M69.8 74.8 Q66.8 71.2 75.4 71.1 Q84 71 83.8 72.2 Q83.7 73.3 84 75.8 Q84.3 78.3 86 80.9 Q87.7 83.4 81.5 84.7 Q75.2 86 74 82.2 Q72.8 78.4 69.8 74.8 Z M43.6 79 Q45.4 73 51 75.2 Q56.6 77.4 60.7 74.5 Q64.7 71.6 67.5 75.1 Q70.2 78.6 71.8 82.6 Q73.5 86.6 57.6 85.8 Q41.8 84.9 43.6 79 Z M25.9 78.1 Q29 75.7 36 74.4 Q43.1 73.1 41.3 78.9 Q39.5 84.8 29.4 84.8 Q19.4 84.9 21.1 82.7 Q22.9 80.5 25.9 78.1 Z M25.8 89 Q25.3 88 27.6 87.5 Q29.9 86.9 31.5 87.6 Q33.1 88.4 31.5 89.2 Q29.8 90 28 89.9 Q26.3 89.9 25.8 89 Z M56.6 89.5 Q56.9 88.7 59 88.3 Q61.2 88 61.9 88.9 Q62.7 89.8 60.9 90.2 Q59 90.7 57.7 90.5 Q56.3 90.3 56.6 89.5 Z M83.2 90 Q82.3 89.1 83.9 88.8 Q85.4 88.4 86.1 89.2 Q86.7 89.9 85.4 90.4 Q84.1 90.9 83.2 90 Z" fill="url(#ms-crust)"/>
+    <!-- cracks glowing between the slabs -->
+    <path d="M52.6 49.2 L51.5 57.5 M51.5 57.5 L45 62.4 M45 62.4 L44.2 72.5 M44.2 72.5 L40.6 85.4 M51.5 57.5 L62.8 56 M62.8 56 L64 52.4 M45 62.4 L35.5 60.8 M35.5 60.8 L31.4 64.4 M35.5 60.8 L28.5 74.5 M28.5 74.5 L23.6 79.2 M62.8 56 L65.6 70.6 M44.2 72.5 L55.5 76.8 M55.5 76.8 L65.6 70.6 M65.6 70.6 L71.5 78.6 M71.5 78.6 L74.6 87.2 M28.5 74.5 L44.2 72.5" stroke="#ffb347" stroke-width="2" fill="none" opacity=".3"/>
+    <path d="M52.6 49.2 L51.5 57.5 M51.5 57.5 L45 62.4 M45 62.4 L44.2 72.5 M44.2 72.5 L40.6 85.4 M51.5 57.5 L62.8 56 M62.8 56 L64 52.4 M45 62.4 L35.5 60.8 M35.5 60.8 L31.4 64.4 M35.5 60.8 L28.5 74.5 M28.5 74.5 L23.6 79.2 M62.8 56 L65.6 70.6 M44.2 72.5 L55.5 76.8 M55.5 76.8 L65.6 70.6 M65.6 70.6 L71.5 78.6 M71.5 78.6 L74.6 87.2 M28.5 74.5 L44.2 72.5" stroke="#fff0b8" stroke-width=".45" fill="none" opacity=".7"/>
+    <!-- texture on the crust: fine cracks, pits, lit edges -->
+    <path d="M38.4 57.6 l2.6 2 l-.8 2.6 M47.6 53.4 l2.6 1.6 M57.4 51.4 l2.8 1.4 l1.2 2.4 M38.4 66 l2.6 .6 l1 2.6 M27.6 72.2 l2.2 1.2 M54 65.6 l3 1.2 M57.4 69.6 l-.4 3 M76 76.4 l3 .8 M50.6 81.6 l2.6 .4 M30.4 79.6 l2.4 1 M80.6 66.6 l-1.4 2" stroke="#5a1c10" stroke-width=".6" fill="none" opacity=".7"/>
+    <g fill="#5a1c10" opacity=".6"><circle cx="44" cy="56" r=".6"/><circle cx="60.6" cy="53" r=".55"/><circle cx="33" cy="68" r=".6"/><circle cx="51" cy="70.6" r=".55"/><circle cx="26" cy="77" r=".5"/><circle cx="60" cy="82" r=".55"/><circle cx="79" cy="80.5" r=".5"/><circle cx="68" cy="66" r=".5"/></g>
+    <path d="M34.8 63.6 Q38 58.8 43.4 55.8 M44.6 53 Q47.4 50.8 50.4 50.2 M54.6 50.2 Q57.8 50 61 51.6 M67.6 53.4 Q71.6 52.6 75.6 53.8 M26.6 75.2 Q27.8 70.8 30.2 68.8" stroke="#fff" stroke-width=".9" fill="none" opacity=".4"/>
+    <!-- bubbles: one bursting on its crown, more in the pool -->
+    <path d="M49.6 50.4 Q49.8 45.6 53.6 45.4 Q57.4 45.6 57.6 50.2 Q53.6 52.2 49.6 50.4 Z" fill="url(#ms-molten)"/>
+    <path d="M50.8 48.4 Q51.4 46.6 53.4 46.4" stroke="#fff6d0" stroke-width=".7" fill="none"/>
+    <path d="M51.4 44 l-.8 -1.6 M53.6 43.4 v-2 M55.8 44 l.8 -1.6" stroke="#ffd98a" stroke-width=".55" opacity=".85"/>
+    <circle cx="59.4" cy="54.6" r="1.1" fill="url(#ms-molten)"/>
+    <path d="M58.6 54.1 q.6 -.7 1.5 -.3" stroke="#fff6d0" stroke-width=".4" fill="none"/>
+    <g fill="#ffd27a"><circle cx="40.4" cy="89.4" r="1.9"/><circle cx="69.6" cy="90.4" r="1.4"/><circle cx="16.4" cy="90.6" r="1.1"/><circle cx="48" cy="91.6" r=".8"/></g>
+    <path d="M39 88.5 q1.2 -1 2.6 -.3 M68.6 89.6 q.8 -.6 1.8 -.2 M15.6 89.9 q.7 -.5 1.5 -.1" stroke="#fff8dc" stroke-width=".5" fill="none"/>
+    <!-- drips running off its edge, and spatters on the floor -->
+    <path d="M85.2 77.4 Q87.6 80.4 87.4 84.6 Q86.8 86.6 85.8 84.6 Q85.4 81 84.2 79 Z" fill="url(#ms-molten)"/>
+    <path d="M22.6 78.6 Q20 81.6 20.4 85 Q21.4 86.2 22 84.4 Q22.2 81.8 23.6 80.2 Z" fill="url(#ms-molten)"/>
+    <ellipse cx="95.2" cy="93.5" rx="1.4" ry=".6" fill="#ff9a3c"/><ellipse cx="6.8" cy="93.5" rx="1.2" ry=".55" fill="#ff9a3c"/>
+    <!-- the face: white-hot eyes under a crust brow, a grin that glows -->
+    <path d="M67 54.6 Q71.4 55 75 57.4 M76.8 57.4 Q79.6 55.6 82.8 55.8" stroke="#4a160c" stroke-width="1.5" fill="none"/>
+    <circle cx="71.6" cy="59.4" r="3.8" fill="url(#ms-eye)"/>
+    <circle cx="79.4" cy="60.4" r="3.1" fill="url(#ms-eye)"/>
+    <ellipse cx="72.4" cy="59.5" rx=".85" ry="1.35" fill="#3a1008"/><ellipse cx="80" cy="60.5" rx=".7" ry="1.15" fill="#3a1008"/>
+    <path d="M67 69.6 L70 68.4 L72 70 L75 68.2 L77.4 69.8 L80.4 68 L83.8 68.8 Q79 73.6 73 73.2 Q69 72.8 67 69.6 Z" fill="#fff0b8"/>
+    <path d="M68.4 70.4 Q73 72.4 81.4 69.4" stroke="#ff8a3a" stroke-width=".8" fill="none"/>
+    <path d="M79 72.6 q.6 2 -.2 3.6" stroke="#ffcf7a" stroke-width=".9" fill="none"/>
+    <circle cx="78.8" cy="77.6" r=".8" fill="#ffcf7a"/>
+    <!-- embers drifting up -->
+    <g fill="#ffcf7a"><circle cx="46" cy="38" r=".6" opacity=".8"/><circle cx="62" cy="33" r=".5" opacity=".7"/><circle cx="33" cy="45" r=".45" opacity=".6"/><circle cx="75" cy="43" r=".5" opacity=".6"/></g>
+  </g>
 </svg>

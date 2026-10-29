@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Coral Golem (monster) - Ashfall Road art v2. A drowned knight's statue the reef grew over: a weathered
+     face in a carved coif, pink coral, barnacles, a starfish, anemones, crusted fists, a chunk of plinth.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="co-stone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86b3aa"/><stop offset=".5" stop-color="#3f6e6a"/><stop offset="1" stop-color="#223f3c"/></linearGradient>
+    <linearGradient id="co-stoneD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a625e"/><stop offset="1" stop-color="#18302d"/></linearGradient>
+    <linearGradient id="co-face" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b4d0c8"/><stop offset=".5" stop-color="#7aa198"/><stop offset="1" stop-color="#456a64"/></linearGradient>
+    <linearGradient id="co-coral" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe0e8"/><stop offset=".5" stop-color="#f2b6c6"/><stop offset="1" stop-color="#c47a90"/></linearGradient>
+    <linearGradient id="co-coralD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d995aa"/><stop offset="1" stop-color="#8e4a62"/></linearGradient>
+    <linearGradient id="co-barn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f0e4"/><stop offset="1" stop-color="#a39c8a"/></linearGradient>
+    <linearGradient id="co-star" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc08a"/><stop offset=".5" stop-color="#f08a5a"/><stop offset="1" stop-color="#b4503a"/></linearGradient>
+    <linearGradient id="co-anem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0c6f2"/><stop offset="1" stop-color="#9a5aa8"/></linearGradient>
+    <linearGradient id="co-weed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5f8a48"/><stop offset="1" stop-color="#2a4422"/></linearGradient>
+    <radialGradient id="co-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f0fffb"/><stop offset=".45" stop-color="#8ff0de"/><stop offset="1" stop-color="#8ff0de" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="29" ry="3.9" fill="#000" opacity=".38"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- coral antler growing off the back shoulder -->
+    <path d="M33 38 Q31 30 33 24 Q34 19 32 14 M33.2 29 Q28.6 26 27.6 20 M27.6 20 Q25.6 17.6 25.6 14.4 M27.6 20 Q29.8 17 29.4 14 M33.4 23.6 Q37.4 21.6 39 17 M36.4 32 Q40.6 30.6 42.4 26" stroke="url(#co-coralD)" stroke-width="2.6" fill="none"/>
+    <path d="M33 38 Q31 30 33 24 Q34 19 32 14 M33.2 29 Q28.6 26 27.6 20 M33.4 23.6 Q37.4 21.6 39 17" stroke="#ffd2de" stroke-width=".7" fill="none" opacity=".55"/>
+    <g fill="#ffe4ec"><circle cx="32" cy="14" r="1.5"/><circle cx="25.6" cy="14.4" r="1.3"/><circle cx="29.4" cy="14" r="1.3"/><circle cx="39" cy="17" r="1.4"/><circle cx="42.4" cy="26" r="1.4"/></g>
+    <!-- back arm and fist -->
+    <path d="M27 40 Q20 46 19.4 56 Q19 63 20.6 70 L30.6 70 Q30 62 31 56 Q32.6 49 36 44 Z" fill="url(#co-stoneD)"/>
+    <path d="M22.6 52 l2.4 2 l-1 2.4 l2 2" stroke="#0f1f1d" stroke-width=".7" fill="none" opacity=".7"/>
+    <path d="M16 70 Q15 78 18 83 Q24 86.6 30 83 Q33 78 32 70 Q24 67 16 70 Z" fill="url(#co-stoneD)"/>
+    <path d="M19 77 h10 M19.6 81 h8.6" stroke="#0f1f1d" stroke-width=".6" opacity=".55"/>
+    <path d="M16.4 74 Q13 72 12.4 68 M15.6 78 Q12.4 78.4 11 76" stroke="url(#co-coralD)" stroke-width="1.8" fill="none"/>
+    <g fill="url(#co-barn)" opacity=".85"><circle cx="18.6" cy="72.4" r="1.2"/><circle cx="21" cy="71.6" r="1"/><circle cx="25" cy="84" r="1"/></g>
+    <!-- legs: short, heavy; the back foot still on a piece of its plinth -->
+    <path d="M30.6 89.6 L49.6 89.6 L50.6 94 L29.6 94 L31.4 92.4 Z" fill="#9fb6ae"/>
+    <path d="M30.6 89.6 L49.6 89.6 L49.8 90.8 L30.4 90.8 Z" fill="#c7d6d0"/>
+    <path d="M29.6 94 L31.4 92.4 L30.6 89.6 M37 90.8 l1.4 1.6 l-.6 1.6" stroke="#5e7670" stroke-width=".6" fill="none" opacity=".75"/>
+    <path d="M35.4 68 Q42 66.6 48.4 68 L47.6 83.6 Q41.6 84.8 35.8 83.6 Z" fill="url(#co-stoneD)"/>
+    <ellipse cx="41.8" cy="74.6" rx="4.8" ry="3.4" fill="#2e524e"/>
+    <path d="M33 83.4 Q41 82 49 83.4 L49.8 89.6 L32.4 89.6 Z" fill="url(#co-stoneD)"/>
+    <path d="M37.4 78.6 l2 1.4 l-.6 2" stroke="#0f1f1d" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M52 68 Q58.4 66.6 64.6 68 L65.8 84 Q59.4 85.2 53.2 84 Z" fill="url(#co-stone)"/>
+    <ellipse cx="58.8" cy="74.8" rx="5" ry="3.6" fill="url(#co-stone)"/>
+    <path d="M55 73.4 Q57.6 71.6 61 72" stroke="#fff" stroke-width=".7" fill="none" opacity=".45"/>
+    <path d="M51.2 84 Q59 82.4 66.6 84 Q70.6 86.8 71.6 94 L50.4 94 Z" fill="url(#co-stone)"/>
+    <path d="M51.4 87.6 Q59 86.4 67.6 87.6 M51.4 91 Q60 90 69.6 91" stroke="#1e3836" stroke-width=".6" fill="none" opacity=".55"/>
+    <path d="M54 70 l-.2 2.2 M53.6 77.6 l-.3 5 M53 85.4 Q57 84.4 61 85" stroke="#d6efe8" stroke-width=".7" fill="none" opacity=".4"/>
+    <g fill="url(#co-barn)"><circle cx="61.6" cy="76" r="1.1"/><circle cx="63.4" cy="78" r=".9"/><circle cx="60.2" cy="78.6" r=".8"/><circle cx="66.4" cy="92" r=".9"/></g>
+    <g fill="#2a3a36"><circle cx="61.6" cy="76" r=".35"/><circle cx="63.4" cy="78" r=".3"/></g>
+    <!-- torso: the carved surcoat -->
+    <path d="M30 40 Q38 33 50 33 Q63 33 70 40 Q72 52 68 62 Q64 70 58 71 L42 71 Q35 69 32 62 Q28 52 30 40 Z" fill="url(#co-stone)"/>
+    <path d="M33 46 Q36 39 44 36.6" stroke="#fff" stroke-width="1.1" fill="none" opacity=".35"/>
+    <!-- the worn cross -->
+    <path d="M47.6 43 h4.4 v6.4 h5.4 v4.2 h-5.4 v10 h-4.4 v-10 h-5.2 v-4.2 h5.2 Z" fill="#2c504c"/>
+    <path d="M48.2 43.6 h3.2 v6.4 M42.8 50.2 h4.8" stroke="#a7cbc2" stroke-width=".55" fill="none" opacity=".6"/>
+    <path d="M52 53.6 l1.4 1.2 l-.4 1.6 M55.6 49.4 l1.6 -1.6" stroke="#22403d" stroke-width=".7" fill="none"/>
+    <!-- cracks and old weed stains -->
+    <path d="M37 52 l2.2 1.6 l-1 2.6 l2.4 2.2 l-.6 2.4 M62 58 l-1.8 2 l.8 2.2 l-2 1.8 M44.6 37 l1.4 2.4" stroke="#14272a" stroke-width=".75" fill="none" opacity=".75"/>
+    <path d="M34 60 Q37 63 36 68 M66 46 Q68 50 66.6 55" stroke="#2a4a2c" stroke-width="2.4" fill="none" opacity=".35"/>
+    <!-- stone belt -->
+    <path d="M32.6 63 Q50 67 67.6 62.6 L66.4 67.6 Q50 71.6 33.6 67.8 Z" fill="url(#co-stoneD)"/>
+    <path d="M47.6 64.6 h5.6 v5 h-5.6 Z" fill="#2c504c"/>
+    <!-- a starfish clinging to the chest -->
+    <path d="M61.6 44.4 L62.6 47.8 L66.2 48 L63.4 50.2 L64.4 53.6 L61.6 51.6 L58.6 53.6 L59.8 50.2 L57 48 L60.6 47.8 Z" fill="url(#co-star)"/>
+    <g fill="#ffe0c4" opacity=".8"><circle cx="61.6" cy="49.6" r=".5"/><circle cx="61.6" cy="47.4" r=".35"/><circle cx="63.4" cy="49" r=".35"/><circle cx="59.8" cy="49" r=".35"/></g>
+    <!-- back pauldron with an anemone and barnacles -->
+    <path d="M24 46 Q22 36 32 33 Q40 32 42 38 L38 46 Q31 48.4 24 46 Z" fill="url(#co-stoneD)"/>
+    <path d="M26 39 Q28 35 33 34" stroke="#9cc4bb" stroke-width=".8" fill="none" opacity=".45"/>
+    <g fill="url(#co-barn)"><circle cx="27.6" cy="42.6" r="1.3"/><circle cx="30.2" cy="43.8" r="1.1"/><circle cx="25.6" cy="44.6" r=".9"/><circle cx="36.6" cy="43" r="1"/></g>
+    <g fill="#2a3a36"><circle cx="27.6" cy="42.6" r=".4"/><circle cx="30.2" cy="43.8" r=".35"/><circle cx="36.6" cy="43" r=".3"/></g>
+    <path d="M36 37.4 Q36.6 34.6 39 34.4 Q41.4 34.6 41.6 37.4 Z" fill="url(#co-anem)"/>
+    <path d="M36.4 35.6 l-1 -2 M37.6 34.8 l-.6 -2.2 M38.8 34.4 l0 -2.4 M40 34.6 l.6 -2.2 M41.2 35.4 l1 -2" stroke="#e8b6ec" stroke-width=".7" fill="none"/>
+    <g transform="translate(2 0)">
+    <!-- head: a weathered stone face in a carved mail coif -->
+    <path d="M43 31 Q42 20 51 17.6 Q60 17 61.4 26.6 Q62 33 59.6 37 L56 39 Q51.6 40.6 47 39 L44.6 37 Q43 34 43 31 Z M46.6 29.6 Q46.8 34 49.4 35.6 Q53 36.8 56.4 34.8 Q58.8 32.4 58.4 27.4 Q57.6 21.8 52 22 Q46.6 22.6 46.6 29.6 Z" fill="url(#co-stone)" fill-rule="evenodd"/>
+    <path d="M44.4 26 q1.6 .8 3 0 M44 30 q1.6 .8 3 0 M44.6 34 q1.6 .8 3 0 M50 19.6 q1.4 1 2.8 .2 M55 19.6 q1.4 1 2.8 .4" stroke="#22403d" stroke-width=".55" fill="none" opacity=".7"/>
+    <path d="M46.6 29.6 Q46.8 34 49.4 35.6 Q53 36.8 56.4 34.8 Q58.8 32.4 58.4 27.4 Q57.6 21.8 52 22 Q46.6 22.6 46.6 29.6 Z" fill="url(#co-face)"/>
+    <path d="M47.4 25.6 Q49.4 22.8 53 22.6" stroke="#fff" stroke-width=".7" fill="none" opacity=".45"/>
+    <path d="M49.6 26 L55.6 25.4 L58 26.2" stroke="#2c4a46" stroke-width="1.3" fill="none"/>
+    <ellipse cx="52.2" cy="28" rx="1.6" ry="1.2" fill="#1d3633"/>
+    <ellipse cx="56.6" cy="27.8" rx="1.4" ry="1.2" fill="#1d3633"/>
+    <circle cx="52.2" cy="28" r="2.6" fill="url(#co-eye)"/>
+    <circle cx="56.6" cy="27.8" r="2.4" fill="url(#co-eye)"/>
+    <circle cx="52.2" cy="28" r=".7" fill="#f0fffb"/><circle cx="56.6" cy="27.8" r=".6" fill="#f0fffb"/>
+    <path d="M57.6 28.6 L59.2 31.2 L57.6 31.8" fill="#6f968e"/>
+    <path d="M51.4 33.6 Q54 34.4 56.6 33.2 M50 30.6 l-.8 2.4" stroke="#2c4a46" stroke-width=".6" fill="none" opacity=".8"/>
+    <!-- coral crowning the brow -->
+    <path d="M53 18 Q52.4 14.4 50.6 12 M53 16.4 Q55.6 14.6 56.2 11.4 M56 18.4 Q59 17.4 60.4 14.6" stroke="url(#co-coral)" stroke-width="1.8" fill="none"/>
+    <g fill="#ffe4ec"><circle cx="50.6" cy="12" r="1.1"/><circle cx="56.2" cy="11.4" r="1.1"/><circle cx="60.4" cy="14.6" r="1"/></g>
+    </g>
+    <!-- front pauldron -->
+    <path d="M58 38 Q62 32 70 33 Q78 35 78 44 Q72 48 64 47 Z" fill="url(#co-stone)"/>
+    <path d="M61 37 Q65 33.6 70.6 34.4" stroke="#fff" stroke-width=".9" fill="none" opacity=".45"/>
+    <path d="M66 39 l1.6 2 l-.6 2" stroke="#14272a" stroke-width=".6" fill="none" opacity=".7"/>
+    <g fill="url(#co-barn)"><circle cx="72.6" cy="41.6" r="1.2"/><circle cx="74.6" cy="43" r="1"/><circle cx="70.6" cy="43.6" r=".9"/></g>
+    <g fill="#2a3a36"><circle cx="72.6" cy="41.6" r=".4"/><circle cx="74.6" cy="43" r=".35"/></g>
+    <!-- front arm and the great crusted fist -->
+    <path d="M63.4 44 Q72 42.6 76 49 Q78.6 54 78.4 60 L69.4 62 Q68.6 56 66.4 51.6 Q64 47.6 61 46.6 Z" fill="url(#co-stone)"/>
+    <path d="M69 58 Q74 57 79 59 Q80 66 79.4 72 L70 72.6 Q69 66 69 58 Z" fill="url(#co-stone)"/>
+    <path d="M72 50 l1.8 2 l-.8 2 M73.4 63 l-1.6 2 l1 2" stroke="#14272a" stroke-width=".65" fill="none" opacity=".7"/>
+    <path d="M70.6 52 Q66 57 66.4 64 Q65.4 68 67 72" stroke="url(#co-weed)" stroke-width="1.4" fill="none"/>
+    <path d="M67 72 Q66 80 69.4 85 Q76 88.4 83 85 Q86.6 80 85.4 72 Q76.4 68.6 67 72 Z" fill="url(#co-stone)"/>
+    <path d="M70.4 75 Q76 73.4 82.6 75 M70.2 79.4 Q76.4 78 83 79.4" stroke="#1e3836" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M69 73.6 Q74 71.4 79.6 72.2" stroke="#fff" stroke-width=".8" fill="none" opacity=".4"/>
+    <path d="M84.6 74 Q88.6 71.4 89 66.6 M86.6 72.6 Q90.6 72.6 92.4 69.6 M85.6 79 Q89.6 79.4 91.4 77" stroke="url(#co-coral)" stroke-width="1.9" fill="none"/>
+    <g fill="#ffe4ec"><circle cx="89" cy="66.6" r="1"/><circle cx="92.4" cy="69.6" r="1"/><circle cx="91.4" cy="77" r=".9"/></g>
+    <g fill="url(#co-barn)"><circle cx="74" cy="84.6" r="1.2"/><circle cx="76.6" cy="85.4" r="1"/><circle cx="79.2" cy="84.6" r="1.1"/><circle cx="71.6" cy="82.6" r=".9"/></g>
+    <g fill="#2a3a36"><circle cx="74" cy="84.6" r=".4"/><circle cx="79.2" cy="84.6" r=".35"/></g>
+    <path d="M80.4 82 Q81 80 83 80 Q84.6 80.4 84.4 82.4 Z" fill="url(#co-anem)"/>
+    <path d="M80.8 80.8 l-.8 -1.6 M82 80.2 l-.2 -1.8 M83.2 80.2 l.6 -1.6 M84.2 80.8 l1 -1.2" stroke="#e8b6ec" stroke-width=".6" fill="none"/>
+    <!-- weed trailing from the belt -->
+    <path d="M40 68 Q38.6 73 40.4 77 M57 68.6 Q58.4 72.6 57 76" stroke="url(#co-weed)" stroke-width="1.3" fill="none"/>
+  </g>
+</svg>

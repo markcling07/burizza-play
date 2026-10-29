@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Stone Gargoyle (monster) - Ashfall Road art v2. A roof-sentinel of Direhold crouched on its
+     haunches: chiselled grey stone with folded bat wings, swept horns, a fanged grin, cracks, lichen
+     and rime on its brow, and pale cold light in the eyes. Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="sg-stone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a0a8b4"/><stop offset=".5" stop-color="#5a5e66"/><stop offset="1" stop-color="#2e3137"/></linearGradient>
+    <linearGradient id="sg-stoneD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#50545c"/><stop offset="1" stop-color="#222429"/></linearGradient>
+    <linearGradient id="sg-trim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bcc4d0"/><stop offset=".5" stop-color="#8a93a0"/><stop offset="1" stop-color="#4e5562"/></linearGradient>
+    <linearGradient id="sg-trimD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#727a88"/><stop offset="1" stop-color="#3a404c"/></linearGradient>
+    <linearGradient id="sg-fang" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2e6ec"/><stop offset="1" stop-color="#9aa0aa"/></linearGradient>
+    <radialGradient id="sg-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f4fdff"/><stop offset=".4" stop-color="#8fdcff"/><stop offset="1" stop-color="#8fdcff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="30" ry="3.8" fill="#000" opacity=".38"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- tail laid round the haunches, spade tip -->
+    <path d="M36 86.4 Q26 89 19.6 86.6 Q15 84.8 14.6 80.6 L17.4 80.2 Q18.4 83.6 22 84.4 Q28 85.4 35.4 83 Z" fill="url(#sg-stoneD)"/>
+    <path d="M13.2 80.6 L16 75.6 L19 80.4 L16 82.4 Z" fill="url(#sg-stoneD)"/>
+    <!-- far wing, folded -->
+    <path d="M45 42 L35.6 16.4 Q34 14.6 32.8 16.6 L23.4 48.6 Q29.6 46 33.6 52.4 Q38 48.4 44.4 50.4 Z" fill="url(#sg-trimD)"/>
+    <path d="M34.6 16.4 L27.4 47 M34.6 16.4 L34 51" stroke="#2a2e36" stroke-width=".7" opacity=".7"/>
+    <!-- far arm, knuckles to the stones -->
+    <path d="M55.6 46 Q60.2 46.2 61.6 52 L61.8 78 L63.2 88.6 L56 88.8 L56.8 78 L54.8 56 Z" fill="url(#sg-stoneD)"/>
+    <path d="M54.6 88 Q59.4 86.6 64.2 88.4 L65.4 93.8 H54 Z" fill="#2e3137"/>
+    <path d="M64.6 90.4 L66.6 93.6 M62.4 91 L63.6 94" stroke="url(#sg-fang)" stroke-width=".9"/>
+    <!-- near wing, folded high over the shoulders -->
+    <path d="M50.6 40 L42.4 13.4 Q40.6 11.6 39.2 13.8 L28.4 50.4 Q34.4 47.6 38.6 54.4 Q43.2 49.8 48.8 52.8 Z" fill="url(#sg-trim)"/>
+    <path d="M41.2 14.6 L29.6 49 M41.2 14.6 L38.4 53.2 M41.2 14.6 L47.8 52.4" stroke="#3a404c" stroke-width=".75" opacity=".75"/>
+    <path d="M50.2 40.6 L41.6 14" stroke="url(#sg-stone)" stroke-width="2.6"/>
+    <path d="M39.6 13.2 Q39 10.6 40.6 9.6 Q40.2 11.6 41.4 12.8 Z" fill="#c8ccd4"/>
+    <path d="M40.4 16 L31 47.6" stroke="#fff" stroke-width=".7" opacity=".5"/>
+    <path d="M44.6 30 L42.6 34.6 L44 37.6 L42.2 41.4" stroke="#2a2e36" stroke-width=".6" fill="none"/>
+    <path d="M33.6 52.4 L34.6 50.4 L35.8 52.2" stroke="#2a2e36" stroke-width=".5" fill="none" opacity=".8"/>
+    <path d="M42.6 13.6 L50 38" stroke="#eef6ff" stroke-width=".7" opacity=".85"/>
+    <!-- haunch and hind foot -->
+    <path d="M46 89 Q52 87.6 57.2 89.6 L58 94 H45.6 Z" fill="#2a2d32"/>
+    <path d="M29.6 72 Q29 60.6 38 57.6 Q47.4 56 50.4 64.6 Q52 73.4 47 80.6 Q42.6 85.4 36.4 85 Q30 83.2 29.6 76 Z" fill="url(#sg-stone)"/>
+    <path d="M32.6 84.6 Q42 82.4 50.4 86.6 L51.4 94 H31.4 Q30.6 88 32.6 84.6 Z" fill="url(#sg-stone)"/>
+    <path d="M50.4 89.2 L53.6 93.6 M47.8 90.2 L49.6 94 M45 90.6 L46 94" stroke="url(#sg-fang)" stroke-width="1"/>
+    <path d="M32 74 Q33 64 39.6 60.4" stroke="#fff" stroke-width=".9" fill="none" opacity=".4"/>
+    <path d="M38.6 61.6 Q45.4 66 46.4 76.6 M44.4 59.4 Q49.6 62.6 50 68" stroke="#2e3137" stroke-width=".8" fill="none" opacity=".65"/>
+    <path d="M39.4 87.6 L40 94 M45.2 87.4 L46.2 94" stroke="#2e3137" stroke-width=".7" opacity=".7"/>
+    <path d="M33.6 85.6 Q42 83.6 50 87.4" stroke="#c4ccd6" stroke-width=".6" fill="none" opacity=".55"/>
+    <!-- hunched torso, carved ridges down the chest -->
+    <path d="M32 66 Q30 52 40 44 Q48 37.6 58 38.4 Q66 40 67 48 Q67.6 56 62 62 Q56 66 48 64.6 Q40 68 32 66 Z" fill="url(#sg-stone)"/>
+    <path d="M55.6 50 Q60 51.4 63.4 54 M54.4 54.4 Q58.4 55.6 61.4 58.4 M52.6 58.4 Q56 59.6 58.6 62.2" stroke="#2e3137" stroke-width=".8" fill="none" opacity=".7"/>
+    <path d="M55.6 50.6 Q59.6 51.8 62.8 54.4" stroke="#c4ccd6" stroke-width=".45" fill="none" opacity=".6"/>
+    <path d="M36 50 Q42 41 52 39.6" stroke="#fff" stroke-width="1" fill="none" opacity=".45"/>
+    <!-- a crack splitting the back, lichen in the seams -->
+    <path d="M41 45 L43.4 50.4 L41.6 54 L44.6 59.4 L43 63.4" stroke="#17191d" stroke-width=".7" fill="none"/>
+    <path d="M41.6 45.8 L43.8 50.6" stroke="#c4ccd6" stroke-width=".35" opacity=".5"/>
+    <g fill="#a8b04a" opacity=".75"><circle cx="38.6" cy="47.4" r="1.4"/><circle cx="40.6" cy="46.2" r=".9"/><circle cx="36.4" cy="62.6" r="1.1"/><circle cx="45" cy="60.6" r=".8"/></g>
+    <g fill="#7f9a6c" opacity=".7"><circle cx="37.2" cy="48.8" r="1"/><circle cx="34.8" cy="63.6" r=".8"/><circle cx="33.2" cy="70" r="1.2"/></g>
+    <!-- near arm planted, claws spread on the ground -->
+    <path d="M58 43.6 Q66 42.6 69 50.4 Q70 57 68.6 62 L72.6 86.4 L65.6 87.6 L63 64 Q59.4 58 57 50.6 Z" fill="url(#sg-stone)"/>
+    <path d="M60.4 45.4 Q65.6 45 67.4 50.4" stroke="#fff" stroke-width=".8" fill="none" opacity=".45"/>
+    <path d="M66.8 64.6 L68.4 80" stroke="#2e3137" stroke-width=".7" opacity=".6"/>
+    <path d="M64.4 86 Q70 84 75.6 86.6 Q78.6 89 79 93.8 H63.2 Q62.8 89 64.4 86 Z" fill="url(#sg-stone)"/>
+    <path d="M78.6 89.6 L82.6 93.6 M76.2 91 L79 94 M73.4 91.6 L75 94.2" stroke="url(#sg-fang)" stroke-width="1.15"/>
+    <path d="M68.6 86.4 L69.4 90 M72 86.6 L72.8 90" stroke="#2e3137" stroke-width=".6" opacity=".7"/>
+    <!-- horns and ear swept back -->
+    <path d="M66.6 29.4 Q60.6 24 61.8 15.2 Q63.4 19.2 66.8 21.6 Q70.6 24.2 71.6 28.4 Z" fill="url(#sg-trimD)"/>
+    <path d="M70.8 27.4 Q66 21 68.2 12.4 Q69.6 16.6 73 19.2 Q76.6 22 76.8 26.6 Z" fill="url(#sg-trim)"/>
+    <path d="M69 13.6 Q69 18.6 72.6 21.4" stroke="#eef6ff" stroke-width=".7" fill="none" opacity=".85"/>
+    <path d="M70.2 21.4 l1.6 -.6 M71.4 23.6 l1.6 -.8" stroke="#3a404c" stroke-width=".55" opacity=".8"/>
+    <path d="M66.4 33.4 L57.4 27.4 L64.6 38.4 Z" fill="url(#sg-stoneD)"/>
+    <path d="M64.6 32.4 L60 29.4 L63.8 35.8" stroke="#17191d" stroke-width=".6" fill="none" opacity=".7"/>
+    <!-- head: a grinning roof-beast -->
+    <path d="M64 36 Q64 27.6 72 26 Q80 25.6 83.4 31 L85.8 36.2 L84.2 37.8 Q86.2 42 84.6 45.6 Q80 50.6 72.6 50 Q66 48.6 64.6 43.6 Q63.6 40 64 36 Z" fill="url(#sg-stone)"/>
+    <path d="M66.4 30.6 Q69.4 27.2 74.4 27" stroke="#eef6ff" stroke-width="1.1" fill="none" opacity=".75"/>
+    <path d="M71.6 31.6 Q77.2 28.6 83.2 31.6 L82.6 34.4 Q77.4 32 72.4 34.2 Z" fill="url(#sg-stoneD)"/>
+    <path d="M72.4 31.2 Q77.2 28.6 82.8 31" stroke="#e4f2ff" stroke-width=".6" fill="none" opacity=".8"/>
+    <ellipse cx="79.8" cy="35.2" rx="3.2" ry="2.4" fill="url(#sg-eye)"/>
+    <ellipse cx="74.4" cy="35.2" rx="2.6" ry="2" fill="url(#sg-eye)"/>
+    <ellipse cx="79.8" cy="35.2" rx=".9" ry=".7" fill="#f4fdff"/>
+    <ellipse cx="74.4" cy="35.2" rx=".7" ry=".55" fill="#f4fdff"/>
+    <path d="M84.4 37.6 Q85.2 38.4 84.4 39" stroke="#17191d" stroke-width=".7" fill="none"/>
+    <path d="M69.6 40.6 Q77 44.4 85.2 40 Q84.8 45.6 79 47.8 Q73 47.8 69.6 40.6 Z" fill="#14161b"/>
+    <path d="M72.6 42 L73.8 45 L75 42.8 Z M76.4 43 L77.4 46.2 L78.6 43.2 Z M80.4 42.6 L81.2 45.4 L82.2 42.2 Z M83.4 41 L84 43.2 L84.8 40.6 Z" fill="url(#sg-fang)"/>
+    <path d="M74.4 47.4 L75.2 44.8 L76.2 47.6 Z M78.6 47.6 L79.4 45 L80.4 47.2 Z" fill="url(#sg-fang)"/>
+    <path d="M68 37.6 Q68.8 41 70.6 42.6 M66.6 44.6 Q69 47.6 72.6 48.4" stroke="#2e3137" stroke-width=".7" fill="none" opacity=".7"/>
+    <path d="M77.6 27.8 L76.6 30.2 L77.8 31.6" stroke="#17191d" stroke-width=".55" fill="none" opacity=".8"/>
+    <g fill="#a8b04a" opacity=".7"><circle cx="67.6" cy="31.6" r="1"/><circle cx="69" cy="30.2" r=".6"/><circle cx="61.4" cy="45.6" r=".9"/></g>
+    <!-- chips and grit -->
+    <g fill="#c4ccd6" opacity=".5"><circle cx="47" cy="48" r=".4"/><circle cx="52" cy="56" r=".35"/><circle cx="40" cy="74" r=".4"/><circle cx="62.6" cy="72" r=".35"/><circle cx="35.6" cy="56" r=".35"/></g>
+    <g fill="#17191d" opacity=".55"><circle cx="49.6" cy="44.6" r=".35"/><circle cx="44" cy="76.6" r=".4"/><circle cx="66" cy="56" r=".35"/><circle cx="58.2" cy="47.4" r=".35"/></g>
+  </g>
+</svg>

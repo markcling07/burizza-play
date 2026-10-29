@@ -1,16 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Rust Golem (monster) - Burizza placeholder art.
+<!-- Rust Golem (monster) - Ashfall Road art v2. A dwarf-built ore-hauler of stone slabs bound in
+     rusted iron: a furnace burning in its chest, a mine-cart hopper of ore on its back, a stubby head
+     with slit eyes and hands like anvils, still hauling for a foreman long gone.
      Canvas 100x100, faces right, feet on y=94. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
-  <ellipse cx="50" cy="94" rx="23" ry="3.6" fill="#000" opacity=".35"/><rect x="32" y="74" width="16" height="20" rx="3" fill="#7a6658" stroke="#2a2f3f" stroke-width="1.5"/>
-  <rect x="54" y="74" width="16" height="20" rx="3" fill="#7a6658" stroke="#2a2f3f" stroke-width="1.5"/>
-  <rect x="26" y="40" width="50" height="38" rx="6" fill="#7a6658" stroke="#2a2f3f" stroke-width="1.5"/>
-  <path d="M26 59 h50 M51 40 v38" stroke="#2a2f3f" stroke-width="1.5" opacity=".55"/>
-  <circle cx="51" cy="59" r="11" fill="#ff9a4a" opacity=".2"/><circle cx="51" cy="59" r="6" fill="#ff9a4a"/>
-  <circle cx="34" cy="68" r="2.6" fill="#a0522d" opacity=".75"/><circle cx="68" cy="46" r="2.2" fill="#a0522d" opacity=".75"/>
-  <rect x="40" y="23" width="22" height="18" rx="3" fill="#7a6658" stroke="#2a2f3f" stroke-width="1.5"/>
-  <rect x="44" y="29" width="16" height="4.5" rx="1.5" fill="#ff9a4a"/>
-  <circle cx="26" cy="45" r="8" fill="#7a6658" stroke="#2a2f3f" stroke-width="1.5"/><circle cx="76" cy="45" r="8" fill="#7a6658" stroke="#2a2f3f" stroke-width="1.5"/>
-  <rect x="74" y="49" width="12" height="27" rx="4" fill="#7a6658" stroke="#2a2f3f" stroke-width="1.5"/>
-  <rect x="72" y="74" width="16" height="12" rx="3" fill="#2a2f3f"/>
+  <defs>
+    <linearGradient id="rg-stone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ad9b8e"/><stop offset=".5" stop-color="#7a6658"/><stop offset="1" stop-color="#4a3c33"/></linearGradient>
+    <linearGradient id="rg-stoneD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67564b"/><stop offset="1" stop-color="#332a24"/></linearGradient>
+    <linearGradient id="rg-rust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8703f"/><stop offset=".5" stop-color="#7e4426"/><stop offset="1" stop-color="#4a2614"/></linearGradient>
+    <linearGradient id="rg-rustD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6e3c22"/><stop offset="1" stop-color="#36190c"/></linearGradient>
+    <linearGradient id="rg-ore" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8e9098"/><stop offset=".5" stop-color="#5c5e66"/><stop offset="1" stop-color="#34363c"/></linearGradient>
+    <radialGradient id="rg-core" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6dc"/><stop offset=".35" stop-color="#ffc47a"/><stop offset=".75" stop-color="#ff9a4a"/><stop offset="1" stop-color="#c8501e"/></radialGradient>
+    <radialGradient id="rg-heat" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff9a4a" stop-opacity=".5"/><stop offset="1" stop-color="#ff9a4a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="rg-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff2cc"/><stop offset=".45" stop-color="#ff9a4a"/><stop offset="1" stop-color="#ff9a4a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="28" ry="3.9" fill="#000" opacity=".4"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- the hopper on its back: a mine cart's iron bin, heaped with ore -->
+    <path d="M14 22 L19 15.6 L24.6 18.4 L27.4 13.6 L33 16.6 L36.4 21.6 L12 24.4 Z" fill="url(#rg-ore)"/>
+    <path d="M14 22.4 L18.6 16.8 L22 21 Z M27.2 14.6 L30.6 20.6 L24.8 21 Z" fill="#9a9ca4" opacity=".6"/>
+    <g fill="#e8b54a"><circle cx="20.4" cy="19.6" r=".8"/><circle cx="29.6" cy="17.8" r=".7"/><circle cx="25.4" cy="21.4" r=".6"/></g>
+    <g fill="#d27a46"><circle cx="17" cy="21.6" r=".6"/><circle cx="32.4" cy="20.4" r=".6"/></g>
+    <path d="M9.6 25 L35.6 22.6 L34 54.6 L14 56.4 Z" fill="url(#rg-rust)"/>
+    <path d="M8.4 23 L36.4 20.6 L36.4 25 L8.8 27.4 Z" fill="url(#rg-rustD)"/>
+    <path d="M9.6 23.6 L35.6 21.4" stroke="#e0a070" stroke-width=".6" opacity=".7"/>
+    <path d="M16.6 27.4 L18.4 55.6 M23.6 26.6 L25 55 M30.4 26 L31 54.4" stroke="#3a1c0c" stroke-width=".9" opacity=".6"/>
+    <g fill="#d89a6a"><circle cx="11.6" cy="29" r=".6"/><circle cx="12.6" cy="40" r=".6"/><circle cx="13.4" cy="50" r=".6"/><circle cx="20.4" cy="28.6" r=".55"/><circle cx="27.4" cy="28" r=".55"/></g>
+    <path d="M14 35 q.4 4 -.2 7 M21 33 q.4 3 0 5.6" stroke="#c8804a" stroke-width=".7" fill="none" opacity=".5"/>
+    <!-- a cart wheel left on the bin -->
+    <circle cx="17.6" cy="55.4" r="5.4" fill="#2e2622"/>
+    <circle cx="17.6" cy="55.4" r="3.8" fill="url(#rg-rustD)"/>
+    <path d="M17.6 51.6 v7.6 M13.8 55.4 h7.6" stroke="#2e2622" stroke-width="1"/>
+    <circle cx="17.6" cy="55.4" r="1.2" fill="#b8703f"/>
+    <!-- back arm, hanging, a hand like an anvil -->
+    <path d="M26.6 43.6 L37 43.4 L36.4 60 L27.4 60.6 Z" fill="url(#rg-stoneD)"/>
+    <path d="M26 59 L37.6 58.6 L38.4 72 L25.6 72.4 Z" fill="url(#rg-stoneD)"/>
+    <path d="M25.6 62.2 L37.8 61.8 L37.9 65.4 L25.7 65.8 Z" fill="url(#rg-rustD)"/>
+    <path d="M23 71.4 L40 70.6 Q42 71 41.8 74 L41.2 82 Q40.6 84.6 37.6 84.6 L26 84.8 Q23 84.6 22.8 81.6 Z" fill="url(#rg-stoneD)"/>
+    <path d="M27.6 76 v8.4 M31.8 75.8 v8.6 M36 75.6 v8.8" stroke="#251d18" stroke-width=".7" opacity=".7"/>
+    <!-- legs: stone pillars on iron-shod feet -->
+    <path d="M35 76 L48 76 L47.4 89 L35.4 89 Z" fill="url(#rg-stoneD)"/>
+    <path d="M32.6 88.4 L49 88.4 Q50.4 88.6 50.4 90.4 L50.4 94 L32 94 L32 90 Q32 88.6 32.6 88.4 Z" fill="url(#rg-rustD)"/>
+    <path d="M53 76 L67 76 L67.6 89 L53.6 89 Z" fill="url(#rg-stone)"/>
+    <path d="M55.6 82 L65 81.6" stroke="#4a3c33" stroke-width=".6" opacity=".6"/>
+    <path d="M51.6 88.4 L69.4 88.4 Q71.6 88.8 71.6 91 L71.6 94 L51 94 L51 90 Q51 88.6 51.6 88.4 Z" fill="url(#rg-rust)"/>
+    <g fill="#e2a878"><circle cx="54" cy="91.4" r=".6"/><circle cx="60" cy="91.4" r=".6"/><circle cx="66" cy="91.4" r=".6"/></g>
+    <!-- iron straps that hold the hopper on -->
+    <path d="M31 30 L42 34.6 L41.6 38.6 L30 33.8 Z M30.6 50 L36.6 47 L37 51 L31 54 Z" fill="url(#rg-rustD)"/>
+    <!-- the stone body -->
+    <path d="M30 40 Q31 33 40 32 L62 31 Q70 31.6 71 38 L70 72 Q69 77 62 77.6 L38 78 Q31 77.6 30.4 72 Z" fill="url(#rg-stone)"/>
+    <path d="M32.2 44 Q32.6 35.4 40.4 34" stroke="#fff" stroke-width="1.3" fill="none" opacity=".35"/>
+    <path d="M46 32 L45.6 43.4 M30.4 57 L42 56.6 M38.4 49 L37.8 65.6 M64.6 49 L64 65.4 M50 70.4 L49.6 77.6" stroke="#3e322b" stroke-width=".8" opacity=".6"/>
+    <path d="M33 60 l2.6 1.6 l-.6 2.6 M58.6 36 l2 2.4 l2.6 .4" stroke="#3e322b" stroke-width=".6" fill="none" opacity=".6"/>
+    <!-- rusted iron bands, riveted -->
+    <path d="M29.6 43.6 L71 42.6 L71 48.2 L29.8 49.2 Z" fill="url(#rg-rust)"/>
+    <path d="M30 65.6 L70.4 64.8 L70.4 70.2 L30.2 71 Z" fill="url(#rg-rust)"/>
+    <path d="M30.2 44.4 L70.6 43.4 M30.4 66.4 L70 65.6" stroke="#e8a878" stroke-width=".55" opacity=".7"/>
+    <g fill="#3a1c0c"><circle cx="33" cy="46.4" r=".75"/><circle cx="40" cy="46.2" r=".75"/><circle cx="47" cy="46" r=".75"/><circle cx="61" cy="45.6" r=".75"/><circle cx="68" cy="45.4" r=".75"/><circle cx="33.4" cy="68.4" r=".75"/><circle cx="40.4" cy="68.2" r=".75"/><circle cx="47.4" cy="68" r=".75"/><circle cx="61" cy="67.6" r=".75"/><circle cx="67.6" cy="67.4" r=".75"/></g>
+    <path d="M35 49.2 q.5 3.2 -.2 6 M43.6 49 q.4 2.6 -.2 4.8 M68 48.4 q.4 3.4 0 5.6 M36 71 q.4 2.6 0 4.4 M66 70.4 q.4 2.6 -.2 4.8" stroke="#8a4a26" stroke-width=".8" fill="none" opacity=".55"/>
+    <!-- the furnace in its chest -->
+    <circle cx="54.6" cy="57" r="13" fill="url(#rg-heat)"/>
+    <circle cx="54.6" cy="57" r="7.6" fill="url(#rg-rustD)"/>
+    <circle cx="54.6" cy="57" r="5.6" fill="url(#rg-core)"/>
+    <path d="M49.4 54.4 h10.4 M49 57 h11.2 M49.4 59.6 h10.4" stroke="#3a1c0c" stroke-width="1.1"/>
+    <g fill="#e8a878"><circle cx="54.6" cy="49.9" r=".6"/><circle cx="61.7" cy="57" r=".6"/><circle cx="54.6" cy="64.1" r=".6"/><circle cx="47.5" cy="57" r=".6"/></g>
+    <path d="M44.6 61 l-2.4 1.6 l-1.2 2.6 M62.4 61.4 l2.4 1 l.8 2.4" stroke="#ff9a4a" stroke-width=".7" fill="none" opacity=".85"/>
+    <!-- stubby head, sunk between the shoulders -->
+    <path d="M59 22 Q59.6 17.6 65 17.4 L72 17.6 Q76.4 18.4 76.6 23 L76.4 31 Q75.6 34.6 71 34.8 L63 34.6 Q59.4 34 59.2 30 Z" fill="url(#rg-stone)"/>
+    <path d="M60.8 22.4 Q61.4 19.2 65 19" stroke="#fff" stroke-width=".9" fill="none" opacity=".45"/>
+    <path d="M58.8 22.8 L77 22.6 L77 25.8 L58.8 26 Z" fill="url(#rg-rustD)"/>
+    <g fill="#d89a6a"><circle cx="61" cy="24.4" r=".5"/><circle cx="75" cy="24.2" r=".5"/></g>
+    <circle cx="72" cy="28.6" r="4.2" fill="url(#rg-eye)"/>
+    <path d="M66 28.6 h3.4 M71.4 28.6 h4" stroke="#fff0c8" stroke-width="1.2"/>
+    <path d="M63.4 31.6 L73 31.4" stroke="#3e322b" stroke-width=".6" opacity=".6"/>
+    <!-- front shoulder block with an iron cap -->
+    <path d="M56 37 Q57 31.4 64 31.2 L73 31.8 Q78 33.2 78 38.8 L77.4 46 Q72 49 64 48.4 Q57.4 47.6 56 43 Z" fill="url(#rg-stone)"/>
+    <path d="M56.6 35.6 Q57.6 31 64 30.6 L73 31.2 Q77.6 32.6 78 36.4 L76 37 Q72.4 34.6 64 34.4 Q59.6 34.6 57.6 37 Z" fill="url(#rg-rust)"/>
+    <g fill="#3a1c0c"><circle cx="61" cy="33.4" r=".6"/><circle cx="67" cy="33" r=".6"/><circle cx="73" cy="33.4" r=".6"/></g>
+    <!-- front arm and its huge fist -->
+    <path d="M62.6 44 L75.4 43.2 L76.4 60 L64 61 Z" fill="url(#rg-stone)"/>
+    <path d="M64 58 L77 57 L83 70 L70 72 Z" fill="url(#rg-stone)"/>
+    <path d="M66.2 63.6 L79.4 62.2 L80.8 65.6 L67.8 67.2 Z" fill="url(#rg-rust)"/>
+    <path d="M68 68.4 L86 66.8 Q90 67 90.4 70.4 L90.6 82 Q90 85.6 86.4 85.6 L72 86 Q68 85.6 67.6 82 Z" fill="url(#rg-stone)"/>
+    <path d="M69.4 70.4 Q76 69 82 68.8" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>
+    <path d="M74.4 75 v10.6 M79.4 74.6 v10.8 M84.4 74.2 v11" stroke="#3e322b" stroke-width=".8" opacity=".7"/>
+    <path d="M68.6 74.4 L89.8 72.6" stroke="#3e322b" stroke-width=".7" opacity=".5"/>
+    <path d="M65.4 47 Q66 52 65.6 56" stroke="#fff" stroke-width=".8" fill="none" opacity=".35"/>
+  </g>
 </svg>

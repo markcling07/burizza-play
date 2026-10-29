@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Estate Poacher (monster) - Ashfall Road art v2. Rough woodsman of the Harrowgate estate: green
+     dagged hood, leather jerkin, a yew longbow at full draw, quiver on his back, a brace of rabbits
+     at his belt. Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="ep-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ebbf98"/><stop offset=".55" stop-color="#c99a72"/><stop offset="1" stop-color="#93684a"/></linearGradient>
+    <linearGradient id="ep-cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a7a50"/><stop offset=".5" stop-color="#3a4431"/><stop offset="1" stop-color="#1f2619"/></linearGradient>
+    <linearGradient id="ep-clothD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#36402c"/><stop offset="1" stop-color="#171c12"/></linearGradient>
+    <linearGradient id="ep-leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b48d56"/><stop offset=".5" stop-color="#8a6a3a"/><stop offset="1" stop-color="#56401f"/></linearGradient>
+    <linearGradient id="ep-leatherD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b5131"/><stop offset="1" stop-color="#352615"/></linearGradient>
+    <linearGradient id="ep-bow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8c587"/><stop offset=".5" stop-color="#b3823f"/><stop offset="1" stop-color="#6e4620"/></linearGradient>
+    <linearGradient id="ep-fur" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8aa92"/><stop offset=".5" stop-color="#887862"/><stop offset="1" stop-color="#52463a"/></linearGradient>
+    <linearGradient id="ep-iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset=".5" stop-color="#9aa3b5"/><stop offset="1" stop-color="#5c6476"/></linearGradient>
+    <radialGradient id="ep-glint" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#e8f0ff" stop-opacity=".7"/><stop offset="1" stop-color="#e8f0ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="25" ry="3.6" fill="#000" opacity=".38"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- quiver on his back, fletching over the shoulder -->
+    <path d="M37.6 27.6 L36.4 35 M40 26.4 L39.6 34.4 M34.8 29.6 L35.2 36" stroke="#6e4f2e" stroke-width=".8"/>
+    <path d="M36.2 23.8 L38.8 27.8 L37.2 29.6 L35 26.2 Z M39 22.6 L41 26.8 L39.4 28.2 L37.6 24.6 Z M33.2 26 L35.4 30 L34 31.6 L31.8 28.2 Z" fill="#e2dccd"/>
+    <path d="M35.6 25 L37.6 28.4 M38.4 23.8 L40 27.4 M32.6 27.2 L34.6 30.6" stroke="#9a3a2e" stroke-width=".7"/>
+    <path d="M33.6 35 L41.4 33.2 L46.4 59.4 L40.4 61 Z" fill="url(#ep-leatherD)"/>
+    <path d="M33.2 34 L41.6 32 L42 34.6 L33.6 36.6 Z" fill="url(#ep-leather)"/>
+    <path d="M36.4 37 L41.8 59" stroke="#241a0f" stroke-width=".5" opacity=".6"/>
+    <!-- back arm: drawing the string, elbow high behind his head -->
+    <path d="M47.4 44.6 L39.6 37.4 Q35.4 37 34.6 40.6 Q35 44 38.6 44.6 L45.6 50.4 Z" fill="url(#ep-clothD)"/>
+    <path d="M37 37.4 L56 37.4 L56.4 42.6 L38.2 43.6 Z" fill="url(#ep-clothD)"/>
+    <path d="M36 39.6 Q37 38 39 38" stroke="#5f6e47" stroke-width=".6" fill="none" opacity=".6"/>
+    <!-- the yew longbow, bent to full draw -->
+    <path d="M71.4 14.6 Q90.8 41 71.4 67.4 Q86.6 41 71.4 14.6 Z" fill="url(#ep-bow)"/>
+    <path d="M72.9 17.6 Q78.4 25.2 80.1 35.6" stroke="#fff" stroke-width=".6" fill="none" opacity=".6"/>
+    <path d="M70.6 13.4 L72.6 15.2 L71.2 16.2 Z M70.6 68.6 L72.6 66.8 L71.2 65.8 Z" fill="#efe3c4"/>
+    <!-- legs: green hose, wrapped shins, boots -->
+    <path d="M43 69 L50 70 L45.6 81 L41.6 88.6 L35.6 87.8 L39.4 80 Z" fill="url(#ep-clothD)"/>
+    <path d="M51 70 L59 69.6 L62 80.6 L63.6 88.6 L57.6 88.8 L55.2 81 Z" fill="url(#ep-cloth)"/>
+    <path d="M56 81.6 L62.4 83 M56.6 84.2 L63 85.6 M57 86.6 L63.2 88 M40 81.2 L44.4 83.2 M38.6 83.6 L43 85.8" stroke="#6b5131" stroke-width=".8" opacity=".8"/>
+    <path d="M34.4 85.4 H42 L42.4 88.8 L45.4 90.4 V94 H33.8 Z" fill="url(#ep-leatherD)"/>
+    <path d="M56.4 85.4 H64.2 L64.6 88.8 L68 90.4 V94 H55.8 Z" fill="url(#ep-leather)"/>
+    <path d="M33.8 84.6 H42.6 V87 H33.8 Z" fill="#7a5c36"/>
+    <path d="M55.8 84.6 H64.8 V87 H55.8 Z" fill="#a8844e"/>
+    <path d="M35 91 H44 M57 91 H66.4" stroke="#2a1d10" stroke-width=".6" opacity=".6"/>
+    <!-- tunic -->
+    <path d="M42.6 46.4 Q51 42.6 59.6 46.4 L61.4 71 L58.6 73.4 L56 71.2 L53 73.8 L50.2 71.4 L47.2 73.6 L44.4 71.2 L41.4 73 L40.8 71 Z" fill="url(#ep-cloth)"/>
+    <!-- a brace of rabbits, tied by the heels at his hip -->
+    <path d="M44.4 64.4 L41.6 67.6 M44.4 64.4 L46.6 67.8" stroke="#2a1d10" stroke-width=".7"/>
+    <path d="M40.4 68.6 L41.2 65.6 L42.8 66.2 L42.4 69.4 Z" fill="#6e5a42"/>
+    <path d="M39.6 68.4 Q43.6 68 43.6 72.4 Q43.4 77.6 40.8 81 Q38.8 83 37.2 82 Q35.4 80.2 36 76 Q36.8 71 39.6 68.4 Z" fill="url(#ep-fur)"/>
+    <path d="M36.4 81 Q35 84.2 36.6 85.8 Q39 86.6 40.2 83.6 Q39.6 81.6 36.4 81 Z" fill="#8a7860"/>
+    <path d="M35.8 85 Q34.2 88.6 35 91 Q36.6 89.8 37 85.8 Z M37.6 85.6 Q37.8 89.4 39.2 91 Q39.8 88.6 38.8 85.4 Z" fill="#6e5e4a"/>
+    <path d="M45.6 68.6 L46.4 65.8 L48 66.4 L47.4 69.6 Z" fill="#7a6650"/>
+    <path d="M45 68.6 Q49.2 68.4 49 73 Q48.8 78.2 46.2 81.6 Q44.2 83.6 42.6 82.6 Q40.8 80.8 41.4 76.6 Q42.2 71.4 45 68.6 Z" fill="url(#ep-fur)"/>
+    <path d="M41.8 81.6 Q40.4 84.8 42 86.4 Q44.4 87.2 45.6 84.2 Q45 82.2 41.8 81.6 Z" fill="#98856a"/>
+    <path d="M41.2 85.6 Q39.6 89.2 40.4 91.6 Q42 90.4 42.4 86.4 Z M43 86.2 Q43.2 90 44.6 91.6 Q45.2 89.2 44.2 86 Z" fill="#76654f"/>
+    <circle cx="47.6" cy="70.6" r="1.2" fill="#efe9dc"/>
+    <path d="M46.8 73 Q46.6 77.4 44.4 80.8 M41.2 72.8 Q40.8 76.6 38.8 79.8" stroke="#e6dfd0" stroke-width=".7" fill="none" opacity=".6"/>
+    <circle cx="43.4" cy="84.8" r=".45" fill="#1a1410"/><circle cx="37.8" cy="84" r=".4" fill="#1a1410"/>
+    <!-- leather jerkin, laced, and the belt -->
+    <path d="M43.6 47 Q51 44 58.6 47 L59.6 66.6 Q51 69 42.6 66.6 Z" fill="url(#ep-leather)"/>
+    <path d="M54.6 47.6 L55.4 66.4" stroke="#4a3418" stroke-width=".7" opacity=".7"/>
+    <path d="M53.6 50 L56.2 51.6 M56.2 50 L53.6 51.6 M53.8 54.4 L56.4 56 M56.4 54.4 L53.8 56 M54 58.8 L56.6 60.4 M56.6 58.8 L54 60.4" stroke="#e6d6b0" stroke-width=".5" opacity=".75"/>
+    <path d="M45.2 49 Q44.4 57 45 65" stroke="#d6b47a" stroke-width=".6" fill="none" opacity=".5"/>
+    <path d="M42.2 63.6 Q51 61.8 60 63.6 L60.2 66.2 Q51 64.4 42 66.2 Z" fill="url(#ep-leatherD)"/>
+    <rect x="50.2" y="62.4" width="3" height="3.2" rx=".4" fill="none" stroke="url(#ep-iron)" stroke-width=".8"/>
+    <path d="M57.6 64.6 h3.2 v4.4 q-1.6 1 -3.2 0 z" fill="url(#ep-leatherD)"/>
+    <!-- dagged hood-cape over the shoulders -->
+    <path d="M40.6 44.6 Q51 40.4 61.6 44.8 L62.6 51.8 L60.2 50 L58.4 53.6 L55.8 50.6 L53.6 54.4 L51.2 50.8 L48.8 54.4 L46.4 50.6 L44 54 L42 50.2 L39.4 52 Z" fill="url(#ep-cloth)"/>
+    <path d="M42.2 45.6 Q46 43 50.6 42.6" stroke="#fff" stroke-width=".7" fill="none" opacity=".35"/>
+    <!-- the house's gatehouse badge: he is kept on, after all -->
+    <path d="M44.4 46.6 v4.4 h4.2 v-4.4 l-.7 -.8 l-.7 .8 l-.7 -.8 l-.7 .8 l-.7 -.8 Z" fill="#d9b44a"/>
+    <path d="M44.4 46.6 v4.4 h4.2 v-4.4" stroke="#fbe39a" stroke-width=".35" fill="none" opacity=".8"/>
+    <path d="M45.9 51 v-1.8 Q46.5 47.8 47.1 49.2 v1.8" fill="#4a2a3a"/>
+    <!-- head: weathered, stubbled, squinting down the shaft -->
+    <path d="M49.6 31 Q50 24 55.8 23.4 Q61.4 23.8 62 30 L63.8 33.4 L62 34.2 Q62.4 38.6 59.4 40.8 Q55.8 42.8 52.2 41.4 Q49.6 38.6 49.6 31 Z" fill="url(#ep-skin)"/>
+    <path d="M52.4 36.4 Q55.4 36.8 57.8 37.8 Q60.4 37 62.2 35.4 Q62.4 38.6 59.4 40.8 Q55.8 42.8 52.2 41.4 Z" fill="#3a2a1c" opacity=".32"/>
+    <path d="M53.6 38.6 l.4 .2 M55 40 l.4 .2 M56.6 39.2 l.4 .2 M58.2 40.4 l.4 .2 M60 39 l.4 .2 M54.4 41 l.4 .1" stroke="#2a1d10" stroke-width=".45" opacity=".6"/>
+    <path d="M61.6 33.6 Q62.6 34.6 62 35.2" stroke="#93684a" stroke-width=".6" fill="none"/>
+    <path d="M56.4 28.4 Q58.8 27.2 61.4 28" stroke="#3a2818" stroke-width="1.2" fill="none"/>
+    <path d="M57.2 30.8 Q58.8 29.8 60.4 30.6" stroke="#2a1a13" stroke-width=".9" fill="none"/>
+    <circle cx="59.2" cy="30.9" r=".55" fill="#2a1a13"/>
+    <path d="M58.8 36.4 Q60.2 36.8 61.6 36.2" stroke="#6a3c28" stroke-width=".7" fill="none"/>
+    <!-- the hood -->
+    <path d="M43.4 47 Q40.2 40 41.2 31.6 Q42 21 50.6 17.8 Q58.6 15.8 62.6 21.6 Q64.6 25.2 63.6 28.8 L61.8 27.8 Q60.4 23.8 55.8 23.6 Q51.2 23.8 50.2 30.2 Q49.8 37.2 52.2 41.8 Q55.6 43.8 59.8 42.2 L60.6 45.2 Q51.4 49 43.4 47 Z" fill="url(#ep-cloth)"/>
+    <path d="M44.6 27 Q46.4 20.6 52 18.8" stroke="#fff" stroke-width=".9" fill="none" opacity=".45"/>
+    <path d="M51.8 25.4 Q52.4 33 54.8 41.8" stroke="#1a2014" stroke-width=".7" fill="none" opacity=".55"/>
+    <!-- front arm out to the bow -->
+    <path d="M54.6 43.4 Q64 40.2 75.6 39.2 L76.4 44 Q65 45.4 56.6 50.2 Z" fill="url(#ep-cloth)"/>
+    <path d="M68 39.8 L75.4 39.2 L76.2 43.8 L68.6 44.8 Z" fill="url(#ep-leather)"/>
+    <path d="M70.2 39.8 L70.8 44.4 M72.6 39.6 L73.2 44.2" stroke="#56401f" stroke-width=".5" opacity=".7"/>
+    <path d="M56.6 43.2 Q63 41 69 40.4" stroke="#fff" stroke-width=".6" fill="none" opacity=".4"/>
+    <path d="M76 38.6 Q79.6 37.4 82.4 39.2 Q83.4 42.4 81.6 44.4 Q78.2 45.2 76.2 43.6 Z" fill="url(#ep-skin)"/>
+    <path d="M78.6 40.4 h3.6 M78.4 42.6 h3.6" stroke="#93684a" stroke-width=".55"/>
+    <!-- the nocked arrow and the string -->
+    <path d="M71.4 14.8 L59.2 38.8 L71.4 67.2" stroke="#efe6cf" stroke-width=".45" fill="none" opacity=".9"/>
+    <path d="M58.6 38.8 H87.6" stroke="#8a6438" stroke-width="1"/>
+    <path d="M62 38.8 H86" stroke="#c9a06a" stroke-width=".35" opacity=".8"/>
+    <path d="M60.6 38.8 L62.6 36.4 H66.4 L65 38.8 Z" fill="#e6e0d2"/>
+    <path d="M60.6 38.8 L62.6 41.2 H66.4 L65 38.8 Z" fill="#a89e88"/>
+    <path d="M86.8 36.6 L94.2 38.8 L86.8 41 L88 38.8 Z" fill="url(#ep-iron)"/>
+    <circle cx="92.4" cy="38.6" r="2.2" fill="url(#ep-glint)"/>
+    <!-- drawing hand anchored under the jaw -->
+    <path d="M55 38.2 Q57.8 36.8 60.6 37.6 L61.6 39.4 Q61.4 41.8 59.6 43 Q56.6 43.6 55.2 41.8 Z" fill="url(#ep-skin)"/>
+    <path d="M57.4 38.2 Q59.8 38.2 61 39.6 M57 40.2 Q59.4 40.2 60.6 41.6" stroke="#93684a" stroke-width=".55" fill="none"/>
+    <path d="M55.8 38.4 Q57.4 37.4 59 37.6" stroke="#fff" stroke-width=".5" fill="none" opacity=".45"/>
+  </g>
+</svg>

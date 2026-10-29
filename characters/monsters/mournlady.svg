@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Lady Mournhollow (boss) - Ashfall Road art v2. The widow at the window, still waiting: a
+     black-violet mourning gown with a bustle and a long train that thins into mist, a high lace
+     collar and cameo, a plumed hat and a veil over a pale face, violet eyes burning through it, an
+     open locket held up in one hand and a lace handkerchief in the other.
+     Canvas 100x100, faces right, feet on y=94. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="ml-gown" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#775e93"/><stop offset=".5" stop-color="#3a2a4a"/><stop offset="1" stop-color="#1b1124"/></linearGradient>
+    <linearGradient id="ml-gownD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34263f"/><stop offset="1" stop-color="#120b18"/></linearGradient>
+    <linearGradient id="ml-train" x1="1" y1="0" x2="0" y2=".3"><stop offset="0" stop-color="#3a2a4a"/><stop offset=".55" stop-color="#30223e" stop-opacity=".85"/><stop offset="1" stop-color="#2a1d36" stop-opacity="0"/></linearGradient>
+    <linearGradient id="ml-lace" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf4ff"/><stop offset=".5" stop-color="#e3c6fb"/><stop offset="1" stop-color="#a67fca"/></linearGradient>
+    <linearGradient id="ml-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6f0fa"/><stop offset=".55" stop-color="#d6c8e0"/><stop offset="1" stop-color="#9c8aaf"/></linearGradient>
+    <linearGradient id="ml-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7f2fc"/><stop offset=".5" stop-color="#e2d8ee"/><stop offset="1" stop-color="#a99cbb"/></linearGradient>
+    <linearGradient id="ml-plume" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c5684"/><stop offset=".5" stop-color="#33253f"/><stop offset="1" stop-color="#150d1c"/></linearGradient>
+    <linearGradient id="ml-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e6b4"/><stop offset=".5" stop-color="#c9a95e"/><stop offset="1" stop-color="#7a6230"/></linearGradient>
+    <radialGradient id="ml-eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fdf6ff"/><stop offset=".45" stop-color="#d9a8ff"/><stop offset="1" stop-color="#d9a8ff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ml-aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#d9a8ff" stop-opacity=".26"/><stop offset=".6" stop-color="#d9a8ff" stop-opacity=".09"/><stop offset="1" stop-color="#d9a8ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="94" rx="30" ry="4" fill="#000" opacity=".38"/>
+  <ellipse cx="52" cy="50" rx="40" ry="46" fill="url(#ml-aura)"/>
+  <ellipse cx="38" cy="92.6" rx="30" ry="3" fill="#d9a8ff" opacity=".1"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- the long veil behind her -->
+    <path d="M55.2 14 Q47.6 18 45.4 30 Q44 42 40.4 54 Q38.4 60 36 64.6 L38.6 63.6 L39 67 Q42.6 58 45.6 48 Q48.6 36 52.4 28 Q54 22 55.2 14 Z" fill="#2a1c36" opacity=".6"/>
+    <!-- the train, thinning into mist -->
+    <path d="M38 62 Q27 71 20 80 Q14 86.4 5.4 91.6 Q12 93.6 24 93.8 L46 94 L46 68 Z" fill="url(#ml-train)"/>
+    <path d="M22 84.6 Q13 81.6 7.6 84 M15.4 89.6 Q9.6 88.4 5 90" stroke="#b896d8" stroke-width=".7" fill="none" opacity=".35"/>
+    <!-- skirt and bustle -->
+    <path d="M51 50 Q40 48.6 34.4 54 Q29.6 59.4 31 66 Q30.6 74 33 82 Q34.6 88 34 93.8 L72 94 Q73.4 84 70 72 Q66.6 60 62.4 51.6 Z" fill="url(#ml-gown)"/>
+    <path d="M44 57 Q42.4 74 42.8 92 M52.4 56 Q51.8 74 52.8 92 M60 56 Q62.4 74 63.4 92" stroke="#120b18" stroke-width=".8" fill="none" opacity=".6"/>
+    <path d="M33.4 60 Q31.6 70 34.6 82" stroke="#fff" stroke-width="1" fill="none" opacity=".25"/>
+    <path d="M50.4 50.2 Q40 48.8 34.6 54.2 Q30 59.4 31.2 66" stroke="#d9a8ff" stroke-width=".9" fill="none" opacity=".45"/>
+    <path d="M34.4 56.4 Q41 54.2 48 57.4 M32.4 62.6 Q40 60.6 47.2 63.8" stroke="#120b18" stroke-width=".7" fill="none" opacity=".55"/>
+    <!-- flounces, edged in violet lace -->
+    <path d="M33.6 73 Q52 76.8 70.4 72.4 L71.2 75.8 Q52 80.4 33.6 76.4 Z" fill="url(#ml-gownD)"/>
+    <path d="M33.6 76.4 Q52 80.4 71.2 75.8" stroke="#d9a8ff" stroke-width=".7" fill="none" opacity=".7" stroke-dasharray=".8 .9"/>
+    <path d="M34 84.2 Q53 88.2 72.4 83.6 L72.8 87 Q53 91.4 34 87.6 Z" fill="url(#ml-gownD)"/>
+    <path d="M34 87.6 Q53 91.4 72.8 87" stroke="#d9a8ff" stroke-width=".7" fill="none" opacity=".7" stroke-dasharray=".8 .9"/>
+    <path d="M34.4 92.8 Q38 91.2 41.6 92.8 Q45.2 91.2 48.8 92.8 Q52.4 91.2 56 92.8 Q59.6 91.2 63.2 92.8 Q66.8 91.2 70.4 92.8" stroke="url(#ml-lace)" stroke-width=".9" fill="none" opacity=".85"/>
+    <!-- mourning bow on the bustle -->
+    <path d="M40.6 52.4 Q34.4 47.4 32.4 51.2 Q32.6 54.6 40.6 52.4 Z M40.6 53 Q35.4 56.4 35.2 60 Q39.2 59.6 40.6 53 Z" fill="url(#ml-gownD)"/>
+    <path d="M40.6 52.4 Q34.4 47.4 32.4 51.2" stroke="#b896d8" stroke-width=".5" fill="none" opacity=".7"/>
+    <path d="M39.6 53.6 Q37.4 60 37.8 66.4 L39.4 64.8 L40.6 67 Q40.4 60 41.4 54 Z" fill="url(#ml-gownD)"/>
+    <circle cx="40.8" cy="52.8" r="1.4" fill="#2a1d36"/>
+    <!-- back arm and the handkerchief -->
+    <path d="M50 41 Q48 50 47.6 58 L50.6 58.4 Q51.4 50 53.4 42 Z" fill="url(#ml-gownD)"/>
+    <path d="M47 57.4 L51 57.6 L51.2 59.4 L46.8 59.2 Z" fill="url(#ml-lace)"/>
+    <path d="M47.6 60.6 Q45 64 45.6 69 L47 67.6 L48 70.4 L49.2 67.8 L50.8 69.4 Q51 64.4 49.6 60.8 Z" fill="url(#ml-lace)" opacity=".92"/>
+    <path d="M46.4 64.6 Q48 65.4 50 64.4" stroke="#a67fca" stroke-width=".4" fill="none" opacity=".8"/>
+    <path d="M47.4 59 Q48.6 58.4 50.4 59.4 Q50.8 61 49.2 61.6 Q47.6 61.4 47.4 59 Z" fill="url(#ml-skin)"/>
+    <!-- bodice -->
+    <path d="M51 50 Q49.6 42 51.6 35.4 Q55 32.6 60.6 33 Q65.6 34.6 65.8 40 Q65.4 46 62.4 51.6 Z" fill="url(#ml-gown)"/>
+    <path d="M51 49 L62.6 50.4 L57.6 55 Z" fill="url(#ml-gown)"/>
+    <path d="M51.4 49.4 L62.2 50.8" stroke="#d9a8ff" stroke-width=".5" opacity=".6"/>
+    <path d="M52.6 37 Q51.8 42 52.2 47" stroke="#fff" stroke-width=".9" fill="none" opacity=".3"/>
+    <g fill="#120b18"><circle cx="63.6" cy="41.6" r=".7"/><circle cx="63.4" cy="44.6" r=".7"/><circle cx="62.8" cy="47.6" r=".7"/></g>
+    <g fill="#c9a2ec" opacity=".8"><circle cx="63.4" cy="41.4" r=".25"/><circle cx="63.2" cy="44.4" r=".25"/><circle cx="62.6" cy="47.4" r=".25"/></g>
+    <!-- lace jabot spilling from the collar -->
+    <path d="M60.4 33.6 Q64.8 33.4 65.2 36.4 Q63.4 36.8 64.8 38.6 Q62.6 39.4 63.4 40.8 Q60.8 40.4 60.6 37.4 Z" fill="url(#ml-lace)"/>
+    <!-- back shoulder puff -->
+    <path d="M50.4 36 Q49 33.4 52.6 33.2 Q56 34.2 55.4 39 Q53.6 42 51 42 Q49 40 50.4 36 Z" fill="url(#ml-gownD)"/>
+    <!-- hair, swept up into a bun -->
+    <circle cx="54.6" cy="18.4" r="3.8" fill="url(#ml-hair)"/>
+    <path d="M54.4 22 Q53.4 14.6 59 13 Q64.6 12.4 66 17 Q61.6 15.6 58.6 17.4 Q56 19.4 56.6 24.6 Z" fill="url(#ml-hair)"/>
+    <path d="M51.8 17.4 Q53.6 15.6 56.4 16.4 M52 20 Q54 18.6 56.6 19.6" stroke="#a99cbb" stroke-width=".5" fill="none" opacity=".8"/>
+    <!-- neck and the high lace collar -->
+    <path d="M57.8 25 L62.6 25 L63 29 L57.8 29 Z" fill="url(#ml-skin)"/>
+    <!-- face, pale and waiting -->
+    <path d="M55.4 20.6 Q55.8 15.6 60.6 15.2 Q65 15.4 65.6 19.4 L66.2 21.4 L67.4 23.6 L66.2 24.2 Q66.6 25 66 25.6 Q66.4 26.6 65.4 27.6 Q64 29 61.4 29 Q57.4 28.8 56.2 26.2 Q55.2 23.8 55.4 20.6 Z" fill="url(#ml-skin)"/>
+    <path d="M56.8 25.6 Q59 28.4 62.6 28.2" stroke="#9c8aaf" stroke-width=".7" fill="none" opacity=".6"/>
+    <path d="M55.8 19.4 Q58 15.6 62.8 15.2 Q60 16.6 58.4 18.8 Z" fill="url(#ml-hair)"/>
+    <path d="M60.4 19.2 Q61.8 18.2 63.4 19 M64.2 18.8 Q65 18.4 65.6 18.8" stroke="#6e5a84" stroke-width=".55" fill="none"/>
+    <path d="M63.8 25.7 Q64.9 25.2 66 25.7" stroke="#5a4470" stroke-width=".65" fill="none"/>
+    <path d="M64.4 26.6 Q65.2 26.9 65.8 26.5" stroke="#9c8aaf" stroke-width=".5" fill="none"/>
+    <path d="M56.6 33.4 Q60.4 35 64 33.4 L63.4 27.4 Q60 28.8 56.6 27.4 Z" fill="url(#ml-lace)"/>
+    <path d="M56.6 27.4 q.7 -.9 1.4 0 q.7 -.9 1.4 0 q.7 -.9 1.4 0 q.7 -.9 1.4 0 q.7 -.9 1.4 0" stroke="#fbf4ff" stroke-width=".7" fill="none"/>
+    <path d="M57.4 29.8 Q60.2 31 63.2 29.8 M57.6 31.8 Q60.4 33 63.6 31.8" stroke="#a67fca" stroke-width=".4" fill="none" opacity=".8"/>
+    <ellipse cx="60.4" cy="33.6" rx="1.5" ry="1.8" fill="url(#ml-gold)"/>
+    <ellipse cx="60.4" cy="33.6" rx="1" ry="1.3" fill="#3a2a4a"/>
+    <path d="M60.2 34.6 Q60 33.4 60.6 32.8 Q61 33.6 60.8 34.6 Z" fill="#e3c6fb"/>
+    <!-- the veil over her face -->
+    <path d="M56.4 14.6 Q62.4 13.2 68.6 14.2 Q68.6 19.6 67.8 22.4 Q67.2 25.4 64.4 26.6 Q60.4 27.4 57.2 26.4 Q55.6 20.4 56.4 14.6 Z" fill="#22162e" opacity=".26"/>
+    <g fill="#120b18" opacity=".5"><circle cx="58.4" cy="18" r=".32"/><circle cx="61.4" cy="17.2" r=".32"/><circle cx="66.8" cy="17.4" r=".32"/><circle cx="66.8" cy="20.4" r=".32"/><circle cx="58.2" cy="22.8" r=".32"/><circle cx="66.6" cy="24.2" r=".32"/><circle cx="61.2" cy="25" r=".32"/><circle cx="64.8" cy="25.6" r=".32"/></g>
+    <path d="M57.2 26.4 Q60.4 27.4 64.4 26.6 Q67.2 25.4 67.8 22.4 Q68.6 19.6 68.6 14.2" stroke="#d9a8ff" stroke-width=".45" fill="none" opacity=".5" stroke-dasharray=".6 .7"/>
+    <!-- violet eyes, burning through the veil -->
+    <circle cx="62" cy="21.4" r="2.8" fill="url(#ml-eye)"/><circle cx="64.9" cy="21.1" r="1.8" fill="url(#ml-eye)"/>
+    <circle cx="62" cy="21.4" r=".75" fill="#fff"/><circle cx="64.9" cy="21.1" r=".5" fill="#fff"/>
+    <!-- plumed mourning hat -->
+    <path d="M55.4 13.4 Q55.8 7.6 61.6 7.2 Q67.6 7.4 68.2 12.6 Q61.8 11.6 55.4 13.4 Z" fill="url(#ml-gownD)"/>
+    <path d="M55.6 12.2 Q61.8 10.4 68 11.6 L68.1 12.9 Q61.8 11.8 55.5 13.5 Z" fill="url(#ml-lace)"/>
+    <path d="M51.6 14.4 Q61.4 10.4 71.6 13.2 Q72.4 14.4 71.2 15 Q61.4 12.8 52.2 16 Q51 15.6 51.6 14.4 Z" fill="url(#ml-plume)"/>
+    <path d="M53 14.4 Q61.6 11.4 70.6 13.6" stroke="#a88cc4" stroke-width=".5" fill="none" opacity=".7"/>
+    <path d="M64.6 8.6 Q60 2.8 51.4 4.2 Q44.2 5.6 41.4 11.8 Q40.6 15.4 42.6 17.4 Q43.6 13.2 46.4 11.2 Q50.6 8.8 55.4 9.6 Q59.6 10.4 62 11.6 Z" fill="url(#ml-plume)"/>
+    <path d="M60.4 5.4 l.5 -1 M57.2 4.6 l.2 -.9 M54 4.4 l-.1 -.9 M50.6 4.8 l-.5 -.9 M47.4 5.6 l-.8 -.8 M44.8 7.2 l-1 -.6 M42.8 9.4 l-1.1 -.4 M41.6 12 l-1.2 -.1 M41.4 14.8 l-1.1 .4" stroke="#33253f" stroke-width=".7"/>
+    <path d="M60 9 Q55.4 6.4 49.6 8.2 Q46 9.6 45.2 13.6 Q48 11.4 51.4 11.2 Q55.6 11 58.4 12.4 Z" fill="#4e3a64"/>
+    <path d="M44 10.2 Q47.6 5.4 54.4 5 Q58.8 5 61.6 7" stroke="#b596d4" stroke-width=".6" fill="none" opacity=".7"/>
+    <path d="M47 12.6 Q50.6 9.8 56.4 10.6" stroke="#1b1124" stroke-width=".5" fill="none" opacity=".7"/>
+    <!-- front arm, holding up the open locket -->
+    <path d="M61 41.4 L64.6 40.6 L67.2 48.4 L64 49.8 Z" fill="url(#ml-gown)"/>
+    <path d="M64.1 47.5 L69.3 40.6 L71.5 42.2 L66.7 49.3 Z" fill="url(#ml-gown)"/>
+    <circle cx="65.4" cy="48.6" r="1.8" fill="#3a2a4a"/>
+    <path d="M58.6 37.4 Q58.4 32.6 63 32.4 Q67.4 33.4 67 38.4 Q65.6 42.6 61.6 42.4 Q58.8 41 58.6 37.4 Z" fill="url(#ml-gown)"/>
+    <path d="M59.8 35.4 Q61.2 33.4 64 33.6" stroke="#fff" stroke-width=".7" fill="none" opacity=".4"/>
+    <path d="M60 40.6 Q62.4 39.6 65.6 40.6" stroke="#120b18" stroke-width=".5" fill="none" opacity=".6"/>
+    <path d="M68.6 40.6 L70.6 39 L72.8 41.8 L70.8 43.4 Z" fill="url(#ml-lace)"/>
+    <path d="M68.4 41 l-.8 1 M69.6 42.4 l-.6 1.1 M70.6 43.4 l-.3 1" stroke="#e3c6fb" stroke-width=".6"/>
+    <path d="M73.4 41.2 Q72.6 44.6 73.2 47" stroke="url(#ml-gold)" stroke-width=".5" fill="none"/>
+    <ellipse cx="73.4" cy="49.4" rx="1.9" ry="2.4" fill="url(#ml-gold)"/>
+    <ellipse cx="73.4" cy="49.5" rx="1.2" ry="1.6" fill="#2a1d36"/>
+    <path d="M73.1 50.8 Q72.9 49.4 73.5 48.6 Q74.1 49.6 73.8 50.8 Z" fill="#e3c6fb"/>
+    <circle cx="73.4" cy="49.4" r="3.4" fill="url(#ml-eye)" opacity=".35"/>
+    <path d="M70.4 40.2 Q71.8 37.8 74 38.6 Q75 40.6 73.6 42 Q71.6 42.6 70.4 40.2 Z" fill="url(#ml-skin)"/>
+    <path d="M72.4 38.8 Q74.2 39.4 74 41 M71.6 41.6 Q72.8 42.2 73.8 41.6" stroke="#9c8aaf" stroke-width=".45" fill="none"/>
+  </g>
+</svg>
