@@ -946,7 +946,7 @@ const ROSTER = [
                 shoots at does nothing at all. Drawing the fire onto the thing
                 shots glance off is the whole fantasy, and it is what makes the
                 two turns of giving up your own offence worth taking. */
-             { name: 'Bunker', desc: 'Bulwark-7 drives its anchors into the ground for 2 turns and roars for every enemy\'s attention. While it holds, anything thrown, fired or blown at it glances off and whoever walks up to it does a quarter damage — but it cannot move or strike, and may only Stand Up. One ally may be sent into its lee: nothing can reach them at all, and each of their turns is spent either holding or stepping back out. Vents 30 Heat.', cd: 5, kind: 'bunker', target: 'ally', o: { move: false, heat: -30 } },
+             { name: 'Bunker', desc: 'Bulwark-7 drives its anchors into the ground and seals itself inside for 2 turns: nothing can reach it, but it cannot move or strike and may only Stand Up or hold. While it stands, an arrow marks it for the warband: any ally may spend a turn running over to take cover inside, out of reach too — unless they are anchored where they stand. Vents 30 Heat.', cd: 5, kind: 'bunker', target: 'self', o: { move: false, heat: -30 } },
              /* A tank's reach. He is the slowest thing on the field (agi 0.8) and cannot chase
                 anyone, so instead of closing the distance he takes it away: the haul is bar
                 ground rather than damage, and the same feet that refuse a knockback refuse
@@ -2102,7 +2102,9 @@ const GUARD  = { id: 'guard',  name: 'Guard',  desc: 'Reduces damage taken by 50
 /* THE BUNKER's two doors. STEP_OUT is handed to whoever is sheltered, STAND_UP
    to the machine while it holds — neither is in anyone's kit, both are put in
    front of the unit by skillsOf exactly while the state is on. */
-const STEP_OUT = { id: 'stepout', name: 'Step Out', desc: 'Leave the bunker. Costs this turn — the repositioning is the price of coming back out.', cd: 0, kind: 'stepout', target: 'self', o: { noBlood: true, move: false } };
+const STEP_OUT = { id: 'stepout', name: 'Step Out', desc: 'Leave the bunker and walk back to your place. Costs this turn.', cd: 0, kind: 'stepout', target: 'self', o: { noBlood: true, move: false } };
+// Offered to Bulwark's allies while its bunker stands. A move, so an anchored (rooted) ally cannot take it.
+const TAKE_COVER = { id: 'cover', name: 'Take Cover', desc: "Run to Bulwark-7's bunker and hide inside: nothing can reach you until you step out or the bunker opens. Costs this turn.", cd: 0, kind: 'cover', target: 'self', o: { noBlood: true, move: true } };
 const STAND_UP = { id: 'standup', name: 'Stand Up', desc: 'Unlock the anchors and return to being a machine that can move and strike. Anyone in cover loses it.', cd: 0, kind: 'standup', target: 'self', o: { noBlood: true, move: false } };
 const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One ally', allAllies: 'All allies', self: 'Self', deadAlly: 'One fallen ally' };
 
@@ -5337,7 +5339,7 @@ function skillsOf(u) {
     if (s.o?.heal) out.o = { ...s.o, heal: s.o.heal * (1 + RANK_POWER * r) };
     return out;
   };
-  return [attack, ...actives.filter((s) => eq.includes(s.id)).map(boost), ...neutrals.map(boost), guard];
+  return [attack, ...actives.filter((s) => eq.includes(s.id)).map(boost), ...neutrals.map(boost), guard, ...(alliedBunker(u) ? [TAKE_COVER] : [])];
 }
 
 /* THE FRONT LINE — the opening of every battle belongs to the melee.
@@ -5389,7 +5391,7 @@ const apart = (u) => !!u.apart;
 // the grave mound are. The machine in front of them is what can still be hit.
 const sheltered = (u) => !!has(u, 'sheltered');
 const aloft = (u) => !!has(u, 'airborne');   // Skyward Smash: hit off the ground and still coming down
-const outOfReach = (u) => inBox(u) || buried(u) || aloft(u) || veiled(u) || cloaked(u) || apart(u) || sheltered(u) || !!u.shadowMatrix;
+const outOfReach = (u) => inBox(u) || buried(u) || aloft(u) || veiled(u) || cloaked(u) || apart(u) || sheltered(u) || bunkered(u) || !!u.shadowMatrix;
 const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
@@ -6241,7 +6243,7 @@ async function executeFalls(u) {
   await bloodTorrent(t);   // the blow lands only once the torrent has reached them
   if (outOfReach(t)) {
     float(t, 'Hidden', 'miss');
-    const where = inBox(t) ? 'the coffin lid' : buried(t) ? 'the grave mound' : sheltered(t) ? "the bunker's plating"
+    const where = inBox(t) ? 'the coffin lid' : buried(t) ? 'the grave mound' : sheltered(t) || bunkered(t) ? "the bunker's plating"
       : t.shadowMatrix ? 'empty shadows' : veiled(t) ? 'the veil' : 'bare ground';
     log(`${u.name}'s Execute pours down on ${where} — ${t.name} is out of its reach.`, u.side);
   } else {
@@ -7453,63 +7455,81 @@ function addFx(u, id, turns, value = 0, quiet = false) {
 // Start of a unit's turn: damage/heal over time, faction upkeep, durations and cooldowns tick down.
 // (Stun is handled on the speed bar: a stunned unit never reaches the end while frozen.)
 /* ==================================================================
-   THE BUNKER — Bulwark-7 anchors, and one ally stands in its lee.
+   THE BUNKER — Bulwark-7 seals itself in, and the warband may run in after it.
 
-   One cast makes two states that live and die together. Bulwark takes `bunker`:
-   driven into the ground, shots glancing off, melee barely marking it, and in
-   exchange it can neither move nor swing. The chosen ally takes `sheltered`:
-   out of reach entirely (outOfReach), standing where nothing can be aimed.
+   Bulwark casts it on itself and takes `bunker`: anchored for BUNKER_TURNS of its own turns,
+   out of reach (outOfReach), and able only to Stand Up or hold. While it stands, every ally
+   is offered TAKE_COVER: a turn spent running over to it (a move, so a rooted ally cannot)
+   and then `sheltered`, out of reach too, with Step Out or hold on later turns.
 
-   The shape of it is the Graveyard Fence's, turned around. The fence stops its
-   own melee swinging out; the bunker stops its own machine swinging at all, and
-   pays for that by being nearly unkillable while it holds. Ranged fire is what
-   it is FOR — a wall is no use against someone already inside it, so melee
-   still gets through at a quarter weight and is the honest answer to it.
-
-   What a sheltered ally may do is the interesting half. Their turn still comes
-   round, and it is spent either way: hold (Guard, and stay hidden) or step out
-   (leave cover, and the turn is gone to the repositioning). skillsOf hands them
-   exactly those two and nothing else, so the choice cannot be dodged by casting
-   something — which is what makes the cover a real decision rather than a free
-   hiding place.
-
-   Everything unwinds through one door, release(): the two turns running out,
-   Bulwark standing up early, Bulwark dying, the ally stepping out. Any of them
-   and both states lift together. A bunker with no machine behind it would be an
-   ally that can never be targeted again, which is why there is only one door. */
+   Every exit runs through leaveBunker or leaveCover, which walk whoever was hidden back to
+   their own place — a sheltered unit with no bunker behind it could never be targeted again. */
 const BUNKER_TURNS = 2;          // the spec's cap: two of Bulwark's own turns
-const BUNKER_MELEE_DR = 0.75;    // melee still lands, at a quarter weight
+const BUNKER_MELEE_DR = 0.75;    // if anything does reach the anchored machine, a quarter weight
 const bunkered = (u) => !!has(u, 'bunker');
-// Who is hiding behind this particular machine, if anyone.
-const shelteredBehind = (u) => allUnits().find((a) => a.hp > 0 && a.bunkerHost === u.uid);
-// The machine a sheltered unit is standing behind.
+// Everyone hiding in this particular bunker.
+const shelteredBehind = (u) => allUnits().filter((a) => a.hp > 0 && a.bunkerHost === u.uid);
+// The machine a sheltered unit is hiding in.
 const bunkerHostOf = (u) => (u.bunkerHost ? unitBy(u.bunkerHost) : null);
+// A standing bunker on this unit's side that it could run to (never its own).
+const alliedBunker = (u) => alliesOf(u).find((a) => a.uid !== u.uid && a.hp > 0 && bunkered(a)) || null;
+// The bunker's arrow shows while it is a player-controlled ally's turn and that ally can take cover in it.
+function coverCalls(host) {
+  if (state.phase !== 'choose') return false;
+  const a = unitBy(state.active);
+  return !!a && a.side === host.side && a.uid !== host.uid && !sheltered(a) && commandable(a)
+    && alliedBunker(a) === host && usable(a, TAKE_COVER);
+}
+// The walk each sheltered unit took to the bunker, so the same path can bring it home (dashBack).
+const coverTrips = new Map();
 
-/* The one door out, whoever opened it. `why` only picks the words. */
+// State only, no animation: the harness drives this directly.
+function shelterIn(u, host) {
+  addFx(u, 'sheltered', 99, 0, true);   // no clock of its own: the bunker's is the clock
+  u.bunkerHost = host.uid;
+}
+
+// One hidden unit comes out and walks back to its place. Returns the walk so a turn can await it.
+function leaveCover(u) {
+  u.effects = u.effects.filter((e) => e.id !== 'sheltered');
+  u.bunkerHost = null;
+  float(u, 'Out of cover', 'fx');
+  const trip = coverTrips.get(u.uid);
+  coverTrips.delete(u.uid);
+  return trip ? dashBack(u, trip) : Promise.resolve();
+}
+
+/* The bunker opens, whoever opened it; everyone inside comes out with it. `why` only picks the words. */
 function leaveBunker(host, why) {
   if (!host) return;
-  const ally = shelteredBehind(host);
-  if (ally) {
-    ally.effects = ally.effects.filter((e) => e.id !== 'sheltered');
-    ally.bunkerHost = null;
-    float(ally, 'Out of cover', 'fx');
-  }
-  /* The taunt goes WITH the anchors, on every exit. The comment on bunkerSkill promises it — "a
-     taunt outliving the plating would leave Bulwark holding every eye on the field with none of the
-     armour that made that a good idea" — and natural expiry keeps that promise only by accident, the
-     two clocks ticking out side by side. Stand Up was the path where they parted: the plating gone,
-     the taunt still up, every enemy still obliged to swing at a machine no longer built to take it. */
-  host.effects = host.effects.filter((e) => e.id !== 'bunker' && e.id !== 'taunt');
+  for (const a of shelteredBehind(host)) leaveCover(a);
+  host.effects = host.effects.filter((e) => e.id !== 'bunker');
   host.bunkerOpen = false;
   const line = why === 'dead' ? `${host.name} is broken open, and the cover with it.`
     : why === 'stood' ? `${host.name} unlocks its anchors and stands up.`
-    : why === 'stepped' && ally ? `${ally.name} steps out from behind ${host.name}.`
     : `${host.name}'s anchors give and the bunker opens.`;
   log(line, host.side);
 }
 
-/* Bulwark anchors, and the chosen ally steps into the lee. */
-async function bunkerSkill(u, t) {
+// An ally runs to the bunker and hides inside it.
+async function takeCover(u) {
+  const host = alliedBunker(u);
+  if (!host) { log(`${u.name} finds no bunker to take cover in.`, u.side); return; }
+  if (has(u, 'rooted')) { float(u, 'Anchored', 'miss'); log(`${u.name} is anchored in place and cannot reach the bunker.`, u.side); return; }
+  const hb = stageBox(host);
+  // Line up just behind the machine, on the warband's own side, the next one a step further back.
+  const tx = hb ? hb.x - facing(u) * hb.w * (0.5 + 0.3 * shelteredBehind(host).length) : NaN;
+  const trip = await marchToX(u, tx, 1.3);
+  if (trip) coverTrips.set(u.uid, trip);
+  shelterIn(u, host);
+  float(u, '🧱 In the bunker', 'good');
+  log(`${u.name} runs to ${host.name}'s bunker and takes cover inside.`, u.side);
+  render();
+  await wait(300);
+}
+
+/* Bulwark slams its anchors down and seals itself in. */
+async function bunkerSkill(u) {
   await castPose(u);
   /* THE SLAM. The machine heaves up off its pistons and comes down HARD — the ground answers
      (tremor, dust) at the moment of impact, not at the end of the clip, and the anchor rig itself
@@ -7527,29 +7547,9 @@ async function bunkerSkill(u, t) {
   if (slam) await done(slam, beat(520));
   burst(u, 'shield');
   addFx(u, 'bunker', BUNKER_TURNS);
-  /* The taunt is inherited from the Bunker Down this skill replaced, and it is
-     what makes the rest of it mean anything: without it the enemy simply shoots
-     around the wall at the people behind it, and anchoring would be two turns
-     of standing still for nothing. It runs exactly as long as the anchors do —
-     a taunt outliving the plating would leave Bulwark holding every eye on the
-     field with none of the armour that made that a good idea. */
-  addFx(u, 'taunt', BUNKER_TURNS);
   u.bunkerOpen = true;
-  log(`${u.name} drives its anchors into the ground and roars for every eye on the field.`, u.side);
-  // An ally may be sent in with the same cast; the cap of one is the skill's
-  // own target, so there is nothing to enforce here beyond replacing whoever
-  // was already in there.
-  if (t && t.uid !== u.uid && t.hp > 0) {
-    const already = shelteredBehind(u);
-    if (already && already.uid !== t.uid) {
-      already.effects = already.effects.filter((e) => e.id !== 'sheltered');
-      already.bunkerHost = null;
-    }
-    addFx(t, 'sheltered', 99, 0, true);   // no clock of its own: the bunker's is the clock
-    t.bunkerHost = u.uid;
-    float(t, '🧱 Cover', 'good');
-    log(`${t.name} takes cover behind ${u.name}.`, u.side);
-  }
+  float(u, '🛡️ Sealed in', 'good');
+  log(`${u.name} drives its anchors into the ground and seals itself inside. The warband can take cover in there too.`, u.side);
   render();
   await wait(420);
 }
@@ -7835,7 +7835,8 @@ async function doAction(u, sk, t) {
     render();
     await wait(360);
   }
-  else if (sk.kind === 'bunker') await bunkerSkill(u, t);
+  else if (sk.kind === 'bunker') await bunkerSkill(u);
+  else if (sk.kind === 'cover') await takeCover(u);
   else if (sk.kind === 'standup') {
     await castPose(u);
     // The reverse of the slam: the machine pushes up off the anchors and shakes the dust off.
@@ -7849,13 +7850,10 @@ async function doAction(u, sk, t) {
   // Stepping out is the ally's own door; the machine stays anchored behind them.
   else if (sk.kind === 'stepout') {
     const host = bunkerHostOf(u);
-    await castPose(u);
-    u.effects = u.effects.filter((e) => e.id !== 'sheltered');
-    u.bunkerHost = null;
-    float(u, 'Out of cover', 'fx');
-    log(host ? `${u.name} steps out from behind ${host.name}.` : `${u.name} steps out of cover.`, u.side);
+    log(host ? `${u.name} steps out of ${host.name}'s bunker.` : `${u.name} steps out of cover.`, u.side);
+    await leaveCover(u);
     render();
-    await wait(360);
+    await wait(200);
   }
   else if (sk.kind === 'execute') await executeSkill(u, t, sk);
   else if (sk.kind === 'burrow') await burrowSkill(u);
@@ -7917,7 +7915,9 @@ function aiChoose(u) {
   const allies = alliesOf(u).filter((a) => !a.inert);
   const hurt = allies.filter((a) => a.hp / a.maxHp < 0.55).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
   const skills = skillsOf(u).filter((s) => usable(u, s));
-  const guard = skills.find((s) => s.id === 'guard');
+  // Summons and monsters carry no Guard of their own; with nothing to hit (a whole warband in a
+  // bunker, say) they still need something to do with the turn.
+  const guard = skills.find((s) => s.id === 'guard') || GUARD;
   if (EGUARD && !u.you) return { sk: guard, t: u };
   if (runsHot(u) && u.heat >= 70 && chance(0.7)) return { sk: guard, t: u };
 
@@ -7960,6 +7960,14 @@ function aiChoose(u) {
     // open it when the warband is hurt and she can afford the bleed, not when she is the hurt one.
     if (s.o?.channel) w = hurt.length && u.hp / u.maxHp > 0.5 ? 5 : 0.2;
     if (s.id !== 'guard' && s.o?.heat < 0) w = u.heat >= 40 ? 3 : 1;   // venting skills: better when hot
+    // THE BUNKER. Sealing in pays when the warband is hurt (they can run in) or Bulwark is; once in,
+    // the machine holds rather than standing straight back up. Hiding is for the badly hurt, and
+    // stepping out waits until they have something left to come back with.
+    if (s.kind === 'bunker') w = hurt.length || u.hp / u.maxHp < 0.6 ? 4 : 1.5;
+    if (s.kind === 'standup') w = 0.6;
+    if (s.id === 'guard' && (bunkered(u) || sheltered(u))) w = 2;
+    if (s.kind === 'cover') w = u.hp / u.maxHp < 0.45 ? 6 : 0.2;
+    if (s.kind === 'stepout') w = u.hp / u.maxHp > 0.6 ? 2 : 0.3;
     if (s.kind === 'summon') w = summonOf(u) ? 0 : 4;
     // Second Burial: usable() has already checked there is a body to raise, so if it is on the
     // list at all it is worth more than anything else she could do with the turn.
@@ -17791,6 +17799,7 @@ function gearPinsHTML(u) {
 function unitCardHTML(u) {
   return `
     <div class="unit ${unitClasses(u)}" id="u-${u.uid}" data-uid="${u.uid}" style="--d:${(-Math.random() * 2.6).toFixed(2)}s">
+      <i class="coverArrow" aria-hidden="true"></i>
       <ul class="chips"></ul>
       <div class="plate">
         ${u.watch || u.id === 'tot_shock' ? '<div class="watchdial" aria-hidden="true"><b></b></div>' : ''}
@@ -21084,6 +21093,7 @@ function renderBattle() {
     // parapet. State classes like buried above — bunkerSkill plays the slam, these hold the look.
     el.classList.toggle('bunkered', u.hp > 0 && bunkered(u));
     el.classList.toggle('lee', u.hp > 0 && !!has(u, 'sheltered'));
+    el.classList.toggle('coverCall', u.hp > 0 && bunkered(u) && coverCalls(u));   // the arrow: "you can hide in here"
     el.classList.toggle('aloft', aloft(u));   // Skyward Smash: up there, and not to be reached
     el.classList.toggle('apart', apart(u));   // Come Apart: he is not on the field to be seen or struck
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
