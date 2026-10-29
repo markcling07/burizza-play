@@ -860,16 +860,16 @@ const GORE_SPLIT_SPEED = 1.5;    // bar speed a loose half runs at
    in one place so they can be moved in the sim rather than hunted through the file. */
 const TOTEM_MAX = 2;             // stones standing at once
 const TOTEM_BLOWS = 6;           // hits any one stone takes before it breaks
-const TOTEM_TAUNT_BLOWS = 2;     // the shield-stone is deliberately brittle
-const TOTEM_MANA_STEP = 10;      // +10% to enemy mana costs per pulse
-const TOTEM_WARD_STEP = 0.06;    // -6% off enemy magic ward per pulse
-const TOTEM_HASTE_PUSH = 80;     // bar ground handed to each ally per pulse
+const TOTEM_TAUNT_BLOWS = 3;     // the shield-stone is deliberately brittle
+const TOTEM_MANA_STEP = 15;      // +15% to enemy mana costs per pulse
+const TOTEM_WARD_STEP = 0.09;    // -9% off enemy magic ward per pulse
+const TOTEM_HASTE_PUSH = 110;    // bar ground handed to each ally per pulse
 const TOTEM_SHOCK_REVS = 3;      // the storm-stone fires every third Rev
-const TOTEM_SHOCK_PCT = 0.05;    // 5% of max HP, as magic. Both cards read it off this (SHOCK_PCT_TXT)
+const TOTEM_SHOCK_PCT = 0.08;    // 8% of max HP, as magic. Both cards read it off this (SHOCK_PCT_TXT)
 const SHOCK_PCT_TXT = `${Math.round(TOTEM_SHOCK_PCT * 100)}%`;
 const RESH_MANA_SHARE = 0.30;    // the share of an ally's cost Resh carries
 const RESH_HOLD_BASE = 100;      // one round of the field clock (ROUND_TIME)
-const RESH_HOLD_PER_TOTEM = 25;  // ...plus a quarter round per stone standing
+const RESH_HOLD_PER_TOTEM = 50;  // ...plus half a round per stone standing
 const RESH_SHOCK_REVS = 2;
 const RESH_BATTERY_PCT = 0.5;
 
@@ -2015,21 +2015,21 @@ const ROSTER = [
        handing mana out a thing only he can do for free. */
     passiveAlt: P('Tap the Line', 'Whatever he mends, he also tops up: every heal of his restores 15 MP to the ally as well.', { healMp: 15 }) },
   { id: 'shazrak', name: 'Fin-Keeper Shazrak', faction: 'stray', role: 'support', bio: 'A sound-shaper who moves the war to his own time.',
-    mods: { atk: 0.9, hp: 1.0, agi: 1.1 },
+    mods: { atk: 1.05, hp: 1.0, agi: 1.1 },
     look: { body: 'wraith', main: '#2a2440', trim: '#5fcad1', eye: '#5fcad1' },
-    skills: [D('Clarion', 'Deals 110% ATK magic damage. Costs 15 MP.', 2, 1.1, { magic: true, mp: 15 }),
-             S('Mana Cairn', 'Raises a cairn. Every turn it stands, enemy spells cost another 10%. Two stones may stand; a third pulls down the oldest.', 2, 'tot_mana', { mp: 25 }),
+    skills: [D('Clarion', 'Deals 135% ATK magic damage. Costs 15 MP.', 2, 1.35, { magic: true, mp: 15 }),
+             S('Mana Cairn', `Raises a cairn. Every turn it stands, enemy spells cost another ${TOTEM_MANA_STEP}%. Two stones may stand; a third pulls down the oldest.`, 2, 'tot_mana', { mp: 25 }),
              S('Quickening Stone', 'Raises a stone that carries the whole warband forward along the speed bar every turn it stands.', 2, 'tot_haste', { mp: 25 }),
-             S('Unweaving Stone', 'Raises a stone that thins enemy magic wards by another 6% every turn it stands.', 2, 'tot_ward', { mp: 25 }),
+             S('Unweaving Stone', `Raises a stone that thins enemy magic wards by another ${Math.round(TOTEM_WARD_STEP * 100)}% every turn it stands.`, 2, 'tot_ward', { mp: 25 }),
              S('Storm Cairn', `Raises a cairn that looses a shock at the soundest enemy every third Rev, for ${SHOCK_PCT_TXT} of their health.`, 2, 'tot_shock', { mp: 30 }),
-             S('Bulwark Stone', 'Raises a brittle stone that draws every enemy blow and throws it back, split evenly among them. Two blows and it breaks.', 2, 'tot_taunt', { mp: 30 }),
-             B('Binding Chord', 'Pins an enemy for a turn, and a quarter-turn more for every stone of his standing. Shocks them while they are held. Bash, Stun or Silence on Shazrak snaps the note.', 5, 'enemy', [], { reshHold: true, mp: 35 }),
+             S('Bulwark Stone', 'Raises a brittle stone that draws every enemy blow and throws it back, split evenly among them. Three blows and it breaks.', 2, 'tot_taunt', { mp: 30 }),
+             B('Binding Chord', 'Pins an enemy for a turn, and half a turn more for every stone of his standing. Shocks them while they are held. Bash, Stun or Silence on Shazrak snaps the note.', 5, 'enemy', [], { reshHold: true, mp: 35 }),
              B('Mana Battery', 'Hands half of what Shazrak is holding to an ally.', 4, 'ally', [], { battery: true, mp: 0, aiTarget: 'lowest' }),
              /* NINE AND TEN, and the reason EXTRA_IDS grew a letter. Five of his eight were stones,
                 which left him with three things to do on a turn when two were already standing and
                 a third would only pull down the oldest. These are both things to do with the turn
                 he would otherwise spend re-raising. */
-             D('Dissonance', 'Deals 60% ATK magic damage to all enemies and tears a fifth of the mana out of each of them. Costs 30 MP.', 4, 0.6, { aoe: true, magic: true, manaBurnPct: 0.2, mp: 30 }),
+             D('Dissonance', 'Deals 75% ATK magic damage to all enemies and tears a quarter of the mana out of each of them. Costs 30 MP.', 4, 0.75, { aoe: true, magic: true, manaBurnPct: 0.25, mp: 30 }),
              B('Hold the Note', 'Holds one long note over the warband: for 3 turns no new curse takes hold on any of them. Costs 30 MP.', 5, 'allAllies', [['immune', 3]], { mp: 30 })],
     passive: P('Shared Burden', `Carries ${Math.round(RESH_MANA_SHARE * 100)}% of every ally's casting cost from his own pool; when he runs dry the caster covers the rest. +25 max MP and +3 MP every turn.`, { stat: { mp: 25, mpRegen: 3 } }),
     /* Shared Burden pays for the warband's casting; this pays for his own. Five of his skills raise
@@ -2161,7 +2161,7 @@ const riftWardCut = (side) => totemRamp(side === 'p' ? 'e' : 'p', 'tot_ward') * 
 /* A stone's turn. It does not move or swing; it simply does what it is for, and
    the two ramping kinds grow a step stronger for having stood another turn. */
 /* THE SIGNATURE — Resh pins an enemy where they stand. The hold runs one round
-   of the field clock, and a quarter-round longer for every stone of his standing:
+   of the field clock, and half a round longer for every stone of his standing:
    the more he has built, the longer he can keep someone out of the fight. It is
    HIS note holding them, so breaking him breaks it — Bash, Stun or Silence on
    Resh frees the mark early (reshHoldBreaks, called where those land). */
@@ -2400,7 +2400,7 @@ const SUMMONS = {
   // Resh's five stones. Planted things that think: they take turns (see totemPulse).
   tot_mana: {
     name: 'Mana Cairn', role: 'melee', life: null, totem: true,
-    desc: 'A humming cairn. Every turn it stands, enemy spells cost another 10%. Takes 6 blows of any size.',
+    desc: `A humming cairn. Every turn it stands, enemy spells cost another ${TOTEM_MANA_STEP}%. Takes ${TOTEM_BLOWS} blows of any size.`,
     look: { body: 'totemOwl', main: '#2b2119', trim: '#5fcad1' },
     stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 9, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); },
@@ -2418,7 +2418,7 @@ const SUMMONS = {
   },
   tot_ward: {
     name: 'Unweaving Stone', role: 'melee', life: null, totem: true,
-    desc: 'Every turn it stands, enemy magic wards thin by another 6%. Takes 6 blows of any size.',
+    desc: `Every turn it stands, enemy magic wards thin by another ${Math.round(TOTEM_WARD_STEP * 100)}%. Takes ${TOTEM_BLOWS} blows of any size.`,
     look: { body: 'totemWeave', main: '#2b2119', trim: '#b98ae6' },
     stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 9, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); },
@@ -2436,7 +2436,7 @@ const SUMMONS = {
   },
   tot_taunt: {
     name: 'Bulwark Stone', role: 'melee', life: null, totem: true, reflect: true,
-    desc: 'Draws every enemy blow and throws it back, split evenly among them. Brittle: two blows and it breaks.',
+    desc: 'Draws every enemy blow and throws it back, split evenly among them. Brittle: three blows and it breaks.',
     look: { body: 'totemBulwark', main: '#2b2119', trim: '#e8b65a' },
     stats: () => ({ maxHp: TOTEM_TAUNT_BLOWS, atk: 0, def: 0, agi: 7, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); addFx(s, 'taunt', 99, 0, true); },
