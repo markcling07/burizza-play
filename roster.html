@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Grenze+Gotisch:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* Champion roster: every champion with their skills and passive.
-   Reads ROSTER and GENERIC_PASSIVES straight out of index.html, so it is always current.
+   Reads ROSTER and GENERIC_PASSIVES straight out of game.js, so it is always current.
    Needs a local server (fetch), e.g. the same one that serves the game. */
 :root {
   --bg: #161925; --bg-2: #262036; --panel: #1e2232; --panel-2: #282d43; --line: #3a4058;
@@ -107,20 +107,21 @@ const between = (src, from, to) => { const a = src.indexOf(from), b = src.indexO
 // ...and a block that runs up to a section banner: cut back to the banner's opening comment.
 const upToBanner = (src, from, banner) => { const t = between(src, from, banner); return t.slice(0, t.lastIndexOf('/*')); };
 
-// The game's own index.html next to this page. Opened straight from disk (file://) the browser will not
+// The game's own game.js next to this page. Opened straight from disk (file://) the browser will not
 // let a page read another file, so fall back to the published game on the play site (same data as the
 // last push - local edits not yet published will not show).
-const PLAY_SITE = 'https://markcling07.github.io/burizza-play/index.html';
+const PLAY_SITE = 'https://markcling07.github.io/burizza-play/game.js';
 let fromPlaySite = false;
-const readGame = () => fetch('index.html').then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
+const readGame = () => fetch('game.js').then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
   .catch(() => fetch(PLAY_SITE).then((r) => { if (!r.ok) throw new Error(`play site ${r.status}`); fromPlaySite = true; return r.text(); }));
 
 readGame().then((src) => {
   src = src.replace(/\r\n/g, '\n');
+  // FACTIONS goes first: its span declares HIDDEN_FACTIONS, which PLAY_ROSTER in the roster span reads at once.
   const data = new Function(
-    `${between(src, 'const CRIMSON_MEND_PCT', 'const BLOOD_COST')}
+    `${between(src, 'const FACTIONS = {', 'const FACTION_KEYS')}
+     ${between(src, 'const CRIMSON_MEND_PCT', 'const BLOOD_COST')}
      ${between(src, 'const D = (', 'const ATTACK =')}
-     ${between(src, 'const FACTIONS = {', 'const FACTION_KEYS')}
      ${between(src, 'const NEUTRAL_SKILLS = {', 'const NEUTRAL_KEYS')}
      ${between(src, 'const GENERIC_PASSIVES = {', 'const GENERIC_KEYS')}
      ${between(src, 'const STEEL =', 'const ART_EXT')}
@@ -198,7 +199,7 @@ readGame().then((src) => {
     + `<section id="f-dungeon" style="--acc:#9fc6ff"><header><h2>Underground</h2><p>No weather reaches below ground. A dungeon's condition holds for the whole run; Castle Harrowgate's rooms each keep their own hazard.</p></header>
        <div class="wx">${conds}</div></section>`;
 }).catch((e) => {
-  document.getElementById('out').innerHTML = `<p class="err">Could not read the roster from index.html (${esc(e.message)}). Open this page through the game's local server, or connect to the internet to read the published roster.</p>`;
+  document.getElementById('out').innerHTML = `<p class="err">Could not read the roster from game.js (${esc(e.message)}). Open this page through the game's local server, or connect to the internet to read the published roster.</p>`;
 });
 </script>
 </body>

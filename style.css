@@ -623,6 +623,26 @@ body.noHud .screen { gap: 0; }
 }
 .tok.p { top: 0; }
 .tok.e { bottom: 0; }
+/* QUICKENING STONE'S PULSE on the bar (quickeningSurge). The stone's token flares blue-white, and
+   every token it shoved slides up the bar with a slipstream behind it. The streak is exactly as long
+   as the ground gained (--qlen), so the push reads as distance covered, not as generic sparkle.
+   Trail BEFORE the flee rules: both draw on .tok::after, and a token knocked back in the same breath
+   should show its fright, not the decoration — later source order lets flee win the pseudo. */
+.tok.qflare .face { border-color: #8fd2ff; box-shadow: 0 0 10px #8fd2ff; }
+.tok.qflare::before {
+  content: ''; position: absolute; inset: -8px; border-radius: 50%; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle, rgba(214, 240, 255, .9) 0 28%, rgba(111, 179, 255, .4) 58%, transparent 75%);
+  animation: qflare .9s ease-out forwards;
+}
+@keyframes qflare { 0% { opacity: 0; transform: scale(.4); } 25% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: scale(1.4); } }
+.tok.qtrail::after {
+  content: ''; position: absolute; right: 50%; top: 50%; width: var(--qlen, 48px); height: 9px;
+  transform: translateY(-50%); z-index: -1; pointer-events: none; border-radius: 5px;
+  background: linear-gradient(90deg, transparent, rgba(143, 210, 255, .2) 35%, rgba(143, 210, 255, .8) 85%, #e8f7ff);
+  filter: drop-shadow(0 0 5px #8fd2ff);
+  animation: qtrail var(--qdur, 900ms) linear forwards;
+}
+@keyframes qtrail { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
 /* Knocked back (renderTrack, FLEE_MS): faces the other way, bobs as it runs, and shows its fright. */
 .tok.flee .face { animation: tokFlee .9s ease-out; }
 .tok.flee::after { content: '😱'; position: absolute; left: 50%; top: -15px; translate: -50% 0; font-size: 15px; line-height: 1; pointer-events: none; animation: tokFright .9s ease-out forwards; }
@@ -1335,6 +1355,42 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   transform-origin: bottom center; transform: scaleY(0); opacity: 0; transition: transform .45s ease-out .25s, opacity .3s ease .25s; }
 .unit.buried .body > .mound { transform: none; opacity: 1; filter: drop-shadow(0 0 6px rgba(126, 230, 150, .3)) drop-shadow(0 3px 3px rgba(0, 0, 0, .5)); }
 .unit.buried .plate, .unit.buried .chips { position: relative; z-index: 4; opacity: .8; }
+/* THE BUNKER (bunkerSkill / .unit.bunkered): Bulwark-7's anchor rig deploys — side plates drop in,
+   four pitons punch into the ground one after another, and the powered rail along the base breathes
+   amber for as long as the anchors hold. The entry runs off the class landing, so it plays once when
+   the state begins and never restarts on a re-render; leaving the state fades the rig out on the
+   opacity transition (every exit shares it: stood up, stepped out, broken open, expired). */
+.body > .anchors { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; opacity: 0; }
+/* VISIBILITY IS A PLAIN FLIP — no transition and no animation ever touches the rig's own opacity.
+   Both were tried and both have the same failure: their clock is the document timeline, and in a
+   frame that has never painted (the Skill Lab's stage loads hidden) that timeline sits at zero —
+   a running transition holds its FROM value over even an inline style, and a backwards-filled
+   animation holds its first frame. Either way the rig stays invisible while the state says
+   bunkered. So the state sets the value outright, and the entry flourish lives on the CHILDREN,
+   moving only TRANSFORMS: frozen at frame zero they stand a few pixels adrift — never unseen. */
+.unit.bunkered .body > .anchors { opacity: 1; }
+.unit.bunkered .upic { filter: saturate(.8) brightness(.9); }   /* powered down into a wall: holding, not fighting */
+.unit.bunkered .anchors .pl { animation: bkrPlate .4s cubic-bezier(.2, .8, .3, 1.15) backwards; }
+.unit.bunkered .anchors .plR { animation-delay: .07s; }
+.unit.bunkered .anchors .sp { animation: bkrSpike .22s cubic-bezier(.5, 0, 1, .4) backwards; }
+.unit.bunkered .anchors .s2 { animation-delay: .1s; } .unit.bunkered .anchors .s3 { animation-delay: .17s; } .unit.bunkered .anchors .s4 { animation-delay: .24s; }
+.unit.bunkered .anchors .core { animation: bkrCore 2.4s ease-in-out .5s infinite; }
+@keyframes bkrPlate { from { transform: translateY(-14px); } }   /* transforms only: see the note on .anchors */
+@keyframes bkrSpike { from { transform: translateY(-11px); } }
+@keyframes bkrCore { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }   /* frozen at frame zero it idles at .5 — lit either way */
+/* THE LEE (.unit.lee): the sheltered ally ducks in place behind a parapet of the bunker's own steel.
+   The crouch rides the shared .upic transition (translate/scale, like aloft and buried); the parapet
+   rises on its own short transition in front of the sprite. */
+.body > .shelter { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 4; opacity: 0; }
+.unit.lee .body > .shelter { opacity: 1; }   /* the same plain flip as .anchors above */
+.unit.lee .body > .shelter > * { animation: shelterUp .3s ease-out backwards; }   /* transforms only, on the children */
+@keyframes shelterUp { from { transform: translateY(9px); } }
+.unit.lee .upic { translate: 0 6%; scale: .95; filter: brightness(.88); }
+.unit.lee .plate, .unit.lee .chips { opacity: .85; }
+@media (prefers-reduced-motion: reduce) {
+  .unit.bunkered .anchors .pl, .unit.bunkered .anchors .sp, .unit.bunkered .anchors .core,
+  .unit.lee .body > .shelter > * { animation: none; }
+}
 /* THE GRAVEYARD FENCE (Barrow's Obstacle): a row of iron railings with spear tops rises before
    the protected unit, on the side it faces its enemies, lit the Pale Host's grave-green. It is
    scenery, not a unit — pointer-events stay off so clicks fall through to the figure behind it. */
@@ -1864,6 +1920,24 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .burst-flash { width: 130%; background: radial-gradient(circle, #fff 0 20%, rgba(255, 255, 240, .7) 40%, transparent 66%); animation-duration: .45s; }
 .bolt { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 250; pointer-events: none; overflow: visible; }
 .bolt polyline { fill: none; stroke: #eaf8ff; stroke-width: 3; stroke-linejoin: round; filter: drop-shadow(0 0 6px #7fe3ff); }
+/* The Storm Cairn's shock (cairnBolt()): a heavy bolt thrown from the stone's lit crown to the enemy
+   it marks. Three layers deep where the plain bolt above is one thin line — the cairn fires on nobody's
+   turn, with no wind-up and no weapon to read, so the bolt itself has to carry the whole beat. */
+.bolt.storm polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; filter: none; }
+.bolt.storm .sb-glow { stroke: #2d8fe0; stroke-width: 12; opacity: .45; filter: blur(5px); }
+.bolt.storm .sb-body { stroke: #8fd2ff; stroke-width: 4.5; }
+.bolt.storm .sb-core { stroke: #fbfeff; stroke-width: 1.8; filter: drop-shadow(0 0 7px #8fd2ff); }
+.bolt.storm .sb-fork { stroke: #cdeeff; stroke-width: 2.2; opacity: .85; filter: drop-shadow(0 0 5px #7fe3ff); }
+.bolt.storm .sb-crown { fill: rgba(190, 232, 255, .5); filter: blur(4px) drop-shadow(0 0 16px #8fd2ff); }
+/* The third strike — the one the damage rides in on — comes in heavier than the two that led it. */
+.bolt.storm.hard .sb-glow { stroke-width: 16; opacity: .55; }
+.bolt.storm.hard .sb-body { stroke-width: 6; }
+.bolt.storm.hard .sb-core { stroke-width: 2.4; }
+/* Thunder you can see: the arena lit blue-white from wherever the bolt came down. */
+.stormflash {
+  position: absolute; inset: 0; z-index: 249; pointer-events: none;
+  background: radial-gradient(circle at var(--fx) var(--fy), rgba(214, 240, 255, .55) 0 14%, rgba(110, 186, 255, .22) 40%, transparent 72%);
+}
 /* Maren's Backwash: a surging water beam from her to the enemy who used a skill (backwash()). */
 .bolt.backwash polyline { stroke-linecap: round; filter: none; }
 .bolt.backwash .bw-glow { stroke: #3fb6d8; stroke-width: 9; opacity: .45; filter: blur(3px); }
@@ -2575,7 +2649,19 @@ svg.art .spentblade { opacity: 0; }
    would be locked out of the game with no way back.
    ================================================================ */
 #rotateGate { display: none; }
-@media (orientation: portrait) and (max-width: 700px) and (pointer: coarse) {
+/* THE GATE IS OFF. Asked for on 2026-10-21: no card, no blocker — a phone held upright plays the
+   portrait layout like any other size. The rules below are kept rather than deleted because they
+   carry something expensive to re-learn (see the block above): the FIRST version of this gate was
+   removed for crashing iOS Safari, and the reason was `visibility: hidden`, which hides pixels and
+   frees nothing — boxes still laid out, layers still rasterised, every animation still compositing
+   behind the cover. `display: none` is what actually tears the subtree down, measured at 3459
+   rendered elements to 0 and 175 running animations to 26.
+
+   WHICH MATTERS MORE NOW THAN IT DID, because with the gate off an upright phone renders the whole
+   game again — exactly the load that was suspected of killing the tab. If portrait turns out to
+   crash, this is the switch: put `and (pointer: coarse)` back on the line below and it returns,
+   already fixed. Nothing else needs changing. */
+@media (orientation: portrait) and (max-width: 700px) and (pointer: coarse) and (min-width: 99999px) {
   .wrap, #overlay { display: none !important; }
   #rotateGate {
     display: flex; position: fixed; inset: 0; z-index: 9000;
@@ -2792,14 +2878,22 @@ svg.art .spentblade { opacity: 0; }
      so the bar would sit in a slightly different place for each one. */
   .deck > .dhead { position: absolute; left: 0; bottom: 0; }
   .deck > .deckTop { flex: 1; min-width: 0; }
-  /* ...but only while there is room for it. With the log OPEN the field is
-     500px, and the name block plus a full fourteen tiles want 519 of the 484
-     going — so the centred row reaches back under the name and the two print
-     on top of each other. The name is what gives way: whose turn it is already
-     reads from the starred, lit plate on the field, and the satchel hint only
-     repeats what the item tiles are showing anyway. The log starts closed now,
-     so this is the rarer of the two layouts, and the wide one keeps the name. */
-  body:not(.logHidden) .deck > .dhead { display: none; }
+  /* ...except there is never reliably room, so while there are tiles it simply goes.
+     This was once "hide it only when the log is open", on the arithmetic that a 500px
+     field could not hold the name plus fourteen tiles while a wider one could. The
+     log-closed layout is not actually safe either: a long champion name reaches back
+     under the centred row and prints on top of the skills — worst with a renamed
+     champion, where the name is shown TWICE ("Fin-Keeper Shazrak · Fin"). Reported
+     from play 2026-10-22: the name was covering the tiles.
+
+     Nothing is lost with it. Whose turn it is reads from the starred, lit plate on
+     the field, and the satchel hint only repeats what the item tiles already show.
+     The ONE thing this block says that nothing else does is "Get ready" before the
+     race and "Victory"/"Defeated" after it — and renderDeck empties #acts for exactly
+     those states, so keying on that gives the name back precisely when there are no
+     tiles for it to cover. */
+  .deck > .dhead { display: none; }
+  .deck:has(#acts:empty) > .dhead { display: grid; }
   /* A scrim, because the tiles are translucent and the fields are not all dark
      — over the lit brown of the Ashlands road they washed out to the point of
      being hard to read. A gradient that fades to nothing upward gives them

@@ -865,7 +865,8 @@ const TOTEM_MANA_STEP = 10;      // +10% to enemy mana costs per pulse
 const TOTEM_WARD_STEP = 0.06;    // -6% off enemy magic ward per pulse
 const TOTEM_HASTE_PUSH = 80;     // bar ground handed to each ally per pulse
 const TOTEM_SHOCK_REVS = 3;      // the storm-stone fires every third Rev
-const TOTEM_SHOCK_PCT = 0.02;    // 2% of max HP, as magic
+const TOTEM_SHOCK_PCT = 0.05;    // 5% of max HP, as magic. Both cards read it off this (SHOCK_PCT_TXT)
+const SHOCK_PCT_TXT = `${Math.round(TOTEM_SHOCK_PCT * 100)}%`;
 const RESH_MANA_SHARE = 0.30;    // the share of an ally's cost Resh carries
 const RESH_HOLD_BASE = 100;      // one round of the field clock (ROUND_TIME)
 const RESH_HOLD_PER_TOTEM = 25;  // ...plus a quarter round per stone standing
@@ -2020,7 +2021,7 @@ const ROSTER = [
              S('Mana Cairn', 'Raises a cairn. Every turn it stands, enemy spells cost another 10%. Two stones may stand; a third pulls down the oldest.', 3, 'tot_mana', { mp: 25 }),
              S('Quickening Stone', 'Raises a stone that carries the whole warband forward along the speed bar every turn it stands.', 3, 'tot_haste', { mp: 25 }),
              S('Unweaving Stone', 'Raises a stone that thins enemy magic wards by another 6% every turn it stands.', 3, 'tot_ward', { mp: 25 }),
-             S('Storm Cairn', 'Raises a cairn that looses a shock at the soundest enemy every third Rev, for 2% of their health.', 4, 'tot_shock', { mp: 30 }),
+             S('Storm Cairn', `Raises a cairn that looses a shock at the soundest enemy every third Rev, for ${SHOCK_PCT_TXT} of their health.`, 4, 'tot_shock', { mp: 30 }),
              S('Bulwark Stone', 'Raises a brittle stone that draws every enemy blow and throws it back, split evenly among them. Two blows and it breaks.', 4, 'tot_taunt', { mp: 30 }),
              B('Binding Chord', 'Pins an enemy for a turn, and a quarter-turn more for every stone of his standing. Shocks them while they are held. Bash, Stun or Silence on Shazrak snaps the note.', 5, 'enemy', [], { reshHold: true, mp: 35 }),
              B('Mana Battery', 'Hands half of what Shazrak is holding to an ally.', 4, 'ally', [], { battery: true, mp: 0, aiTarget: 'lowest' }),
@@ -2207,9 +2208,11 @@ function reshHoldBreaks(u) {
   }
 }
 
+/* A standing stone's turn. The ramping stones (mana, ward) and the bar-pusher (haste) do their work
+   here, once per turn OF THEIR OWN, which is what "every turn it stands" means on their cards.
+   The Storm Cairn is NOT here: its card says "every third Rev", and a Rev is any unit's turn-start,
+   so it fires off the field's global clock in turnPulse instead. It simply stands on its own turn. */
 async function totemPulse(u) {
-  const def = SUMMONS[u.id];
-  const foes = state.teams[u.side === 'p' ? 'e' : 'p'].filter((x) => alive(x) && !x.inert);
   const kin = state.teams[u.side].filter((x) => alive(x) && !x.summon);
   if (u.id === 'tot_mana' || u.id === 'tot_ward') {
     u.stacks = (u.stacks || 0) + 1;
@@ -2219,21 +2222,36 @@ async function totemPulse(u) {
     for (const a of kin) a.pos = (a.pos || 0) + TOTEM_HASTE_PUSH;   // higher pos = nearer its turn
     float(u, 'Quickened', 'good');
     log(`${u.name} quickens the warband along the bar.`, u.side);
-  } else if (u.id === 'tot_shock') {
-    u.stacks = (u.stacks || 0) + 1;
-    if (u.stacks % TOTEM_SHOCK_REVS === 0) {
-      const mark = foes.slice().sort((a, b) => b.hp - a.hp)[0];
-      if (mark) {
-        const dmg = Math.max(1, Math.round(mark.maxHp * TOTEM_SHOCK_PCT));
-        mark.hp -= dmg;
-        float(mark, `${dmg}`, 'hit');
-        burst(mark, 'spark');
-        log(`${u.name} looses a shock at ${mark.name} for ${dmg}.`, u.side);
-      }
-    }
   }
   render();
+  /* The flare and the slipstream slide, on the bar where the push lives. AFTER render(): its
+     renderTrack(300) writes --dur in the same tick, and the transition starts on the style flush
+     with whichever write came last — surge first meant the slide ran at render()'s 300ms and the
+     trail outlived it. Same-tick ordering, so nothing ever paints the 300. */
+  if (u.id === 'tot_haste') quickeningSurge(u, kin);
   await wait(320);
+}
+
+/* THE STORM CAIRN'S SHOCK. Driven from turnPulse on the field's global clock, so "the soundest
+   enemy" is read fresh at the moment it fires — a stone that gets three shots inside one round can
+   walk down three different bodies as the HP order changes under it.
+   It can kill now, where before it fired too rarely to ever be the last hit, so it closes the
+   account itself: nothing in the engine sweeps a unit at 0 HP, fell() is always called by whatever
+   took it there (see jellyShock, which does the same). */
+async function cairnShock(u) {
+  const foes = state.teams[u.side === 'p' ? 'e' : 'p'].filter((x) => alive(x) && !x.inert);
+  const mark = foes.slice().sort((a, b) => b.hp - a.hp)[0];
+  if (!mark) return;
+  const dmg = Math.max(1, Math.round(mark.maxHp * TOTEM_SHOCK_PCT));
+  // The bolt flies first and the hurt lands under it. The other order reads as damage
+  // with a light show after it, which is a different sentence.
+  await cairnBolt(u, mark);
+  mark.hp = Math.max(0, mark.hp - dmg);
+  float(mark, `⚡ ${dmg}`, 'hit');
+  bump(mark, 'hurt');
+  burst(mark, 'shock');
+  log(`${u.name} looses a shock at ${mark.name} for ${dmg}.`, u.side);
+  if (mark.hp <= 0) fell(mark, u);
 }
 
 /* The shield-stone eats a blow for the warband and passes the hurt on: whatever
@@ -2409,7 +2427,7 @@ const SUMMONS = {
   },
   tot_shock: {
     name: 'Storm Cairn', role: 'melee', life: null, totem: true,
-    desc: 'Every third Rev it looses a shock at the soundest enemy for 2% of their health. Takes 6 blows of any size.',
+    desc: `Every third Rev it looses a shock at the soundest enemy for ${SHOCK_PCT_TXT} of their health. Takes 6 blows of any size.`,
     look: { body: 'totemStorm', main: '#2b2119', trim: '#8fd2ff' },
     stats: () => ({ maxHp: TOTEM_BLOWS, atk: 0, def: 0, agi: 11, crit: 0, dodge: 0 }),
     onSpawn: (s) => { countBlows(s); },
@@ -5103,10 +5121,16 @@ function loadoutFor(c, lv) {
   if (!saved && !isHeroId(c.id)) return autoLoadout(c, lv);
   const base = saved || autoLoadout(c, lv);
   const keep = (ids, known) => ids.filter((id) => known(id) && canCarry(c, id));
-  return {
-    act: keep(base.act, (id) => activeIdsOf(c).includes(id) || NEUTRAL_SKILLS[id]).slice(0, activeSlots(lv)),
-    pas: keep(base.pas, (id) => !!passiveById(c, id)).slice(0, passiveSlots(lv)),
-  };
+  const act = keep(base.act, (id) => activeIdsOf(c).includes(id) || NEUTRAL_SKILLS[id]).slice(0, activeSlots(lv));
+  const pas = keep(base.pas, (id) => !!passiveById(c, id)).slice(0, passiveSlots(lv));
+  /* THE FLOOR. A saved loadout that filters down to NOTHING means it was written for a different
+     champion than the one standing here — the hero slot is a single store (savedLoadoutOf), so a
+     retire-and-recreate used to carry the old hero's picks onto the new one. When none of them fit,
+     the champion walked in with only Attack and Guard. A champion always brings at least their own
+     kit, so an empty result falls back to the auto-pick. This also HEALS saves already corrupted on
+     disk: the floor runs every time the loadout is read, so a bad save is right on its next load. */
+  const floor = (act.length && pas.length) ? null : autoLoadout(c, lv);
+  return { act: act.length ? act : floor.act, pas: pas.length ? pas : floor.pas };
 }
 const heroLoadout = (c, lv) => loadoutFor(c, lv);
 
@@ -7468,7 +7492,12 @@ function leaveBunker(host, why) {
     ally.bunkerHost = null;
     float(ally, 'Out of cover', 'fx');
   }
-  host.effects = host.effects.filter((e) => e.id !== 'bunker');
+  /* The taunt goes WITH the anchors, on every exit. The comment on bunkerSkill promises it — "a
+     taunt outliving the plating would leave Bulwark holding every eye on the field with none of the
+     armour that made that a good idea" — and natural expiry keeps that promise only by accident, the
+     two clocks ticking out side by side. Stand Up was the path where they parted: the plating gone,
+     the taunt still up, every enemy still obliged to swing at a machine no longer built to take it. */
+  host.effects = host.effects.filter((e) => e.id !== 'bunker' && e.id !== 'taunt');
   host.bunkerOpen = false;
   const line = why === 'dead' ? `${host.name} is broken open, and the cover with it.`
     : why === 'stood' ? `${host.name} unlocks its anchors and stands up.`
@@ -7480,6 +7509,20 @@ function leaveBunker(host, why) {
 /* Bulwark anchors, and the chosen ally steps into the lee. */
 async function bunkerSkill(u, t) {
   await castPose(u);
+  /* THE SLAM. The machine heaves up off its pistons and comes down HARD — the ground answers
+     (tremor, dust) at the moment of impact, not at the end of the clip, and the anchor rig itself
+     deploys off the render() below, where the bunkered class lands (see .unit.bunkered). */
+  const slam = pose(u, [
+    { transform: 'none' },
+    { transform: 'translateY(-7px) scaleY(1.04)', offset: 0.42, easing: 'cubic-bezier(.3,0,.7,1)' },
+    { transform: 'translateY(2px) scaleY(.93) scaleX(1.07)', offset: 0.62, easing: 'cubic-bezier(.6,0,1,.4)' },
+    { transform: 'none' },
+  ], 520);
+  await wait(320);   // the frame hits the dirt here
+  tremorFx(300);
+  burst(u, 'smoke');
+  burst(u, 'roar');   // ...and the roar for every eye on the field is a thing you can see
+  if (slam) await done(slam, beat(520));
   burst(u, 'shield');
   addFx(u, 'bunker', BUNKER_TURNS);
   /* The taunt is inherited from the Bunker Down this skill replaced, and it is
@@ -7791,7 +7834,16 @@ async function doAction(u, sk, t) {
     await wait(360);
   }
   else if (sk.kind === 'bunker') await bunkerSkill(u, t);
-  else if (sk.kind === 'standup') { await castPose(u); leaveBunker(u, 'stood'); render(); await wait(360); }
+  else if (sk.kind === 'standup') {
+    await castPose(u);
+    // The reverse of the slam: the machine pushes up off the anchors and shakes the dust off.
+    // The rig itself fades on the .anchors opacity transition once render() drops the class.
+    pose(u, [{ transform: 'translateY(2px) scaleY(.95)' }, { transform: 'translateY(-4px) scaleY(1.03)', offset: 0.55 }, { transform: 'none' }], 380);
+    burst(u, 'smoke');
+    leaveBunker(u, 'stood');
+    render();
+    await wait(420);
+  }
   // Stepping out is the ally's own door; the machine stays anchored behind them.
   else if (sk.kind === 'stepout') {
     const host = bunkerHostOf(u);
@@ -8465,6 +8517,44 @@ const COFFIN_ART = `<ellipse cx="50" cy="94" rx="22" ry="4.2" fill="#000" opacit
   <path d="M33 79 H67" stroke="#5d6975" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
   <path d="M50 40 V68 M40 50 H60" stroke="#7ee696" stroke-width="3.6" stroke-linecap="round" opacity=".92"/>
   <path d="M37 14 L63 14 L75 34 L59 94 L41 94 L25 34 Z" fill="none" stroke="#7ee696" stroke-width="1" opacity=".3"/>`;
+
+/* THE BUNKER'S ANCHOR RIG (.anchors, shown by .unit.bunkered). Bulwark-7 anchored: splayed side
+   plates braced to the ground, four pitons driven in along the base, and a powered amber rail lit
+   between them — his own steel (#7d8aa3 / #f0a73a), so the rig reads as part of the machine and not
+   as a buff drawn on him. Symmetric on purpose: enemy units mirror their sprites, and a one-sided
+   rig would brace the wrong way on that side. The classes (.pl/.plR, .sp .s1–.s4, .core) are what
+   the CSS staggers when the state lands. */
+const ANCHOR_ART = `<ellipse cx="50" cy="94" rx="40" ry="6" fill="#000" opacity=".38"/>
+  <g class="pl plL">
+    <path d="M23 56 L35 61 L35 92 L17 92 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M22 66 L35 69 M20 78 L35 80" stroke="#434c5e" stroke-width="1.6"/>
+    <circle cx="26" cy="72" r="1.4" fill="#f0a73a"/><circle cx="25" cy="85" r="1.4" fill="#f0a73a"/>
+  </g>
+  <g class="pl plR">
+    <path d="M77 56 L65 61 L65 92 L83 92 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M78 66 L65 69 M80 78 L65 80" stroke="#434c5e" stroke-width="1.6"/>
+    <circle cx="74" cy="72" r="1.4" fill="#f0a73a"/><circle cx="75" cy="85" r="1.4" fill="#f0a73a"/>
+  </g>
+  <g class="sp s1"><rect x="29.4" y="83.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M30 86 h5 l-2.5 11 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s2"><rect x="41.9" y="85.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M42.5 88 h5 l-2.5 10 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s3"><rect x="53.9" y="85.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M54.5 88 h5 l-2.5 10 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s4"><rect x="66.4" y="83.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M67 86 h5 l-2.5 11 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="core">
+    <path d="M19 92 H81" stroke="#f0a73a" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>
+    <circle cx="50" cy="92" r="2.6" fill="#ffd28a"/>
+  </g>`;
+
+/* THE LEE (.shelter, shown by .unit.lee). The ally sent behind the bunker ducks in place behind a
+   plated parapet raised in FRONT of them (z above the sprite), in the bunker's steel and amber so
+   the two read as one work. In place rather than walked across the field: the sheltered champion
+   still owns their tile, their chips and their turn — the parapet plus the crouch (.unit.lee .upic)
+   says "unreachable" without moving a unit the layout still has to account for. */
+const SHELTER_ART = `<ellipse cx="50" cy="96" rx="36" ry="4.5" fill="#000" opacity=".35"/>
+  <path d="M15 96 L15 58 Q50 50 85 58 L85 96 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M15 68 Q50 60 85 68 M15 78 Q50 71 85 78 M15 88 Q50 82 85 88" fill="none" stroke="#434c5e" stroke-width="2"/>
+  <path d="M15 58 Q50 50 85 58" fill="none" stroke="#f0a73a" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M26 60 V96 M50 55 V96 M74 60 V96" stroke="#434c5e" stroke-width="1.6" opacity=".7"/>
+  <g fill="#f0a73a"><circle cx="32" cy="72" r="1.3"/><circle cx="50" cy="66" r="1.3"/><circle cx="68" cy="72" r="1.3"/><circle cx="38" cy="84" r="1.2"/><circle cx="62" cy="84" r="1.2"/></g>`;
 
 async function hurlCross(u, t, i, sk) {
   await strikePose(u, false, sk);   // he lifts his cross to the sky and calls the next one down
@@ -9504,6 +9594,19 @@ async function turnPulse() {
     jellyShock(a, host);
     render();
     await wait(240);
+    if (checkEnd()) return true;
+  }
+  /* Storm Cairn (Shazrak): every third Rev it looses a shock at the soundest enemy. Counted HERE,
+     on the field's clock, and not in totemPulse — a Rev is any unit's turn-start, where totemPulse
+     only runs when the stone itself comes up the bar. Counting it there made it every third turn
+     OF ITS OWN, roughly one shock per three rounds, and the stone takes six blows: it was dying
+     with its card's promise unkept more often than it ever fired. */
+  for (const c of allUnits()) {
+    if (c.id !== 'tot_shock' || c.hp <= 0) continue;
+    c.stacks = (c.stacks || 0) + 1;
+    if (c.stacks % TOTEM_SHOCK_REVS !== 0) continue;
+    await cairnShock(c);
+    render();
     if (checkEnd()) return true;
   }
   // Timed attachments (spawned with opts.life): count down one Rev each, and fall away when spent.
@@ -13690,6 +13793,10 @@ function buildSelect() {
       profile.hero = { id: t[0], name };
       profile.level = START_LEVEL;
       profile.xp = 0;
+      // A fresh champion auto-picks their own kit. profile.loadout is a single store tied to whoever
+      // the hero IS, so it must not carry a retired champion's picks onto the new one (loadoutFor
+      // would strip the ones that don't fit — sometimes all of them). null = auto-pick from scratch.
+      profile.loadout = null;
     }
     profile.recruits = t.slice(1);
     grandfatherTraining();
@@ -17050,6 +17157,18 @@ function townPlaces() {
 // Seeded random numbers so the forest grows the same way on every visit.
 function seeded(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
 
+const BAND_PAD = 6;   // map units kept around a band's art: its 1.6 stroke, with room to spare
+// Shrink a depth band to its art: iOS gives every layer over an animated townie its own GPU surface, and full-map ones crashed Safari.
+function cropBand(l) {
+  const b = l.firstElementChild.getBBox();
+  if (!b.width || !b.height) return;
+  const [x, y, w, h] = [b.x - BAND_PAD, b.y - BAND_PAD, b.width + 2 * BAND_PAD, b.height + 2 * BAND_PAD].map((n) => Math.round(n * 10) / 10);
+  const pct = (f) => `${(f * 100).toFixed(4)}%`;
+  l.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+  l.setAttribute('preserveAspectRatio', 'none');
+  Object.assign(l.style, { left: pct(x / MAP_W), top: pct(y / MAP_H), width: pct(w / MAP_W), height: pct(h / MAP_H) });
+}
+
 function buildTownMap() {
   const svg = $('#townMap');
   LIGHTS = [];
@@ -17087,11 +17206,19 @@ function buildTownMap() {
     [[21, 21], [21, 6.5], 1.8], [[21, 28.5], [9, 28.5], 1.8], [[31, 21.5], [31, 17], 1.4], [[12, 28.5], [12, 39.5], 1.4], [[12, 39.5], [10.6, 43.5], 1.2], [[10.6, 43.5], [12, 47], 1.2],
     [[21, 9], [17.5, 9], 1.4], [[33.4, 21.5], [33.4, 24], 1.2], [[22.1, 40.7], [27.2, 40.7], 1.3], [[21, 30], [27.5, 33.5], 1.4],
   ];
-  for (const [a, b, w] of ROADS) ground += road(a, b, w + .4, '#5e4c38') + road(a, b, w, roadCol);
+  /* TWO PASSES: every border first, then every fill. Drawn pairwise (border, fill, border, fill…),
+     each later road's dark border printed straight across the fills of the roads before it, so every
+     junction wore a dark bar — measured at 127,107,81 against the road's 160,138,106 before this.
+     With all the fills painted after all the borders, a crossing is just more road. The two bend
+     discs on the cave trail ride along in both passes for the same reason: a fill disc alone patched
+     the elbow's surface but left its border notched. */
+  for (const [a, b, w] of ROADS) ground += road(a, b, w + .4, '#5e4c38');
+  ground += disc(12, 39.5, .9, '#5e4c38', 0, NS) + disc(10.6, 43.5, .8, '#5e4c38', 0, NS);
+  for (const [a, b, w] of ROADS) ground += road(a, b, w, roadCol);
+  ground += disc(12, 39.5, .7, roadCol, 0, NS) + disc(10.6, 43.5, .6, roadCol, 0, NS);   // the trail's bends out to the cave
   ground += disc(21, 21, 4.3, '#5e4c38', 0, NS) + disc(21, 21, 4, '#8f7d68', 0, NS)
     + disc(21, 21, 3.1, 'none', 0, ' stroke="#6e5e4c" stroke-width="3" stroke-dasharray="16 9"')
     + disc(21, 21, 2.1, 'none', 0, ' stroke="#6e5e4c" stroke-width="3" stroke-dasharray="12 8"');
-  ground += disc(12, 39.5, .6, roadCol, 0, NS) + disc(10.6, 43.5, .6, roadCol, 0, NS);   // the trail's bends out to the cave
 
   // The square's bonfire.
   {
@@ -17191,8 +17318,15 @@ function buildTownMap() {
   svg.innerHTML = `${back}${ground}${G(items.filter(([depth]) => depth < 0).map((i) => i[1]).join(''))}`;
   document.querySelectorAll('#townView > .tLayer').forEach((l) => l.remove());
   const layer = (z, inner, more = '') => `<svg class="townMap tLayer" viewBox="0 0 ${MAP_W} ${MAP_H}" style="z-index:${z}"${more}>${inner}</svg>`;
-  svg.insertAdjacentHTML('afterend', [...bands].map(([k, art]) => layer(10 + k, G(art))).join('')
-    + layer(9000, nightLayer(), ' aria-hidden="true"'));
+  // Measured in an off-screen probe: at boot the village is display:none, where getBBox() reads zero.
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:fixed;left:0;top:0;width:${MAP_W}px;height:${MAP_H}px;visibility:hidden;overflow:hidden;pointer-events:none`;
+  probe.innerHTML = [...bands].map(([k, art]) => layer(10 + k, G(art))).join('');
+  document.body.append(probe);
+  for (const l of probe.children) cropBand(l);
+  probe.insertAdjacentHTML('beforeend', layer(9000, nightLayer(), ' aria-hidden="true"'));
+  svg.after(...probe.children);
+  probe.remove();
 }
 // Night falls over Cinderhold: a dark veil over the whole map (and the people on it) with a soft hole cut around every light,
 // then a warm pool of light where each one falls. Every nameboard registers a light, so names stay readable.
@@ -17200,13 +17334,20 @@ function buildTownMap() {
 const NIGHT = { color: '#0b0a1f', depth: .5 };
 function nightLayer() {
   const holes = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r)}" fill="url(#nightHole)" opacity="${l.a}"/>`).join('');
-  const pools = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r * .75)}" fill="url(#warmPool)" opacity="${(l.a * .45).toFixed(2)}"/>`).join('');
+  /* The pools composite PLAINLY — no mix-blend-mode: screen. The blend looked a touch more luminous,
+     but a blended group over this many stacked svg layers came up as GARBAGE on first paint — giant
+     pale road-angled slabs across the sky and forest ("overlapping stuff", reported from play
+     2026-10-22). Any repaint healed it (toggling the group off and on cleared the slabs with nothing
+     else changed), which marks it as a compositor first-paint artifact rather than geometry: all 104
+     lights measured sane (r 64–260, every one inside the map). Plain alpha at .55 instead of blended
+     .45 keeps the warmth, and draws the same on every load. */
+  const pools = LIGHTS.map((l) => `<circle cx="${n1(l.x)}" cy="${n1(l.y)}" r="${n1(l.r * .75)}" fill="url(#warmPool)" opacity="${(l.a * .55).toFixed(2)}"/>`).join('');
   return `<defs>
       <radialGradient id="nightHole"><stop offset="0" stop-color="#000"/><stop offset=".45" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
       <radialGradient id="warmPool"><stop offset="0" stop-color="#ffb35c" stop-opacity=".6"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
       <mask id="nightMask" maskUnits="userSpaceOnUse" x="0" y="0" width="${MAP_W}" height="${MAP_H}"><rect width="${MAP_W}" height="${MAP_H}" fill="#fff"/>${holes}</mask>
     </defs>
-    <g class="night" pointer-events="none"><rect width="${MAP_W}" height="${MAP_H}" fill="${NIGHT.color}" opacity="${NIGHT.depth}" mask="url(#nightMask)"/><g style="mix-blend-mode:screen">${pools}</g></g>`;
+    <g class="night" pointer-events="none"><rect width="${MAP_W}" height="${MAP_H}" fill="${NIGHT.color}" opacity="${NIGHT.depth}" mask="url(#nightMask)"/><g>${pools}</g></g>`;
 }
 const TOWN_LABELS = {
   arena: 'The Arena: fight the gauntlet', elder: "Elder's Hut: lore and rules", carnival: 'Carnival: games that pay out gold',
@@ -17655,7 +17796,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${runsHot(u) && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg></div>
+      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg><svg class="anchors" viewBox="0 0 100 100" aria-hidden="true">${ANCHOR_ART}</svg><svg class="shelter" viewBox="0 0 100 100" aria-hidden="true">${SHELTER_ART}</svg></div>
     </div>`;
 }
 
@@ -20300,6 +20441,95 @@ async function zap(from, to) {
   svg.remove();
 }
 
+/* THE STORM CAIRN'S SHOCK (totemPulse). Thrown from the stone's crown — the lightning carved on top of
+   it (totemStorm), not its middle — at the enemy the cairn marked. Three strikes down the same gap, each
+   along a freshly jagged path, because lightning never takes one twice and a bolt redrawn identically
+   reads as a static picture being blinked on and off. */
+const CAIRN_STRIKES = 3;
+const CAIRN_CROWN = 0.16;   // how far down the stone the lit crown sits, as a share of its height
+
+/* A jagged run between two fixed points. The wander is ACROSS the line of flight and pinched to nothing
+   at both ends, so the bolt bows out between crown and body instead of fraying off either one. */
+function stormPath(from, to, jag) {
+  const steps = 9, dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  const pts = [[from.x, from.y]];
+  for (let i = 1; i < steps; i++) {
+    const k = i / steps;
+    const off = (Math.random() - 0.5) * jag * Math.sin(k * Math.PI);
+    pts.push([from.x + dx * k + nx * off, from.y + dy * k + ny * off]);
+  }
+  pts.push([to.x, to.y]);
+  return pts;
+}
+
+const ptsAttr = (pts) => pts.map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' ');
+
+// A branch that forks off the main line partway along and dies in the air short of anything.
+function stormFork(pts, side) {
+  const i = 2 + Math.floor(Math.random() * Math.max(1, pts.length - 4));
+  const [x, y] = pts[i], [px, py] = pts[i - 1];
+  const a = Math.atan2(y - py, x - px) + side * (0.5 + Math.random() * 0.5);
+  const run = 26 + Math.random() * 30;
+  const out = [[x, y]];
+  for (let j = 1; j <= 3; j++) {
+    const k = j / 3;
+    out.push([x + Math.cos(a) * run * k + (Math.random() - 0.5) * 10, y + Math.sin(a) * run * k + (Math.random() - 0.5) * 10]);
+  }
+  return out;
+}
+
+// The arena lit from where the bolt came down, and a kick under it. One per shock, on the strike
+// that carries the hurt — see the note in cairnBolt about why the other two stay dark.
+function stormFlash(at) {
+  const arena = $('#arena');
+  const el = document.createElement('div');
+  el.className = 'stormflash';
+  el.style.setProperty('--fx', `${at.x.toFixed(1)}px`);
+  el.style.setProperty('--fy', `${at.y.toFixed(1)}px`);
+  arena.appendChild(el);
+  const ms = beat(260);
+  done(el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms, easing: 'ease-out' }), ms).then(() => el.remove());
+  arena.animate([{ translate: '0 0' }, { translate: '4px -3px' }, { translate: '-3px 2px' }, { translate: '0 0' }], { duration: beat(240) });
+}
+
+async function cairnBolt(u, t) {
+  const s = stageBox(u), e = stageBox(t);
+  if (!s || !e) return;
+  const from = { x: s.x, y: s.top + s.h * CAIRN_CROWN };
+  const to = { x: e.x, y: e.top + e.h * 0.45 };
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'bolt storm');
+  $('#arena').appendChild(svg);
+  // The crown lights before anything leaves it, so the shot reads as coming OUT of the stone.
+  pose(u, [{ filter: 'none' }, { filter: 'brightness(2.1) drop-shadow(0 0 12px #8fd2ff)', offset: 0.35 }, { filter: 'none' }], 520);
+  /* Reduced motion gets the discharge without the strobe: one bolt, held, no flicker and no shake.
+     The point of the effect is that the cairn hit THAT enemy, and a still bolt still says so. */
+  const strikes = reduced ? 1 : CAIRN_STRIKES;
+  for (let n = 0; n < strikes; n++) {
+    const pts = stormPath(from, to, 34);
+    const forks = reduced ? [] : [stormFork(pts, 1), stormFork(pts, -1)];
+    svg.innerHTML = `<circle class="sb-crown" cx="${from.x.toFixed(1)}" cy="${from.y.toFixed(1)}" r="17"/>
+      <polyline class="sb-glow" points="${ptsAttr(pts)}"/>
+      <polyline class="sb-body" points="${ptsAttr(pts)}"/>
+      ${forks.map((f) => `<polyline class="sb-fork" points="${ptsAttr(f)}"/>`).join('')}
+      <polyline class="sb-core" points="${ptsAttr(pts)}"/>`;
+    if (reduced) { await wait(260); break; }
+    const last = n === strikes - 1;
+    /* The strike that carries the hurt is the fat one, and the only one that lights the whole
+       arena. Flashing the field on all three puts about ten full-screen flashes a second on the
+       screen, which is squarely in the band that sets off photosensitive seizures — and two
+       flickers answered by one crack is the better beat regardless. */
+    svg.classList.toggle('hard', last);
+    const ms = beat(last ? 200 : 120);
+    if (last) stormFlash(to);
+    await done(svg.animate([{ opacity: 0.3 }, { opacity: 1, offset: 0.25 }, { opacity: 0.65, offset: 0.6 },
+      { opacity: 1, offset: 0.8 }, { opacity: last ? 0 : 0.12 }], { duration: ms }), ms);
+  }
+  svg.remove();
+}
+
 /* A beam fired from one fighter to another, bursting where it lands. Purely visual — whatever called
    it has already moved the HP. Three styles share the shape and differ only in wave, colour and what
    they shed and burst into:
@@ -20606,6 +20836,34 @@ function renderTrack(ms) {
   }
 }
 
+/* QUICKENING STONE on the bar (totemPulse): the stone's token flares blue-white and every token it
+   shoved slides up the bar behind a slipstream spanning exactly the ground gained — the push is the
+   whole of what this stone does, and it happens HERE, on the bar, not on the field. The pos change
+   is already made by the caller; this only shows it. The slide is beat-scaled where the bar's other
+   glides are raw ms, so the trail is not cut short mid-stride when the clock moves everyone next.
+   Reduced motion keeps the position update and drops the decoration. */
+const QS_SLIDE_MS = 700;
+function quickeningSurge(stone, pushed) {
+  const track = $('#track');
+  if (reduced || !track) { renderTrack(300); return; }
+  const ms = Math.round(beat(QS_SLIDE_MS));
+  const flare = $(`#tok-${stone.uid}`);
+  if (flare) {
+    flare.classList.remove('qflare'); void flare.offsetWidth; flare.classList.add('qflare');
+    clearTimeout(flare.qfT); flare.qfT = setTimeout(() => flare.classList.remove('qflare'), 950);
+  }
+  const len = track.clientWidth * TOTEM_HASTE_PUSH / TRACK;
+  for (const a of pushed) {
+    const el = a.hp > 0 && $(`#tok-${a.uid}`);
+    if (!el) continue;
+    el.style.setProperty('--qlen', `${len.toFixed(1)}px`);
+    el.style.setProperty('--qdur', `${ms + 350}ms`);
+    el.classList.remove('qtrail'); void el.offsetWidth; el.classList.add('qtrail');
+    clearTimeout(el.qtT); el.qtT = setTimeout(() => el.classList.remove('qtrail'), ms + 400);
+  }
+  renderTrack(ms);
+}
+
 function passiveText(u) {
   if (u.summon) return `<b>Summon.</b> ${SUMMONS[u.id].desc}`;
   if (u.monster) {
@@ -20808,6 +21066,10 @@ function renderBattle() {
     el.classList.toggle('undying', undyingOn(u));
     el.classList.toggle('boxed', inBox(u));
     el.classList.toggle('buried', buried(u));
+    // THE BUNKER, both halves: the machine braced in its anchor rig, the ally ducked behind the
+    // parapet. State classes like buried above — bunkerSkill plays the slam, these hold the look.
+    el.classList.toggle('bunkered', u.hp > 0 && bunkered(u));
+    el.classList.toggle('lee', u.hp > 0 && !!has(u, 'sheltered'));
     el.classList.toggle('aloft', aloft(u));   // Skyward Smash: up there, and not to be reached
     el.classList.toggle('apart', apart(u));   // Come Apart: he is not on the field to be seen or struck
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
