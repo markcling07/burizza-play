@@ -1721,8 +1721,11 @@ const ROSTER = [
                 blow she had was a blade dancer's, which any champion with feet could throw.
                 `hurl` is the flag for a blow that comes down out of the sky: no run-in, and
                 nothing standing in the way is between her and the mark, so a bodyguard cannot
-                take it and a counter cannot answer it. Her one heavy blow, to pay for that. */
-             D('Stoop', 'She folds her wings and drops. 200% ATK damage from directly above: cannot miss, ignores armor, and nobody can step into its path.', 4, 2.0, { noDodge: true, pierce: true, hurl: true }),
+                take it and a counter cannot answer it. Her one heavy blow, to pay for that.
+                `hurl` is only the RULES, though: on its own it draws Mordrek's falling grave
+                cross (hurlCross), which is what Stoop showed until `dive` gave her her own
+                look — she goes up off the field and drops on them herself (stoopDive). */
+             D('Stoop', 'She folds her wings and drops. 200% ATK damage from directly above: cannot miss, ignores armor, and nobody can step into its path.', 4, 2.0, { noDodge: true, pierce: true, hurl: true, dive: true }),
              /* Her first area skill, and it is shaped to be hers rather than anyone's: two thin
                 passes rather than one blast, so Flurry turns it into three. A champion whose
                 passive adds a hit should have something for it to add to besides single marks. */
@@ -6935,6 +6938,8 @@ async function damageSkill(u, t, sk) {
       // Limb Shear: the blow lands inside the grind, which plays its damage out as ticks (limbShearGrind).
       else if (o.grind && melee) { await limbShearGrind(u, tg, () => hitOnce(tg, sk.mult)); continue; }
       else if (melee) await strikePose(u, false, sk, 1, tg);
+      // Stoop: a blow from the sky that is HER, not a cross — up off the field and down on them (stoopDive).
+      else if (o.dive) { if (i === 0) trip = (await stoopDive(u, tg)) || trip; await strikePose(u, false, sk, 1, tg); }
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
       else if (!o.watersweep && !o.gust && (targets.length === 1 || oneByOne)) {
@@ -6976,7 +6981,7 @@ async function damageSkill(u, t, sk) {
       await hitOnce(tg, 0.3);
     }
   }
-  if (o.hurl) settleCrosses(u, t, o.pin && struck.has(t));
+  if (o.hurl && !o.dive) settleCrosses(u, t, o.pin && struck.has(t));   // a dive drops no crosses to settle
   for (const [id, turns] of o.selfFx || []) if (u.hp > 0) addFx(u, id, turns);
   if (o.selfStacks) gainStacks(u, o.selfStacks);
   if (o.groundFire) layGroundFire(u, o.groundFire);   // Molotov: the enemy ground is left burning
@@ -18775,6 +18780,44 @@ async function dashTo(u, targets, pace = 1) {
   const atts = carryRiders(u, from, mid, end, ms, 'ease-in-out', 200);
   await done(anim, ms);
   return { anim, end, mid, fly, atts };
+}
+
+/* STOOP (Seraxa): the falcon's dive the skill is named for. dashTo's flyer swoops in a low arc,
+   which is her ordinary way in; this is the other thing wings are for. She climbs straight up out of
+   her place and off the top of the field, comes over her mark out of sight, then drops on them from
+   directly overhead — wings folded, nose down, faster the further she falls — and the ground jolts
+   when she lands. Hands back a trip in dashTo's shape (fly: true), so damageSkill's dashBack glides
+   her home the way it does after any swoop. */
+async function stoopDive(u, t) {
+  const el = actorEl(u), me = stageBox(u), tb = stageBox(t);
+  if (reduced || !el || !me || !tb) return null;
+  const dir = facing(u);
+  const cur = String(getComputedStyle(el).translate || '').split(/\s+/).map(parseFloat);
+  const curX = Number.isFinite(cur[0]) ? cur[0] : 0, curY = Number.isFinite(cur[1]) ? cur[1] : 0;
+  // Where she ends up: right over them, a shade to her own side of their middle, a little off the ground.
+  const dx = tb.x - dir * tb.w * 0.25 - me.x + curX;
+  const dy = tb.feet - tb.h * 0.2 - me.feet + curY;
+  const high = curY - (me.feet + me.h * 0.3);   // her feet clear the top of the field: out of sight
+  const from = `${curX.toFixed(1)}px ${curY.toFixed(1)}px`, up = `${curX.toFixed(1)}px ${high.toFixed(1)}px`;
+  const over = `${dx.toFixed(1)}px ${high.toFixed(1)}px`, end = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`;
+  const ms = beat(760);
+  el.style.zIndex = 200;
+  // Up leaning back, then over and down nose-first; level again as she strikes.
+  pose(u, [{ transform: 'none' }, { transform: `rotate(${-dir * 12}deg)`, offset: 0.3 },
+    { transform: `rotate(${dir * 38}deg) scaleY(.92)`, offset: 0.7 }, { transform: 'none' }], 760);
+  const anim = el.animate([
+    { translate: from, easing: 'cubic-bezier(.3, 0, .6, 1)' },
+    { translate: up, offset: 0.34, easing: 'linear' },
+    { translate: over, offset: 0.56, easing: 'cubic-bezier(.6, 0, 1, .7)' },
+    { translate: end }], { duration: ms, fill: 'forwards' });
+  el._dash?.cancel();
+  el._dash = anim;
+  const atts = carryRiders(u, from, over, end, ms, 'linear', 200);
+  await done(anim, ms);
+  $('#arena').animate([{ translate: '0 0' }, { translate: '0 6px' }, { translate: '0 -2px' }, { translate: '0 0' }], { duration: beat(260) });
+  // The way home is the ordinary flyer's glide: over a raised midpoint and down onto her place.
+  const mid = `${(dx / 2).toFixed(1)}px ${(Math.min(dy, 0) - me.h * 0.6).toFixed(1)}px`;
+  return { anim, end, mid, fly: true, atts };
 }
 
 /* MARCHING OUT TO THE MIDDLE. dashTo runs a fighter INTO a mark: it measures
