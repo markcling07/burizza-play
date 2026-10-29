@@ -946,7 +946,7 @@ const ROSTER = [
                 shoots at does nothing at all. Drawing the fire onto the thing
                 shots glance off is the whole fantasy, and it is what makes the
                 two turns of giving up your own offence worth taking. */
-             { name: 'Bunker', desc: 'Bulwark-7 drives its anchors into the ground and seals itself inside for 2 turns: nothing can reach it, but it cannot move or strike and may only Stand Up or hold. While it stands, an arrow marks it for the warband: any ally may spend a turn running over to take cover inside, out of reach too — unless they are anchored where they stand. Vents 30 Heat.', cd: 5, kind: 'bunker', target: 'self', o: { move: false, heat: -30 } },
+             { name: 'Bunker', desc: 'Bulwark-7 drives its anchors into the ground and seals itself inside for 2 turns: nothing can reach it, but it cannot move or strike and may only Stand Up or hold. While it stands, an arrow marks it for the warband: one ally at a time may spend a turn running over to take cover inside, out of reach too — unless they are anchored where they stand. Inside, buffs and debuffs hold still: none of them tick down until they come out. Vents 30 Heat.', cd: 5, kind: 'bunker', target: 'self', o: { move: false, heat: -30 } },
              /* A tank's reach. He is the slowest thing on the field (agi 0.8) and cannot chase
                 anyone, so instead of closing the distance he takes it away: the haul is bar
                 ground rather than damage, and the same feet that refuse a knockback refuse
@@ -2104,7 +2104,7 @@ const GUARD  = { id: 'guard',  name: 'Guard',  desc: 'Reduces damage taken by 50
    front of the unit by skillsOf exactly while the state is on. */
 const STEP_OUT = { id: 'stepout', name: 'Step Out', desc: 'Leave the bunker and walk back to your place. Costs this turn.', cd: 0, kind: 'stepout', target: 'self', o: { noBlood: true, move: false } };
 // Offered to Bulwark's allies while its bunker stands. A move, so an anchored (rooted) ally cannot take it.
-const TAKE_COVER = { id: 'cover', name: 'Take Cover', desc: "Run to Bulwark-7's bunker and hide inside: nothing can reach you until you step out or the bunker opens. Costs this turn.", cd: 0, kind: 'cover', target: 'self', o: { noBlood: true, move: true } };
+const TAKE_COVER = { id: 'cover', name: 'Take Cover', desc: "Run to Bulwark-7's bunker and hide inside (it has room for one): nothing can reach you until you step out or the bunker opens, and your buffs and debuffs hold still meanwhile. Costs this turn.", cd: 0, kind: 'cover', target: 'self', o: { noBlood: true, move: true } };
 const STAND_UP = { id: 'standup', name: 'Stand Up', desc: 'Unlock the anchors and return to being a machine that can move and strike. Anyone in cover loses it.', cd: 0, kind: 'standup', target: 'self', o: { noBlood: true, move: false } };
 const TARGET_LABEL = { enemy: 'One enemy', allEnemies: 'All enemies', ally: 'One ally', allAllies: 'All allies', self: 'Self', deadAlly: 'One fallen ally' };
 
@@ -7460,7 +7460,8 @@ function addFx(u, id, turns, value = 0, quiet = false) {
    Bulwark casts it on itself and takes `bunker`: anchored for BUNKER_TURNS of its own turns,
    out of reach (outOfReach), and able only to Stand Up or hold. While it stands, every ally
    is offered TAKE_COVER: a turn spent running over to it (a move, so a rooted ally cannot)
-   and then `sheltered`, out of reach too, with Step Out or hold on later turns.
+   and then `sheltered`, out of reach too, with Step Out or hold on later turns. It holds one ally
+   at a time (BUNKER_ROOM): while someone is inside, nobody else is offered the door or the arrow.
 
    Every exit runs through leaveBunker or leaveCover, which walk whoever was hidden back to
    their own place — a sheltered unit with no bunker behind it could never be targeted again. */
@@ -7471,8 +7472,13 @@ const bunkered = (u) => !!has(u, 'bunker');
 const shelteredBehind = (u) => allUnits().filter((a) => a.hp > 0 && a.bunkerHost === u.uid);
 // The machine a sheltered unit is hiding in.
 const bunkerHostOf = (u) => (u.bunkerHost ? unitBy(u.bunkerHost) : null);
-// A standing bunker on this unit's side that it could run to (never its own).
-const alliedBunker = (u) => alliesOf(u).find((a) => a.uid !== u.uid && a.hp > 0 && bunkered(a)) || null;
+// A standing bunker on this unit's side with room inside (it holds one ally) that it could run to.
+const BUNKER_ROOM = 1;
+const alliedBunker = (u) => alliesOf(u).find((a) => a.uid !== u.uid && a.hp > 0 && bunkered(a) && shelteredBehind(a).length < BUNKER_ROOM) || null;
+// Inside the bunker, buffs and debuffs stand still: nothing ticks down, burns, bleeds or mends until they
+// are back out. Only the bunker's own clock runs, so it still opens after its turns.
+const inBunker = (u) => bunkered(u) || sheltered(u);
+const fxFrozen = (u, e) => inBunker(u) && e.id !== 'bunker' && e.id !== 'sheltered';
 // The bunker's arrow shows while it is a player-controlled ally's turn and that ally can take cover in it.
 function coverCalls(host) {
   if (state.phase !== 'choose') return false;
@@ -7515,11 +7521,10 @@ function leaveBunker(host, why) {
 // An ally runs to the bunker and hides inside it.
 async function takeCover(u) {
   const host = alliedBunker(u);
-  if (!host) { log(`${u.name} finds no bunker to take cover in.`, u.side); return; }
+  if (!host) { log(`${u.name} finds no room in a bunker to take cover in.`, u.side); return; }
   if (has(u, 'rooted')) { float(u, 'Anchored', 'miss'); log(`${u.name} is anchored in place and cannot reach the bunker.`, u.side); return; }
   const hb = stageBox(host);
-  // Line up just behind the machine, on the warband's own side, the next one a step further back.
-  const tx = hb ? hb.x - facing(u) * hb.w * (0.5 + 0.3 * shelteredBehind(host).length) : NaN;
+  const tx = hb ? hb.x - facing(u) * hb.w * 0.5 : NaN;   // to the bunker's back door, on the warband's own side
   const trip = await marchToX(u, tx, 1.3);
   if (trip) coverTrips.set(u.uid, trip);
   shelterIn(u, host);
@@ -7577,7 +7582,7 @@ async function beginTurn(u) {
   const gf = state.groundFire;
   if (gf && u.side === gf.side && u.hp > 0) {
     if (u.floats) float(u, 'Above the flames', 'fx');
-    else {
+    else if (!inBunker(u)) {   // sealed in the bunker, the flames do not reach
       float(u, '🔥 Ground Fire', 'fx');
       log(`The burning ground sears ${u.name}.`, 'sys');
       addFx(u, 'burn', 3, Math.max(1, Math.round((gf.atk || 0) * GF_BURN)));
@@ -7588,7 +7593,7 @@ async function beginTurn(u) {
   let ticked = false;
   for (const id of DOT_IDS) {
     const e = has(u, id);
-    if (!e) continue;
+    if (!e || fxFrozen(u, e)) continue;
     // Weather and Burn: Ash Storm fans the flames (+50%), Downpour douses them (−50%).
     // Underground there is no weather, but Rustgut Mine's Firedamp catches just as well (+50%).
     const burnMult = id !== 'burn' ? 1 : dgCondIs('gas') || wx() === 'ash' ? 1.5 : wx() === 'rain' ? 0.5 : 1;
@@ -7605,7 +7610,7 @@ async function beginTurn(u) {
   // Nothing mends what is sealed in a coffin or already standing Undying.
   const sealed = has(u, 'coffin') || undyingOn(u);
   const rg = has(u, 'regen');
-  if (rg && u.hp < u.maxHp && !sealed) {
+  if (rg && u.hp < u.maxHp && !sealed && !fxFrozen(u, rg)) {
     const mend = Math.round(rg.value * (1 + (u.healTaken || 0)) * (wx() === 'pall' ? 0.75 : 1));   // worn kit; Grave Pall dulls it
     const got = Math.min(has(u, 'hex') ? Math.round(mend * 0.5) : mend, u.maxHp - u.hp);
     u.hp += got;
@@ -7634,7 +7639,7 @@ async function beginTurn(u) {
   // the same share of theirs, with a blood link fired from her to each. alliesOf is already the whole
   // living side, so summoned units are fed by it too. She is not on the receiving end: healing her
   // for the same share she just paid would cancel the cost and leave the channel free.
-  if (has(u, 'bloodchannel') && u.hp > 0) {
+  if (has(u, 'bloodchannel') && u.hp > 0 && !inBunker(u)) {
     const cost = Math.max(1, Math.round(u.maxHp * CRIMSON_MEND_PCT));
     u.hp = Math.max(1, u.hp - cost);   // the channel bleeds her, but it will never be what kills her
     bump(u, 'hurt');
@@ -7659,7 +7664,7 @@ async function beginTurn(u) {
   /* Durations and cooldowns tick down at the owner's turn-start. Rev-counted effects (BASH, FEAR,
      the coffin) are skipped here — they count the field's global clock in turnPulse instead, and
      both BASH and the coffin hold the unit off the bar so it never reaches this point while sealed. */
-  u.effects.forEach((e) => { if (e.until == null && e.revs == null) e.turns--; });
+  u.effects.forEach((e) => { if (e.until == null && e.revs == null && !fxFrozen(u, e)) e.turns--; });
   const hadRooted = has(u, 'rooted');
   const hadBearer = has(u, 'shieldbearer');
   const hadBunker = has(u, 'bunker');
@@ -7671,7 +7676,7 @@ async function beginTurn(u) {
   if (hadBunker && !has(u, 'bunker')) leaveBunker(u, 'expired');
   // Riven's Barrier: each turn one sword peels off and drifts home. When the last one returns, the
   // wall is gone. If the status was stripped early (dispel), all remaining swords drop at once.
-  if (u.barrierSwords) {
+  if (u.barrierSwords && !inBunker(u)) {
     if (has(u, 'barrier')) peelBarrierSword(u);
     else dropBarrier(u);
     if (u.barrierSwords <= 0) { u.effects = u.effects.filter((e) => e.id !== 'barrier'); dropBarrier(u); }
@@ -9116,7 +9121,7 @@ async function advanceClock(token) {
     }
     const dtRound = state.round * ROUND_TIME - state.time;
     const thaws = living.flatMap((u) => [
-      ...u.effects.filter((e) => e.until != null).map((e) => e.until - state.time),
+      ...u.effects.filter((e) => e.until != null && !fxFrozen(u, e)).map((e) => e.until - state.time),
       staggerSwitchIn(u),
       u.expires != null ? u.expires - state.time : Infinity,
     ]).filter((d) => d > EPS);
@@ -9133,6 +9138,8 @@ async function advanceClock(token) {
       tickCooldowns(u, gained / TRACK);
     }
     state.time += dt;
+    // A clock-timed effect on someone inside the bunker is held where it was: its end moves with the clock.
+    for (const u of living) for (const e of u.effects) if (e.until != null && fxFrozen(u, e)) e.until += dt;
     // The opening race is shown slower so you can watch everyone run from the start line.
     const ms = state.opening ? clamp(dt * 22, 900, 2200) : clamp(dt * 9, 120, 900);
     renderTrack(ms);
@@ -9578,7 +9585,7 @@ async function turnPulse() {
     if (u.hp <= 0) continue;
     const fl = has(u, 'flee');
     if (fl && u.pos > 0) { u.pos = Math.max(0, u.pos - fl.step); u.recoil = true; fled = true; }
-    for (const e of u.effects) if (e.revs != null) e.revs = Math.max(0, e.revs - 1);
+    for (const e of u.effects) if (e.revs != null && !fxFrozen(u, e)) e.revs = Math.max(0, e.revs - 1);
     const done = u.effects.filter((e) => e.revs != null && e.revs <= 0);
     if (!done.length) continue;
     u.effects = u.effects.filter((e) => !done.includes(e));
