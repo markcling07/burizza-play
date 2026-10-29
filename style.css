@@ -3179,7 +3179,32 @@ svg.art .spentblade { opacity: 0; }
     top: calc(8px + env(safe-area-inset-top)); bottom: calc(8px + env(safe-area-inset-bottom));
     right: calc(10px + env(safe-area-inset-right)); width: min(380px, 46%);
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
   }
+  /* The card never scrolls sideways: its one column is the card's width, and whatever is inside
+     shrinks to it (the Arena's four 88px fighters used to force it ~20px wider than the phone gave). */
+  #villageScreen #placePanel > .panel { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  #villageScreen #placePanel > .panel > * { min-width: 0; }
+  /* A step smaller all round: a 300px-tall card is the whole screen on a sideways phone. */
+  #villageScreen #placePanel .phead h2 { font-size: 1.3rem; }
+  #villageScreen #placePanel .flavor { font-size: .8rem; }
+  #villageScreen #placePanel .note { font-size: .78rem; line-height: 1.4; }
+  #villageScreen #placePanel .btns { gap: 6px; }
+  #villageScreen #placePanel .btn { min-height: 36px; padding: 6px 11px; font-size: .82rem; }
+  #villageScreen #placePanel .btns .btn { max-width: 100%; white-space: normal; text-align: left; }
+  #villageScreen #placePanel .btn.small { min-height: 32px; padding: 4px 9px; font-size: .76rem; }
+  #villageScreen #placePanel .arenaBand .mini { width: 60px; height: 60px; }
+  #villageScreen #placePanel .arenaBand .tmini figcaption { font-size: .74rem; }
+  #villageScreen #placePanel .bandSk { grid-template-columns: repeat(3, 20px); }
+  #villageScreen #placePanel .bsk { width: 20px; height: 20px; border-radius: 4px; }
+  #villageScreen #placePanel .bandPack { grid-template-columns: repeat(2, 20px); }
+  #villageScreen #placePanel .pslot { width: 20px; height: 20px; }
+  #villageScreen #placePanel .depths { grid-template-columns: minmax(0, 1fr); }
+  #villageScreen #placePanel .depth { grid-template-columns: minmax(0, 1fr); }
+  #villageScreen #placePanel .depth h3 { font-size: 1.1rem; }
+  #villageScreen #placePanel .dmini { flex-wrap: wrap; }
+  #villageScreen #placePanel .dmini .mini { width: 32px; height: 32px; }
+  #villageScreen #placePanel .dmini .mini.boss { width: 42px; height: 42px; }
   #villageScreen .dock { left: calc(10px + env(safe-area-inset-left)); }
   #villageScreen .townHud { left: calc(8px + env(safe-area-inset-left)); }
   #villageScreen .battleDock { right: calc(10px + env(safe-area-inset-right)); }
