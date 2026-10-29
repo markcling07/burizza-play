@@ -1490,6 +1490,35 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   max-width: none; object-fit: fill; opacity: 0;
 }
 .upic.animated .anim { opacity: 1; }
+/* RIP SAW's swollen blade (ripSawSwing) rides over the clip in a box the clip's own size, so it can be
+   placed in the clip's pixels; it mirrors exactly as the clip does. */
+.upic .sawRig {
+  position: absolute; top: 0; left: calc(var(--ax, 0) * var(--size)); pointer-events: none;
+  width: calc(var(--aw, 1) * var(--size)); height: calc(var(--ah, 1) * var(--size));
+}
+.unit.lookW .upic .sawRig { transform: scaleX(-1); }
+.sawRig .sawBlade { position: absolute; left: 0; top: 0; aspect-ratio: 1; display: block; }
+.sawRig .sawBlade svg { animation: sawSpin .2s linear infinite; }
+.sawRig.revving .sawBlade { filter: drop-shadow(0 0 4px rgba(255, 170, 60, .9)); }
+@keyframes sawSpin { to { rotate: 360deg; } }
+.unit.down .upic .sawRig { display: none; }
+/* ...and the cut it tears down (or up) its mark (sawRip). The durations are set inline from the clip's frames. */
+.sawRip { position: absolute; left: 50%; top: -6%; width: 22%; height: 112%; translate: -50% 0; z-index: 4; pointer-events: none;
+  animation: sawRipFade linear forwards; }
+.sawRip svg { width: 100%; height: 100%; display: block; overflow: visible; transform-origin: 50% 0; scale: 1 0;
+  filter: drop-shadow(0 0 3px #ff9a3c) drop-shadow(0 0 1px #fff); animation: sawRipGrow linear forwards; }
+.sawRip.up svg { transform-origin: 50% 100%; }
+.sawRip path { fill: none; stroke: #fff4d6; stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.sawRip .spray { position: absolute; left: 50%; top: 0; width: 9px; height: 9px; translate: -50% -50%; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 30%, #ffc56b 45%, transparent 70%);
+  box-shadow: -9px -4px 0 -3px #ffd27a, 8px -6px 0 -3px #fff1c2, -7px 6px 0 -3px #ff9a3c, 10px 3px 0 -3px #ffd27a;
+  animation-name: sawSprayDown, sawSprayFlick; animation-timing-function: linear, steps(2); animation-iteration-count: 1, infinite; animation-fill-mode: forwards, none; }
+.sawRip.up .spray { top: 100%; animation-name: sawSprayUp, sawSprayFlick; }
+@keyframes sawRipGrow { to { scale: 1 1; } }
+@keyframes sawRipFade { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes sawSprayDown { 0% { top: 0; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+@keyframes sawSprayUp { 0% { top: 100%; } 90% { opacity: 1; } 100% { top: 0; opacity: 0; } }
+@keyframes sawSprayFlick { 50% { rotate: 90deg; } }
 .upic.animated .art, .upic.animated > svg { visibility: hidden; }
 /* The fallen lie still: the looping idle clip gives way to the static art (which .down tips over and greys),
    and no flinch or lunge plays on them. */

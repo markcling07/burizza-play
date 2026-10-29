@@ -970,7 +970,7 @@ const ROSTER = [
     mods: { atk: 1.1, hp: 0.95, agi: 1.1 },
     look: { body: 'mech', main: '#9b5d3c', trim: '#ffd166', weapon: 'saw' },
     nature: { name: 'Flywheel', desc: 'At 50 Heat or more his many-cut skills cut once more — the blades are already spinning.', flywheel: 1 },
-    skills: [D('Rip Saw', 'Strikes 2 times for 70% ATK damage each.', 2, 0.7, { hits: 2 }),
+    skills: [D('Rip Saw', 'Strikes 2 times for 70% ATK damage each.', 2, 0.7, { hits: 2, bigSaw: true }),   // bigSaw: see ripSawSwing
              D('Grinder', 'Strikes 3 times for 55% ATK damage each. Applies Bleed for 3 turns.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
              D('Shrapnel Spin', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2 }),
              D('Limb Shear', 'Deals 150% ATK damage. Ignores armor. 60% bonus damage to Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed' }),
@@ -6920,6 +6920,7 @@ async function damageSkill(u, t, sk) {
       // blows. Nothing per-target: he hit the GROUND, not this champion, and
       // there is no swing of his to play at each of them.
       else if (o.groundSlam && melee) { /* no per-target swing */ }
+      else if (o.bigSaw && melee && await ripSawSwing(u, i, sk, tg)) { /* Rip Saw: the swollen blade has ripped through (see ripSawSwing) */ }
       else if (melee) await strikePose(u, false, sk, 1, tg);
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
@@ -18300,6 +18301,9 @@ function attachClips() {
     const upic = actorEl(u)?.querySelector('.upic');
     if (upic && !upic.querySelector('img.anim')) upic.insertAdjacentHTML('beforeend', animImgHTML(u));
   }
+  // buildArena's prefetch ran while the manifest was still out and found nothing to fetch, so without
+  // this the attack clips never load and every swing of the battle falls back to the CSS pose.
+  prefetchClips();
 }
 
 /* Attack clips are held as Blobs, because a fresh object URL is what rewinds an animated WebP to
@@ -18352,6 +18356,126 @@ function playAttack(u, fresh = false, sk = null) {
     img.src = ANIM_DIR + rest.src;
   }, c.ms);
   return c.hitMs ?? a.attack.hitMs;
+}
+
+/* RIP SAW (Sawtooth): the saw in his hand swells to nearly twice its size, then he rips the mark
+   twice — down through them from the top, then back up from the bottom — each a full swing of his
+   attack clip, where the clip used to carry both numbers on one swing. The blade is painted into his
+   clip, so the big one is an overlay riding on top of it: SAW_TRACK is where the painted saw's centre
+   sits in every frame of his clips (measured off the files, in clip pixels). The blade never leaves
+   his hand — slipped off it, the painted saw would show beside the big one — so the rip is HIM: he
+   springs up and drops through the mark for the downward cut, crouches and drives up for the upward
+   one (ripPath), with the blade sliding only as far along the hand as its rim still hides the painted
+   one. The overlay lives in a box sized exactly like the clip (.sawRig copies the clip's
+   --aw/--ah/--ax), so it lands on the hand at any field size and mirrors with him. With no clip to
+   ride (not loaded, reduced motion) the ordinary swings play instead. */
+const SAW_R = 32;           // the painted blade's radius, in clip pixels
+const SAW_BIG = 1.7;        // how far it swells
+const SAW_REPEAT_MS = 960;  // frame 24: the arm has come back round, so the next swing starts clean
+// The rip, on the clip's 40 ms frames: the blade crosses the mark through frames 12–20, and the blow
+// lands as it passes their middle. In clip pixels: leap = how high he springs, dip = how low he
+// crouches, slide = how far the blade slips along his hand (its solid rim still covers the painted
+// saw), reach = how far it bites forward into the mark mid-cut.
+const SAW_CUT = { from: 12, to: 20, hitMs: 640, leap: 95, dip: 6, slide: 11, reach: 9 };
+const SAW_TRACK = {
+  idle: [224, 187],
+  attack: [[223, 184], [222, 184], [219, 184], [215, 185], [210, 186], [205, 187], [201, 188], [198, 189],
+    [195, 189], [194, 189], [192, 190], [201, 191], [240, 190], [266, 195], [270, 193], [265, 201],
+    [268, 199], [264, 201], [269, 197], [267, 203], [270, 201], [267, 202], [266, 199], [257, 194],
+    [242, 188], [232, 183], [229, 182], [229, 182], [228, 183], [227, 183], [226, 184], [225, 184]],
+};
+const SAW_ART = (() => {
+  const teeth = Array.from({ length: 32 }, (_, k) => {
+    const a = (k * Math.PI) / 16, r = k % 2 ? 40 : 49;
+    return `${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r).toFixed(1)}`;
+  }).join(' ');
+  return `<svg viewBox="-50 -50 100 100"><polygon points="${teeth}" fill="#e8ebf0" stroke="#2a2030" stroke-width="3.5" stroke-linejoin="round"/>
+    <circle r="33" fill="#d3d8e0"/><circle r="31" fill="none" stroke="#f6f8fb" stroke-width="2.5"/>
+    <g fill="#9aa1ad"><circle cy="-24" r="3.2"/><circle cx="20.8" cy="12" r="3.2"/><circle cx="-20.8" cy="12" r="3.2"/></g>
+    <circle r="17" fill="#f2b53a" stroke="#2a2030" stroke-width="3"/><circle r="9.5" fill="#fbf3df" stroke="#2a2030" stroke-width="2"/><circle r="4.5" fill="#2a2030"/></svg>`;
+})();
+// A clip-pixel point as a translate of the blade box (its own size is the unit, so % does the scaling).
+const sawAt = ([x, y]) => `${(x / (2 * SAW_R) - 0.5) * 100}% ${(y / (2 * SAW_R) - 0.5) * 100}%`;
+/* One rip, frame by frame: `saw` is where the blade sits (the hand's own track, slid a little along
+   it), `lift` how far his figure is carried up (negative) or down, both in clip pixels. Down: he
+   springs up as he winds back and drops through the mark. Up: he crouches, then drives up through
+   it and drops back. Either way he is home by frame 25. */
+function ripPath(down) {
+  const { from, to, leap, dip, slide, reach } = SAW_CUT;
+  const [b0, b1] = down ? [-leap, dip] : [dip, -leap];
+  const [s0, s1] = down ? [-slide, slide] : [slide, -slide];
+  return SAW_TRACK.attack.map(([x, y], f) => {
+    if (f < from) { const e = Math.sin((f / (from - 1)) * Math.PI / 2); return { saw: [x, y + s0 * e], lift: b0 * e }; }
+    if (f <= to) {
+      const s = (f - from) / (to - from), e = down ? s * s : 1 - (1 - s) ** 2;   // falls faster as it goes; rises slower
+      return { saw: [x + reach * Math.sin(s * Math.PI), y + s0 + (s1 - s0) * s], lift: b0 + (b1 - b0) * e };
+    }
+    const e = Math.max(0, 1 - (f - to) / 5);
+    return { saw: [x, y + s1 * e], lift: b1 * e };
+  });
+}
+/* The cut it leaves: a ragged glowing tear drawn down (or up) the mark as the blade goes through,
+   with sparks spitting off the point where the teeth are. */
+function sawRip(t, down, ms) {
+  const b = bodyEl(t);
+  if (reduced || !b || t.hp <= 0) return;
+  const el = document.createElement('div');
+  el.className = `sawRip${down ? '' : ' up'}`;
+  el.innerHTML = '<svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10 0 L6 9 L13 18 L7 28 L12 38 L6 48 L13 58 L7 68 L12 78 L6 88 L10 100"/></svg><i class="spray"></i>';
+  el.style.animationDuration = `${ms + 450}ms`;
+  el.firstElementChild.style.animationDuration = `${ms}ms`;
+  el.lastElementChild.style.animationDuration = `${ms}ms, 80ms`;
+  b.appendChild(el);
+  setTimeout(() => el.remove(), ms + 500);
+}
+
+// One swing of Rip Saw at tg; i is which blow this is (even: rip down, odd: rip up). Resolves on
+// impact, or false when there is no clip to ride.
+async function ripSawSwing(u, i, sk, tg) {
+  const img = animImg(u), c = animOf(u)?.attack;
+  if (reduced || !img || !c || !clipBlobs.get(c.src)) return false;
+  let rig = img.parentElement.querySelector('.sawRig');
+  if (rig && i === 0) { clearTimeout(rig.doneT); rig.remove(); rig = null; }   // a fresh cast starts from a fresh blade
+  if (!rig) {
+    img.insertAdjacentHTML('afterend', `<div class="sawRig" aria-hidden="true"><i class="sawBlade">${SAW_ART}</i></div>`);
+    rig = img.nextElementSibling;
+  }
+  const blade = rig.firstElementChild;
+  blade.style.width = `${(2 * SAW_R / c.w) * 100}%`;
+  if (i === 0 || !rig.big) {
+    // It swells in his hand, glowing hot, before he swings.
+    rig.big = true;
+    rig.classList.add('revving');
+    blade.style.translate = sawAt(SAW_TRACK.idle);
+    for (const k of ['--aw', '--ah', '--ax']) rig.style.setProperty(k, img.style.getPropertyValue(k));
+    const ms = beat(420);
+    blade.animate([{ scale: 1 }, { scale: SAW_BIG * 1.08, offset: 0.7 }, { scale: SAW_BIG }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
+    await sleep(ms);
+  } else {
+    // The next blow waits for the arm to come back round, then swings again from the top.
+    const since = performance.now() - rig.swungAt;
+    if (since < SAW_REPEAT_MS) await sleep(SAW_REPEAT_MS - since);
+  }
+  if (playAttack(u, true, sk) == null) return false;
+  rig.swungAt = performance.now();
+  for (const k of ['--aw', '--ah', '--ax']) rig.style.setProperty(k, img.style.getPropertyValue(k));
+  const down = i % 2 === 0, path = ripPath(down), n = path.length, frame = c.ms / n;
+  blade.animate([...path.map((p, f) => ({ translate: sawAt(p.saw), offset: f / n })), { translate: sawAt(path[n - 1].saw), offset: 1 }],
+    { duration: c.ms, fill: 'forwards' });
+  // His figure (blade and all) springs and drops; the plate and the shadow on the ground stay put.
+  // Clip pixels to a share of the figure's box: the clip is drawn ANIM_FOOT of the box per footY.
+  const toBox = (px) => `0 ${(px * ANIM_FOOT / c.footY) * 100}%`;
+  img.parentElement.animate([...path.map((p, f) => ({ translate: toBox(p.lift), offset: f / n })), { translate: '0 0', offset: 1 }], { duration: c.ms });
+  setTimeout(() => sawRip(tg, down, (SAW_CUT.to - SAW_CUT.from) * frame), SAW_CUT.from * frame);
+  // When the last swing's clip has run out, the blade shrinks back to the painted one and is gone.
+  clearTimeout(rig.doneT);
+  rig.doneT = setTimeout(() => {
+    rig.classList.remove('revving');
+    blade.animate([{ scale: SAW_BIG, translate: sawAt(SAW_TRACK.idle) }, { scale: 1, translate: sawAt(SAW_TRACK.idle) }], { duration: 220, fill: 'forwards' });
+    setTimeout(() => rig.remove(), 240);   // a timer, not .finished: a hidden page never finishes an animation
+  }, c.ms);
+  await sleep(SAW_CUT.hitMs);
+  return true;
 }
 
 /* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).
