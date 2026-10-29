@@ -1194,6 +1194,10 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   border: none; background: none; transition: border-color .15s;
 }
 .unit.summon .plate { border-style: none; }
+/* A summon's bars run about half a champion's: 60% of its own plate, centred, under a centred name. */
+.unit.summon .bar { width: 60%; justify-self: center; }
+.unit.summon .who { justify-content: center; }
+.unit.summon.blows .bar { width: 35%; }   /* counted in blows (totems, crosses, split halves): shorter still */
 /* Covering Fire countdown: a round dial hung off the left of the plate. The gold ring fills as the
    field's turns tick by; the number is the turns left until her free shot, and it glows on the last. */
 .unit .plate:has(.watchdial) { position: relative; }

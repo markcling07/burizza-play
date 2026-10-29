@@ -8407,6 +8407,8 @@ function summonUnit(owner, kind) {
    write catches them all without each one having to know about the cross. */
 function countBlows(u) {
   let left = u.maxHp;
+  u.blows = true;
+  actorEl(u)?.classList.add('blows');   // totems, crosses and attachments get their card before the count starts
   Object.defineProperty(u, 'hp', {
     enumerable: true, configurable: true,
     get: () => left,
@@ -17769,7 +17771,7 @@ function buildVillage() {
    RENDERING — battle
    ================================================================== */
 const artOf = (u) => u.art || u.id;
-const unitClasses = (u) => `${u.side}${u.you ? ' you' : ''}${u.summon ? ' summon' : ''}${u.inert ? ' inert' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
+const unitClasses = (u) => `${u.side}${u.you ? ' you' : ''}${u.summon ? ' summon' : ''}${u.inert ? ' inert' : ''}${u.summon && SUMMONS[u.id].copy ? ' illusion' : ''}${u.blows ? ' blows' : ''}${u.monster ? ' monster' : ''}${u.elite ? ' elite' : ''}${u.boss ? ' boss' : ''}${u.floats ? ' floats' : ''}`;
 
 /* THE GEAR PINS (CSS .gearpins). The weapon and kit a champion wears, pinned to their plate with
    the Armory's and the Armor Stand's own icons. gearRaw reads YOUR ledger, so only your side wears
@@ -20998,7 +21000,8 @@ function renderBattle() {
     if (!el) continue;
     const hpShown = u.grudge ? 0 : u.hp;   // Grudge Axe: held on 1, shown as the 0 it really is
     el.querySelector('.bar.hp .fill').style.width = `${(hpShown / u.maxHp) * 100}%`;
-    el.querySelector('.bar.hp span').textContent = u.inert && u.attach !== 'anchor' ? `${hpShown} / ${u.maxHp} blows` : `${hpShown} / ${u.maxHp}`;
+    el.querySelector('.bar.hp span').textContent = u.summon ? `${hpShown}`   // a summon's short bar only has room for what is left
+      : u.inert && u.attach !== 'anchor' ? `${hpShown} / ${u.maxHp} blows` : `${hpShown} / ${u.maxHp}`;
     el.querySelector('.lvl').textContent = unitLevelText(u);
     // Covering Fire countdown (Mara): turns left on the field until her free shot. 0 = it's owed, and
     // goes off the moment she is free to take it (not frozen, coffined or bashed).
