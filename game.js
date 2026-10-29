@@ -7515,8 +7515,45 @@ function leaveBunker(host, why) {
   host.bunkerOpen = false;
   const line = why === 'dead' ? `${host.name} is broken open, and the cover with it.`
     : why === 'stood' ? `${host.name} unlocks its anchors and stands up.`
-    : `${host.name}'s anchors give and the bunker opens.`;
+    : `${host.name}'s anchors give and the bunker breaks apart.`;
   log(line, host.side);
+}
+
+/* THE BUNKER BREAKS when its turns run out, at the start of Bulwark's turn: the shell shudders and
+   cracks race over it, then it bursts — plates flung outward, sparks, a puff of dust — and Bulwark
+   is standing in the middle of it, with anyone inside dashing home. Then the field holds a beat
+   (BUNKER_BREAK_HOLD, on the speed bar's clock) so the break reads before Bulwark acts.
+   .breaking holds the sealed look on its own, so a render mid-shudder (the effect is already gone
+   by now) cannot drop the rig early. The debris is its own SVG that outlives the classes, so its
+   flight is never cut short by the battle speed. */
+const BUNKER_BREAK_HOLD = 1000;
+const BUNKER_CRACKS = ['M50 35 L46 50 L53 64 L47 79 L51 94', 'M46 50 L28 55 L11 60', 'M53 64 L72 65 L90 66', 'M47 79 L26 82 L7 84']
+  .map((d) => `<path d="${d}" pathLength="1"/>`).join('');   // pathLength 1: the CSS draws each crack with one dash
+// The shell in five pieces, cut along the cracks above: [points, flight x, flight y, spin].
+const BUNKER_CHUNKS = [
+  ['11,60 16,44 32,36 50,34 46,50', -30, -8, -70], ['50,34 68,36 84,44 90,66 53,64 46,50', 30, -12, 80],
+  ['11,60 46,50 53,64 47,79 7,84', -36, 14, -110], ['53,64 90,66 94,94 51,94 47,79', 34, 16, 95],
+  ['7,84 47,79 51,94 6,94', -14, 20, -40],
+];
+async function breakBunker(host) {
+  const body = actorEl(host)?.querySelector?.('.body');
+  if (reduced || !body?.insertAdjacentHTML) { leaveBunker(host, 'expired'); render(); await waitBar(BUNKER_BREAK_HOLD); return; }
+  const el = actorEl(host);
+  el.classList.add('breaking');
+  body.insertAdjacentHTML('beforeend', `<svg class="bkrCracks" viewBox="0 0 100 100" aria-hidden="true">${BUNKER_CRACKS}</svg>`);
+  float(host, 'Bunker breaks!', 'fx');
+  await wait(480);
+  body.querySelector('.bkrCracks')?.remove();
+  body.insertAdjacentHTML('beforeend', `<svg class="bkrRubble" viewBox="0 0 100 100" aria-hidden="true">
+    <g class="dust"><circle cx="24" cy="92" r="9"/><circle cx="50" cy="94" r="11"/><circle cx="76" cy="92" r="9"/></g>
+    ${BUNKER_CHUNKS.map(([pts, x, y, r]) => `<polygon class="chk" points="${pts}" style="--x:${x}px;--y:${y}px;--r:${r}deg"/>`).join('')}
+    <g class="spk">${[-60, -25, 15, 50, 160, 200].map((a) => `<circle cx="50" cy="62" r="1.6" style="--a:${a}deg"/>`).join('')}</g></svg>`);
+  const rubble = body.lastElementChild;
+  setTimeout(() => rubble.remove(), 1400);
+  el.classList.remove('breaking');
+  leaveBunker(host, 'expired');   // Bulwark is back in view and anyone inside heads home
+  render();
+  await waitBar(BUNKER_BREAK_HOLD);
 }
 
 // An ally runs to the bunker and hides inside it.
@@ -7671,10 +7708,11 @@ async function beginTurn(u) {
   const hadBunker = has(u, 'bunker');
   u.effects = u.effects.filter((e) => e.until != null || e.revs != null || e.turns > 0);
   if (hadBearer && !has(u, 'shieldbearer')) standDown(u);   // the stance has run out: back to his place
-  // THE BUNKER's two turns are up: the anchors lift and whoever was behind it
-  // is in the open again. leaveBunker is the only door, so the ally can never
-  // be left sheltered by a machine that is no longer a bunker.
-  if (hadBunker && !has(u, 'bunker')) leaveBunker(u, 'expired');
+  // THE BUNKER's two turns are up: it breaks apart and whoever was inside is in
+  // the open again, and the turn waits a beat before Bulwark acts. breakBunker
+  // goes through leaveBunker, the only door, so the ally can never be left
+  // sheltered by a machine that is no longer a bunker.
+  if (hadBunker && !has(u, 'bunker')) await breakBunker(u);
   // Riven's Barrier: each turn one sword peels off and drifts home. When the last one returns, the
   // wall is gone. If the status was stripped early (dispel), all remaining swords drop at once.
   if (u.barrierSwords && !inBunker(u)) {
@@ -9824,7 +9862,8 @@ function onUnit(uid) {
   if (state.phase !== 'choose' || !state.pending) {
     const t = unitBy(uid);
     if (!t || ['won', 'lost', 'cleared'].includes(state.phase)) return;
-    state.inspect = t.you ? null : uid;
+    // While your champion is hidden in a bunker, the bunker is the only part of them left to tap.
+    state.inspect = t.you || shelteredBehind(t).some((a) => a.you) ? null : uid;
     // The same tap opens that fighter's status row, and tapping them again shuts it. Kept apart from
     // inspect on purpose: inspect is cleared by a tap on your own champion (the deck goes home), and
     // your own champion's statuses are exactly the ones you most want to read before you spend a turn.
@@ -21429,6 +21468,17 @@ document.addEventListener('click', (ev) => {
   if (!state.tipSkill || ev.target.closest('.ainfo, #skillTip')) return;
   state.tipSkill = null;
   renderSkillTip(unitBy(state.tipFor));
+});
+/* A TAP ON OPEN GROUND BRINGS YOUR OWN DECK BACK. Tapping a fighter shows theirs, and tapping your own
+   champion used to be the only way home — but a champion hidden in Bulwark's bunker has no model to
+   tap, which stranded the player on Bulwark's locked tiles. The field itself is now the way home, and
+   it shuts any open status row too. Aiming a skill is left alone: that is put down at its own tile. */
+$('#arena').addEventListener('click', (ev) => {
+  if (ev.target.closest('.unit, button, a, input, select, [role="dialog"]')) return;
+  if (state.pending || ['won', 'lost', 'cleared'].includes(state.phase)) return;
+  if (state.inspect == null && state.chipsOn == null) return;
+  state.inspect = null; state.chipsOn = null;
+  renderBattle();
 });
 for (const side of ['p', 'e']) {
   const el = $(`#side-${side}`);

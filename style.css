@@ -1383,6 +1383,32 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 @keyframes bkrPlate { from { transform: translateY(-14px); } }   /* transforms only: see the note on .anchors */
 @keyframes bkrSpike { from { transform: translateY(-11px); } }
 @keyframes bkrCore { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }   /* frozen at frame zero it idles at .5 — lit either way */
+/* THE BREAK (breakBunker): .breaking holds the sealed look by itself while the shell shudders and the
+   cracks draw across it; then the rig drops and .bkrRubble flies on its own clock and is removed. */
+.unit.breaking .body > .anchors { opacity: 1; transform: scale(1.35); transform-origin: 50% 100%; }
+.unit.breaking .upic { visibility: hidden; }
+.unit.breaking .plate .bar { display: none; }
+.unit.breaking .anchors .pl { transform-box: fill-box; transform-origin: 50% 100%; animation: bkrShudder .12s linear infinite; }
+.unit.breaking .anchors .core { animation: bkrFlicker .16s steps(2) infinite; }
+.bkrCracks, .bkrRubble { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3;
+  transform: scale(1.35); transform-origin: 50% 100%; }
+.bkrCracks { filter: drop-shadow(0 0 2px #f0a73a); }
+.bkrCracks path { fill: none; stroke: #ffd28a; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; animation: bkrCrack .38s ease-out forwards; }
+.bkrRubble .chk { fill: #5a6478; stroke: #1d2130; stroke-width: 2; stroke-linejoin: round; transform-box: fill-box; transform-origin: center;
+  animation: bkrFling .85s cubic-bezier(.25, .6, .45, 1) forwards; }
+.bkrRubble .spk circle { fill: #ffd28a; transform-box: fill-box; transform-origin: center; animation: bkrSpark .5s ease-out forwards; }
+.bkrRubble .dust circle { fill: #9a8b76; opacity: 0; transform-box: fill-box; transform-origin: center; animation: bkrDust .9s ease-out forwards; }
+@keyframes bkrShudder { 0%, 100% { transform: none; } 25% { transform: translate(-1.4px, .4px) rotate(-1deg); } 75% { transform: translate(1.4px, -.3px) rotate(1deg); } }
+@keyframes bkrFlicker { 50% { opacity: .15; } }
+@keyframes bkrCrack { to { stroke-dashoffset: 0; } }
+@keyframes bkrFling {
+  0% { transform: none; opacity: 1; }
+  40% { transform: translate(calc(var(--x) * .5), calc(var(--y) * .3 - 12px)) rotate(calc(var(--r) * .45)); opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; }
+}
+@keyframes bkrSpark { from { transform: rotate(var(--a)) translateX(0); opacity: 1; } to { transform: rotate(var(--a)) translateX(30px); opacity: 0; } }
+@keyframes bkrDust { from { transform: scale(.3); opacity: .7; } to { transform: scale(2); opacity: 0; } }
 /* An ally who took cover has walked into the bunker: model, name, bars and status chips all gone until they step out. */
 .unit.lee .upic, .unit.lee .plate, .unit.lee .chips { visibility: hidden; }
 /* THE ARROW (.unit.coverCall): over a standing bunker while the player's champion can run in (coverCalls).
