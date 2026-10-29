@@ -1973,9 +1973,7 @@ const ROSTER = [
              D('Emptied Hands', `★ Ultimate. Throws every sword in his hand at one enemy, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, attackType: 'horizontal' }),
              D('Fan of Blades', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands.', 4, 0.8, { magic: true, swordTargets: true, attackType: 'horizontal' }),
              B('Recall Swords', `No cooldown; takes his turn, and only when a sword is out. Every sword stuck in an enemy rips out and flies home to him. Each enemy a sword is pulled from Bleeds for ${RIVEN_RECALL_BLEED_TURNS} turns: ${Math.round(RIVEN_RECALL_BLEED * 100)}% of his attack per turn for every sword pulled out of it. Then he strikes 30% harder for ${VHARO_RECALL_TURNS} turns.`, 0, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
-             B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS }),
-             D('Command the Fallen', 'Every blade of his standing in any enemy tears free at once and turns on a single mark, one strike each for 75% ATK. Costs him nothing from his hands, and needs at least one blade already buried in something.', 4, 0.75, { swordCommand: true, magic: true, attackType: 'horizontal' }),
-             D('Blade Harvest', 'Reaches into one body and pulls his blades back out of it — they come home to his hands, as many as his hands can still hold. Deals no damage, and works with his hands empty.', 2, 0, { swordHarvest: true })],
+             B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS })],
     /* THE TWO ABOVE ARE NOT NEW. The engine has carried their whole machinery all along — the
        usable gate, the validTargets filter, the counting, the animations, the log lines, even an
        AI weight for Harvest — and the comment above throwsFromHand says so outright: "belonged to
@@ -6719,9 +6717,9 @@ async function damageSkill(u, t, sk) {
   if (o.swordCount && u.maxSwords) targets = Array(Math.max(1, Math.min(o.swordCount, u.swords))).fill(t);
   if (o.swordTargets && u.maxSwords) {
     const pool = openFoes(u).filter((f) => f !== t);
-    const extra = Math.min(u.swords - 1, pool.length);
+    const extra = Math.min(u.swords - 2, pool.length);
     for (let i = 0; i < extra; i++) { const r = Math.floor(Math.random() * (pool.length - i)) + i; [pool[i], pool[r]] = [pool[r], pool[i]]; }
-    targets = [t, ...pool.slice(0, extra)];
+    targets = [t, t, ...pool.slice(0, Math.max(0, extra))];
   }
   /* Blade Harvest: everything standing in ONE body tears back out the way it
      went in. Counted up front like Command, but the blades come HOME rather than
@@ -6828,7 +6826,7 @@ async function damageSkill(u, t, sk) {
   if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
   /* Sighted Throw (swordCount) and Emptied Hands (swordBurst): his blades leave ONE BY ONE - each flies and lands before the next is
      thrown, so you see every sword travel. Fired together they would fly the same line and read as one. */
-  const oneByOne = !!(o.swordCount || o.swordBurst) && targets.length > 1;
+  const oneByOne = !!(o.swordBurst) && targets.length > 1;
   // Area attacks from range: every projectile flies at once, then the hits resolve.
   /* `proj &&` rather than a list of the skills that have no projectile. The
      guard used to name gust and watersweep, which was the same thing said the
@@ -6836,7 +6834,10 @@ async function damageSkill(u, t, sk) {
      and shoot() reached for bounceFrom on a null projectile and threw mid-cast.
      projectileFor already decided this — if it handed back nothing, there is
      nothing to fire, and that is true of every skill of this kind yet to come. */
-  if (!melee && proj && targets.length > 1 && !oneByOne) await Promise.all(targets.map((tg) => shoot(u, tg, proj)));
+  if (!melee && proj && targets.length > 1 && !oneByOne) {
+    const n = targets.length;
+    await Promise.all(targets.map((tg, i) => shoot(u, tg, proj, (n > 1 && o.swordCount) ? (i - (n - 1) / 2) * 18 : 0)));
+  }
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills. Sawtooth's Flywheel adds one at 50+ Heat.
   const hits = (o.hits || 1) + (o.hits > 1 ? (pv(u).extraHit || 0) + (charNat(u).flywheel && u.heat >= 50 ? 1 : 0) : 0);
@@ -6944,7 +6945,7 @@ async function damageSkill(u, t, sk) {
       else if (o.dive) { if (i === 0) trip = (await stoopDive(u, tg)) || trip; await strikePose(u, false, sk, 1, tg); }
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
-      else if (!o.watersweep && !o.gust && (targets.length === 1 || oneByOne)) {
+      else if (!o.watersweep && !o.gust && (targets.length === 1 || oneByOne) && proj) {
         if (fenceStops(u, sk, proj, tg)) { await fenceDeflect(u, tg, sk.name, proj); continue; }   // the iron takes it
         await shoot(u, tg, proj);
       }
@@ -11926,7 +11927,7 @@ function expEndOverlay(outcome) {
   else { kick = 'Abandoned'; title = `You withdraw from ${e.name}`; body = `<p>The party leaves. Everything earned so far is kept.</p><p>${total}</p>`; }
   $('#ovKick').textContent = kick; $('#ovTitle').textContent = title; $('#ovBody').innerHTML = body;
   const btns = $('#ovBtns'); btns.innerHTML = '';
-  const b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = 'Return to the village';
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = 'Village';
   b.addEventListener('click', () => { $('#overlay').hidden = true; state.mode = null; state.exp = null; toVillage(); openPlace('gate'); });
   btns.appendChild(b);
   $('#overlay').hidden = false; b.focus();
@@ -20161,11 +20162,12 @@ async function steamVent(u, targets) {
      enough to read as a vent emptying rather than a puff. */
   const ms = beat(1850), jetMs = beat(760);
 
-  // The jet: from the machine's vents to the near edge of the cloud.
-  const vx = from.x, vy = from.feet - (from.feet - from.top) * 0.55;   // vents sit mid-chest
+  // The jet: from the tip of Bulwark's barrel to the near edge of the cloud.
+  const d = facing(u);
+  const vx = from.x + d * from.w * 0.48, vy = from.feet - (from.feet - from.top) * 0.28;
   const toX = cx - Math.sign(cx - vx) * (cw / 2) * 0.55;
-  const len = Math.max(40, Math.hypot(toX - vx, cy - vy));
-  const ang = Math.atan2(cy - vy, toX - vx) * 180 / Math.PI;
+  const len = Math.max(40, Math.abs(toX - vx));
+  const ang = d > 0 ? 0 : 180;
   const jet = document.createElement('div');
   jet.className = 'steamjet';
   jet.style.cssText = `left:${vx.toFixed(1)}px; top:${(vy - 9).toFixed(1)}px; width:${len.toFixed(0)}px; height:18px; rotate:${ang.toFixed(1)}deg; --jet-ms:${jetMs}ms;`;
@@ -20850,7 +20852,7 @@ const ARC_CEILING_MARGIN = 14;
 
 // p.bounceFrom (a unit): the round is already in flight - it glances off that unit, where the last
 // shot struck, and carries on to t (Ricochet). No muzzle, no second shot: a spark where it bounced.
-async function shoot(u, t, p) {
+async function shoot(u, t, p, spread) {
   const s = stageBox(p.bounceFrom || u), e = stageBox(t);
   if (reduced || !s || !e) return;
   if (p.swordThrow) actorEl(u)?.classList.add('sword-thrown');
@@ -20858,9 +20860,10 @@ async function shoot(u, t, p) {
   const mz = !p.bounceFrom && MUZZLE[u.id];
   const from = p.bounceFrom ? { x: s.x, y: s.top + s.h * 0.45 }
     : mz ? { x: s.x + d * s.w * mz[0], y: s.top + s.h * mz[1] } : { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.45 };
+  if (spread) { from.y += spread; }
   if (mz) muzzleFlash(from, d);
   if (p.bounceFrom) ricochetSpark(from, Math.atan2(e.top + e.h * 0.45 - from.y, e.x - from.x));
-  const to = { x: e.x, y: e.top + e.h * 0.45 };
+  const to = { x: e.x, y: e.top + e.h * 0.45 + (spread || 0) };
   if (p.endAt) Object.assign(to, p.endAt(e, to, from));   // the round stops short of them, or flies on past
   if (p.kind === 'bolt') return zap(from, to);
   const el = document.createElement('div');
@@ -21802,7 +21805,7 @@ function showEndOverlay() {
     buttons = [
       { label: 'Spar again', primary: true, fn: startSpar },
       { label: 'Change the matchup', fn: () => { toVillage(); state.trainTab = 'spar'; openPlace('train'); } },
-      { label: 'Return to the village', fn: toVillage },
+      { label: 'Village', fn: toVillage },
     ];
   } else if (dg && phase === 'won' && state.dg.done) {
     const ch = state.dg.chest;
@@ -21812,7 +21815,7 @@ function showEndOverlay() {
         <ul>${ch.items.map((t) => `<li>${t}</li>`).join('')}${ch.trinket ? `<li class="first">First clear! A ${TRINKETS[ch.trinket].name} is waiting in your stash.</li>` : ''}</ul></div>
       ${rewardHTML()}
       <p>This run: <b>${state.dg.gold} gold</b> and <b>${state.dg.xp} XP</b> in total.</p>${questNewsHTML()}`;
-    buttons = [{ label: 'Return to the village', primary: true, fn: () => { toVillage(); openPlace('gate'); } }];
+    buttons = [{ label: 'Village', primary: true, fn: () => { toVillage(); openPlace('gate'); } }];
   } else if (dg && phase === 'won') {
     const next = state.dg.room + 1, bossNext = next === DG_ROOM_COUNT;
     kick = `${dg.name} · room ${state.dg.room + 1} of ${dgRooms()} cleared`;
@@ -21828,7 +21831,7 @@ function showEndOverlay() {
     kick = 'Defeat';
     title = `Your warband falls in ${dg.name}`;
     body = `${rewardHTML()}${questNewsHTML()}<p>The run is over, but you keep everything you earned on the way: <b>${state.dg.gold} gold</b> and <b>${state.dg.xp} XP</b>.</p>`;
-    buttons = [{ label: 'Return to the village', primary: true, fn: () => { toVillage(); openPlace('gate'); } }];
+    buttons = [{ label: 'Village', primary: true, fn: () => { toVillage(); openPlace('gate'); } }];
   } else if (d && phase === 'won') {
     const { from, to } = state.reward;
     kick = `Hunt won · ${CAVE.name}`;
@@ -21838,7 +21841,7 @@ function showEndOverlay() {
       <p>Hunt again for a fresh pack, or head back to Cinderhold. Your warband is fully healed either way.</p>${questNewsHTML()}`;
     buttons = [
       { label: 'Hunt again', primary: true, fn: () => startHunt(d.id) },
-      { label: 'Return to the village', fn: () => { toVillage(); openPlace('cave'); } },
+      { label: 'Village', fn: () => { toVillage(); openPlace('cave'); } },
     ];
   } else if (d && phase === 'lost') {
     kick = 'Defeat';
@@ -21846,7 +21849,7 @@ function showEndOverlay() {
     body = `${rewardHTML()}${questNewsHTML()}<p>Try the same pack again, or retreat to the village. You keep your level, XP, gold, gear and items.</p>`;
     buttons = [
       { label: 'Retry the hunt', primary: true, fn: () => startBattle(true) },
-      { label: 'Return to the village', fn: () => { toVillage(); openPlace('cave'); } },
+      { label: 'Village', fn: () => { toVillage(); openPlace('cave'); } },
     ];
   } else if (state.mode === 'duel' && phase === 'won') {
     const { from, to } = state.reward, du = state.duel;
@@ -21855,8 +21858,8 @@ function showEndOverlay() {
     body = `<p class="loot">+${state.goldWon} gold — your ${du.stake} stake back, with profit</p>${rewardHTML()}
       <p>The crowd at the fence wants more. Fresh challengers are already warming up, and your warband is fully healed.</p>${questNewsHTML()}`;
     buttons = [
-      { label: 'Find new challengers', primary: true, fn: () => { toVillage(); openPlace('pvp'); } },
-      { label: 'Return to the village', fn: toVillage },
+      { label: 'New challengers', primary: true, fn: () => { toVillage(); openPlace('pvp'); } },
+      { label: 'Village', fn: toVillage },
     ];
   } else if (state.mode === 'duel' && phase === 'lost') {
     const du = state.duel;
@@ -21865,7 +21868,7 @@ function showEndOverlay() {
     body = `${rewardHTML()}${questNewsHTML()}<p>The ${du.stake} gold stake is gone, but nothing else: you keep your level, XP, gear and items.</p>`;
     buttons = [
       { label: 'Back to the Proving Grounds', primary: true, fn: () => { toVillage(); openPlace('pvp'); } },
-      { label: 'Return to the village', fn: toVillage },
+      { label: 'Village', fn: toVillage },
     ];
   } else if (phase === 'won') {
     const { from, to } = state.reward;
@@ -21882,14 +21885,14 @@ function showEndOverlay() {
     title = `All ${state.order.length} factions defeated`;
     body = `<p class="loot">+${state.goldWon} gold, including the ${CLEAR_BONUS} gold clearing bonus</p>${rewardHTML()}
       <p>${listAnd([heroName(), ...state.team.slice(1).map((id) => shortName(charById(id)))])} cleared Ashfall Road.</p>${questNewsHTML()}`;
-    buttons = [{ label: 'Return to the village', primary: true, fn: toVillage }];   // the run ends: no new gauntlet from here
+    buttons = [{ label: 'Village', primary: true, fn: toVillage }];   // the run ends: no new gauntlet from here
   } else if (phase === 'lost') {
     kick = 'Defeat';
     title = `${theFaction(FACTIONS[state.order[state.battle]], true)} win this one`;
     body = `${rewardHTML()}${questNewsHTML()}<p>Retry this battle against the same warband, or head back to the village. Leaving ends this run, but you keep your level, XP, gold, gear and items.</p>`;
     buttons = [
       { label: 'Retry battle', primary: true, fn: () => startBattle(true) },
-      { label: 'Return to the village', fn: toVillage },
+      { label: 'Village', fn: toVillage },
     ];
   } else return;
 
