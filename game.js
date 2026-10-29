@@ -980,7 +980,7 @@ const ROSTER = [
                 damage in his kit so that opening with it is a real choice rather than a free
                 one. Sunder outlasts Exposed on purpose: the armour stays off long enough for
                 the warband to use it, the vulnerability is his own short window. */
-             D('Tooth Breaker', 'Deals 120% ATK damage. Sunders the target\'s armor for 3 turns and leaves them Exposed for 2.', 3, 1.2, { fx: [['sunder', 3], ['exposed', 2]] }),
+             D('Tooth Breaker', 'Deals 120% ATK damage. Sunders the target\'s armor for 3 turns and leaves them Exposed for 2.', 3, 1.2, { fx: [['sunder', 3], ['exposed', 2]], toothBreak: true }),   // toothBreak: see toothBreakFx
              /* The Flywheel skill. Five thin cuts is the most hits on any one target in his kit,
                 which is exactly what his Nature multiplies — over 50 Heat this is six. Builds
                 heat hard: this is the skill that pushes him into Flywheel range for the NEXT
@@ -6845,6 +6845,7 @@ async function damageSkill(u, t, sk) {
   const hitOnce = async (tg, mult) => {
     const r = strikeOnce(u, tg, mult, sk.name, tg === heroicGuard ? { ...o, heroic: true } : o);
     if (!r.miss) {
+      if (o.toothBreak) toothBreakFx(u, tg);   // Tooth Breaker: the armour cracks and bursts off them, the moment it lands
       struck.add(tg);
       if (u.maxSwords) landed.set(tg, (landed.get(tg) || 0) + 1);
       total += r.dmg;
@@ -18678,6 +18679,36 @@ async function limbShearGrind(u, t, land) {
   delete t.grindShown;
   stop();
   render();
+}
+
+/* TOOTH BREAKER (Sawtooth): the blow that opens a mark up, so the picture is armour breaking. The
+   moment it lands: a white crunch where it struck, cracks racing across them and going dark, chips of
+   plate and broken teeth thrown out the far side, a steel shield popping up over their head and
+   splitting in two (Sundered), and their head snapping back with the field jolting under it. Only on
+   a blow that lands — called from hitOnce. All of it is one element in their body box, mirrored for
+   a blow coming from the east, so it scales with them and faces the right way. */
+function toothBreakFx(u, t) {
+  const b = bodyEl(t);
+  if (reduced || !b) return;
+  const d = facing(u);
+  const el = document.createElement('div');
+  el.className = `toothBreak${d < 0 ? ' west' : ''}`;
+  const cracks = ['M34 38 L47 31 L58 34 L71 25', 'M34 38 L45 47 L51 60 L62 67', 'M34 38 L41 23 L49 14', 'M34 38 L50 41 L66 45', 'M47 31 L52 22']
+    .map((p) => `<path d="${p}" pathLength="1"/>`).join('');
+  // [x, y] thrown (in units of their size), spin, delay, tooth or plate
+  const chips = [[0.9, -0.55, 320, 0, 1], [1.1, -0.2, -260, 20, 0], [0.7, -0.75, 200, 10, 0], [1.25, 0.1, 400, 30, 1],
+    [0.55, -0.4, -180, 0, 0], [0.95, 0.25, 280, 40, 1], [0.4, -0.85, -300, 15, 0], [1.05, -0.95, 240, 25, 1], [0.75, 0.05, -220, 5, 0]];
+  el.innerHTML = `<svg class="tbCrack" viewBox="0 0 100 100" aria-hidden="true">${cracks}</svg><i class="tbFlash"></i>`
+    + chips.map(([x, y, r, dl, tooth]) => `<i class="tbChip${tooth ? ' tooth' : ''}" style="--x:${x};--y:${y};--r:${r}deg;--dl:${dl}ms"></i>`).join('')
+    + `<svg class="tbShield" viewBox="0 0 40 44" aria-hidden="true">
+        <path class="l" d="M20 3 L5 8 V22 Q5 34 20 41 L18 33 L22 25 L17 17 L21 9 Z"/>
+        <path class="r" d="M20 3 L35 8 V22 Q35 34 20 41 L18 33 L22 25 L17 17 L21 9 Z"/></svg>`;
+  b.appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+  // Their head snaps back from it, and the ground takes the jolt.
+  b.querySelector('.upic')?.animate([{ translate: '0 0', rotate: '0deg' }, { translate: `${d * 7}px -2px`, rotate: `${d * 8}deg`, offset: 0.25 },
+    { translate: '0 0', rotate: '0deg' }], { duration: beat(380), easing: 'ease-out' });
+  $('#arena').animate([{ translate: '0 0' }, { translate: `${d * 3}px 2px` }, { translate: `${-d * 2}px -1px` }, { translate: '0 0' }], { duration: beat(220) });
 }
 
 /* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).
