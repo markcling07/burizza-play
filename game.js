@@ -1030,7 +1030,7 @@ const ROSTER = [
     mods: { hp: 1.1, agi: 0.75, atk: 1.05 },
     look: { body: 'mech', main: '#5f6b52', trim: '#ff7a45', weapon: 'cannon' },
     nature: { name: 'Dug In', desc: 'Planted like a gun carriage: nothing drags him back along the speed bar — not a blow, not the bucking earth.', anchor: 1 },
-    skills: [D('Flak Burst', 'Deals 60% ATK damage to all enemies.', 3, 0.6, { aoe: true }),
+    skills: [D('Flak Burst', 'Fires a shell that explodes in the sky. Next Rev shrapnel rains on all enemies for 60% ATK damage.', 3, 0.6, { aoe: true, fuse: 1, flakLob: true }),
              D('Siege Shell', 'Deals 230% ATK damage. Builds 50 Heat.', 5, 2.3, { heat: 50 }),
              D('AP Round', 'Deals 150% ATK damage. Ignores armor.', 3, 1.5, { pierce: true }),
              D('Mortar Walk', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2 }),
@@ -6388,18 +6388,164 @@ async function fireAim(u) {
 async function loadThrow(u, t, sk) {
   await castPose(u, true);   // she lights the rag this turn; no bottle flies yet
   u.loadedThrow = { revs: sk.o.fuse, sk, target: t?.uid };
-  float(u, '🔥🧪 Lit', 'fx');
-  log(`${u.name} lights the ${sk.name} — it flies on the next turn, whoever's it is.`, u.side);
+  if (sk.o.flakLob) {
+    await flakExplodeInSky(u);
+    float(u, '💥 Flak Burst!', 'fx');
+    log(`${u.name} fires a shell — it explodes in the sky! Shrapnel incoming next Rev.`, u.side);
+  } else {
+    float(u, '🔥🧪 Lit', 'fx');
+    log(`${u.name} lights the ${sk.name} — it flies on the next turn, whoever's it is.`, u.side);
+  }
   render();
   await wait(300);
 }
 async function fireLoadedThrow(u) {
   const { sk } = u.loadedThrow;
   u.loadedThrow = null;
-  if (!openFoes(u).length) { log(`${u.name} holds the ${sk.name} — nothing left to throw it at.`, u.side); render(); return; }
-  float(u, `${sk.name}!`, 'fx');
-  faceForAction(u, sk, null);   // the fuse burned down on another Rev: square up before it flies
+  if (!openFoes(u).length) { flakSkyClear(u); log(`${u.name} holds the ${sk.name} — nothing left to throw it at.`, u.side); render(); return; }
+  if (sk.o?.flakLob) {
+    log(`The sky splits — shrapnel rains down!`, u.side);
+    await flakShrapnelRain(u);
+  } else {
+    float(u, `${sk.name}!`, 'fx');
+    faceForAction(u, sk, null);   // the fuse burned down on another Rev: square up before it flies
+  }
   await damageSkill(u, null, sk);   // allEnemies: damageSkill picks the whole warband itself
+}
+
+/* FLAK BURST. The shell bursts high over the field on the cast and HANGS there for the Rev as a burning
+   cloud (smoke boiling, fire flickering in it, embers dropping out, now and then something in it going
+   off again), then lets go: it flares, the shrapnel comes out of it into the ground round the enemy
+   (flakShrapnelRain), and it breaks up. The cloud's DOM and timers live in flakSkies, never on the unit. */
+const FLAK_AT = { x: 0.3, y: 0.18 };   // where the shell bursts, as fractions of the field
+const flakSkies = new Map();          // uid → { cloud, timers }
+const FLAK_SMOKE = [[-36, -6, 50], [32, -12, 48], [-10, -30, 44], [18, 18, 46], [-30, 20, 40], [44, 12, 38], [4, -6, 58], [-52, 6, 30], [58, -4, 28]];
+const FLAK_FIRE = [[-14, -4, 38], [14, -10, 34], [2, 12, 34], [-4, -20, 28], [22, 8, 26]];
+const flakStar = (n, r1, r2) => Array.from({ length: n * 2 }, (_, i) => {
+  const r = i % 2 ? r2 : r1, a = Math.PI * i / n;
+  return `${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r).toFixed(1)}`;
+}).join(' ');
+const flakBang = () => `<b class="fc-ring"></b><svg class="fc-flash" viewBox="-60 -60 120 120"><polygon points="${flakStar(14, 58, 20)}"/></svg>`;
+
+// Sparks and hot metal thrown out of the burst; they arc over and fall. ox/oy = where in the cloud.
+function flakDebris(cloud, n, reach = 1, ox = 0, oy = 0) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, d = (60 + Math.random() * 70) * reach, chunk = i % 3 === 0;
+    const dx = Math.cos(a) * d, dy = Math.sin(a) * d, fall = (30 + Math.random() * 35) * reach, spin = 360 + Math.random() * 360;
+    const el = document.createElement('b');
+    el.className = chunk ? 'fc-chunk' : 'fc-spark';
+    cloud.appendChild(el);
+    const frames = [0, 0.2, 0.4, 0.6, 0.8, 1].map((k) => {
+      const e = 1 - (1 - k) ** 2, x = ox + dx * e, y = oy + dy * e + fall * k * k;
+      const r = chunk ? spin * k : Math.atan2(dy * 2 * (1 - k) + 2 * fall * k, dx * 2 * (1 - k)) * 180 / Math.PI;
+      return { transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r.toFixed(1)}deg)`, opacity: k < 0.7 ? 1 : (1 - k) / 0.3 };
+    });
+    el.animate(frames, { duration: 500 + Math.random() * 350 }).finished.catch(() => {}).then(() => el.remove());
+  }
+}
+
+function flakEmber(cloud) {
+  const el = document.createElement('b');
+  el.className = 'fc-ember';
+  cloud.appendChild(el);
+  const x = (Math.random() - 0.5) * 80, y = Math.random() * 22, drift = (Math.random() - 0.5) * 30, fall = 40 + Math.random() * 50;
+  el.animate([
+    { transform: `translate(${x}px, ${y}px)`, opacity: 0 },
+    { transform: `translate(${x + drift * 0.2}px, ${y + fall * 0.15}px)`, opacity: 1, offset: 0.15 },
+    { transform: `translate(${x + drift}px, ${y + fall}px) scale(.4)`, opacity: 0 }
+  ], { duration: 900 + Math.random() * 600, easing: 'ease-in' }).finished.catch(() => {}).then(() => el.remove());
+}
+
+function flakCrackle(cloud) {
+  const el = document.createElement('b');
+  el.className = 'fc-crackle';
+  const x = Math.round((Math.random() - 0.5) * 70), y = Math.round((Math.random() - 0.5) * 40);
+  el.style.cssText = `left:${x}px; top:${y}px`;
+  cloud.appendChild(el);
+  el.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 260, easing: 'ease-out' })
+    .finished.catch(() => {}).then(() => el.remove());
+  flakDebris(cloud, 3, 0.45, x, y);
+}
+
+function flakSkyClear(u, fade = true) {
+  const sky = flakSkies.get(u.uid);
+  if (!sky) return;
+  flakSkies.delete(u.uid);
+  sky.timers.forEach(clearInterval);
+  if (!fade || reduced) { sky.cloud.remove(); return; }
+  sky.cloud.classList.add('fc-gone');
+  setTimeout(() => sky.cloud.remove(), 850);
+}
+
+async function flakExplodeInSky(u) {
+  const arena = $('#arena');
+  if (reduced || !arena) return;
+  flakSkyClear(u, false);
+  const cloud = document.createElement('div');
+  cloud.className = 'flak-cloud';
+  Object.assign(cloud.style, { left: `${FLAK_AT.x * 100}%`, top: `${FLAK_AT.y * 100}%`, scale: String(clamp(arena.getBoundingClientRect().width / 1000, 0.6, 1.1)) });
+  const puffs = (list, d0) => list.map(([x, y, s], i) =>
+    `<i style="--x:${x}px; --y:${y}px; --s:${s}px; --d:${(d0 + i * 0.03).toFixed(2)}s; --b:${(1.3 + (i % 4) * 0.35).toFixed(2)}s"></i>`).join('');
+  cloud.innerHTML = `<div class="fc-smoke">${puffs(FLAK_SMOKE, 0.08)}</div><div class="fc-fire">${puffs(FLAK_FIRE, 0)}</div>${flakBang()}`;
+  arena.appendChild(cloud);
+  flakDebris(cloud, 15);
+  const sky = { cloud, timers: [] };
+  flakSkies.set(u.uid, sky);
+  sky.timers.push(setInterval(() => {
+    if (!cloud.isConnected || !state.teams[u.side].includes(u)) { flakSkyClear(u, false); return; }
+    flakEmber(cloud);
+  }, 140));
+  sky.timers.push(setInterval(() => flakCrackle(cloud), 560));
+  await sleep(beat(450));
+}
+
+async function flakShrapnelRain(u) {
+  const arena = $('#arena');
+  if (reduced || !arena) { flakSkyClear(u, false); return; }
+  const foes = openFoes(u).map(stageBox).filter(Boolean);
+  const A = arena.getBoundingClientRect();
+  const cx = A.width * FLAK_AT.x, burstY = A.height * FLAK_AT.y;
+  // The cloud lets go: it flares, throws a last spray, and the shrapnel comes out of it.
+  const sky = flakSkies.get(u.uid);
+  if (sky) {
+    sky.timers.forEach(clearInterval);
+    sky.timers = [];
+    sky.cloud.classList.add('fc-flare');
+    sky.cloud.insertAdjacentHTML('beforeend', flakBang());
+    flakDebris(sky.cloud, 10);
+    await sleep(beat(160));
+  }
+  // Built the way shoot() builds a round: .proj-flak has no size of its own, the art is the SVG.
+  const piece = (to, delay) => {
+    const [w, h, svg] = PROJ_ART.flak;
+    const el = document.createElement('div');
+    el.className = 'proj proj-flak';
+    Object.assign(el.style, { width: `${w}px`, height: `${h}px`, margin: `${-h / 2}px 0 0 ${-w / 2}px` });
+    el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${svg}</svg>`;
+    arena.appendChild(el);
+    const ang = Math.atan2(to.y - burstY, to.x - cx) * 180 / Math.PI;
+    const at = (x, y) => `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${ang.toFixed(1)}deg)`;
+    const ms = beat(clamp(Math.hypot(to.x - cx, to.y - burstY) * 0.7, 340, 600));
+    const anim = el.animate([{ transform: at(cx, burstY) }, { transform: at(to.x, to.y) }],
+      { duration: ms, delay, easing: 'ease-in', fill: 'backwards' });
+    return done(anim, ms + delay).then(() => el.remove());
+  };
+  const puff = (at) => {
+    const el = document.createElement('div');
+    el.style.cssText = `position:absolute; left:${at.x}px; top:${at.y}px; width:28px; height:28px; border-radius:50%; z-index:248; pointer-events:none;
+      background:radial-gradient(circle, #fff6c2 0 14%, #ffb347 32%, rgba(120,120,135,.8) 52%, transparent 70%);`;
+    arena.appendChild(el);
+    el.animate([{ transform: 'translate(-50%,-50%) scale(.3)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(1.7)', opacity: 0 }],
+      { duration: beat(450), easing: 'ease-out' }).finished.catch(() => {}).then(() => el.remove());
+  };
+  // Into the ground around every enemy: one at their feet, one off to the side, a beat apart.
+  const side = () => (Math.random() < 0.5 ? -1 : 1) * (0.55 + Math.random() * 0.5);
+  await Promise.all(foes.flatMap((b) => {
+    const near = { x: b.x + (Math.random() - 0.5) * b.w * 0.6, y: b.feet - Math.random() * 6 };
+    const wide = { x: b.x + side() * b.w, y: b.feet + (Math.random() - 0.4) * 24 };
+    return [piece(near, 0).then(() => puff(near)), piece(wide, beat(90)).then(() => puff(wide))];
+  }));
+  flakSkyClear(u);
 }
 
 /* TURNCOAT VERSE — Seraphine sings a champion round onto their own warband. She does not take their
@@ -6822,7 +6968,7 @@ async function damageSkill(u, t, sk) {
   // Tharos holds his ground: the trident goes up for a Riptide and down into the floor for an
   // Undertow, and the wave rolls out to the targets either way.
   else if (o.watersweep) { await (o.slam ? tridentSlam(u) : tridentRaise(u)); waterSweep(u, targets); }
-  else if (!melee && !o.hurl && !o.sawThrow) await aimPose(u, sk);   // a thrown saw winds up per throw (discSawThrow)
+  else if (!melee && !o.hurl && !o.sawThrow && !o.flakLob) await aimPose(u, sk);   // a thrown saw winds up per throw (discSawThrow)
   if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
   /* Sighted Throw (swordCount) and Emptied Hands (swordBurst): his blades leave ONE BY ONE - each flies and lands before the next is
      thrown, so you see every sword travel. Fired together they would fly the same line and read as one. */
@@ -6834,7 +6980,7 @@ async function damageSkill(u, t, sk) {
      and shoot() reached for bounceFrom on a null projectile and threw mid-cast.
      projectileFor already decided this — if it handed back nothing, there is
      nothing to fire, and that is true of every skill of this kind yet to come. */
-  if (!melee && proj && targets.length > 1 && !oneByOne) {
+  if (!melee && proj && targets.length > 1 && !oneByOne && !o.flakLob) {
     const n = targets.length;
     await Promise.all(targets.map((tg, i) => shoot(u, tg, proj, (n > 1 && o.swordCount) ? (i - (n - 1) / 2) * 18 : 0)));
   }
@@ -6945,7 +7091,7 @@ async function damageSkill(u, t, sk) {
       else if (o.dive) { if (i === 0) trip = (await stoopDive(u, tg)) || trip; await strikePose(u, false, sk, 1, tg); }
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
-      else if (!o.watersweep && !o.gust && (targets.length === 1 || oneByOne) && proj) {
+      else if (!o.watersweep && !o.gust && !o.flakLob && (targets.length === 1 || oneByOne) && proj) {
         if (fenceStops(u, sk, proj, tg)) { await fenceDeflect(u, tg, sk.name, proj); continue; }   // the iron takes it
         await shoot(u, tg, proj);
       }
@@ -9586,13 +9732,14 @@ async function turnPulse() {
   // if she is silenced, stunned, bashed or coffined before it goes (see loadThrow / fireLoadedThrow).
   for (const m of allUnits()) {
     if (!m.loadedThrow) continue;
-    if (m.hp <= 0) { m.loadedThrow = null; continue; }
+    if (m.hp <= 0) { m.loadedThrow = null; flakSkyClear(m); continue; }
     const lost = has(m, 'silence') || hardFrozen(m) || has(m, 'bash') || inBox(m);
     if (lost) {
       const why = has(m, 'silence') ? 'silenced' : hardFrozen(m) ? 'stunned' : has(m, 'bash') ? 'bashed' : 'sealed in the coffin';
       log(`${m.name} is ${why} — the ${m.loadedThrow.sk.name} is dropped.`, m.side);
       float(m, 'Dropped', 'miss');
       m.loadedThrow = null;
+      flakSkyClear(m);
       render();
       await wait(400);
       continue;

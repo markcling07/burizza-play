@@ -2424,6 +2424,34 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   to { transform: translate(var(--drift, 8px), -44%) scale(1.3); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .steamjet, .steamcloud, .steampuff { display: none; } }
+/* Howitzer's Flak Burst (flakExplodeInSky): the shell bursts over the field and hangs there for the Rev
+   as a burning cloud — smoke puffs boiling round a flickering fireball — until the shrapnel lets go. */
+.flak-cloud { position: absolute; width: 0; height: 0; z-index: 300; pointer-events: none; }
+.flak-cloud > * { position: absolute; left: 0; top: 0; }
+.fc-smoke i, .fc-fire i { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%;
+  animation: fcPop .38s var(--d) cubic-bezier(.2, 1.5, .45, 1) both, fcBoil var(--b) calc(var(--d) + .38s) ease-in-out infinite alternate; }
+.fc-smoke i { background: radial-gradient(circle at 40% 35%, #aaa5b8 0 6%, #7d798f 30%, #58546b 50%, rgba(60, 56, 76, .55) 61%, rgba(60, 56, 76, 0) 72%); }
+.fc-fire i { background: radial-gradient(circle, #fffbe0 0 10%, #ffd166 24%, #ff9a2e 40%, rgba(226, 84, 27, .8) 53%, rgba(226, 84, 27, 0) 70%); }
+.fc-fire { animation: fcDim 1.4s .45s ease-out forwards, fcFlicker .16s ease-in-out infinite alternate; }
+.fc-flash { width: 120px; height: 120px; margin: -60px 0 0 -60px; overflow: visible; animation: fcFlash .32s ease-out forwards; }
+.fc-flash polygon { fill: #fffbe0; stroke: #ffd166; stroke-width: 3; }
+.fc-ring { width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 3px solid rgba(255, 224, 160, .9); animation: fcRing .6s ease-out forwards; }
+.fc-spark { width: 18px; height: 2.5px; margin: -1.25px 0 0 -9px; border-radius: 2px; background: linear-gradient(90deg, rgba(255, 179, 71, 0), #ffb347 45%, #fffbe0); box-shadow: 0 0 6px #ffa726; }
+.fc-chunk { width: 6px; height: 5px; margin: -2.5px 0 0 -3px; border-radius: 1px; background: #5d6780; border: 1px solid #15121d; box-shadow: 0 0 4px #ff8f00; }
+.fc-ember { width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: #ffd166; box-shadow: 0 0 6px #ff8f00; }
+.fc-crackle { width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: radial-gradient(circle, #fff 0 20%, #ffd166 45%, rgba(255, 209, 102, 0) 70%); }
+.flak-cloud.fc-flare .fc-fire { animation: fcFlare .3s ease-out forwards; }
+.flak-cloud.fc-gone .fc-smoke { animation: fcGone .8s ease-out forwards; }
+.flak-cloud.fc-gone .fc-fire { animation: fcGone .35s ease-out forwards; }
+@keyframes fcPop { from { scale: 0; } }
+@keyframes fcBoil { from { transform: translate(0, 0) scale(1); } to { transform: translate(2px, -3px) scale(1.07); } }
+@keyframes fcDim { to { opacity: .55; } }
+@keyframes fcFlicker { from { filter: brightness(.9); } to { filter: brightness(1.2); } }
+@keyframes fcFlash { from { transform: scale(.2) rotate(0deg); opacity: 1; } to { transform: scale(1.5) rotate(25deg); opacity: 0; } }
+@keyframes fcRing { to { width: 200px; height: 200px; margin: -100px 0 0 -100px; opacity: 0; border-width: 1px; } }
+@keyframes fcFlare { 0% { opacity: .55; filter: brightness(1); } 40% { opacity: 1; filter: brightness(1.8); } to { opacity: 1; filter: brightness(1.15); } }
+@keyframes fcGone { to { opacity: 0; transform: scale(1.4); } }
+@media (prefers-reduced-motion: reduce) { .flak-cloud { display: none; } }
 /* Mortessa's Coffin (coffinFly): the coffin lifts off her back and sails to the targeted ally. */
 .coffinfly { position: absolute; z-index: 260; pointer-events: none; font-size: 30px; line-height: 1; filter: drop-shadow(0 0 10px rgba(110, 240, 150, .8)); }
 /* Ryuunosuke's Invulnerable Clone (cloneFlit): the shadow peels off him, crosses to the FAR side of
