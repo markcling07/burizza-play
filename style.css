@@ -1372,25 +1372,19 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
    animation holds its first frame. Either way the rig stays invisible while the state says
    bunkered. So the state sets the value outright, and the entry flourish lives on the CHILDREN,
    moving only TRANSFORMS: frozen at frame zero they stand a few pixels adrift — never unseen. */
-.unit.bunkered .body > .anchors { opacity: 1; }
-.unit.bunkered .upic { filter: saturate(.8) brightness(.9); }   /* powered down into a wall: holding, not fighting */
+.unit.bunkered .body > .anchors { opacity: 1; transform: scale(1.35); transform-origin: 50% 100%; }
+/* Sealed inside: the machine itself is gone from view and so are its bars; the bunker carries its name. */
+.unit.bunkered .upic { visibility: hidden; }
+.unit.bunkered .plate .bar { display: none; }
 .unit.bunkered .anchors .pl { animation: bkrPlate .4s cubic-bezier(.2, .8, .3, 1.15) backwards; }
-.unit.bunkered .anchors .plR { animation-delay: .07s; }
 .unit.bunkered .anchors .sp { animation: bkrSpike .22s cubic-bezier(.5, 0, 1, .4) backwards; }
 .unit.bunkered .anchors .s2 { animation-delay: .1s; } .unit.bunkered .anchors .s3 { animation-delay: .17s; } .unit.bunkered .anchors .s4 { animation-delay: .24s; }
 .unit.bunkered .anchors .core { animation: bkrCore 2.4s ease-in-out .5s infinite; }
 @keyframes bkrPlate { from { transform: translateY(-14px); } }   /* transforms only: see the note on .anchors */
 @keyframes bkrSpike { from { transform: translateY(-11px); } }
 @keyframes bkrCore { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }   /* frozen at frame zero it idles at .5 — lit either way */
-/* THE LEE (.unit.lee): the sheltered ally ducks in place behind a parapet of the bunker's own steel.
-   The crouch rides the shared .upic transition (translate/scale, like aloft and buried); the parapet
-   rises on its own short transition in front of the sprite. */
-.body > .shelter { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 4; opacity: 0; }
-.unit.lee .body > .shelter { opacity: 1; }   /* the same plain flip as .anchors above */
-.unit.lee .body > .shelter > * { animation: shelterUp .3s ease-out backwards; }   /* transforms only, on the children */
-@keyframes shelterUp { from { transform: translateY(9px); } }
-.unit.lee .upic { translate: 0 6%; scale: .95; filter: brightness(.88); }
-.unit.lee .plate, .unit.lee .chips { opacity: .85; }
+/* An ally who took cover has walked into the bunker: model, name, bars and status chips all gone until they step out. */
+.unit.lee .upic, .unit.lee .plate, .unit.lee .chips { visibility: hidden; }
 /* THE ARROW (.unit.coverCall): over a standing bunker while the player's champion can run in (coverCalls). */
 .coverArrow { display: none; position: absolute; left: 50%; bottom: calc(100% + 2px); z-index: 6; pointer-events: none;
   translate: -50% 0; flex-direction: column; align-items: center; gap: 1px; }
@@ -1401,8 +1395,7 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   border-top: 9px solid var(--accent); filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45)); }
 @keyframes coverBob { 50% { transform: translateY(4px); } }
 @media (prefers-reduced-motion: reduce) {
-  .unit.bunkered .anchors .pl, .unit.bunkered .anchors .sp, .unit.bunkered .anchors .core,
-  .unit.lee .body > .shelter > * { animation: none; }
+  .unit.bunkered .anchors .pl, .unit.bunkered .anchors .sp, .unit.bunkered .anchors .core { animation: none; }
   .unit.coverCall .coverArrow { animation: none; }
 }
 /* THE GRAVEYARD FENCE (Barrow's Obstacle): a row of iron railings with spear tops rises before

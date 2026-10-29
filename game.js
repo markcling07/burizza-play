@@ -7493,6 +7493,7 @@ function shelterIn(u, host) {
 function leaveCover(u) {
   u.effects = u.effects.filter((e) => e.id !== 'sheltered');
   u.bunkerHost = null;
+  actorEl(u)?.classList.remove('lee');   // visible again at the bunker before the dash home, not after the next render
   float(u, 'Out of cover', 'fx');
   const trip = coverTrips.get(u.uid);
   coverTrips.delete(u.uid);
@@ -8536,37 +8537,26 @@ const COFFIN_ART = `<ellipse cx="50" cy="94" rx="22" ry="4.2" fill="#000" opacit
    as a buff drawn on him. Symmetric on purpose: enemy units mirror their sprites, and a one-sided
    rig would brace the wrong way on that side. The classes (.pl/.plR, .sp .s1–.s4, .core) are what
    the CSS staggers when the state lands. */
-const ANCHOR_ART = `<ellipse cx="50" cy="94" rx="40" ry="6" fill="#000" opacity=".38"/>
-  <g class="pl plL">
-    <path d="M23 56 L35 61 L35 92 L17 92 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M22 66 L35 69 M20 78 L35 80" stroke="#434c5e" stroke-width="1.6"/>
-    <circle cx="26" cy="72" r="1.4" fill="#f0a73a"/><circle cx="25" cy="85" r="1.4" fill="#f0a73a"/>
+// A sealed steel pillbox that Bulwark (and anyone who took cover) is inside: the shell, a lit firing
+// slit, four pitons along the base and the powered rail. The CSS scales it up past his own body.
+const ANCHOR_ART = `<ellipse cx="50" cy="95" rx="47" ry="6.5" fill="#000" opacity=".4"/>
+  <g class="pl">
+    <path d="M6 94 L11 60 Q14 40 50 34 Q86 40 89 60 L94 94 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M9 72 Q50 62 91 72 M7 84 Q50 76 93 84" fill="none" stroke="#434c5e" stroke-width="2"/>
+    <path d="M30 37 V94 M50 34 V94 M70 37 V94" stroke="#434c5e" stroke-width="1.4" opacity=".55"/>
+    <path d="M11 60 Q14 40 50 34 Q86 40 89 60" fill="none" stroke="#f0a73a" stroke-width="2.6" stroke-linecap="round"/>
+    <rect x="26" y="49" width="48" height="9" rx="4" fill="#0e1018" stroke="#1d2130" stroke-width="1.5"/>
+    <rect x="30" y="52" width="40" height="3" rx="1.5" fill="#f0a73a" opacity=".6"/>
+    <g fill="#f0a73a"><circle cx="20" cy="66" r="1.4"/><circle cx="80" cy="66" r="1.4"/><circle cx="16" cy="80" r="1.3"/><circle cx="84" cy="80" r="1.3"/><circle cx="50" cy="42" r="1.4"/></g>
   </g>
-  <g class="pl plR">
-    <path d="M77 56 L65 61 L65 92 L83 92 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M78 66 L65 69 M80 78 L65 80" stroke="#434c5e" stroke-width="1.6"/>
-    <circle cx="74" cy="72" r="1.4" fill="#f0a73a"/><circle cx="75" cy="85" r="1.4" fill="#f0a73a"/>
-  </g>
-  <g class="sp s1"><rect x="29.4" y="83.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M30 86 h5 l-2.5 11 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
-  <g class="sp s2"><rect x="41.9" y="85.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M42.5 88 h5 l-2.5 10 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
-  <g class="sp s3"><rect x="53.9" y="85.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M54.5 88 h5 l-2.5 10 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
-  <g class="sp s4"><rect x="66.4" y="83.5" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M67 86 h5 l-2.5 11 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s1"><rect x="19.4" y="90" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M20 92.5 h5 l-2.5 8 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s2"><rect x="37.9" y="90" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M38.5 92.5 h5 l-2.5 8 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s3"><rect x="55.9" y="90" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M56.5 92.5 h5 l-2.5 8 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
+  <g class="sp s4"><rect x="74.4" y="90" width="6.2" height="3" rx="1" fill="#f0a73a"/><path d="M75 92.5 h5 l-2.5 8 Z" fill="#434c5e" stroke="#1d2130" stroke-width="1.4" stroke-linejoin="round"/></g>
   <g class="core">
-    <path d="M19 92 H81" stroke="#f0a73a" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>
-    <circle cx="50" cy="92" r="2.6" fill="#ffd28a"/>
+    <path d="M10 94 H90" stroke="#f0a73a" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>
+    <circle cx="50" cy="94" r="2.6" fill="#ffd28a"/>
   </g>`;
-
-/* THE LEE (.shelter, shown by .unit.lee). The ally sent behind the bunker ducks in place behind a
-   plated parapet raised in FRONT of them (z above the sprite), in the bunker's steel and amber so
-   the two read as one work. In place rather than walked across the field: the sheltered champion
-   still owns their tile, their chips and their turn — the parapet plus the crouch (.unit.lee .upic)
-   says "unreachable" without moving a unit the layout still has to account for. */
-const SHELTER_ART = `<ellipse cx="50" cy="96" rx="36" ry="4.5" fill="#000" opacity=".35"/>
-  <path d="M15 96 L15 58 Q50 50 85 58 L85 96 Z" fill="#5a6478" stroke="#1d2130" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M15 68 Q50 60 85 68 M15 78 Q50 71 85 78 M15 88 Q50 82 85 88" fill="none" stroke="#434c5e" stroke-width="2"/>
-  <path d="M15 58 Q50 50 85 58" fill="none" stroke="#f0a73a" stroke-width="2.6" stroke-linecap="round"/>
-  <path d="M26 60 V96 M50 55 V96 M74 60 V96" stroke="#434c5e" stroke-width="1.6" opacity=".7"/>
-  <g fill="#f0a73a"><circle cx="32" cy="72" r="1.3"/><circle cx="50" cy="66" r="1.3"/><circle cx="68" cy="72" r="1.3"/><circle cx="38" cy="84" r="1.2"/><circle cx="62" cy="84" r="1.2"/></g>`;
 
 async function hurlCross(u, t, i, sk) {
   await strikePose(u, false, sk);   // he lifts his cross to the sky and calls the next one down
@@ -17809,7 +17799,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${runsHot(u) && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg><svg class="anchors" viewBox="0 0 100 100" aria-hidden="true">${ANCHOR_ART}</svg><svg class="shelter" viewBox="0 0 100 100" aria-hidden="true">${SHELTER_ART}</svg></div>
+      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg><svg class="anchors" viewBox="0 0 100 100" aria-hidden="true">${ANCHOR_ART}</svg></div>
     </div>`;
 }
 
