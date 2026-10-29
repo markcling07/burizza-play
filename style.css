@@ -2802,14 +2802,16 @@ svg.art .spentblade { opacity: 0; }
      words for the same reason: the title attribute still spells it out. */
   .fieldBar > .round .rdFull,  .fieldBar > .round .tideTxt { display: none; }
   .fieldBar > .round .rdShort, .fieldBar > .round .tideIco { display: inline; }
-  /* The weather pill is centred on the field and used to have that line to
-     itself. It drops below the bar rather than sharing it: the controls grow
-     by 40px whenever the fast-forward appears (your champion is down), and at
-     that width the pill and the buttons overlap. Sizing the pill to whatever
-     is left would mean ellipsing the forecast every time someone falls, which
-     is exactly when you want to read it. 34px clears the bar and still sits
-     above every nameplate. */
-  .wxPill { top: 34px; }
+  /* One row, one size: the weather pill moves up beside the round chip (--rdw is the chip's
+     live width, set in game.js), and the pill, chip and both buttons are all 22px tall. */
+  .fieldBar > .round { box-sizing: border-box; height: 22px; display: inline-flex; align-items: center; }
+  .wxPill, .wxPop { top: 6px; left: calc(14px + var(--rdw, 34px)); transform: none; }
+  .wxPill { box-sizing: border-box; height: 22px; padding: 0 9px 0 7px; gap: 3px; font-size: .64rem;
+    max-width: calc(100% - var(--rdw, 34px) - 170px); }
+  .wxPill .wxi { font-size: .74rem; }
+  .wxPill .wxl { padding: 0 5px; font-size: .54rem; }
+  .wxPop { top: 34px; }
+  .speedBtn { box-sizing: border-box; height: 22px; min-width: 0; padding: 0 8px; font-size: .62rem; }
   /* The arena gives up its 16/8 and simply fills what is left — on this screen
      the height is the budget and the aspect ratio has to follow it. */
   /* inline-size, NOT `container-type: size`. Full size-containment here (so the
@@ -2845,9 +2847,9 @@ svg.art .spentblade { opacity: 0; }
      rather than on a stripe of nothing. The cqh caps above are reduced in step
      (25 -> 21 and so on) because the height a champion now has to fit is the
      shortened one, not the arena's. */
-  .arena > .side { bottom: 47px; }
+  .arena > .side { bottom: 40px; }
   /* The cast feed rides at the field's foot and would be behind the bar. */
-  .castfeed { bottom: calc(2.5% + 47px); }
+  .castfeed { bottom: calc(2.5% + 40px); }
   .speed { grid-area: speed; padding: 0; gap: 2px; }
   .track { height: 50px; }
   .lane { display: none; }
@@ -2871,7 +2873,7 @@ svg.art .spentblade { opacity: 0; }
     position: relative;
     grid-area: arena; align-self: end; z-index: 4;
     min-height: 0; overflow: visible; pointer-events: none;
-    --tile: 36px; --gut: 12px; margin: 0 8px 7px;
+    --tile: 36px; --gut: 12px; margin: 0 8px;
     display: flex; align-items: flex-end;
   }
   .deck > * { pointer-events: auto; }

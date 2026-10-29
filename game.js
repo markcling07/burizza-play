@@ -21469,6 +21469,10 @@ function setLogHidden(hide) {
   if (!TEST_MODE) { try { localStorage.setItem(LOG_KEY, hide ? '1' : '0'); } catch {} }
 }
 $('#logBtn').addEventListener('click', () => setLogHidden(!document.body.classList.contains('logHidden')));
+// The landscape weather pill sits just right of the round chip, whose width changes ("R1", "R12", High Tide's wave).
+if (typeof ResizeObserver === 'function') {
+  new ResizeObserver(() => $('#arena').style.setProperty('--rdw', `${$('#roundTxt').offsetWidth}px`)).observe($('#roundTxt'));
+}
 /* Hidden until asked for. The fight is the thing worth looking at; the log is
    where you go to find out why something happened, which is a question you ask
    occasionally and not continuously. A player who opens it has said so, and
