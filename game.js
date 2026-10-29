@@ -879,11 +879,11 @@ const RESH_BATTERY_PCT = 0.5;
    a friend hides him from every single blow, riding a foe leaves him in the open
    where anyone can pull him off. */
 const ORIN_RIDE_TURNS = 3;    // turns bolted to an ally
-const ORIN_RIDE_PUSH = 80;    // bar ground the host gains each turn he rides
+const ORIN_RIDE_PUSH = 110;   // bar ground the host gains each turn he rides
 const ORIN_GRIP_TURNS = 2;    // turns clamped on an enemy
-const ORIN_GRIP_DMG = 0.15;   // grinds 15% ATK every Rev it holds
-const ORIN_RUSH_DRAIN = 0.15; // Rush Bot drains this share of the enemy's max HP
-const ORIN_RUSH_BAR = 250;    // 25% of the speed bar (TRACK = 1000)
+const ORIN_GRIP_DMG = 0.25;   // grinds 25% ATK every Rev it holds
+const ORIN_RUSH_DRAIN = 0.20; // Rush Bot drains this share of the enemy's max HP
+const ORIN_RUSH_BAR = 300;    // 30% of the speed bar (TRACK = 1000)
 const ORIN_WELD_MULT = 3.0;    // base heal mult: a serious weld now
 const ORIN_WELD_METAL = 1.4;   // ...on plate and gearing it takes better
 const ORIN_WELD_RIDE = 1.2;    // ...and best of all on the back he is already bolted to
@@ -1992,22 +1992,22 @@ const ROSTER = [
        throws from across the field and folds the moment anything reaches him (hp 0.85). */
     passiveAlt: P('Never There', 'He is never quite where the blade was: +10% dodge.', { dodge: 0.1 }) },
   { id: 'automatonx', name: 'Orin', faction: 'stray', role: 'support', bio: 'A foundry-cast rider who makes a weapon of whatever he is holding onto.',
-    mods: { atk: 1.0, hp: 0.95, agi: 1.15 },
+    mods: { atk: 1.15, hp: 1.05, agi: 1.15 },
     look: { body: 'bot', main: '#6d7482', trim: '#e8a548', eye: '#ffcf6b' },
-    skills: [D('Spanner Swing', 'Deals 120% ATK damage.', 2, 1.2, { dash: true }),
+    skills: [D('Spanner Swing', 'Deals 150% ATK damage.', 2, 1.5, { dash: true }),
              B('Piggyback Rig', `Orin bolts onto an ally's back for ${ORIN_RIDE_TURNS} turns: they run ${ORIN_RIDE_PUSH} further along the bar at every turn of theirs, and he swings in straight after every attack they make. No single blow can find him while he rides, though area attacks still catch him.`, 4, 'ally', [], { ride: true, notSelf: true, aiTarget: 'lowest' }),
              B('Seize the Arm', `Orin clamps onto an enemy and disarms them for ${ORIN_GRIP_TURNS} turns, grinding ${Math.round(ORIN_GRIP_DMG * 100)}% ATK damage every Rev he holds on. Orin is fully exposed while gripping — any hit will kill him.`, 4, 'enemy', [], { grip: true }),
-             S('Rush Bot', `Welds a bot that charges the moment it lands: it drains ${Math.round(ORIN_RUSH_DRAIN * 100)}% of a random enemy's max HP, then runs to a random ally — healing them for the stolen amount and boosting their turn bar by 25%.`, 4, 'rushbot', {}),
+             S('Rush Bot', `Welds a bot that charges the moment it lands: it drains ${Math.round(ORIN_RUSH_DRAIN * 100)}% of a random enemy's max HP, then runs to a random ally — healing them for the stolen amount and boosting their turn bar by ${ORIN_RUSH_BAR / 10}%.`, 4, 'rushbot', {}),
              B('Overclock', 'Pushes an ally up the speed bar. Empowers them: +30% damage for 2 turns.', 3, 'ally', [['empower', 3]], { overclock: true, aiTarget: 'lowest' }),
              H('Hammer Weld', `Heals an ally for ${Math.round(ORIN_WELD_MULT * 100)}% ATK. On anything cast rather than born — a bot, a hot hull — mends ${Math.round((ORIN_WELD_METAL - 1) * 100)}% more and vents ${ORIN_WELD_VENT} Heat. Best of all on the back he is already bolted to.`, 3, ORIN_WELD_MULT, { weld: true, weldBeam: true }),
              /* His one way of spending Heat was overheating by accident. `steam` walks him out to
                 midfield, vents, and walks him home — second use in the game after Bulwark-7's
                 Steam Vent, and the only one on a champion who is not an Ironclad. It is also his
                 first area attack: a support with six skills and no way to touch more than one. */
-             D('Blow the Valve', 'Deals 70% ATK damage to all enemies. He walks out, opens himself up and vents the whole bar into them.', 4, 0.7, { aoe: true, steam: true }),
+             D('Blow the Valve', 'Deals 90% ATK damage to all enemies. He walks out, opens himself up and vents the whole bar into them.', 4, 0.9, { aoe: true, steam: true }),
              /* He rivets plate onto people. Thorns and a mend in one cast, which is the mechanic's
                 shape rather than a number: the ally he patches also starts biting back. */
-             B('Plate Rig', 'Rivets spare plate onto an ally: Thorns for 3 turns, and a weld that mends them as it goes.', 4, 'ally', [['thorns', 3]], { heal: 1.0, aiTarget: 'lowest', notSelf: true })],
+             B('Plate Rig', 'Rivets spare plate onto an ally: Thorns for 3 turns, and a weld that mends them as it goes.', 4, 'ally', [['thorns', 3]], { heal: 1.5, aiTarget: 'lowest', notSelf: true })],
     nature: { name: 'Foundry-Cast', desc: 'Built in the Union\'s own moulds. Runs on Heat, not mana — every action fills the overheat bar.', heat: 1 },
     passive: P('Foundry-Cast', 'Built in the Union\'s own moulds: +10% Heat damage and the overheat bar fills a little slower.', { stat: { heatMult: 0.1 } }),
     /* Foundry-Cast is about what HE puts out; this is about what he leaves behind in whoever he
@@ -2391,7 +2391,7 @@ const SUMMONS = {
   // drains the target and delivers the stolen life to an ally — see rushBotErrand.
   rushbot: {
     name: 'Rush Bot', role: 'melee', life: 120, strikesOnSpawn: true, errand: 'rush',
-    desc: 'A welded scrap-charger. Drains 10% of a random enemy\'s max HP, runs to a random ally, heals them for the stolen amount and boosts their turn bar by 25%.',
+    desc: `A welded scrap-charger. Drains ${Math.round(ORIN_RUSH_DRAIN * 100)}% of a random enemy's max HP, runs to a random ally, heals them for the stolen amount and boosts their turn bar by ${ORIN_RUSH_BAR / 10}%.`,
     look: { body: 'bot', main: '#7a828f', trim: '#e8a548' },
     stats: (o) => ({ maxHp: Math.round(o.maxHp * 0.25), atk: Math.round(o.atk * 0.8), def: Math.round(o.def * 0.5), agi: 16, crit: 0.05, dodge: 0 }),
     leave: (u) => `${u.name} clatters apart.`,
@@ -6241,7 +6241,9 @@ async function executeFalls(u) {
   await bloodTorrent(t);   // the blow lands only once the torrent has reached them
   if (outOfReach(t)) {
     float(t, 'Hidden', 'miss');
-    log(`${u.name}'s Execute pours down on ${buried(t) ? 'the grave mound' : apart(t) ? 'bare ground' : 'the coffin lid'} — ${t.name} is out of its reach.`, u.side);
+    const where = inBox(t) ? 'the coffin lid' : buried(t) ? 'the grave mound' : sheltered(t) ? "the bunker's plating"
+      : t.shadowMatrix ? 'empty shadows' : veiled(t) ? 'the veil' : 'bare ground';
+    log(`${u.name}'s Execute pours down on ${where} — ${t.name} is out of its reach.`, u.side);
   } else {
     log(`${u.name}'s blood comes down on ${t.name}!`, u.side);
     // noGuard: the rite promises only a grave mound or a coffin lid turns it aside. A sworn
@@ -8669,7 +8671,7 @@ async function riderFollowUp(host) {
 
 /* A Rush Bot's whole life is one errand: charge a random enemy, drain 10% of its
    max HP, then run to a random ally — heal for the stolen amount and boost their
-   bar by 25%. The machine comes apart as it delivers. */
+   bar by ORIN_RUSH_BAR. The machine comes apart as it delivers. */
 async function rushBotErrand(bot) {
   if (bot.hp <= 0) return;
   const foes = state.teams[bot.side === 'p' ? 'e' : 'p'].filter((e) => e.hp > 0);
@@ -8700,7 +8702,7 @@ async function rushBotErrand(bot) {
     ally.pos = (ally.pos || 0) + ORIN_RUSH_BAR;
     float(ally, `+${drain}`, 'heal');
     burst(ally, 'heal');
-    log(`${bot.name} delivers the stolen life to ${ally.name} (+${drain} HP) and boosts their bar by 25%, coming apart as it does.`, bot.side);
+    log(`${bot.name} delivers the stolen life to ${ally.name} (+${drain} HP) and boosts their bar by ${ORIN_RUSH_BAR / 10}%, coming apart as it does.`, bot.side);
     if (trip2) trip2.anim?.cancel();
   } else {
     log(`${bot.name} finds no ally to deliver to and clatters apart.`, bot.side);
