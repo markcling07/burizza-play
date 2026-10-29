@@ -1534,44 +1534,34 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .grindSparks.west { scale: -1 1; }   /* the spray leaves the far side of the cut, whichever way he faces */
 .float.tick { font-size: .78rem; animation-duration: .9s; }
 .float.tick.crit { font-size: .9rem; }
-/* TOOTH BREAKER's armour break (toothBreakFx), laid in the struck fighter's body box: the crunch flash
-   where it landed, cracks that draw in white-hot and cool to dark, chips of plate and tooth thrown out
-   the far side, and a steel shield over their head that splits down a jagged line and falls apart.
-   .west mirrors the lot for a blow that came from the east. Chip throws are in units of --size. */
-.toothBreak { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
-.toothBreak.west { scale: -1 1; }
-.toothBreak .tbCrack { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
-  filter: drop-shadow(0 0 3px #ffd27a); animation: tbCrackFade 1.1s ease-out forwards; }
-.toothBreak .tbCrack path { fill: none; stroke: #fff6dc; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
-  vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1;
-  animation: tbCrackDraw .14s ease-out forwards, tbCrackCool .5s ease-in .16s forwards; }
-.toothBreak .tbFlash { position: absolute; left: 34%; top: 38%; width: 75%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
-  background: radial-gradient(circle, #fff 0 16%, rgba(255, 238, 196, .9) 30%, rgba(255, 186, 90, .4) 50%, transparent 70%);
-  animation: tbFlash .32s ease-out forwards; }
-.toothBreak .tbChip { position: absolute; left: 34%; top: 38%; width: 8%; height: 6%; background: #9aa3b0; border: 1px solid #2a2030;
+/* TOOTH BREAKER's saw-drill (drillStab): a toothed, spiral-striped shaft that runs out of the housing on
+   his hand and through the mark. Each .drillTrack is laid from his hand along the line of the stab and
+   pivots there; the bit slides inside it. The stripes running along it are the spin. */
+.drillTrack { position: absolute; transform-origin: 0 50%; pointer-events: none;
+  filter: drop-shadow(0 0 1px #2a2030) drop-shadow(0 1px 1px rgba(0, 0, 0, .5)); }
+.drillTrack .drillBit { position: absolute; inset: 0; display: block;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 38%, rgba(0, 0, 0, .42)),
+    repeating-linear-gradient(118deg, #e6eaf0 0 5px, #8a929f 5px 8px, #c4cad3 8px 11px);
+  animation: drillSpin .12s linear infinite; }
+@keyframes drillSpin { to { background-position: 0 0, 12.5px 0; } }
+.drillHub { position: absolute; translate: -50% -50%; z-index: 203; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(circle, #f2b53a 0 20%, #2a2030 21% 27%, #5a6070 28% 62%, #3a3f4a 63% 72%, #2a2030 73%);
+  box-shadow: 0 0 6px rgba(255, 170, 60, .7); }
+.drillHub::after { content: ''; position: absolute; inset: 16%; border-radius: 50%; border: 2px dashed #c9ced8; animation: sawSpin .25s linear infinite; }
+.drillExit { position: absolute; aspect-ratio: 1; translate: -50% -50%; pointer-events: none; }
+.drillExit.west { scale: -1 1; }
+.drillExit .flash { position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 14%, rgba(255, 230, 180, .85) 28%, rgba(255, 170, 70, .35) 48%, transparent 68%);
+  animation: tbFlash .34s ease-out forwards; }
+.drillExit b { position: absolute; left: 50%; top: 50%; width: 10%; height: 8%; background: #9aa3b0; border: 1px solid #2a2030;
   clip-path: polygon(0 20%, 60% 0, 100% 45%, 70% 100%, 10% 85%); opacity: 0;
-  animation: tbChip .8s cubic-bezier(.2, .6, .4, 1) var(--dl) forwards; }
-.toothBreak .tbChip.tooth { width: 5%; height: 7%; background: #f4efe2; border-radius: 45% 45% 55% 55%; clip-path: none; }
-/* Beside their head on the far side, not over it: above the head is the name and the HP bar, which is
-   exactly what the player is watching as the blow lands. */
-.toothBreak .tbShield { position: absolute; left: 78%; top: 2%; width: 34%; translate: -50% 0; overflow: visible;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .5)); animation: tbShieldPop 1s ease-out forwards; }
-.toothBreak .tbShield path { fill: #8f9aab; stroke: #2a2030; stroke-width: 1.6; stroke-linejoin: round;
-  transform-box: fill-box; animation: tbHalfL .95s ease-in forwards; }
-.toothBreak .tbShield .l { transform-origin: 100% 60%; }
-.toothBreak .tbShield .r { transform-origin: 0 60%; animation-name: tbHalfR; }
-@keyframes tbCrackDraw { to { stroke-dashoffset: 0; } }
-@keyframes tbCrackCool { to { stroke: #2b1d16; } }
-@keyframes tbCrackFade { 0%, 25% { opacity: 1; } 60% { opacity: .9; filter: none; } 100% { opacity: 0; filter: none; } }
+  animation: drillChip .7s cubic-bezier(.2, .6, .4, 1) var(--dl) forwards; }
+.drillExit b:nth-child(odd) { background: #5b4a48; }
 @keyframes tbFlash { from { scale: .3; opacity: 1; } to { scale: 1.5; opacity: 0; } }
-@keyframes tbChip {
+@keyframes drillChip {
   0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
-  50% { opacity: 1; transform: translate(calc(var(--size) * var(--x) * .7), calc(var(--size) * (var(--y) - .12))) rotate(calc(var(--r) * .6)); }
-  100% { opacity: 0; transform: translate(calc(var(--size) * var(--x)), calc(var(--size) * (var(--y) + .45))) rotate(var(--r)); }
+  100% { opacity: 0; transform: translate(calc(var(--w) * var(--x)), calc(var(--w) * (var(--y) + .4))) rotate(var(--r)); }
 }
-@keyframes tbShieldPop { 0% { scale: .5; opacity: 0; } 14% { scale: 1.12; opacity: 1; } 28% { scale: 1; opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes tbHalfL { 0%, 30% { transform: none; } 100% { transform: translate(-30%, 45%) rotate(-30deg); } }
-@keyframes tbHalfR { 0%, 30% { transform: none; } 100% { transform: translate(30%, 45%) rotate(30deg); } }
 /* SHRAPNEL SPIN's thrown disk saw (discSawThrow): the same blade, laid flat — squashed to an edge-on
    ellipse — and still spinning as it flies. Placed by translate in arena pixels; above the fighters. */
 .discSaw { position: absolute; left: 0; top: 0; z-index: 120; pointer-events: none;

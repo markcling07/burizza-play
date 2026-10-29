@@ -980,7 +980,7 @@ const ROSTER = [
                 damage in his kit so that opening with it is a real choice rather than a free
                 one. Sunder outlasts Exposed on purpose: the armour stays off long enough for
                 the warband to use it, the vulnerability is his own short window. */
-             D('Tooth Breaker', 'Deals 120% ATK damage. Sunders the target\'s armor for 3 turns and leaves them Exposed for 2.', 3, 1.2, { fx: [['sunder', 3], ['exposed', 2]], toothBreak: true }),   // toothBreak: see toothBreakFx
+             D('Tooth Breaker', 'Deals 120% ATK damage. Sunders the target\'s armor for 3 turns and leaves them Exposed for 2.', 3, 1.2, { fx: [['sunder', 3], ['exposed', 2]], drill: true }),   // drill: see drillStab
              /* The Flywheel skill. Five thin cuts is the most hits on any one target in his kit,
                 which is exactly what his Nature multiplies — over 50 Heat this is six. Builds
                 heat hard: this is the skill that pushes him into Flywheel range for the NEXT
@@ -6845,7 +6845,6 @@ async function damageSkill(u, t, sk) {
   const hitOnce = async (tg, mult) => {
     const r = strikeOnce(u, tg, mult, sk.name, tg === heroicGuard ? { ...o, heroic: true } : o);
     if (!r.miss) {
-      if (o.toothBreak) toothBreakFx(u, tg);   // Tooth Breaker: the armour cracks and bursts off them, the moment it lands
       struck.add(tg);
       if (u.maxSwords) landed.set(tg, (landed.get(tg) || 0) + 1);
       total += r.dmg;
@@ -6938,6 +6937,8 @@ async function damageSkill(u, t, sk) {
       else if (o.bigSaw && melee && await ripSawSwing(u, i, sk, tg)) { /* Rip Saw: the swollen blade has ripped through (see ripSawSwing) */ }
       // Limb Shear: the blow lands inside the grind, which plays its damage out as ticks (limbShearGrind).
       else if (o.grind && melee) { await limbShearGrind(u, tg, () => hitOnce(tg, sk.mult)); continue; }
+      // Tooth Breaker: the blow lands as the drill bursts out of their back (drillStab).
+      else if (o.drill && melee) { await drillStab(u, tg, () => hitOnce(tg, sk.mult)); continue; }
       else if (melee) await strikePose(u, false, sk, 1, tg);
       // Stoop: a blow from the sky that is HER, not a cross — up off the field and down on them (stoopDive).
       else if (o.dive) { if (i === 0) trip = (await stoopDive(u, tg)) || trip; await strikePose(u, false, sk, 1, tg); }
@@ -18681,34 +18682,101 @@ async function limbShearGrind(u, t, land) {
   render();
 }
 
-/* TOOTH BREAKER (Sawtooth): the blow that opens a mark up, so the picture is armour breaking. The
-   moment it lands: a white crunch where it struck, cracks racing across them and going dark, chips of
-   plate and broken teeth thrown out the far side, a steel shield popping up over their head and
-   splitting in two (Sundered), and their head snapping back with the field jolting under it. Only on
-   a blow that lands — called from hitOnce. All of it is one element in their body box, mirrored for
-   a blow coming from the east, so it scales with them and faces the right way. */
-function toothBreakFx(u, t) {
-  const b = bodyEl(t);
-  if (reduced || !b) return;
-  const d = facing(u);
-  const el = document.createElement('div');
-  el.className = `toothBreak${d < 0 ? ' west' : ''}`;
-  const cracks = ['M34 38 L47 31 L58 34 L71 25', 'M34 38 L45 47 L51 60 L62 67', 'M34 38 L41 23 L49 14', 'M34 38 L50 41 L66 45', 'M47 31 L52 22']
-    .map((p) => `<path d="${p}" pathLength="1"/>`).join('');
-  // [x, y] thrown (in units of their size), spin, delay, tooth or plate
-  const chips = [[0.9, -0.55, 320, 0, 1], [1.1, -0.2, -260, 20, 0], [0.7, -0.75, 200, 10, 0], [1.25, 0.1, 400, 30, 1],
-    [0.55, -0.4, -180, 0, 0], [0.95, 0.25, 280, 40, 1], [0.4, -0.85, -300, 15, 0], [1.05, -0.95, 240, 25, 1], [0.75, 0.05, -220, 5, 0]];
-  el.innerHTML = `<svg class="tbCrack" viewBox="0 0 100 100" aria-hidden="true">${cracks}</svg><i class="tbFlash"></i>`
-    + chips.map(([x, y, r, dl, tooth]) => `<i class="tbChip${tooth ? ' tooth' : ''}" style="--x:${x};--y:${y};--r:${r}deg;--dl:${dl}ms"></i>`).join('')
-    + `<svg class="tbShield" viewBox="0 0 40 44" aria-hidden="true">
-        <path class="l" d="M20 3 L5 8 V22 Q5 34 20 41 L18 33 L22 25 L17 17 L21 9 Z"/>
-        <path class="r" d="M20 3 L35 8 V22 Q35 34 20 41 L18 33 L22 25 L17 17 L21 9 Z"/></svg>`;
-  b.appendChild(el);
-  setTimeout(() => el.remove(), 1300);
-  // Their head snaps back from it, and the ground takes the jolt.
-  b.querySelector('.upic')?.animate([{ translate: '0 0', rotate: '0deg' }, { translate: `${d * 7}px -2px`, rotate: `${d * 8}deg`, offset: 0.25 },
-    { translate: '0 0', rotate: '0deg' }], { duration: beat(380), easing: 'ease-out' });
-  $('#arena').animate([{ translate: '0 0' }, { translate: `${d * 3}px 2px` }, { translate: `${-d * 2}px -1px` }, { translate: '0 0' }], { duration: beat(220) });
+/* TOOTH BREAKER (Sawtooth): he holds his thrust and a saw-drill shoots out of his arm and straight
+   THROUGH the mark — in at the front, the tip bursting out of their back — spins there while they
+   shake on it, and is hauled back into his arm. The blow lands as the tip comes out the far side.
+   Going through is a layering trick, not a mask: the drill is drawn twice along one track. One copy
+   sits just BEHIND the mark, so their own picture hides whatever part of it is inside them and the
+   tip shows again past their back; the other sits in front, clipped to end where it enters them.
+   Both slide together inside tracks that never move, so the clips stay put in the world while the
+   drill runs in and out of his hand. A housing on his hand covers the painted round saw. */
+const DRILL_TEETH = (() => {
+  // A shaft with a saw-toothed spiral edge, top and bottom, ending in a point (as clip-path %).
+  const top = [], bot = [];
+  for (let x = 0; x <= 74; x += 6) { top.push(`${x}% 14%`, `${x + 3}% 2%`); bot.unshift(`${x}% 86%`, `${x + 3}% 98%`); }
+  return `polygon(${[...top, '78% 14%', '100% 50%', '78% 86%', ...bot].join(', ')})`;
+})();
+async function drillStab(u, t, land) {
+  const s = stageBox(u), e = stageBox(t), b = bodyEl(u), tEl = actorEl(t);
+  if (reduced || !s || !e || !b || !tEl) { await land(); return; }
+  const d = facing(u), arena = $('#arena').getBoundingClientRect();
+  const img = animImg(u), a = animOf(u), still = a?.thrust, blob = still && clipBlobs.get(still.src);
+  // He holds the thrust (as Limb Shear does), and the drill comes out of the hand.
+  let hand = { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.55 }, url = null, housing = s.w * 0.2;
+  if (img && blob) {
+    url = URL.createObjectURL(blob);
+    sizeClip(img, still, u.side);
+    img.src = url;
+    const r = img.getBoundingClientRect(), [hx, hy] = SAW_TRACK.thrust;
+    const fx = actorEl(u).classList.contains('lookW') ? 1 - hx / still.w : hx / still.w;
+    hand = { x: r.left + fx * r.width - arena.left, y: r.top + (hy / still.h) * r.height - arena.top };
+    housing = (SAW_R * 1.25 / still.w) * r.width;   // just wider than the painted saw it hides
+  }
+  // Dead level out of his hand, the way he faces — never tilted up or down at them. The run-in has
+  // already stood him on their row, so a level drill goes through their body and out of their back.
+  const ang = d > 0 ? 0 : Math.PI;
+  const front = Math.max(housing * 0.6, ((e.x - d * e.w * 0.3) - hand.x) * d);   // where it goes in
+  const len = Math.max(front + e.w * 0.8, ((e.x + d * e.w * 0.85) - hand.x) * d);   // its point well out of their back
+  const thick = Math.max(7, s.w * 0.13);   // a lance through them, not a log
+  const tz = parseInt(getComputedStyle(tEl).zIndex, 10) || 1;
+  const track = (z, clipTo) => {
+    const k = document.createElement('div');
+    k.className = 'drillTrack';
+    Object.assign(k.style, { left: `${hand.x}px`, top: `${hand.y - thick / 2}px`, width: `${len}px`, height: `${thick}px`,
+      rotate: `${ang}rad`, zIndex: z, clipPath: `inset(-60% ${clipTo == null ? 0 : Math.max(0, len - clipTo)}px -60% 0)` });
+    k.innerHTML = '<i class="drillBit"></i>';
+    k.firstElementChild.style.clipPath = DRILL_TEETH;
+    $('#arena').appendChild(k);
+    return k;
+  };
+  const behind = track(Math.max(0, tz - 1)), inFront = track(201, front);
+  const hub = document.createElement('div');
+  hub.className = 'drillHub';
+  Object.assign(hub.style, { left: `${hand.x}px`, top: `${hand.y}px`, width: `${housing * 2}px`, height: `${housing * 2}px` });
+  $('#arena').appendChild(hub);
+  const bits = [behind, inFront].map((k) => k.firstElementChild);
+  const slide = (from, to, ms, easing) => Promise.all(bits.map((bit) => done(bit.animate([{ translate: from }, { translate: to }],
+    { duration: ms, easing, fill: 'forwards' }), ms)));
+  const shaking = [];
+  try {
+    hub.animate([{ scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1 }], { duration: beat(120), fill: 'forwards' });
+    await slide(`${-len}px 0`, `${-len}px 0`, 0, 'linear');   // tucked away inside his arm
+    await wait(110);
+    await slide(`${-len}px 0`, '0 0', beat(170), 'cubic-bezier(.5, 0, .9, .6)');   // the stab: in and through
+    // In at the front in sparks, out of the back in a burst of chips, and they shake on it.
+    const entry = { x: hand.x + Math.cos(ang) * front, y: hand.y + Math.sin(ang) * front };
+    const exit = { x: hand.x + Math.cos(ang) * (len - thick * 1.2), y: hand.y + Math.sin(ang) * (len - thick * 1.2) };
+    const sp = document.createElement('div');
+    sp.className = `grindSparks${d < 0 ? ' west' : ''}`;
+    Object.assign(sp.style, { left: `${entry.x}px`, top: `${entry.y}px`, zIndex: 202 });
+    sp.innerHTML = [-70, -50, -35, -20, -5, 10, 25].map((g, k) => `<i style="--a:${g}deg;--dl:${-k * 45}ms"></i>`).join('');
+    $('#arena').appendChild(sp);
+    const burstEl = document.createElement('div');
+    burstEl.className = `drillExit${d < 0 ? ' west' : ''}`;
+    Object.assign(burstEl.style, { left: `${exit.x}px`, top: `${exit.y}px`, width: `${e.w}px`, zIndex: 202 });
+    burstEl.style.setProperty('--w', `${e.w}px`);   // chips are thrown in units of their width
+    burstEl.innerHTML = '<i class="flash"></i>' + [[0.55, -0.35, 300, 0], [0.75, 0.05, -240, 30], [0.45, 0.3, 200, 10], [0.65, -0.6, -320, 20], [0.35, -0.1, 260, 40], [0.6, 0.45, -200, 15]]
+      .map(([x, y, r, dl]) => `<b style="--x:${x};--y:${y};--r:${r}deg;--dl:${dl}ms"></b>`).join('');
+    $('#arena').appendChild(burstEl);
+    setTimeout(() => burstEl.remove(), 1000);
+    const tup = bodyEl(t)?.querySelector('.upic');
+    if (tup) shaking.push(tup.animate([{ translate: '0 0' }, { translate: `${d * 2}px -1px` }, { translate: `${-d}px 1px` }, { translate: '0 0' }], { duration: 70, iterations: Infinity }));
+    shaking.push(b.querySelector('.upic')?.animate([{ rotate: '0deg' }, { rotate: `${d * 1.2}deg` }, { rotate: `${-d}deg` }, { rotate: '0deg' }], { duration: 90, iterations: Infinity }));
+    await land();   // the blow, as it always lands, as the point comes out of them
+    await wait(380);   // spinning in them
+    sp.remove();
+    for (const an of shaking) an?.cancel();
+    await slide('0 0', `${-len}px 0`, beat(200), 'cubic-bezier(.3, .4, .5, 1)');   // hauled back out and into his arm
+  } finally {
+    for (const an of shaking) an?.cancel();
+    behind.remove(); inFront.remove(); hub.remove();
+    if (url && img.src === url) {
+      const rest = restClip(u, a);
+      sizeClip(img, rest, u.side);
+      img.src = ANIM_DIR + rest.src;
+      URL.revokeObjectURL(url);
+    }
+  }
 }
 
 /* A champion's other clips beyond idle and attack (Mara's Powder Shot: load, aim, shot).
