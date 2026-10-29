@@ -17791,7 +17791,7 @@ function unitCardHTML(u) {
     <div class="unit ${unitClasses(u)}" id="u-${u.uid}" data-uid="${u.uid}" style="--d:${(-Math.random() * 2.6).toFixed(2)}s">
       <ul class="chips"></ul>
       <div class="plate">
-        ${u.watch ? '<div class="watchdial" aria-hidden="true"><b></b></div>' : ''}
+        ${u.watch || u.id === 'tot_shock' ? '<div class="watchdial" aria-hidden="true"><b></b></div>' : ''}
         ${gearPinsHTML(u)}
         <div class="who"><strong>${u.attach === 'anchor' ? '' : u.name}</strong><span class="lvl"></span></div>
         <div class="bar hp"><div class="fill"></div><span></span></div>
@@ -21012,6 +21012,15 @@ function renderBattle() {
       dial.style.setProperty('--fill', `${Math.min(1, (u.watchN || 0) / u.watch) * 360}deg`);
       dial.classList.toggle('ready', left <= 1);
       dial.title = left ? `Covering Fire in ${left} turn${left === 1 ? '' : 's'}` : 'Covering Fire is owed: it fires as soon as she is free';
+    }
+    // Storm Cairn: Revs left until its shock, on the same dial (it shocks when stacks reaches a multiple).
+    const cairnDial = u.id === 'tot_shock' && el.querySelector('.watchdial');
+    if (cairnDial) {
+      const done = (u.stacks || 0) % TOTEM_SHOCK_REVS, left = TOTEM_SHOCK_REVS - done;
+      cairnDial.querySelector('b').textContent = left;
+      cairnDial.style.setProperty('--fill', `${(done / TOTEM_SHOCK_REVS) * 360}deg`);
+      cairnDial.classList.toggle('ready', left === 1);
+      cairnDial.title = `Shocks in ${left} Rev${left === 1 ? '' : 's'}`;
     }
     el.classList.toggle('frozen', hardFrozen(u) || staggerStopped(u));
     const heat = el.querySelector('.bar.heat');
