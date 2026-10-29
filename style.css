@@ -1422,9 +1422,27 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .coverArrow::after { content: ''; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent;
   border-top: 9px solid var(--accent); filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45)); }
 @keyframes coverBob { 50% { transform: translateY(4px); } }
+/* THE TAUNT BADGE (TAUNT_MARK): a taunting or provoking fighter wears it big over their name, bobbing
+   gently; the clip's own little medal at the head is cropped away and only its ground ring kept. A tap
+   on anyone else while a taunt holds the skill makes it flare (flashTaunt / .tauntFlash). */
+.tauntMark { display: none; position: absolute; left: 50%; bottom: calc(100% + 1px); z-index: 6; pointer-events: none;
+  width: max(24px, calc(var(--size) * .5)); aspect-ratio: 1; translate: -50% 0;
+  filter: drop-shadow(0 0 4px rgba(255, 80, 60, .85)) drop-shadow(0 2px 2px rgba(0, 0, 0, .5)); }
+.tauntMark svg { display: block; width: 100%; height: 100%; }
+.unit.taunting .tauntMark { display: block; animation: tauntBob 1.4s ease-in-out infinite; }
+.unit.taunting.tauntFlash .tauntMark { animation: tauntFlash .5s ease-in-out 2; }
+.unit.coverCall .tauntMark { display: none; }   /* the bunker's arrow has the spot */
+.upic .stfx img[data-fx="taunt"] { clip-path: inset(86% 0 0 0); }
+@keyframes tauntBob { 50% { transform: translateY(-3px); } }
+@keyframes tauntFlash {
+  50% { transform: scale(1.45); filter: brightness(1.5) drop-shadow(0 0 10px #ff5a3c) drop-shadow(0 0 4px #ffd27a); }
+}
+@keyframes tauntGlow { 50% { filter: brightness(1.5) drop-shadow(0 0 10px #ff5a3c) drop-shadow(0 0 4px #ffd27a); } }
 @media (prefers-reduced-motion: reduce) {
   .unit.bunkered .anchors .pl, .unit.bunkered .anchors .sp, .unit.bunkered .anchors .core { animation: none; }
   .unit.coverCall .coverArrow { animation: none; }
+  .unit.taunting .tauntMark { animation: none; }
+  .unit.taunting.tauntFlash .tauntMark { animation: tauntGlow .5s ease-in-out 2; }   /* still flares, without the jump */
 }
 /* THE GRAVEYARD FENCE (Barrow's Obstacle): a row of iron railings with spear tops rises before
    the protected unit, on the side it faces its enemies, lit the Pale Host's grave-green. It is

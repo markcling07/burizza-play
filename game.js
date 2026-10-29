@@ -9827,15 +9827,14 @@ function onSkill(id) {
     /* The one-option shortcut looses the skill without asking — right for Second Burial over the only
        body on the field, wrong when a TAUNT is what narrowed the field. Being held is a thing the
        player should have to acknowledge: the skill waits, the taunter is the only mark that lights up,
-       and nothing is spent until they pick them. A tap anywhere else does nothing at all. */
+       and nothing is spent until they pick them. A tap on anyone else is refused (see onUnit). */
     if (opts.length === 1 && !tauntHeld(sk, opts)) return commit(u, sk, opts[0]);
-    /* Being taunted is the one case the lit marks cannot explain themselves:
-       the field drops to a single enemy and that reads as a bug rather than a
-       rule. The prompt bar used to say so; with it gone, say it over the field
-       instead, and only when it actually applies. */
-    if (tauntHeld(sk, opts)) announce('Held', 'You are taunted — only the taunting enemy can be struck.');
+    /* Being taunted is the one case the lit marks cannot explain themselves: the field drops to a
+       single enemy. That used to be said in words over the field; now the taunter's own badge says
+       it — big over their name (.tauntMark), and flaring the moment the skill is held to them. */
     state.pending = sk.id;
     render();
+    if (tauntHeld(sk, opts)) flashTaunt(opts);
     return;
   }
   commit(u, sk, sk.target === 'self' ? u : null);
@@ -9879,9 +9878,26 @@ function onUnit(uid) {
   const u = unitBy(state.active);
   const sk = pendingAction(u);
   const t = unitBy(uid);
-  if (!sk || !validTargets(u, sk).includes(t)) return;
+  const opts = sk ? validTargets(u, sk) : [];
+  if (!opts.includes(t)) {
+    // Held by a taunt: anyone but the taunter is refused, and the taunter's badge flares to say who.
+    if (sk && tauntHeld(sk, opts)) flashTaunt(opts);
+    return;
+  }
   if (sk.item) useItem(u, sk.item, t);
   else commit(u, sk, t);
+}
+
+// The taunt badge over each of these fighters flares bright for a moment (.tauntFlash).
+function flashTaunt(units) {
+  for (const f of units) {
+    const el = actorEl(f);
+    if (!el) continue;
+    el.classList.remove('tauntFlash'); void el.offsetWidth;   // restart it if it is already flaring
+    el.classList.add('tauntFlash');
+    clearTimeout(el.tauntT);
+    el.tauntT = setTimeout(() => el.classList.remove('tauntFlash'), 1100);
+  }
 }
 
 /* A reusable item (the Brass Metronome) is never taken out of the pack, so the "do you still have
@@ -17840,11 +17856,27 @@ function gearPinsHTML(u) {
   return pins ? `<div class="gearpins">${pins}</div>` : '';
 }
 
+/* THE TAUNT BADGE, floated over a taunting (or provoking) fighter's name: the red crossed-swords medal
+   the taunt clip carries at their head, drawn three times the size where it cannot be missed. The
+   clip keeps only its ring on the ground (see .stfx img[data-fx="taunt"]). */
+const TAUNT_MARK = `<svg viewBox="0 0 40 40">
+  <circle cx="20" cy="20" r="18" fill="#2a1416"/>
+  <circle cx="20" cy="20" r="15.6" fill="#d0262f" stroke="#f2c14e" stroke-width="2.6"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M11.5 11.5 L24 24 M28.5 11.5 L16 24" stroke="#2a1416" stroke-width="3.6"/>
+    <path d="M11.5 11.5 L24 24 M28.5 11.5 L16 24" stroke="#f3eee6" stroke-width="1.6"/>
+    <path d="M21.6 26.4 L26.4 21.6 M13.6 21.6 L18.4 26.4" stroke="#f2c14e" stroke-width="2.4"/>
+    <path d="M24 24 L27.6 27.6 M16 24 L12.4 27.6" stroke="#2a1416" stroke-width="2.4"/>
+  </g>
+  <circle cx="28.4" cy="28.4" r="1.9" fill="#f2c14e"/><circle cx="11.6" cy="28.4" r="1.9" fill="#f2c14e"/>
+</svg>`;
+
 // A champion standing on the battlefield (--d staggers the idle breathing so nobody bobs in sync).
 function unitCardHTML(u) {
   return `
     <div class="unit ${unitClasses(u)}" id="u-${u.uid}" data-uid="${u.uid}" style="--d:${(-Math.random() * 2.6).toFixed(2)}s">
       <i class="coverArrow" aria-hidden="true"></i>
+      <i class="tauntMark" aria-hidden="true">${TAUNT_MARK}</i>
       <ul class="chips"></ul>
       <div class="plate">
         ${u.watch || u.id === 'tot_shock' ? '<div class="watchdial" aria-hidden="true"><b></b></div>' : ''}
@@ -21262,6 +21294,7 @@ function renderBattle() {
     el.classList.toggle('bunkered', u.hp > 0 && bunkered(u));
     el.classList.toggle('lee', u.hp > 0 && !!has(u, 'sheltered'));
     el.classList.toggle('coverCall', u.hp > 0 && bunkered(u) && coverCalls(u));   // the arrow: "you can hide in here"
+    el.classList.toggle('taunting', u.hp > 0 && (!!has(u, 'taunt') || !!has(u, 'provoke')));   // the big badge (TAUNT_MARK)
     el.classList.toggle('aloft', aloft(u));   // Skyward Smash: up there, and not to be reached
     el.classList.toggle('apart', apart(u));   // Come Apart: he is not on the field to be seen or struck
     el.classList.toggle('fenced', u.hp > 0 && !!has(u, 'protected'));   // the graveyard fence stands before them
@@ -21374,14 +21407,8 @@ function renderBattle() {
   });
   $('#prompt').hidden = !pending;
   if (pending) {
-    // Say WHY the field is down to one mark, or the lone lit enemy looks like a bug.
-    // The one ACTING, not `d` — d follows the inspect panel and can be an enemy you are reading.
-    // Same test onSkill used, so the words and the lit marks can never disagree.
-    const caster = unitBy(state.active);
-    const held = !!caster && tauntHeld(pending, validTargets(caster, pending));
-    $('#promptTxt').textContent = held
-      ? `${pending.name}: you are taunted — click the taunting enemy, or Esc to pick another skill.`
-      : `${pending.name}: click a highlighted ${pending.target === 'ally' ? 'ally' : pending.target === 'deadAlly' ? 'fallen ally' : 'enemy'}.`;
+    // No word about a taunt here: the taunter's own badge says it (.tauntMark, flashTaunt).
+    $('#promptTxt').textContent = `${pending.name}: click a highlighted ${pending.target === 'ally' ? 'ally' : pending.target === 'deadAlly' ? 'fallen ally' : 'enemy'}.`;
   }
 }
 
@@ -21596,10 +21623,17 @@ document.addEventListener('click', (ev) => {
 /* A TAP ON OPEN GROUND BRINGS YOUR OWN DECK BACK. Tapping a fighter shows theirs, and tapping your own
    champion used to be the only way home — but a champion hidden in Bulwark's bunker has no model to
    tap, which stranded the player on Bulwark's locked tiles. The field itself is now the way home, and
-   it shuts any open status row too. Aiming a skill is left alone: that is put down at its own tile. */
+   it shuts any open status row too. Aiming a skill is left alone: that is put down at its own tile.
+   While aiming, the fighters who are not marks take no taps at all (body.picking), so a tap on one
+   lands HERE — and if a taunt is what holds the skill, the taunter's badge flares to say who. */
 $('#arena').addEventListener('click', (ev) => {
   if (ev.target.closest('.unit, button, a, input, select, [role="dialog"]')) return;
-  if (state.pending || ['won', 'lost', 'cleared'].includes(state.phase)) return;
+  if (state.pending) {
+    const u = unitBy(state.active), sk = state.phase === 'choose' && pendingAction(u), opts = sk ? validTargets(u, sk) : [];
+    if (sk && tauntHeld(sk, opts)) flashTaunt(opts);
+    return;
+  }
+  if (['won', 'lost', 'cleared'].includes(state.phase)) return;
   if (state.inspect == null && state.chipsOn == null) return;
   state.inspect = null; state.chipsOn = null;
   renderBattle();
