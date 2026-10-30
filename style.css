@@ -2523,7 +2523,20 @@ svg.art .spentblade { opacity: 0; }
   transform: rotate(var(--ang, 0rad)); filter: drop-shadow(0 0 5px #6ef0a8);
   animation: volleyBob 1.2s ease-in-out infinite; animation-delay: calc(var(--i) * -.2s); }
 .volley svg { display: block; }
+/* Fanned (Emptied Hands' sighting Rev): each blade slides out of the stack to its own place in an arc in
+   front of him (--fx/--fy from the shoulder, set by volleyFx), turned on the mark from there. A blade
+   thrown from the fan leaves it (.gone) as its flight takes over. */
+.volley.fan i { left: calc(var(--fx) - 30px); top: calc(var(--fy) - 5px); transition: left .4s ease-out, top .4s ease-out, transform .4s ease-out; }
+.volley i.gone { visibility: hidden; }
 @keyframes volleyBob { 50% { translate: 0 -2.5px; } }
+/* Emptied Hands' mark (bladeMarkFx): one of his green blades hanging point-down over the enemy he has
+   sighted, glowing and bobbing until the volley flies. The box is the blade's tip, just over the nameplate;
+   the blade (54 x 9, turned upright) stands on it. */
+.bladeMark { position: absolute; z-index: 246; width: 0; height: 0; pointer-events: none; animation: bladeMarkIn .45s ease-out both; }
+.bladeMark b { position: absolute; left: -27px; top: -31.5px; display: block; width: 54px; height: 9px; rotate: 90deg;
+  filter: drop-shadow(0 0 6px #6ef0a8) drop-shadow(0 0 2px #c8ffd6); animation: volleyBob 1.2s ease-in-out infinite; }
+.bladeMark svg { display: block; width: 54px; height: 9px; }
+@keyframes bladeMarkIn { from { opacity: 0; translate: 0 -14px; } }
 /* The Anchor's chain (syncAnchorChains): dark-edged iron links, behind every figure on the field. */
 .chains { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
 .chains .cl-face { fill: none; stroke: #9fb0ba; stroke-width: 1.5; paint-order: stroke; filter: drop-shadow(0 0 1px #1d2130) drop-shadow(0 1px 0 #1d2130); }

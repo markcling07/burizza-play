@@ -1977,22 +1977,20 @@ const ROSTER = [
     mods: { atk: 1.2, hp: 0.85, agi: 1.05 },
     look: { body: 'wraith', main: '#3a3326', trim: '#ffd166', eye: '#6ef0a8' },
     skills: [D('Sighted Throw', 'Uses 2 swords. He aims at one enemy now; at the next Rev two blades hit it for 115% each (230% in all), and both stay stuck in it. Needs 2 swords in hand.', 2, 1.15, { magic: true, swordCount: 2, attackType: 'horizontal' }),
-             D('Emptied Hands', `★ Ultimate. Throws every sword in his hand at one enemy, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, attackType: 'horizontal' }),
+             /* The ultimate takes a Rev longer than everything else he throws, on Powder Shot's beat:
+                gathered on his turn, sighted at the next Rev (a green blade over the mark), thrown at the
+                Rev after. The extra Rev is the price — one more Rev for a stun, a bash, a Silence or a
+                coffin to make him drop the lot (turnPulse). */
+             D('Emptied Hands', `★ Ultimate. Takes two Revs: he gathers every sword in his hand now, sights one enemy at the next Rev, and at the Rev after throws them all at it, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits. Stunned, bashed, silenced or coffined before they fly, the blades drop back unthrown.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, volleyRevs: 2, attackType: 'horizontal' }),
              D('Fan of Blades', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands.', 4, 0.8, { magic: true, swordTargets: true, attackType: 'horizontal' }),
              B('Recall Swords', `No cooldown; takes his turn, and only when a sword is out. Every sword stuck in an enemy rips out and flies home to him. Each enemy a sword is pulled from Bleeds for ${RIVEN_RECALL_BLEED_TURNS} turns: ${Math.round(RIVEN_RECALL_BLEED * 100)}% of his attack per turn for every sword pulled out of it. Then he strikes 30% harder for ${VHARO_RECALL_TURNS} turns.`, 0, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
              B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS })],
-    /* THE TWO ABOVE ARE NOT NEW. The engine has carried their whole machinery all along — the
-       usable gate, the validTargets filter, the counting, the animations, the log lines, even an
-       AI weight for Harvest — and the comment above throwsFromHand says so outright: "belonged to
-       Command the Fallen and Blade Harvest, since taken out of his kit; no skill carries them
-       now." Two finished mechanics with nothing wired to them. Giving them back is the whole of
-       this; not a line of their behaviour is written here.
-
-       They are also the two halves of the problem his Nature creates. Everything he does is
-       weaker the emptier his hands, and his only way of refilling them was Recall Swords, which
-       costs his turn and brings back EVERYTHING — including the blades doing useful work. Command
-       spends what is already buried without touching his hands; Harvest takes one body's worth
-       back without disturbing the rest. */
+    /* Command the Fallen and Blade Harvest were given back to him and taken out again (42f9680).
+       Their machinery is still in the engine with nothing wired to it: see the comment above
+       throwsFromHand. They were the two halves of the problem his Nature creates — everything he
+       does is weaker the emptier his hands, and Recall Swords, his only refill, brings back
+       EVERYTHING at the cost of his turn. Command spent what was already buried without touching
+       his hands; Harvest took one body's worth back without disturbing the rest. */
     nature: { name: 'Unblinking', desc: `He aims on his turn and the blades fly at the next Rev. His throws never miss. Each blade that lands is spent into the body it finds, and killing that body gives the blade back; one that is turned aside or finds nothing comes home. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
     passive: P('Dead Aim', '+8% critical hit chance: what he aims at, he hits clean.', { stat: { crit: 0.08 } }),
     /* makeUnit has added `ps.dodge` to a champion's base dodge since dodge existed, and no passive
@@ -5401,6 +5399,11 @@ const apart = (u) => !!u.apart;
 const sheltered = (u) => !!has(u, 'sheltered');
 const aloft = (u) => !!has(u, 'airborne');   // Skyward Smash: hit off the ground and still coming down
 const outOfReach = (u) => inBox(u) || buried(u) || aloft(u) || veiled(u) || cloaked(u) || apart(u) || sheltered(u) || bunkered(u) || !!u.shadowMatrix;
+// Where an out-of-reach mark has gone, as a late blow finds them (Riven's blades, Mara's shot): one
+// answer for each way outOfReach can be true, so a Bunker or a Shadow Matrix is never told as a coffin.
+const goneWhere = (u) => inBox(u) ? 'sealed in the coffin' : buried(u) ? 'under the earth' : bunkered(u) ? 'sealed inside the bunker'
+  : sheltered(u) ? 'in cover inside the bunker' : u.shadowMatrix ? 'gone into the shadows' : apart(u) ? 'running loose as two hounds'
+  : veiled(u) ? 'behind the veil' : cloaked(u) ? 'cloaked' : aloft(u) ? 'up in the air' : 'not there';
 const openFoes = (u) => foesOf(u).filter((f) => !outOfReach(f) && !f.noAoe);   // area attacks wash past Anchors / Jellies
 // A planted Grave Cross stands with its warband but is stone: no heal, buff or coffin is for it.
 const openAllies = (u) => alliesOf(u).filter((a) => !outOfReach(a) && !a.inert);
@@ -5948,6 +5951,7 @@ function strikeOnce(u, t, mult, label, o) {
   // their share onto a Garrick already taking his own — the same reason Heroic skips o.aoe, and the
   // same rule the Graveyard Fence states outright ("area attacks still land").
   const bearer = o.aoe ? null : bearerFor(t);
+  let wornBy = null;   // whoever took this blow in t's place (returned: a thrown blade sticks in THEM)
   if (bearer && taken > 0) {
     if (lobbedOver(u, label, o)) {
       log(`${label} arcs clean over ${bearer.name} and falls on ${t.name} regardless.`, t.side);
@@ -5958,6 +5962,7 @@ function strikeOnce(u, t, mult, label, o) {
         float(bearer, '🛡️ Turned', 'fx');
       }
       taken = 0;
+      wornBy = bearer;
       bump(bearer, 'hurt');
       log(`${bearer.name} wears the blow meant for ${t.name} — ${hit}.`, bearer.side);
       shareBlow(bearer, hit, u);
@@ -5975,6 +5980,7 @@ function strikeOnce(u, t, mult, label, o) {
       bump(g, 'hurt');
       if (g.hp <= 0) fell(g, u);
       taken = 0;
+      wornBy = g;
     }
   }
   // A Bulwark Stone passes on what it was dealt — read here, because countBlows
@@ -6074,7 +6080,7 @@ function strikeOnce(u, t, mult, label, o) {
   // closes in to strike a Mech. Ranged units trade fire from afar and are never seared.
   if (runsHot(u) && u.role === 'melee') searContact(u, t);   // a melee Mech's blow sears the enemy it struck
   if (runsHot(t) && u.role === 'melee') searContact(t, u);   // striking a hot Mech up close burns the attacker
-  return { dmg, crit, taken };   // taken: what the target's own number shows (a grind ticks it out)
+  return { dmg, crit, taken, wornBy };   // taken: what the target's own number shows (a grind ticks it out)
 }
 
 // Restores mana (capped at max). Returns how much was actually gained.
@@ -6361,7 +6367,7 @@ async function fireAim(u) {
     float(u, `${sk.name}!`, 'fx');
     await powderShotFires(u, first, sk, { endAt: (e, to, from) => ({ x: from.x + (to.x - from.x) * 1.7, y: from.y + (to.y - from.y) * 1.7 }) });
     float(first, 'Hidden', 'miss');
-    log(`${u.name}'s ${sk.name} goes off — but ${first.name} is ${buried(first) ? 'under the earth' : apart(first) ? 'running loose as two hounds' : 'sealed in the coffin'}, and the shot finds nothing.`, u.side);
+    log(`${u.name}'s ${sk.name} goes off — but ${first.name} is ${goneWhere(first)}, and the shot finds nothing.`, u.side);
     render();
     await wait(320);
     return;
@@ -6652,46 +6658,77 @@ function volleyBlades(u, sk) {
 }
 
 async function aimVolley(u, t, sk) {
-  u.volley = { revs: 1, target: t?.uid, sk };
+  // Most throws fly at the next Rev. Emptied Hands (volleyRevs 2) is gathered now, sighted at the
+  // next Rev (sightVolley, from turnPulse) and thrown at the one after.
+  const revs = sk.o?.volleyRevs || 1;
+  u.volley = { revs, target: t?.uid, sk };
   volleyFx(u, volleyBlades(u, sk));
   await castPose(u);   // he lifts his hand; the blades rise with it - nothing is thrown yet
-  float(u, '⚔ Aiming', 'fx');
   const what = sk.id === 'attack' ? 'a blade' : sk.o?.swordCommand || sk.o?.swordHarvest ? `${sk.name}` : `${sk.name}`;
-  log(`${u.name} takes aim at ${t ? t.name : 'the enemy'} — ${what} flies at the next Rev.`, u.side);
+  if (revs > 1) {
+    float(u, '⚔ Gathering', 'fx');
+    log(`${u.name} gathers every blade in his hand for ${what} — he sights ${t ? t.name : 'the enemy'} at the next Rev, and they fly at the one after.`, u.side);
+  } else {
+    float(u, '⚔ Aiming', 'fx');
+    log(`${u.name} takes aim at ${t ? t.name : 'the enemy'} — ${what} flies at the next Rev.`, u.side);
+  }
   render();
   await wait(300);
+}
+
+/* Emptied Hands' middle Rev: he sights the mark. The gathered blades spread out in front of him, each
+   turned on it (u.volley.fan, drawn by volleyFx), and one of his green blades hangs over it (bladeMarkFx)
+   until they fly at the next Rev, from where they hang, or the volley is lost. */
+async function sightVolley(u) {
+  u.volley.sighted = true;
+  u.volley.fan = true;
+  bladeMarkFx(u);
+  const tg = unitBy(u.volley.target);
+  float(u, '⚔ Aiming', 'fx');
+  log(`${u.name} sights ${tg && tg.hp > 0 ? tg.name : 'the enemy'} down the blades — ${u.volley.sk.name} flies at the next Rev.`, u.side);
+  render();
+  await wait(450);
 }
 
 function clearVolley(u) {
   u.volley = null;
   u.volleyEl?.remove();
   u.volleyEl = null;
+  u.markEl?.remove();
+  u.markEl = null;
 }
 
 /* The next Rev: the aimed blades fly. A mark that has fallen meanwhile is traded for another the
    targeting law allows; a mark gone to ground or into a coffin is not there, and the blades come
    back unspent; a fence turns them aside (damageSkill does that, and settleBlades sends them home). */
 async function fireVolley(u) {
-  const { target, sk } = u.volley;
+  const { target, sk, fan } = u.volley;
   u.bladesOut = volleyBlades(u, sk);   // in the air now: still out of his hands (carriedBlades)
+  /* Emptied Hands' fanned blades are thrown from where they hang: the fan stays standing (its tick stops,
+     `loosing`) and damageSkill throws each blade from its own place in it (u.fanFrom), taking it out of
+     the fan as it goes. Whatever is left of the fan comes down with the volley, however it ends. */
+  const fanEl = fan && u.volleyEl;
+  if (fanEl) { fanEl.loosing = true; u.fanFrom = { el: fanEl, pts: fanPoints(u, fanEl.children.length) }; u.volleyEl = null; }
   clearVolley(u);
-  let t = unitBy(target);
-  if (sk.target === 'enemy') {
-    if (!t || t.hp <= 0) {
-      const opts = validTargets(u, sk);
-      t = opts.length ? pick(opts) : null;
-      if (!t) { log(`${u.name}'s blades find nothing left to strike, and settle back into his hands.`, u.side); u.bladesOut = 0; render(); return; }
-    } else if (outOfReach(t)) {
-      u.bladesOut = 0; float(t, 'Hidden', 'miss');
-      log(`${u.name}'s blades find nothing — ${t.name} is ${buried(t) ? 'under the earth' : 'sealed in the coffin'}. They drift back to him.`, u.side);
-      render();
-      await wait(320);
-      return;
+  try {
+    let t = unitBy(target);
+    if (sk.target === 'enemy') {
+      if (!t || t.hp <= 0) {
+        const opts = validTargets(u, sk);
+        t = opts.length ? pick(opts) : null;
+        if (!t) { log(`${u.name}'s blades find nothing left to strike, and settle back into his hands.`, u.side); u.bladesOut = 0; render(); return; }
+      } else if (outOfReach(t)) {
+        u.bladesOut = 0; float(t, 'Hidden', 'miss');
+        log(`${u.name}'s blades find nothing — ${t.name} is ${goneWhere(t)}. They drift back to him.`, u.side);
+        render();
+        await wait(320);
+        return;
+      }
     }
-  }
-  if (throwsFromHand(u, sk) && u.swords <= 0) { log(`${u.name} has no blade left to throw.`, u.side); u.bladesOut = 0; render(); return; }
-  u.volleyFiring = true;
-  try { await damageSkill(u, t, sk); } finally { u.volleyFiring = false; u.bladesOut = 0; }
+    if (throwsFromHand(u, sk) && u.swords <= 0) { log(`${u.name} has no blade left to throw.`, u.side); u.bladesOut = 0; render(); return; }
+    u.volleyFiring = true;
+    try { await damageSkill(u, t, sk); } finally { u.volleyFiring = false; u.bladesOut = 0; }
+  } finally { fanEl?.remove(); u.fanFrom = null; }
 }
 
 /* After the strikes: every blade that landed sticks in its body and is spent from his hands - unless
@@ -6716,7 +6753,23 @@ function settleBlades(u, o, landed, commanded) {
   if (u.swords !== before || freed) float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
 }
 
+/* Where the blades hang when fanned (Emptied Hands' sighting Rev, u.volley.fan): an arc in front of him,
+   FAN_GAP apart and bowed toward the enemy (the outer blades sit a little further back), low enough to
+   clear his nameplate. Field coordinates; worked out from where he stands, so the throw (fireVolley) can
+   ask for them without waiting on the frame that draws them. [] when he is off the stage. */
+const FAN_GAP = 16;
+function fanPoints(u, n) {
+  const a = stageBox(u);
+  if (!a) return [];
+  const d = facing(u);
+  return Array.from({ length: n }, (_, i) => {
+    const off = (i - (n - 1) / 2) * FAN_GAP;
+    return { x: a.x + d * (a.w * 0.8 - Math.abs(off) * 0.4), y: a.top + a.h * 0.55 + off };
+  });
+}
+
 // The aimed blades, hanging over him and turned on the mark until they fly (follows him and the mark).
+// Fanned, they spread out in front of him instead (fanPoints).
 function volleyFx(u, n) {
   u.volleyEl?.remove();
   u.volleyEl = null;
@@ -6728,6 +6781,7 @@ function volleyFx(u, n) {
   u.volleyEl = el;
   el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: beat(400), easing: 'ease-out' });
   const tick = () => {
+    if (el.loosing) return;   // being thrown from where it hangs: fireVolley takes it down
     if (u.volleyEl !== el || !u.volley || !state.teams[u.side].includes(u)) { el.remove(); return; }
     const a = stageBox(u), t = unitBy(u.volley.target), b = t && t.hp > 0 && stageBox(t);
     if (a) {
@@ -6737,7 +6791,45 @@ function volleyFx(u, n) {
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
       el.style.setProperty('--ang', `${ang}rad`);
+      /* Fanned: each blade at its own place in the arc, turned on the mark from there. Offsets are from
+         the shoulder point above, so the blades slide out of the stack into the fan (.volley.fan i). */
+      if (u.volley.fan) {
+        const pts = fanPoints(u, el.children.length);
+        [...el.children].forEach((sw, i) => {
+          const p = pts[i], pa = b ? Math.atan2(b.top + b.h * 0.45 - p.y, b.x - p.x) : ang;
+          sw.style.setProperty('--fx', `${(p.x - x).toFixed(1)}px`);
+          sw.style.setProperty('--fy', `${(p.y - y).toFixed(1)}px`);
+          sw.style.setProperty('--ang', `${pa}rad`);
+        });
+        el.classList.add('fan');
+      }
     }
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+/* The mark (Emptied Hands' middle Rev): one of his green blades hangs point-down over the enemy he has
+   sighted, just above their nameplate (or their head, with the plates hidden), and bobs there until the
+   volley flies. Redrawn every frame so it stays over them when they are knocked about or run; gone with
+   the volley (clearVolley). */
+function bladeMarkFx(u) {
+  u.markEl?.remove();
+  u.markEl = null;
+  if (reduced) return;
+  const el = document.createElement('div');
+  el.className = 'bladeMark';
+  el.innerHTML = `<b>${LODGE_SWORD_SVG}</b>`;
+  $('#arena').appendChild(el);
+  u.markEl = el;
+  const tick = () => {
+    if (u.markEl !== el || !u.volley || u.hp <= 0 || !state.teams[u.side].includes(u)) { el.remove(); return; }
+    const t = unitBy(u.volley.target), b = t && t.hp > 0 && stageBox(t);
+    if (b) {
+      const plate = document.querySelector(`.unit[data-uid="${t.uid}"] .plate`);
+      const top = plate?.offsetParent ? plate.getBoundingClientRect().top - $('#arena').getBoundingClientRect().top : b.top;
+      Object.assign(el.style, { visibility: 'visible', left: `${b.x}px`, top: `${top - 6}px` });
+    } else el.style.visibility = 'hidden';   // the mark is down: the blades will find whoever the law allows
     requestAnimationFrame(tick);
   };
   tick();
@@ -6981,9 +7073,6 @@ async function damageSkill(u, t, sk) {
   else if (o.watersweep) { await (o.slam ? tridentSlam(u) : tridentRaise(u)); waterSweep(u, targets); }
   else if (!melee && !o.hurl && !o.sawThrow && !o.flakLob) await aimPose(u, sk);   // a thrown saw winds up per throw (discSawThrow)
   if (o.leap && melee) await leapPose(u);      // Trident Lunge: a leap, then the overhead stab
-  /* Sighted Throw (swordCount) and Emptied Hands (swordBurst): his blades leave ONE BY ONE - each flies and lands before the next is
-     thrown, so you see every sword travel. Fired together they would fly the same line and read as one. */
-  const oneByOne = !!(o.swordBurst) && targets.length > 1;
   // Area attacks from range: every projectile flies at once, then the hits resolve.
   /* `proj &&` rather than a list of the skills that have no projectile. The
      guard used to name gust and watersweep, which was the same thing said the
@@ -6991,9 +7080,19 @@ async function damageSkill(u, t, sk) {
      and shoot() reached for bounceFrom on a null projectile and threw mid-cast.
      projectileFor already decided this — if it handed back nothing, there is
      nothing to fire, and that is true of every skill of this kind yet to come. */
-  if (!melee && proj && targets.length > 1 && !oneByOne && !o.flakLob) {
-    const n = targets.length;
-    await Promise.all(targets.map((tg, i) => shoot(u, tg, proj, (n > 1 && o.swordCount) ? (i - (n - 1) / 2) * 18 : 0)));
+  /* Emptied Hands (swordBurst) lets go of its whole fan at once: every blade leaves from its own place in
+     it (u.fanFrom, spread in front of him at the sighting Rev) on its own line to the mark. They used to
+     go one by one, because thrown together from his hand they flew the same line and read as one. A fence
+     still turns each of its blades aside, as it did one at a time (and the loop below lands none of them). */
+  const atOnce = !melee && proj && targets.length > 1 && !o.flakLob;
+  if (atOnce) {
+    const n = targets.length, fan = o.swordBurst && u.fanFrom;
+    if (fan) for (const b of fan.el.children) b.classList.add('gone');
+    await Promise.all(targets.map((tg, i) => {
+      const p = fan?.pts[i] ? { ...proj, from: fan.pts[i] } : proj;
+      if (o.swordBurst && fenceStops(u, sk, proj, tg)) return fenceDeflect(u, tg, sk.name, p);
+      return shoot(u, tg, p, (n > 1 && o.swordCount) ? (i - (n - 1) / 2) * 18 : 0);
+    }));
   }
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills. Sawtooth's Flywheel adds one at 50+ Heat.
@@ -7004,7 +7103,8 @@ async function damageSkill(u, t, sk) {
     const r = strikeOnce(u, tg, mult, sk.name, tg === heroicGuard ? { ...o, heroic: true } : o);
     if (!r.miss) {
       struck.add(tg);
-      if (u.maxSwords) landed.set(tg, (landed.get(tg) || 0) + 1);
+      // Riven: a blade sticks in the body it found — the knight who stepped in front, if one did (r.wornBy).
+      if (u.maxSwords) { const body = r.wornBy || tg; landed.set(body, (landed.get(body) || 0) + 1); }
       total += r.dmg;
       lastHit = tg;
       applyHitEffects(u, tg, o);
@@ -7102,9 +7202,13 @@ async function damageSkill(u, t, sk) {
       else if (o.dive) { if (i === 0) trip = (await stoopDive(u, tg)) || trip; await strikePose(u, false, sk, 1, tg); }
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
-      else if (!o.watersweep && !o.gust && !o.flakLob && (targets.length === 1 || oneByOne) && proj) {
-        if (fenceStops(u, sk, proj, tg)) { await fenceDeflect(u, tg, sk.name, proj); continue; }   // the iron takes it
-        await shoot(u, tg, proj);
+      else if (atOnce && o.swordBurst && fenceStops(u, sk, proj, tg)) continue;   // turned aside by the fence, above
+      else if (!o.watersweep && !o.gust && !o.flakLob && targets.length === 1 && proj) {
+        // Emptied Hands with one blade left: it leaves from the fan too.
+        const fan = o.swordBurst && u.fanFrom, kp = fan?.pts[0] ? { ...proj, from: fan.pts[0] } : proj;
+        fan?.el.children[0]?.classList.add('gone');
+        if (fenceStops(u, sk, proj, tg)) { await fenceDeflect(u, tg, sk.name, kp); continue; }   // the iron takes it
+        await shoot(u, tg, kp);
       }
       if (o.slash && melee) slashFx(tg, facing(u));
       if (melee && charNat(u).clone) ryuuSlashMark(tg, facing(u));
@@ -7904,6 +8008,15 @@ async function beginTurn(u) {
   }
   // (Cooldowns are NOT ticked here any more — they run down with the ground covered, in advanceClock.
   //  Ticking in both places would take two turns off every turn. See COOLDOWNS.)
+  // Riven's Emptied Hands takes two Revs. Should his own turn come round before the blades fly, he
+  // spends it holding the aim: a new throw would overwrite the one already gathered and sighted.
+  if (u.volley) {
+    float(u, '⚔ Holding aim', 'fx');
+    log(`${u.name} holds his aim — the ${u.volley.sk.name} is not thrown yet.`, u.side);
+    render();
+    await wait(350);
+    return 'held';
+  }
   return 'ok';
 }
 
@@ -9735,7 +9848,10 @@ async function turnPulse() {
       await wait(400);
       continue;
     }
-    if (--r.volley.revs > 0) continue;
+    if (--r.volley.revs > 0) {
+      if (r.volley.revs === 1 && !r.volley.sighted) await sightVolley(r);   // Emptied Hands: this Rev he sights the mark
+      continue;
+    }
     await fireVolley(r);
     if (checkEnd()) return true;
   }
@@ -21045,8 +21161,9 @@ async function shoot(u, t, p, spread) {
   if (reduced || !s || !e) return;
   if (p.swordThrow) actorEl(u)?.classList.add('sword-thrown');
   const d = facing(u);
-  const mz = !p.bounceFrom && MUZZLE[u.id];
-  const from = p.bounceFrom ? { x: s.x, y: s.top + s.h * 0.45 }
+  const mz = !p.bounceFrom && !p.from && MUZZLE[u.id];
+  // p.from: a shot that leaves from a set point on the field (a blade in Riven's fan), not from the shooter.
+  const from = p.from ? { ...p.from } : p.bounceFrom ? { x: s.x, y: s.top + s.h * 0.45 }
     : mz ? { x: s.x + d * s.w * mz[0], y: s.top + s.h * mz[1] } : { x: s.x + d * s.w * 0.3, y: s.top + s.h * 0.45 };
   if (spread) { from.y += spread; }
   if (mz) muzzleFlash(from, d);
