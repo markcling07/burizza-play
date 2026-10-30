@@ -3570,8 +3570,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
   padding: 8px 0 var(--padB); margin-bottom: calc(-1 * var(--padB));
   background: rgb(30, 33, 48); box-shadow: 0 -10px 12px -6px rgb(30, 33, 48);
 }
-/* Fight sits at the bar's right end, the corner the village's own Battle button holds. */
-#placePanel .pfoot .swordsGo { margin-left: auto; }
+/* The bar's buttons gather at its right end, Fight last, in the corner the village's own Battle button holds. */
+#placePanel .pfoot { justify-content: flex-end; }
 #placePanel .forge, #placePanel .homeGrid { grid-template-columns: minmax(0, 1fr); }
 @media (min-aspect-ratio: 1/1) {
   #placePanel {
