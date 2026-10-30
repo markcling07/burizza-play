@@ -15155,8 +15155,8 @@ const PLACE_FOOT = {
     const full = state.team.length === TEAM_SIZE, mark = questMark('roska');
     const markSays = mark === '!' ? '. Roska has a quest for you' : mark === '?' ? '. Quest to hand in' : '';
     return `<div class="btns pfoot"><button class="btn questsGo" type="button" data-k="aquests" aria-pressed="${!!state.arenaQuests}" aria-label="Arena quests${markSays}" title="Arena quests">${SCROLL_ICON}${mark ? `<span class="badge" aria-hidden="true">${mark}</span>` : ''}</button>
-        <button class="btn" type="button" data-k="skills">Choose skills</button>
-        <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button>
+        <button class="btn" type="button" data-k="skills">Skills</button>
+        <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">Recruits</button>
         ${full ? `<button class="btn primary swordsGo" type="button" data-k="fight" aria-label="Fight as ${heroName()}" title="Fight as ${heroName()}">${SWORDS_ICON}</button>` : ''}</div>`;
   },
 };
