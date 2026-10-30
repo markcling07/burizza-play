@@ -982,7 +982,7 @@ const ROSTER = [
              D('Grinder', 'Strikes 3 times for 55% ATK damage each. Applies Bleed for 3 turns.', 4, 0.55, { hits: 3, fx: [['bleed', 3, 0.3]] }),
              D('Shrapnel Spin', 'Strikes all enemies 2 times for 45% ATK damage each.', 4, 0.45, { aoe: true, hits: 2, sawThrow: true }),   // sawThrow: see discSawThrow
              D('Limb Shear', 'Deals 150% ATK damage. Ignores armor. 60% bonus damage to Bleeding targets.', 3, 1.5, { pierce: true, bonusVs: 'bleed', grind: true }),   // grind: see limbShearGrind
-             B('Rev Up', 'Increases damage by 30% for 2 turns. Reduces all cooldowns by 1.', 4, 'self', [['empower', 3]], { reduceCd: true }),
+             B('Rev Up', 'Increases damage by 30% for 2 turns. Reduces all cooldowns by 1.', 4, 'self', [['empower', 3]], { reduceCd: true, revUp: true }),   // revUp: see revUpFx
              /* The opener his kit never had. Everything else he owns is a knife looking for a
                 soft target; this is the skill that MAKES one, and it is deliberately the worst
                 damage in his kit so that opening with it is a real choice rather than a free
@@ -7644,7 +7644,8 @@ async function buffSkill(u, t, sk) {
     return;
   }
   const targets = sk.target === 'allAllies' ? openAllies(u) : sk.target === 'self' ? [u] : [t];
-  await castPose(u, true, sk);
+  // Rev Up is its own cast (revUpFx: wrenches on his bolts, current round him); anything else poses.
+  if (!(o.revUp && await revUpFx(u))) await castPose(u, true, sk);
   const proj = PROJ_SKILL[sk.name];
   if (proj && (sk.target === 'enemy' || sk.target === 'ally')) {
     await shoot(u, t, proj);
@@ -7711,7 +7712,11 @@ async function buffSkill(u, t, sk) {
       const sl = has(a, 'slow');
       if (sl) { a.effects = a.effects.filter((e) => e !== sl); float(a, '🐌 Shed', 'fx'); }
     }
-    if (o.reduceCd) for (const k in a.cooldowns) a.cooldowns[k] = Math.max(0, a.cooldowns[k] - 1);
+    if (o.reduceCd) {
+      for (const k in a.cooldowns) a.cooldowns[k] = Math.max(0, a.cooldowns[k] - 1);
+      float(a, '⏱ CD Reduced', 'fx');   // stacks under Rev Up's own "Revved up" (float stacks what lands together)
+      log(`${a.name}'s cooldowns tick down by 1.`, a.side);
+    }
     if (o.heal) healUnit(u, a, healPower(u, o.heal), sk.name);
   }
   // Bolt-On: the caster welds himself to the target and rides along. The weld's four mends are
@@ -18989,6 +18994,59 @@ async function ripSawSwing(u, i, sk, tg) {
     setTimeout(() => rig.remove(), 240);   // a timer, not .finished: a hidden page never finishes an animation
   }, c.ms);
   await sleep(SAW_CUT.hitMs);
+  return true;
+}
+
+/* REV UP (Sawtooth): the machine is tuned up mid-fight. Two wrenches set to his bolts — one at the
+   shoulder, one at the hip — and ratchet them tight, while the current he runs on crackles round his
+   body in blue-white arcs and the frame buzzes with it. Drawn over the field for the length of the cast;
+   false when nothing can be drawn (reduced motion, off the stage), and the ordinary cast pose plays. */
+const REVUP_MS = 1250;          // the whole cast
+const REVUP_STROKES = 3;        // ratchet strokes per wrench
+// An open-end wrench lying along x, its jaw on the right; the jaw's centre (the bolt) is its pivot (.revWrenches b).
+const WRENCH_SVG = `<svg viewBox="0 0 34 12" width="34" height="12" aria-hidden="true"><rect x="1" y="4.4" width="22" height="3.2" rx="1.6" fill="${STEEL}" stroke="${INK}" stroke-width=".8"/><path d="M21 3.4 Q25.6 .2 30.6 1.6 L33.2 4.4 L29.8 4.9 Q28.6 4.3 27.7 5.2 L27.7 6.8 Q28.6 7.7 29.8 7.1 L33.2 7.6 L30.6 10.4 Q25.6 11.8 21 8.6 Z" fill="${STEEL}" stroke="${INK}" stroke-width=".8" stroke-linejoin="round"/></svg>`;
+async function revUpFx(u) {
+  const a = stageBox(u), arena = $('#arena');
+  if (reduced || !a || !arena) return false;
+  const ms = beat(REVUP_MS), d = facing(u), cx = a.x, cy = a.top + a.h * 0.52, rx = a.w * 0.62, ry = a.h * 0.6;
+  // The arcs: a fresh set every few frames, jagged along the outline of his body and pinned at both ends,
+  // so the current reads as crawling over him rather than a picture blinking on and off.
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'bolt storm revarcs');
+  arena.appendChild(svg);
+  const arc = () => {
+    const t0 = Math.random() * Math.PI * 2, sweep = 0.7 + Math.random() * 0.9, steps = 7, pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = t0 + sweep * i / steps, j = i === 0 || i === steps ? 0 : (Math.random() - 0.5) * 0.24;
+      pts.push(`${(cx + Math.cos(t) * rx * (1 + j)).toFixed(1)},${(cy + Math.sin(t) * ry * (1 + j)).toFixed(1)}`);
+    }
+    const p = pts.join(' ');
+    return `<polyline class="sb-glow" points="${p}"/><polyline class="sb-body" points="${p}"/><polyline class="sb-core" points="${p}"/>`;
+  };
+  const crackle = () => { svg.innerHTML = Array.from({ length: 3 }, arc).join(''); };
+  crackle();
+  const sparkT = setInterval(crackle, 70);
+  // The wrenches: each pops onto its bolt, ratchets it REVUP_STROKES times, and pops off again.
+  const wr = document.createElement('div');
+  wr.className = 'revWrenches';
+  const bolts = [[cx - d * a.w * 0.12, a.top + a.h * 0.36], [cx + d * a.w * 0.14, a.top + a.h * 0.68]];
+  wr.innerHTML = bolts.map(([x, y], i) => `<i style="left:${x.toFixed(1)}px; top:${y.toFixed(1)}px; --s:${i ? -d : d}"><b>${WRENCH_SVG}</b></i>`).join('');
+  arena.appendChild(wr);
+  const strokes = [{ scale: 0, rotate: '-30deg', offset: 0 }, { scale: 1, rotate: '-30deg', offset: 0.1 }];
+  for (let n = 0; n < REVUP_STROKES; n++) {
+    strokes.push({ scale: 1, rotate: '25deg', offset: 0.1 + 0.8 * (n + 0.5) / REVUP_STROKES });
+    strokes.push({ scale: 1, rotate: '-30deg', offset: 0.1 + 0.8 * (n + 1) / REVUP_STROKES });
+  }
+  strokes.push({ scale: 0, rotate: '-30deg', offset: 1 });
+  [...wr.children].forEach((w, i) => w.firstElementChild.animate(strokes, { duration: ms, delay: i * beat(90), easing: 'ease-in-out', fill: 'both' }));
+  // The buzz: the whole frame shivers with the current.
+  pose(u, Array.from({ length: 13 }, (_, i) => ({ translate: i === 12 ? '0 0' : `${i % 2 ? 1.2 : -1.2}px ${i % 3 ? 0 : -0.8}px` })), REVUP_MS);
+  await sleep(ms + beat(90));
+  clearInterval(sparkT);
+  svg.remove();
+  wr.remove();
+  burst(u, 'shock');
+  float(u, '⚙ Revved up', 'fx');
   return true;
 }
 

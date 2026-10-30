@@ -2066,6 +2066,18 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
 .bolt.storm .sb-core { stroke: #fbfeff; stroke-width: 1.8; filter: drop-shadow(0 0 7px #8fd2ff); }
 .bolt.storm .sb-fork { stroke: #cdeeff; stroke-width: 2.2; opacity: .85; filter: drop-shadow(0 0 5px #7fe3ff); }
 .bolt.storm .sb-crown { fill: rgba(190, 232, 255, .5); filter: blur(4px) drop-shadow(0 0 16px #8fd2ff); }
+/* Rev Up (revUpFx): the same three-layer current, thinner, crawling over Sawtooth's outline. */
+.bolt.storm.revarcs { z-index: 249; }
+.bolt.storm.revarcs .sb-glow { stroke-width: 7; opacity: .5; filter: blur(3px); }
+.bolt.storm.revarcs .sb-body { stroke-width: 2.6; }
+.bolt.storm.revarcs .sb-core { stroke-width: 1.1; }
+/* ...and the two wrenches on his bolts: each <i> sits on its bolt (mirrored by --s), its <b> ratchets
+   round the jaw, which is the pivot. */
+.revWrenches { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 251; pointer-events: none; }
+.revWrenches i { position: absolute; width: 0; height: 0; transform: scaleX(var(--s, 1)); }
+.revWrenches b { position: absolute; left: -29.5px; top: -6px; width: 34px; height: 12px; transform-origin: 29.5px 6px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .6)) drop-shadow(0 0 3px rgba(127, 227, 255, .6)); }
+.revWrenches svg { display: block; }
 /* The third strike — the one the damage rides in on — comes in heavier than the two that led it. */
 .bolt.storm.hard .sb-glow { stroke-width: 16; opacity: .55; }
 .bolt.storm.hard .sb-body { stroke-width: 6; }
