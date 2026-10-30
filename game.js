@@ -6615,12 +6615,14 @@ const fenceStops = (u, sk, p, t) => !!t && t.hp > 0 && (has(t, 'protected') || h
   && attackType(u, sk, p) === HORIZONTAL;
 // Where the fence stands: on the side of the target facing the shooter, just short of them.
 const FENCE_STOP = (e, to, from) => ({ x: e.x - Math.sign(e.x - from.x) * e.w * 0.42 });
-// ...and where a blade it turns aside is left hanging, at the mark's chest height (strandBlades). null off-stage.
+/* ...and where a blade it turns aside goes (strandBlades): it glances off the railing at the mark's chest
+   height and spins up and back, off the top of the field, out of sight until it comes home. `from` is the
+   glance, so strandBlades can send it on its way. null off-stage. */
 const fenceStrayAt = (tg, from) => {
-  const e = stageBox(tg);
-  if (!e || !from) return null;
-  const y = e.top + e.h * 0.45;
-  return { x: FENCE_STOP(e, null, from).x, y, ang: Math.atan2(y - from.y, e.x - from.x) };
+  const e = stageBox(tg), ar = $('#arena')?.getBoundingClientRect();
+  if (!e || !from || !ar) return null;
+  const at = { x: FENCE_STOP(e, null, from).x, y: e.top + e.h * 0.45 }, back = -Math.sign(e.x - from.x) || -1;
+  return { ...offField(at, { x: at.x + back * 0.5, y: at.y - 1 }, ar), from: at };
 };
 async function fenceDeflect(u, t, label, p) {
   await shoot(u, t, { ...p, endAt: FENCE_STOP, impact: null });
@@ -6729,15 +6731,15 @@ async function fireVolley(u) {
         t = opts.length ? pick(opts) : null;
         if (!t) { log(`${u.name}'s blades find nothing left to strike, and settle back into his hands.`, u.side); u.bladesOut = 0; render(); return; }
       } else if (outOfReach(t) && fan) {
-        /* Emptied Hands lets go regardless: every blade flies at where the mark stood and on past it,
-           finds nothing, and is left hanging there. It does not snap back into his hand — it comes
-           home at the next Rev (strandBlades, then bladesFlyHome from turnPulse). */
+        /* Emptied Hands lets go regardless: every blade flies at where the mark stood and on off the
+           field, finding nothing. It does not snap back into his hand — it comes home at the next
+           Rev (strandBlades, then bladesFlyHome from turnPulse). */
         const n = u.bladesOut;
         float(u, `${sk.name}!`, 'fx');
         const ends = await throwPast(u, t, sk, n, seen);
         u.bladesOut = 0;
         float(t, 'Hidden', 'miss');
-        log(`${u.name}'s ${sk.name} flies at where ${t.name} stood — but ${t.name} is ${goneWhere(t)}, and the blades find nothing. They hang there, and will come back to him.`, u.side);
+        log(`${u.name}'s ${sk.name} flies at where ${t.name} stood — but ${t.name} is ${goneWhere(t)}, and the blades find nothing. They fly on off the field, and will come back to him.`, u.side);
         strandBlades(u, n, ends);
         render();
         await wait(320);
@@ -6756,25 +6758,33 @@ async function fireVolley(u) {
   } finally { fanEl?.remove(); u.fanFrom = null; }
 }
 
+/* Where a blade travelling from `from` toward `toward` has left the field: the first edge it crosses,
+   and a blade's length past it, so the arena's own clip (.arena overflow: hidden) has it out of sight. */
+function offField(from, toward, ar) {
+  const dx = toward.x - from.x, dy = toward.y - from.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+  const tx = ux > 0 ? (ar.width - from.x) / ux : ux < 0 ? -from.x / ux : Infinity;
+  const ty = uy > 0 ? (ar.height - from.y) / uy : uy < 0 ? -from.y / uy : Infinity;
+  const d = Math.max(0, Math.min(tx, ty)) + 90;
+  return { x: from.x + ux * d, y: from.y + uy * d, ang: Math.atan2(uy, ux) };
+}
+
 /* EMPTIED HANDS, MISSED. The fan lets go at a mark that is not there: each blade flies from its place in
-   the fan at where the mark stood (or was last seen standing: `seen`, kept by volleyFx) and a quarter
-   as far again past it, kept on the field. Returns where each one ended up, for strandBlades. */
+   the fan through where the mark stood (or was last seen standing: `seen`, kept by volleyFx) and on off
+   the field, so no blade is left floating in sight. Returns where each one ended up, for strandBlades. */
 async function throwPast(u, t, sk, n, seen) {
   const b = stageBox(t), spot = b && b.w > 0 ? { x: b.x, y: b.top + b.h * 0.45 } : seen;
   const pts = u.fanFrom?.pts || [], ar = $('#arena')?.getBoundingClientRect();
   if (!spot || !ar || !pts.length) return [];
   const proj = projectileFor(u, sk);
   for (const sw of u.fanFrom.el?.children || []) sw.classList.add('gone');
-  const ends = pts.slice(0, n).map((from) => {
-    const x = clamp(from.x + (spot.x - from.x) * 1.25, 12, ar.width - 12), y = clamp(from.y + (spot.y - from.y) * 1.25, 12, ar.height - 12);
-    return { x, y, ang: Math.atan2(y - from.y, x - from.x) };
-  });
+  const ends = pts.slice(0, n).map((from) => offField(from, spot, ar));
   await Promise.all(ends.map((end, i) => shoot(u, t, { ...proj, from: pts[i], toPoint: spot, endAt: () => ({ x: end.x, y: end.y }), impact: null })));
   return ends;
 }
 
-/* Blades that missed (Emptied Hands at a mark out of reach, or turned aside by a fence) hang where they
-   ended up, out of his hands (carriedBlades counts them out), until the next Rev brings them home.
+/* Blades that missed (Emptied Hands at a mark out of reach, or turned aside by a fence) wait off the field,
+   out of sight and out of his hands (carriedBlades counts them out), until the next Rev brings them home.
+   A blade with a `from` (glanced off a fence) is sent spinning from there to its place off the field first.
    `at` is the Rev they were left on: turnPulse sends them home on any later one. */
 function strandBlades(u, n, ends) {
   u.bladesHome?.el?.remove();
@@ -6785,7 +6795,12 @@ function strandBlades(u, n, ends) {
   el.innerHTML = ends.map(() => `<i><b>${LODGE_SWORD_SVG}</b></i>`).join('');
   $('#arena').appendChild(el);
   u.bladesHome.el = el;
-  [...el.children].forEach((sw, i) => { const p = ends[i]; sw.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.ang}rad)`; });
+  const at = (p, spin = 0) => `translate(${p.x}px, ${p.y}px) rotate(${p.ang + spin}rad)`;
+  [...el.children].forEach((sw, i) => {
+    const p = ends[i];
+    sw.style.transform = at(p);
+    if (p.from) sw.animate([{ transform: at({ ...p.from, ang: p.ang }, -Math.PI) }, { transform: at(p) }], { duration: beat(420), easing: 'ease-out' });
+  });
 }
 
 // The next Rev: the stranded blades turn round to face him and glide slowly back to his shoulder (where

@@ -2528,8 +2528,9 @@ svg.art .spentblade { opacity: 0; }
    thrown from the fan leaves it (.gone) as its flight takes over. */
 .volley.fan i { left: calc(var(--fx) - 30px); top: calc(var(--fy) - 5px); transition: left .4s ease-out, top .4s ease-out, transform .4s ease-out; }
 .volley i.gone { visibility: hidden; }
-/* Missed blades (strandBlades): hanging where they found nothing, still glowing, until the next Rev flies
-   them home (bladesFlyHome). Each is placed by an inline translate + rotate on its centre. */
+/* Missed blades (strandBlades): waiting just off the field (the arena clips them out of sight) until the
+   next Rev flies them back in and home (bladesFlyHome). Each is placed by an inline translate + rotate
+   on its centre. */
 .strayBlades { position: absolute; left: 0; top: 0; z-index: 246; width: 0; height: 0; pointer-events: none; }
 .strayBlades i { position: absolute; left: -30px; top: -5px; width: 60px; height: 10px; filter: drop-shadow(0 0 5px #6ef0a8); }
 .strayBlades b { display: block; animation: volleyBob 1.4s ease-in-out infinite; }
