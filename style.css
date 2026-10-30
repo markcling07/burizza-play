@@ -3339,7 +3339,8 @@ svg.art .spentblade { opacity: 0; }
   #villageScreen #placePanel {
     top: calc(8px + env(safe-area-inset-top)); bottom: calc(8px + env(safe-area-inset-bottom));
     right: calc(10px + env(safe-area-inset-right)); width: min(380px, 46%);
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    --padB: calc(10px + env(safe-area-inset-bottom));
+    padding: 10px 12px var(--padB);
     overflow-x: hidden;
   }
   /* The card never scrolls sideways: its one column is the card's width, and whatever is inside
@@ -3533,7 +3534,8 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 #placePanel {
   position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; max-height: 55%; overflow: auto; overscroll-behavior: contain;
   touch-action: pan-y; user-select: text; -webkit-user-select: text;
-  padding: 14px 14px calc(16px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0;
+  --padB: calc(16px + env(safe-area-inset-bottom));   /* the bottom padding, which the Arena's pinned buttons cover */
+  padding: 14px 14px var(--padB); border-radius: 18px 18px 0 0;
   background: rgba(30, 33, 48, .97); border-top: 1px solid var(--accent); box-shadow: 0 -10px 30px rgba(0, 0, 0, .5);
 }
 /* The Expedition Gate's sheet sits lower, leaving more of the map for the warband's cards above it. */
@@ -3558,11 +3560,23 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 #placePanel .iconBack { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border-radius: 10px; }
 #placePanel .iconBack svg { width: 20px; height: 20px; }
 #placePanel .pstick .btn { pointer-events: auto; background: var(--panel-2); box-shadow: 0 4px 12px rgba(0, 0, 0, .45); }
+/* A place's footer (PLACE_FOOT: the Arena's Fight row), the last thing in its sheet, pinned to the
+   sheet's bottom edge while everything above scrolls beneath it. Sticky measures from inside the
+   sheet's padding, so the bar reaches down over it (--padB) and fills it, or the warband would show
+   through below the buttons; the negative margin hands that room back, so at the end of the scroll
+   the bar ends exactly where the sheet does. */
+#placePanel .pfoot {
+  position: sticky; bottom: calc(-1 * var(--padB)); z-index: 5;
+  padding: 8px 0 var(--padB); margin-bottom: calc(-1 * var(--padB));
+  background: rgb(30, 33, 48); box-shadow: 0 -10px 12px -6px rgb(30, 33, 48);
+}
+/* Fight sits at the bar's right end, the corner the village's own Battle button holds. */
+#placePanel .pfoot .swordsGo { margin-left: auto; }
 #placePanel .forge, #placePanel .homeGrid { grid-template-columns: minmax(0, 1fr); }
 @media (min-aspect-ratio: 1/1) {
   #placePanel {
     left: auto; top: 60px; right: 10px; bottom: 10px; width: min(460px, 46%); max-height: none;
-    border-radius: 16px; border: 1px solid var(--accent); padding: 14px 16px 16px;
+    border-radius: 16px; border: 1px solid var(--accent); --padB: 16px; padding: 14px 16px var(--padB);
   }
 }
 /* The dock: your warband and skills, bottom-left. Hidden under an open bottom sheet. */

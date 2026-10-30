@@ -15131,25 +15131,35 @@ function skyGroundHTML(faction, intro, buyLabel, outro) {
 // The crossed swords of the village's Battle button (index.html #battleBtn), so the Arena's fight button reads the same.
 const SWORDS_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l10 10M20 4L10 14"/><path d="M12.5 16.5l-2 2M11.5 16.5l2 2"/><path d="M7 15l2 2-2.5 2.5-2-2zM17 15l-2 2 2.5 2.5 2-2z"/></g></svg>';
 
+// What a place pins to the bottom edge of its sheet, after everything else in it (.pfoot in style.css).
+const PLACE_FOOT = {
+  // The Arena's way in, under your warband and Roska's quest, so Fight is in reach however far it scrolls.
+  arena() {
+    if (state.runPending) {
+      return `<div class="btns pfoot"><button class="btn primary" type="button" data-k="continue">Fight ${theFaction(FACTIONS[state.order[state.battle + 1]])}</button>
+          <button class="btn" type="button" data-k="abandon">Abandon the run</button></div>`;
+    }
+    if (!profile.hero) return '';
+    const full = state.team.length === TEAM_SIZE;
+    return `<div class="btns pfoot"><button class="btn" type="button" data-k="skills">Choose skills</button>
+        <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button>
+        ${full ? `<button class="btn primary swordsGo" type="button" data-k="fight" aria-label="Fight as ${heroName()}" title="Fight as ${heroName()}">${SWORDS_ICON}</button>` : ''}</div>`;
+  },
+};
+
 const PLACE_BODY = {
   arena() {
     if (state.runPending) {
       const next = FACTIONS[state.order[state.battle + 1]];
       return `<p class="note">Your run is paused after battle ${state.battle + 1} of ${state.order.length}. ${heroName()} is level ${heroLevel()}.
-          Next up: <b>${theFaction(next)}</b> (${next.mechanic}). Anything you forge or buy now counts in that fight.</p>
-        <div class="btns"><button class="btn primary" type="button" data-k="continue">Fight ${theFaction(next)}</button>
-          <button class="btn" type="button" data-k="abandon">Abandon the run</button></div>`;
+          Next up: <b>${theFaction(next)}</b> (${next.mechanic}). Anything you forge or buy now counts in that fight.</p>`;
     }
     if (!profile.hero) {
       return `<p class="note">Before you can fight, Cinderhold needs to know who you are. Choose your champion, name them,
           and recruit two allies to fight beside you.</p>
         <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
     }
-    const full = state.team.length === TEAM_SIZE;
-    return `<div class="btns">${full ? `<button class="btn primary swordsGo" type="button" data-k="fight" aria-label="Fight as ${heroName()}" title="Fight as ${heroName()}">${SWORDS_ICON}</button>` : ''}
-        <button class="btn" type="button" data-k="skills">Choose skills</button>
-        <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button></div>
-      <p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
+    return `<p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
         <b>${battleXp(0)} XP</b>, more for every battle deeper, and clearing all six adds <b>${CLEAR_BONUS} gold</b> and <b>${XP_CLEAR_BONUS} XP</b>.
         Levels stick: ${heroName()} keeps every level they earn, and your recruits fight at your level.</p>`;
   },
@@ -16225,6 +16235,7 @@ function placeHTML(k) {
     </div>
     ${PLACE_BODY[k]()}
     ${keeperHTML(k)}
+    ${PLACE_FOOT[k]?.() ?? ''}
   </section>`;
 }
 
