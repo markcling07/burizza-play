@@ -1992,7 +1992,7 @@ const ROSTER = [
        does is weaker the emptier his hands, and Recall Swords, his only refill, brings back
        EVERYTHING at the cost of his turn. Command spent what was already buried without touching
        his hands; Harvest took one body's worth back without disturbing the rest. */
-    nature: { name: 'Unblinking', desc: `He aims on his turn and the blades fly at the next Rev. His throws never miss. Each blade that lands is spent into the body it finds, and killing that body gives the blade back; one that is turned aside or finds nothing comes home. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, swords: 5, coldlight: 1 },
+    nature: { name: 'Unblinking', desc: `He aims on his turn and the blades fly at the next Rev. His throws are True: no dodge, Evade or block turns them — only a target out of reach, or behind a fence or a bunker, escapes them. Each blade that lands is spent into the body it finds, and killing that body gives the blade back; one that is turned aside or finds nothing comes home. Everything he does is weaker the emptier his hands — and with none left he cannot throw at all. He runs on light, not on fire: no Heat, and no overheat bar — the blades in his hands are the only gauge he has.`, breathless: 1, unblinking: 1, swords: 5, coldlight: 1 },
     passive: P('Dead Aim', '+8% critical hit chance: what he aims at, he hits clean.', { stat: { crit: 0.08 } }),
     /* makeUnit has added `ps.dodge` to a champion's base dodge since dodge existed, and no passive
        in the game has ever set it — the hook was built and left empty. It belongs to the one who
@@ -5847,9 +5847,15 @@ function strikeOnce(u, t, mult, label, o) {
       heroicHit = true;
     }
   }
+  /* TRUE (Riven's Unblinking, or o.trueDmg): the blow ignores evasion and blocks. No DODGE roll, no
+     Evade, no Blind to throw it off; no worn ward or Shieldbearer's shield turning a share of it aside
+     below. What it does NOT ignore is being somewhere else: a mark out of reach, or behind a fence or a
+     bunker, is decided before any blow is struck (fireVolley, fenceStops), and a Shield, Ward or Guard
+     still lessens what lands — those are not blocks. */
+  const trueHit = !!(o.trueDmg || charNat(u).unblinking);
   // Vaun's Breathless: no breath to hold, no waver — his basic Attack cannot be dodged.
-  const dodge = heroicHit || o.noDodge || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0) + (wx() === 'dusk' && u.role === 'ranged' ? DUSK_MISS : 0), 0.02, 0.4);
-  const miss = o.noDodge ? 0 : dodge + (has(u, 'blind') ? 0.35 : 0);
+  const dodge = heroicHit || o.noDodge || trueHit || t.inert || (charNat(u).breathless && label === 'Attack') ? 0 : has(t, 'evade') ? 1 : clamp(0.04 + t.dodge + (effAgi(t) - effAgi(u)) * 0.01 + (wx() === 'mist' ? 0.1 : 0) + (wx() === 'dusk' && u.role === 'ranged' ? DUSK_MISS : 0), 0.02, 0.4);
+  const miss = o.noDodge || trueHit ? 0 : dodge + (has(u, 'blind') ? 0.35 : 0);
   if (miss > 0 && chance(miss)) {
     float(t, 'Miss', 'miss');
     dodgeHop(t);
@@ -5900,7 +5906,7 @@ function strikeOnce(u, t, mult, label, o) {
   if (charNat(t).mound && deadCount() > 0) dmg *= 0.92;   // Barrow: the dead crowd round their lord
   // Worn kit: a ward turns aside its share of the blow, physical or magic, whichever this was.
   // An Unweaving Stone on the far side thins this ward while it stands.
-  const ward = Math.min(Math.max(0, (magic ? t.blockMagic || 0 : t.blockPhys || 0) - (magic ? riftWardCut(t.side) : 0)), 0.9);
+  const ward = trueHit ? 0 : Math.min(Math.max(0, (magic ? t.blockMagic || 0 : t.blockPhys || 0) - (magic ? riftWardCut(t.side) : 0)), 0.9);   // a True blow is not blocked
   if (ward) dmg *= 1 - ward;
   dmg = Math.max(1, Math.round(dmg));
   // Soul Link: a third of the blow is divided among the holder's living teammates.
@@ -5960,7 +5966,7 @@ function strikeOnce(u, t, mult, label, o) {
       log(`${label} arcs clean over ${bearer.name} and falls on ${t.name} regardless.`, t.side);
     } else {
       let hit = taken;
-      if (chance(BEARER_BLOCK_CHANCE)) {
+      if (!trueHit && chance(BEARER_BLOCK_CHANCE)) {   // he still wears a True blow; his shield cannot turn any of it
         hit = Math.max(1, Math.round(hit * (1 - BEARER_BLOCK)));
         float(bearer, '🛡️ Turned', 'fx');
       }
