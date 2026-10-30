@@ -902,7 +902,7 @@ const weldMetal = (u) => runsHot(u) || (!!u.summon && SUMMONS[u.id]?.look?.body 
 /* Vharo's numbers. He is an ammunition economy wearing a champion: five blades,
    every throw spends one into a body, and everything he does is worth less with
    emptier hands (the damage scale already lives in strikeOnce). */
-const VHARO_BURST_MULT = 0.9;    // each blade's share when he throws the fistful at one mark (450% for a full hand)
+const VHARO_BURST_MULT = 1.2;    // each blade's share when he throws the fistful at one mark (600% for a full hand)
 const EMPTIED_STUN_SWORDS = 5;   // Emptied Hands stuns the body it lands in only when this many blades all land
 const VHARO_CMD_MULT = 0.5;      // each commanded blade's share when they tear free and fly
 const VHARO_RECALL_TURNS = 2;
@@ -1975,18 +1975,19 @@ const ROSTER = [
 
   // ---- The Stray Banner (no unified resource; each carries their own) ----
   { id: 'riven', name: 'Riven', faction: 'stray', role: 'ranged', bio: 'A hooded blade-thrower: he aims once, throws real swords, and calls them home.',
-    /* ATK 1.4: the hardest hitter in the game for his size, and paid for in everything else — hp 0.85,
-       every blade a thing he must get back, three Revs on his ultimate, and nothing at all to throw once
-       his hands are empty. Raised from 1.2 with his multipliers, to make the blades the threat they read as. */
-    mods: { atk: 1.4, hp: 0.85, agi: 1.05 },
+    /* ATK 1.6: the deadliest hitter in the game, and paid for in everything else — hp 0.85, every blade
+       a thing he must get back, three Revs on his ultimate (time enough for its mark to get out of the
+       way), and nothing at all to throw once his hands are empty. Raised from 1.2, then 1.4, with his
+       multipliers: a full Emptied Hands is meant to kill a ranged champion it reaches. */
+    mods: { atk: 1.6, hp: 0.85, agi: 1.05 },
     look: { body: 'wraith', main: '#3a3326', trim: '#ffd166', eye: '#6ef0a8' },
-    skills: [D('Sighted Throw', 'Uses 2 swords. He aims at one enemy now; at the next Rev two blades hit it for 140% each (280% in all), and both stay stuck in it. Needs 2 swords in hand.', 2, 1.4, { magic: true, swordCount: 2, attackType: 'horizontal' }),
+    skills: [D('Sighted Throw', 'Uses 2 swords. He aims at one enemy now; at the next Rev two blades hit it for 175% each (350% in all), and both stay stuck in it. Needs 2 swords in hand.', 2, 1.75, { magic: true, swordCount: 2, attackType: 'horizontal' }),
              /* The ultimate takes a Rev longer than everything else he throws, on Powder Shot's beat:
                 gathered on his turn, sighted at the next Rev (a green blade over the mark), thrown at the
                 Rev after. The extra Rev is the price — one more Rev for a stun, a bash, a Silence or a
                 coffin to make him drop the lot (turnPulse). */
              D('Emptied Hands', `★ Ultimate. Takes two Revs: he gathers every sword in his hand now, sights one enemy at the next Rev, and at the Rev after throws them all at it, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits — and if all ${EMPTIED_STUN_SWORDS} land, the target is Stunned for 1 turn. Stunned, bashed, silenced or coffined before they fly, the blades drop back unthrown.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, volleyRevs: 2, attackType: 'horizontal' }),
-             D('Fan of Blades', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands: 100% ATK each.', 4, 1.0, { magic: true, swordTargets: true, attackType: 'horizontal' }),
+             D('Fan of Blades', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands: 125% ATK each.', 4, 1.25, { magic: true, swordTargets: true, attackType: 'horizontal' }),
              B('Recall Swords', `No cooldown; takes his turn, and only when a sword is out. Every sword stuck in an enemy rips out and flies home to him. Each enemy a sword is pulled from Bleeds for ${RIVEN_RECALL_BLEED_TURNS} turns: ${Math.round(RIVEN_RECALL_BLEED * 100)}% of his attack per turn for every sword pulled out of it. Then he strikes 30% harder for ${VHARO_RECALL_TURNS} turns.`, 0, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
              B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS })],
     /* Command the Fallen and Blade Harvest were given back to him and taken out again (42f9680).
