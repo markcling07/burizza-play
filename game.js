@@ -15128,6 +15128,9 @@ function skyGroundHTML(faction, intro, buyLabel, outro) {
     ${outro}`;
 }
 
+// The crossed swords of the village's Battle button (index.html #battleBtn), so the Arena's fight button reads the same.
+const SWORDS_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l10 10M20 4L10 14"/><path d="M12.5 16.5l-2 2M11.5 16.5l2 2"/><path d="M7 15l2 2-2.5 2.5-2-2zM17 15l-2 2 2.5 2.5 2-2z"/></g></svg>';
+
 const PLACE_BODY = {
   arena() {
     if (state.runPending) {
@@ -15143,7 +15146,7 @@ const PLACE_BODY = {
         <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
     }
     const full = state.team.length === TEAM_SIZE;
-    return `<div class="btns">${full ? `<button class="btn primary" type="button" data-k="fight">Fight as ${heroName()}</button>` : ''}
+    return `<div class="btns">${full ? `<button class="btn primary swordsGo" type="button" data-k="fight" aria-label="Fight as ${heroName()}" title="Fight as ${heroName()}">${SWORDS_ICON}</button>` : ''}
         <button class="btn" type="button" data-k="skills">Choose skills</button>
         <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button></div>
       <p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
