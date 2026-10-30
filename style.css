@@ -3572,6 +3572,11 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 }
 /* The bar's buttons gather at its right end, Fight last, in the corner the village's own Battle button holds. */
 #placePanel .pfoot { justify-content: flex-end; }
+/* ...all but Arena quests, alone at the left end: the dock's quest scroll, with Roska's "!" or "?" on its corner. */
+#placePanel .pfoot .questsGo { position: relative; display: grid; place-items: center; flex: none; margin-right: auto; }
+#placePanel .pfoot .questsGo .sic { width: 22px; height: 22px; }
+#placePanel .pfoot .questsGo[aria-pressed="true"] { border-color: var(--accent); }
+#placePanel .pfoot .badge { position: absolute; top: -5px; right: -5px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .6rem; line-height: 16px; text-align: center; }
 #placePanel .forge, #placePanel .homeGrid { grid-template-columns: minmax(0, 1fr); }
 @media (min-aspect-ratio: 1/1) {
   #placePanel {
@@ -3773,6 +3778,10 @@ body.inTown .wrap { max-width: none; padding: 0; gap: 0; }
 .quest .ask { margin: 0; font-style: italic; }
 .quest .note { margin: 0; }
 .quest .btns { margin-top: 4px; }
+/* A keeper's finished jobs, under their current one (the Arena quests view). */
+.qdone { display: grid; gap: 4px; }
+.qdone ul { margin: 0; padding-left: 18px; font-size: .85rem; color: var(--muted); }
+.qdone b { color: var(--fg); }
 .qbar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 2px; }
 .qbar i { display: block; height: 100%; background: var(--accent); }
 .qlog { display: grid; gap: 10px; margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }

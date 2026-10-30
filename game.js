@@ -14985,13 +14985,24 @@ function keeperHTML(place) {
   const q = questOf(n.id);
   const loot = state.keeperLoot ? `<p class="loot">${state.keeperLoot}</p>` : '';
   // The Arena opens on your warband instead of Roska's greeting: who you are taking into the pit is
-  // what you came in to see. He still speaks up when he has something for you (a delivered message).
-  if (place === 'arena' && profile.hero && state.team.length === TEAM_SIZE && !state.keeperLoot) {
+  // what you came in to see. He still speaks up when he has something for you (a delivered message),
+  // and the Arena quests button (state.arenaQuests) swaps the warband for him and his jobs.
+  const arenaQuests = place === 'arena' && state.arenaQuests;
+  if (place === 'arena' && profile.hero && state.team.length === TEAM_SIZE && !state.keeperLoot && !arenaQuests) {
     return `<div class="teamRow arenaBand">${teamMinis(true)}</div>${packPickerHTML()}` + (q ? questCardHTML(q, 'giver') : '');
   }
   const said = state.keeperSays ? `<div class="keeper"><div class="kpic">${npcArt(n.id)}</div>
     <div><strong>${n.name}</strong> <small>${n.title}</small><p>“${state.keeperSays}”</p>${loot}</div></div>` : '';
+  if (arenaQuests) {
+    return said + (q ? questCardHTML(q, 'giver') : `<p class="note">${n.name} has no more work for you: every Arena quest is done.</p>`) + doneQuestsHTML(n.id);
+  }
   return said + (q ? questCardHTML(q, 'giver') : '');
+}
+// The jobs a keeper has already paid you for, listed under their current one.
+function doneQuestsHTML(npcId) {
+  const all = QUESTS.filter((q) => q.from === npcId), done = all.filter((q) => questSt(q)?.s === 'done');
+  return `<div class="qdone"><p class="label">Done · ${done.length} of ${all.length}</p>
+    ${done.length ? `<ul>${done.map((q) => `<li><b>${q.title}</b> · ${rewardText(q)}</li>`).join('')}</ul>` : '<p class="note">None yet.</p>'}</div>`;
 }
 
 // Opening a keeper's building delivers any messages you carry for them.
@@ -15140,8 +15151,10 @@ const PLACE_FOOT = {
           <button class="btn" type="button" data-k="abandon">Abandon the run</button></div>`;
     }
     if (!profile.hero) return '';
-    const full = state.team.length === TEAM_SIZE;
-    return `<div class="btns pfoot"><button class="btn" type="button" data-k="skills">Choose skills</button>
+    const full = state.team.length === TEAM_SIZE, mark = questMark('roska');
+    const markSays = mark === '!' ? '. Roska has a quest for you' : mark === '?' ? '. Quest to hand in' : '';
+    return `<div class="btns pfoot"><button class="btn questsGo" type="button" data-k="aquests" aria-pressed="${!!state.arenaQuests}" aria-label="Arena quests${markSays}" title="Arena quests">${SCROLL_ICON}${mark ? `<span class="badge" aria-hidden="true">${mark}</span>` : ''}</button>
+        <button class="btn" type="button" data-k="skills">Choose skills</button>
         <button class="btn${full ? '' : ' primary'}" type="button" data-k="team">${full ? 'Change your recruits' : 'Choose your recruits'}</button>
         ${full ? `<button class="btn primary swordsGo" type="button" data-k="fight" aria-label="Fight as ${heroName()}" title="Fight as ${heroName()}">${SWORDS_ICON}</button>` : ''}</div>`;
   },
@@ -17757,6 +17770,7 @@ function openPlace(k) {
   state.miniShown = [];   // the gate's warband cards start put away
   state.booth = null; state.boothNews = '';   // walking away from the carnival abandons any game in progress
   state.trainNews = '';                       // and the yard forgets this morning's drill
+  state.arenaQuests = false;                  // the Arena opens on your warband again
   hideSay();
   state.keeperLoot = '';
   state.tomeNews = ''; state.craftNews = '';
@@ -17795,6 +17809,8 @@ function villageAction(k) {
   if (verb === 'dungeon') return startDungeon(arg);
   if (verb === 'expedition') return startExpedition(arg);
   if (verb === 'continue') { state.runPending = false; state.battle++; return startBattle(false); }
+  // The Arena quests button: Roska and his jobs in place of the warband, or back. Opens at the top, on him.
+  if (verb === 'aquests') { state.arenaQuests = !state.arenaQuests; render(); $('#placePanel').scrollTop = 0; return; }
   if (verb === 'team') { state.screen = 'select'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'skills') { state.skillsFor = null; state.skillsFrom = null; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
   if (verb === 'skillsfor') { state.skillsFor = arg; state.skillsFrom = 'warband'; state.screen = 'skills'; render(); window.scrollTo(0, 0); return; }
