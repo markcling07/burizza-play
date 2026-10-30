@@ -873,6 +873,13 @@ const RESH_HOLD_PER_TOTEM = 50;  // ...plus half a round per stone standing
 const RESH_SHOCK_REVS = 2;
 const RESH_BATTERY_PCT = 0.5;
 
+/* Bulwark-7's Steam Vent: a base blast, plus more for every point of Heat in the boiler as the
+   valves open (the vent itself comes at the end of the action, after the blows). It breaks even
+   with the old flat 70% at 60 Heat: softer from a cold hull, harder the nearer he runs to
+   overheating — up to ~90% at 99. The Ironclad Heat bonus every Mech hit gets still applies on top. */
+const STEAM_VENT_BASE = 0.4;        // 40% ATK at 0 Heat
+const STEAM_VENT_PER_HEAT = 0.005;  // +0.5% ATK per point of Heat held
+
 /* Orin's numbers (The Cogbound). He rides a body rather than fighting beside it:
    on an ally that body runs quicker and he swings after it; on an enemy he clamps
    over the weapon and grinds. The two rides are deliberately asymmetric — riding
@@ -938,7 +945,7 @@ const ROSTER = [
                 stun on the WHOLE warband would have been the strongest thing
                 in the game by a distance. */
              D('Hydraulic Slam', 'Deals 70% ATK damage to every enemy. 25% chance to Stun each. Both fists into the ground, twice, and a shockwave runs out along the floor from each.', 4, 0.7, { aoe: true, stun: 0.25, groundSlam: true }),
-             D('Steam Vent', 'Deals 70% ATK damage to all enemies. Vents 40 Heat.', 3, 0.7, { aoe: true, heat: -40, steam: true }),
+             D('Steam Vent', `Deals ${Math.round(STEAM_VENT_BASE * 100)}% ATK damage to all enemies, +${STEAM_VENT_PER_HEAT * 100}% ATK for every point of Heat Bulwark-7 holds as he vents. Vents 40 Heat.`, 3, STEAM_VENT_BASE, { aoe: true, heat: -40, steam: true, perHeat: STEAM_VENT_PER_HEAT }),
              D('Piledriver', 'Deals 180% ATK damage. Ignores armor. Builds 40 Heat.', 4, 1.8, { pierce: true, heat: 40 }),
              /* Bunker ate Bunker Down. The old skill taunted and shielded; this one
                 anchors instead of shielding (far stronger) and keeps the taunt,
@@ -5338,6 +5345,7 @@ function skillsOf(u) {
     if (s.kind === 'buff' && s.o?.charges) out.o = { ...s.o, charges: s.o.charges + Math.floor(r / 2) };
     else if (s.kind === 'buff' && s.fx) out.fx = s.fx.map(([id, t, ...rest]) => [id, t + Math.floor(r / 2), ...rest]);
     if (s.o?.heal) out.o = { ...s.o, heal: s.o.heal * (1 + RANK_POWER * r) };
+    if (s.o?.perHeat) out.o = { ...out.o, perHeat: s.o.perHeat * (1 + RANK_POWER * r) };   // Steam Vent: both halves of the blast train
     return out;
   };
   return [attack, ...actives.filter((s) => eq.includes(s.id)).map(boost), ...neutrals.map(boost), guard, ...(alliedBunker(u) ? [TAKE_COVER] : [])];
@@ -6826,6 +6834,9 @@ function peelBarrierSword(u) {
 
 async function damageSkill(u, t, sk) {
   const o = sk.o || {};
+  // Steam Vent: the base blast plus a share for every point of Heat he holds as the valves open.
+  // The Heat is read here, before it is vented: the action's Heat change comes after the blows.
+  if (o.perHeat && runsHot(u)) sk = { ...sk, mult: sk.mult + o.perHeat * u.heat };
   state.counters = [];
   // Hallucinate: whoever singles out this target may swing at someone else entirely —
   // any other combatant, including the attacker's own allies. Area attacks are immune.
