@@ -6632,7 +6632,9 @@ async function fenceDeflect(u, t, label, p) {
     ricochetSpark({ x: b.x - dir * b.w * 0.42, y: b.top + b.h * 0.45 }, Math.atan2(-0.9, -dir));
   }
   float(t, 'Deflected', 'miss');
-  log(`${u.name}'s ${label} glances off ${has(t, 'protected') ? 'the graveyard fence' : 'the swords hanging'} before ${t.name}.`, u.side);
+  // What it glanced off: a Graveyard Fence, a Bulwark's sealed bunker (Emptied Hands, fireVolley), or Riven's own Barrier.
+  const off = has(t, 'protected') ? `the graveyard fence before ${t.name}` : bunkered(t) ? `${t.name}'s plating` : `the swords hanging before ${t.name}`;
+  log(`${u.name}'s ${label} glances off ${off}.`, u.side);
 }
 
 // The second Rev: fired from the held aim (mara-shot starts on the aim pose), not a fresh raise.
@@ -6730,6 +6732,21 @@ async function fireVolley(u) {
         const opts = validTargets(u, sk);
         t = opts.length ? pick(opts) : null;
         if (!t) { log(`${u.name}'s blades find nothing left to strike, and settle back into his hands.`, u.side); u.bladesOut = 0; render(); return; }
+      } else if (inBunker(t) && fan) {
+        /* A bunker is a wall, not a hiding place: Emptied Hands hits its plating and every blade bounces
+           off, as off a Graveyard Fence (fenceDeflect), and spins away off the field to come home at the
+           next Rev. A mark sheltering inside an ally's bunker is behind that bunker's plating. */
+        const wall = bunkerHostOf(t) || t, n = u.bladesOut, proj = projectileFor(u, sk), pts = u.fanFrom.pts;
+        for (const sw of u.fanFrom.el?.children || []) sw.classList.add('gone');
+        float(u, `${sk.name}!`, 'fx');
+        const turned = Array.from({ length: n }, (_, i) => fenceStrayAt(wall, pts[i]));
+        await Promise.all(turned.map((_, i) => fenceDeflect(u, wall, sk.name, pts[i] ? { ...proj, from: pts[i] } : proj)));
+        if (wall !== t) log(`${t.name} is sheltering inside ${wall.name}'s bunker, out of reach.`, t.side);
+        u.bladesOut = 0;
+        strandBlades(u, n, turned.filter(Boolean));
+        render();
+        await wait(320);
+        return;
       } else if (outOfReach(t) && fan) {
         /* Emptied Hands lets go regardless: every blade flies at where the mark stood and on off the
            field, finding nothing. It does not snap back into his hand — it comes home at the next
