@@ -4775,10 +4775,12 @@ async function syncHeldWeapon(el, u) {
    body is not in his hands, and its twin in the art fades out. Recall, Harvest or a kill brings it back. */
 function carriedBlades(host, u) {
   if (!u.maxSwords) return;
-  const out = (u.volley ? volleyBlades(u, u.volley.sk) : 0) + (u.bladesOut || 0);
-  const held = Math.max(0, u.swords - out);
+  const held = bladesInHand(u);
   host.querySelectorAll('svg.art [data-blade]').forEach((b) => b.classList.toggle('spentblade', +b.dataset.blade > held));
 }
+// The blades actually in his hand: his own (u.swords, none stuck in a body) less any aimed and hanging
+// over him, in the air, or missed and still on their way home (u.bladesHome).
+const bladesInHand = (u) => Math.max(0, u.swords - ((u.volley ? volleyBlades(u, u.volley.sk) : 0) + (u.bladesOut || 0) + (u.bladesHome?.n || 0)));
 
 const lookOf = (id) => charById(id)?.look || SUMMONS[id]?.look || MONSTERS[id]?.look;
 
@@ -6613,6 +6615,13 @@ const fenceStops = (u, sk, p, t) => !!t && t.hp > 0 && (has(t, 'protected') || h
   && attackType(u, sk, p) === HORIZONTAL;
 // Where the fence stands: on the side of the target facing the shooter, just short of them.
 const FENCE_STOP = (e, to, from) => ({ x: e.x - Math.sign(e.x - from.x) * e.w * 0.42 });
+// ...and where a blade it turns aside is left hanging, at the mark's chest height (strandBlades). null off-stage.
+const fenceStrayAt = (tg, from) => {
+  const e = stageBox(tg);
+  if (!e || !from) return null;
+  const y = e.top + e.h * 0.45;
+  return { x: FENCE_STOP(e, null, from).x, y, ang: Math.atan2(y - from.y, e.x - from.x) };
+};
 async function fenceDeflect(u, t, label, p) {
   await shoot(u, t, { ...p, endAt: FENCE_STOP, impact: null });
   const b = stageBox(t), a = stageBox(p.bounceFrom || u);
@@ -6702,13 +6711,15 @@ function clearVolley(u) {
    targeting law allows; a mark gone to ground or into a coffin is not there, and the blades come
    back unspent; a fence turns them aside (damageSkill does that, and settleBlades sends them home). */
 async function fireVolley(u) {
-  const { target, sk, fan } = u.volley;
+  const { target, sk, fan, seen } = u.volley;
   u.bladesOut = volleyBlades(u, sk);   // in the air now: still out of his hands (carriedBlades)
   /* Emptied Hands' fanned blades are thrown from where they hang: the fan stays standing (its tick stops,
      `loosing`) and damageSkill throws each blade from its own place in it (u.fanFrom), taking it out of
-     the fan as it goes. Whatever is left of the fan comes down with the volley, however it ends. */
-  const fanEl = fan && u.volleyEl;
-  if (fanEl) { fanEl.loosing = true; u.fanFrom = { el: fanEl, pts: fanPoints(u, fanEl.children.length) }; u.volleyEl = null; }
+     the fan as it goes. Whatever is left of the fan comes down with the volley, however it ends.
+     u.fanFrom is set from the skill, not the drawing, so the throw plays the same with no fan on screen. */
+  const fanEl = fan ? u.volleyEl : null;
+  if (fanEl) { fanEl.loosing = true; u.volleyEl = null; }
+  if (fan) u.fanFrom = { el: fanEl, pts: fanPoints(u, Math.min(u.bladesOut, 6)) };
   clearVolley(u);
   try {
     let t = unitBy(target);
@@ -6717,6 +6728,20 @@ async function fireVolley(u) {
         const opts = validTargets(u, sk);
         t = opts.length ? pick(opts) : null;
         if (!t) { log(`${u.name}'s blades find nothing left to strike, and settle back into his hands.`, u.side); u.bladesOut = 0; render(); return; }
+      } else if (outOfReach(t) && fan) {
+        /* Emptied Hands lets go regardless: every blade flies at where the mark stood and on past it,
+           finds nothing, and is left hanging there. It does not snap back into his hand — it comes
+           home at the next Rev (strandBlades, then bladesFlyHome from turnPulse). */
+        const n = u.bladesOut;
+        float(u, `${sk.name}!`, 'fx');
+        const ends = await throwPast(u, t, sk, n, seen);
+        u.bladesOut = 0;
+        float(t, 'Hidden', 'miss');
+        log(`${u.name}'s ${sk.name} flies at where ${t.name} stood — but ${t.name} is ${goneWhere(t)}, and the blades find nothing. They hang there, and will come back to him.`, u.side);
+        strandBlades(u, n, ends);
+        render();
+        await wait(320);
+        return;
       } else if (outOfReach(t)) {
         u.bladesOut = 0; float(t, 'Hidden', 'miss');
         log(`${u.name}'s blades find nothing — ${t.name} is ${goneWhere(t)}. They drift back to him.`, u.side);
@@ -6729,6 +6754,63 @@ async function fireVolley(u) {
     u.volleyFiring = true;
     try { await damageSkill(u, t, sk); } finally { u.volleyFiring = false; u.bladesOut = 0; }
   } finally { fanEl?.remove(); u.fanFrom = null; }
+}
+
+/* EMPTIED HANDS, MISSED. The fan lets go at a mark that is not there: each blade flies from its place in
+   the fan at where the mark stood (or was last seen standing: `seen`, kept by volleyFx) and a quarter
+   as far again past it, kept on the field. Returns where each one ended up, for strandBlades. */
+async function throwPast(u, t, sk, n, seen) {
+  const b = stageBox(t), spot = b && b.w > 0 ? { x: b.x, y: b.top + b.h * 0.45 } : seen;
+  const pts = u.fanFrom?.pts || [], ar = $('#arena')?.getBoundingClientRect();
+  if (!spot || !ar || !pts.length) return [];
+  const proj = projectileFor(u, sk);
+  for (const sw of u.fanFrom.el?.children || []) sw.classList.add('gone');
+  const ends = pts.slice(0, n).map((from) => {
+    const x = clamp(from.x + (spot.x - from.x) * 1.25, 12, ar.width - 12), y = clamp(from.y + (spot.y - from.y) * 1.25, 12, ar.height - 12);
+    return { x, y, ang: Math.atan2(y - from.y, x - from.x) };
+  });
+  await Promise.all(ends.map((end, i) => shoot(u, t, { ...proj, from: pts[i], toPoint: spot, endAt: () => ({ x: end.x, y: end.y }), impact: null })));
+  return ends;
+}
+
+/* Blades that missed (Emptied Hands at a mark out of reach, or turned aside by a fence) hang where they
+   ended up, out of his hands (carriedBlades counts them out), until the next Rev brings them home.
+   `at` is the Rev they were left on: turnPulse sends them home on any later one. */
+function strandBlades(u, n, ends) {
+  u.bladesHome?.el?.remove();
+  u.bladesHome = { n, at: state.pulseN || 0, pts: ends, el: null };
+  if (reduced || !ends.length || !$('#arena')) return;
+  const el = document.createElement('div');
+  el.className = 'strayBlades';
+  el.innerHTML = ends.map(() => `<i><b>${LODGE_SWORD_SVG}</b></i>`).join('');
+  $('#arena').appendChild(el);
+  u.bladesHome.el = el;
+  [...el.children].forEach((sw, i) => { const p = ends[i]; sw.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.ang}rad)`; });
+}
+
+// The next Rev: the stranded blades turn round to face him and glide slowly back to his shoulder (where
+// the volley hangs), and only then are they in his hand again.
+async function bladesFlyHome(u) {
+  const home = u.bladesHome, a = stageBox(u);
+  if (home.el && a && !reduced) {
+    const to = { x: a.x + facing(u) * a.w * 0.34, y: a.top + a.h * 0.3 }, ms = beat(1600);
+    await Promise.all([...home.el.children].map((sw, i) => {
+      const p = home.pts[i], ang = Math.atan2(to.y - p.y, to.x - p.x);
+      // done(), not .finished: a page that is not being drawn (an app in the background) never finishes
+      // an animation, and the battle must not wait on one.
+      return done(sw.animate([
+        { transform: `translate(${p.x}px, ${p.y}px) rotate(${p.ang}rad)` },
+        { transform: `translate(${p.x}px, ${p.y}px) rotate(${ang}rad)`, offset: 0.25 },
+        { transform: `translate(${to.x}px, ${to.y}px) rotate(${ang}rad)` },
+      ], { duration: ms, easing: 'ease-in-out', fill: 'forwards' }), ms);
+    }));
+  }
+  home.el?.remove();
+  u.bladesHome = null;
+  float(u, `⚔ ${bladesInHand(u)}/${u.maxSwords}`, 'fx');
+  log(`${u.name}'s missed blades come home to his hand.`, u.side);
+  render();
+  await wait(200);
 }
 
 /* After the strikes: every blade that landed sticks in its body and is spent from his hands - unless
@@ -6791,6 +6873,7 @@ function volleyFx(u, n) {
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
       el.style.setProperty('--ang', `${ang}rad`);
+      if (b && b.w > 0) u.volley.seen = { x: b.x, y: b.top + b.h * 0.45 };   // where the mark last stood, for a throw that misses
       /* Fanned: each blade at its own place in the arc, turned on the mark from there. Offsets are from
          the shoulder point above, so the blades slide out of the stack into the fan (.volley.fan i). */
       if (u.volley.fan) {
@@ -7086,13 +7169,15 @@ async function damageSkill(u, t, sk) {
      still turns each of its blades aside, as it did one at a time (and the loop below lands none of them). */
   const atOnce = !melee && proj && targets.length > 1 && !o.flakLob;
   if (atOnce) {
-    const n = targets.length, fan = o.swordBurst && u.fanFrom;
-    if (fan) for (const b of fan.el.children) b.classList.add('gone');
+    const n = targets.length, fan = o.swordBurst && u.fanFrom, turned = [];
+    for (const b of fan?.el?.children || []) b.classList.add('gone');
     await Promise.all(targets.map((tg, i) => {
       const p = fan?.pts[i] ? { ...proj, from: fan.pts[i] } : proj;
-      if (o.swordBurst && fenceStops(u, sk, proj, tg)) return fenceDeflect(u, tg, sk.name, p);
+      if (o.swordBurst && fenceStops(u, sk, proj, tg)) { turned.push(fenceStrayAt(tg, p.from)); return fenceDeflect(u, tg, sk.name, p); }
       return shoot(u, tg, p, (n > 1 && o.swordCount) ? (i - (n - 1) / 2) * 18 : 0);
     }));
+    // A fence's blades are missed blades: they hang where it turned them, and come home at the next Rev.
+    if (turned.length) strandBlades(u, turned.length, turned.filter(Boolean));
   }
   let total = 0, lastHit = null;   // lastHit = whoever the blow landed on, for a weapon's enemy-HP drain
   // Seraxa: Flurry adds a hit to multi-hit skills. Sawtooth's Flywheel adds one at 50+ Heat.
@@ -7206,8 +7291,12 @@ async function damageSkill(u, t, sk) {
       else if (!o.watersweep && !o.gust && !o.flakLob && targets.length === 1 && proj) {
         // Emptied Hands with one blade left: it leaves from the fan too.
         const fan = o.swordBurst && u.fanFrom, kp = fan?.pts[0] ? { ...proj, from: fan.pts[0] } : proj;
-        fan?.el.children[0]?.classList.add('gone');
-        if (fenceStops(u, sk, proj, tg)) { await fenceDeflect(u, tg, sk.name, kp); continue; }   // the iron takes it
+        fan?.el?.children[0]?.classList.add('gone');
+        if (fenceStops(u, sk, proj, tg)) {   // the iron takes it
+          await fenceDeflect(u, tg, sk.name, kp);
+          if (o.swordBurst) strandBlades(u, 1, [fenceStrayAt(tg, kp.from)].filter(Boolean));   // a missed blade: home next Rev
+          continue;
+        }
         await shoot(u, tg, kp);
       }
       if (o.slash && melee) slashFx(tg, facing(u));
@@ -9832,6 +9921,13 @@ async function turnPulse() {
     if (m.aimShot.revs > 0) continue;
     await fireAim(m);
     if (checkEnd()) return true;
+  }
+  // Riven's missed blades (Emptied Hands at a mark that was not there, or off a fence): left hanging
+  // where they ended up, they fly slowly home at the next Rev, whatever else has happened to him.
+  for (const r of allUnits()) {
+    if (!r.bladesHome || r.bladesHome.at >= state.pulseN) continue;
+    if (r.hp <= 0) { r.bladesHome.el?.remove(); r.bladesHome = null; continue; }
+    await bladesFlyHome(r);
   }
   // Riven's blades: aimed on his turn, they fly at the next Rev, whoever's turn it is. Stunned, bashed
   // or coffined before then - or silenced, for a skill - they drop back into his hands unthrown.
@@ -20685,7 +20781,7 @@ async function twinSlashSkill(u, t, sk) {
   log(`${u.name} and his shadow slash through ${t.name} from both sides!`, u.side);
   render();
   // Wait for the rest of the crossing to finish
-  if (crossAnim) await crossAnim.finished.catch(() => {});
+  if (crossAnim) await done(crossAnim, crossMs);   // done(): an undrawn page (app in the background) never finishes it
   await wait(beat(200));
   // --- Phase 3: both have passed through; hold a beat, then return ---
   // Clone fades out on the far side
@@ -20838,7 +20934,7 @@ async function coffinFly(u, t) {
     { transform: `translate(calc(-50% + ${(dx * 0.5).toFixed(0)}px), calc(-50% + ${(dy * 0.5 - 26).toFixed(0)}px)) rotate(6deg) scale(1.06)`, offset: 0.55 },
     { transform: `translate(calc(-50% + ${dx.toFixed(0)}px), calc(-50% + ${dy.toFixed(0)}px)) rotate(0deg) scale(1)` },
   ], { duration: ms, easing: 'cubic-bezier(.4,.9,.3,1)' });
-  await (anim.finished ? anim.finished.catch(() => {}) : sleep(ms));
+  await (anim.finished ? done(anim, ms) : sleep(ms));   // done(): an undrawn page (app in the background) never finishes it
   burst(t, 'grave');
   el.remove();
 }
@@ -21157,7 +21253,8 @@ const ARC_CEILING_MARGIN = 14;
 // p.bounceFrom (a unit): the round is already in flight - it glances off that unit, where the last
 // shot struck, and carries on to t (Ricochet). No muzzle, no second shot: a spark where it bounced.
 async function shoot(u, t, p, spread) {
-  const s = stageBox(p.bounceFrom || u), e = stageBox(t);
+  // p.toPoint: a shot at a spot on the field rather than a body (Emptied Hands at where its mark stood).
+  const s = stageBox(p.bounceFrom || u), e = p.toPoint ? { x: p.toPoint.x, top: p.toPoint.y, h: 0, w: 0, feet: p.toPoint.y } : stageBox(t);
   if (reduced || !s || !e) return;
   if (p.swordThrow) actorEl(u)?.classList.add('sword-thrown');
   const d = facing(u);
