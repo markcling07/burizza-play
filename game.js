@@ -15174,8 +15174,7 @@ const PLACE_BODY = {
         <div class="btns"><button class="btn primary" type="button" data-k="team">Create your champion</button></div>`;
     }
     return `<p class="note">Six battles, one against each faction, in random order. Each win pays <b>${battleGold(0)} gold</b> and
-        <b>${battleXp(0)} XP</b>, more for every battle deeper, and clearing all six adds <b>${CLEAR_BONUS} gold</b> and <b>${XP_CLEAR_BONUS} XP</b>.
-        Levels stick: ${heroName()} keeps every level they earn, and your recruits fight at your level.</p>`;
+        <b>${battleXp(0)} XP</b>, more for every battle deeper, and clearing all six adds <b>${CLEAR_BONUS} gold</b> and <b>${XP_CLEAR_BONUS} XP</b>.</p>`;
   },
 
   // Proving Grounds: three rival warbands at rising stakes. Reopening the place rerolls them.
