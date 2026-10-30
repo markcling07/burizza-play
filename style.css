@@ -4061,10 +4061,11 @@ button.wpic { border: none; background: none; padding: 0; cursor: pointer; }
 .arenaBand { gap: 2px; flex-wrap: nowrap; }
 .arenaBand .tmini { align-content: start; width: auto; flex: 1 1 0; min-width: 0; padding: 6px 0; }
 .arenaBand .mini { width: 88px; height: 88px; }
-/* No frame round your own champion here: the gold name and "You" are enough. */
+/* No frame round your own champion here: the gold name is enough. */
 .arenaBand .tmini.you { border-color: transparent; background: none; box-shadow: none; }
 .arenaBand .tmini figcaption { font-size: .86rem; }
-.arenaBand .tmini small { font-size: .64rem; }
+/* The Arena's band names its fighters and no more: no "You" or "Recruit" under the names (your gold name is mark enough). */
+.arenaBand .tmini small { display: none; }
 .bandSk { display: grid; grid-template-columns: repeat(3, 29px); gap: 1px; justify-content: center; margin-top: 4px; }
 .bsk { width: 29px; height: 29px; border-radius: 6px; overflow: hidden; }
 .bsk.pas { border-radius: 50%; }
