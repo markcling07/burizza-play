@@ -14986,10 +14986,11 @@ function keeperHTML(place) {
   const loot = state.keeperLoot ? `<p class="loot">${state.keeperLoot}</p>` : '';
   // The Arena opens on your warband instead of Roska's greeting: who you are taking into the pit is
   // what you came in to see. He still speaks up when he has something for you (a delivered message),
-  // and the Arena quests button (state.arenaQuests) swaps the warband for him and his jobs.
+  // and his quests live behind the Arena quests button (state.arenaQuests), which swaps the warband for
+  // him and his jobs; the button's "!" / "?" says when there is one waiting.
   const arenaQuests = place === 'arena' && state.arenaQuests;
   if (place === 'arena' && profile.hero && state.team.length === TEAM_SIZE && !state.keeperLoot && !arenaQuests) {
-    return `<div class="teamRow arenaBand">${teamMinis(true)}</div>${packPickerHTML()}` + (q ? questCardHTML(q, 'giver') : '');
+    return `<div class="teamRow arenaBand">${teamMinis(true)}</div>${packPickerHTML()}`;
   }
   const said = state.keeperSays ? `<div class="keeper"><div class="kpic">${npcArt(n.id)}</div>
     <div><strong>${n.name}</strong> <small>${n.title}</small><p>“${state.keeperSays}”</p>${loot}</div></div>` : '';
