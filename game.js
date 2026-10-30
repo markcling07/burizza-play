@@ -903,6 +903,7 @@ const weldMetal = (u) => runsHot(u) || (!!u.summon && SUMMONS[u.id]?.look?.body 
    every throw spends one into a body, and everything he does is worth less with
    emptier hands (the damage scale already lives in strikeOnce). */
 const VHARO_BURST_MULT = 0.55;   // each blade's share when he throws the fistful at one mark
+const EMPTIED_STUN_SWORDS = 5;   // Emptied Hands stuns the body it lands in only when this many blades all land
 const VHARO_CMD_MULT = 0.5;      // each commanded blade's share when they tear free and fly
 const VHARO_RECALL_TURNS = 2;
 // Recall Swords: a blade torn back out leaves a wound. Each body bleeds this share of his attack per
@@ -1981,7 +1982,7 @@ const ROSTER = [
                 gathered on his turn, sighted at the next Rev (a green blade over the mark), thrown at the
                 Rev after. The extra Rev is the price — one more Rev for a stun, a bash, a Silence or a
                 coffin to make him drop the lot (turnPulse). */
-             D('Emptied Hands', `★ Ultimate. Takes two Revs: he gathers every sword in his hand now, sights one enemy at the next Rev, and at the Rev after throws them all at it, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits. Stunned, bashed, silenced or coffined before they fly, the blades drop back unthrown.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, volleyRevs: 2, attackType: 'horizontal' }),
+             D('Emptied Hands', `★ Ultimate. Takes two Revs: he gathers every sword in his hand now, sights one enemy at the next Rev, and at the Rev after throws them all at it, one after another: ${Math.round(VHARO_BURST_MULT * 100)}% each, and every one sticks in it. The more swords he holds, the more hits — and if all ${EMPTIED_STUN_SWORDS} land, the target is Stunned for 1 turn. Stunned, bashed, silenced or coffined before they fly, the blades drop back unthrown.`, 5, VHARO_BURST_MULT, { magic: true, swordBurst: true, volleyRevs: 2, attackType: 'horizontal' }),
              D('Fan of Blades', 'Picks a mark and looses a blade at it and at one more enemy for every blade still in his hands.', 4, 0.8, { magic: true, swordTargets: true, attackType: 'horizontal' }),
              B('Recall Swords', `No cooldown; takes his turn, and only when a sword is out. Every sword stuck in an enemy rips out and flies home to him. Each enemy a sword is pulled from Bleeds for ${RIVEN_RECALL_BLEED_TURNS} turns: ${Math.round(RIVEN_RECALL_BLEED * 100)}% of his attack per turn for every sword pulled out of it. Then he strikes 30% harder for ${VHARO_RECALL_TURNS} turns.`, 0, 'self', [['empower', VHARO_RECALL_TURNS]], { recall: true }),
              B('Barrier', `Uses ${RIVEN_BARRIER_SWORDS} swords. They float in front of him for ${RIVEN_BARRIER_TURNS} turns: melee attacks cannot target him, and straight ranged shots are deflected. Arcing shots and area attacks still hit him. The swords come back to his hand when it ends.`, 4, 'self', [['barrier', RIVEN_BARRIER_TURNS]], { barrier: RIVEN_BARRIER_SWORDS })],
@@ -7419,6 +7420,17 @@ async function damageSkill(u, t, sk) {
     }
   };
   drain(total);
+  /* Emptied Hands' payoff: a full hand — EMPTIED_STUN_SWORDS blades — all landing in one body stuns it
+     for a turn. Fewer thrown, any turned aside or finding nothing, or a body that fell under them, and
+     there is no stun. The body is whoever the blades found: a Shieldbearer who wore them is the one
+     left reeling. Read from `landed` before settleBlades clears it. */
+  if (o.swordBurst && targets.length >= EMPTIED_STUN_SWORDS) {
+    for (const [body, n] of landed) {
+      if (n < EMPTIED_STUN_SWORDS || body.hp <= 0) continue;
+      addFx(body, 'stun', 1);   // a ward or an immunity that refuses it says so itself
+      if (has(body, 'stun')) log(`All ${n} of ${u.name}'s blades are in ${body.name} — the weight of them stuns ${body.name}.`, u.side);
+    }
+  }
   if (u.maxSwords && !o.swordHarvest) settleBlades(u, o, landed, o.swordCommand ? targets.length : 0);
   render();
   await wait(160);
