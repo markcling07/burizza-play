@@ -4778,9 +4778,9 @@ function carriedBlades(host, u) {
   const held = bladesInHand(u);
   host.querySelectorAll('svg.art [data-blade]').forEach((b) => b.classList.toggle('spentblade', +b.dataset.blade > held));
 }
-// The blades actually in his hand: his own (u.swords, none stuck in a body) less any aimed and hanging
-// over him, in the air, or missed and still on their way home (u.bladesHome).
-const bladesInHand = (u) => Math.max(0, u.swords - ((u.volley ? volleyBlades(u, u.volley.sk) : 0) + (u.bladesOut || 0) + (u.bladesHome?.n || 0)));
+// The blades actually in his hand: u.swords (none stuck in a body, none missed and still out on the field
+// — strandBlades takes those off it too) less any aimed and hanging over him, or in the air.
+const bladesInHand = (u) => Math.max(0, u.swords - ((u.volley ? volleyBlades(u, u.volley.sk) : 0) + (u.bladesOut || 0)));
 
 const lookOf = (id) => charById(id)?.look || SUMMONS[id]?.look || MONSTERS[id]?.look;
 
@@ -5492,7 +5492,7 @@ function usable(u, sk) {
   // Mordrek's cross is in the ground (Plant the Marker): nothing to Attack with, and nothing to plant again.
   if (u.planted && (sk.id === 'attack' || sk.summon === 'gravecross')) return false;
   if (throwsFromHand(u, sk) && u.swords < (sk.o?.swordCount || 1)) return false;   // not enough in hand to throw
-  if (sk.o?.recall && u.swords + (u.barrierSwords || 0) >= u.maxSwords) return false;   // nothing out in a body to call
+  if (sk.o?.recall && u.swords + (u.barrierSwords || 0) + (u.bladesHome?.n || 0) >= u.maxSwords) return false;   // nothing out in a body to call (missed blades fly home on their own)
   if (sk.o?.barrier && (u.swords < sk.o.barrier || has(u, 'barrier'))) return false;
   if (sk.o?.swordCommand && !foesOf(u).some((f) => f.hp > 0 && (f.lodged || 0) > 0)) return false;   // no blade of his is out in a body
   // SEISMIC TOSS (Zul'kan): "Requires: target is Bashed" was written on the skill and enforced
@@ -6787,7 +6787,12 @@ async function throwPast(u, t, sk, n, seen) {
    A blade with a `from` (glanced off a fence) is sent spinning from there to its place off the field first.
    `at` is the Rev they were left on: turnPulse sends them home on any later one. */
 function strandBlades(u, n, ends) {
-  u.bladesHome?.el?.remove();
+  // A batch still out from before (it cannot normally be: a throw takes three Revs) is simply home.
+  if (u.bladesHome) { u.swords = Math.min(u.maxSwords, u.swords + u.bladesHome.n); u.bladesHome.el?.remove(); }
+  /* Out of u.swords until they are back, exactly as a blade stuck in a body is: everything that asks what
+     he holds (usable for Barrier and every throw, how hard he hits, how many a skill throws, the AI) reads
+     u.swords, and must not count a blade lying off the field. */
+  u.swords = Math.max(0, u.swords - n);
   u.bladesHome = { n, at: state.pulseN || 0, pts: ends, el: null };
   if (reduced || !ends.length || !$('#arena')) return;
   const el = document.createElement('div');
@@ -6822,6 +6827,7 @@ async function bladesFlyHome(u) {
   }
   home.el?.remove();
   u.bladesHome = null;
+  u.swords = Math.min(u.maxSwords, u.swords + home.n);
   float(u, `⚔ ${bladesInHand(u)}/${u.maxSwords}`, 'fx');
   log(`${u.name}'s missed blades come home to his hand.`, u.side);
   render();
@@ -7587,7 +7593,7 @@ async function buffSkill(u, t, sk) {
       log(`${n} blade${n === 1 ? '' : 's'} tear${n === 1 ? 's' : ''} out of ${f.name}.`, u.side);
     }
     for (const f of [...state.teams.p, ...state.teams.e]) { if (f.lodged) { f.lodged = 0; } }
-    u.swords = u.maxSwords - (u.barrierSwords || 0);   // the barrier's swords stay where they hang
+    u.swords = u.maxSwords - (u.barrierSwords || 0) - (u.bladesHome?.n || 0);   // the barrier's swords stay where they hang, and missed ones fly home on their own
     float(u, `⚔ ${u.swords}/${u.maxSwords}`, 'fx');
     log(`${u.name} calls every blade home.`, u.side);
     burst(u, 'light');
