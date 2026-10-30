@@ -2077,7 +2077,7 @@ CATALOG = {
         ('Arc Transfer', 'Arclight · Nature', 'passive'), ('Dug In', 'Howitzer · Nature', 'passive'),
         ('Oil Can', 'Patchwork · Nature', 'passive'),
         ('Piston Punch', 'Bulwark-7', 'skill'), ('Steam Vent', 'Bulwark-7', 'skill'), ('Hydraulic Slam', 'Bulwark-7', 'sig'), ('Piledriver', 'Bulwark-7', 'skill'), ('Bunker', 'Bulwark-7', 'skill'), ('Tow Chain', 'Bulwark-7', 'skill'), ('Bulkhead', 'Bulwark-7', 'skill'), ('Reactive Plating', 'Bulwark-7', 'passive'), ('Counterweight', 'Bulwark-7', 'passive'),
-        ('Rip Saw', 'Sawtooth', 'skill'), ('Shrapnel Spin', 'Sawtooth', 'skill'), ('Grinder', 'Sawtooth', 'sig'), ('Limb Shear', 'Sawtooth', 'skill'), ('Rev Up', 'Sawtooth', 'skill'), ('Tooth Breaker', 'Sawtooth', 'skill'), ('Buzz Lash', 'Sawtooth', 'skill'), ('Serrated', 'Sawtooth', 'passive'), ('Ragged Edge', 'Sawtooth', 'passive'),
+        ('Rip Saw', 'Sawtooth', 'skill'), ('Shrapnel Spin', 'Sawtooth', 'skill'), ('Grinder', 'Sawtooth', 'sig'), ('Limb Shear', 'Sawtooth', 'skill'), ('Rev Up', 'Sawtooth', 'skill'), ('Tooth Breaker', 'Sawtooth', 'skill'), ('Undercut', 'Sawtooth', 'skill'), ('Serrated', 'Sawtooth', 'passive'), ('Ragged Edge', 'Sawtooth', 'passive'),
         ('Arc Bolt', 'Arclight', 'skill'), ('Discharge', 'Arclight', 'skill'), ('Chain Surge', 'Arclight', 'sig'), ('Overload Coil', 'Arclight', 'skill'), ('Static Field', 'Arclight', 'skill'), ('Condenser Burst', 'Arclight', 'skill'), ('Brownout', 'Arclight', 'skill'), ('Feedback Loop', 'Arclight', 'passive'), ('Storm Caller', 'Arclight', 'passive'),
         ('Flak Burst', 'Howitzer', 'skill'), ('AP Round', 'Howitzer', 'skill'), ('Siege Shell', 'Howitzer', 'sig'), ('Mortar Walk', 'Howitzer', 'skill'), ('Shell Shock', 'Howitzer', 'skill'), ('Incendiary Shell', 'Howitzer', 'skill'), ('Creeping Barrage', 'Howitzer', 'skill'), ('Big Guns', 'Howitzer', 'passive'), ('Ranging Shot', 'Howitzer', 'passive'),
         ('Field Weld', 'Patchwork', 'skill'), ('Overclock', 'Patchwork', 'skill'), ('Assemble Scrapbot', 'Patchwork', 'sig'), ('Jury Rig', 'Patchwork', 'skill'), ('Coolant Flush', 'Patchwork', 'skill'), ('Plate Patch', 'Patchwork', 'skill'), ('Throw a Wrench', 'Patchwork', 'skill'), ('Maintenance Drone', 'Patchwork', 'passive'), ('Well Oiled', 'Patchwork', 'passive'),
@@ -2403,15 +2403,18 @@ def _():
             + twinkle(52, 44, .7, '#ffd166'))
 
 
-@icon('Buzz Lash')
+@icon('Undercut')
 def _():
-    # Five thin cuts in one pass, blades still spinning at either end of the flurry.
-    cuts = ''.join(poly(f'M{x} 11 Q{x - 4} 32 {x - 9} 53', '#f4f7fc', 1.6) for x in (17, 26, 35, 44, 53))
-    return (glow('<circle cx="46" cy="15" r="10" fill="#ff9a2e"/>'
-                 '<circle cx="18" cy="47" r="9" fill="#ff9a2e"/>', .55)
-            + cuts
-            + g(sawblade(8, 10), 46, 15, 20, .8) + g(sawblade(8, 10), 18, 47, -15, .8)
-            + twinkle(54, 42, .7, '#ffd166'))
+    # A saw and a drill bursting up out of cracked ground, the earth flying off them.
+    ground = ('<path d="M5 45 L17 42 L27 46 L37 42 L48 46 L59 43 L59 59 L5 59 Z" fill="url(#iron)"/>'
+              '<path d="M14 49 L19 54 M33 48 L30 55 M45 50 L50 56" fill="none" stroke-width="1.2"/>')
+    drill = ('<path d="M39 46 L39 25 L44 11 L49 25 L49 46 Z" fill="url(#steel)"/>'
+             '<path d="M39 40 L49 35 M39 33 L49 28 M40 27 L48 23" fill="none" stroke="#5d6780" stroke-width="1.2"/>')
+    chip = '<path d="M-4 3 L0 -4 L4 3 Z" fill="#8a7a66" stroke-width="1"/>'
+    return (glow('<circle cx="22" cy="36" r="12" fill="#ff9a2e"/><circle cx="44" cy="27" r="9" fill="#ff9a2e"/>', .5)
+            + g(sawblade(11, 12), 22, 38, 15) + drill + ground
+            + g(chip, 11, 36, -20, .8) + g(chip, 56, 33, 25, .7)
+            + twinkle(31, 19, .7, '#ffd166'))
 
 
 @icon('Ragged Edge')

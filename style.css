@@ -1547,6 +1547,37 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
     repeating-linear-gradient(118deg, #e6eaf0 0 5px, #8a929f 5px 8px, #c4cad3 8px 11px);
   animation: drillSpin .12s linear infinite; }
 @keyframes drillSpin { to { background-position: 0 0, 12.5px 0; } }
+/* Undercut (undercutErupt): a saw or a drill bursting up out of the ground under a mark. The hole's bottom
+   edge is the ground line and clips what is still below it; .ucutRise carries the blade up and back down. */
+.ucut { position: absolute; translate: -50% 0; z-index: 205; overflow: hidden; pointer-events: none; }
+.ucutRise { position: absolute; inset: 0; translate: 0 100%; }
+.ucutSaw { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1; display: block; filter: drop-shadow(0 0 4px rgba(255, 170, 60, .8)); }
+.ucutSaw svg { display: block; width: 100%; height: 100%; animation: sawSpin .12s linear infinite; }
+.ucutBit { position: absolute; inset: 0; display: block; filter: drop-shadow(0 0 1px #2a2030) drop-shadow(0 0 4px rgba(255, 170, 60, .6)); }
+.ucutBit b { position: absolute; inset: 0; display: block;
+  background: linear-gradient(to right, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 38%, rgba(0, 0, 0, .42)),
+    repeating-linear-gradient(28deg, #e6eaf0 0 5px, #8a929f 5px 8px, #c4cad3 8px 11px);
+  animation: ucutBore .12s linear infinite; }
+@keyframes ucutBore { to { background-position: 0 0, 0 12.5px; } }
+.ucutDust { position: absolute; translate: -50% -50%; z-index: 206; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(150, 120, 90, .75), rgba(120, 95, 70, .35) 50%, transparent 72%); }
+/* Undercut, while it runs: spikes, saw teeth and drill points up out of the enemy's ground (syncUndercutGround).
+   Three waves by turns (--uw), a third of a cycle apart: each comes up out of the dirt (the hole clips it at
+   the ground line), holds, and goes back under, and is out of sight the other two thirds. The saws turn. */
+.arena > .ucground { position: absolute; inset: 0; pointer-events: none; --uc-cycle: 2.4s; }
+.ucg { position: absolute; width: clamp(10px, 2.3cqw, 24px); aspect-ratio: 1; translate: -50% -100%; scale: var(--us, 1); transform-origin: 50% 100%;
+  transition: opacity .35s; --uc-at: calc(var(--uw, 0) * var(--uc-cycle) / 3 + var(--uj, 0s)); }
+.ucgHole { position: absolute; inset: -40% 0 0; overflow: hidden; filter: drop-shadow(0 0 2px rgba(255, 160, 60, .55)); }
+.ucg svg { position: absolute; left: 0; bottom: 0; display: block; width: 100%; height: auto;
+  animation: ucgWave var(--uc-cycle) ease-in-out var(--uc-at) infinite backwards; }
+.ucg .ucgBlade { transform-origin: 10px 20px; animation: sawSpin .9s linear infinite; }
+.ucg::before { content: ''; position: absolute; left: 50%; bottom: -10%; translate: -50% 0; width: 150%; aspect-ratio: 3 / 1; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(62, 44, 30, .8), rgba(62, 44, 30, .3) 60%, transparent);
+  animation: ucgDirt var(--uc-cycle) linear var(--uc-at) infinite backwards; }
+.ucground.sink .ucg { opacity: 0; }
+@keyframes ucgWave { 0% { translate: 0 105%; } 7% { translate: 0 -8%; } 10%, 24% { translate: 0 0; } 31%, 100% { translate: 0 105%; } }
+@keyframes ucgDirt { 0%, 31%, 100% { opacity: 0; } 5%, 26% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ucg svg, .ucg::before, .ucg .ucgBlade { animation: none; } }
 .drillHub { position: absolute; translate: -50% -50%; z-index: 203; pointer-events: none; border-radius: 50%;
   background: radial-gradient(circle, #f2b53a 0 20%, #2a2030 21% 27%, #5a6070 28% 62%, #3a3f4a 63% 72%, #2a2030 73%);
   box-shadow: 0 0 6px rgba(255, 170, 60, .7); }

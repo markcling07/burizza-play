@@ -880,6 +880,12 @@ const RESH_BATTERY_PCT = 0.5;
 const STEAM_VENT_BASE = 0.4;        // 40% ATK at 0 Heat
 const STEAM_VENT_PER_HEAT = 0.005;  // +0.5% ATK per point of Heat held
 
+// Sawtooth's Undercut (undercutSkill): saws and drills up out of the ground under the enemy warband.
+const UNDERCUT_REVS = 4;      // the Rev he casts it on and the next three
+const UNDERCUT_HITS = 3;      // different enemies cut each Rev
+const UNDERCUT_MULT = 0.45;   // ATK per blade
+const UNDERCUT_SAW = { fx: [['bleed', 2, 0.2]] }, UNDERCUT_DRILL = { fx: [['sunder', 2]] };   // a saw opens a Bleed, a drill Sunders
+
 /* Orin's numbers (The Cogbound). He rides a body rather than fighting beside it:
    on an ally that body runs quicker and he swings after it; on an enemy he clamps
    over the weapon and grinds. The two rides are deliberately asymmetric — riding
@@ -989,22 +995,16 @@ const ROSTER = [
                 one. Sunder outlasts Exposed on purpose: the armour stays off long enough for
                 the warband to use it, the vulnerability is his own short window. */
              D('Tooth Breaker', 'Deals 120% ATK damage. Sunders the target\'s armor for 3 turns and leaves them Exposed for 2.', 3, 1.2, { fx: [['sunder', 3], ['exposed', 2]], drill: true }),   // drill: see drillStab
-             /* The Flywheel skill. Five thin cuts is the most hits on any one target in his kit,
-                which is exactly what his Nature multiplies — over 50 Heat this is six. Builds
-                heat hard: this is the skill that pushes him into Flywheel range for the NEXT
-                one, and over the line if he leans on it.
-                The Bleed is a FLAT fx and not a chanceFx, and that is not a style choice.
-                chanceFx reads its third number as the probability and then calls addFx with no
-                value at all (see applyHitEffects) — so a chanceFx Bleed applies the status and
-                ticks for ZERO. Every other chanceFx in the file is a valueless status (Silence,
-                Stagger) for exactly that reason. A DoT has to come through fx, where the third
-                number is the share of ATK it ticks for. Kept under Grinder's 0.30 so Grinder
-                stays the better opener and this stays the volume-and-heat option. */
-             D('Buzz Lash', 'Strikes 5 times for 34% ATK damage each and leaves the target Bleeding for 3 turns. Builds 45 Heat.', 4, 0.34, { hits: 5, fx: [['bleed', 3, 0.22]], heat: 45 })],
+             /* Undercut took Buzz Lash's place, his seventh skill (id 'g'): a save that had Buzz Lash
+                equipped or ranked now has Undercut there. Everything else he owns hits who is in
+                front of him; this hits who is UNDER him, Bunker, Fence and Burrow included — the
+                blades come up from below (undercutSkill). */
+             { name: 'Undercut', desc: `He stoops and lays a hand on the ground. For ${UNDERCUT_REVS} Revs, this one and the next ${UNDERCUT_REVS - 1}, saws and drills burst up under ${UNDERCUT_HITS} different enemies each Rev, by turns: ${Math.round(UNDERCUT_MULT * 100)}% ATK each. A saw leaves a Bleed for 2 turns, a drill Sunders armor for 2. A Bunker, a Fence or the grave-dirt is no shelter from below; a Coffin, a Shadow Matrix or a dodge is. He is free to act while it runs.`,
+               cd: 5, kind: 'undercut', target: 'allEnemies', mult: UNDERCUT_MULT, o: { aoe: true } }],
     passive: P('Serrated', 'Critical hits apply Bleed for 3 turns.', { critFx: [['bleed', 3, 0.3]] }),
     /* Serrated makes MORE bleeds, this makes them WORSE — so the two are a real fork rather
        than a strict upgrade, and this one is the pick for a player who is already applying
-       Bleed on purpose (Grinder, Buzz Lash) instead of fishing for crits. Both are dead
+       Bleed on purpose (Grinder, Limb Shear's bonus) instead of fishing for crits. Both are dead
        weight against the Union and the Pale Host, who have no blood to spill. */
     passiveAlt: P('Ragged Edge', 'The blades leave a worse wound than they need to: every Bleed he opens runs half again as deep.', { dotBoost: { bleed: 1.5 } }) },
   { id: 'arclight', name: 'Arclight', faction: 'mech', role: 'ranged', bio: 'Tesla-coil sniper unit.',
@@ -5173,7 +5173,12 @@ function fillNewSlots(lv) {
 const RANK_CAP = 10, RANK_POWER = 0.08;
 const ranksOf = (cid) => profile.skillRanks?.[cid] || {};
 const skillRank = (cid, sid) => ranksOf(cid)[sid] || 0;
-const ranksSpent = (cid) => Object.values(ranksOf(cid)).reduce((a, b) => a + b, 0);
+// Only ranks in a skill the champion still has are spent: a skill taken out of a kit (Command the Fallen,
+// Blade Harvest) hands its points back instead of leaving them stranded in nothing.
+const ranksSpent = (cid) => {
+  const c = charById(cid);
+  return Object.entries(ranksOf(cid)).reduce((a, [sid, n]) => a + (c && activeById(c, sid) ? n : 0), 0);
+};
 const skillPoints = (cid) => Math.max(0, heroLevel() - 1 + masteredCount(cid) - ranksSpent(cid));
 const rankBonusText = (s, r) => (s.kind === 'buff' && s.o?.charges
   ? `lasts ${Math.floor(r / 2)} more attack${Math.floor(r / 2) === 1 ? '' : 's'}`
@@ -5516,7 +5521,8 @@ function usable(u, sk) {
   if (mpCost(u, sk) > (u.mp || 0)) return false;
   if (sk.id === 'attack' && has(u, 'disarmed')) return false;   // something is clamped over the weapon
   if (['enemy', 'ally', 'deadAlly'].includes(sk.target) && !validTargets(u, sk).length) return false;
-  if (sk.target === 'allEnemies' && !openFoes(u).length) return false;
+  // Undercut reaches who an ordinary sweep cannot (the bunkered, the buried): it asks its own list.
+  if (sk.target === 'allEnemies' && !(sk.kind === 'undercut' ? undercutMarks(u) : openFoes(u)).length) return false;
   return true;
 }
 
@@ -5817,7 +5823,7 @@ function strikeOnce(u, t, mult, label, o) {
      exactly what that is for. Here with the other untouchables because a blow
      that lands for nothing is a miss, and the rest of strikeOnce should never
      see it: no counter answers it and no Reactive Plating is spent on it. */
-  if (has(t, 'bunker') && !(u.role === 'melee' && !o.hurl && !o.gust)) {
+  if (has(t, 'bunker') && !o.fromBelow && !(u.role === 'melee' && !o.hurl && !o.gust)) {
     float(t, 'Glances off', 'miss');
     log(`${u.name}'s ${label} glances off ${t.name}'s plating.`, u.side);
     return { miss: true };
@@ -5905,7 +5911,7 @@ function strikeOnce(u, t, mult, label, o) {
   // THE BUNKER's side of the bargain, melee half: whoever walked up to it still
   // lands, at a quarter weight. The shots that glance off entirely are turned
   // aside at the top of this function, where the other untouchables are.
-  if (has(t, 'bunker')) dmg *= 1 - BUNKER_MELEE_DR;
+  if (has(t, 'bunker') && !o.fromBelow) dmg *= 1 - BUNKER_MELEE_DR;   // Undercut comes up under the plating
   if (t.race === 'dwarf') dmg *= 1 - 0.08 * t.stacks;
   if (charNat(t).mound && deadCount() > 0) dmg *= 0.92;   // Barrow: the dead crowd round their lord
   // Worn kit: a ward turns aside its share of the blow, physical or magic, whichever this was.
@@ -8349,6 +8355,7 @@ async function doAction(u, sk, t) {
   else if (sk.kind === 'execute') await executeSkill(u, t, sk);
   else if (sk.kind === 'burrow') await burrowSkill(u);
   else if (sk.kind === 'split') await splitSkill(u);
+  else if (sk.kind === 'undercut') await undercutSkill(u, sk);
   else if (sk.kind === 'anchor') await anchorSkill(u, t, sk);
   else if (sk.kind === 'jelly') await jellySkill(u, t, sk);
   else if (sk.kind === 'revive') {
@@ -8469,6 +8476,7 @@ function aiChoose(u) {
     if (s.kind === 'burrow') w = u.hp / u.maxHp < 0.4 ? 4 : 0.25;
     // Come Apart is an escape before it is an attack: worth most when the bites are landing on him.
     if (s.kind === 'split') w = u.hp / u.maxHp < 0.5 ? 5 : 1;
+    if (s.kind === 'undercut') w = u.undercut ? 0 : undercutMarks(u).length >= 2 ? 3 : 1;   // worth more the more there are to cut
     if (s.o?.recall) w = u.swords === 0 ? 8 : u.swords <= 2 ? 4 : 0;
     // Harvest is worth reaching for when a body is full of his blades and his hands are not.
     if (s.o?.swordHarvest) { const best = Math.max(0, ...foesOf(u).filter((f) => f.hp > 0).map((f) => f.lodged || 0)); w = best && u.swords < u.maxSwords ? 3 + best : 0; }
@@ -9985,6 +9993,14 @@ async function turnPulse() {
     if (m.aimShot.revs === 1 && !m.aimShot.raised) await raiseAim(m);
     if (m.aimShot.revs > 0) continue;
     await fireAim(m);
+    if (checkEnd()) return true;
+  }
+  // Sawtooth's Undercut: the saws and drills he called up keep coming, a wave a Rev, until its Revs are
+  // spent or he falls (undercutWave). Not on the Rev he cast it: that one had its wave already.
+  for (const s of allUnits()) {
+    if (!s.undercut || s.undercut.at >= state.pulseN) continue;
+    if (s.hp <= 0) { s.undercut = null; continue; }
+    await undercutWave(s);
     if (checkEnd()) return true;
   }
   // Riven's missed blades (Emptied Hands at a mark that was not there, or off a fence): left hanging
@@ -18488,6 +18504,69 @@ function syncGroundFire() {
     `<i class="gf" style="left:${f.x}%; top:${f.y}%; --gs:${f.s}; --fd:${f.d}s; --gset:${i % 3}; animation-delay:${(i * 0.045).toFixed(2)}s; z-index:${Math.round(f.y)}">${GF_ART}</i>`).join('');
 }
 
+/* UNDERCUT, on the field. While it runs (its four Revs), little spikes, saw teeth and drill points keep
+   poking up out of the enemy's ground: the blades are still down there. They come in three waves by turns
+   (w): one comes up out of the dirt, holds, and goes back under, then the next, then the third, round and
+   round until it is spent. A piece that has gone under turns up on fresh ground the next time
+   (undercutResurface), so the field never shows the same spot twice running. The first places are dealt
+   once, as his hand meets the ground (undercutSpots, kept on the undercut itself), and the markup is built
+   once: rebuilt on every repaint, the waves would restart and the pieces jump. Each stands at its own
+   depth, so the ones further up the field are behind the champions. Shown only while he is up to keep it
+   going: when it is spent, or he falls, the last of them fade into the ground. */
+const UC_PIECES = 21;   // seven to a wave
+function undercutSpots(u) {
+  const lo = u.side === 'p' ? 54 : 6;   // the enemy's half of the field (the ground fire's spread)
+  return Array.from({ length: UC_PIECES }, (_, i) => ({
+    w: i % 3,                                               // which of the three waves it comes up with
+    k: ['spike', 'saw', 'drill'][Math.floor(i / 3) % 3],    // ...and every wave a mix of the three
+    x: +(lo + Math.random() * 40).toFixed(1),
+    y: +(46 + Math.random() * 48).toFixed(1),
+    s: +(0.7 + Math.random() * 0.6).toFixed(2),
+    j: +(Math.random() * 0.25).toFixed(2),   // a wave does not come up all in the same instant
+  }));
+}
+// A piece just gone back under (the turn of its cycle, out of sight) comes up somewhere new next time:
+// a fresh spot on the same half of the field, and the depth that goes with it.
+function undercutResurface(e) {
+  if (e.animationName !== 'ucgWave') return;
+  const p = e.target.closest('.ucg');
+  if (!p) return;
+  const lo = parseFloat(p.style.left) >= 50 ? 54 : 6, y = 46 + Math.random() * 48;
+  Object.assign(p.style, { left: `${(lo + Math.random() * 40).toFixed(1)}%`, top: `${y.toFixed(1)}%`, zIndex: Math.round(y) });
+}
+const UC_GROUND_ART = (() => {
+  const ink = 'stroke="#2a2030" stroke-width="1" stroke-linejoin="round"';
+  const teeth = [];   // a saw blade with its hub on the ground line: only the top half is ever out
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2, b = a + (Math.PI / 6) * 0.55, at = (r, t) => `${(10 + r * Math.cos(t)).toFixed(1)},${(20 + r * Math.sin(t)).toFixed(1)}`;
+    teeth.push(at(7, a), at(9.5, b), at(7, b + 0.05));
+  }
+  const svg = (body) => `<svg viewBox="0 0 20 20" aria-hidden="true">${body}</svg>`;
+  return {
+    spike: svg(`<path d="M2 20 L5.5 9 L9 20 Z M7 20 L11 3 L15 20 Z M13 20 L15.5 12 L18 20 Z" fill="#c4cad3" ${ink}/><path d="M11 6 L12.4 17" stroke="#fff" stroke-opacity=".65" stroke-width="1"/>`),
+    saw: svg(`<g class="ucgBlade"><polygon points="${teeth.join(' ')}" fill="#c4cad3" ${ink}/><circle cx="10" cy="20" r="3.4" fill="#e0a83c" ${ink}/></g>`),
+    drill: svg(`<path d="M6.5 20 L10 3.5 L13.5 20 Z" fill="#c4cad3" ${ink}/><path d="M7.3 17 L13 14.6 M8 13 L12.2 11.2 M8.8 9.3 L11.3 8.2" stroke="#6b7280" stroke-width="1.1" fill="none"/>`),
+  };
+})();
+let ucDrawn = [];
+function syncUndercutGround() {
+  const host = $('#ucground');
+  if (!host) return;
+  const fields = allUnits().filter((u) => u.hp > 0 && u.undercut?.spots).map((u) => u.undercut.spots);
+  if (fields.length === ucDrawn.length && fields.every((f, i) => f === ucDrawn[i])) return;   // the same blades still down there
+  ucDrawn = fields;
+  if (!fields.length) {   // spent, or he fell: the last of them fade into the ground, then gone
+    if (!host.children?.length) return;
+    host.classList.add('sink');
+    setTimeout(() => { if (!ucDrawn.length) { host.innerHTML = ''; host.classList.remove('sink'); } }, 420);
+    return;
+  }
+  host.classList.remove('sink');
+  host.onanimationiteration = undercutResurface;
+  host.innerHTML = fields.flat().map((p) =>
+    `<i class="ucg ${p.k}" style="left:${p.x}%; top:${p.y}%; --us:${p.s}; --uw:${p.w}; --uj:${p.j}s; z-index:${Math.round(p.y)}"><span class="ucgHole">${UC_GROUND_ART[p.k]}</span></i>`).join('');
+}
+
 function tokenHTML(u) {
   return `
     <div class="tok ${unitClasses(u)} body-${lookOf(artOf(u)).body}" id="tok-${u.uid}" title="${u.name}">
@@ -19048,6 +19127,85 @@ async function revUpFx(u) {
   burst(u, 'shock');
   float(u, '⚙ Revved up', 'fx');
   return true;
+}
+
+/* UNDERCUT (Sawtooth): he stoops and lays a hand on the ground, and for UNDERCUT_REVS Revs — the one he
+   casts it on and the next three (turnPulse) — saws and drills burst up out of the ground under
+   UNDERCUT_HITS different enemies a Rev, saw and drill by turns (saw, drill, saw; then drill, saw, drill).
+   Nothing standing on the field is spared for being walled in or dug in: a Bunker, the ally sheltering in
+   it, a Graveyard Fence and a Barrow under the grave-dirt are all over the blades (fromBelow). What saves a
+   mark is not being on the field at all — sealed in a coffin, gone into a Shadow Matrix, split into
+   hounds (the hounds themselves are fair game), up in the air, veiled or cloaked — or an ordinary dodge.
+   Nobody can step in front of a blade coming up from below (aoe: no Shieldbearer, no Heroic), and nobody
+   answers it (its counters are dropped). He is free to act while it runs; it stops if he falls. */
+const undercutMarks = (u) => foesOf(u).filter((f) => f.hp > 0 && !f.noAoe && !inBox(f) && !f.shadowMatrix && !apart(f) && !aloft(f) && !veiled(f) && !cloaked(f));
+async function undercutSkill(u, sk) {
+  u.undercut = { sk, left: UNDERCUT_REVS, n: 0, at: state.pulseN || 0 };
+  await undercutStoop(u);
+  u.undercut.spots = undercutSpots(u);   // the ground under them bristles from here until it is spent (syncUndercutGround)
+  render();
+  log(`${u.name} stoops and lays a hand on the ground — saws and drills will come up under the enemy for ${UNDERCUT_REVS} Revs.`, u.side);
+  await undercutWave(u);   // the first, on the Rev he casts it
+}
+async function undercutWave(u) {
+  const uc = u.undercut;
+  uc.left--;
+  uc.at = state.pulseN || 0;
+  const first = uc.n++ % 2;   // saw-first on the even waves, drill-first on the odd
+  const marks = shuffle(undercutMarks(u)).slice(0, UNDERCUT_HITS);
+  if (!marks.length) log(`${u.name}'s blades come up under an empty field.`, u.side);
+  await Promise.all(marks.map(async (t, i) => {
+    const kind = (first + i) % 2 ? 'drill' : 'saw';
+    if (i) await sleep(beat(140) * i);
+    const peak = undercutErupt(t, kind);
+    if (peak) await sleep(peak);   // the blow lands as the blade reaches its height
+    if (t.hp <= 0) return;
+    const o = { ...(kind === 'saw' ? UNDERCUT_SAW : UNDERCUT_DRILL), aoe: true, fromBelow: true, noGuard: true };
+    state.counters = [];
+    const r = strikeOnce(u, t, uc.sk.mult, uc.sk.name, o);
+    if (!r.miss) applyHitEffects(u, t, o);
+    state.counters = [];
+  }));
+  if (uc.left <= 0 && u.undercut === uc) u.undercut = null;
+  render();
+  await wait(240);
+}
+
+// He stoops and lays his hand flat on the ground, and the ground answers.
+async function undercutStoop(u) {
+  const lean = `translateY(7px) scaleY(.84) rotate(${facing(u) * 9}deg)`;
+  pose(u, [{ transform: 'none' }, { transform: lean, offset: 0.35 }, { transform: lean, offset: 0.75 }, { transform: 'none' }], 760);
+  await wait(300);
+  burst(u, 'smoke');
+  tremorFx(380);
+  await wait(320);
+}
+
+/* One blade up out of the ground under t: a spinning saw or a drill, up through them and back down. The
+   hole's bottom edge is the ground line and clips whatever is still below it. Returns how long until the
+   blade is at its height (when the blow lands), or 0 when nothing is drawn. */
+const UNDERCUT_RISE_MS = 620;
+// Tooth Breaker's drill outline (DRILL_TEETH, defined further down), turned point-up. Built on first use.
+const drillTeethUp = () => DRILL_TEETH.replace(/(-?[\d.]+)% (-?[\d.]+)%/g, (_, x, y) => `${y}% ${100 - x}%`);
+function undercutErupt(t, kind) {
+  const e = stageBox(t), arena = $('#arena');
+  if (reduced || !e || !e.w || !arena) return 0;
+  const saw = kind === 'saw', w = Math.max(saw ? 30 : 12, e.w * (saw ? 0.62 : 0.24)), h = e.h * 1.05, ms = beat(UNDERCUT_RISE_MS);
+  const hole = document.createElement('div');
+  hole.className = `ucut ${kind}`;
+  Object.assign(hole.style, { left: `${e.x}px`, top: `${e.feet - h}px`, width: `${w}px`, height: `${h}px` });
+  hole.innerHTML = `<div class="ucutRise">${saw ? `<i class="ucutSaw">${SAW_ART}</i>` : '<i class="ucutBit"><b></b></i>'}</div>`;
+  if (!saw) hole.querySelector('b').style.clipPath = drillTeethUp();
+  arena.appendChild(hole);
+  hole.firstElementChild.animate([{ translate: '0 100%' }, { translate: '0 6%', offset: 0.32 }, { translate: '0 12%', offset: 0.62 }, { translate: '0 100%' }],
+    { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+  const dust = document.createElement('i');
+  dust.className = 'ucutDust';
+  Object.assign(dust.style, { left: `${e.x}px`, top: `${e.feet}px`, width: `${w * 2.2}px`, height: `${w * 0.7}px` });
+  arena.appendChild(dust);
+  dust.animate([{ opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, offset: 0.3 }, { opacity: 0, scale: 1.4 }], { duration: ms, fill: 'forwards' });
+  setTimeout(() => { hole.remove(); dust.remove(); }, ms + 80);
+  return ms * 0.32;
 }
 
 /* SHRAPNEL SPIN (Sawtooth): he flings a giant disk saw flat across the enemy warband and it whirls
@@ -22015,6 +22173,7 @@ function renderBattle() {
   $('#arena').classList.toggle('quake', quaking());
   syncScene();        // the ground this battle is fought on (see THE BATTLEFIELD)
   syncGroundFire();   // Molotov: the flames left burning across one side's ground
+  syncUndercutGround();   // Undercut: the blades still under the enemy's ground
   const wxName = quake ? WEATHER.quake.name : hz ? hz.name : cond ? cond.name : under ? (dg ? dg.name : exp ? exp.name : 'Underground') : W.name;
   const wxLeft = quake ? (state.quake === 1 ? 'Last round' : `${state.quake} rounds`) : under ? '' : left === 1 ? 'Last round' : `${left} rounds`;
   $('#wxIcon').textContent = quake ? WX_ICON.quake : hz ? hz.icon : cond ? cond.icon : under ? '🕯️' : WX_ICON[wx()] || '';
