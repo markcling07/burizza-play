@@ -1776,6 +1776,35 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   .unit.empowered .empowerfx::before,
   .unit.empowered .empowerfx::after { animation: none; opacity: .85; }
 }
+/* WEAKENED: a purple mist hangs round them while their blows land softer. A fog behind that breathes,
+   and thinner wisps curling round the legs in front, so they stand IN it rather than before a cloud.
+   Two elements, not one: the front wisps have to sit over the sprite and the fog has to sit under it. */
+.weakenfx { display: none; }
+.unit.weakened .weakenfx { display: block; position: absolute; pointer-events: none; }
+.unit.weakened .weakenfx.back {
+  inset: -10% -26% -8%;
+  background:
+    radial-gradient(48% 40% at 30% 62%, rgba(150, 84, 230, .58), transparent 70%),
+    radial-gradient(44% 36% at 72% 56%, rgba(176, 122, 240, .48), transparent 72%),
+    radial-gradient(62% 40% at 50% 88%, rgba(84, 36, 150, .62), transparent 76%),
+    radial-gradient(40% 30% at 50% 30%, rgba(140, 90, 220, .36), transparent 72%);
+  filter: blur(6px);
+  animation: weakBreathe 3.8s ease-in-out infinite, mistGather .45s ease-out;
+}
+.unit.weakened .weakenfx.front {
+  inset: 42% -18% -8%; z-index: 4;
+  background:
+    radial-gradient(34% 26% at 22% 70%, rgba(186, 140, 255, .5), transparent 70%),
+    radial-gradient(30% 22% at 78% 78%, rgba(160, 104, 240, .46), transparent 72%),
+    radial-gradient(50% 24% at 50% 96%, rgba(110, 56, 190, .52), transparent 74%);
+  filter: blur(4px);
+  animation: weakDrift 5.5s ease-in-out infinite alternate, mistGather .45s ease-out;
+}
+.unit.weakened:not(.misted) .upic > :is(.art, svg, .anim) { filter: drop-shadow(0 0 3px rgba(168, 110, 240, .8)) saturate(.85); }
+@keyframes weakBreathe { 50% { transform: scale(1.06) translateY(-3%); opacity: .8; } }
+@keyframes weakDrift { from { transform: translate(-8%, 0); } to { transform: translate(8%, -6%); } }
+.unit.down .weakenfx { display: none; }
+@media (prefers-reduced-motion: reduce) { .unit.weakened .weakenfx { animation: none; } }
 .charmfx { display: none; }
 /* CHARMED: two flat rings hugging the fighter, one at the waist and one at the feet, each a little
    narrower than the figure (measured off the owner's sketch over Bulwark-7). Sized as shares of the
@@ -2470,6 +2499,48 @@ body[data-screen="battle"] { font-family: 'Google Sans', var(--font-body); }
   to { transform: translate(var(--drift, 8px), -44%) scale(1.3); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .steamjet, .steamcloud, .steampuff { display: none; } }
+/* Seraxa's Dance of Knives: the wing she strikes with (wingStrike), swept from her shoulder through the
+   mark, and the flicker of wings she vanishes and reappears in (danceFlicker). Both pivot on the
+   wing's root, so the art's (4, 35) is pinned to where the element is placed. */
+.sxWing { position: absolute; left: 0; top: 0; width: 120px; height: 70px; margin: -35px 0 0 -4px; transform-origin: 4px 35px;
+  z-index: 251; pointer-events: none; filter: drop-shadow(0 0 6px rgba(224, 90, 154, .75)); }
+.sxWing svg, .sxFlicker i svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.sxFlicker { position: absolute; width: 0; height: 0; z-index: 252; pointer-events: none; }
+.sxFlicker i { position: absolute; left: 0; top: 0; width: 54px; height: 32px; margin: -16px 0 0 -2px; transform-origin: 2px 16px;
+  animation: sxFlap .46s ease-out forwards; }
+.sxFlicker i:nth-child(2) { animation-name: sxFlapL; }
+.sxFlicker b { position: absolute; left: -2px; top: -2px; width: 4px; height: 4px; border-radius: 50%; background: #ff6bb5;
+  box-shadow: 0 0 6px #e05a9a; animation: sxSpark .45s ease-out forwards; }
+.sxFlicker b:nth-of-type(1) { --sx: -28px; --sy: -18px; }
+.sxFlicker b:nth-of-type(2) { --sx: 26px; --sy: -22px; }
+.sxFlicker b:nth-of-type(3) { --sx: -20px; --sy: 20px; }
+.sxFlicker b:nth-of-type(4) { --sx: 24px; --sy: 16px; }
+@keyframes sxFlap { from { transform: rotate(30deg) scale(.4); opacity: 1; } 55% { transform: rotate(-35deg) scale(1); opacity: .95; } to { transform: rotate(-50deg) scale(1.05); opacity: 0; } }
+@keyframes sxFlapL { from { transform: scaleX(-1) rotate(30deg) scale(.4); opacity: 1; } 55% { transform: scaleX(-1) rotate(-35deg) scale(1); opacity: .95; } to { transform: scaleX(-1) rotate(-50deg) scale(1.05); opacity: 0; } }
+@keyframes sxSpark { to { transform: translate(var(--sx), var(--sy)); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sxFlicker, .sxWing { display: none; } }
+/* bloodSpray: drops flung off a cut, and the splashes they leave where they land. */
+.bloodDrop { position: absolute; left: 0; top: 0; z-index: 250; pointer-events: none; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  margin: -3px 0 0 -2px; background: radial-gradient(circle at 35% 30%, #ff6b76, #b01e2e 60%, #6e0f18); }
+.bloodSplat { position: absolute; z-index: 1; pointer-events: none; border-radius: 50%; translate: -50% -50%;
+  background: radial-gradient(ellipse, #9c1f2c 0 45%, rgba(110, 15, 24, .7) 65%, transparent 72%); }
+/* Seraxa's Kiss of Ruin (kissHeart): a great heart floats to the mark, beating, with a ring of small
+   hearts and kisses wheeling round it. The ring turns; each small one turns back against it so it
+   stays upright, and twinkles on its own beat. */
+.kissheart { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 250; pointer-events: none; }
+.kh-big { position: absolute; width: 66px; height: 60px; margin: -30px 0 0 -33px; filter: drop-shadow(0 0 10px rgba(255, 107, 181, .9));
+  animation: khBeat .62s ease-in-out infinite; }
+.kh-big svg, .kh-ring svg, .kh-shed svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.kh-ring { position: absolute; left: 0; top: 0; animation: khSpin 1.9s linear infinite; }
+.kh-ring i { position: absolute; left: 0; top: 0; transform: rotate(var(--a)) translateX(50px) rotate(calc(-1 * var(--a))); }
+.kh-ring b { display: block; width: 20px; height: 18px; margin: -9px 0 0 -10px; filter: drop-shadow(0 0 3px rgba(255, 107, 181, .8));
+  animation: khSpin 1.9s linear infinite reverse, khTwinkle .8s ease-in-out var(--d) infinite alternate; }
+.kh-shed { position: absolute; left: 0; top: 0; width: 16px; height: 15px; margin: -7.5px 0 0 -8px; z-index: 249; pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(255, 107, 181, .8)); }
+@keyframes khBeat { 0%, 100% { transform: scale(1); } 22% { transform: scale(1.16); } 38% { transform: scale(.96); } 54% { transform: scale(1.09); } }
+@keyframes khSpin { to { rotate: 360deg; } }
+@keyframes khTwinkle { from { scale: .75; opacity: .75; } to { scale: 1.15; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .kh-big, .kh-ring, .kh-ring b { animation: none; } }
 /* Howitzer's Flak Burst (flakExplodeInSky): the shell bursts over the field and hangs there for the Rev
    as a burning cloud — smoke puffs boiling round a flickering fireball — until the shrapnel lets go. */
 .flak-cloud { position: absolute; width: 0; height: 0; z-index: 300; pointer-events: none; }

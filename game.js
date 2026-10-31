@@ -1719,8 +1719,11 @@ const ROSTER = [
     mods: { hp: 0.9, agi: 1.3 }, floats: true,
     nature: { name: 'On the Wing', desc: 'Her feet never touch the ash: she flies to her marks, and nothing that needs footing — Stagger, the quaking earth — can take hold of her.' },
     look: { body: 'demon', wings: '#3d1f4a', main: '#1f1626', trim: '#e05a9a', skin: '#7a3d8f', horn: '#2a1830', eye: '#ff6bb5', weapon: 'dagger' },
-    skills: [D('Kiss of Ruin', 'Deals 110% ATK damage. Applies Weaken for 2 turns.', 2, 1.1, { fx: [['weaken', 2]] }),
-             D('Dance of Knives', 'Strikes 5 times for 40% ATK damage each.', 4, 0.4, { hits: 5 }),
+    /* Kiss of Ruin is blown, not delivered: she stays where she hovers and a great heart floats across
+       to the mark (kissHeart). `hurl` is the rules for a blow that does not run in — no counter answers
+       it and nobody steps into its path — and `kiss` is its look, as `dive` is Stoop's. */
+    skills: [D('Kiss of Ruin', 'Blows a kiss from where she hovers: a great heart floats to the enemy for 110% ATK damage and Weakens them for 2 turns.', 2, 1.1, { fx: [['weaken', 2]], hurl: true, kiss: true }),
+             D('Dance of Knives', 'Strikes 5 times for 40% ATK damage each, flickering from in front of the enemy to behind it and back — knives and wings both.', 4, 0.4, { hits: 5, knifeDance: true }),
              D('Shadowstep', 'Deals 110% ATK damage. Cannot miss. +30% crit chance.', 3, 1.1, { noDodge: true, critBonus: 0.3 }),
              D('Wing Carve', 'Strikes 4 times for 45% ATK damage each. Applies Bleed for 3 turns.', 4, 0.45, { hits: 4, fx: [['bleed', 3, 0.25]] }),
              B('Predator\'s Grace', 'Evades all dodgeable attacks for 1 turn. Empowers self: +30% damage for 2 turns.', 4, 'self', [['evade', 1], ['empower', 3]]),
@@ -6473,7 +6476,7 @@ function flakDebris(cloud, n, reach = 1, ox = 0, oy = 0) {
       const r = chunk ? spin * k : Math.atan2(dy * 2 * (1 - k) + 2 * fall * k, dx * 2 * (1 - k)) * 180 / Math.PI;
       return { transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r.toFixed(1)}deg)`, opacity: k < 0.7 ? 1 : (1 - k) / 0.3 };
     });
-    el.animate(frames, { duration: 500 + Math.random() * 350 }).finished.catch(() => {}).then(() => el.remove());
+    el.animate(frames, { duration: 500 + Math.random() * 350, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
   }
 }
 
@@ -6486,7 +6489,7 @@ function flakEmber(cloud) {
     { transform: `translate(${x}px, ${y}px)`, opacity: 0 },
     { transform: `translate(${x + drift * 0.2}px, ${y + fall * 0.15}px)`, opacity: 1, offset: 0.15 },
     { transform: `translate(${x + drift}px, ${y + fall}px) scale(.4)`, opacity: 0 }
-  ], { duration: 900 + Math.random() * 600, easing: 'ease-in' }).finished.catch(() => {}).then(() => el.remove());
+  ], { duration: 900 + Math.random() * 600, easing: 'ease-in', fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
 }
 
 function flakCrackle(cloud) {
@@ -6495,7 +6498,7 @@ function flakCrackle(cloud) {
   const x = Math.round((Math.random() - 0.5) * 70), y = Math.round((Math.random() - 0.5) * 40);
   el.style.cssText = `left:${x}px; top:${y}px`;
   cloud.appendChild(el);
-  el.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 260, easing: 'ease-out' })
+  el.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 260, easing: 'ease-out', fill: 'forwards' })
     .finished.catch(() => {}).then(() => el.remove());
   flakDebris(cloud, 3, 0.45, x, y);
 }
@@ -7227,7 +7230,8 @@ async function damageSkill(u, t, sk) {
     const n = targets.length, fan = o.swordBurst && u.fanFrom, turned = [];
     for (const b of fan?.el?.children || []) b.classList.add('gone');
     await Promise.all(targets.map((tg, i) => {
-      const p = fan?.pts[i] ? { ...proj, from: fan.pts[i] } : proj;
+      // flight: a slower throw than a single blade's, long enough to see the whole fan in the air together
+      const p = fan?.pts[i] ? { ...proj, from: fan.pts[i], flight: 2 } : proj;
       if (o.swordBurst && fenceStops(u, sk, proj, tg)) { turned.push(fenceStrayAt(tg, p.from)); return fenceDeflect(u, tg, sk.name, p); }
       return shoot(u, tg, p, (n > 1 && o.swordCount) ? (i - (n - 1) / 2) * 18 : 0);
     }));
@@ -7264,7 +7268,9 @@ async function damageSkill(u, t, sk) {
       if (tg.hp <= 0 && pv(u).killSpeed && u.hp > 0) { u.pos = Math.min(TRACK, (u.pos || 0) + pv(u).killSpeed); float(u, 'Shadow Step', 'fx'); }
     }
     render();
-    await wait(o.rampage ? RAMPAGE_GAP : hits > 1 ? 130 : 160);
+    // Emptied Hands' blades were thrown together and land together: no beat between them, or five
+    // blades arriving at once play out as five throws.
+    await wait(o.rampage ? RAMPAGE_GAP : o.swordBurst ? 0 : o.knifeDance ? 40 : hits > 1 ? 130 : 160);
     return r;
   };
   /* RAMPAGE (Blood Frenzy): he throws himself at the one he was sent at, then CUTS BACK AND FORTH
@@ -7337,9 +7343,11 @@ async function damageSkill(u, t, sk) {
       else if (o.grind && melee) { await limbShearGrind(u, tg, () => hitOnce(tg, sk.mult)); continue; }
       // Tooth Breaker: the blow lands as the drill bursts out of their back (drillStab).
       else if (o.drill && melee) { await drillStab(u, tg, () => hitOnce(tg, sk.mult)); continue; }
+      else if (o.knifeDance && melee && trip) await danceStep(u, tg, i, trip);   // Dance of Knives: front, behind, front...
       else if (melee) await strikePose(u, false, sk, 1, tg);
       // Stoop: a blow from the sky that is HER, not a cross — up off the field and down on them (stoopDive).
       else if (o.dive) { if (i === 0) trip = (await stoopDive(u, tg)) || trip; await strikePose(u, false, sk, 1, tg); }
+      else if (o.kiss) await kissHeart(u, tg);   // Kiss of Ruin: the heart floats to them, and bursts as it lands
       else if (o.hurl) await hurlCross(u, tg, i, sk);
       // A wave or a grave-wind does its own traveling (and has no projectile), even onto a single target.
       else if (atOnce && o.swordBurst && fenceStops(u, sk, proj, tg)) continue;   // turned aside by the fence, above
@@ -7360,6 +7368,7 @@ async function damageSkill(u, t, sk) {
       await hitOnce(tg, sk.mult);
     }
   }
+  if (o.knifeDance && trip) await danceEnd(u, targets[0], trip);   // out of the dance in front of them, facing them
   /* A second swing or shot at another enemy, picked at random (Mara's Ricochet, Krug's Reckless
      Swing). A shot ricochets from where the attacker stands; a melee attacker carries himself
      over and swings there, so the blow lands where the enemy actually is. The run home at the
@@ -7389,7 +7398,7 @@ async function damageSkill(u, t, sk) {
       await hitOnce(tg, 0.3);
     }
   }
-  if (o.hurl && !o.dive) settleCrosses(u, t, o.pin && struck.has(t));   // a dive drops no crosses to settle
+  if (o.hurl && !o.dive && !o.kiss) settleCrosses(u, t, o.pin && struck.has(t));   // a dive or a kiss drops no crosses to settle
   for (const [id, turns] of o.selfFx || []) if (u.hp > 0) addFx(u, id, turns);
   if (o.selfStacks) gainStacks(u, o.selfStacks);
   if (o.groundFire) layGroundFire(u, o.groundFire);   // Molotov: the enemy ground is left burning
@@ -9246,6 +9255,9 @@ function boneThrift(z) {
 function removeUnit(u) {
   if (u.summon && u.id === 'zombie') boneThrift(u);   // the Shambler's last gift, however it goes
   if (u.inert) { const o = unitBy(u.owner); if (o) o.planted = false; }   // the cross is back in Mordrek's hand
+  // Whatever is clamped onto it goes with it. Only a death passes fell(), which already does this; a
+  // totem pushed out by a new one, or a summon running out, leaves through here and nowhere else.
+  for (const a of allUnits()) if (a.attach && a.hostUid === u.uid && a !== u) removeAttachment(a, 'host');
   state.teams[u.side] = state.teams[u.side].filter((x) => x !== u);
   document.getElementById(`u-${u.uid}`)?.remove();
   document.getElementById(`tok-${u.uid}`)?.remove();
@@ -9842,7 +9854,20 @@ function chainLinks(a, h) {
   return `<g>${out}</g>`;
 }
 
+/* Gone from under it: the host has left the field, fallen, or gone where nothing can reach it — the
+   coffin, the earth, the cloak, the shadows, a bunker, split into hounds. The Jelly or Anchor drops off
+   with it rather than hang over the empty slot. Knocked into the air is not gone: they come back down. */
+const hostGone = (h) => !h || h.hp <= 0 || inBox(h) || buried(h) || veiled(h) || cloaked(h) || apart(h)
+  || sheltered(h) || bunkered(h) || !!h.shadowMatrix;
+
 function settleAttachments() {
+  for (const a of allUnits()) {
+    if (!a.attach || a.hp <= 0) continue;
+    const host = unitBy(a.hostUid);
+    if (!hostGone(host)) continue;
+    if (host && host.hp > 0) log(`The ${a.name} falls away — ${host.name} is ${goneWhere(host)}.`, a.side);
+    removeAttachment(a, 'host');
+  }
   if (allUnits().some((a) => a.attach === 'anchor' && a.hp > 0)) syncAnchorChains();
   for (const a of allUnits()) {
     if (!a.attach) continue;
@@ -18388,7 +18413,7 @@ function unitCardHTML(u) {
         ${u.maxMp ? '<div class="bar mp"><div class="fill"></div><span></span></div>' : ''}
         ${runsHot(u) && !u.summon ? '<div class="bar heat"><div class="fill"></div><span></span></div>' : ''}
       </div>
-      <div class="body"><div class="upic"><i class="mistfog"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg><svg class="anchors" viewBox="0 0 100 100" aria-hidden="true">${ANCHOR_ART}</svg></div>
+      <div class="body"><div class="upic"><i class="mistfog"></i><i class="weakenfx back"></i>${spriteSVG(artOf(u))}${animImgHTML(u)}<div class="stfx"></div><i class="weakenfx front"></i><i class="blindfx"></i><i class="regenfx"></i><i class="empowerfx"></i><i class="charmfx"></i><i class="hastefx"></i><i class="leakfx"><span class="puddle"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span></i></div><svg class="rites" viewBox="0 0 100 100" aria-hidden="true">${RITES_ART}</svg><svg class="box" viewBox="0 0 100 100" aria-hidden="true">${COFFIN_ART}</svg><svg class="mound" viewBox="0 0 100 100" aria-hidden="true">${MOUND_ART}</svg><svg class="anchors" viewBox="0 0 100 100" aria-hidden="true">${ANCHOR_ART}</svg></div>
     </div>`;
 }
 
@@ -19556,6 +19581,207 @@ async function dashTo(u, targets, pace = 1) {
   const atts = carryRiders(u, from, mid, end, ms, 'ease-in-out', 200);
   await done(anim, ms);
   return { anim, end, mid, fly, atts };
+}
+
+/* KISS OF RUIN (Seraxa): she does not go to them. She blows a kiss from where she hovers, and a great
+   heart floats across the field to the mark — bobbing as it goes and beating like one, a ring of small
+   hearts and kisses wheeling round it and a few shed behind — then bursts over them as the blow lands. */
+const KISS_HEART = `<svg viewBox="0 0 40 36" aria-hidden="true"><defs><radialGradient id="khGrad" cx="35%" cy="30%" r="80%">
+  <stop offset="0" stop-color="#ffd3e8"/><stop offset=".38" stop-color="#ff6bb5"/><stop offset="1" stop-color="#c2185b"/></radialGradient></defs>
+  <path d="M20 34C8 25 1 18 1 10.5 1 5 5 1 10.5 1c4 0 7.5 2.5 9.5 6 2-3.5 5.5-6 9.5-6C35 1 39 5 39 10.5 39 18 32 25 20 34Z" fill="url(#khGrad)" stroke="#15121d" stroke-width="1.4"/>
+  <ellipse cx="11" cy="9" rx="4.2" ry="2.5" fill="#fff" opacity=".75" transform="rotate(-32 11 9)"/></svg>`;
+const KISS_MINI_HEART = `<svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 17C4 12.5.5 9 .5 5.2.5 2.5 2.5.5 5.2.5c2 0 3.8 1.2 4.8 3 1-1.8 2.8-3 4.8-3 2.7 0 4.7 2 4.7 4.7C19.5 9 16 12.5 10 17Z" fill="#ff8ac4" stroke="#15121d" stroke-width="1.1"/></svg>`;
+const KISS_LIPS = `<svg viewBox="0 0 24 15" aria-hidden="true"><path d="M1 6Q5 .5 9 3.5 12 1.5 15 3.5 19 .5 23 6 12 9 1 6Z" fill="#e0245e" stroke="#15121d" stroke-width="1.1"/>
+  <path d="M1 6Q12 9 23 6 18 14 12 14 6 14 1 6Z" fill="#ff4f8b" stroke="#15121d" stroke-width="1.1"/></svg>`;
+const kissMini = (i) => (i % 2 ? KISS_LIPS : KISS_MINI_HEART);
+
+// One small heart or kiss let go at (x, y): it drifts off and fades. dx/dy = which way it goes.
+function kissShed(arena, i, x, y, dx, dy, ms) {
+  const el = document.createElement('i');
+  el.className = 'kh-shed';
+  el.innerHTML = kissMini(i);
+  arena.appendChild(el);
+  const r = (Math.random() - 0.5) * 50;
+  el.animate([
+    { transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(.6) rotate(0deg)`, opacity: 1 },
+    { transform: `translate(${(x + dx).toFixed(1)}px, ${(y + dy).toFixed(1)}px) scale(1) rotate(${r.toFixed(0)}deg)`, opacity: 0 }
+  ], { duration: ms, easing: 'ease-out', fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
+}
+
+async function kissHeart(u, t) {
+  const arena = $('#arena'), a = stageBox(u), b = stageBox(t);
+  if (reduced || !arena || !a || !b) return;
+  const d = facing(u);
+  // The kiss: she leans in toward them and lets it go, flushed pink.
+  pose(u, [{ transform: 'none', filter: 'none' },
+    { transform: `translate(${d * 7}px, -4px) rotate(${d * -6}deg)`, filter: 'brightness(1.25) drop-shadow(0 0 8px #ff6bb5)', offset: 0.45 },
+    { transform: 'none', filter: 'none' }], 560);
+  await sleep(beat(240));
+  const from = { x: a.x + d * a.w * 0.28, y: a.top + a.h * 0.32 }, to = { x: b.x, y: b.top + b.h * 0.42 };
+  const dist = Math.hypot(to.x - from.x, to.y - from.y);
+  const ms = beat(clamp(dist * 2.1, 1100, 1700));
+  // A float, not a throw: a soft rise over the middle of the way, and a bob that fades out at both ends.
+  const at = (k) => {
+    const s = Math.sin(Math.PI * k);
+    return { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k - s * 28 + Math.sin(Math.PI * 4 * k) * 7 * s };
+  };
+  const el = document.createElement('div');
+  el.className = 'kissheart';
+  el.innerHTML = `<div class="kh-ring">${Array.from({ length: 6 }, (_, i) =>
+    `<i style="--a:${i * 60}deg"><b style="--d:${(-i * 0.21).toFixed(2)}s">${kissMini(i)}</b></i>`).join('')}</div><div class="kh-big">${KISS_HEART}</div>`;
+  arena.appendChild(el);
+  const frames = Array.from({ length: 17 }, (_, i) => {
+    const k = i / 16, p = at(k), grow = Math.min(1, 0.25 + k * 6);
+    return { transform: `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) scale(${grow.toFixed(2)})` };
+  });
+  const anim = el.animate(frames, { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+  // A few shed behind it as it goes, drifting down and back the way it came.
+  let n = 0;
+  const shed = setInterval(() => {
+    const k = anim.effect?.getComputedTiming().progress;
+    if (k == null || k > 0.92) return;
+    const p = at(k);
+    kissShed(arena, n++, p.x, p.y, -d * (14 + Math.random() * 18), 18 + Math.random() * 20, beat(700));
+  }, beat(130));
+  await done(anim, ms);
+  clearInterval(shed);
+  // It bursts over them: the big heart swells and goes, and the small ones fly out every way.
+  for (let i = 0; i < 9; i++) {
+    const ang = (i / 9) * Math.PI * 2 + Math.random() * 0.4, r = 34 + Math.random() * 26;
+    kissShed(arena, i, to.x, to.y, Math.cos(ang) * r, Math.sin(ang) * r - 10, beat(650));
+  }
+  el.animate([{ transform: `translate(${to.x}px, ${to.y}px) scale(1)`, opacity: 1 }, { transform: `translate(${to.x}px, ${to.y}px) scale(1.7)`, opacity: 0 }],
+    { duration: beat(260), easing: 'ease-out', fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
+}
+
+/* DANCE OF KNIVES (Seraxa): she does not stand and trade blows. She cuts from in front of the mark, is
+   gone in a flicker of wings and cuts from behind it, then is in front again — every blow from the
+   other side. Two of them are dealt with the wings themselves (wingStrike) rather than the knives.
+   She always ends in front, on the spot the dash left her (danceEnd), so dashBack takes her home the
+   ordinary way. trip.face0 keeps the way she faced the mark from in front. */
+const DANCE_WINGS = new Set([2, 3]);   // which blows of the dance are dealt with the wings, by count
+const DANCE_BLINK = 60;                // ms to vanish, and again to reappear — a flicker, not a fade
+const DANCE_PACE = 0.4;                // each cut at this share of her ordinary swing: it is a dance, not a fight
+const BAT_WING = `<svg viewBox="0 0 120 70" aria-hidden="true"><defs><linearGradient id="sxWingG" x1="0" x2="1">
+  <stop offset="0" stop-color="#7a3d8f"/><stop offset="1" stop-color="#3d1f4a"/></linearGradient></defs>
+  <path d="M4 35 40 6 70 2 118 12Q100 27 104 40 86 38 84 52 68 46 62 64 48 52 30 58 22 44 4 35Z" fill="url(#sxWingG)" stroke="#15121d" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M4 35 70 2M4 35 104 40M4 35 84 52M4 35 62 64" stroke="#e05a9a" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>`;
+
+// Gone, or arrived: a flicker of dark wings and pink sparks where she is.
+function danceFlicker(x, y) {
+  const arena = $('#arena');
+  if (reduced || !arena) return;
+  const el = document.createElement('div');
+  el.className = 'sxFlicker';
+  el.style.cssText = `left:${x.toFixed(1)}px; top:${y.toFixed(1)}px`;
+  el.innerHTML = `<i>${BAT_WING}</i><i>${BAT_WING}</i><b></b><b></b><b></b><b></b>`;
+  arena.appendChild(el);
+  el.addEventListener('animationend', () => el.remove(), { once: true });
+  setTimeout(() => el.remove(), 520);
+}
+
+/* Out of where she is and into `x` (home-relative, like a dash), turned to `face`. Both flickers are
+   placed from the numbers, never by measuring her after the move: a freshly started hold has not taken
+   effect yet, so a stageBox read then finds her somewhere she is not — and the wings appeared there. */
+async function danceBlink(u, x, y, face) {
+  const el = actorEl(u), body = bodyEl(u), me = stageBox(u);
+  if (!el || !body || !me) return;
+  const [cx] = dashXY(getComputedStyle(el).translate), mid = me.top + me.h * 0.5;
+  danceFlicker(me.x, mid);
+  const out = body.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.55)', filter: 'brightness(1.8) drop-shadow(0 0 10px #e05a9a)' }],
+    { duration: beat(DANCE_BLINK), easing: 'ease-in', fill: 'forwards' });
+  await done(out, beat(DANCE_BLINK));
+  const spot = `${x.toFixed(1)}px ${y.toFixed(1)}px`;
+  const hold = el.animate([{ translate: spot }, { translate: spot }], { duration: 1, fill: 'forwards' });
+  if (el._dash && el._dash !== u.danceTrip?.anim) el._dash.cancel();
+  el._dash = hold;
+  u.face = face;
+  render();
+  danceFlicker(me.x - cx + x, mid);
+  out.cancel();
+  const inn = body.animate([{ opacity: 0, transform: 'scale(.55)', filter: 'brightness(1.8) drop-shadow(0 0 10px #e05a9a)' }, { opacity: 1, transform: 'none', filter: 'none' }],
+    { duration: beat(DANCE_BLINK), easing: 'ease-out' });
+  await done(inn, beat(DANCE_BLINK));
+}
+
+// One wing swept through them from the shoulder: up behind her, down and across the mark.
+async function wingStrike(u, tg, dir) {
+  const arena = $('#arena'), a = stageBox(u);
+  if (reduced || !arena || !a) { await sleep(beat(200)); return; }
+  pose(u, [{ transform: 'none' }, { transform: `translateX(${dir * 10}px) rotate(${dir * 14}deg)`, offset: 0.5 }, { transform: 'none' }], 240);
+  const el = document.createElement('div');
+  el.className = 'sxWing';
+  el.innerHTML = BAT_WING;
+  arena.appendChild(el);
+  // Rooted on her upper back and sized to her, so it reads as HER wing: it rises up behind her shoulder
+  // and comes over and down in front of her, close in, rather than reaching out across the field.
+  const sx = a.x - dir * a.w * 0.1, sy = a.top + a.h * 0.32;
+  const at = (r, s) => `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) rotate(${(r * dir).toFixed(0)}deg) scale(${(s * dir).toFixed(2)}, ${s.toFixed(2)})`;
+  const ms = beat(240);
+  el.animate([
+    { transform: at(-120, 0.55), opacity: 0 },
+    { transform: at(-100, 0.72), opacity: 1, offset: 0.15 },
+    { transform: at(18, 0.82), opacity: 1, offset: 0.7 },
+    { transform: at(32, 0.78), opacity: 0 }
+  ], { duration: ms, easing: 'cubic-bezier(.5, 0, .3, 1)', fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
+  await sleep(ms * 0.55);
+}
+
+async function danceStep(u, tg, i, trip) {
+  const me = stageBox(u), b = stageBox(tg), el = actorEl(u);
+  if (reduced || !me || !b || !el) { await strikePose(u, false, null, 1, tg); return; }
+  if (i === 0) { trip.face0 = faceOf(u); u.danceTrip = trip; }
+  const d = facing(u), behind = i % 2 === 1;
+  if (i > 0) {
+    const [ex, ey] = dashXY(trip.end), [cx] = dashXY(getComputedStyle(el).translate);
+    const homeX = me.x - cx, gap = b.w * 0.45 + me.w * 0.3;
+    await danceBlink(u, behind ? b.x + d * gap - homeX : ex, ey, behind ? (360 - trip.face0) % 360 : trip.face0);
+  }
+  const dir = behind ? -d : d;   // the way this blow travels: from her, through the mark
+  if (DANCE_WINGS.has(i)) await wingStrike(u, tg, dir);
+  else await strikePose(u, true, null, DANCE_PACE, tg);
+  bloodSpray(tg, dir);
+}
+
+// A cut that draws real blood: the spray off the body, and drops flung out the far side of the blow
+// (dir = the way it travelled) that arc down and splash on the ground, where they lie a moment.
+function bloodSpray(t, dir, n = 10) {
+  burst(t, 'blood');
+  const arena = $('#arena'), b = stageBox(t);
+  if (reduced || !arena || !b) return;
+  const ox = b.x, oy = b.top + b.h * 0.45;
+  for (let i = 0; i < n; i++) {
+    const ang = (Math.random() - 0.5) * 1.6 - 0.5, sp = 28 + Math.random() * 46;   // a cone, thrown a little upward
+    const dx = dir * Math.cos(ang) * sp, rise = Math.sin(ang) * sp;
+    const land = { x: ox + dx * 1.6, y: b.feet - Math.random() * 8 };
+    const el = document.createElement('i');
+    el.className = 'bloodDrop';
+    const s = 3 + Math.random() * 4;
+    el.style.cssText = `width:${s.toFixed(1)}px; height:${(s * 1.25).toFixed(1)}px`;
+    arena.appendChild(el);
+    const frames = [0, 0.25, 0.5, 0.75, 1].map((k) => {
+      const x = ox + (land.x - ox) * k, y = oy + rise * 2 * k * (1 - k) * 1.6 + (land.y - oy) * k * k;
+      return { transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)` };
+    });
+    el.animate(frames, { duration: beat(380 + Math.random() * 220), easing: 'ease-in', fill: 'forwards' }).finished.catch(() => {}).then(() => {
+      el.remove();
+      const pool = document.createElement('i');
+      pool.className = 'bloodSplat';
+      pool.style.cssText = `left:${land.x.toFixed(1)}px; top:${land.y.toFixed(1)}px; width:${(s * 2.4).toFixed(1)}px; height:${s.toFixed(1)}px`;
+      arena.appendChild(pool);
+      pool.animate([{ opacity: 0.9, scale: 0.4 }, { opacity: 0.9, scale: 1, offset: 0.15 }, { opacity: 0, scale: 1.1 }],
+        { duration: 1100, easing: 'ease-out', fill: 'forwards' }).finished.catch(() => {}).then(() => pool.remove());
+    });
+  }
+}
+
+async function danceEnd(u, tg, trip) {
+  const el = actorEl(u);
+  if (trip.face0 == null || !el) return;
+  const [ex, ey] = dashXY(trip.end), [cx] = dashXY(getComputedStyle(el).translate);
+  if (Math.abs(cx - ex) > 2 && u.hp > 0) await danceBlink(u, ex, ey, trip.face0);
+  else { u.face = trip.face0; render(); }
+  u.danceTrip = null;
 }
 
 /* STOOP (Seraxa): the falcon's dive the skill is named for. dashTo's flyer swoops in a low arc,
@@ -21579,7 +21805,7 @@ async function shoot(u, t, p, spread) {
      like the plain sling prices out below 1.25 on the curve alone and would otherwise have come out
      of this change flying faster than it did before. */
   const arcHang = p.lift ? clamp(Math.sqrt(lift / 140), 1.25, 2.2) : 1;
-  const ms = beat(p.wander ? clamp(dist * 1.1, 520, 860) : p.arc ? clamp(dist * 0.6, 240, 400) * arcHang : clamp(dist * 0.4, 120, 260));
+  const ms = beat((p.wander ? clamp(dist * 1.1, 520, 860) : p.arc ? clamp(dist * 0.6, 240, 400) * arcHang : clamp(dist * 0.4, 120, 260)) * (p.flight || 1));
   const deg = (dx, dy) => Math.atan2(dy, dx) * 180 / Math.PI;
   const ang = p.upright ? 0 : deg(to.x - from.x, to.y - from.y);
   const at = (x, y, r) => `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r.toFixed(1)}deg)`;
@@ -22269,6 +22495,7 @@ function renderBattle() {
     el.classList.toggle('blinded', !!has(u, 'blind') && u.hp > 0);
     el.classList.toggle('mending', !!has(u, 'regen') && u.hp > 0);
     el.classList.toggle('empowered', !!has(u, 'empower') && u.hp > 0);
+    el.classList.toggle('weakened', !!has(u, 'weaken') && u.hp > 0);
     el.classList.toggle('charmed', !!has(u, 'immune') && u.hp > 0);
     el.classList.toggle('hastened', !!has(u, 'haste') && u.hp > 0);
     el.classList.toggle('leaking', !!has(u, 'leak') && u.hp > 0);
